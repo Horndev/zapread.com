@@ -1,3 +1,6 @@
 [submodule "OwinOAuthProviders"]
 	path = OwinOAuthProviders
 	url = https://github.com/Horndev/OwinOAuthProviders.git
+[submodule "LndLib.NET"]
+	path = LndLib.NET
+	url = https://github.com/Horndev/LndLib.NET.git
