@@ -1,0 +1,3 @@
+[submodule "OwinOAuthProviders"]
+	path = OwinOAuthProviders
+	url = https://github.com/Horndev/OwinOAuthProviders.git
