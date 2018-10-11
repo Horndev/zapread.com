@@ -19,7 +19,7 @@ namespace zapread.com.Tests.Controllers
             HomeController controller = new HomeController();
 
             // Act
-            ViewResult result = controller.Index() as ViewResult;
+            ViewResult result = controller.Index(sort: "Score").Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -46,6 +46,45 @@ namespace zapread.com.Tests.Controllers
 
             // Act
             ViewResult result = controller.Contact() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void FAQ()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
+
+            // Act
+            ViewResult result = controller.FAQ() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void Feedback()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
+
+            // Act
+            ViewResult result = controller.Feedback() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void FeedbackSuccess()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
+
+            // Act
+            ViewResult result = controller.FeedbackSuccess() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
