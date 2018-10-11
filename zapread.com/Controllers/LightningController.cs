@@ -45,12 +45,20 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Provide a new LN invoice with given parameters
+        /// </summary>
+        /// <param name="amount">number in Satoshi</param>
+        /// <param name="memo">encoded in invoice</param>
+        /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult GetDepositInvoice(string amount, string memo, string anon)
         {
             bool isAnon = !(anon == null || anon != "1");
             if (!isAnon && !User.Identity.IsAuthenticated)
             {
+                // This is a user-related invoice, and no user is logged in.
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
 
@@ -84,7 +92,6 @@ namespace zapread.com.Controllers
             };
 
             //Create transaction record (not settled)
-
             using (ZapContext db = new ZapContext())
             {
                 // TODO: ensure user exists?
@@ -112,7 +119,6 @@ namespace zapread.com.Controllers
             }
 
             // If a listener is not already running, this should start
-
             // Check if there is one already online.
             var numListeners = lndTransactionListeners.Count(kvp => kvp.Value.IsLive);
 
@@ -120,15 +126,20 @@ namespace zapread.com.Controllers
             if (numListeners < 1)
             {
                 var listener = lndClient.GetListener();
-                lndTransactionListeners.TryAdd(listener.ListenerId, listener);           //keep alive while we wait for payment
-                listener.InvoicePaid += NotifyClientsInvoicePaid;     //handle payment message
-                listener.StreamLost += OnListenerLost;                  //stream lost
-                var a = new Task(() => listener.Start());                   //listen for payment
+                lndTransactionListeners.TryAdd(listener.ListenerId, listener);           // keep alive while we wait for payment
+                listener.InvoicePaid += NotifyClientsInvoicePaid;                        // handle payment message
+                listener.StreamLost += OnListenerLost;                                   // stream lost
+                var a = new Task(() => listener.Start());                                // listen for payment
                 a.Start();
             }
+
             return Json(resp);
         }
 
+        /// <summary>
+        /// If the connection to LND is closed, this is triggered.  Remove our reference to the listener object for the stream.
+        /// </summary>
+        /// <param name="l"></param>
         private static void OnListenerLost(TransactionListener l)
         {
             lndTransactionListeners.TryRemove(l.ListenerId, out TransactionListener oldListener);
@@ -137,64 +148,75 @@ namespace zapread.com.Controllers
         // We have received asynchronous notification that a lightning invoice has been paid
         private static void NotifyClientsInvoicePaid(Invoice invoice)
         {
+            // Check if the invoice received was paid.  LND also sends updates 
+            // for new invoices to the invoice stream.  We want to listen for settled invoices here.
+            if (!invoice.settled)
+            {
+                // Optional - add some logic to check invoices on the stream.  These invoices
+                // which are not settled are likely new deposit requests.  For the purposes of
+                // this function, we only care about settled invoices.
+                return;
+            }
             var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
 
-            //Save in db
+            // Update LN transaction status in db
             using (ZapContext db = new ZapContext())
             {
-                //check if unsettled transaction exists
+                // Check if unsettled transaction exists in db matching the invoice that was just settled.
                 var tx = db.LightningTransactions
                     .Include(tr => tr.User)
                     .Where(tr => tr.PaymentRequest == invoice.payment_request)
                     .ToList();
-                if (invoice.settled)
-                {
-                    DateTime settletime = DateTime.UtcNow;
-
-                    LNTransaction t;
-                    if (tx.Count > 0)
-                    {
-                        t = tx.First();
-                        t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
-                        t.IsSettled = true;
-                    }
-                    else
-                    {
-                        // This invoice is not related to this service.
-                        settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
-                        t = new LNTransaction()
-                        {
-                            IsSettled = invoice.settled,
-                            Memo = invoice.memo,
-                            Amount = Convert.ToInt64(invoice.value),
-                            HashStr = invoice.r_hash,
-                            IsDeposit = true,
-                            TimestampSettled = settletime,
-                            TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date)),
-                            PaymentRequest = invoice.payment_request,
-                            User = null,
-                        };
-                        db.LightningTransactions.Add(t);
-                    }
-
-                    var user = t.User;
-                    double userBalance = 0.0;
-
-                    if (user == null)
-                    {
-
-                    }
-                    else
-                    {
-                        user.Funds.Balance += Convert.ToInt64(invoice.value);
-                        userBalance = Math.Floor(user.Funds.Balance);
-                    }
-                    t.IsSettled = invoice.settled;
-                    db.SaveChanges();
-
-                    context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
-                }
                 
+                DateTime settletime = DateTime.UtcNow;
+                LNTransaction t;
+                if (tx.Count > 0)
+                {
+                    // We found it - mark it as settled.
+                    t = tx.First();
+                    t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
+                    t.IsSettled = true;
+                }
+                else
+                {
+                    // This invoice is not in the db - it may not be related to this service.  
+                    // We still record it in our database for any possible user forensics/history later.
+                    settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
+                    t = new LNTransaction()
+                    {
+                        IsSettled = invoice.settled,
+                        Memo = invoice.memo,
+                        Amount = Convert.ToInt64(invoice.value),
+                        HashStr = invoice.r_hash,
+                        IsDeposit = true,
+                        TimestampSettled = settletime,
+                        TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date)),
+                        PaymentRequest = invoice.payment_request,
+                        User = null,
+                    };
+                    db.LightningTransactions.Add(t);
+                }
+
+                var user = t.User;
+                double userBalance = 0.0;
+
+                if (user == null)
+                {
+                    // this should not happen? - verify.  Maybe this is the case for transactions related to votes?
+                    // throw new Exception("Error accessing user information related to settled LN Transaction.");
+                }
+                else
+                {
+                    // Update user balance - this is a deposit.
+                    user.Funds.Balance += Convert.ToInt64(invoice.value);
+                    userBalance = Math.Floor(user.Funds.Balance);
+                }
+
+                t.IsSettled = invoice.settled;
+                db.SaveChanges();
+
+                // Send live signal to listening clients on websockets/SignalR
+                context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
             }
         }
 
