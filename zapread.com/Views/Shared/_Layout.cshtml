@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Social media, networking, and publishing where users earn Bitcoin over the Lightning Network.">
+    <meta name="keywords" content="Bitcoin, Lightning Network, Social Media, Cryptocurrency, Lightning">
+    <title>@ViewBag.Title</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+    <link href="@Url.Content("~/node_modules/jquery-ui-dist/jquery-ui.min.css")" rel="stylesheet" type="text/css" />
+
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/font-awesome/css")
+    @Styles.Render("~/Content/style/textspinners")
+    @Styles.Render("~/plugins/summernoteStyles")
+    @Styles.Render("~/Content/style/jssocials")
+    @RenderSection("Styles", required: false)
+</head>
+<body class="top-navigation gray-bg">
+
+    @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
+    <!-- Wrapper-->
+    <!-- PageClass give you ability to specify custom style for specific view based on action -->
+    <div id="wrapper" class="@Html.PageClass()">
+
+        <!-- Page wraper -->
+        <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
+
+            <!-- Top Navbar -->
+            @Html.Partial("_TopNavbar")
+
+            @if (User.IsInRole("Administrator"))
+            {
+                Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
+            }
+
+            <!-- Main view  -->
+            @RenderBody()
+            <div class="small-chat-box fadeInRight animated">
+                <div class="heading" draggable="true">
+                    Feedback
+                </div>
+                <div class="content">
+                    Please provide your comments and suggestions.
+                </div>
+                <div class="form-chat">
+                    <div class="input-group input-group-sm">
+                        <textarea id="feedbackText" rows="2" class="form-control"></textarea>
+                    </div>
+                    <br />
+                    <div class="form-group pull-right">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary btn-outline" type="button" onclick="dofeedback()">
+                                Send
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="small-chat">
+                <a class="open-small-chat">
+                    <i class="fa fa-comments" style="color:white;"></i>
+                </a>
+            </div>
+            <!-- Footer -->
+            @Html.Partial("_Footer")
+        </div>
+        <!-- End page wrapper-->
+    </div>
+    <!-- End wrapper-->
+    <!-- Section for main scripts render -->
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jquery-unobtrusive")
+    @Scripts.Render("~/bundles/plugins/jquery-ui")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/plugins/slimScroll")
+    @Scripts.Render("~/plugins/summernote")
+    @Scripts.Render("~/bundles/sweetalert")
+    @Scripts.Render("~/bundles/jssocials")
+
+    <!-- Handler for local scripts -->
+    @RenderSection("scripts", required: false)
+    @Html.RenderPartialViewScripts()
+
+    <script src="~/Scripts/jquery.signalR-2.3.0.min.js"></script>
+    <script src="~/Scripts/read-more.js"></script>
+    <script src="~/signalr/hubs"></script>
+    @Scripts.Render("~/bundles/DetailPost")
+
+    <script type="text/javascript">
+        
+        $(document).ready(function () {
+            $(".sharing").each(function () {
+                $(this).jsSocials({
+                    url: $(this).data('url'),
+                    text: $(this).data('sharetext'),
+                    showLabel: false,
+                    shareIn: "popup",
+                    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                });
+                $(this).removeClass("sharing");
+            });
+
+            var urla = $("#unreadAlerts").data("url");
+            $("#unreadAlerts").load(urla);
+
+            var urlm = $("#unreadMessages").data("url");
+            $("#unreadMessages").load(urlm);
+
+            // This hides the bottom parts of posts (for flow)
+            $('.read-more').readMore({
+                readMoreLinkClass: "read-more__link",
+                readMoreText: "Read more",
+                readLessText: "Read less",
+                readMoreHeight: 800
+            });
+
+            @if (Request.IsAuthenticated)
+            {
+                <text>
+                $.get("/Account/GetBalance", function(data, status) {
+                    $(".userBalanceValue").each(function (i, e) {
+                        $(e).html(data.balance);
+                    });
+                });
+                // Textarea autoexpand
+                jQuery.each(jQuery('textarea[data-autoresize]'), function () {
+                    var offset = this.offsetHeight - this.clientHeight;
+                    var resizeTextarea = function (el) {
+                        jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+                    };
+                    jQuery(this).on('keyup input', function () { resizeTextarea(this); }).removeAttr('data-autoresize');
+                });
+                </text>
+            }
+
+            // This loads all async partial views on page
+            $(".partialContents").each(function (index, item) {
+                var url = $(item).data("url");
+                if (url && url.length > 0) {
+                    $(item).load(url);
+                }
+            });
+
+            // Open close small chat
+            $('.open-small-chat').on('click', function () {
+                $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
+                $('.small-chat-box').toggleClass('active');
+            });
+
+            // TODO: This needs to be smarter per-user.
+            $.ajax({
+                url: '/Comment/GetUserMentions',
+                async: false
+            }).then(function (data) {
+                window.usermentions = data;
+                // console.log(data);
+            });
+
+            $(".c_input").summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                focus: false,
+                placeholder: 'Write comment...',
+                disableDragAndDrop: false,
+                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                minHeight: 60,
+                maxHeight: 300,
+                hint: {
+                    match: /\B@@(\w*)$/,
+                    search: function (keyword, callback) {
+                        callback($.grep(usermentions, function (item) {
+                            return item.indexOf(keyword) == 0;
+                        }));
+                    },
+                    content: function (item) {
+                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                    }
+                }
+            });
+
+            $('.c_input').each(function (i, e) {
+                $(e).removeClass("c_input");
+            });
+
+            $(".note-statusbar").css("display", "none");
+        });
+
+        var stickyPost = function (id) {
+            alert('Not yet implemented.');
+        };
+
+        var nsfwPost = function (id) {
+            $.ajax({
+                type: "POST",
+                url: "/Post/ToggleNSFW",
+                data: JSON.stringify({ "id":id}),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    if (result.Result == "Success") {
+                        alert("Post successfully toggled NSFW.");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("fail");
+                }
+            });
+        };
+
+        var showNSFW = function (id) {
+            $("#nsfw_" + id).hide();
+            $("#nsfwb_" + id).hide();
+        };
+
+        var deleteComment = function (id) {
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this comment!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.post("@Url.Action("DeleteComment",
+                    "Comment")",
+                    { "Id": id },
+                    function (data) {
+                        if (data.Success) {
+                            $('#comment_' + id.toString()).hide();
+                            swal("Deleted! Your comment has been deleted.", {
+                                icon: "success",
+                            });
+                        }
+                        else {
+                            swal("Error", "Error deleting comment.", "error");
+                        }
+                    });
+
+                } else {
+                    console.log("cancelled delete");
+                }
+            });
+        };
+
+        var deletePost = function (id) {
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this post!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.post("@Url.Action("DeletePost",
+                    "Post")",
+                    { "PostId": id },
+                    function (data) {
+                        if (data.Success) {
+                            $('#post_' + id.toString()).hide();
+                            swal("Deleted! Your post has been deleted.", {
+                                icon: "success",
+                            });
+                        }
+                        else {
+                            swal("Error", "Error deleting post.", "error");
+                        }
+                    });
+                } else {
+                    console.log("cancelled delete");
+                }
+            });
+        };
+
+        // For submitting comments (TODO: move this to own file)
+        var isCommenting = false;
+
+        var submitCommentA = function (postId, commentId, isReply) {
+            if (!isCommenting) {
+                var action = "/Comment/AddComment";
+                var dataval = '';
+                var commentElement = '';
+                var dataString = '';
+                if (isReply) {
+                    $('#sc_' + commentId.toString()).children('.ibox-content').addClass('sk-loading');
+                    commentElement = '#cr_input_' + commentId.toString();
+                    dataval = $(commentElement).summernote('code');
+                    dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
+                    $('#csr_' + commentId.toString()).show();
+                    $('#bcr_' + commentId.toString()).prop('disabled', true);
+                }
+                else {
+                    $('#pc_' + postId.toString()).children('.ibox-content').addClass('sk-loading');
+                    commentElement = '#c_input_' + postId.toString();
+                    dataval = $(commentElement).summernote('code');
+                    dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
+                    $('#cs_' + postId.toString()).show();
+                    $('#bc_' + postId.toString()).prop('disabled', true);
+                }
+                console.log(dataval.toString());
+                console.log(dataString);
+                contentType = "application/json; charset=utf-8";
+                processData = false;
+                isCommenting = true;
+                
+                $.ajax({
+                    type: "POST",
+                    url: action,
+                    data: dataString,
+                    dataType: "json",
+                    contentType: contentType,
+                    success: function (result) {
+                        isCommenting = false;
+                        onAjaxCommentSuccessA(result);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var isCommenting = false;
+                        alert("fail");
+                    }
+                });
+            }
+            return false;
+        };
+
+        var onAjaxCommentSuccessA = function (result) {
+            $('#cs_' + result.PostId.toString()).hide();
+            $('#csr_' + result.CommentId.toString()).hide();
+            $('#bc_' + result.PostId.toString()).prop('disabled', false);
+            $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
+            $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
+            $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
+            if (!result.Success) {
+                alert("Error commenting.");
+            } else if (result.Success) {
+                if (result.IsReply) {
+                    $('#cr_input_' + result.CommentId.toString()).summernote('reset');
+                    $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
+                    $('#cr_input_' + result.CommentId.toString()).hide();
+                    $('#c_reply_' + result.CommentId.toString()).remove();
+                    $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
+                }
+                else {
+                    $('#c_input_' + result.PostId.toString()).summernote('reset');
+                    $("#comments_" + result.PostId.toString()).append(result.HTMLString);
+                }
+                $('.postTime').each(function (i, e) {
+                    var time = moment.utc($(e).html()).local().calendar();
+                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                    $(e).html('<span>' + time + ' - ' + date + '</span>');
+                    $(e).removeClass("postTime");
+                });
+            }
+        };
+
+        var dofeedback = function () {
+            var msg = $('#feedbackText').val();
+            var feebackLocation = window.location.href;
+            $.ajax({
+                url: "/Home/SendFeedback",
+                type: "POST",
+                dataType: "json",
+                data: { msg: msg, loc: feebackLocation },
+                success: function (data) {
+                    alert('Feedback successfully sent.  Thank you!');
+                }
+            });
+
+            $('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
+            $('.small-chat-box').toggleClass('active');
+        };
+
+        var OkButton = function (context) {
+            var ui = $.summernote.ui;
+
+            // create button
+            var button = ui.button({
+                contents: '<i class="fa fa-save"/> Save',
+                tooltip: false,
+                click: function () {
+                    var e = "#commentText_" + editingId.toString();
+                    context.invoke('destroy');
+                    var content = $(e).html();
+                    var msg = { "CommentContent": content.trim(), "CommentId": editingId };
+                    console.log(msg);
+                    $.post("@Url.Action("UpdateComment",
+                        "Comment")", 
+                        msg,
+                        function (data) {
+                            if (data.Success) {
+                                console.log('update comment successful.');
+                            }
+                            else {
+                                alert("Error updating comment");
+                            }
+                    });
+                    isEditing = false;
+                }
+            });
+            return button.render();   // return button as jquery object
+        };
+
+        var CancelButton = function (context) {
+            var ui = $.summernote.ui;
+
+            // create button
+            var button = ui.button({
+                contents: '<i class="fa fa-times"/> Cancel',
+                tooltip: false,//'hello',
+                click: function () {
+                    //need to reset text - fetch from db
+                    context.invoke('reset');
+                    // This returns the editor to normal state
+                    context.invoke('destroy');
+                    isEditing = false;
+                }
+            });
+            return button.render();   // return button as jquery object
+        };
+
+        var editingId = -1;
+        var isEditing = false;
+        var editComment = function (id) {
+            if (!isEditing) {
+                console.log("edit " + id.toString());
+                var e = "#commentText_" + id.toString();
+                editingId = id;
+                $(e).summernote({
+                    focus: true,
+                    disableDragAndDrop: true,
+                    toolbar: [
+                        ['okbutton', ['ok']],
+                        ['cancelbutton', ['cancel']],
+                        'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'
+                    ],
+                    buttons: {
+                        ok: OkButton,
+                        cancel: CancelButton
+                    },
+                    height: 100,
+                    hint: {
+                        match: /\B@@(\w*)$/,
+                        search: function (keyword, callback) {
+                            callback($.grep(usermentions, function (item) {
+                                return item.indexOf(keyword) == 0;
+                            }));
+                        },
+                        content: function (item) {
+                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                        }
+                    }
+                });
+                isEditing = true;
+            }
+            else {
+                alert("You can only edit one comment at a time.  Save or Cancel your editing.");
+            }
+        };
+
+        var replyComment = function (id) {
+            $('#c_reply_' + id.toString()).load('@Url.Action("GetInputBox", "Comment")' + "/" + id.toString(), function () {
+                $(".c_input").summernote({
+                    callbacks: {
+                        onImageUpload: function (files) {
+                            that = $(this);
+                            sendFile(files[0], that);
+                        }
+                    },
+                    focus: false,
+                    placeholder: 'Write comment...',
+                    disableDragAndDrop: true,
+                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+                    minHeight: 60,
+                    maxHeight: 300,
+                    hint: {
+                        match: /\B@@(\w*)$/,
+                        search: function (keyword, callback) {
+                            callback($.grep(usermentions, function (item) {
+                                return item.indexOf(keyword) == 0;
+                            }));
+                        },
+                        content: function (item) {
+                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                        }
+                    }
+                });
+                $(".note-statusbar").css("display", "none");
+            });
+        };
+
+        function sendFile(file, that) {
+            var data = new FormData();
+            data.append('file', file);
+            console.log("Uploading File.");
+            $("#progressUploadBar").css("width", "0%");
+            $("#progressUpload").show();
+            $.ajax({
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            $("#progressUploadBar").css("width", percentComplete.toString() + "%");
+                            if (percentComplete === 100) {
+                                $("#progressUploadBar").css("width", "100%");
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
+                data: data,
+                type: 'POST',
+                url: '/Img/UploadImage',
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    $("#progressUpload").hide();
+                    $(that).summernote('insertImage', '/Img/Content/' + result.imgId, function (i) {
+                        // Applied to img tag
+                        i.attr('class', 'img-fluid');
+                    });
+
+                },
+                error: function (data) {
+                    $("#progressUpload").hide();
+                    console.log(data);
+                    alert(JSON.stringify(data));
+                }
+            });
+        }
+    </script>
+</body>
+</html>

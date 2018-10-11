@@ -1,0 +1,86 @@
+﻿@model zapread.com.Models.FinancialViewModel
+
+<h3>Lightning Network Activity</h3>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.Transactions)
+        {
+            <tr>
+                <td><span class="eventTime text-muted">@t.Timestamp.ToString("o")</span></td>
+                <td>@t.Type</td>
+                <td>@t.Value</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Spending Activity</h3>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.Spendings)
+        {
+            <tr>
+                <td><span class="eventTime text-muted">@t.TimeStamp.ToString("o")</span></td>
+                <td>@t.Value</td>
+                <td>@t.Link</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Earning Activity</h3>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.Earnings)
+        {
+            <tr>
+                <td><span class="eventTime text-muted">@t.TimeStamp.ToString("o")</span></td>
+                <td>@t.Type</td>
+                <td>@t.Value</td>
+                <td>@t.ItemId</td> @*TODO: replace with link*@
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@*@section Scripts {
+    @Scripts.Render("~/plugins/moment")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            
+            // This formats the timestamps on the page
+            $('.eventTime').each(function (i, e) {
+                var time = moment.utc($(e).html()).local().calendar();
+                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                $(e).html('<span>' + time + ' - ' + date + '</span>');
+            });
+        });
+        
+    </script>
+}*@

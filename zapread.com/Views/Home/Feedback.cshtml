@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "Feedback";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>User Feedback</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Feedback</li>
+        </ol>
+        <small></small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-lg-8">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Contact and Feedback Form</h5>
+            </div>
+            <div class="ibox-content">
+                @using (Html.BeginForm("SendMail", "Home",
+                        new { },
+                        FormMethod.Post,
+                        new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("Destination", "Feedback")
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            @Html.TextBox(name: "Name", value: "",
+                            htmlAttributes: new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Email (optional)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Email">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Subject (optional)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Subject">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Message</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="5" id="message" name="Body"></textarea>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-2">
+                            <button class="btn btn-primary btn-outline" type="submit">Submit</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

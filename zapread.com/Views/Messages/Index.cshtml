@@ -1,0 +1,194 @@
+﻿@model zapread.com.Models.MessagesViewModel
+
+@{
+    ViewBag.Title = "Messages";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Messages</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active"><a>Messages</a></li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Messages</h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <h3><i class="fa fa-envelope-o"></i> New messages</h3>
+                    <small><i class="fa fa-tim"></i> You have @Model.Messages.Count() new messages.</small>
+                </div>
+                <div class="ibox-content">
+                    <div class="feed-activity-list">
+                        @foreach (var m in Model.Messages)
+                        {
+                            <div id ="m_@m.Id" class="feed-element">
+                                <div>
+                                    <span class="pull-right">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(0, @m.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
+                                    </span>
+                                    <span class="pull-right text-navy">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(0, @m.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
+                                    </span>
+                                    <span class="pull-right">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-info" onclick="ignore(0, @m.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
+                                    </span>
+                                    <strong>@Html.Raw(m.Title)</strong>
+                                    <div>
+                                        @if (m.PostLink != null)
+                                        {
+                                            <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = m.PostLink.PostId})">@m.PostLink.PostTitle</a>
+                                            
+                                        }
+                                    </div>
+                                    <div>
+                                        @Html.Raw(m.Content)
+                                    </div>
+                                    <small class="postTime text-muted">@m.TimeStamp.Value.ToString("o")</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Alerts</h5>
+                </div>
+                <div class="ibox-content ibox-heading">
+                    <h3><i class="fa fa-bell"></i> New Alerts</h3>
+                    <small><i class="fa fa-tim"></i> You have @Model.Alerts.Count() new alerts.</small>
+                </div>
+                <div class="ibox-content">
+                    <div class="feed-activity-list">
+                        @foreach (var a in Model.Alerts)
+                        {
+                            <div id ="a_@a.Id" class="feed-element">
+                                <div>
+                                    <span class="pull-right">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(1, @a.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
+                                    </span>
+                                    <span class="pull-right text-navy">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(1, @a.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
+                                    </span>
+                                    <span class="pull-right">
+                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-info" onclick="ignore(1, @a.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
+                                    </span>
+
+                                    <strong>@Html.Raw(a.Title)</strong>
+                                    <div>
+                                        @if (a.PostLink != null)
+                                        {
+                                            <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = a.PostLink.PostId})">@a.PostLink.PostTitle</a>
+                                            
+                                        }
+                                    </div>
+                                    <div>
+                                        @Html.Raw(a.Content)
+                                    </div>
+
+                                    <small class="postTime text-muted">@a.TimeStamp.Value.ToString("o")</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/moment")
+<script type="text/javascript">
+    var dismiss = function (t, id) {
+        var url = "";
+        if (t == 1) {
+            url = "/Messages/DismissAlert";
+        }
+        else if (t == 0) {
+            url = "/Messages/DismissMessage";
+        }
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify({ "id": id }),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                if (result.Result == "Success") {
+                    // Hide post
+                    if (t == 1) {
+                        $('#a_' + id).hide();
+                    }
+                    else {
+                        $('#m_' + id).hide();
+                    }
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("fail");
+            }
+        });
+        return false;
+    };
+
+    var deletea = function (t, id) {
+        var url = "";
+        if (t == 1) {
+            url = "/Messages/DeleteAlert";
+        }
+        else if (t == 0) {
+            url = "/Messages/DeleteMessage";
+        }
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify({ "id": id }),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                if (result.Result == "Success") {
+                    if (t == 1) {
+                        $('#a_' + id).hide();
+                    }
+                    else {
+                        $('#m_' + id).hide();
+                    }
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("fail");
+            }
+        });
+        return false;
+    };
+
+    var ignore = function (t, id) {
+        if (t == 1) {
+            $('#a_' + id).hide();
+        }
+        else if (t == 0) {
+            $('#m_' + id).hide();
+        }
+        return false;
+    };
+</script>
+}

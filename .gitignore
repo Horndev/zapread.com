@@ -34,3 +34,6 @@ packages/
 /zapread.com/database.config
 /zapread.com/Scripts/summernote/
 /zapread.com/AppSettings.config
+/zapread.com/Properties/PublishProfiles/Default Settings.pubxml
+/zapread.com/Properties/PublishProfiles/Zapread - Web Deploy.pubxml
+/zapread.com/Parameters.xml

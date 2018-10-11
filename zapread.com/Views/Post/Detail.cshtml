@@ -1,0 +1,52 @@
+﻿@model zapread.com.Models.Post
+
+@{
+    ViewBag.Title = Model.PostTitle;
+}
+
+@Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>@Model.PostTitle</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Posts</a></li>
+            <li class="breadcrumb-item active">Detail</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-lg-8">
+            @Html.Partial(partialViewName: "_PartialPostRender", model: Model)
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/moment")
+
+    <script type="text/javascript">
+        var ub = 100;//
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+
+        $(document).ready(function () {
+            // make height unrestricted
+            $('.scroll_content').css({ "max-height": "" });
+        });
+    </script>
+}

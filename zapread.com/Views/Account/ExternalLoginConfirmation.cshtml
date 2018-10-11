@@ -1,0 +1,59 @@
+﻿@model zapread.com.Models.ExternalLoginConfirmationViewModel
+@{
+    ViewBag.Title = "Register";
+}
+<h2>@ViewBag.Title.</h2>
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Associate your @ViewBag.LoginProvider account.</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Account</a></li>
+            <li class="breadcrumb-item active">External Log in</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="ibox-content">
+                <p>
+                    You've successfully authenticated with <strong>@ViewBag.LoginProvider</strong>.
+                    Please enter a user name for this site below and click the Register button to finish
+                    logging in.
+                </p>
+                <section id="loginForm">
+                    @using (Html.BeginForm("ExternalLoginConfirmation", "Account", 
+                        new { ReturnUrl = ViewBag.ReturnUrl }, 
+                        FormMethod.Post, 
+                        new { @class = "m-t", role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Username" })
+                            @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b">Register</button>
+                    }
+                </section>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

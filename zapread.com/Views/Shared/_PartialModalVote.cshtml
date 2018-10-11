@@ -1,0 +1,477 @@
+﻿@{
+    var url = string.Format(
+        "/Img/QR?qr={0}",
+        @Uri.EscapeDataString("03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735"));
+}
+
+<div class="modal fade" id="voteModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="voteModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voteModalTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> Pay </span>
+                                        <input type="number" id="voteValueAmount" placeholder="Amount" class="form-control font-bold" aria-label="Amount">
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-5 text-right">
+                                        <span> Balance </span>
+                                        <h2 class="font-bold"><span id="userVoteBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="fa fa-bolt fa-5x"></i>
+                                    </div>
+                                </div>
+                                <h2 class="font-bold"><span id="payAmount" style="display:none"></span></h2>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+
+                            <div class="input-group mb-3" id="depositMemoValue">
+
+                            </div>
+                        </div>
+
+                        <img id="voteDepositQR" src="~/Content/FFFFFF-0.png" class="img-fluid" />
+                        
+
+                        <div class="input-group mb-3" id="voteDepositInvoice" style="display:none">
+                            <div class="input-group-prepend">
+                                <a href="lightning:xxx" id="lnDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
+                            </div>
+                            <input type="text" id="voteDepositInvoiceInput" class="form-control" placeholder="invoice" aria-label="invoice" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="voteDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <!-- Small modal -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".vote-modal"><i class="fa fa-qrcode"></i></button>
+
+                                <div class="modal fade vote-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <img src="@url" class="img-fluid" />
+                                            <br />
+                                            <textarea class="form-control" value="" readonly="readonly" rows="3">03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-info" id="voteDepositInvoiceFooter">
+                        Click vote to confirm.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="voteOkButton" type="button" class="btn btn-primary">Vote</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+
+    var userVote = { id: 0, d: 0, t: 0, amount: 1, tx: 0, b: 0 }
+    var userTip = { username: "", amount: 1 }
+    var isTip = false;
+
+     $(document).ready(function () {
+         var userdefaultvote = '1';
+         $('#payAmount').html(userdefaultvote);
+         $('#voteValueAmount').val(userdefaultvote);
+
+         // If user is anonymous, there is no balance, and the user must vote using a lightning payment
+         //$('#userBalance').html('0');
+         //$(".userBalanceValue").each(function (i, e) {
+         //    $(e).html("0");
+         //});
+
+         var userBalance = userVote.b;
+         $.get("/Account/GetBalance", function (data, status) {
+             $('#userVoteBalance').html(data.balance);
+             userBalance = parseFloat(data.balance);
+             $(".userBalanceValue").each(function (i, e) {
+                 $(e).html(data.balance);
+             });
+         });
+
+         // If the user is logged in, then only show deposit if payment is greater than balance
+         $('#userVoteBalance').html(userBalance);
+         $.ajax({
+             type: "POST",
+             url: "/Account/UserBalance",
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             success: function (response) {
+                 ub = response.balance;
+                 $('#userVoteBalance').html(response.balance);
+                 userVote.b = ub;
+             },
+             failure: function (response) {
+                 //alert("failure " + JSON.stringify(response));
+             },
+             error: function (response) {
+                 //alert("error " + JSON.stringify(response));
+             }
+         });
+
+         // If the user updates the amount
+         $('#voteValueAmount').on('input', function () {
+             amt = $(this).val()
+             // $('#payAmount').html(amt);
+             userVote.amount = amt;
+             userTip.amount = amt;
+
+             if (userVote.amount > userVote.b) {
+                 $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
+                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                 $("#voteDepositInvoiceFooter").addClass("bg-info");
+                 $("#voteOkButton").html('Get Invoice');
+             }
+             else {
+                 if (isTip) {
+                     $('#voteDepositInvoiceFooter').html("Click tip to confirm.");
+                     $("#voteOkButton").html('Tip');
+                 }
+                 else {
+                     $('#voteDepositInvoiceFooter').html("Click vote to confirm.");
+                     $("#voteOkButton").html('Vote');
+                 }
+                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                 $("#voteDepositInvoiceFooter").addClass("bg-info");
+                 
+             }
+         });
+
+     });
+
+     // This function is called when a user clicks the button to either pay with balance or invoice
+     $(function () {
+         $("#voteOkButton").click(function () {
+             var userBalance = userVote.b;
+
+             if (isTip) {
+                 if (userVote.amount > userBalance) {
+                     // User must pay via LN.  Request an invoice for payment
+                     var isanon = '1';
+                     if (IsAuthenticated) {
+                         isanon = '0';
+                     }
+
+                     var memo = 'ZapRead.com ' + $('#voteModalTitle').html();
+                     var msg = '{ amount: "' + userVote.amount.toString() + '", memo: "' + memo + '", anon: "' + isanon + '" }';
+
+                     //console.log(msg);
+                     updateVoteInvoice(msg);
+                 }
+                 else {
+                     // Note that vote tx is zero since it is not tied to an LN transaction
+                     doTip(userVote.id, userVote.amount, null);
+                     //doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
+                 }
+                 //alert('Sorry.  Tipping is not yet implemented.');
+             }
+             else {
+                 // Check that the user vote is actually valid
+                 if (userVote.id > 0) {
+                     if (userVote.amount > userBalance) {
+                         // User must pay via LN.  Request an invoice for payment
+                         var isanon = '1';
+                         if (IsAuthenticated) {
+                             isanon = '0';
+                         }
+
+                         var memo = 'ZapRead.com vote post ID: ' + userVote.id;
+                         var msg = '{ amount: "' + userVote.amount.toString() + '", memo: "' + memo + '", anon: "' + isanon + '" }';
+
+                         updateVoteInvoice(msg);
+                     }
+                     else {
+                         // Note that vote tx is zero since it is not tied to an LN transaction
+                         doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
+                     }
+                 }
+             }
+         });
+     });
+
+     var updateVoteInvoice = function (msg) {
+         $.ajax({
+             type: "POST",
+             url: "/Lightning/GetDepositInvoice",
+             data: msg,
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             success: function (response) {
+                 $("#voteDepositInvoiceInput").val(response.Invoice);
+                 $("#voteDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
+
+                 $("#voteDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+                 $("#lnDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
+                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                 $("#voteDepositInvoiceFooter").addClass("bg-info");
+                 $("#voteDepositInvoiceFooter").html("Please pay invoice.");
+                 $("#voteDepositInvoiceFooter").show();
+                 $("#voteDepositQR").show();
+                 $("#voteDepositInvoice").show();
+                 //$('#voteModalTitle').html('Vote');
+                 $('#voteModal').modal('show');
+             },
+             failure: function (response) {
+                 //alert("failure " + JSON.stringify(response));
+                 $("#voteDepositInvoiceFooter").html("Failed to generate invoice");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                 $("#voteDepositInvoiceFooter").addClass("bg-error");
+                 $("#voteDepositInvoiceFooter").show();
+             },
+             error: function (response) {
+                 //alert("error " + JSON.stringify(response));
+                 $("#voteDepositInvoiceFooter").html("Error generating invoice");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                 $("#voteDepositInvoiceFooter").removeClass("bg-info");
+                 $("#voteDepositInvoiceFooter").addClass("bg-error");
+                 $("#voteDepositInvoiceFooter").show();
+             }
+         });
+     };
+
+     /* Functions to handle lightning payment */
+     // Deposit modal copy invoice to clipboard
+     $(function () {
+         $("#lightningDepositInvoiceCopy").click(function () {
+             $("#lightningDepositInvoiceInput").focus();
+             $("#lightningDepositInvoiceInput").select();
+             try {
+                 var successful = document.execCommand('copy');
+                 var msg = successful ? 'successful' : 'unsuccessful';
+                 console.log('Copying text command was ' + msg);
+                 $("#lightningDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
+             } catch (err) {
+                 console.log('Oops, unable to copy');
+             }
+         });
+     });
+
+     // Vote modal copy invoice to clipboard
+     $(function () {
+         $("#voteDepositInvoiceCopy").click(function () {
+             $("#voteDepositInvoiceInput").focus();
+             $("#voteDepositInvoiceInput").select();
+             try {
+                 var successful = document.execCommand('copy');
+                 var msg = successful ? 'successful' : 'unsuccessful';
+                 console.log('Copying text command was ' + msg);
+                 $("#voteDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
+             } catch (err) {
+                 console.log('Oops, unable to copy');
+             }
+         });
+     });
+
+    // User tip
+    // user = name of user
+    // uid = id of user
+    var tip = function (user, uid) {
+        isTip = true;
+        $('#voteModalTitle').html("Tip " + user);
+        $.get("/Account/GetBalance", function (data, status) {
+            $('#userVoteBalance').html(data.balance);
+            userBalance = parseFloat(data.balance);
+            $(".userBalanceValue").each(function (i, e) {
+                $(e).html(data.balance);
+            });
+            userVote.id = uid;
+
+            /* This is done here prior to showing */
+            if (userVote.amount > userBalance) {
+                $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
+                $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                $("#voteDepositInvoiceFooter").addClass("bg-info");
+                $("#voteOkButton").html('Get Invoice');
+            }
+            else {
+                $('#voteDepositInvoiceFooter').html("Click tip to confirm.");
+                $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                $("#voteDepositInvoiceFooter").addClass("bg-info");
+                $("#voteOkButton").html('Tip');
+            }
+
+            /* Prepare vote modal without an invoice, and show it.*/
+            $("#voteDepositQR").hide();
+            $("#voteDepositInvoice").hide();
+            $('#voteModal').modal('show');
+        });
+    };
+
+    var doTip = function (id, amount, tx) {
+        // id : the user receiving the tip
+        // amount : the amount of the tip
+        // tx : txid if the tip is anonymous
+
+        var data = JSON.stringify({ 'id': id, 'amount': parseInt(amount), 'tx': tx });
+        var url = '/Manage/TipUser';
+        console.log(data);
+        $.ajax({
+            data: data.toString(),
+            type: 'POST',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Result == "Success") {
+                    
+                    $('#voteModal').modal('hide');
+
+                    // Update user balance displays
+                    $.get("/Account/GetBalance", function (data, status) {
+                        $(".userBalanceValue").each(function (i, e) {
+                            $(e).html(data.balance);
+                        });
+                    });
+                }
+                else {
+                    $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                    $("#voteDepositInvoiceFooter").removeClass("bg-info");
+                    $("#voteDepositInvoiceFooter").addClass("bg-error");
+                    $("#voteDepositInvoiceFooter").html(Result.Message);
+                    $("#voteDepositInvoiceFooter").show();
+                }
+            }
+        });
+        isTip = false;
+    };
+
+    // User pressed vote button
+    // - Use modal dialog to set amount and handle LN transactions if needed
+    var vote = function (id, d, t, b) {
+        // id : the identifier for the item being voted on
+        // d  : the direction of the vote
+        // t  : the type of item voted on.  (2 = comment)
+        isTip = false;
+        var userBalance = 0;
+        var voteCost = parseInt($('#voteValueAmount').val());
+        $('#voteModalTitle').html("Vote");
+
+        $.get("/Account/GetBalance", function (data, status) {
+            $('#userVoteBalance').html(data.balance);
+            userBalance = parseFloat(data.balance);
+            userVote.b = ub;
+            $(".userBalanceValue").each(function (i, e) {
+                $(e).html(data.balance);
+            });
+        
+            /* Configure vote parameters */
+            userVote.id = id;
+            userVote.d = d;
+            userVote.t = t;
+            userVote.b = ub;
+            userVote.amount = voteCost;
+        
+            /* This is done here prior to showing */
+            if (userVote.amount > userBalance) {
+                $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
+                $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                $("#voteDepositInvoiceFooter").addClass("bg-info");
+                $("#voteOkButton").html('Get Invoice');
+            }
+            else {
+                $('#voteDepositInvoiceFooter').html("Click vote to confirm.");
+                $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                $("#voteDepositInvoiceFooter").removeClass("bg-error");
+                $("#voteDepositInvoiceFooter").addClass("bg-info");
+                $("#voteOkButton").html('Vote');
+            }
+
+            /* Prepare vote modal without an invoice, and show it.*/
+            $("#voteDepositQR").hide();
+            $("#voteDepositInvoice").hide();
+            $('#voteModal').modal('show');
+        });
+    };
+
+    var doVote = function (id, d, t, amount, tx) {
+        // id : the identifier for the item being voted on
+        // d  : the direction of the vote
+        // t  : the type of item voted on.  (2 = comment)
+        // amount : the size of the vote
+        var val = Number($('#sVote_' + id.toString()).html());
+        var data = JSON.stringify({ 'Id': id, 'd': d, 'a': amount, 'tx': tx });
+        var voteurl = '/Vote/Post';
+        var uid = '#uVote_';    // element for up arrow
+        var did = '#dVote_';
+        var sid = '#sVote_';    // element for score
+
+        if (t == 2) {
+            voteurl = '/Vote/Comment';
+            uid = '#uVotec_';
+            did = '#dVotec_';
+            sid = '#sVotec_';
+        }
+
+        // Do vote
+        $.ajax({
+            data: data.toString(),
+            type: 'POST',
+            url: voteurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    del = Number(response.delta);
+                    if (del == 1) {
+                        $(uid + id.toString()).removeClass("text-muted");
+                        $(did + id.toString()).addClass("text-muted");
+                    }
+                    else if (del == 0) {
+                        $(uid + id.toString()).addClass("text-muted");
+                        $(did + id.toString()).addClass("text-muted");
+                    }
+                    else {
+                        $(did + id.toString()).removeClass("text-muted");
+                        $(uid + id.toString()).addClass("text-muted");
+                    }
+                    val = Number(response.score);
+                    $(sid + id.toString()).html(val.toString());
+                    $('#voteModal').modal('hide');
+
+                    // Update user balance displays
+                    $.get("/Account/GetBalance", function (data, status) {
+                        $(".userBalanceValue").each(function (i, e) {
+                            $(e).html(data.balance);
+                        });
+                    });
+                }
+                else {
+                    $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                    $("#voteDepositInvoiceFooter").removeClass("bg-info");
+                    $("#voteDepositInvoiceFooter").addClass("bg-error");
+                    $("#voteDepositInvoiceFooter").html(result.message);
+                    $("#voteDepositInvoiceFooter").show();
+                }
+            }
+        });
+    }
+
+</script>
+)

@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Frequently Asked Questions</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">FAQ</li>
+        </ol>
+        <small></small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInUp">
+
+    <div class="ibox-content m-b-sm border-bottom">
+        <div class="text-center p-lg">
+            <h2>If you don't find the answer to your question</h2>
+            <a href="@Url.Action("Feedback", "Home")" class="btn btn-primary btn-sm"><i class="fa fa-question-circle"></i> <span class="bold">Ask a question</span></a>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="row">
+            <div class="col-md-7">
+                <a data-toggle="collapse" href="#faq1" class="faq-question">How do you earn money on Zapread.com?</a>
+            </div>
+            <div class="col-md-3">
+                @*<span class="small font-bold">Tagged</span>*@
+                <div class="tag-list">
+                    <span class="tag-item">General</span>
+                    <span class="tag-item">Finance</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="faq1" class="panel-collapse collapse faq-answer">
+                    <p>
+                        There are many ways to earn money on Zapread.  Everything is earned in the form of Bitcoin.  Go to <a href="https://www.bitcoin.org">https://www.bitcoin.org</a> for more information on Bitcoin.
+                    </p>
+                    <ol>
+                        <li><b>Posts:</b> For every post you make, other users can pay to support your post, or to bury your post.  If your post is supported 60% of the funds go to you, the creator.  20% goes to the group where the post was made, 10% goes to all Zapread users, and 10% goes to Zapread.</li>
+                        <li><b>Comments:</b> Similar to posts, for every comment you make, 60% goes to you, 20% goes to the post author, 10% goes to the community, and 10% goes to Zapread.</li>
+                        <li><b>Groups:</b> Groups collect funds from votes on posts within the group.  These funds are distributed to the authors of posts within the group.  More recent posts, and posts with higher scores are more likely to receive a higher portion of the distribution.  This rewards and incentivizes frequent quality authors within the group.</li>
+                        <li><b>Community:</b> All users on Zapread can receive community payments.  Each post you make has a chance to receive community payments.  More recent posts, and posts with higher scores are more likely to receive community payments.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="row">
+            <div class="col-md-7">
+                <a data-toggle="collapse" href="#faq2" class="faq-question">What are Groups?</a>
+            </div>
+            <div class="col-md-3">
+                @*<span class="small font-bold">Tagged</span>*@
+                <div class="tag-list">
+                    <span class="tag-item">Groups</span>
+                    <span class="tag-item">Community</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="faq2" class="panel-collapse collapse faq-answer">
+                    <p>
+                        Groups are small communities of interest on Zapread.com.  Groups have unique administrators and moderators.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="row">
+            <div class="col-md-7">
+                <a data-toggle="collapse" href="#faq3" class="faq-question">How often is income distributed to users??</a>
+            </div>
+            <div class="col-md-3">
+                @*<span class="small font-bold">Tagged</span>*@
+                <div class="tag-list">
+                    <span class="tag-item">Finance</span>
+                    <span class="tag-item">Income</span>
+                    <span class="tag-item">Groups</span>
+                    <span class="tag-item">Community</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="faq3" class="panel-collapse collapse faq-answer">
+                    <p>
+                        Income from both groups and community are distributed daily.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="row">
+            <div class="col-md-7">
+                <a data-toggle="collapse" href="#faq4" class="faq-question">Is money earned on Zapread.com taxable income?</a>
+            </div>
+            <div class="col-md-3">
+                @*<span class="small font-bold">Tagged</span>*@
+                <div class="tag-list">
+                    <span class="tag-item">Finance</span>
+                    <span class="tag-item">Tax</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="faq4" class="panel-collapse collapse faq-answer">
+                    <p>
+                        In most countries, yes.  You are responsible to report any earnings as prescribed by your local laws.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+

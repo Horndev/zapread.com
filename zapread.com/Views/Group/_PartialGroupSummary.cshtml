@@ -1,0 +1,72 @@
+﻿@model zapread.com.Models.GroupInfo
+<tr>
+    <td class="project-status">
+        <div class="forum-icon">
+            <i class="fa @Model.Icon"></i>
+        </div>
+    </td>
+    <td class="project-title">
+        <a href="@Url.Action("GroupDetail", "Group", new { id = Model.Id })">@Model.Name</a>
+        <br />
+        <small>Created @Model.CreatedddMMMYYYY</small>
+    </td>
+    <td class="project-title">
+        @foreach (var t in Model.Tags)
+        {
+            <span class="badge badge-light">@t</span>
+        }
+                
+        @*<span class="badge badge-light">Development</span>
+        <span class="badge badge-light">Cryptocurrency</span>
+        <span class="badge badge-light">Lightning</span>*@
+        <br />
+        <small>Tags</small>
+    </td>
+    <td class="project-completion">
+        <small class="d-none d-md-block">Progress to next tier</small>
+        <div class="progress progress-mini d-none d-md-block">
+            <div style="width: @Model.Progress%;" class="progress-bar"></div>
+        </div>
+    </td>
+    <td class="project-people">
+        <span class="views-number d-none d-sm-block">
+            @Model.Level
+        </span>
+        <div class="d-none d-sm-block">
+            <small>Tier</small>
+        </div>
+    </td>
+    <td class="project-people">
+        <a href="@Url.Action("Members", "Group", new { id = Model.Id })" class="btn btn-link">
+            <span class="views-number d-none d-sm-block" id="group_membercount_@Model.Id">
+                @Model.NumMembers
+            </span>
+            <div class="d-none d-sm-block">
+                <small>Members</small>
+            </div>
+        </a>
+    </td>
+    <td class="project-people">
+        <span class="views-number d-none d-sm-block">
+            @Model.NumPosts
+        </span>
+        <div class="d-none d-sm-block">
+            <small>Posts</small>
+        </div>
+    </td>
+    <td class="project-actions">
+        @if (!@Model.IsLoggedIn)
+        {
+            <button class="btn btn-primary btn-sm" disabled><i class="fa fa-user-plus"></i> Join </button>
+        }
+        else if (@Model.IsMember)
+        {
+            <a href="javascript:void(0);" id="j_@Model.Id" onclick="leave(@Model.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+        }
+        else
+        {
+            <a href="javascript:void(0);" id="j_@Model.Id" onclick="join(@Model.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
+        }
+                
+    </td>
+</tr>

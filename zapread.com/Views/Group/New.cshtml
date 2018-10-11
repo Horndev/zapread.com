@@ -1,0 +1,136 @@
+﻿@model zapread.com.Models.NewGroupViewModel
+
+@{
+    ViewBag.Title = "New";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Groups</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Groups</a></li>
+            <li class="breadcrumb-item active">New</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Create a new group</h5>
+                </div>
+                <div class="ibox-content">
+                    @using (Html.BeginForm("New", "Group",
+                        new { ReturnUrl = ViewBag.ReturnUrl },
+                        FormMethod.Post,
+                        new { @class = "form-horizontal", role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.GroupName, new { @class = "col-sm-2 control-label" })
+                            <div class="col-sm-10">
+                                @Html.TextBoxFor(m => m.GroupName, "", new { @class = "form-control", placeholder = "Group Name" })
+                                @Html.ValidationMessageFor(m => m.GroupName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Tags, new { @class = "col-sm-2 control-label" })
+                            <div class="col-sm-10">
+                                @Html.TextBoxFor(m => m.Tags, "", new { @class = "form-control", placeholder = "Tags", id="multisel" })
+                                @*<input id="multisel" type="text" class="form-control">*@
+                                <small id="multiselHelp" class="form-text text-muted">Tags help people search and filter groups.</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Icon</label>
+                            <div class="col-sm-10">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        @Html.DropDownListFor(m => m.Icon,
+                                            Model.Icons.Select(x => new SelectListItem() { Text = x, Value = x}), 
+                                            new { @class = "repositories", id= "select-icon"})
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <small id="multiselHelp" class="form-text text-muted">Icons are a visual cue to help users identify the group.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-2">
+                                <button class="btn btn-white" type="submit">Cancel</button>
+                                <button class="btn btn-primary" type="submit">Create Group</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/Content/plugins/selectize")
+    @*@Styles.Render("~/Content/plugins/materialize")*@
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/selectize")
+    @*@Scripts.Render("~/plugins/materialize")*@
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('#select-icon').selectize({
+                labelField: 'name',
+                searchField: 'name',
+                create: false,
+                render: {
+                    option: function (item, escape) {
+                        return '<div>' +
+                            '<span class="title">' +
+                            '<i class="fa fa-2x fa-' + escape(item.name) + '"></i>'/* + ' ' + escape(item.name) + '</span>'*/
+                        '</div>';
+                    },
+                    item: function (item, escape) {
+                        return '<div>' +
+                            '<span class="title">' +
+                            '<i class="fa fa-3x fa-' + escape(item.name) + '"></i>'
+                            '</div>';
+                        }
+                    }
+            });
+
+            $('#multisel').selectize({
+                plugins: ['restore_on_backspace', 'remove_button'],
+                delimiter: ',',
+                persist: false,
+                create: function (input) {
+                    return {
+                        value: input,
+                        text: input
+                    }
+                },
+                render: {
+                    option: function (data, escape) {
+                        
+                        return '<div class="option" style="color: #fff;background-color:#1ab394;">' + escape(data.text) + '</div>';
+                    },
+                    item: function (data, escape) {
+                        return '<div class="item" style="color: #fff;background-color:#1ab394;">' + escape(data.text) + '</div>';
+                    }
+                }
+            });
+
+        });
+
+</script>
+}

@@ -1,0 +1,52 @@
+﻿@model zapread.com.Models.GroupAdminTagsViewModel
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <div class="col-sm-10">
+                <input class="form-control" data-val="true" data-val-length="Too many tags.  Maximum 256 characters allowed." data-val-length-max="256" id="tagsel" name="Tags" placeholder="Tags" type="text" value="@Model.Tags" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tagsel').selectize({
+            plugins: ['restore_on_backspace', 'remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: function (input) {
+                return {
+                    value: input,
+                    text: input
+                }
+            },
+            render: {
+                option: function (data, escape) {
+
+                    return '<div class="option" style="color: #fff;background-color:#1ab394;">' + escape(data.text) + '</div>';
+                },
+                item: function (data, escape) {
+                    return '<div class="item" style="color: #fff;background-color:#1ab394;">' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    });
+
+    $('#GroupTagSaveChanges').click(function () {
+        var gid = @Model.GroupId;
+        var tags = $('#tagsel').val();
+        $.ajax({
+            url: "/Group/UpdateGrouptags",
+            type: "POST",
+            dataType: "json",
+            data: {groupId: gid, tags: tags},
+            success: function (data) {
+                alert('Update successful.');
+                $('#GAdminEditTagModal').modal('hide');
+            }
+        });
+    });
+</script>
+)

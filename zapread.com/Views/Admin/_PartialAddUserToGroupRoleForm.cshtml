@@ -1,0 +1,91 @@
+﻿@model zapread.com.Models.AddUserToGroupRoleModel
+
+<div class="form-group">
+    <div class="input-group mb-3">
+        <input id="User" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="basic-addon2" style="margin-bottom:5px">
+        <div class="input-group-append">
+            <button id="UserSelect" class="btn btn-outline-secondary" type="button" onclick="userGo()">Fetch</button>
+        </div>
+    </div>
+</div>
+
+<div id="UserGroupRoles" style="display:none">
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="UserGroupAdministator">
+        <label class="form-check-label" for="defaultCheck1">
+            Administrator
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="UserGroupModerator">
+        <label class="form-check-label" for="defaultCheck1">
+            Moderator
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="UserGroupMember">
+        <label class="form-check-label" for="defaultCheck1">
+            Member
+        </label>
+    </div>
+    <br />
+    <div class="form-group">
+        <button id="UserUpdate" class="btn btn-outline-secondary" type="button" onclick="userUpdate()">Update</button>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+    var userGo = function () {
+        $('#UserGroupRoles').show();
+    };
+    var userUpdate = function () {
+        // Only works if user is admin
+        var uname = $("#User").val();
+        var gname = "@Model.GroupName";
+        var isAdmin = $('#UserGroupAdministrator').is(":checked");
+        var data = { group: gname, user: uname, isAdmin: $('#UserGroupAdministator').is(":checked"), isMod: $('#UserGroupModerator').is(":checked"), isMember: $('#UserGroupMember').is(":checked") };
+        $.ajax({
+            url: "/Admin/UpdateUserGroupRoles",
+            type: "POST",
+            dataType: "json",
+            data: data,
+            success: function (data) {
+                alert('Update successful.');
+            }
+        });
+    };
+
+    $(document).ready(function () {
+        $("#User").autocomplete({
+                autoFocus: true,
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/Admin/GetUsers",
+                        type: "POST",
+                        dataType: "json",
+                        data: { prefix: request.term },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { label: item, value: item };
+                            }))
+                        }
+                    })
+                },
+                change: function (event, ui) {
+                    $.ajax({
+                        url: "/Admin/GetUserGroupRoles",
+                        type: "POST",
+                        dataType: "json",
+                        data: { group: "@Model.GroupName", user: $("#User").val() },
+                        success: function (data) {
+                            $('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
+                            $('#UserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
+                            $('#UserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
+                        }
+                    })
+                }
+            });
+    });
+</script>
+)

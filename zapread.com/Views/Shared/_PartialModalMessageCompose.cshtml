@@ -1,0 +1,96 @@
+﻿
+
+<div class="modal fade" id="messageComposeModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="messageModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Send Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*<div class="card ">
+                    <div class="card-body">
+                        Not yet implemented*@
+                        <div class="m_input wrapper p-md" id="message_input"></div>
+                    @*</div>
+                    <div class="card-footer bg-muted" id="messageComposeModalFooter">
+                    </div>
+                </div>*@
+            </div>
+            <div class="modal-footer">
+                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@ViewBag.UserId);">Send</button>
+                <button id="btnMessageSave" type="button" class="btn btn-secondary" disabled>Save Draft</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".m_input").summernote({
+            callbacks: {
+                onImageUpload: function (files) {
+                    that = $(this);
+                    sendFile(files[0], that);
+                }
+            },
+            focus: false,
+            placeholder: 'Write message...',
+            disableDragAndDrop: false,
+            toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+            minHeight: 100,
+            maxHeight: 600,
+            hint: {
+                match: /\B@@(\w*)$/,
+                search: function (keyword, callback) {
+                    callback($.grep(usermentions, function (item) {
+                        return item.indexOf(keyword) == 0;
+                    }));
+                },
+                content: function (item) {
+                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                }
+            }
+        });
+    });
+
+    var sendMessage = function (id) {
+        var dataString;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var action = "/Messages/SendMessage";
+        var contentType = "application/json; charset=utf-8";
+        var dataval = '';
+        var dataString = '';
+        var messageElement = '#message_input';
+        dataval = $(messageElement).summernote('code');
+        dataString = JSON.stringify({ id: id, content: dataval });
+        console.log(dataString);
+        $.ajax({
+            type: "POST",
+            url: action,
+            data: dataString,
+            dataType: "json",
+            contentType: contentType,
+            success: function (result) {
+                if (result.Result === "Success") {
+                    $('#messageComposeModal').modal('hide');
+                }
+                else {
+                    alert('Error sending message');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("fail");
+            }
+        });
+
+    }
+
+</script>
+)

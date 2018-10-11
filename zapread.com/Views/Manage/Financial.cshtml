@@ -1,0 +1,457 @@
+﻿@model zapread.com.Models.UserViewModel
+
+@{
+    ViewBag.Title = "User Financial";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Financial</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Manage</a></li>
+            <li class="breadcrumb-item active">Financial</li>
+        </ol>
+        <small>User financial information</small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="ibox float-e-margins">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Lightning Network Transactions</h5>
+                    <div class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="">
+                                    <div class="btn-group">
+                                        <button id="ln1" type="button" class="btn btn-sm btn-white" onclick="LNSummary(1, this)">Daily</button>
+                                        <button id="ln7" type="button" class="btn btn-sm btn-white active" onclick="LNSummary(7, this)">Weekly</button>
+                                        <button id="ln30" type="button" class="btn btn-sm btn-white" onclick="LNSummary(30, this)">Monthly</button>
+                                        <button id="ln365" type="button" class="btn btn-sm btn-white" onclick="LNSummary(365, this)">Annual</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> Net Flow </span>
+                                        <h2 class="font-bold"><span id="lightningFlowBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-5 text-right">
+                                        <span> Balance </span>
+                                        <h2 class="font-bold"><span class="userBalanceValue" id="userVoteBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="fa fa-bolt fa-5x"></i>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-6 text-right">
+                                        <span></span>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <a href="" class="btn btn-primary btn-outline" data-toggle="modal" data-target="#depositModal">Deposit / Withdraw</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>LN Transaction History</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li>
+                                <a href="#">Download as CSV</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content no-padding">
+                    <table id="lightningTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Earning Summary</h5>
+                    <div class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="">
+                                    <div class="btn-group">
+                                        <button id="e1" type="button" class="btn btn-sm btn-white" onclick="ESummary(1, this)">Daily</button>
+                                        <button id="e7" type="button" class="btn btn-sm btn-white active" onclick="ESummary(7, this)">Weekly</button>
+                                        <button id="e30" type="button" class="btn btn-sm btn-white" onclick="ESummary(30, this)">Monthly</button>
+                                        <button id="e365" type="button" class="btn btn-sm btn-white" onclick="ESummary(365, this)">Annual</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> Earnings </span>
+                                        <h2 class="font-bold"><span id="weeklyEarningsBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-5 text-right">
+                                        <span> Total Earned </span>
+                                        <h2 class="font-bold"><span id="totalEarningsBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="fa fa-arrow-up fa-5x" style="color:#0d901e;"></i>
+                                    </div>
+                                </div>
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Earning Events</h5>
+                    <div class="ibox-tools">
+
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content no-padding">
+                    <table id="earningTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Spending Summary</h5>
+                    <div class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li>
+                                <a href="#">Config option 1</a>
+                            </li>
+                            <li>
+                                <a href="#">Config option 2</a>
+                            </li>
+                        </ul>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="">
+                                    <div class="btn-group">
+                                        <button id="s1" type="button" class="btn btn-sm btn-white" onclick="SSummary(1, this)">Daily</button>
+                                        <button id="s7" type="button" class="btn btn-sm btn-white active" onclick="SSummary(7, this)">Weekly</button>
+                                        <button id="s30" type="button" class="btn btn-sm btn-white" onclick="SSummary(30, this)">Monthly</button>
+                                        <button id="s365" type="button" class="btn btn-sm btn-white" onclick="SSummary(365, this)">Annual</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span> Spending </span>
+                                        <h2 class="font-bold"><span id="weeklySpendingBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-5 text-right">
+                                        <span> Total Spent </span>
+                                        <h2 class="font-bold"><span id="totalSpendingBalance">0</span> </h2>
+                                        <small class="text-muted">Satoshi</small>
+                                    </div>
+                                    <div class="col-2">
+                                        <i class="fa fa-cart-arrow-down fa-5x" style="color:#9a8200;"></i>
+                                    </div>
+                                </div>
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Spending History</h5>
+                    <div class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li>
+                                <a href="#">Config option 1</a>
+                            </li>
+                            <li>
+                                <a href="#">Config option 2</a>
+                            </li>
+                        </ul>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content no-padding">
+                    <table id="spendingTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/css/datatables")
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/moment")
+    @Scripts.Render("~/bundles/datatables")
+
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
+
+    <script type="text/javascript">
+        var lightningTable = {};
+
+        $(document).ready(function () {
+
+            $.get("/Account/GetLNFlow/7", function (data, status) {
+                $("#lightningFlowBalance").html(data.value);
+            });
+
+            $.get("/Account/GetEarningsSum/7", function (data, status) {
+                $("#weeklyEarningsBalance").html(data.value);
+                $("#totalEarningsBalance").html(data.total);
+            });
+
+            $.get("/Account/GetSpendingSum/7", function (data, status) {
+                $("#weeklySpendingBalance").html(data.value);
+                $("#totalSpendingBalance").html(data.total);
+            });
+
+            lightningTable = $('#lightningTable').DataTable({
+                "searching": false,
+                //"bInfo": false,
+                "lengthChange": false,
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+                "ajax": {
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "/Manage/GetLNTransactions",
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                "columns": [
+                    { "data": "Time", "orderable": true },
+                    { "data": "Type", "orderable": false },
+                    { "data": "Amount", "orderable": false },
+                ],
+            });
+
+            $('#earningTable').DataTable({
+                "searching": false,
+                //"bInfo": false,
+                "lengthChange": false,
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+                "ajax": {
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "/Manage/GetEarningEvents",
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                "columns": [
+                    { "data": "Time", "orderable": true },
+                    { "data": "Type", "orderable": false },
+                    { "data": "Amount", "orderable": false },
+                ],
+            });
+
+            $('#spendingTable').DataTable({
+                "searching": false,
+                //"bInfo": false,
+                "lengthChange": false,
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                "sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+                "ajax": {
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "/Manage/GetSpendingEvents",
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                "columns": [
+                    { "data": "Time", "orderable": true },
+                    {
+                        "data": null,//"Type",
+                        "orderable": false,
+                        "mRender": function (data, type, row) {
+                            return "<a href='" + data.URL + "'>" + data.Type + "</a>";
+                        }
+                    },
+                    { "data": "Amount", "orderable": false },
+                ],
+            });
+
+            // Collapse ibox function
+            $('.collapse-link').on('click', function () {
+                var ibox = $(this).closest('div.ibox');
+                var button = $(this).find('i');
+                var content = ibox.children('.ibox-content');
+                content.slideToggle(200);
+                button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+                ibox.toggleClass('').toggleClass('border-bottom');
+                setTimeout(function () {
+                    ibox.resize();
+                    ibox.find('[id^=map-]').resize();
+                }, 50);
+            });
+
+            // Close ibox function
+            $('.close-link').on('click', function () {
+                var content = $(this).closest('div.ibox');
+                content.remove();
+            });
+        });
+
+        var LNSummary = function (days) {
+            console.log(days, event);
+            var a = event.target;
+
+            $('#ln1').removeClass('active');
+            $('#ln7').removeClass('active');
+            $('#ln30').removeClass('active');
+            $('#ln365').removeClass('active');
+            $(a).addClass('active');
+
+            $.get("/Account/GetLNFlow/"+days.toString(), function (data, status) {
+                $("#lightningFlowBalance").html(data.value);
+            });
+        };
+
+        var ESummary = function (days) {
+            console.log(days, event);
+            var a = event.target;
+
+            $('#e1').removeClass('active');
+            $('#e7').removeClass('active');
+            $('#e30').removeClass('active');
+            $('#e365').removeClass('active');
+            $(a).addClass('active');
+
+            $.get("/Account/GetEarningsSum/" + days.toString(), function (data, status) {
+                $("#weeklyEarningsBalance").html(data.value);
+                $("#totalEarningsBalance").html(data.total);
+            });
+        };
+
+        var SSummary = function (days) {
+            console.log(days, event);
+            var a = event.target;
+
+            $('#s1').removeClass('active');
+            $('#s7').removeClass('active');
+            $('#s30').removeClass('active');
+            $('#s365').removeClass('active');
+            $(a).addClass('active');
+
+            $.get("/Account/GetSpendingSum/" + days.toString(), function (data, status) {
+                $("#weeklySpendingBalance").html(data.value);
+                $("#totalSpendingBalance").html(data.total);
+            });
+        };
+
+    </script>
+}

@@ -1,0 +1,213 @@
+﻿@model zapread.com.Models.GroupsViewModel
+
+@{
+    ViewBag.Title = "Groups";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Groups</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Groups</a></li>
+            <li class="breadcrumb-item active">List</li>
+        </ol>
+        @*<small>Read popular content from across Zapread.com</small>*@
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInUp">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <div class="pull-right forum-desc">
+                        <samll>Total posts: @Model.TotalPosts</samll>
+                    </div>
+                    <h3>Top Groups</h3>
+                    <div class="ibox-tools">
+                        <a href="/Group/New" class="btn btn-primary btn-xs">Create new group</a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="input-group mb-3">
+                        <input id="groupSearch" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button id="searchGo" class="btn btn-primary btn-outline" type="button" onclick="go()">Go!</button>
+                        </div>
+                    </div>
+                    <div class="project-list">
+                        <table id="groupTable" class="table table-hover">
+                            <tbody>
+                                @foreach (var g in Model.Groups)
+                                {
+                                    @Html.Partial(partialViewName: "_PartialGroupSummary", model: g)
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/Content/plugins/selectize")
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/moment")
+    @Scripts.Render("~/plugins/selectize")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#groupSearch').selectize({
+                valueField: 'Id',
+                labelField: 'Name',
+                searchField: ['Name', 'Tags'],
+                create: false,
+                options: [],
+                maxItems: 1,
+                render: {
+                    option: function (item, escape) {
+                        //alert(JSON.stringify(item));
+                        var actors = [];
+                        //for (var i = 0, n = item.abridged_cast.length; i < n; i++) {
+                        //    actors.push('<span>' + escape(item.abridged_cast[i].name) + '</span>');
+                        //}
+                        //console.log(JSON.stringify(item));
+                        //console.log(item.Icon);
+
+                        var tagstr = '';
+                        item.Tags.forEach(function (t,ix) {
+                            tagstr = tagstr + '<span class="badge badge-light">'+t+'</span>&nbsp;';
+                        });
+
+                        var str = '<div class="forum-item">' +
+                            '<div class="row">' +
+                            '<div class="col-1"></div>' +
+                            '<div class="col">' +
+                            '<i class="fa fa-' + item.Icon + '"></i>' +
+                            '</div>' +
+                            '<div class="col text-left">' +
+                            '<span class="forum-item-title">' + item.Name + '</span>' +
+                            '</div>' +
+                            '<div class="col text-left">' +
+                            tagstr +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                        //console.log(str);
+                        return str;
+
+                        return '<div>' +
+                            '<span class="title">' +
+                            '<span class="name">' + escape(item.Name) + '</span>' +
+                            '</span>' +
+                            '</div>';
+                    },
+                    item: function (item, escape) {
+                        //alert(JSON.stringify(item));
+                        return '<div>' +
+                            '<span class="title">' +
+                            escape(item.Name) +
+                        '</div>';
+                    }
+                },
+                load: function (query, callback) {
+                    if (!query.length) return callback();
+                    //alert(JSON.stringify(query));
+                    $.ajax({
+                        url: '/Group/Search',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: { searchstr: JSON.stringify(query) },
+                        error: function () {
+                            callback();
+                        },
+                        success: function (res) {
+                            console.log(JSON.stringify(res.groups));
+                            callback(res.groups);
+                        }
+                    });
+                }
+            });
+
+            // Collapse ibox function
+            $('.collapse-link').on('click', function () {
+                var ibox = $(this).closest('div.ibox');
+                var button = $(this).find('i');
+                var content = ibox.children('.ibox-content');
+                content.slideToggle(200);
+                button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+                ibox.toggleClass('').toggleClass('border-bottom');
+                setTimeout(function () {
+                    ibox.resize();
+                    ibox.find('[id^=map-]').resize();
+                }, 50);
+            });
+
+            // Close ibox function
+            $('.close-link').on('click', function () {
+                var content = $(this).closest('div.ibox');
+                content.remove();
+            });
+        });
+
+        var go = function () {
+            var gid = $('#groupSearch').val();
+            var url = '@Url.Action("GroupDetail", "Group")';
+            var url = url + '/' + gid;
+            location.href = url;
+        };
+
+        var join = function (id) {
+            joinurl = "/Group/JoinGroup"
+            var data = JSON.stringify({ 'gid': id });
+            $.ajax({
+                data: data.toString(),
+                type: 'POST',
+                url: joinurl,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.result == "success") {
+                        $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
+                        $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
+                        var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                        $('#group_membercount_' + id.toString()).html(numMembers + 1);
+                    }
+                }
+            });
+            return false;
+        }
+
+        var leave = function (id) {
+            leaveurl = "/Group/LeaveGroup"
+            var data = JSON.stringify({ 'gid': id });
+            $.ajax({
+                data: data.toString(),
+                type: 'POST',
+                url: leaveurl,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.result == "success") {
+                        $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Join ");
+                        $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
+                        var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                        $('#group_membercount_' + id.toString()).html(numMembers - 1);
+                    }
+                }
+            });
+            return false;
+        }
+
+
+    </script>
+}

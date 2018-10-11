@@ -1,0 +1,19 @@
+﻿@model zapread.com.Models.User
+
+<div class="col-lg-4">
+    <div class="contact-box">
+        <a class="row" href="@Url.Action("Index", "User", new { username = Model.Name})">
+            <div class="col-sm-4">
+                <div class="text-center">
+                    <img alt="image" class="img-circle m-t-xs img-responsive" src="@Url.Action("UserImage", "Home", new {size = 100, UserId = Model.AppId})">
+                    @*<div class="m-t-xs font-bold">Graphics designer</div>*@
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <h3><strong>@Model.Name</strong></h3>
+                <p>@Model.AboutMe</p>
+            </div>
+            <div class="clearfix"></div>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,350 @@
+﻿@model zapread.com.Models.Post
+
+@{
+    ViewBag.Title = "Edit Post";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>New Post</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Posts</a></li>
+            <li class="breadcrumb-item active">Edit</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-lg-8">
+            <div id="postEdit" class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h3>
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name : Edit Post
+                    </h3>
+                </div>
+                <div class="ibox-content no-padding">
+                    <div class="sk-spinner sk-spinner-three-bounce">
+                        <div class="sk-bounce1"></div>
+                        <div class="sk-bounce2"></div>
+                        <div class="sk-bounce3"></div>
+                    </div>
+                    <div class="wrapper p-md">
+                        <form>
+                            <input id="postTitle" type="text" class="form-control" value="@Model.PostTitle" placeholder="Post Title (Optional)">
+                        </form>
+                    </div>
+
+                    <div id="progressUpload" class="progress" style="display:none">
+                        <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">
+                        </div>
+                    </div>
+                    <div class="click2edit wrapper p-md">
+                        @Html.Raw(Model.Content)
+                    </div>
+                </div>
+                <div class="ibox-footer">
+                    <div class="row text-right">
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-4 text-right">
+                            <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit()" type="button">Edit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save()" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit()" type="button">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-lg-8">
+            <div class="ibox-title">
+                <h3>
+                    Your Saved Drafts
+                </h3>
+            </div>
+            <div class="ibox-content no-padding">
+                <div class="wrapper p-md">
+                    <table id="draftsTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Post title</th>
+                                <th>Group</th>
+                                <th>Last Edited</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Styles {
+    @Styles.Render("~/plugins/summernoteStyles")
+    @Styles.Render("~/bundles/css/datatables")
+}
+
+@section Scripts {
+    @Scripts.Render("~/plugins/selectize")
+    @Scripts.Render("~/plugins/moment")
+    @Scripts.Render("~/bundles/datatables")
+<script type="text/javascript">
+        var draftsTable = {};
+        $(document).ready(function () {
+
+            draftsTable = $('#draftsTable').DataTable({
+                "searching": true,
+                //"bInfo": false,
+                "lengthChange": false,
+                "pageLength": 10,
+                "processing": true,
+                "serverSide": true,
+                //"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+                "ajax": {
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "/Post/GetDrafts",
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                "columns": [
+                    { "data": "Title", "orderable": true },
+                    {
+                        "data": null,
+                        "orderable": true,
+                        "mRender": function (data, type, row) {
+                            return "<a href='/Group/GroupDetail/" + data.GroupId + "'>" + data.Group + "</a>";
+                        }
+                    },
+                    { "data": "Time", "orderable": false },
+                    {
+                        "data": null,//"Type",
+                        "orderable": false,
+                        "mRender": function (data, type, row) {
+                            return "<button class='btn btn-sm btn-primary' onclick=loadpost(" + data.PostId + ")>Load</button> <button class='btn btn-sm btn-danger' onclick=del(" + data.PostId + ")>Delete</button>"//"<a href='" + data.URL + "'>" + data.Type + "</a>";
+                        }
+                    }
+                ],
+            });
+
+            $('.click2edit').summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'videoAttributes']],
+                    ['view', ['fullscreen']]
+                ],
+                focus: true
+            });
+        });
+
+        function sendFile(file, that) {
+            var data = new FormData();
+            data.append('file', file);
+
+            $("#progressUploadBar").css("width", "0%");
+            $("#progressUpload").show();
+            $.ajax({
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            //console.log(percentComplete);
+                            $("#progressUploadBar").css("width", percentComplete.toString() + "%");
+                            if (percentComplete === 100) {
+                                //alert("upload complete");
+                                $("#progressUploadBar").css("width", "100%");
+                            }
+
+                        }
+                    }, false);
+
+                    return xhr;
+                },
+                data: data,
+                type: 'post',
+                url: '/Img/UploadImage',
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    $(that).summernote('insertImage', '/Img/Content/' + result.imgId, function (i) {
+                        // Applied to img tag
+                        i.attr('class', 'img-fluid');
+                    });
+                }
+            });
+        }
+
+        var edit = function () {
+            $('.click2edit').summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen']]
+                ],
+                focus: true
+            });
+        };
+
+        var loadpost = function (postId) {
+            swal({
+                title: "Are you sure?",
+                text: "Any unsaved changes in the current post will be lost.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    var form = document.createElement('form');
+                    document.body.appendChild(form);
+                    form.method = 'post';
+                    form.action = "/Post/Edit";
+                    var data = { 'PostId': postId };
+                    for (var name in data) {
+                        var input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = data[name];
+                        form.appendChild(input);
+                    }
+                    form.submit();
+                } else {
+                    console.log("cancelled load");
+                }
+            });
+        };
+
+        var del = function (postId) {
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this draft!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.post("@Url.Action("DeletePost",
+                        "Post")",
+                        { "PostId": postId },
+                        function (data) {
+                            if (data.Success) {
+                                swal("Deleted! Your draft has been deleted.", {
+                                    icon: "success",
+                                });
+                                draftsTable.ajax.reload(null, false);
+                            }
+                            else {
+                                swal("Error", "Error deleting draft.", "error");
+                            }
+                        }
+                    );
+                } else {
+                    console.log("cancelled delete");
+                }
+            });
+        };
+
+        var submit = function () {
+            $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+            $('#submit').prop('disabled', true);
+            var aHTML = $('.click2edit').summernote('code');
+            var postTitle = $('#postTitle').val();
+
+            var msg = JSON.stringify({ 'Content': aHTML, 'PostId': @Model.PostId, 'UserId': '@Model.UserId.AppId', 'Title': postTitle, 'IsDraft': false });
+            $.ajax({
+                type: "POST",
+                url: "/Post/Update",
+                data: msg,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $('#submit').prop('disabled', false);
+                    var newPostUrl = "@Url.Action("Detail", "Post")";
+                    newPostUrl = newPostUrl + '/' + response.postId;
+                    window.location.replace(newPostUrl);
+                },
+                failure: function (response) {
+                    $('#submit').prop('disabled', false);
+                },
+                error: function (response) {
+                    $('#submit').prop('disabled', false);
+                }
+            });
+            $('.click2edit').summernote('destroy');
+        };
+
+        var save = function () {
+            $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+            $('#submit').prop('disabled', true);
+            $('#save').prop('disabled', true);
+            var aHTML = $('.click2edit').summernote('code');
+            var postTitle = $('#postTitle').val();
+            //var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true });
+            var msg = JSON.stringify({ 'Content': aHTML, 'PostId': @Model.PostId, 'UserId': '@Model.UserId.AppId', 'Title': postTitle, 'IsDraft': true });
+           
+            $.ajax({
+                type: "POST",
+                url: "/Post/Update",
+                data: msg,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $('#submit').prop('disabled', false);
+                    $('#save').prop('disabled', false);
+                    $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+                    draftsTable.ajax.reload(null, false);
+                },
+                failure: function (response) {
+                    $('#submit').prop('disabled', false);
+                    $('#save').prop('disabled', false);
+                    $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+                },
+                error: function (response) {
+                    $('#submit').prop('disabled', false);
+                    $('#save').prop('disabled', false);
+                    $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+                }
+            });
+
+            $('.click2edit').summernote('destroy');
+        };
+</script>
+}

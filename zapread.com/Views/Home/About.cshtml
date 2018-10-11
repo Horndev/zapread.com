@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>About</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">About</li>
+        </ol>
+        <small></small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+@Html.Partial(partialViewName: "_PartialSummaryStatistics");
+
+<div class="row justify-content-md-center">
+    <div class="col-lg-10">
+        <div class="ibox">
+            <div class="ibox-content">
+
+                <div class="text-center article-title">
+                    <h1>
+                        About
+                    </h1>
+                </div>
+                <p>
+                    Zapread.com is a website which combines many aspects of social media, economics, and Bitcoin.  The idea is to create a community which is a self-regulating social economy where content which is of interest is rewarded, and poor content is buried.  Users vote on content produced by authors by paying Bitcoin via the Lightning Network in increments of one Satoshi.  The authors are rewarded for positive contributions, and the community is compensated for poor contributions.
+                </p>
+                <hr>
+                <div class="text-center article-title">
+                    <h1>
+                        Privacy Policy
+                    </h1>
+                </div>
+                <p>
+                    <b>No third parties.</b> Zapread.com will not provide any user information, including activities, balances, identities, or emails, to third parties.
+                </p>
+                <p>
+                    <b>Cookies.</b> Zapread.com uses cookies as necessary to deliver the features of the website.  Zapread.com will not use cookies to track users.
+                </p>
+                <p>
+                    <b>Advertising.</b> Zapried.com does not host any third party advertising on the website.
+                </p>
+                <hr>
+                <div class="text-center article-title">
+                    <h1>
+                        Terms of Use
+                    </h1>
+                </div>
+                <p>
+                    The following terms of use apply to all users of the website:
+                </p>
+                <p>
+                    <b>No illegal content will be tolerated.</b>  Not only does it put the user at risk, but it also jeopardizes the existence of the website itself.  Any users posting illegal content will have their posts removed, and accounts disabled.  They will have 30 days to withdraw funds, after which, any outstanding user balance will be distributed to the community of users.
+                </p>
+                <p>
+                    <b>Inactive accounts.</b>  Accounts which have not posted or voted over a period of 6 months will be hibernated.  This means they will no longer receive group or community payments.  If there is no activity after 12 months, the account will be disabled.  The user will have 30 days to withdraw funds, after which, any outstanding user balance will be distributed to the community of users.
+                </p>
+                <p>
+                    <b>Taxes.</b>  Any income earned on Zapread.com is likely taxable income (depending on the residency of the user).  It is the responsibility of the user to ensure all local tax laws are adhered to.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/plugins/flot")
+}

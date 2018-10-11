@@ -1,0 +1,244 @@
+﻿@{
+    var url = string.Format(
+        "/Img/QR?qr={0}",
+        @Uri.EscapeDataString("03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735"));
+}
+
+<div class="modal fade" id="depositModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="voteModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" onclick="switchDeposit()" id="nav-deposit-tab"  data-toggle="tab" href="#nav-deposit"  role="tab" aria-controls="nav-deposit"  aria-selected="true">Deposit</a>
+                        <a class="nav-item nav-link"        onclick="switchWithdraw()" id="nav-withdraw-tab" data-toggle="tab" href="#nav-withdraw" role="tab" aria-controls="nav-withdraw" aria-selected="false">Withdraw</a>
+                    </div>
+                </nav>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-deposit" role="tabpanel" aria-labelledby="nav-deposit-tab">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="col-10 text-right">
+                                                <span> Balance </span>
+                                                <h2 class="font-bold"><span class="userBalanceValue" id="userDepositBalance">0</span> </h2>
+                                                <small class="text-muted">Satoshi</small>
+                                            </div>
+                                            <div class="col-2">
+                                                <i class="fa fa-bolt fa-5x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="input-group mb-3">
+                                    <input type="text" id="depositValueAmount" value="1000" placeholder="Deposit amount (Satoshi)" class="form-control font-bold" aria-label="Amount">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-withdraw" role="tabpanel" aria-labelledby="nav-withdraw-tab">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row">
+                                            <div class="col-10 text-right">
+                                                <span> Balance </span>
+                                                <h2 class="font-bold"><span class="userBalanceValue" id="userWithdrawBalance">0</span> </h2>
+                                                <small class="text-muted">Satoshi</small>
+                                            </div>
+                                            <div class="col-2">
+                                                <i class="fa fa-bolt fa-5x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="input-group mb-3" id="lightningWithdrawInvoice">
+                                    <input type="text" id="lightningWithdrawInvoiceInput" class="form-control" placeholder="Paste invoice" aria-label="invoice" aria-describedby="basic-addon2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <img id="lightningDepositQR" src="/Img/Qr?qr=lninvoice" class="img-fluid" style="display:none" />
+
+                        <div class="input-group mb-3" id="lightningDepositInvoice" style="display:none">
+                            <div class="input-group-prepend">
+                                <a href="lightning:xxx" id="lightningDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
+                            </div>
+                            <input type="text" id="lightningDepositInvoiceInput" class="form-control" placeholder="Getting invoice" aria-label="invoice" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="lightningDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
+                            </div>
+
+                            <div class="col-md-2 pull-right">
+                                <!-- Small modal -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm"><i class="fa fa-qrcode"></i></button>
+
+                                <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <img src="@url" class="img-fluid" />
+                                            <br />
+                                            <textarea class="form-control" value="" readonly="readonly" rows="3">03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-muted" id="lightningTransactionInvoiceResult">
+                        <b>Specify deposit amount to deposit and get invoice.</b>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="doLightningTransactionBtn" type="button" class="btn btn-primary">Get Invoice</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+     $(document).ready(function () {
+         $.get("/Account/GetBalance", function (data, status) {
+             $('#userDepositBalance').html(data.balance);
+             $(".userBalanceValue").each(function (i, e) {
+                 $(e).html(data.balance);
+             });
+         });
+     });
+
+    var LNmode = "deposit";
+
+    var switchWithdraw = function () {
+        $('#doLightningTransactionBtn').html("Pay Invoice");
+        $("#lightningTransactionInvoiceResult").show();
+        $("#lightningDepositQR").hide();
+        $("#lightningDepositInvoice").hide();
+        $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
+        LNmode = "withdraw";
+    };
+
+    var switchDeposit = function () {
+        $('#doLightningTransactionBtn').html("Get Invoice");
+        $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
+        LNmode = "deposit";
+    };
+
+     // Handle Deposit Modal
+     $(function () {
+         $("#doLightningTransactionBtn").click(function () {
+             if (LNmode == "deposit") {
+                 var amount = $("#depositValueAmount").val();
+                 var memo = 'ZapRead.com deposit';
+                 var msg = '{ amount: "' + amount.toString() + '", memo: "' + memo + '" }';
+                 $.ajax({
+                     type: "POST",
+                     url: "/Lightning/GetDepositInvoice",
+                     data: msg,
+                     contentType: "application/json; charset=utf-8",
+                     dataType: "json",
+                     success: function (response) {
+                         $("#lightningDepositInvoiceInput").val(response.Invoice);
+                         $("#lightningDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
+                         $("#lightningDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+
+                         $("#getInvoice").html("Update");    // Change button text from get invoice to update
+
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                         $("#lightningTransactionInvoiceResult").addClass("bg-info");
+                         $("#lightningTransactionInvoiceResult").html("Please pay invoice to complete your deposit.");
+                         $("#lightningTransactionInvoiceResult").show();
+                         $("#lightningDepositQR").show();
+                         $("#lightningDepositInvoice").show();
+                         
+                     },
+                     failure: function (response) {
+                         $("#lightningTransactionInvoiceResult").html("Failed to generate invoice");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
+                         $("#lightningTransactionInvoiceResult").show();
+                     },
+                     error: function (response) {
+                         $("#lightningTransactionInvoiceResult").html("Error generating invoice");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
+                         $("#lightningTransactionInvoiceResult").show();
+                     }
+                 });
+             }
+             else {
+                 var invoice = $("#lightningWithdrawInvoiceInput").val();
+                 var msg = '{ request: "' + invoice.toString() + '" }';
+                 $("#doLightningTransactionBtn").attr("disabled", "disabled");
+                 $.ajax({
+                     type: "POST",
+                     url: "/Lightning/SubmitPaymentRequest",
+                     data: msg,
+                     contentType: "application/json; charset=utf-8",
+                     dataType: "json",
+                     success: function (response) {
+                         $("#doLightningTransactionBtn").removeAttr("disabled")
+
+                         if (response.Result == "success") {
+                             $("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                             $("#lightningTransactionInvoiceResult").addClass("bg-success");
+                             $("#lightningTransactionInvoiceResult").show();
+                             $('#withdrawModal').modal('hide');
+
+                             $.get("/Account/GetBalance", function (data, status) {
+                                 //$('#userBalance').html('Balance: ' + data.balance);
+                                 //alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+                                 $(".userBalanceValue").each(function (i, e) {
+                                     $(e).html(data.balance);
+                                 });
+                             });
+                             $('#depositModal').modal('hide');
+                         }
+                         else {
+                             $("#lightningTransactionInvoiceResult").html(response.Result);
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                             $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                             $("#lightningTransactionInvoiceResult").addClass("bg-error");
+                             $("#lightningTransactionInvoiceResult").show();
+                         }
+                     },
+                     failure: function (response) {
+                         $("#doLightningTransactionBtn").removeAttr("disabled")
+                         $("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
+                         $("#lightningTransactionInvoiceResult").show();
+                     },
+                     error: function (response) {
+                         $("#doLightningTransactionBtn").removeAttr("disabled")
+                         $("#lightningTransactionInvoiceResult").html("Error receiving invoice");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
+                         $("#lightningTransactionInvoiceResult").show();
+                     }
+                 });
+             }
+         });
+     });
+</script>
+)

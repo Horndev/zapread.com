@@ -1,0 +1,25 @@
+﻿@model zapread.com.Models.ManageUserGroupsViewModel
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Group</th>
+            <th scope="col">Posts/Yours</th>
+            <th scope="col">Roles</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var g in Model.Groups)
+        {
+            <tr>
+                <td><i class="fa @g.Icon"></i> @g.Name</td>
+                <td>@g.NumPosts / @g.UserPosts</td>
+                <td>@if (g.IsAdmin) { <text>Admin </text>} @if (g.IsMod) { <text>Moderator </text>}</td>
+                <td>
+                    <a href="javascript:void(0);" id="j_@g.Id" onclick="leave(@g.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,217 @@
+﻿@using Microsoft.AspNet.Identity;
+@model zapread.com.Models.PostsViewModel
+
+@{
+    ViewBag.Title = "Zapread.com";
+}
+
+@Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Popular</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">@ViewContext.RouteData.Values["controller"].ToString()</a></li>
+            <li class="breadcrumb-item"><a>Feeds</a></li>
+            <li class="breadcrumb-item active">Popular</li>
+        </ol>
+        <small>Read popular content from across Zapread.com</small>
+    </div>
+    <div class="col-lg-2">
+        Sort by
+        @if (Model.Sort != "Score")
+        {
+            <a href="/?sort=Score" class="btn btn-primary btn-outline btn-sm">Score</a>
+        }
+        @if (Model.Sort != "New")
+        {
+            <a href="/?sort=New" class="btn btn-primary btn-outline btn-sm">New</a>
+        }
+    </div>
+</div>
+
+
+
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-lg-2">
+            @if (Model.SubscribedGroups.Count() > 0)
+            {
+                <div class="ibox float-e-margins d-none d-lg-block">
+                    <div class="ibox-title">
+                        <h5>Your Top Groups</h5>
+                    </div>
+                    <div class="ibox-content">
+                        @foreach(var g in Model.SubscribedGroups)
+                        {
+                            <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn @if (g.IsAdmin) { <text>btn-danger</text> } else if (g.IsMod) {  <text>btn-info</text>} else {  <text>btn-link</text>} btn-outline btn-block text-left"><i class="fa fa-@g.Icon"></i> @g.Name</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-lg-8 ">
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+            <div class="social-feed-box">
+                <button onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
+            </div>
+
+            <div id="posts">
+                @foreach (var p in Model.Posts)
+                {
+                    @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                }
+            </div>
+            <div class="social-feed-box">
+                <button class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More</button>
+            </div>
+
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    
+}
+
+@section Scripts {
+    
+    @Scripts.Render("~/plugins/moment")
+
+    <script type="text/javascript">
+        var ub = @Model.UserBalance;
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // Add slimscroll to element
+            $('.scroll_content').slimscroll({
+                height: ''
+            })
+
+            // Collapse ibox function
+            $('.collapse-link').on('click', function () {
+                var ibox = $(this).closest('div.ibox');
+                var button = $(this).find('i');
+                var content = ibox.children('.ibox-content');
+                content.slideToggle(200);
+                button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+                ibox.toggleClass('').toggleClass('border-bottom');
+                setTimeout(function () {
+                    ibox.resize();
+                    ibox.find('[id^=map-]').resize();
+                }, 50);
+            });
+
+            // Close ibox function
+            $('.close-link').on('click', function () {
+                var content = $(this).closest('div.ibox');
+                content.remove();
+            });
+        });
+
+        var BlockNumber = 10;  //Infinite Scroll starts from second block
+        var NoMoreData = false;
+        var inProgress = false;
+
+        $(window).scroll(function () {
+            //console.log($(window).scrollTop());
+            //console.log($(document).height());
+            //console.log($(window).height());
+            if ($(window).scrollTop() == $(document).height() -
+            $(window).height() && !NoMoreData && !inProgress) {
+                //alert('scroll');
+                //$("#loadingDiv").show();
+                loadmore();
+
+            }
+        });
+        var loadmore = function () {
+            if (!inProgress) {
+                inProgress = true;
+                $.post("@Url.Action("InfiniteScroll",
+                    "Home")", { "BlockNumber": BlockNumber, "sort": "@Model.Sort" },
+                            function (data) {
+                                BlockNumber = BlockNumber + 10;
+                                NoMoreData = data.NoMoreData;
+                                $("#posts").append(data.HTMLString);
+                                inProgress = false;
+                                $('.postTime').each(function (i, e) {
+                                    var time = moment.utc($(e).html()).local().calendar();
+                                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                                    $(e).html('<span>' + time + ' - ' + date + '</span>');
+                                    $(e).removeClass("postTime");
+                                });
+                                if (NoMoreData) {
+                                    $('#showmore').hide();
+                                }
+                               
+
+                                $(".sharing").each(function (i, e) {
+                                    $(e).jsSocials({
+                                        url: $(e).data('url'),
+                                        text: $(e).data('sharetext'),
+                                        showLabel: false,
+                                        shareIn: "popup",
+                                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                                    });
+                                    $(e).removeClass("sharing");
+                                });
+
+                                $('.read-more').readMore({
+                                    readMoreLinkClass: "read-more__link",
+                                    readMoreText: "Read more",
+                                    readLessText: "Read less",
+                                    readMoreHeight: 800
+                                });
+
+                                $(".c_input").summernote({
+                                    callbacks: {
+                                        onImageUpload: function (files) {
+                                            that = $(this);
+                                            sendFile(files[0], that);
+                                        }
+                                    },
+                                    focus: false,
+                                    placeholder: 'Write comment...',
+                                    disableDragAndDrop: true,
+                                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+                                    minHeight: 60,
+                                    maxHeight: 300,
+                                    hint: {
+                                        match: /\B@@(\w*)$/,
+                                        search: function (keyword, callback) {
+                                            callback($.grep(usermentions, function (item) {
+                                                return item.indexOf(keyword) == 0;
+                                            }));
+                                        },
+                                        content: function (item) {
+                                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                                        }
+                                    }
+                                });
+
+                                $('.c_input').each(function (i, e) {
+                                    $(e).removeClass("c_input");
+                                });
+
+                                $(".note-statusbar").css("display", "none");
+                    });
+
+
+            }
+        };
+    </script>
+}

@@ -1,0 +1,87 @@
+﻿<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        @Html.ActionLink("Coinpanic.com", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })
+                </li>
+                <li class="nav-item">
+                    <a href="https://www.coinpanic.com/blog/" class="nav-link">Knowledge Base</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Lightning Network
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        @Html.ActionLink("Status", "Index", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                        <div class="dropdown-divider"></div>
+                        @Html.ActionLink("Community Jar", "CommunityJar", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                        @Html.ActionLink("Web Wallet", "WebWallet", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                    </div>
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
+                </li>
+                <li class="nav-item">
+                    <a href="https://www.coinpanic.com/blog/contact" class="nav-link">Contact</a>
+                    @*@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })*@
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+<br />
+<div class="container body-content">
+    @RenderBody()
+    <hr />
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-8">@Html.ActionLink("Legal", "Legal", "Home")</div>
+            <div class="col-md-2">
+                <div class="pull-right">
+
+                    <a href="https://github.com/Horndev/coinpanic"><span webicon="foundation:social-github" style="color: #808080;width:32px;height:32px;"></span></a>
+                    <a href="https://www.reddit.com/r/coinpanic/"><span webicon="foundation:social-reddit" style="color: #808080;width:32px;height:32px;"></span></a>
+                </div>
+            </div>
+            <div class="col-md-2 pull-right">
+                &copy; @DateTime.Now.Year - Coinpanic.com
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<li class="nav-item dropdown">
+    <a aria-expanded="false" role="button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+        Menu item <span class="caret"></span>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="">Menu item</a>
+        <a class="dropdown-item" href="">Menu item</a>
+        <a class="dropdown-item" href="">Menu item</a>
+    </div>
+</li>
+<li class="nav-item dropdown">
+    <a aria-expanded="false" role="button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+        Menu item <span class="caret"></span>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="">Menu item</a>
+        <a class="dropdown-item" href="">Menu item</a>
+        <a class="dropdown-item" href="">Menu item</a>
+    </div>
+</li>
+            </ul>
+@*<ul class="nav navbar-top-links navbar-right">
+        <li>
+            <a href="#">
+                <i class="fa fa-sign-out"></i> Log out
+            </a>
+        </li>
+    </ul>*@

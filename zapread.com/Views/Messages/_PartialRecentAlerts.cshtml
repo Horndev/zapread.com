@@ -1,0 +1,23 @@
+﻿@model zapread.com.Models.MessagesViewModel
+
+@foreach (var a in Model.Alerts)
+{
+    <li>
+        <div class="dropdown-messages-box">
+            @*<a href="#" class="pull-left">
+                <img alt="image" class="img-circle" src="~/Images/a7.jpg">
+            </a>*@
+            <div class="media-body">
+                <small class="pull-right">@*46h ago*@</small>
+                <strong>@a.Title</strong>@Html.Raw(a.Content)
+                <br>
+                @if (a.PostLink != null)
+                {
+                    <a href="@Url.Action("Detail", "Post", new { id = a.PostLink.PostId})">@a.PostLink.PostTitle</a>
+                }
+                <small class="postTime text-muted">@a.TimeStamp.Value.ToString("o")</small>
+            </div>
+        </div>
+    </li>
+    <li class="divider"></li>
+}
