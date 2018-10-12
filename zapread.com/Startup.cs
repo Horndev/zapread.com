@@ -18,11 +18,13 @@ namespace zapread.com
 
             using (var db = new ZapContext())
             {
-                var g = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
+                var zapreadGlobals = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
 
                 // This is run only the first time the app is launched in the database.
-                if (g == null)
+                // The global entry should only be created once in the database.
+                if (zapreadGlobals == null)
                 {
+                    // Initialize everything with zeros.
                     db.ZapreadGlobals.Add(new Models.ZapReadGlobals()
                     {
                         Id = 1,
