@@ -18,6 +18,7 @@ using System.Net;
 
 namespace zapread.com.Controllers
 {
+    [RoutePrefix("Lightning")]
     public class LightningController : Controller
     {
         /// <summary>
@@ -45,13 +46,24 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("GetInvoiceStatus/{request?}")]
+        public ActionResult GetInvoiceStatus(string request)
+        {
+            using (ZapContext db = new ZapContext())
+            {
+                var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.PaymentRequest == request);
+                return Json(tx, JsonRequestBehavior.AllowGet);
+            }
+        }
         /// <summary>
         /// Provide a new LN invoice with given parameters
         /// </summary>
         /// <param name="amount">number in Satoshi</param>
         /// <param name="memo">encoded in invoice</param>
         /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
-        /// <returns></returns>
+        /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
         public ActionResult GetDepositInvoice(string amount, string memo, string anon)
         {
@@ -220,6 +232,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Pay a lightning invoice.
+        /// </summary>
+        /// <param name="request">The lightning invoice</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult SubmitPaymentRequest(string request)
         {

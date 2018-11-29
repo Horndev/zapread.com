@@ -14,6 +14,7 @@ using zapread.com.Database;
 
 namespace zapread.com.Services
 {
+    
     public class LightningPayments : ILightningPayments
     {
         /// <summary>
@@ -136,6 +137,8 @@ namespace zapread.com.Services
                 {
                     return new { Result = "Error: " + paymentresult.error };
                 }
+
+                // should this be done here? Is there an async/sync check that payment was sent successfully?
                 user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
                 db.SaveChanges();
 
