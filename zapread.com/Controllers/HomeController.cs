@@ -57,17 +57,6 @@ namespace zapread.com.Controllers
                     }
                 }
 
-                var iconStyle = new IdenticonStyle
-                {
-                    Hues = new HueCollection { { 314f, HueUnit.Degrees } },
-                    Padding = 0.10f,
-                    BackColor = Jdenticon.Rendering.Color.Transparent,
-                    ColorSaturation = 0.4f,
-                    GrayscaleSaturation = 0f,
-                    ColorLightness = Range.Create(0.4f, 0.9f),
-                    GrayscaleLightness = Range.Create(0.3f, 0.9f)
-                };
-
                 var icon = Identicon.FromValue(UserId, size: (int)size);
 
                 icon.SaveAsPng(ms);
