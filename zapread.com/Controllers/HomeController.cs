@@ -73,7 +73,6 @@ namespace zapread.com.Controllers
                 icon.SaveAsPng(ms);
                 return File(ms.ToArray(), "image/png");
             }
-            return View();
         }
 
         protected List<Post> GetPosts(int start, int count, string sort = "Score")
