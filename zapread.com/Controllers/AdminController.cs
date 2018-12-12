@@ -30,6 +30,32 @@ namespace zapread.com.Controllers
             RoleManager = roleManager;
         }
 
+        #region Lightning Payments Admin
+
+        /// <summary>
+        /// This method checks all of the unpaid invoices posted in the database against the lnd node to see if they have been paid
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult VerifyInvoices()
+        {
+            using (var db = new ZapContext())
+            {
+                // These are the unpaid invoices
+                var unpaidInvoices = db.LightningTransactions
+                    .Where(t => t.IsSettled == false)
+                    .Where(t => t.IsDeposit == true);
+
+
+
+            }
+            return Json(new { result="failure" });
+        }
+
+        #endregion
+
+        #region Icons
         public ActionResult Icons()
         {
            return View();
@@ -107,6 +133,7 @@ namespace zapread.com.Controllers
                 return Json(ret);
             }
         }
+        #endregion
 
         [HttpGet]
         [AllowAnonymous]
