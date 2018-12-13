@@ -162,7 +162,7 @@ namespace zapread.com.Controllers
         {
             // Check if the invoice received was paid.  LND also sends updates 
             // for new invoices to the invoice stream.  We want to listen for settled invoices here.
-            if (!invoice.settled)
+            if (!invoice.settled.Value)
             {
                 // Optional - add some logic to check invoices on the stream.  These invoices
                 // which are not settled are likely new deposit requests.  For the purposes of
@@ -196,7 +196,7 @@ namespace zapread.com.Controllers
                     settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
                     t = new LNTransaction()
                     {
-                        IsSettled = invoice.settled,
+                        IsSettled = invoice.settled.Value,
                         Memo = invoice.memo,
                         Amount = Convert.ToInt64(invoice.value),
                         HashStr = invoice.r_hash,
@@ -224,7 +224,7 @@ namespace zapread.com.Controllers
                     userBalance = Math.Floor(user.Funds.Balance);
                 }
 
-                t.IsSettled = invoice.settled;
+                t.IsSettled = invoice.settled.Value;
                 db.SaveChanges();
 
                 // Send live signal to listening clients on websockets/SignalR

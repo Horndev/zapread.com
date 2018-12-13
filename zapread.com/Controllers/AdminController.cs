@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using LightningLib.lndrpc;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,12 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public ActionResult VerifyInvoices()
         {
+            var lndClient = new LndRpcClient(
+                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
+                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
+                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
+                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+
             using (var db = new ZapContext())
             {
                 // These are the unpaid invoices
@@ -47,10 +54,43 @@ namespace zapread.com.Controllers
                     .Where(t => t.IsSettled == false)
                     .Where(t => t.IsDeposit == true);
 
+                foreach(var i in unpaidInvoices)
+                {
+                    if (i.HashStr != null)
+                    {
+                        var inv = lndClient.GetInvoice(rhash: i.HashStr);
+                        if (inv.settled != null && inv.settled == true)
+                        {
+                            // Paid but not applied in DB
+                            int z = 1;
+                            var use = i.UsedFor;
+                            if (use != TransactionUse.Undefined)
+                            {
+                                // Use case is recorded in database - perform action
+                                var useid = i.UsedForId;
 
+                                // Trigger any async listeners
 
+                            }
+                            else
+                            {
+                                // We can't perform any action on the invoice, but we should mark it as settled.
+                                // Unfortunately, we don't know who paid the invoice so we can't credit the funds to any account.
+                                // The lost funds should probably go to community pot in that case.
+
+                                i.IsSettled = true;
+                                i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date)); 
+                            }
+                        } 
+                    }
+                    else
+                    {
+                        int z = 1;
+                    }
+                }
+                db.SaveChangesAsync();
             }
-            return Json(new { result="failure" });
+            return Json(new { result="success" }, JsonRequestBehavior.AllowGet);
         }
 
         #endregion
