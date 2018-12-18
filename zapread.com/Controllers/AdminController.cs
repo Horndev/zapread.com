@@ -62,7 +62,7 @@ namespace zapread.com.Controllers
                         if (inv.settled != null && inv.settled == true)
                         {
                             // Paid but not applied in DB
-                            int z = 1;
+
                             var use = i.UsedFor;
                             if (use != TransactionUse.Undefined)
                             {
@@ -81,11 +81,21 @@ namespace zapread.com.Controllers
                                 i.IsSettled = true;
                                 i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date)); 
                             }
-                        } 
+                        }
+                        else if (inv.settled != null && inv.settled == false)
+                        {
+                            // Still waiting.
+
+                            // TODO 
+                        }
                     }
                     else
                     {
-                        int z = 1;
+                        // Darn, the hashstring wasn't recorded for some reason.  Can't look up the invoice in LND.
+
+                        // Hide this transaction from appearing next time.
+                        i.IsSettled = true;
+                        i.TimestampSettled = DateTime.UtcNow;
                     }
                 }
                 db.SaveChangesAsync();

@@ -150,7 +150,7 @@ namespace zapread.com.Controllers
         }
 
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Index(string sort)
+        public async Task<ActionResult> Index(string sort, string l)
         {
             using (var db = new ZapContext())
             {

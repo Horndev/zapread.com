@@ -756,7 +756,9 @@ namespace zapread.com.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+
+            // Add parameter l = 1 to invalidate cache after login
+            return RedirectToAction("Index", "Home", new { l = 1 });
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult

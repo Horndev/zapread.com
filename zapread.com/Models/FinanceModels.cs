@@ -49,6 +49,7 @@ namespace zapread.com.Models
         VotePost = 1,
         VoteComment = 2,
         Tip = 3,
+        UserDeposit = 4,
     }
 
     public class LNTransaction
