@@ -70,7 +70,22 @@ namespace zapread.com.Controllers
                                 var useid = i.UsedForId;
 
                                 // Trigger any async listeners
+                                if (use == TransactionUse.UserDeposit)
+                                {
 
+                                }
+                                else if (use == TransactionUse.Tip)
+                                {
+
+                                }
+                                else if (use == TransactionUse.VotePost)
+                                {
+
+                                }
+                                else if (use == TransactionUse.VoteComment)
+                                {
+
+                                }
                             }
                             else
                             {

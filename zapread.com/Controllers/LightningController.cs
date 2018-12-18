@@ -125,6 +125,8 @@ namespace zapread.com.Controllers
                     IsDeposit = true,
                     TimestampCreated = DateTime.Now,
                     PaymentRequest = inv.payment_request,
+                    UsedFor = TransactionUse.UserDeposit,
+                    UsedForId = userId != null ? user.Id : -1,
                 };
                 db.LightningTransactions.Add(t);
                 db.SaveChanges();
