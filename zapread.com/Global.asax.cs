@@ -20,19 +20,19 @@ namespace zapread.com
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
-        protected void Application_BeginRequest()
-        {
-            if (!Context.Request.IsSecureConnection)
-            {
-                // This is an insecure connection, so redirect to the secure version
-                UriBuilder uri = new UriBuilder(Context.Request.Url);
-                if (!uri.Host.Equals("localhost"))
-                {
-                    uri.Port = 443;
-                    uri.Scheme = "https";
-                    Response.Redirect(uri.ToString());
-                }
-            }
-        }
+        //protected void Application_BeginRequest()
+        //{
+        //    if (!Context.Request.IsSecureConnection)
+        //    {
+        //        // This is an insecure connection, so redirect to the secure version
+        //        UriBuilder uri = new UriBuilder(Context.Request.Url);
+        //        if (!uri.Host.Equals("localhost"))
+        //        {
+        //            uri.Port = 443;
+        //            uri.Scheme = "https";
+        //            Response.Redirect(uri.ToString());
+        //        }
+        //    }
+        //}
     }
 }
