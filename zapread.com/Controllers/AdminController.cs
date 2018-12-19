@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Hubs;
 using zapread.com.Models;
 
 namespace zapread.com.Controllers
@@ -52,7 +53,8 @@ namespace zapread.com.Controllers
                 // These are the unpaid invoices
                 var unpaidInvoices = db.LightningTransactions
                     .Where(t => t.IsSettled == false)
-                    .Where(t => t.IsDeposit == true);
+                    .Where(t => t.IsDeposit == true)
+                    .Include(t => t.User);
 
                 foreach(var i in unpaidInvoices)
                 {
@@ -72,7 +74,26 @@ namespace zapread.com.Controllers
                                 // Trigger any async listeners
                                 if (use == TransactionUse.UserDeposit)
                                 {
+                                    var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+                                    var user = i.User;
+                                    double userBalance = 0.0;
 
+                                    if (user == null)
+                                    {
+                                        // this should not happen? - verify.  Maybe this is the case for transactions related to votes?
+                                        // throw new Exception("Error accessing user information related to settled LN Transaction.");
+                                        int z = 0;
+                                    }
+                                    else
+                                    {
+                                        // Update user balance - this is a deposit.
+                                        // user.Funds.Balance += i.Amount;
+                                        // userBalance = Math.Floor(user.Funds.Balance);
+                                        // db.SaveChanges();
+                                    }
+
+                                    // Notify clients the invoice was paid.
+                                    context.Clients.All.NotifyInvoicePaid(new { invoice = i.PaymentRequest, balance = userBalance, txid = i.Id });
                                 }
                                 else if (use == TransactionUse.Tip)
                                 {
