@@ -195,7 +195,19 @@
                 </div>
                 <div>
                     <div class="ibox-content no-padding border-left-right">
-                        <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
+                        <div class="cuadro_intro_hover">
+                            <p style="text-align:center; ">
+                                <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
+                            </p>
+                            <div class="caption">
+                                <div class="blur"></div>
+                                <div class="caption-text">
+                                    <br />
+                                    <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#ModalProfileImage">Update Profile Image</a>
+                                </div>
+                            </div>
+                        </div>
+                        @*<img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />*@
                     </div>
                     <div class="ibox-content profile-content">
                         <h4>
