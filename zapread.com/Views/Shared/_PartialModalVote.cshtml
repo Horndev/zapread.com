@@ -36,15 +36,13 @@
                                 <h2 class="font-bold"><span id="payAmount" style="display:none"></span></h2>
                             </div>
                         </div>
+
                         <div class="form-group mb-3">
-
                             <div class="input-group mb-3" id="depositMemoValue">
-
                             </div>
                         </div>
 
                         <img id="voteDepositQR" src="~/Content/FFFFFF-0.png" class="img-fluid" />
-                        
 
                         <div class="input-group mb-3" id="voteDepositInvoice" style="display:none">
                             <div class="input-group-prepend">
@@ -254,21 +252,6 @@
      };
 
      /* Functions to handle lightning payment */
-     // Deposit modal copy invoice to clipboard
-     $(function () {
-         $("#lightningDepositInvoiceCopy").click(function () {
-             $("#lightningDepositInvoiceInput").focus();
-             $("#lightningDepositInvoiceInput").select();
-             try {
-                 var successful = document.execCommand('copy');
-                 var msg = successful ? 'successful' : 'unsuccessful';
-                 console.log('Copying text command was ' + msg);
-                 $("#lightningDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
-             } catch (err) {
-                 console.log('Oops, unable to copy');
-             }
-         });
-     });
 
      // Vote modal copy invoice to clipboard
      $(function () {

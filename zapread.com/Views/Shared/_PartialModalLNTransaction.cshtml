@@ -71,6 +71,7 @@
                                 <a href="lightning:xxx" id="lightningDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
                             </div>
                             <input type="text" id="lightningDepositInvoiceInput" class="form-control" placeholder="Getting invoice" aria-label="invoice" aria-describedby="basic-addon2">
+                            
                             <div class="input-group-append">
                                 <button class="btn btn-primary" id="lightningDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
                             </div>
@@ -239,6 +240,22 @@
                  });
              }
          });
-     });
+    });
+
+    // Deposit modal copy invoice to clipboard
+    $(function () {
+        $("#lightningDepositInvoiceCopy").click(function () {
+            $("#lightningDepositInvoiceInput").focus();
+            $("#lightningDepositInvoiceInput").select();
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+                $("#lightningDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
+            } catch (err) {
+                console.log('Oops, unable to copy');
+            }
+        });
+    });
 </script>
 )
