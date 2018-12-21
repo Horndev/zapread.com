@@ -415,6 +415,22 @@ namespace zapread.com.Controllers
                 
                 var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
                 toDistribute = Math.Floor(website.CommunityEarnedToDistribute);
+
+                if (toDistribute < 0)
+                {
+                    toDistribute = 0;
+
+                    // Send error
+                    Services.MailingService.Send(new UserEmailModel()
+                    {
+                        Body = "Error during community distribution.  Total to distribute is negative.",
+                        Destination = "steven.horn.mail@gmail.com",
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "Community payout error",
+                    });
+                }
+
                 numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
                 if (numDistributions > 0)
                 {
