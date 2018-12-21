@@ -32,6 +32,11 @@ namespace zapread.com.Controllers
                 return Json(new { result = "error", message = "Invalid" });
             }
 
+            if (v.a < 1)
+            {
+                return Json(new { result = "error", message = "Invalid" });
+            }
+
             var userId = User.Identity.GetUserId();
 
             // if userId is null, then it is anonymous
