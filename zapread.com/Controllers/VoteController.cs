@@ -270,6 +270,11 @@ namespace zapread.com.Controllers
                 return Json(new { result = "error", message = "Invalid" });
             }
 
+            if (v.a < 1)
+            {
+                return Json(new { result = "error", message = "Invalid" });
+            }
+
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
