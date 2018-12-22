@@ -7,9 +7,6 @@
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
-            @*<li>
-            <button class="btn btn-link btn-sm" onclick="alert('Sharing is not yet implemented (coming soon).');"><i class="fa fa-share-alt"></i> Share</button>
-        </li>*@
             @if (User.Identity.Name == Model.UserId.Name || User.IsInRole("Administrator"))
             {
                 using (Html.BeginForm("Edit", "Post",
@@ -47,7 +44,6 @@
             }
             <li class="dropdown-submenu pull-left">
                 <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
-                @*<a class="ddsm" tabindex="-1" href="#"><i class="fa fa-share-alt"></i> Share <span class="caret"></span></a>*@
                 <ul class="dropdown-menu">
                     <li><div class="sharing" data-url="@Url.Action("Detail","Post", new { id = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle - Earn Bitcoin at ZapRead.com"></div></li>
                 </ul>
@@ -73,7 +69,6 @@
             <small class="postTime text-muted" style="display: inline">@Model.TimeStamp.Value.ToString("o")</small>
         </div>
     </div>
-
     <div class="social-body">
         <div class="row">
             <div class="col-sm-auto vote-actions">
