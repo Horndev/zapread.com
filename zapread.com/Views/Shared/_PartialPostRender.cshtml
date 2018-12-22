@@ -95,7 +95,7 @@
                         <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100)" class="text-muted" id="uVote_@Model.PostId">
                             <i class="fa fa-chevron-up"> </i>
                         </a>
-                        <div id="sVote_@Model.PostId">@Model.Score</div>
+                        <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
                         <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100)" class="text-muted" id="dVote_@Model.PostId">
                             <i class="fa fa-chevron-down"> </i>
                         </a>
