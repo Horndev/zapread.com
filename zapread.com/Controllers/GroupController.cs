@@ -59,8 +59,6 @@ namespace zapread.com.Controllers
                         IsMember = isMember,
                         IsLoggedIn = user != null,
                     });
-
-                   
                 }
                 vm.TotalPosts = db.Posts.Count().ToString("N0");
             }

@@ -17,24 +17,14 @@
     @RenderSection("Styles", required: false)
 </head>
 <body class="top-navigation gray-bg">
-
     @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
-    <!-- Wrapper-->
-    <!-- PageClass give you ability to specify custom style for specific view based on action -->
     <div id="wrapper" class="@Html.PageClass()">
-
-        <!-- Page wraper -->
         <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
-
-            <!-- Top Navbar -->
             @Html.Partial("_TopNavbar")
-
             @if (User.IsInRole("Administrator"))
             {
                 Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
             }
-
-            <!-- Main view  -->
             @RenderBody()
             <div class="small-chat-box fadeInRight animated">
                 <div class="heading" draggable="true">
@@ -89,7 +79,6 @@
     @Scripts.Render("~/bundles/DetailPost")
 
     <script type="text/javascript">
-        
         $(document).ready(function () {
             $(".sharing").each(function () {
                 $(this).jsSocials({
@@ -155,7 +144,6 @@
                 async: false
             }).then(function (data) {
                 window.usermentions = data;
-                // console.log(data);
             });
 
             $(".c_input").summernote({
