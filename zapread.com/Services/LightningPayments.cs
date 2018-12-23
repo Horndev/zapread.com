@@ -150,16 +150,22 @@ namespace zapread.com.Services
 
                 if (paymentresult == null)
                 {
+                    t.ErrorMessage = "Error executing payment.";
+                    db.SaveChanges();
                     return new { Result = "Error executing payment." };
                 }
 
                 if (paymentresult.error != null && paymentresult.error != "")
                 {
+                    t.ErrorMessage = "Error: " + paymentresult.error;
+                    db.SaveChanges();
                     return new { Result = "Error: " + paymentresult.error };
                 }
                 
                 if (paymentresult.payment_error != null)
                 {
+                    t.ErrorMessage = "Error: " + paymentresult.payment_error;
+                    db.SaveChanges();
                     return new { Result = "Error: " + paymentresult.payment_error };
                 }
 
