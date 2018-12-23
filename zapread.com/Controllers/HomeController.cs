@@ -281,11 +281,15 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult SendFeedback(string msg, string loc)
         {
+            String uid = "";
+
+            uid = User.Identity.GetUserId();
+
             UserEmailModel message = new UserEmailModel();
             message.Email = "";
             message.Name = "ZapRead Feedback";
             message.Subject = "ZapRead Feedback";
-            message.Body = msg + Environment.NewLine + " Location: " + loc;
+            message.Body = msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid;
             message.Destination = "steven.horn.mail@gmail.com";
             MailingService.Send(message);
 
