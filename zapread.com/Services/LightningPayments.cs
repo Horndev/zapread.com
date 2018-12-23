@@ -126,6 +126,7 @@ namespace zapread.com.Services
                     //double request!
                     return new { Result = "Please click only once.  Payment already in processing." };
                 }
+
                 WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
 
                 if (paymentresult == null)
@@ -136,6 +137,11 @@ namespace zapread.com.Services
                 if (paymentresult.error != null && paymentresult.error != "")
                 {
                     return new { Result = "Error: " + paymentresult.error };
+                }
+                
+                if (paymentresult.payment_error != null)
+                {
+                    return new { Result = "Error: " + paymentresult.payment_error };
                 }
 
                 // should this be done here? Is there an async/sync check that payment was sent successfully?
