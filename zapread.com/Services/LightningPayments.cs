@@ -115,8 +115,27 @@ namespace zapread.com.Services
                     return new { Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.") + ", invoice is for " + decoded.num_satoshis + "." };
                 }
 
+                //insert transaction as pending
+                LNTransaction t = new LNTransaction()
+                {
+                    IsSettled = false,
+                    Memo = decoded.description ?? "Withdraw",
+                    HashStr = decoded.payment_hash,
+                    Amount = Convert.ToInt64(decoded.num_satoshis),
+                    IsDeposit = false,
+                    TimestampSettled = DateTime.UtcNow,
+                    TimestampCreated = DateTime.UtcNow, //can't know
+                    PaymentRequest = request,
+                    FeePaid_Satoshi = 0,
+                    NodePubKey = decoded.destination,
+                    User = user,
+                };
+                db.LightningTransactions.Add(t);
+                db.SaveChanges();
+
                 SendPaymentResponse paymentresult;
-                //all ok - make the payment
+
+                //all (should be) ok - make the payment
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
                 {
                     paymentresult = lndClient.PayInvoice(request);
@@ -148,22 +167,11 @@ namespace zapread.com.Services
                 user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
                 db.SaveChanges();
 
-                //insert transaction
-                LNTransaction t = new LNTransaction()
-                {
-                    IsSettled = true,
-                    Memo = decoded.description == null ? "Withdraw" : decoded.description,
-                    HashStr = decoded.payment_hash,
-                    Amount = Convert.ToInt64(decoded.num_satoshis),
-                    IsDeposit = false,
-                    TimestampSettled = DateTime.UtcNow,
-                    TimestampCreated = DateTime.UtcNow, //can't know
-                    PaymentRequest = request,
-                    FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees)),
-                    NodePubKey = decoded.destination,
-                    User = user,
-                };
-                db.LightningTransactions.Add(t);
+                //update transaction status
+                t.IsSettled = true;
+                t.FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees));
+
+                //db.LightningTransactions.Add(t);
                 db.SaveChanges();
                 return new { Result = "success", Fees = 0 };
             }
