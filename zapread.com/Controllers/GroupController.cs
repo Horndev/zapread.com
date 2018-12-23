@@ -105,13 +105,14 @@ namespace zapread.com.Controllers
                     Members = group.Members.ToList(),
                     
                 };
+
                 vm.GroupInfo = gi;
                 vm.Group = group;
                 vm.UserBalance = user == null ? 0 : user.Funds.Balance;
                 vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);
                 vm.IsGroupMod = user == null ? false : group.Moderators.Select(usr => usr.Id).Contains(user.Id);
                 vm.Tags = group.Tags;
-                vm.Posts = new List<Post>();
+                vm.Posts = new List<PostViewModel>();
                 vm.Upvoted = new List<int>();
                 vm.Downvoted = new List<int>();
             }
@@ -624,9 +625,22 @@ namespace zapread.com.Controllers
                     IsLoggedIn = user != null,
                 };
 
+                List<PostViewModel> postViews = new List<PostViewModel>();
+
+                foreach (var p in groupPosts)
+                {
+                    postViews.Add(new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    });
+                }
+
                 vm.SubscribedGroups = gis;
                 vm.GroupInfo = gi;
-                vm.Posts = groupPosts;
+                vm.Posts = postViews;
                 vm.Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList();
                 vm.Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList();
                 vm.Group = group;

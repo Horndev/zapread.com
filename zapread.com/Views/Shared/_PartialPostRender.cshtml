@@ -1,13 +1,13 @@
 ﻿@using Microsoft.AspNet.Identity;
 @using zapread.com.Helpers;
 @using zapread.com.Models;
-@model zapread.com.Models.Post
+@model zapread.com.Models.PostViewModel
 
-<div class="social-feed-box" id=@("post_" + @Model.PostId.ToString())>
+<div class="social-feed-box" id=@("post_" + @Model.Post.PostId.ToString())>
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
-            @if (User.Identity.Name == Model.UserId.Name || User.IsInRole("Administrator"))
+            @if (User.Identity.Name == Model.Post.UserId.Name || User.IsInRole("Administrator"))
             {
                 using (Html.BeginForm("Edit", "Post",
                     new { ReturnUrl = ViewBag.ReturnUrl },
@@ -15,16 +15,16 @@
                     new { role = "form" }))
                 {
                     @Html.AntiForgeryToken()
-                    @Html.Hidden("PostId", Model.PostId)
+                    @Html.Hidden("PostId", Model.Post.PostId)
                     <li>
                         <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
                     </li>
                 }
                 <li>
-                    <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete</button>
+                    <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete</button>
                 </li>
                 <li>
-                    <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
+                    <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.Post.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
                 </li>
             }
             else
@@ -39,85 +39,69 @@
             @if (User.IsInRole("Administrator"))
             {
                 <li>
-                    <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.PostId)"><i class="fa fa-map-pin"></i> Toggle Sitcky</button>
+                    <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.Post.PostId)"><i class="fa fa-map-pin"></i> Toggle Sitcky</button>
                 </li>
             }
             <li class="dropdown-submenu pull-left">
                 <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
                 <ul class="dropdown-menu">
-                    <li><div class="sharing" data-url="@Url.Action("Detail","Post", new { id = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle - Earn Bitcoin at ZapRead.com"></div></li>
+                    <li><div class="sharing" data-url="@Url.Action("Detail","Post", new { id = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle - Earn Bitcoin at ZapRead.com"></div></li>
                 </ul>
             </li>
         </ul>
     </div>
     <div class="social-avatar">
-        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserId.Name })" class="pull-left">
-            <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.UserId.AppId})" />
+        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
+            <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.Post.UserId.AppId})" />
         </a>
         <div class="media-body">
-            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserId.Name })">
-                @Model.UserId.Name
+            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })">
+                @Model.Post.UserId.Name
             </a>
-            @if (Model.IsSticky)
+            @if (Model.Post.IsSticky)
             {
                 <span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>
             }
             posted in
-            <a href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Group.GroupId })" style="font-size: small; display: inline">
-                @Model.Group.GroupName
+            <a href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
+                @Model.Post.Group.GroupName
             </a>
-            <small class="postTime text-muted" style="display: inline">@Model.TimeStamp.Value.ToString("o")</small>
+            <small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>
         </div>
     </div>
     <div class="social-body">
         <div class="row">
             <div class="col-sm-auto vote-actions">
-                @if (Request.IsAuthenticated)
-                {
-                    <div class="vote-actions">
-                        <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100)" class="@(1==0 ? "" : "text-muted ")" id="uVote_@Model.PostId">
-                            <i class="fa fa-chevron-up"> </i>
-                        </a>
-                        <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
-                        <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100)" class="@(1==0 ? "" : "text-muted ")" id="dVote_@Model.PostId">
-                            <i class="fa fa-chevron-down"> </i>
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="vote-actions">
-                        <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100)" class="text-muted" id="uVote_@Model.PostId">
-                            <i class="fa fa-chevron-up"> </i>
-                        </a>
-                        <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
-                        <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100)" class="text-muted" id="dVote_@Model.PostId">
-                            <i class="fa fa-chevron-down"> </i>
-                        </a>
-                    </div>
-                }
-
+                <div class="vote-actions">
+                    <a href="#/" onclick="vote(@Model.Post.PostId, 1, 1, 100)" class="@(Model.ViewerUpvoted ? "" : "text-muted ")" id="uVote_@Model.Post.PostId">
+                        <i class="fa fa-chevron-up"> </i>
+                    </a>
+                    <div id="sVote_@Model.Post.PostId">@Model.Post.Score.ToAbbrString()</div>
+                    <a href="#/" onclick="vote(@Model.Post.PostId, 0, 1, 100)" class="@(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.Post.PostId">
+                        <i class="fa fa-chevron-down"> </i>
+                    </a>
+                </div>
             </div>
             <div class="col">
                 <h3>
-                    <a href="@Url.Action("Detail","Post", new { id = Model.PostId })">
-                        @if (Model.PostTitle == null)
+                    <a href="@Url.Action("Detail","Post", new { id = Model.Post.PostId })">
+                        @if (Model.Post.PostTitle == null)
                         {
                             <text>Post</text>
                         }
                         else
                         {
-                            @Model.PostTitle
+                            @Model.Post.PostTitle
                         }
                     </a>
                 </h3>
                 <p>
                     <div class="read-more" data-options="800">
-                        @Html.Raw(Model.Content)
-                        @if (Model.IsNSFW)
+                        @Html.Raw(Model.Post.Content)
+                        @if (Model.Post.IsNSFW)
                         {
-                            <div id="nsfw_@Model.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
-                            <button id="nsfwb_@Model.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.PostId)">Show NSFW</button>
+                            <div id="nsfw_@Model.Post.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
+                            <button id="nsfwb_@Model.Post.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.Post.PostId)">Show NSFW</button>
                         }
                     </div>
                 </p>
@@ -125,19 +109,19 @@
             </div>
         </div>
     </div>
-    <div id=@("comments_" + @Model.PostId.ToString())>
-        @if (Model.Comments != null)
+    <div id=@("comments_" + @Model.Post.PostId.ToString())>
+        @if (Model.Post.Comments != null)
         {
-            foreach (var comment in Model.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply))
+            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply))
             {
-                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Comments.ToList() })
+                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList() })
             }
         }
     </div>
     @if (Request.IsAuthenticated)
     {
         <div class="social-footer">
-            <div id="pc_@Model.PostId.ToString()" class="social-comment">
+            <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding" style="background-color: #f9f9f9;">
                     <div class="sk-spinner sk-spinner-three-bounce">
                         <div class="sk-bounce1"></div>
@@ -151,12 +135,12 @@
                         <div class="row">
                             <div class="col">
                                 <div class="ibox-content no-padding">
-                                    <div class="c_input wrapper p-md" id="c_input_@Model.PostId.ToString()"></div>
+                                    <div class="c_input wrapper p-md" id="c_input_@Model.Post.PostId.ToString()"></div>
                                 </div>
                             </div>
                             <div class="col-sm-auto">
                                 <div class="btn-group-vertical">
-                                    <button id="bc_@Model.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.PostId.ToString(), 0, false)">Submit <span id="cs_@Model.PostId.ToString()" class="loading open-circle" style="display:none"></span></button>
+                                    <button id="bc_@Model.Post.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId.ToString(), 0, false)">Submit <span id="cs_@Model.Post.PostId.ToString()" class="loading open-circle" style="display:none"></span></button>
                                 </div>
                             </div>
                         </div>

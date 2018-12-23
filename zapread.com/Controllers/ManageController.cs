@@ -564,6 +564,19 @@ namespace zapread.com.Controllers
                     u.Settings = new UserSettings();
                 }
 
+                List<PostViewModel> postViews = new List<PostViewModel>();
+
+                foreach (var p in activityposts)
+                {
+                    postViews.Add(new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
+                        ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    });
+                }
+
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
@@ -579,7 +592,7 @@ namespace zapread.com.Controllers
                     NumFollowers = numFollowers,
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing,
-                    ActivityPosts = activityposts,
+                    ActivityPosts = postViews,
                     TopFollowing = topFollowing,
                     TopFollowers = topFollowers,
                     UserBalance = u.Funds.Balance,

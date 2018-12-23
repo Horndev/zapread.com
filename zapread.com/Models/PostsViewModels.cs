@@ -5,9 +5,17 @@ using System.Web;
 
 namespace zapread.com.Models
 {
+    public class PostViewModel
+    {
+        public Post Post;
+        public bool ViewerIsMod;        // User has moderation privilage on this post
+        public bool ViewerUpvoted;      // If the user has upvoted this post
+        public bool ViewerDownvoted;    // If the user has downvoted this post
+    }
+
     public class PostsViewModel
     {
-        public List<Post> Posts;
+        public List<PostViewModel> Posts;
         public List<int> Upvoted;
         public List<int> Downvoted;
         public double UserBalance;

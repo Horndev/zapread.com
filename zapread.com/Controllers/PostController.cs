@@ -391,7 +391,10 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var vm = db.Posts
+                var uid = User.Identity.GetUserId();
+                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                var pst = db.Posts
                     .Include(p => p.Group)
                     .Include(p => p.Comments)
                     .Include(p => p.Comments.Select(cmt => cmt.Parent))
@@ -401,7 +404,15 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == PostId);
-                
+
+                PostViewModel vm = new PostViewModel()
+                {
+                    Post = pst,
+                    ViewerIsMod = user != null ? user.GroupModeration.Contains(pst.Group) : false,
+                    ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                    ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                };
+
                 return View(vm);
             }
 

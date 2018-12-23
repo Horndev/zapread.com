@@ -39,7 +39,7 @@ namespace zapread.com.Models
     public class GroupViewModel
     {
         public List<GroupInfo> SubscribedGroups;
-        public List<Post> Posts { get; set; }
+        public List<PostViewModel> Posts { get; set; }
         public GroupInfo GroupInfo { get; set; }
         public List<int> Upvoted;
         public List<int> Downvoted;

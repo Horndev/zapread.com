@@ -165,6 +165,7 @@ namespace zapread.com.Controllers
 
                 if (user != null)
                 {
+                    // Get list of user subscribed groups (with highest activity on top)
                     var userGroups = user.Groups
                         .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
                         .ToList();
@@ -186,15 +187,29 @@ namespace zapread.com.Controllers
                     }
                 }
 
+                List<PostViewModel> postViews = new List<PostViewModel>();
+
+                foreach (var p in posts)
+                {
+                    postViews.Add(new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    });
+                }
+
                 PostsViewModel vm = new PostsViewModel()
                 {
-                    Posts = posts,
+                    Posts = postViews,
                     Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
                     Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
                     UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),
                     Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
                     SubscribedGroups = gi,
                 };
+
                 return View(vm);
             }
         }

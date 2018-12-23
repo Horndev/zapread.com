@@ -17,7 +17,7 @@ namespace zapread.com.Models
 
         public User User { get; set; }
 
-        public List<Post> ActivityPosts { get; set; }
+        public List<PostViewModel> ActivityPosts { get; set; }
 
         public List<User> TopFollowing { get; set; }
 

@@ -94,6 +94,19 @@ namespace zapread.com.Controllers
 
                 var topFollowers = user.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
+                List<PostViewModel> postViews = new List<PostViewModel>();
+
+                foreach (var p in activityposts)
+                {
+                    postViews.Add(new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    });
+                }
+
                 var vm = new UserViewModel()
                 {
                     AboutMe = new AboutMeViewModel()
@@ -105,7 +118,7 @@ namespace zapread.com.Controllers
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing, 
                     User = user,
-                    ActivityPosts = activityposts,
+                    ActivityPosts = postViews,
                     TopFollowers = topFollowers,
                     TopFollowing = topFollowing,
                     UserBalance = userFunds, 
