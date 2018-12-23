@@ -244,19 +244,32 @@ namespace zapread.com.Controllers
         {
             int BlockSize = 10;
             var posts = GetPosts(BlockNumber, BlockSize, sort);
-
-            string PostsHTMLString = "";
-
-            foreach (var p in posts)
+            using (var db = new ZapContext())
             {
-                var PostHTMLString = RenderPartialViewToString("_PartialPostRender", p);
-                PostsHTMLString += PostHTMLString;
+                var uid = User.Identity.GetUserId();
+                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                string PostsHTMLString = "";
+
+                foreach (var p in posts)
+                {
+                    var pvm = new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    };
+
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    PostsHTMLString += PostHTMLString;
+                }
+                return Json(new
+                {
+                    NoMoreData = posts.Count < BlockSize,
+                    HTMLString = PostsHTMLString,
+                });
             }
-            return Json(new
-            {
-                NoMoreData = posts.Count < BlockSize,
-                HTMLString = PostsHTMLString,
-            });
         }
 
         protected string RenderPartialViewToString(string viewName, object model)
