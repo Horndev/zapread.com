@@ -136,7 +136,7 @@ namespace zapread.com.Controllers
                     var pvm = new PostViewModel()
                     {
                         Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     };
@@ -645,7 +645,7 @@ namespace zapread.com.Controllers
                     postViews.Add(new PostViewModel()
                     {
                         Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     });
@@ -654,8 +654,8 @@ namespace zapread.com.Controllers
                 vm.SubscribedGroups = gis;
                 vm.GroupInfo = gi;
                 vm.Posts = postViews;
-                vm.Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList();
-                vm.Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList();
+                //vm.Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList();
+                //vm.Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList();
                 vm.Group = group;
                 vm.UserBalance = user == null ? 0 : user.Funds.Balance;
                 vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);

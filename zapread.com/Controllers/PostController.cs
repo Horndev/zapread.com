@@ -104,6 +104,34 @@ namespace zapread.com.Controllers
             }
         }
 
+        public async Task<JsonResult> ToggleStickyPost(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                var post = db.Posts
+                    .Include("UserId")
+                    .FirstOrDefault(p => p.PostId == id);
+
+                if (post == null)
+                {
+                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                }
+
+                if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || post.UserId.GroupModeration.Select(g => g.GroupId).Contains(post.Group.GroupId))
+                {
+                    post.IsSticky = !post.IsSticky;
+
+                    await db.SaveChangesAsync();
+                    return Json(new { Result = "Success" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
         public async Task<JsonResult> ToggleNSFW(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -112,6 +140,11 @@ namespace zapread.com.Controllers
                 var post = db.Posts
                     .Include("UserId")
                     .FirstOrDefault(p => p.PostId == id);
+
+                if (post == null)
+                {
+                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                }
 
                 if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || post.UserId.GroupModeration.Select(g => g.GroupId).Contains(post.Group.GroupId))
                 {
@@ -408,7 +441,7 @@ namespace zapread.com.Controllers
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
-                    ViewerIsMod = user != null ? user.GroupModeration.Contains(pst.Group) : false,
+                    ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                     ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                     ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                 };

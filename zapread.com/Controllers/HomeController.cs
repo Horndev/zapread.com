@@ -192,7 +192,7 @@ namespace zapread.com.Controllers
                     postViews.Add(new PostViewModel()
                     {
                         Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     });
@@ -254,7 +254,7 @@ namespace zapread.com.Controllers
                     var pvm = new PostViewModel()
                     {
                         Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Contains(p.Group) : false,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     };

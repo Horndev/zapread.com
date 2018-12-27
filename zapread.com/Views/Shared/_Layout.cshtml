@@ -180,7 +180,21 @@
         });
 
         var stickyPost = function (id) {
-            alert('Not yet implemented.');
+            $.ajax({
+                type: "POST",
+                url: "/Post/ToggleStickyPost",
+                data: JSON.stringify({ "id": id }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    if (result.Result == "Success") {
+                        alert("Post successfully toggled Sticky.");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("fail");
+                }
+            });
         };
 
         var nsfwPost = function (id) {
