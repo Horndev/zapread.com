@@ -179,8 +179,6 @@ namespace zapread.com.Controllers
                             Icon = g.Icon,
                             Level = 1,
                             Progress = 36,
-                            //NumPosts = g.Posts.Count(),
-                            //UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
                             IsMod = g.Moderators.Contains(user),
                             IsAdmin = g.Administrators.Contains(user),
                         });
@@ -203,9 +201,9 @@ namespace zapread.com.Controllers
                 PostsViewModel vm = new PostsViewModel()
                 {
                     Posts = postViews,
-                    Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
-                    Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
-                    UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),
+                    //Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
+                    //Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
+                    UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                     Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
                     SubscribedGroups = gi,
                 };
