@@ -7,7 +7,7 @@
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
-            @if (User.Identity.Name == Model.Post.UserId.Name || User.IsInRole("Administrator"))
+            @if (User.Identity.Name == Model.Post.UserId.Name)
             {
                 using (Html.BeginForm("Edit", "Post",
                     new { ReturnUrl = ViewBag.ReturnUrl },
@@ -23,24 +23,58 @@
                 <li>
                     <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete</button>
                 </li>
-                <li>
-                    <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.Post.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
-                </li>
             }
             else
             {
                 <li>
                     <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-flag"></i> Report Spam</button>
                 </li>
+            }
+
+            @if (User.IsInRole("Administrator"))
+            {
+                using (Html.BeginForm("Edit", "Post",
+                    new { ReturnUrl = ViewBag.ReturnUrl },
+                    FormMethod.Post,
+                    new { role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("PostId", Model.Post.PostId)
+                        <li>
+                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
+                        </li>
+                    }
+                <li>
+                    <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
+                </li>
+            }
+
+            @if (Model.ViewerIsMod || User.Identity.Name == Model.Post.UserId.Name || User.IsInRole("Administrator"))
+            {
+                <li>
+                    <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.Post.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
+                </li>
+                <li>
+                    <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.Post.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle Explicit</button>
+                </li>
+            }
+            else
+            {
                 <li>
                     <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.  Feature coming soon.');"><i class="fa fa-exclamation-triangle"></i> Report NSFW</button>
                 </li>
             }
-            @if (User.IsInRole("Administrator"))
+
+            @if (Model.ViewerIsMod)
             {
                 <li>
-                    <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.Post.PostId)"><i class="fa fa-map-pin"></i> Toggle Sitcky</button>
+                    <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.Post.PostId)"><i class="fa fa-map-pin"></i> Toggle Group Sitcky</button>
                 </li>
+            }
+
+            @if (User.IsInRole("Administrator"))
+            {
+
             }
             <li class="dropdown-submenu pull-left">
                 <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>

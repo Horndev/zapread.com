@@ -113,7 +113,7 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .FirstOrDefault(p => p.PostId == id);
 
-                if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator"))
+                if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || post.UserId.GroupModeration.Select(g => g.GroupId).Contains(post.Group.GroupId))
                 {
                     post.IsNSFW = !post.IsNSFW;
 
