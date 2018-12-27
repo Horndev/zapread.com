@@ -1602,6 +1602,7 @@
     <Content Include="Views\Shared\_PartialModalMessageCompose.cshtml" />
     <Content Include="Views\Manage\_PartialModalUpdateUserAlias.cshtml" />
     <Content Include="Views\Shared\_PartialSummaryStatistics.cshtml" />
+    <Content Include="Views\Group\_PartialGroupAdminBar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

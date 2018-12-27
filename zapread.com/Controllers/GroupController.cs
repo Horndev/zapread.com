@@ -665,6 +665,12 @@ namespace zapread.com.Controllers
             return View(vm);
         }
 
+        public PartialViewResult GroupAdminBar(string groupId)
+        {
+            ViewBag.groupId = groupId;
+            return PartialView("_PartialGroupAdminBar");
+        }
+
         public PartialViewResult GetGroupIcons(int groupId)
         {
             using (var db = new ZapContext())

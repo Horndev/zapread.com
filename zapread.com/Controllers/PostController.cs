@@ -441,7 +441,7 @@ namespace zapread.com.Controllers
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
-                    ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                    ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
                     ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                     ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                 };
