@@ -1,4 +1,4 @@
-# zapread.com
+# ZapRead.com
 
 [![Build status](https://horndev.visualstudio.com/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI)](https://horndev.visualstudio.com/Coinpanic/_build/latest?definitionId=2)
 
@@ -53,7 +53,7 @@ The AppSettings.config file should contain the following keys:
 </appSettings>
 ```
 
-## database
+## Database
 
 Two SQL connection strings are required:
 
