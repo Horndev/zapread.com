@@ -518,8 +518,9 @@ namespace zapread.com.Controllers
                 var u = db.Users.Where(usr => usr.Name == user).FirstOrDefault();
                 if (u == null)
                 {
-                    return Json(new { success = false });
+                    return Json(new { success = false, message = "User not found"});
                 }
+
                 var g = db.Groups.Where(grp => grp.GroupName == group).FirstOrDefault();
                 if (g == null)
                 {

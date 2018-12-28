@@ -671,6 +671,144 @@ namespace zapread.com.Controllers
             return PartialView("_PartialGroupAdminBar");
         }
 
+        public PartialViewResult AdminAddUserToGroupRoleForm(int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                var g = db.Groups.FirstOrDefault(grp => grp.GroupId == groupId);
+                var groupName = "";
+
+                if (g == null)
+                {
+                    // TODO: handle group not found
+                }
+
+                groupName = g.GroupName;
+                var vm = new AddUserToGroupRoleModel();
+                vm.GroupName = groupName;
+                return PartialView("_PartialAddUserToGroupRoleForm", vm);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Name == user).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var g = db.Groups.Where(grp => grp.GroupName == group).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false });
+                }
+
+                // Verify calling user is a group admin or site admin
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false, message = "You do not have administration privilages for this group." });
+                }
+
+                if (isAdmin)
+                {
+                    g.Administrators.Add(u);
+                    u.GroupAdministration.Add(g);
+                }
+                else
+                {
+                    if (g.Administrators.Select(a => a.Id).Contains(u.Id))
+                    {
+                        g.Administrators.Remove(u);
+                        u.GroupAdministration.Remove(g);
+                    }
+                }
+                if (isMod)
+                {
+                    g.Moderators.Add(u);
+                    u.GroupModeration.Add(g);
+                }
+                else
+                {
+                    if (g.Moderators.Select(m => m.Id).Contains(u.Id))
+                    {
+                        g.Moderators.Remove(u);
+                        u.GroupModeration.Remove(g);
+                    }
+                }
+                
+                db.SaveChanges();
+            }
+            return Json(new { success = true });
+        }
+
+        // Query the DB for users which are a member of the group starting with the prefix
+        // This method can only be called by a group admin
+        [HttpPost]
+        public JsonResult GetUsers(string group, string prefix)
+        {
+            using (var db = new ZapContext())
+            {
+                var g = db.Groups.Where(grp => grp.GroupName == group).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false });
+                }
+
+                // Verify calling user is a group admin or site admin of the group
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                if (!g.Moderators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false });
+                }
+
+                var matched = g.Members.Where(u => u.Name.StartsWith(prefix)).Select(u => u.Name).Take(30).ToList();
+                return Json(matched, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult GetUserGroupRoles(string group, string user)
+        {
+            var roles = new List<string>();
+
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Name == user).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(roles);
+                }
+                if (u.GroupAdministration.Select(g => g.GroupName).Contains(group))
+                {
+                    roles.Add("Administrator");
+                }
+                if (u.GroupModeration.Select(g => g.GroupName).Contains(group))
+                {
+                    roles.Add("Moderator");
+                }
+                if (u.Groups.Select(g => g.GroupName).Contains(group))
+                {
+                    roles.Add("Member");
+                }
+            }
+            return Json(roles);
+        }
+
         public PartialViewResult GetGroupIcons(int groupId)
         {
             using (var db = new ZapContext())

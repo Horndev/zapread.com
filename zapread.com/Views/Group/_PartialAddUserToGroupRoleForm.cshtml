@@ -1,8 +1,9 @@
-﻿@model zapread.com.Models.AddUserToGroupRoleModel
+﻿
+@model zapread.com.Models.AddUserToGroupRoleModel
 
 <div class="form-group">
     <div class="input-group mb-3">
-        <input id="User" type="text" class="form-control" placeholder="User" aria-label="" aria-describedby="basic-addon2" style="margin-bottom:5px">
+        <input id="User" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="basic-addon2" style="margin-bottom:5px">
         <div class="input-group-append">
             <button id="UserSelect" class="btn btn-outline-secondary" type="button" onclick="userGo()">Fetch</button>
         </div>
@@ -11,21 +12,15 @@
 
 <div id="UserGroupRoles" style="display:none">
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="UserGroupAdministator">
+        <input class="form-check-input" type="checkbox" value="" id="GroupAdminUserGroupAdministator">
         <label class="form-check-label" for="defaultCheck1">
             Administrator
         </label>
     </div>
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="UserGroupModerator">
+        <input class="form-check-input" type="checkbox" value="" id="GroupAdminUserGroupModerator">
         <label class="form-check-label" for="defaultCheck1">
             Moderator
-        </label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="UserGroupMember">
-        <label class="form-check-label" for="defaultCheck1">
-            Member
         </label>
     </div>
     <br />
@@ -40,13 +35,13 @@
         $('#UserGroupRoles').show();
     };
     var userUpdate = function () {
-        // Only works if user is admin
+        // Only works if user is group admin
         var uname = $("#User").val();
         var gname = "@Model.GroupName";
-        var isAdmin = $('#UserGroupAdministrator').is(":checked");
-        var data = { group: gname, user: uname, isAdmin: $('#UserGroupAdministator').is(":checked"), isMod: $('#UserGroupModerator').is(":checked"), isMember: $('#UserGroupMember').is(":checked") };
+        var isAdmin = $('#GroupAdminUserGroupAdministrator').is(":checked");
+        var data = { group: gname, user: uname, isAdmin: $('#GroupAdminUserGroupAdministator').is(":checked"), isMod: $('#GroupAdminUserGroupModerator').is(":checked") };
         $.ajax({
-            url: "/Admin/UpdateUserGroupRoles",
+            url: "/Group/UpdateUserGroupRoles",
             type: "POST",
             dataType: "json",
             data: data,
@@ -66,10 +61,10 @@
                 autoFocus: true,
                 source: function (request, response) {
                     $.ajax({
-                        url: "/Admin/GetUsers",
+                        url: "/Group/GetUsers",
                         type: "POST",
                         dataType: "json",
-                        data: { prefix: request.term },
+                        data: { group: "@Model.GroupName", prefix: request.term },
                         success: function (data) {
                             response($.map(data, function (item) {
                                 return { label: item, value: item };
@@ -79,14 +74,14 @@
                 },
                 change: function (event, ui) {
                     $.ajax({
-                        url: "/Admin/GetUserGroupRoles",
+                        url: "/Group/GetUserGroupRoles",
                         type: "POST",
                         dataType: "json",
                         data: { group: "@Model.GroupName", user: $("#User").val() },
                         success: function (data) {
-                            $('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
-                            $('#UserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
-                            $('#UserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
+                            //$('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
+                            $('#GroupAdminUserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
+                            $('#GroupAdminUserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
                         }
                     })
                 }
