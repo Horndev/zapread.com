@@ -1506,7 +1506,6 @@
     <Content Include="database.config" />
     <Content Include="libman.json" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
-    <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\DetailPostPage.js" />
     <Content Include="Scripts\jquery.signalR-2.3.0.js" />
