@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using zapread.com;
@@ -15,6 +17,11 @@ namespace zapread.com.Tests.Controllers
         [TestMethod]
         public void Index()
         {
+            var identity = new GenericIdentity("test");
+            var principal = new GenericPrincipal(identity, null);
+    
+
+            Thread.CurrentPrincipal = principal;
             // Arrange
             HomeController controller = new HomeController();
 
@@ -35,7 +42,7 @@ namespace zapread.com.Tests.Controllers
             ViewResult result = controller.About() as ViewResult;
 
             // Assert
-            Assert.AreEqual("Your application description page.", result.ViewBag.Message);
+            Assert.AreEqual("About Zapread.com.", result.ViewBag.Message);
         }
 
         [TestMethod]

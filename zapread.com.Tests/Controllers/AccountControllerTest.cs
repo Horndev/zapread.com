@@ -15,7 +15,7 @@ namespace zapread.com.Tests.Controllers
             AccountController controller = new AccountController();
 
             // Act
-            ViewResult result = controller.Balance().Result as ActionResult;
+            ActionResult result = controller.Balance() as ActionResult;
 
             // Assert
             Assert.IsNotNull(result);

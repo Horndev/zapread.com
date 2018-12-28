@@ -155,7 +155,13 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var posts = GetPosts(0, 10, sort ?? "Score");
-                var uid = User.Identity.GetUserId();
+
+                string uid = null;
+
+                if (User != null) // This is the case when testing unauthorized call
+                {
+                    uid = User.Identity.GetUserId();
+                }
 
                 await EnsureUserExists(uid, db);
 
