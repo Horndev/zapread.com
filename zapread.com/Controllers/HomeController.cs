@@ -56,6 +56,20 @@ namespace zapread.com.Controllers
                         return File(data, "image/png");
                     }
                 }
+                // Alternative if userId was username
+                else if (db.Users.Where(u => u.Name == UserId).Count() > 0)
+                {
+                    var userAppId = db.Users.Where(u => u.Name == UserId).FirstOrDefault().AppId;
+                    var img = db.Users.Where(u => u.AppId == userAppId).First().ProfileImage;
+                    if (img.Image != null)
+                    {
+                        Image png = Image.FromStream(new MemoryStream(img.Image));
+                        Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
+                        byte[] data = thumb.ToByteArray(ImageFormat.Png);
+
+                        return File(data, "image/png");
+                    }
+                }
 
                 var icon = Identicon.FromValue(UserId, size: (int)size);
 

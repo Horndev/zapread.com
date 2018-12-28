@@ -1,0 +1,27 @@
+﻿@model zapread.com.Models.RecentUnreadMessagesViewModel
+
+@foreach (var m in Model.Messages)
+{
+    <li>
+        <div class="dropdown-messages-box">
+            @if (m.From != null)
+            {
+                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = m.From.Name })" class="pull-left">
+                    <img alt="image" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = m.From.AppId })">
+                </a>
+            }
+            else
+            {
+                <a href="#" class="pull-left">
+                    <img alt="image" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = "" })">
+                </a>
+            }
+            <div class="media-body">
+                <span class="pull-right"><a class="btn btn-sm btn-outline"><icon class="fa fa-minus-circle"></icon></a></span>
+                @if (m.From != null) { <text>From: <strong>@m.From.Name</strong> <br /></text>}   @Html.Raw(m.Content) <br />
+                @*<small class="text-muted">@m.TimeStamp.Value.ToString("o")</small>*@
+            </div>
+        </div>
+    </li>    
+    <li class="divider"></li>
+}

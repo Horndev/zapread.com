@@ -15,4 +15,9 @@ namespace zapread.com.Models
     {
         public int NumUnread = 0;
     }
+
+    public class RecentUnreadMessagesViewModel
+    {
+        public List<UserMessage> Messages = new List<UserMessage>();
+    }
 }

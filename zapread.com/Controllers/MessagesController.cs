@@ -84,9 +84,43 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
+        public PartialViewResult RecentUnreadMessages(int count)
+        {
+            string userId = null;
+            if (User != null)
+            {
+                userId = User.Identity.GetUserId();
+            }
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    //.Include("Alerts")
+                    .Include("Messages")
+                    //.Include("Alerts.PostLink")
+                    .Include("Messages.PostLink")
+                    .Include("Messages.From")
+                    .Where(u => u.AppId == userId).FirstOrDefault();
+
+                var vm = new RecentUnreadMessagesViewModel();
+
+                if (user != null)
+                {
+                    var messages = user.Messages.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp).Take(count);
+                    vm.Messages = messages.ToList();
+                }
+
+                return PartialView("_PartialRecentUnreadMessages", model: vm);
+            }
+        }
+
         public PartialViewResult UnreadAlerts()
         {
-            var userId = User.Identity.GetUserId();
+            string userId = null;
+            if (User != null)
+            {
+                userId = User.Identity.GetUserId();
+            }
+
             var vm = new UnreadModel();
             if (userId != null)
             {

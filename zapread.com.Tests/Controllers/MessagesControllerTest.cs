@@ -6,16 +6,16 @@ using zapread.com.Controllers;
 namespace zapread.com.Tests.Controllers
 {
     [TestClass]
-    public class AccountControllerTest
+    public class MessagesControllerTest
     {
         [TestMethod]
-        public void TestBalance()
+        public void TestRecentUnreadMessages()
         {
             // Arrange
-            AccountController controller = new AccountController();
+            MessagesController controller = new MessagesController();
 
             // Act
-            PartialViewResult result = controller.Balance() as PartialViewResult;
+            ActionResult result = controller.RecentUnreadMessages(1) as ActionResult;
 
             // Assert
             Assert.IsNotNull(result);

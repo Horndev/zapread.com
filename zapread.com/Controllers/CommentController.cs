@@ -228,6 +228,7 @@ namespace zapread.com.Controllers
                                             IsRead = false,
                                             To = mentioneduser,
                                             PostLink = post,
+                                            From = user,
                                         };
 
                                         mentioneduser.Messages.Add(message);
