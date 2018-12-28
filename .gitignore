@@ -37,3 +37,4 @@ packages/
 /zapread.com/Properties/PublishProfiles/Default Settings.pubxml
 /zapread.com/Properties/PublishProfiles/Zapread - Web Deploy.pubxml
 /zapread.com/Parameters.xml
+/zapread.com.Tests/App.config
