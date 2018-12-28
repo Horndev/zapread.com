@@ -1,4 +1,7 @@
 # zapread.com
+
+[![Build status](https://horndev.visualstudio.com/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI)](https://horndev.visualstudio.com/Coinpanic/_build/latest?definitionId=2)
+
 Website for zapread.com
 
 The repository from https://github.com/Horndev/zapread.com-issues is being migrated to this one over time.  New issues should be created here, but legacy issues can still be found in the other issues github repository.
