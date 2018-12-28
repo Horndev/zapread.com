@@ -19,7 +19,7 @@ namespace zapread.com.Tests.Controllers
             HomeController controller = new HomeController();
 
             // Act
-            ViewResult result = controller.Index(sort: "Score").Result as ViewResult;
+            ViewResult result = controller.Index(sort: "Score", l: "").Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
