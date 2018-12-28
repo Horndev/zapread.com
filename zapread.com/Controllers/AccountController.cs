@@ -18,6 +18,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Data.Entity;
 using Microsoft.Owin.Host.SystemWeb;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -172,12 +173,14 @@ namespace zapread.com.Controllers
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
             double totalAmount = 0.0;
+
+            // Get the logged in user ID
+            var uid = User.Identity.GetUserId();
+
             try
             {
                 using (var db = new ZapContext())
                 {
-                    // Get the logged in user ID
-                    var uid = User.Identity.GetUserId();
                     var userTxns = db.Users
                             .Include(i => i.SpendingEvents)
                             .Where(u => u.AppId == uid)
@@ -195,7 +198,14 @@ namespace zapread.com.Controllers
             }
             catch (Exception e)
             {
-                // todo: add some error logging
+                MailingService.Send(new UserEmailModel()
+                {
+                    Destination = "steven.horn.mail@gmail.com",
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + uid,
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "Account Controller error",
+                });
 
                 // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
                 amount = 0.0;

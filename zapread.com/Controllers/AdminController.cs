@@ -82,7 +82,7 @@ namespace zapread.com.Controllers
                                     {
                                         // this should not happen? - verify.  Maybe this is the case for transactions related to votes?
                                         // throw new Exception("Error accessing user information related to settled LN Transaction.");
-                                        int z = 0;
+                                        //int z = 0;
                                     }
                                     else
                                     {

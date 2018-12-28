@@ -233,7 +233,22 @@ namespace zapread.com.Controllers
             {
                 var user = db.Users.Where(u => u.AppId == userId).First();
 
-                var contentStr = p.Content;
+                // Cleanup post HTML
+                HtmlDocument postDocument = new HtmlDocument();
+                postDocument.LoadHtml(p.Content);
+                var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
+                if (postImages != null)
+                {
+                    foreach (var item in postImages)
+                    {
+                        // ensure images have the img-fluid class
+                        if (!item.HasClass("img-fluid"))
+                        {
+                            item.AddClass("img-fluid");
+                        }
+                    }
+                }
+                string contentStr = postDocument.DocumentNode.OuterHtml;
 
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
 
@@ -246,7 +261,7 @@ namespace zapread.com.Controllers
 
                     post.PostTitle = p.Title;
                     post.Group = postGroup;
-                    post.Content = p.Content;
+                    post.Content = contentStr;
                     post.IsDraft = p.IsDraft;
                     post.TimeStamp = DateTime.UtcNow;
                     await db.SaveChangesAsync();
@@ -258,7 +273,7 @@ namespace zapread.com.Controllers
                     // New post
                     post = new Post()
                     {
-                        Content = p.Content,
+                        Content = contentStr,
                         UserId = user,
                         TotalEarned = 0,
                         IsDeleted = false,
@@ -303,8 +318,6 @@ namespace zapread.com.Controllers
                     u.Alerts.Add(alert);
                 }
 
-                
-
                 // Send alerts to users subscribed to users
 
                 var followUsers = db.Users
@@ -344,6 +357,7 @@ namespace zapread.com.Controllers
                         {
                             foreach (var item in imgs)
                             {
+                                // TODO: check if external url
                                 item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
                             }
                         }
