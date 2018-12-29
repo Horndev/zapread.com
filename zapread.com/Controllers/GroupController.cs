@@ -84,15 +84,6 @@ namespace zapread.com.Controllers
 
                 foreach (var m in group.Members)
                 {
-                    // Debug: check admin db consistency.
-                    //bool IsGroupAdministrator1 = group.Administrators.Select(u => u.Id).Contains(m.Id);
-                    //bool IsGroupAdministrator2 = m.GroupAdministration.Select(g => g.GroupId).Contains(group.GroupId);
-
-                    //if (IsGroupAdministrator2 && !IsGroupAdministrator1)
-                    //{
-                    //    int z = 1;
-                    //}
-
                     groupMembers.Add(new GroupMemberViewModel()
                     {
                         UserName = m.Name,
@@ -269,7 +260,7 @@ namespace zapread.com.Controllers
                 {
                     Name = g.GroupName,
                     Icon = g.Icon,
-                    Tags = g.Tags.Split(',').ToList(),
+                    Tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>(),
                     Id = g.GroupId,
                 }).ToList();
                 var gi = new GroupsViewModel()
@@ -926,7 +917,6 @@ namespace zapread.com.Controllers
             if (!ModelState.IsValid)
             {
                 // Validation error - send back to user
-                //SeedIcons(m);
                 using (var db = new ZapContext())
                 {
                     m.Icons = db.Icons.Select(i => i.Icon).ToList();
@@ -937,7 +927,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var userId = User.Identity.GetUserId();
-                //EnsureUserExists(userId, db);
+
                 Group g = new Group()
                 {
                     GroupName = m.GroupName,
@@ -945,6 +935,7 @@ namespace zapread.com.Controllers
                     TotalEarnedToDistribute = 0.0,
                     Moderators = new List<User>(),
                     Members = new List<User>(),
+                    Administrators = new List<User>(),
                     Tags = m.Tags,
                     Icon = m.Icon,
                     CreationDate = DateTime.UtcNow,
@@ -954,12 +945,13 @@ namespace zapread.com.Controllers
 
                 g.Members.Add(u);
                 g.Moderators.Add(u);
+                g.Administrators.Add(u);
 
                 db.Groups.Add(g);
                 db.SaveChanges();
-            }
 
-            return RedirectToAction("Index");
+                return RedirectToAction( actionName:"GroupDetail", routeValues: new { id = g.GroupId });
+            }
         }
 
         public class jgModel

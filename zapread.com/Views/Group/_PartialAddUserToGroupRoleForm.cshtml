@@ -12,7 +12,7 @@
 
 <div id="UserGroupRoles" style="display:none">
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="GroupAdminUserGroupAdministator">
+        <input class="form-check-input" type="checkbox" value="" id="GroupAdminUserGroupAdministrator">
         <label class="form-check-label" for="defaultCheck1">
             Administrator
         </label>
@@ -39,7 +39,7 @@
         var uname = $("#User").val();
         var gname = "@Model.GroupName";
         var isAdmin = $('#GroupAdminUserGroupAdministrator').is(":checked");
-        var data = { group: gname, user: uname, isAdmin: $('#GroupAdminUserGroupAdministator').is(":checked"), isMod: $('#GroupAdminUserGroupModerator').is(":checked") };
+        var data = { group: gname, user: uname, isAdmin: $('#GroupAdminUserGroupAdministrator').is(":checked"), isMod: $('#GroupAdminUserGroupModerator').is(":checked") };
         $.ajax({
             url: "/Group/UpdateUserGroupRoles",
             type: "POST",
