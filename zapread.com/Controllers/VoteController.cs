@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using System.Data.Entity;
 using zapread.com.Models;
+using zapread.com.Helpers;
 
 namespace zapread.com.Controllers
 {
@@ -125,8 +126,6 @@ namespace zapread.com.Controllers
                         user.PostVotesUp.Add(post);
                     }
 
-                    
-                    
                     //post.VotesDown.Remove(user);
                     //user.PostVotesDown.Remove(post);
                     //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
@@ -189,8 +188,6 @@ namespace zapread.com.Controllers
                         website.ZapReadEarnedBalance += webratio * v.a;
                     }
 
-                    
-
                     try
                     {
                         await db.SaveChangesAsync();
@@ -200,7 +197,7 @@ namespace zapread.com.Controllers
                         return Json(new { result = "error", message = "Error" });
                     }
                     
-                    return Json(new { result = "success", delta = 1, score = post.Score, balance = userBalance });
+                    return Json(new { result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
                 else
                 {
@@ -256,7 +253,7 @@ namespace zapread.com.Controllers
                     }
 
                     await db.SaveChangesAsync();
-                    return Json(new { result = "success", delta = -1, score = post.Score, balance = userBalance });
+                    return Json(new { result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
             }
             // All paths have returned
@@ -423,7 +420,7 @@ namespace zapread.com.Controllers
                         return Json(new { result = "error", message = "Error" });
                     }
 
-                    return Json(new { result = "success", delta = 1, score = comment.Score, balance = userBalance });
+                    return Json(new { result = "success", delta = 1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
                 }
                 else
                 {
@@ -479,7 +476,7 @@ namespace zapread.com.Controllers
                     }
 
                     await db.SaveChangesAsync();
-                    return Json(new { result = "success", delta = -1, score = comment.Score, balance = userBalance });
+                    return Json(new { result = "success", delta = -1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
                 }
             }
             return Json(new { result = "error" });

@@ -184,7 +184,6 @@
                      doTip(userVote.id, userVote.amount, null);
                      //doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
                  }
-                 //alert('Sorry.  Tipping is not yet implemented.');
              }
              else {
                  // Check that the user vote is actually valid
@@ -434,7 +433,7 @@
                         $(did + id.toString()).removeClass("text-muted");
                         $(uid + id.toString()).addClass("text-muted");
                     }
-                    val = Number(response.score);
+                    val = response.scoreStr; //Number(response.score);
                     $(sid + id.toString()).html(val.toString());
                     $('#voteModal').modal('hide');
 
