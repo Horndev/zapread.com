@@ -56,6 +56,38 @@ namespace zapread.com.Models
         public bool HasMorePosts { get; set; }
     }
 
+    /// <summary>
+    /// Used for viewing a specific group member
+    /// </summary>
+    public class GroupMemberViewModel
+    {
+        public string UserName { get; set; }
+
+        /// <summary>
+        /// For thumbnail
+        /// </summary>
+        public string AppId { get; set; }
+
+        public string AboutMe { get; set; }
+
+        public bool IsSiteAdministrator { get; set; }
+
+        public bool IsGroupAdministrator { get; set; }
+
+        public bool IsModerator { get; set; }
+    }
+
+    /// <summary>
+    /// Used for viewing a set of group members
+    /// </summary>
+    public class GroupMembersViewModel
+    {
+        public string GroupName { get; set; }
+        public string Icon { get; set; }
+        public double TotalEarned { get; set; }
+        public List<GroupMemberViewModel> Members { get; set; }
+    }
+
     public class GroupsViewModel
     {
         public List<GroupInfo> Groups { get; set; }

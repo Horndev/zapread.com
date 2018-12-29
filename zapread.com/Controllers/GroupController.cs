@@ -72,8 +72,7 @@ namespace zapread.com.Controllers
         public ActionResult Members(int id)
         {
             var userId = User.Identity.GetUserId();
-            GroupViewModel vm = new GroupViewModel();
-
+            
             using (var db = new ZapContext())
             {
                 var user = db.Users
@@ -82,6 +81,8 @@ namespace zapread.com.Controllers
 
                 var group = db.Groups
                     .Include(g => g.Members)
+                    .Include(g => g.Moderators)
+                    .Include(g => g.Administrators)
                     .AsNoTracking()
                     .FirstOrDefault(g => g.GroupId == id);
 
@@ -89,34 +90,40 @@ namespace zapread.com.Controllers
 
                 bool isMember = user == null ? false : group.Members.Contains(user);
 
-                var gi = new GroupInfo()
+                List<GroupMemberViewModel> groupMembers = new List<GroupMemberViewModel>();
+
+                foreach (var m in group.Members)
                 {
-                    Id = group.GroupId,
-                    CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy"),
-                    Name = group.GroupName,
-                    //NumMembers = num_members,
-                    //NumPosts = num_posts,
-                    Tags = tags,
+                    // Debug: check admin db consistency.
+                    //bool IsGroupAdministrator1 = group.Administrators.Select(u => u.Id).Contains(m.Id);
+                    //bool IsGroupAdministrator2 = m.GroupAdministration.Select(g => g.GroupId).Contains(group.GroupId);
+
+                    //if (IsGroupAdministrator2 && !IsGroupAdministrator1)
+                    //{
+                    //    int z = 1;
+                    //}
+
+                    groupMembers.Add(new GroupMemberViewModel()
+                    {
+                        UserName = m.Name,
+                        AboutMe = m.AboutMe,
+                        AppId = m.AppId,
+                        IsModerator = group.Moderators.Select(u => u.Id).Contains(m.Id),
+                        IsGroupAdministrator = group.Administrators.Select(u => u.Id).Contains(m.Id),
+                        IsSiteAdministrator = m.Name == "Zelgada",
+                    });
+                }
+                
+                GroupMembersViewModel vm = new GroupMembersViewModel()
+                {
+                    GroupName = group.GroupName,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
-                    Level = group.Tier,
-                    //Progress = Convert.ToInt32(100.0 * g.TotalEarned / 0.1),
-                    IsMember = isMember,
-                    IsLoggedIn = user != null,
-                    Members = group.Members.ToList(),
-                    
+                    TotalEarned = group.TotalEarned + group.TotalEarnedToDistribute,
+                    Members = groupMembers,
                 };
 
-                vm.GroupInfo = gi;
-                vm.Group = group;
-                vm.UserBalance = user == null ? 0 : user.Funds.Balance;
-                vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);
-                vm.IsGroupMod = user == null ? false : group.Moderators.Select(usr => usr.Id).Contains(user.Id);
-                vm.Tags = group.Tags;
-                vm.Posts = new List<PostViewModel>();
-                vm.Upvoted = new List<int>();
-                vm.Downvoted = new List<int>();
+                return View(vm);
             }
-            return View(vm);
         }
 
         [HttpPost]

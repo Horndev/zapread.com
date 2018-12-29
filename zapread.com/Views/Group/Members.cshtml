@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNet.Identity;
-@model zapread.com.Models.GroupViewModel
+@model zapread.com.Models.GroupMembersViewModel
 
 @{
     ViewBag.Title = "Group Members";
@@ -7,14 +7,14 @@
 
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2><i class="fa @Model.GroupInfo.Icon"></i> @Model.GroupInfo.Name</h2>
+        <h2><i class="fa @Model.Icon"></i> @Model.GroupName</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a>Groups</a></li>
-            <li class="breadcrumb-item">@Model.GroupInfo.Name</li>
+            <li class="breadcrumb-item">@Model.GroupName</li>
             <li class="breadcrumb-item active">Members</li>
         </ol>
-        <small>@(Model.Group.TotalEarned + Model.Group.TotalEarnedToDistribute) Satoshi earned</small>
+        <small>@Model.TotalEarned Satoshi earned</small>
     </div>
     <div class="col-lg-2">
     </div>
@@ -28,7 +28,7 @@
             <br />
             <div class="wrapper wrapper-content animated fadeInRight">
                 <div class="row">
-                    @foreach (var m in Model.GroupInfo.Members)
+                    @foreach (var m in Model.Members)
                     {
                         @Html.Partial(partialViewName: "_PartialGroupMember", model: m)
                     }
