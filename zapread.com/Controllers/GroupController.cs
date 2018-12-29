@@ -97,6 +97,7 @@ namespace zapread.com.Controllers
                 
                 GroupMembersViewModel vm = new GroupMembersViewModel()
                 {
+                    GroupId = group.GroupId,
                     GroupName = group.GroupName,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
                     TotalEarned = group.TotalEarned + group.TotalEarnedToDistribute,

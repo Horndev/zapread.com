@@ -82,6 +82,7 @@ namespace zapread.com.Models
     /// </summary>
     public class GroupMembersViewModel
     {
+        public int GroupId { get; set; }
         public string GroupName { get; set; }
         public string Icon { get; set; }
         public double TotalEarned { get; set; }

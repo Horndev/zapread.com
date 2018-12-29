@@ -7,11 +7,12 @@
 
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
+        <br />
         <h2><i class="fa @Model.Icon"></i> @Model.GroupName</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a>Groups</a></li>
-            <li class="breadcrumb-item">@Model.GroupName</li>
+            <li class="breadcrumb-item"><a href="/Group">Groups</a></li>
+            <li class="breadcrumb-item"><a href="/Group/GroupDetail/@Model.GroupId">@Model.GroupName</a></li>
             <li class="breadcrumb-item active">Members</li>
         </ol>
         <small>@Model.TotalEarned Satoshi earned</small>
@@ -20,7 +21,7 @@
     </div>
 </div>
 
-<div class="wrapper wrapper-content ">
+
     <div class="row">
         <div class="col-sm-1">
         </div>
@@ -36,4 +37,3 @@
             </div>
         </div>
     </div>
-</div>
