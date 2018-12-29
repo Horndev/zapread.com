@@ -71,24 +71,14 @@ namespace zapread.com.Controllers
         // GET: Group/Members/1
         public ActionResult Members(int id)
         {
-            var userId = User.Identity.GetUserId();
-            
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .AsNoTracking()
-                    .FirstOrDefault(u => u.AppId == userId);
-
                 var group = db.Groups
                     .Include(g => g.Members)
                     .Include(g => g.Moderators)
                     .Include(g => g.Administrators)
                     .AsNoTracking()
                     .FirstOrDefault(g => g.GroupId == id);
-
-                List<string> tags = group.Tags != null ? group.Tags.Split(',').ToList() : new List<string>();
-
-                bool isMember = user == null ? false : group.Members.Contains(user);
 
                 List<GroupMemberViewModel> groupMembers = new List<GroupMemberViewModel>();
 
