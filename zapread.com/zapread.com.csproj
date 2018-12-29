@@ -551,6 +551,10 @@
     <Compile Include="Migrations\201810091614181_AddPendingVoteTables.Designer.cs">
       <DependentUpon>201810091614181_AddPendingVoteTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201812292024509_AddUserGroupIgnore.cs" />
+    <Compile Include="Migrations\201812292024509_AddUserGroupIgnore.Designer.cs">
+      <DependentUpon>201812292024509_AddUserGroupIgnore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1754,6 +1758,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810091614181_AddPendingVoteTables.resx">
       <DependentUpon>201810091614181_AddPendingVoteTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812292024509_AddUserGroupIgnore.resx">
+      <DependentUpon>201812292024509_AddUserGroupIgnore.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

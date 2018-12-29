@@ -50,6 +50,9 @@ namespace zapread.com.Models
         [InverseProperty("Members")]
         public virtual ICollection<Group> Groups { get; set; }
 
+        [InverseProperty("Ignoring")]
+        public virtual ICollection<Group> IgnoredGroups { get; set; }
+
         [InverseProperty("Moderators")]
         public virtual ICollection<Group> GroupModeration { get; set; }
 
@@ -272,7 +275,10 @@ namespace zapread.com.Models
 
         [InverseProperty("Groups")]
         public virtual ICollection<User> Members { get; set; }
-        
+
+        [InverseProperty("IgnoredGroups")]
+        public virtual ICollection<User> Ignoring { get; set; }
+
         [InverseProperty("GroupModeration")]
         public virtual ICollection<User> Moderators { get; set; }
 
