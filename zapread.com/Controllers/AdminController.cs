@@ -458,6 +458,34 @@ namespace zapread.com.Controllers
             }
         }
 
+        public PartialViewResult SiteAdminBarUserInfo(int userId)
+        {
+            using (var db = new ZapContext())
+            {
+                var vm = new SiteAdminBarUserInfoViewModel();
+
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
+                }
+
+                var u = db.Users.AsNoTracking()
+                    .Include("Funds")
+                    .Where(usr => usr.Id == userId)
+                    .FirstOrDefault();
+
+                if (u == null)
+                {
+                    return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
+                }
+
+                vm.Balance = Convert.ToInt32(Math.Floor(u.Funds.Balance));
+                vm.TotalEarned = Convert.ToInt32(u.TotalEarned);
+
+                return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
+            }
+        }
+
         public PartialViewResult SiteAdminBar(string viewInfo)
         {
             ViewBag.ViewInfo = viewInfo;

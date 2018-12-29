@@ -23,6 +23,72 @@
                             <a href="@Url.Action("Icons", "Admin")" class="btn btn-primary btn-outline">Edit Icons</a>
                         </div>
                     </div>
+                    @if (ViewBag.ViewInfo != null && Convert.ToString(ViewBag.ViewInfo).StartsWith("User:"))
+                    {
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title bg-danger">
+                                        <h5>User Information</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        @{Html.RenderAction("SiteAdminBarUserInfo", "Admin", new { userId = Convert.ToString(ViewBag.ViewInfo).Replace("User:", "") });}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title bg-danger">
+                                        <h5>-</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <h1 class="no-margins">-</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title bg-danger">
+                                        <h5>-</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <h1 class="no-margins">-</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title bg-danger">
+                                        <h5>-</h5>
+                                        <div class="ibox-tools">
+                                            <a class="collapse-link">
+                                                <i class="fa fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <h1 class="no-margins">-</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     @if (ViewBag.ViewInfo != null && Convert.ToString(ViewBag.ViewInfo).StartsWith("Group:"))
                     {
                         <div class="row">
