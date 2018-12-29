@@ -91,6 +91,7 @@ namespace zapread.com.Controllers
                         ThumbImage = new UserImage(),
                         Funds = new UserFunds(),
                         Settings = new UserSettings(),
+                        DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
                     await db.SaveChangesAsync();

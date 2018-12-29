@@ -962,24 +962,6 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index");
         }
 
-        //private void EnsureUserExists(string userId, ZapContext db)
-        //{
-        //    if (db.Users.Where(u => u.AppId == userId).Count() == 0)
-        //    {
-        //        // no user entry
-        //        User u = new Models.User()
-        //        {
-        //            AboutMe = "Nothing to tell.",
-        //            AppId = userId,
-        //            Name = UserManager.FindById(userId).UserName,
-        //            ProfileImage = new UserImage(),
-        //            ThumbImage = new UserImage(),
-        //        };
-        //        db.Users.Add(u);
-        //        db.SaveChanges();
-        //    }
-        //}
-
         public class jgModel
         {
             public int gid { get; set; }

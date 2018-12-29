@@ -170,6 +170,10 @@
                                 <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.User.AppId})" /> @Model.User.Name
                             </strong>
                         </h4>
+                        @if (Model.User.DateJoined != null)
+                        {
+                            <p>Joined @Model.User.DateJoined.Value.ToShortDateString()</p>
+                        }
                         <p><i class="fa fa-star"></i> Reputation @Model.User.Reputation</p>
                         <h5>
                             About me

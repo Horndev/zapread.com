@@ -400,7 +400,10 @@ namespace zapread.com.Controllers
                         AppId = userId,
                         Name = UserManager.FindById(userId).UserName,
                         ProfileImage = new UserImage(),
-                        ThumbImage = new UserImage(),  
+                        ThumbImage = new UserImage(),
+                        Funds = new UserFunds(),
+                        Settings = new UserSettings(),
+                        DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
                     await db.SaveChangesAsync();
@@ -798,6 +801,9 @@ namespace zapread.com.Controllers
                     Name = UserManager.FindById(userId).UserName,
                     ProfileImage = new UserImage(),
                     ThumbImage = new UserImage(),
+                    Funds = new UserFunds(),
+                    Settings = new UserSettings(),
+                    DateJoined = DateTime.UtcNow,
                 };
                 db.Users.Add(u);
                 await db.SaveChangesAsync();

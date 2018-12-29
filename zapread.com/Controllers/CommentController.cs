@@ -435,6 +435,9 @@ namespace zapread.com.Controllers
                     Name = User.Identity.Name,
                     ProfileImage = new UserImage(),
                     ThumbImage = new UserImage(),
+                    Funds = new UserFunds(),
+                    Settings = new UserSettings(),
+                    DateJoined = DateTime.UtcNow,
                 };
                 db.Users.Add(u);
                 await db.SaveChangesAsync();
