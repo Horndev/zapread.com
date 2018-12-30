@@ -8,6 +8,8 @@ using Owin;
 using zapread.com.Models;
 using Owin.Security.Providers.Reddit;
 using Owin.Security.Providers.GitHub;
+using Microsoft.Owin.Security.Twitter;
+using Microsoft.Owin.Security;
 
 namespace zapread.com
 {
@@ -54,8 +56,8 @@ namespace zapread.com
             //    clientSecret: "");
 
             //app.UseTwitterAuthentication(
-            //   consumerKey: "",
-            //   consumerSecret: "");
+            //   consumerKey: System.Configuration.ConfigurationManager.AppSettings["OAuth_Twitter_Key"],
+            //   consumerSecret: System.Configuration.ConfigurationManager.AppSettings["OAuth_Twitter_Secret"]);
 
             //app.UseFacebookAuthentication(
             //   appId: "",
@@ -79,6 +81,19 @@ namespace zapread.com
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
             });
 
+            //app.UseTwitterAuthentication(new TwitterAuthenticationOptions()
+            //{
+            //    ConsumerKey = System.Configuration.ConfigurationManager.AppSettings["OAuth_Twitter_Key"],
+            //    ConsumerSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Twitter_Secret"],
+            //    BackchannelCertificateValidator = new CertificateSubjectKeyIdentifierValidator(new[] {
+            //        "A5EF0B11CEC04103A34A659048B21CE0572D7D47", // VeriSign Class 3 Secure Server CA – G2
+            //        "0D445C165344C1827E1D20AB25F40163D8BE79A5", // VeriSign Class 3 Secure Server CA – G3
+            //        "7FD365A7C2DDECBBF03009F34339FA02AF333133", // VeriSign Class 3 Public Primary Certification Authority – G5
+            //        "39A55D933676616E73A761DFA16A7E59CDE66FAD", // Symantec Class 3 Secure Server CA – G4
+            //        "5168FF90AF0207753CCCD9656462A212B859723B", //DigiCert SHA2 High Assurance Server C‎A
+            //        "B13EC36903F8BF4701D498261A0802EF63642BC3" //DigiCert High Assurance EV Root CA
+            //        })
+            //});
         }
     }
 }

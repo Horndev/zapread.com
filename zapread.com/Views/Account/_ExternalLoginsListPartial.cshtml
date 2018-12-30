@@ -32,6 +32,10 @@
                         {
                             <button type="submit" class="btn btn-social btn-github" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-github"></span> GitHub</button>
                         }
+                        else if (p.AuthenticationType == "Twitter")
+                        {
+                            <button type="submit" class="btn btn-social btn-twitter" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-twitter"></span> Twitter</button>
+                        }
                         else
                         {
                             <button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">@p.AuthenticationType</button>
