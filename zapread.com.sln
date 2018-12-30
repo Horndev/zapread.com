@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib", "LndLib.NET\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Security.Providers.Reddit", "OwinOAuthProviders\src\Owin.Security.Providers.Reddit\Owin.Security.Providers.Reddit.csproj", "{D0CD86C8-A6F9-4C6C-9BF0-EAA461E7FBAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Security.Providers.GitHub", "OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj", "{803F9EB7-029C-45AC-AB81-135E60D5BEAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D0CD86C8-A6F9-4C6C-9BF0-EAA461E7FBAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0CD86C8-A6F9-4C6C-9BF0-EAA461E7FBAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0CD86C8-A6F9-4C6C-9BF0-EAA461E7FBAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{803F9EB7-029C-45AC-AB81-135E60D5BEAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{803F9EB7-029C-45AC-AB81-135E60D5BEAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{803F9EB7-029C-45AC-AB81-135E60D5BEAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{803F9EB7-029C-45AC-AB81-135E60D5BEAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

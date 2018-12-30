@@ -7,6 +7,7 @@ using Microsoft.Owin.Security.Google;
 using Owin;
 using zapread.com.Models;
 using Owin.Security.Providers.Reddit;
+using Owin.Security.Providers.GitHub;
 
 namespace zapread.com
 {
@@ -71,6 +72,13 @@ namespace zapread.com
                 ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_ClientId"],
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_Secret"],
             });
+
+            app.UseGitHubAuthentication(new GitHubAuthenticationOptions()
+            {
+                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
+                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
+            });
+
         }
     }
 }

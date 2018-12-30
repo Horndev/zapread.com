@@ -1768,6 +1768,10 @@
       <Project>{824d15c2-a623-46d0-a45e-cf152e97c025}</Project>
       <Name>LightningLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj">
+      <Project>{803f9eb7-029c-45ac-ab81-135e60d5beae}</Project>
+      <Name>Owin.Security.Providers.GitHub</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.Reddit\Owin.Security.Providers.Reddit.csproj">
       <Project>{d0cd86c8-a6f9-4c6c-9bf0-eaa461e7fbad}</Project>
       <Name>Owin.Security.Providers.Reddit</Name>
