@@ -387,6 +387,26 @@ namespace zapread.com.Controllers
                         using (var db = new ZapContext())
                         {
                             await EnsureUserExists(userId.Id, db);
+
+                            // Apply claims
+                            var u = db.Users
+                                .Where(us => us.AppId == userId.Id).First();
+
+                            //await UserManager.AddClaimAsync(userId.Id, new Claim("ColorTheme", u.Settings.ColorTheme));
+
+                            var identity = await UserManager
+                                .CreateIdentityAsync(userId,
+                                DefaultAuthenticationTypes.ApplicationCookie);
+
+                            identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme));
+
+                            var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                            authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                            authenticationManager.SignIn(new AuthenticationProperties()
+                            {
+                                IsPersistent = model.RememberMe
+                            }, identity);
+                            //identity.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme);
                         }
                         return RedirectToLocal(returnUrl);
                     }

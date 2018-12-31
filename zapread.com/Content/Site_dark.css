@@ -4813,10 +4813,10 @@ code {
 }
 
 .ibox-content {
-    background-color: #222;
+    background-color: #2b2b2b;
     color: inherit;
     padding: 15px 20px 20px 20px;
-    border-color: #000;
+    border-color: #2b2b2b;
     border-image: none;
     border-style: solid solid none;
     border-width: 1px 0;
