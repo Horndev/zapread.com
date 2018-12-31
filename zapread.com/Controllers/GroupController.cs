@@ -617,7 +617,7 @@ namespace zapread.com.Controllers
                     Id = group.GroupId,
                     CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy"),
                     Name = group.GroupName,
-                    //NumMembers = num_members,
+                    NumMembers = group.Members.Count(),
                     //NumPosts = num_posts,
                     Tags = tags,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
