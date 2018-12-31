@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Microsoft.AspNet.Identity;
+using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -76,6 +78,7 @@ namespace zapread.com.Tests.Controllers
             request.SetupGet(x => x.ApplicationPath).Returns("/");
             request.SetupGet(x => x.Url).Returns(new Uri("http://localhost/a", UriKind.Absolute));
             request.SetupGet(x => x.ServerVariables).Returns(new System.Collections.Specialized.NameValueCollection());
+            
 
             var response = new Mock<HttpResponseBase>(MockBehavior.Strict);
             response.Setup(x => x.ApplyAppPathModifier("/post1")).Returns("http://localhost/post1");
@@ -94,11 +97,14 @@ namespace zapread.com.Tests.Controllers
                 Id = "f752739e-8d58-4bf5-a140-fc225cc5ebdb"
             };
 
+            var claimsIdentity = new Mock<ClaimsIdentity>(MockBehavior.Loose);
+
+            claimsIdentity.Setup(x => x.AddClaim(It.IsAny<Claim>()));
+
             userManager.Setup(x => x.FindByNameAsync("Test")).Returns(Task.FromResult(testUser));
+            userManager.Setup(x => x.CreateIdentityAsync(It.IsAny<ApplicationUser>(), DefaultAuthenticationTypes.ApplicationCookie))
+                .Returns(Task.FromResult(claimsIdentity.Object));
 
-            //var request = new Mock<HttpRequestBase>();
-
-            //var context = new Mock<HttpContextBase>();
             context.SetupGet(x => x.Request).Returns(request.Object);
 
             AccountController controller = new AccountController(userManager.Object, signInManager.Object);

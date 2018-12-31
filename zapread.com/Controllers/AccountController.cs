@@ -398,15 +398,21 @@ namespace zapread.com.Controllers
                                 .CreateIdentityAsync(userId,
                                 DefaultAuthenticationTypes.ApplicationCookie);
 
-                            identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme));
+                            identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
 
-                            var authenticationManager = HttpContext.GetOwinContext().Authentication;
-                            authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-                            authenticationManager.SignIn(new AuthenticationProperties()
+                            try
                             {
-                                IsPersistent = model.RememberMe
-                            }, identity);
-                            //identity.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme);
+                                var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                                authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                                authenticationManager.SignIn(new AuthenticationProperties()
+                                {
+                                    IsPersistent = model.RememberMe
+                                }, identity);
+                            }
+                            catch(Exception)
+                            {
+                                // Need to better handle this
+                            }
                         }
                         return RedirectToLocal(returnUrl);
                     }
