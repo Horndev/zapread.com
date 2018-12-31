@@ -643,8 +643,6 @@ namespace zapread.com.Controllers
                 vm.SubscribedGroups = gis;
                 vm.GroupInfo = gi;
                 vm.Posts = postViews;
-                //vm.Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList();
-                //vm.Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList();
                 vm.Group = group;
                 vm.UserBalance = user == null ? 0 : user.Funds.Balance;
                 vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);
