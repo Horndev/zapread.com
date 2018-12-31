@@ -79,7 +79,6 @@ namespace zapread.com.Tests.Controllers
             request.SetupGet(x => x.Url).Returns(new Uri("http://localhost/a", UriKind.Absolute));
             request.SetupGet(x => x.ServerVariables).Returns(new System.Collections.Specialized.NameValueCollection());
             
-
             var response = new Mock<HttpResponseBase>(MockBehavior.Strict);
             response.Setup(x => x.ApplyAppPathModifier("/post1")).Returns("http://localhost/post1");
 

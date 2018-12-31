@@ -38,6 +38,7 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+
             using (var db = new ZapContext())
             {
                 var user = db.Users
