@@ -48,7 +48,16 @@
                                     <div>
                                         @if (m.PostLink != null)
                                         {
-                                            <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = m.PostLink.PostId})">@m.PostLink.PostTitle</a>
+                                            <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = m.PostLink.PostId})">
+                                            @if (m.PostLink.PostTitle != null) { 
+                                                <text>@m.PostLink.PostTitle</text> }
+                                            else {
+                                                <text>Link</text>
+                                            }
+                                            </a>
+                                        }
+                                        @if (m.CommentLink != null)
+                                        {
                                             
                                         }
                                     </div>
