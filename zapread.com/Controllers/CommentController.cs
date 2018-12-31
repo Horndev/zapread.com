@@ -345,13 +345,14 @@ namespace zapread.com.Controllers
                     var message = new UserMessage()
                     {
                         TimeStamp = DateTime.Now,
-                        Title = "New reply to your comment in post: " + post.PostTitle,
-                        Content = "From: " + user.Name + "<br/> " + c.CommentContent,
+                        Title = "New reply to your comment in post: <a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
+                        Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>" + "<br/> " + c.CommentContent,
                         CommentLink = comment,
                         IsDeleted = false,
                         IsRead = false,
                         To = commentOwner,
                         PostLink = post,
+                        From = user,
                     };
 
                     commentOwner.Messages.Add(message);
@@ -382,7 +383,9 @@ namespace zapread.com.Controllers
                             message: new UserEmailModel()
                             {
                                 Subject = "New reply to your comment in post: " + post.PostTitle,
-                                Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='http://www.zapread.com'>zapread.com</a>",
+                                Body = "From: <a href='http://www.zapread.com/user/" + user.Name.ToString() + "'>" + user.Name + "</a>" 
+                                    + "<br/> " + commentContent 
+                                    + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ (post.PostTitle != null ? post.PostTitle : "Post") + "</a> at <a href='http://www.zapread.com'>zapread.com</a>",
                                 Destination = ownerEmail,
                                 Email = "",
                                 Name = "ZapRead.com Notify"

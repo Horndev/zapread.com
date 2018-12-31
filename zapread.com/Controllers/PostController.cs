@@ -310,8 +310,8 @@ namespace zapread.com.Controllers
                     var alert = new UserAlert()
                     {
                         TimeStamp = DateTime.Now,
-                        Title = "New post in subscribed group " + postGroup.GroupName,
-                        Content = post.PostTitle,
+                        Title = "New post in subscribed group <a href='" + Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id=postGroup.GroupId }) + "'>" + postGroup.GroupName + "</a>" ,
+                        Content = "<a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
                         IsDeleted = false,
                         IsRead = false,
                         To = u,
