@@ -62,6 +62,73 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Messages/Chat/{username?}")]
+        public async Task<ActionResult> Chat(string username)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            using (var db = new ZapContext())
+            {
+                var vm = new ChatMessagesViewModel();
+
+                var user = db.Users
+                    .Include("Messages")
+                    .Include("Messages.PostLink")
+                    .Include("Messages.From")
+                    .Where(u => u.AppId == userId).FirstOrDefault();
+
+                var otheruser = db.Users
+                    .Include("Messages")
+                    .Include("Messages.PostLink")
+                    .Include("Messages.From")
+                    .Where(u => u.Name == username).FirstOrDefault();
+
+                if (otheruser == null)
+                {
+                    return RedirectToAction("Index", "Messages");
+                }
+
+                int thisUserId = user.Id;
+                int otherUserId = otheruser.Id;
+
+                // Better to just search from & to?
+
+                var receivedMessages = user.Messages.Where(m => m.From != null && m.From.Id == otherUserId).Where(m => !m.IsDeleted).Where(m => m.Title.StartsWith("Private")).ToList();
+                var sentMessages = otheruser.Messages.Where(m => m.From != null && m.From.Id == thisUserId).Where(m => !m.IsDeleted).Where(m => m.Title.StartsWith("Private")).ToList();
+
+                var messages = new List<ChatMessageViewModel>();
+
+                foreach (var m in receivedMessages)
+                {
+                    messages.Add(new ChatMessageViewModel()
+                    {
+                        Message = m,
+                        From = otheruser,
+                        To = user,
+                        IsReceived = true,
+                    });
+                }
+
+                foreach (var m in sentMessages)
+                {
+                    messages.Add(new ChatMessageViewModel()
+                    {
+                        Message = m,
+                        From = user,
+                        To = otheruser,
+                        IsReceived = false,
+                    });
+                }
+
+                vm.Messages = messages.OrderBy(mv => mv.Message.TimeStamp).ToList();
+
+                return View(vm);
+            }
+        }
+
         public PartialViewResult UnreadMessages()
         {
             var userId = User.Identity.GetUserId();
@@ -74,7 +141,7 @@ namespace zapread.com.Controllers
                         //.Include("Alerts")
                         .Include("Messages")
                         //.Include("Alerts.PostLink")
-                        //.Include("Messages.PostLink")
+                        .Include("Messages.PostLink")
                         .Where(u => u.AppId == userId).First();
 
                     var messages = user.Messages.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp);

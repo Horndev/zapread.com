@@ -20,4 +20,17 @@ namespace zapread.com.Models
     {
         public List<UserMessage> Messages = new List<UserMessage>();
     }
+
+    public class ChatMessageViewModel
+    {
+        public UserMessage Message { get; set; }
+        public bool IsReceived { get; set; }
+        public User From { get; set; }
+        public User To { get; set; }
+    }
+
+    public class ChatMessagesViewModel
+    {
+        public List<ChatMessageViewModel> Messages = new List<ChatMessageViewModel>();
+    }
 }

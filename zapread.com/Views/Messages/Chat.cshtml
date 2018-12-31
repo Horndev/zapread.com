@@ -1,0 +1,127 @@
+﻿@model zapread.com.Models.ChatMessagesViewModel
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Chat</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/Messages/">Messages</a></li>
+            <li class="breadcrumb-item active">Chat</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    Your private chats with XYZ
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2">
+        </div>
+        <div class="col-lg-8">
+            <div class="ibox chat-view">
+                <div class="ibox-title">
+                    <small class="float-right text-muted">Last message:  Mon Jan 26 2015 - 18:39:23</small>
+                </div>
+
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-md-12 ">
+                            <div class="chat-discussion">
+                                @foreach (var c in Model.Messages)
+                                {
+                                    <div class="chat-message @if(c.IsReceived){<text>left</text>}else{<text>right</text>}">
+                                        <img class="message-avatar" src="~/Images/a1.jpg" alt="">
+                                        <div class="message">
+                                            <a class="message-author" href="#"> @c.From.Name </a>
+                                            <span class="message-date"> @c.Message.TimeStamp.Value.ToString("o") </span>
+                                            <span class="message-content">
+                                                @Html.Raw(c.Message.Content)
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                                @*<div class="chat-message left">
+                                    <img class="message-avatar" src="~/Images/a1.jpg" alt="">
+                                    <div class="message">
+                                        <a class="message-author" href="#"> Michael Smith </a>
+                                        <span class="message-date"> Mon Jan 26 2015 - 18:39:23 </span>
+                                        <span class="message-content">
+                                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="chat-message right">
+                                    <img class="message-avatar" src="~/Images/a4.jpg" alt="">
+                                    <div class="message">
+                                        <a class="message-author" href="#"> Karl Jordan </a>
+                                        <span class="message-date">  Fri Jan 25 2015 - 11:12:36 </span>
+                                        <span class="message-content">
+                                            Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="chat-message left">
+                                    <img class="message-avatar" src="~/Images/a2.jpg" alt="">
+                                    <div class="message">
+                                        <a class="message-author" href="#"> Michael Smith </a>
+                                        <span class="message-date">  Fri Jan 25 2015 - 11:12:36 </span>
+                                        <span class="message-content">
+                                            There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="chat-message right">
+                                    <img class="message-avatar" src="~/Images/a5.jpg" alt="">
+                                    <div class="message">
+                                        <a class="message-author" href="#"> Alice Jordan </a>
+                                        <span class="message-date">  Fri Jan 25 2015 - 11:12:36 </span>
+                                        <span class="message-content">
+                                            All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.
+                                            It uses a dictionary of over 200 Latin words.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="chat-message left">
+                                    <img class="message-avatar" src="~/Images/a6.jpg" alt="">
+                                    <div class="message">
+                                        <a class="message-author" href="#"> Mark Smith </a>
+                                        <span class="message-date">  Fri Jan 25 2015 - 11:12:36 </span>
+                                        <span class="message-content">
+                                            All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.
+                                            It uses a dictionary of over 200 Latin words.
+                                        </span>
+                                    </div>
+                                </div>*@
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="chat-message-form">
+                                <div class="form-group">
+                                    <textarea class="form-control message-input" name="message" placeholder="Enter message text"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
