@@ -411,6 +411,27 @@
                             </div>
                         </div>
                     </div>
+                    <div>
+                        <div class="ibox-content profile-content">
+                            <h4>Customization</h4>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.ColorTheme == "dark") { <text> checked</text> } class="onoffswitch-checkbox" id="colorTheme" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="colorTheme">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    Use dark color theme.  Refresh page to take effect.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="ibox">

@@ -7,12 +7,46 @@
  *
 */
 
+/* Themes */
+
+.dropdown-menu {
+    background: #222;
+    color: #999;
+}
+
+.selectize-dropdown, .selectize-dropdown.form-control {
+    background: #222;
+}
+
+.selectize-input, .selectize-control.single .selectize-input.input-active {
+    background: #222;
+}
+
+.selectize-input.full {
+    background: #222;
+}
+
+.selectize-dropdown .active {
+    background-color: #444;
+}
+
+.card {
+    background-color: #222;
+}
+
+.note-editor.note-frame .note-editing-area .note-editable {
+    background-color: #333;
+}
+
+.page-item.disabled .page-link {
+    background-color: #444;
+}
+
 .ibox-comment {
-    background-color: #f9f9f9;
+    background-color: #222;
 }
 
 /* Image hover */
-
 .cuadro_intro_hover {
     padding: 0px;
     position: relative;
@@ -735,7 +769,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 
 .top-navigation .nav > li a:hover,
 .top-navigation .nav > li a:focus {
-    background: #fff;
+    background: #222;
     color: #1ab394;
 }
 
@@ -857,6 +891,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 
 .btn {
     border-radius: 3px;
+    background-color: #555;
 }
 
 .float-e-margins .btn {
@@ -1202,8 +1237,8 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 
 .btn-white {
     color: inherit;
-    background: white;
-    border: 1px solid #e7eaec;
+    background: #444;
+    border: 1px solid #555;
 }
 
     .btn-white:hover,
@@ -1380,7 +1415,7 @@ button.dim:active:before {
 }
 
 .badge {
-    background-color: #d1dade;
+    background-color: #333;
     color: #5e5e5e;
     font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 11px;
@@ -1423,7 +1458,7 @@ button.dim:active:before {
 
 .label-info,
 .badge-info {
-    background-color: #23c6c8;
+    background-color: #11595a;
     color: #FFFFFF;
 }
 
@@ -1577,7 +1612,7 @@ button.dim:active:before {
 .pagination > .active > span:hover,
 .pagination > .active > a:focus,
 .pagination > .active > span:focus {
-    background-color: #f4f4f4;
+    background-color: #666;
     border-color: #DDDDDD;
     color: inherit;
     cursor: default;
@@ -1586,7 +1621,7 @@ button.dim:active:before {
 
 .pagination > li > a,
 .pagination > li > span {
-    background-color: #FFFFFF;
+    background-color: #444;
     border: 1px solid #DDDDDD;
     color: inherit;
     float: left;
@@ -2326,7 +2361,7 @@ div.dt-button-info {
 
 .form-control,
 .single-line {
-    background-color: #FFFFFF;
+    background-color: #333;
     background-image: none;
     border: 1px solid #e5e6e7;
     border-radius: 1px;
@@ -4221,7 +4256,7 @@ body {
     font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #2f4050;
     font-size: 13px;
-    color: #676a6c;
+    color: #999999;
     overflow-x: hidden;
 }
 
@@ -4277,11 +4312,11 @@ a {
     }
 
 .border-bottom-nav {
-    border-bottom: 2px solid #1ab394 !important;
+    border-bottom: 2px solid #444 !important;
 }
 
 .border-bottom {
-    border-bottom: 1px solid #f3f3f4 !important;
+    border-bottom: 1px solid #444 !important;
 }
 
 .font-bold {
@@ -4464,7 +4499,7 @@ ol.unstyled {
 }
 /* FOOTER */
 .footer {
-    background: none repeat scroll 0 0 white;
+    background: none repeat scroll 0 0 black;
     border-top: 1px solid #e7eaec;
     bottom: 0;
     left: 0;
@@ -4715,7 +4750,7 @@ img.circle-border {
 }
 
 .breadcrumb {
-    background-color: #ffffff;
+    background-color: #222;
     padding: 0;
     margin-bottom: 0;
 }
@@ -4766,8 +4801,8 @@ code {
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
     -moz-border-top-colors: none;
-    background-color: #ffffff;
-    border-color: #e7eaec;
+    background-color: #222;
+    border-color: #000;
     border-image: none;
     border-style: solid solid none;
     border-width: 2px 0 0;
@@ -4778,10 +4813,10 @@ code {
 }
 
 .ibox-content {
-    background-color: #ffffff;
+    background-color: #222;
     color: inherit;
     padding: 15px 20px 20px 20px;
-    border-color: #e7eaec;
+    border-color: #000;
     border-image: none;
     border-style: solid solid none;
     border-width: 1px 0;
@@ -4791,7 +4826,7 @@ code {
     color: inherit;
     border-top: 1px solid #e7eaec;
     font-size: 90%;
-    background: #ffffff;
+    background: #222;
     padding: 10px 15px;
 }
 
@@ -4833,7 +4868,7 @@ table.table-mail tr td {
 }
 
 .ibox-heading {
-    background-color: #f3f6fb;
+    background-color: #444;
     border-bottom: none;
 }
 
@@ -4885,13 +4920,16 @@ table.table-mail tr td {
     right: 0;
 }
 /* BACKGROUNDS */
-.gray-bg,
+.gray-bg {
+    background-color: #000;
+}
+
 .bg-muted {
     background-color: #f3f3f4;
 }
 
 .white-bg {
-    background-color: #ffffff;
+    background-color: #222;
 }
 
 .blue-bg,
@@ -6332,7 +6370,7 @@ dd.project-people {
 .faq-item {
     padding: 20px;
     margin-bottom: 2px;
-    background: #fff;
+    background: #222;
 }
 
 .faq-question {
@@ -6348,14 +6386,14 @@ dd.project-people {
 
 .faq-answer {
     margin-top: 10px;
-    background: #f3f3f4;
+    background: #333;
     border: 1px solid #e7eaec;
     border-radius: 3px;
     padding: 15px;
 }
 
 .faq-item .tag-item {
-    background: #f3f3f4;
+    background: #333;
     padding: 2px 6px;
     font-size: 10px;
     text-transform: uppercase;
@@ -6802,8 +6840,8 @@ table.shoping-cart-table {
 
 .social-feed-box {
     /*padding: 15px;*/
-    border: 1px solid #e7eaec;
-    background: #fff;
+    border: 1px solid #000;
+    background: #222;
     margin-bottom: 15px;
 }
 
@@ -6856,12 +6894,12 @@ table.shoping-cart-table {
 .social-footer {
     border-top: 1px solid #e7eaec;
     padding: 10px 15px;
-    background: #f9f9f9;
+    background: #2b2b2b;
 }
 .social-footer-reply {
     border-top: 1px solid #e7eaec;
     padding: 10px 15px;
-    background: #f9f9f9;
+    background: #2b2b2b;
     border-left: 2px dashed #e7eaec;
     padding-right: 0px;
 }
@@ -7007,7 +7045,7 @@ body.body-small .vote-icon {
     position: fixed;
     bottom: 20px;
     right: 75px;
-    background: #fff;
+    background: #444;
     border: 1px solid #e7eaec;
     width: 230px;
     height: 240px;
@@ -10177,7 +10215,7 @@ body.md-skin {
         -o-transition: background-color 500ms linear;
         -ms-transition: background-color 500ms linear;
         transition: background-color 500ms linear;
-        background-color: #f3f3f4;
+        background-color: #444;
     }
 }
 

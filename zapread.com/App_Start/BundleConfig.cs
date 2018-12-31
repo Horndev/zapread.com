@@ -52,9 +52,14 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
                       "~/node_modules/font-awesome/css/font-awesome.css", new CssRewriteUrlTransform()));
 
+            bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
+                      "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/node_modules/bootstrap/dist/css/bootstrap.min.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/css-dark").Include(
+                      "~/Content/Site_dark.css"));
 
             // Sweet Alert
             bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(

@@ -181,6 +181,15 @@ namespace zapread.com.Controllers
 
                 var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
+                //if (user.Settings.ColorTheme != null && user.Settings.ColorTheme == "dark")
+                //{
+                //    ViewBag.ColorTheme = "dark";
+                //}
+                //else
+                //{
+                //    ViewBag.ColorTheme = "light";
+                //}
+
                 var gi = new List<GroupInfo>();
 
                 if (user != null)

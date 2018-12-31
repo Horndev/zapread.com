@@ -129,6 +129,8 @@ namespace zapread.com.Models
 
         // Alerts:
         public bool AlertOnOwnPostCommented { get; set; }
+
+        public string ColorTheme { get; set; }
     }
 
     public class ZapIcon
