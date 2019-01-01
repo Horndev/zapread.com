@@ -82,6 +82,7 @@ namespace zapread.com.Controllers
             public string Type { get; set; }
             public string Amount { get; set; }
             public string URL { get; set; }
+            public string Memo { get; set; }
         }
 
         public ActionResult GetLNTransactions(DataTableParameters dataTableParameters)
@@ -105,8 +106,8 @@ namespace zapread.com.Controllers
                     Time = t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                     Type = t.IsDeposit ? "Deposit" : "Withdrawal",
                     Amount = Convert.ToString(t.Amount),
+                    Memo = t.Memo,
                 }).ToList();
-
 
                 int numrec = u.LNTransactions.Where(tx => tx.TimestampSettled != null).Count();
 
