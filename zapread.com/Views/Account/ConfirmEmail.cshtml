@@ -2,9 +2,42 @@
     ViewBag.Title = "Confirm Email";
 }
 
-<h2>@ViewBag.Title.</h2>
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Confirm Email</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Account</a></li>
+            <li class="breadcrumb-item active">@ViewBag.Title</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="passwordBox animated fadeInDown">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox-content">
+                <h2 class="font-bold">Email Confirmed</h2>
+                <p>
+                    Thank you for confirming your email. Please @Html.ActionLink("Click here to Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+@*<h2>@ViewBag.Title.</h2>
 <div>
     <p>
         Thank you for confirming your email. Please @Html.ActionLink("Click here to Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
     </p>
-</div>
+</div>*@
