@@ -367,12 +367,8 @@ namespace zapread.com.Controllers
                             });
                     }
                     return Json(new { Result = "Success" });
-
                 }
             }
-
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return Json(new { Result = "Failure", Message = "Unknown error." });
         }
 
         //
@@ -734,8 +730,6 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync();
                 return Json(new { Result = "Success" });
             }
-
-            return Json(new { Result = "Failure" });
         }
 
         [HttpPost]

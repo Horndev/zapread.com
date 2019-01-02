@@ -192,7 +192,7 @@ namespace zapread.com.Controllers
                     {
                         await db.SaveChangesAsync();
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return Json(new { result = "error", message = "Error" });
                     }
@@ -415,7 +415,7 @@ namespace zapread.com.Controllers
                     {
                         await db.SaveChangesAsync();
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return Json(new { result = "error", message = "Error" });
                     }
@@ -479,7 +479,6 @@ namespace zapread.com.Controllers
                     return Json(new { result = "success", delta = -1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
                 }
             }
-            return Json(new { result = "error" });
         }
     }
 }

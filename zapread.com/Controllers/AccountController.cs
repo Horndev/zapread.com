@@ -246,7 +246,7 @@ namespace zapread.com.Controllers
                     amount = sum;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // todo: add some error logging
 
@@ -284,7 +284,7 @@ namespace zapread.com.Controllers
                     amount = sum;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // todo: add some error logging
 

@@ -83,8 +83,6 @@ namespace zapread.com.Controllers
                 db.SaveChanges();
                 return Json(new { Success = true });
             }
-
-            return Json(new { Success = false });
         }
 
         [HttpPost]

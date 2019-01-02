@@ -957,6 +957,55 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        public ActionResult ToggleIgnore(int groupId)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return new HttpUnauthorizedResult("User not authorized");
+            }
+
+            var userId = User.Identity.GetUserId();
+
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    //.Include(u => u.Groups)
+                    .FirstOrDefault(u => u.AppId == userId);
+
+                var group = db.Groups
+                    .Include(g => g.Members)
+                    .FirstOrDefault(g => g.GroupId == groupId);
+
+                bool added = false;
+
+                if (group != null)
+                {
+                    if (!user.IgnoredGroups.Contains(group))
+                    {
+                        user.IgnoredGroups.Add(group);
+                        added = true;
+                    }
+                    else
+                    {
+                        user.IgnoredGroups.Remove(group);
+                    }
+
+                    if (!group.Ignoring.Contains(user))
+                    {
+                        group.Ignoring.Add(user);
+                        added = true;
+                    }
+                    else
+                    {
+                        group.Ignoring.Remove(user);
+                    }
+                    db.SaveChanges();
+                }
+                return Json(new { result = "success", added });
+            }
+        }
+
+        [HttpPost]
         public ActionResult JoinGroup(jgModel m)
         {
             if (!ModelState.IsValid)
