@@ -587,7 +587,7 @@ namespace zapread.com.Controllers
 
                 List<string> tags = group.Tags != null ? group.Tags.Split(',').ToList() : new List<string>();
 
-                bool isMember = user == null ? false : group.Members.Contains(user);
+                bool isMember = user == null ? false : group.Members.Select(mb => mb.Id).Contains(user.Id);
                 var gis = new List<GroupInfo>();
 
                 if (user != null)
