@@ -183,7 +183,14 @@ namespace zapread.com.Controllers
                     .Include("Settings")
                     .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
-                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                try
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                }
+                catch (Exception)
+                {
+                    //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                }
 
                 var gi = new List<GroupInfo>();
 

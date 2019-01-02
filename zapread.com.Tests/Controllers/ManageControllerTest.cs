@@ -19,7 +19,7 @@ namespace zapread.com.Tests.Controllers
     public class ManageControllerTest
     {
         [TestMethod]
-        public void Index()
+        public void ManageIndex()
         {
             // Arrange
             var context = new Mock<HttpContextBase>();
