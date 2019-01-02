@@ -105,8 +105,16 @@ namespace zapread.com.Controllers
 
                 if (sort == "Score")
                 {
-                    var ig = user.IgnoredGroups.Select(g => g.GroupId);
-                    var validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+                    IQueryable<Post> validposts;
+                    if (userId > 0)
+                    {
+                        var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                        validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+                    }
+                    else
+                    {
+                        validposts = db.Posts;
+                    }
 
                     var sposts = validposts//db.Posts//.AsNoTracking()
                         .Select(p => new
@@ -148,8 +156,16 @@ namespace zapread.com.Controllers
                 }
                 //if (sort == "New")
                 else {
-                    var ig = user.IgnoredGroups.Select(g => g.GroupId);
-                    var validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+                    IQueryable<Post> validposts;
+                    if (userId > 0)
+                    {
+                        var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                        validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+                    }
+                    else
+                    {
+                        validposts = db.Posts;
+                    }
 
                     var posts = validposts//db.Posts//.AsNoTracking()
                         .OrderByDescending(p => p.TimeStamp)
@@ -188,7 +204,8 @@ namespace zapread.com.Controllers
                     .Include("Settings")
                     .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
-                var posts = GetPosts(0, 10, sort ?? "Score", user.Id);
+
+                var posts = GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
 
                 try
                 {
