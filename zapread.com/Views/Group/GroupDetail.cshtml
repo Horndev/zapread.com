@@ -11,9 +11,10 @@
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2 class="pull-right">
-            <a class="btn btn-link" href="@Url.Action("Members", "Group", new { id = Model.Group.GroupId })">@Model.GroupInfo.NumMembers Members</a>
-        </h2>
+        <p class="pull-right">
+            <a class="btn btn-sm btn-link" href="@Url.Action("Members", "Group", new { id = Model.Group.GroupId })"><i class="fa fa-users"></i> @Model.GroupInfo.NumMembers Members</a>
+            <a class="btn btn-sm btn-link btn-warning btn-outline" onclick="alert('Not yet implemented.');" href="#"><i class="fa fa-ban"></i> Ignore</a>
+        </p>
         <h2><i class="fa @Model.GroupInfo.Icon"></i> @Model.GroupInfo.Name</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
