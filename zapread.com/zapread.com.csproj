@@ -560,6 +560,10 @@
     <Compile Include="Migrations\201812310046360_addColorThemeSetting.Designer.cs">
       <DependentUpon>201812310046360_addColorThemeSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901021223377_AddLanguages.cs" />
+    <Compile Include="Migrations\201901021223377_AddLanguages.Designer.cs">
+      <DependentUpon>201901021223377_AddLanguages.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1771,6 +1775,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201812310046360_addColorThemeSetting.resx">
       <DependentUpon>201812310046360_addColorThemeSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901021223377_AddLanguages.resx">
+      <DependentUpon>201901021223377_AddLanguages.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

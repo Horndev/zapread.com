@@ -27,6 +27,9 @@ namespace zapread.com.Models
 
         public string PGPPubKey { get; set; }
 
+        // Comma-separated list of language codes. e.g.: en,es,it,fr
+        public string Languages { get; set; }
+
         //Earnings including direct, group, community
         public double TotalEarned { get; set; }
         public virtual ICollection<EarningEvent> EarningEvents { get; set; }
@@ -175,6 +178,9 @@ namespace zapread.com.Models
         public double TotalEarned { get; set; }
         // User who made post
         public virtual User UserId { get; set; }
+
+        // Language post is written in
+        public string Language { get; set; }
 
         [InverseProperty("Posts")]
         public virtual Group Group { get; set; }
