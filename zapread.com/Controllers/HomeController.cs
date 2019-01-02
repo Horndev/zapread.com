@@ -78,7 +78,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected List<Post> GetPosts(int start, int count, string sort = "Score")
+        protected List<Post> GetPosts(int start, int count, string sort = "Score", int userId = 0)
         {
             //Reddit algorithm
             /*epoch = datetime(1970, 1, 1)
@@ -100,9 +100,15 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 DateTime t = DateTime.Now;
+
+                var user = db.Users.Where(u => u.Id == userId).FirstOrDefault();
+
                 if (sort == "Score")
                 {
-                    var sposts = db.Posts//.AsNoTracking()
+                    var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                    var validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+
+                    var sposts = validposts//db.Posts//.AsNoTracking()
                         .Select(p => new
                         {
                             pst = p,
@@ -123,7 +129,6 @@ namespace zapread.com.Controllers
                             hot = p.sign * p.order + p.dt / 45000
                         })
                         .OrderByDescending(p => p.hot)
-                        //.OrderByDescending(p => 5.0-5*p.dt+5.0*p.dt*p.dt/2.0-5*p.dt*p.dt*p.dt/6.0+5*p.dt*p.dt*p.dt*p.dt/24.0)
                         .Select(p => p.pst)
                         .Include(p => p.Group)
                         .Include(p => p.Comments)
@@ -142,10 +147,12 @@ namespace zapread.com.Controllers
                     return sposts;
                 }
                 //if (sort == "New")
-                //{
-                    var posts = db.Posts//.AsNoTracking()
+                else {
+                    var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                    var validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+
+                    var posts = validposts//db.Posts//.AsNoTracking()
                         .OrderByDescending(p => p.TimeStamp)
-                        //.OrderByDescending(p => 5.0-5*p.dt+5.0*p.dt*p.dt/2.0-5*p.dt*p.dt*p.dt/6.0+5*p.dt*p.dt*p.dt*p.dt/24.0)
                         .Include(p => p.Group)
                         .Include(p => p.Comments)
                         .Include(p => p.Comments.Select(cmt => cmt.Parent))
@@ -159,7 +166,7 @@ namespace zapread.com.Controllers
                         .Skip(start)
                         .Take(count).ToList();
                     return posts;
-                //}
+                }
             }
         }
 
@@ -168,8 +175,6 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var posts = GetPosts(0, 10, sort ?? "Score");
-
                 string uid = null;
 
                 if (User != null) // This is the case when testing unauthorized call
@@ -182,6 +187,8 @@ namespace zapread.com.Controllers
                 var user = db.Users
                     .Include("Settings")
                     .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                var posts = GetPosts(0, 10, sort ?? "Score", user.Id);
 
                 try
                 {
@@ -272,11 +279,13 @@ namespace zapread.com.Controllers
         public ActionResult InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            var posts = GetPosts(BlockNumber, BlockSize, sort);
+            
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
                 var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                var posts = GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
 
                 string PostsHTMLString = "";
 
