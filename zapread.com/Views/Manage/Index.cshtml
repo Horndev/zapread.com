@@ -18,6 +18,11 @@
 
         $(document).ready(function () {
 
+            // Set group list as clickable
+            $(".clickable-row").click(function () {
+                window.location = $(this).data("href");
+            });
+
             // Add slimscroll to element
             $('.scroll_content').slimscroll({
                 height: ''

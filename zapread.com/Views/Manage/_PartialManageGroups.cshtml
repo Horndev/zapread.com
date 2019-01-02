@@ -12,8 +12,8 @@
     <tbody>
         @foreach (var g in Model.Groups)
         {
-            <tr>
-                <td><i class="fa @g.Icon"></i> @g.Name</td>
+            <tr class='clickable-row' data-href='@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id=g.Id })'>
+                <td><a class="btn-sm btn-link" href='@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id=g.Id })'><i class="fa @g.Icon"></i> @g.Name</a></td>
                 <td>@g.NumPosts / @g.UserPosts</td>
                 <td>@if (g.IsAdmin) { <text>Admin </text>} @if (g.IsMod) { <text>Moderator </text>}</td>
                 <td>
