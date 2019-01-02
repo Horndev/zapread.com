@@ -179,16 +179,11 @@ namespace zapread.com.Controllers
 
                 await EnsureUserExists(uid, db);
 
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                var user = db.Users
+                    .Include("Settings")
+                    .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
-                //if (user.Settings.ColorTheme != null && user.Settings.ColorTheme == "dark")
-                //{
-                //    ViewBag.ColorTheme = "dark";
-                //}
-                //else
-                //{
-                //    ViewBag.ColorTheme = "light";
-                //}
+                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
 
                 var gi = new List<GroupInfo>();
 
