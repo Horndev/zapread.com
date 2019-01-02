@@ -605,8 +605,6 @@ namespace zapread.com.Controllers
                             Icon = g.Icon,
                             Level = 1,
                             Progress = 36,
-                            //NumPosts = g.Posts.Count(),
-                            //UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
                             IsMod = g.Moderators.Contains(user),
                             IsAdmin = g.Administrators.Contains(user),
                         });
@@ -618,7 +616,6 @@ namespace zapread.com.Controllers
                     CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy"),
                     Name = group.GroupName,
                     NumMembers = group.Members.Count(),
-                    //NumPosts = num_posts,
                     Tags = tags,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
                     Level = group.Tier,
@@ -647,6 +644,7 @@ namespace zapread.com.Controllers
                 vm.UserBalance = user == null ? 0 : user.Funds.Balance;
                 vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);
                 vm.IsGroupMod = user == null ? false : group.Moderators.Select(usr => usr.Id).Contains(user.Id);
+                vm.IsIgnored = user == null ? false : user.IgnoredGroups.Select(gr => gr.GroupId).Contains(group.GroupId);
                 vm.Tags = group.Tags;
             }
             return View(vm);

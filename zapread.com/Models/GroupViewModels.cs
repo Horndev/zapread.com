@@ -48,6 +48,7 @@ namespace zapread.com.Models
 
         public bool IsGroupAdmin { get; set; }
         public bool IsGroupMod { get; set; }
+        public bool IsIgnored { get; set; }
 
         [Display(Name = "Tags")]
         [StringLength(256, ErrorMessage = "Too many tags.  Maximum 256 characters allowed.")]
