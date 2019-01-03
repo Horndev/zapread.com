@@ -92,6 +92,12 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+
+            $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {
+                e.stopPropagation();
+            });
+
             $(".sharing").each(function () {
                 $(this).jsSocials({
                     url: $(this).data('url'),
@@ -190,6 +196,42 @@
 
             $(".note-statusbar").css("display", "none");
         });
+
+        var dismiss = function (t, id) {
+            var url = "";
+            if (t == 1) {
+                url = "/Messages/DismissAlert";
+            }
+            else if (t == 0) {
+                url = "/Messages/DismissMessage";
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify({ "id": id }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    if (result.Result == "Success") {
+                        // Hide post
+                        if (t == 1) {
+                            $('#a_' + id).hide();
+                            $('#a1_' + id).hide();
+                            $('#a2_' + id).hide();
+                        }
+                        else {
+                            $('#m_' + id).hide();
+                            $('#m1_' + id).hide();
+                            $('#m2_' + id).hide();
+                        }
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("fail");
+                }
+            });
+            return false;
+        };
 
         var stickyPost = function (id) {
             $.ajax({

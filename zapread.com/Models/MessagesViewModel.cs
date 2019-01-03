@@ -21,6 +21,11 @@ namespace zapread.com.Models
         public List<UserMessage> Messages = new List<UserMessage>();
     }
 
+    public class RecentUnreadAlertsViewModel
+    {
+        public List<UserAlert> Alerts = new List<UserAlert>();
+    }
+
     public class ChatMessageViewModel
     {
         public UserMessage Message { get; set; }

@@ -12,8 +12,6 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
-
-
     public class MessagesController : Controller
     {
         private ApplicationUserManager _userManager;
@@ -150,6 +148,35 @@ namespace zapread.com.Controllers
                 }
             }
             return PartialView("_UnreadMessages", model: vm);
+        }
+
+        public PartialViewResult RecentUnreadAlerts(int count)
+        {
+            string userId = null;
+            if (User != null)
+            {
+                userId = User.Identity.GetUserId();
+            }
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Include("Alerts")
+                    //.Include("Messages")
+                    .Include("Alerts.PostLink")
+                    //.Include("Messages.PostLink")
+                    //.Include("Messages.From")
+                    .Where(u => u.AppId == userId).FirstOrDefault();
+
+                var vm = new RecentUnreadAlertsViewModel();
+
+                if (user != null)
+                {
+                    var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp).Take(count);
+                    vm.Alerts = alerts.ToList();
+                }
+
+                return PartialView("_PartialRecentUnreadAlerts", model: vm);
+            }
         }
 
         public PartialViewResult RecentUnreadMessages(int count)

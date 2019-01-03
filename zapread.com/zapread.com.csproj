@@ -1620,6 +1620,7 @@
     <Content Include="Views\Messages\_PartialRecentUnreadMessages.cshtml" />
     <Content Include="Views\Admin\_PartialSiteAdminBarUserInfo.cshtml" />
     <Content Include="Views\Messages\Chat.cshtml" />
+    <Content Include="Views\Messages\_PartialRecentUnreadAlerts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

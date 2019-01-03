@@ -48,15 +48,20 @@
                         <a class="count-info" data-toggle="dropdown" href="#">
                             <i class="fa fa-bell"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">-</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right"  style="overflow: auto;max-height: 500px;">
                             <li>
                                 <div class="text-center link-block">
-                                    <a href="@Url.Action("Index","Messages")" >
-                                        <strong>See All Alerts</strong>
-                                        <i class="fa fa-angle-right"></i>
+                                    <a href="@Url.Action("Index","Messages")">
+                                        <i class="fa fa-bell"></i> <strong>See All Alerts</strong>
+                                        
                                     </a>
                                 </div>
                             </li>
+                            <li class="divider"><hr /></li>
+                            @if (true)
+                            {
+                                Html.RenderAction(actionName: "RecentUnreadAlerts", controllerName: "Messages", routeValues: new { count = 10 });
+                            }
                         </ul>
                     </li>
                 </ul>

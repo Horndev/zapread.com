@@ -2,7 +2,7 @@
 
 @foreach (var m in Model.Messages)
 {
-    <li>
+    <li id="m1_@m.Id">
         <div class="dropdown-messages-box">
             @if (m.From != null)
             {
@@ -17,11 +17,13 @@
                 </a>
             }
             <div class="media-body">
-                <span class="pull-right"><a class="btn btn-sm btn-outline"><icon class="fa fa-minus-circle"></icon></a></span>
+                <span class="pull-right">
+                    <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(0,@m.Id)" class="btn btn-sm btn-outline" data-toggle="tooltip" data-placement="top" title="Dismiss"><icon class="fa fa-minus-circle"></icon></a>
+                </span>
                 @if (m.From != null) { <text>From: <strong>@m.From.Name</strong> <br /></text>}   @Html.Raw(m.Content) <br />
                 @*<small class="text-muted">@m.TimeStamp.Value.ToString("o")</small>*@
             </div>
         </div>
     </li>    
-    <li class="divider"></li>
+    <li id="m2_@m.Id" class="divider"><hr /></li>
 }
