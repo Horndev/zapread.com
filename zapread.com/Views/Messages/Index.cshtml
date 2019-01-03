@@ -28,6 +28,12 @@
                 <div class="ibox-content ibox-heading">
                     <h3><i class="fa fa-envelope-o"></i> New messages</h3>
                     <small><i class="fa fa-tim"></i> You have @Model.Messages.Count() new messages.</small>
+                    <span class="pull-right">
+                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(0, -1);">Delete all<icon class="fa fa-times-circle"></icon></a>
+                    </span>
+                    <span class="pull-right">
+                        <a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(0, -1);">Dismiss all <icon class="fa fa-minus-circle"></icon></a>
+                    </span>
                 </div>
                 <div class="ibox-content">
                     <div class="feed-activity-list">
@@ -81,6 +87,12 @@
                 <div class="ibox-content ibox-heading">
                     <h3><i class="fa fa-bell"></i> New Alerts</h3>
                     <small><i class="fa fa-tim"></i> You have @Model.Alerts.Count() new alerts.</small>
+                    <span class="pull-right">
+                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(1, -1);">Delete all<icon class="fa fa-times-circle"></icon></a>
+                    </span>
+                    <span class="pull-right">
+                        <a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(1, -1);">Dismiss all <icon class="fa fa-minus-circle"></icon></a>
+                    </span>
                 </div>
                 <div class="ibox-content">
                     <div class="feed-activity-list">
@@ -134,7 +146,6 @@
     @Scripts.Render("~/plugins/moment")
 <script type="text/javascript">
     
-
     var deletea = function (t, id) {
         var url = "";
         if (t == 1) {
@@ -153,10 +164,22 @@
             success: function (result) {
                 if (result.Result == "Success") {
                     if (t == 1) {
-                        $('#a_' + id).hide();
+                        if (id === -1) { // Deleted all
+                            $('[id^="a_"]').hide();
+                        } else {
+                            $('#a_' + id).hide();
+                            $('#a1_' + id).hide();
+                            $('#a2_' + id).hide();
+                        }
                     }
                     else {
-                        $('#m_' + id).hide();
+                        if (id === -1) { // Deleted all
+                            $('[id^="m_"]').hide();
+                        } else {
+                            $('#m_' + id).hide();
+                            $('#m1_' + id).hide();
+                            $('#m2_' + id).hide();
+                        }
                     }
                 }
             },

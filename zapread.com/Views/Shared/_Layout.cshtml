@@ -215,14 +215,22 @@
                     if (result.Result == "Success") {
                         // Hide post
                         if (t == 1) {
-                            $('#a_' + id).hide();
-                            $('#a1_' + id).hide();
-                            $('#a2_' + id).hide();
+                            if (id === -1) { // Dismissed all
+                                $('[id^="a_"]').hide();
+                            } else {
+                                $('#a_' + id).hide();
+                                $('#a1_' + id).hide();
+                                $('#a2_' + id).hide();
+                            }
                         }
                         else {
-                            $('#m_' + id).hide();
-                            $('#m1_' + id).hide();
-                            $('#m2_' + id).hide();
+                            if (id === -1) { // Dismissed all
+                                $('[id^="m_"]').hide();
+                            } else {
+                                $('#m_' + id).hide();
+                                $('#m1_' + id).hide();
+                                $('#m2_' + id).hide();
+                            }
                         }
                     }
                 },

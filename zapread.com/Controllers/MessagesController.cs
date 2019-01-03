@@ -252,6 +252,17 @@ namespace zapread.com.Controllers
                         return Json(new { Result = "Failure" });
                     }
 
+                    if (id == -1)
+                    {
+                        // dismissed all
+                        foreach(var a in user.Alerts.Where(m => !m.IsDeleted && !m.IsRead))
+                        {
+                            a.IsRead = true;
+                        }
+                        await db.SaveChangesAsync();
+                        return Json(new { Result = "Success" });
+                    }
+
                     var alert = user.Alerts.Where(m => m.Id == id).FirstOrDefault();
 
                     if (alert == null)
@@ -282,6 +293,17 @@ namespace zapread.com.Controllers
                     if (user == null)
                     {
                         return Json(new { Result = "Failure" });
+                    }
+
+                    if (id == -1)
+                    {
+                        // dismissed all
+                        foreach (var a in user.Messages.Where(m => !m.IsDeleted && !m.IsRead))
+                        {
+                            a.IsRead = true;
+                        }
+                        await db.SaveChangesAsync();
+                        return Json(new { Result = "Success" });
                     }
 
                     var msg = user.Messages.Where(m => m.Id == id).FirstOrDefault();
@@ -316,6 +338,17 @@ namespace zapread.com.Controllers
                         return Json(new { Result = "Failure" });
                     }
 
+                    if (id == -1)
+                    {
+                        // dismissed all
+                        foreach (var a in user.Alerts.Where(m => !m.IsDeleted && !m.IsRead))
+                        {
+                            a.IsDeleted = true;
+                        }
+                        await db.SaveChangesAsync();
+                        return Json(new { Result = "Success" });
+                    }
+
                     var alert = user.Alerts.Where(m => m.Id == id).FirstOrDefault();
 
                     if (alert == null)
@@ -346,6 +379,17 @@ namespace zapread.com.Controllers
                     if (user == null)
                     {
                         return Json(new { Result = "Failure" });
+                    }
+
+                    if (id == -1)
+                    {
+                        // dismissed all
+                        foreach (var a in user.Messages.Where(m => !m.IsDeleted && !m.IsRead))
+                        {
+                            a.IsDeleted = true;
+                        }
+                        await db.SaveChangesAsync();
+                        return Json(new { Result = "Success" });
                     }
 
                     var msg = user.Messages.Where(m => m.Id == id).FirstOrDefault();
