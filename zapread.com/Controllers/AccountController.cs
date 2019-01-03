@@ -557,7 +557,10 @@ namespace zapread.com.Controllers
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl);
+                await UserManager.SendEmailAsync(
+                    userId: user.Id, 
+                    subject: "Reset Password", 
+                    body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl);
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
