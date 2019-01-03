@@ -10,14 +10,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @*<div class="card ">
-                    <div class="card-body">
-                        Not yet implemented*@
-                        <div class="m_input wrapper p-md" id="message_input"></div>
-                    @*</div>
-                    <div class="card-footer bg-muted" id="messageComposeModalFooter">
-                    </div>
-                </div>*@
+                <div class="m_input wrapper p-md" id="message_input"></div>
             </div>
             <div class="modal-footer">
                 <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@ViewBag.UserId);">Send</button>
@@ -30,8 +23,7 @@
 
 @Html.Script(
 @<script type="text/javascript">
-
-    $(document).ready(function () {
+    $('#sendPrivateMessage').click(function () {
         $(".m_input").summernote({
             callbacks: {
                 onImageUpload: function (files) {
@@ -42,6 +34,7 @@
             focus: false,
             placeholder: 'Write message...',
             disableDragAndDrop: false,
+            dialogsInBody: true,
             toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
             minHeight: 100,
             maxHeight: 600,
@@ -57,6 +50,10 @@
                 }
             }
         });
+    });
+
+    $(document).ready(function () {
+        
     });
 
     var sendMessage = function (id) {
