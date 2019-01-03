@@ -563,8 +563,16 @@ namespace zapread.com.Controllers
                 {
                     if (g.Administrators.Contains(u))
                     {
-                        g.Administrators.Remove(u);
-                        u.GroupAdministration.Remove(g);
+                        if (g.Administrators.Count() == 1)
+                        {
+                            // do not remove last admin
+                            return Json(new { success = true, message = "Unable to remove last administrator from group" });
+                        }
+                        {
+                            g.Administrators.Remove(u);
+                            u.GroupAdministration.Remove(g);
+                        }
+                        
                     }
                 }
                 if (isMod)
