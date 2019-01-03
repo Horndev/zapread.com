@@ -9,6 +9,7 @@ using zapread.com.Models;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using System.IO;
+using zapread.com.Helpers;
 
 namespace zapread.com.Controllers
 {
@@ -27,8 +28,20 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users
-                    //.Include(u => u.Groups)
+                    .Include(u => u.Settings)
                     .FirstOrDefault(u => u.AppId == userId);
+
+                if (user != null)
+                {
+                    try
+                    {
+                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                    }
+                }
 
                 var groups = db.Groups
                     .Include(g => g.Members)

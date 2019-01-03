@@ -11,6 +11,7 @@ using System.Data.Entity;
 using Microsoft.AspNet.Identity.Owin;
 using zapread.com.Services;
 using HtmlAgilityPack;
+using zapread.com.Helpers;
 
 namespace zapread.com.Controllers
 {
@@ -442,7 +443,21 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                var user = db.Users
+                    .Include("Settings")
+                    .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                if (user != null)
+                {
+                    try
+                    {
+                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                    }
+                }
 
                 var pst = db.Posts
                     .Include(p => p.Group)

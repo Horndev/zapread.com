@@ -414,8 +414,18 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.Funds)
+                        .Include(usr => usr.Settings)
                         .Where(us => us.AppId == userId).First();
                     aboutMe = u.AboutMe;
+                }
+
+                try
+                {
+                    User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
+                }
+                catch (Exception)
+                {
+                    //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
                 }
 
                 ViewBag.UserName = u.Name;
