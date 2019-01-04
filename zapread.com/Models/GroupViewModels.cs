@@ -6,6 +6,11 @@ using System.Web;
 
 namespace zapread.com.Models
 {
+    public class GroupAdminBarViewModel
+    {
+        public int GroupId { get; set; }
+    }
+
     public class NewGroupViewModel
     {
         [Display(Name = "Name")]

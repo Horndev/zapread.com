@@ -1,4 +1,6 @@
-﻿<div class="wrapper wrapper-content ">
+﻿@model zapread.com.Models.GroupAdminBarViewModel
+
+<div class="wrapper wrapper-content ">
     <div class="row ">
         <div class="col-lg-12">
             <div class="ibox float-e-margins collapsed" style="margin-bottom: 0px;">
@@ -21,8 +23,8 @@
                     </h2>
                     <div class="row">
                         <div class="col-lg-12">
-                            <button class="btn btn-primary btn-outline" id="GAdminEditTags" data-toggle="modal" data-target="#GAdminEditTagModal">Edit Tags</button>
-                            <button class="btn btn-primary btn-outline" id="GAdminEditIcon" data-toggle="modal" data-target="#GAdminEditIconModal">Edit Icon</button>
+                            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditTags" data-toggle="modal" data-target="#GAdminEditTagModal">Edit Tags</button>
+                            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditIcon" data-toggle="modal" data-target="#GAdminEditIconModal">Edit Icon</button>
                         </div>
                     </div>
 
@@ -45,7 +47,7 @@
                         <div class="col-lg-3">
                             <div class="ibox float-e-margins">
                                 <div class="ibox-title bg-danger">
-                                    <h5>Users Banned</h5>
+                                    <h5>Group Settings</h5>
                                     <div class="ibox-tools">
                                         <a class="collapse-link">
                                             <i class="fa fa-chevron-up"></i>
@@ -53,9 +55,10 @@
                                     </div>
                                 </div>
                                 <div class="ibox-content">
-                                    <h1 class="no-margins">Not yet implemented.</h1>
+                                    <button class="btn btn-sm btn-outline btn-primary" onclick="changeName(@Model.GroupId);">Change Group Name</button>
+                                    @*<h1 class="no-margins">Not yet implemented.</h1>*@
                                     @*<div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
-                                    <small>BTC User Deposits</small>*@
+                                        <small>BTC User Deposits</small>*@
                                 </div>
                             </div>
                         </div>
@@ -72,7 +75,7 @@
                                 <div class="ibox-content">
                                     <h1 class="no-margins">Not yet implemented.</h1>
                                     @*<div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
-                                    <small>BTC User Withdraws</small>*@
+                                        <small>BTC User Withdraws</small>*@
                                 </div>
                             </div>
                         </div>
@@ -89,7 +92,7 @@
                                 <div class="ibox-content">
                                     <h1 class="no-margins">Not yet implemented.</h1>
                                     @*<div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i></div>
-                                    <small>Up + Down</small>*@
+                                        <small>Up + Down</small>*@
                                 </div>
                             </div>
                         </div>
@@ -159,3 +162,43 @@
         </div>
     </div>
 </div>
+
+@Html.Script(
+@<script type="text/javascript">
+     var changeName = function (groupId) {
+         swal({
+             text: 'Enter new group name',
+             content: "input",
+             button: {
+                 text: "Ok",
+                 closeModal: false,
+             },
+         })
+         .then(name => {
+            if (!name) throw null;
+
+            $.post("@Url.Action("ChangeName",
+                    "Group")",
+                    { "groupId": groupId, "newName": name },
+                    function (data) {
+                        if (data.success) {
+                            swal("Your group name has been updated!", {
+                                icon: "success",
+                            });
+                        }
+                        else {
+                            swal("Error", "Error updating group name: " + data.message, "error");
+                        }
+                    });
+         })
+        .catch(err => {
+            if (err) {
+                swal("Error", "Error updating group name.", "error");
+            } else {
+                swal.stopLoading();
+                swal.close();
+            }
+        });
+     };
+</script>
+        )

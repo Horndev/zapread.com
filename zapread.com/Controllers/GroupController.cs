@@ -666,7 +666,12 @@ namespace zapread.com.Controllers
         public PartialViewResult GroupAdminBar(string groupId)
         {
             ViewBag.groupId = groupId;
-            return PartialView("_PartialGroupAdminBar");
+            var vm = new GroupAdminBarViewModel()
+            {
+                GroupId = Convert.ToInt32(groupId),
+            };
+
+            return PartialView("_PartialGroupAdminBar", model: vm);
         }
 
         public PartialViewResult AdminAddUserToGroupRoleForm(int groupId)
@@ -685,6 +690,43 @@ namespace zapread.com.Controllers
                 var vm = new AddUserToGroupRoleModel();
                 vm.GroupName = groupName;
                 return PartialView("_PartialAddUserToGroupRoleForm", vm);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ChangeName(int groupId, string newName)
+        {
+            using (var db = new ZapContext())
+            {
+                var uid = User.Identity.GetUserId();
+                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                if (user == null)
+                {
+                    return Json(new { result = "error", success = false, message = "User not authorized." });
+                }
+
+                var g = db.Groups.FirstOrDefault(grp => grp.GroupId == groupId);
+                if (g == null)
+                {
+                    return Json(new { result = "error", success = false, message = "Group not found in database." });
+                }
+
+                if (!g.Administrators.Select(a => a.Id).Contains(user.Id))
+                {
+                    return Json(new { result = "error", success = false, message = "User not authorized." });
+                }
+
+                if (db.Groups.Select(grp => grp.GroupName).Contains(newName))
+                {
+                    return Json(new { result = "error", success = false, message = "Group name already used." });
+                }
+
+                g.GroupName = newName;
+
+                db.SaveChanges();
+
+                return Json(new { result = "success", success = true });
             }
         }
 
