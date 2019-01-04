@@ -24,5 +24,7 @@ namespace zapread.com.Models
         public List<User> TopFollowers { get; set; }
 
         public double UserBalance { get; set; }
+
+        public ManageUserGroupsViewModel UserGroups { get; set; }
     }
 }

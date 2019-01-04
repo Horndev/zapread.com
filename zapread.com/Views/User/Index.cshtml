@@ -260,6 +260,18 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="ibox-title">
+                    <h5>Groups</h5>
+                    <div class="ibox-tools">
+                    </div>
+                </div>
+                <div>
+                    <div class="ibox-content profile-content">
+                        @Html.Partial(partialViewName: "_PartialUserGroups", model: @Model.UserGroups)
+                    </div>
+                </div>
+
             </div>
         </div>
 

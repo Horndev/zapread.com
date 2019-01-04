@@ -107,12 +107,32 @@ namespace zapread.com.Controllers
                     });
                 }
 
+                var gi = new List<GroupInfo>();
+                var userGroups = user.Groups.ToList();
+
+                foreach (var g in userGroups)
+                {
+                    gi.Add(new GroupInfo()
+                    {
+                        Id = g.GroupId,
+                        Name = g.GroupName,
+                        Icon = "fa-bolt",
+                        Level = 1,
+                        Progress = 36,
+                        NumPosts = g.Posts.Count(),
+                        UserPosts = g.Posts.Where(p => p.UserId.Id == user.Id).Count(),
+                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(user.Id),
+                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(user.Id),
+                    });
+                }
+
                 var vm = new UserViewModel()
                 {
                     AboutMe = new AboutMeViewModel()
                     {
                         AboutMe = user.AboutMe
                     },
+                    UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
                     NumPosts = numUserPosts,
                     NumFollowers = numFollowers,
                     NumFollowing = numFollowing,

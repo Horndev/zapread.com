@@ -36,8 +36,6 @@ namespace zapread.com.Models
     {
         public int Column { get; set; }
         public string Dir { get; set; }
-
-
     }
 
     public class ManageUserViewModel : UserViewModel
@@ -48,7 +46,7 @@ namespace zapread.com.Models
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public FinancialViewModel Financial { get; set; }
-        public ManageUserGroupsViewModel UserGroups { get; set; }
+       
         public UserSettings Settings { get; set; }
     }
 
