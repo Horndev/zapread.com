@@ -64,7 +64,7 @@
                 }
             </div>
             <div class="social-feed-box">
-                <button class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More</button>
+                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
             </div>
 
             <div class="social-feed-box">
@@ -126,9 +126,13 @@
         var loadmore = function () {
             if (!inProgress) {
                 inProgress = true;
+                $('#loadmore').show();
+                $('#btnLoadmore').prop('disabled', true);
                 $.post("@Url.Action("InfiniteScroll", "Home")", 
                     { "BlockNumber": BlockNumber, "sort": "@Model.Sort" },
                     function (data) {
+                        $('#loadmore').hide();
+                        $('#btnLoadmore').prop('disabled', false);
                         BlockNumber = BlockNumber + 10;
                         NoMoreData = data.NoMoreData;
                         $("#posts").append(data.HTMLString);
