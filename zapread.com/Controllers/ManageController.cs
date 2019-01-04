@@ -371,6 +371,67 @@ namespace zapread.com.Controllers
             }
         }
 
+        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users
+                        .AsNoTracking()
+                        .Where(us => us.Id == userId).FirstOrDefault();
+
+                if (u == null)
+                {
+                    return new List<Post>();
+                }
+
+                // These are the user ids which we are following
+                var followingIds = u.Following.Select(f => f.Id).ToList();// db.Users.Where(usr => usr.Id == u.Id).Select(us => us.Id).ToList();
+
+                // Our posts
+                var userposts = db.Posts.Where(p => p.UserId.Id == u.Id)
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft)
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Include(p => p.Group)
+                    .Include(p => p.Comments)
+                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                    .Include("UserId")
+                    .AsNoTracking().Take(20);
+
+                var userCommentedPosts = db.Comments
+                    .Where(c => c.UserId.Id == u.Id)
+                    //.Where(c => !c.IsDeleted)
+                    .Select(c => c.Post)
+                    .Distinct()
+                    .Include("UserId")
+                    .AsNoTracking().Take(20);
+
+                // Followers posts
+                var followposts = db.Posts.Where(p => followingIds.Contains(p.UserId.Id))
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft)
+                    .Include(p => p.Group)
+                    .Include(p => p.Comments)
+                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                    .Include("UserId")
+                    .AsNoTracking().Take(20);
+
+                var activityposts = userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
+                    .Skip(start)
+                    .Take(count)
+                    .ToList();
+
+                return activityposts;
+            }
+        }
+
+
         //
         // GET: /Manage/Index
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
@@ -415,6 +476,7 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
+                        .AsNoTracking()
                         .Where(us => us.AppId == userId).First();
                     aboutMe = u.AboutMe;
                 }
@@ -431,48 +493,7 @@ namespace zapread.com.Controllers
                 ViewBag.UserName = u.Name;
                 ViewBag.UserId = u.Id;
 
-                // These are the user ids which we are following
-                var followingIds = u.Following.Select(f => f.Id).ToList();// db.Users.Where(usr => usr.Id == u.Id).Select(us => us.Id).ToList();
-
-                // Our posts
-                var userposts = db.Posts.Where(p => p.UserId.Id == u.Id)
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .OrderByDescending(p => p.TimeStamp)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
-                    .AsNoTracking().Take(20);
-
-                var userCommentedPosts = db.Comments
-                    .Where(c => c.UserId.Id == u.Id)
-                    //.Where(c => !c.IsDeleted)
-                    .Select(c => c.Post)
-                    .Distinct()
-                    .Include("UserId")
-                    .AsNoTracking().Take(20);
-
-
-                // Followers posts
-                var followposts = db.Posts.Where(p => followingIds.Contains(p.UserId.Id))
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
-                    .AsNoTracking().Take(20);
-
-                var activityposts = userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
-                    .Take(10)
-                    .ToList();
+                var activityposts = GetPosts(0, 10, userId: u.Id);
 
                 // Get record of recent LN transactions
                 var recentTxs = u.LNTransactions
@@ -613,6 +634,60 @@ namespace zapread.com.Controllers
                 };
 
                 return View(model);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult InfiniteScroll(int BlockNumber)
+        {
+            int BlockSize = 10;
+
+            using (var db = new ZapContext())
+            {
+                var uid = User.Identity.GetUserId();
+                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                var posts = GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
+
+                string PostsHTMLString = "";
+
+                foreach (var p in posts)
+                {
+                    var pvm = new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    };
+
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    PostsHTMLString += PostHTMLString;
+                }
+                return Json(new
+                {
+                    NoMoreData = posts.Count < BlockSize,
+                    HTMLString = PostsHTMLString,
+                });
+            }
+        }
+
+        protected string RenderPartialViewToString(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.RouteData.GetRequiredString("action");
+
+            ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult =
+                ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                ViewContext viewContext = new ViewContext
+                (ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
             }
         }
 
