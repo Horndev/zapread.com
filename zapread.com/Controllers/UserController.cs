@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -13,6 +14,57 @@ namespace zapread.com.Controllers
     [RoutePrefix("user")]
     public class UserController : Controller
     {
+        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        {
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                        .AsNoTracking()
+                        .Where(us => us.Id == userId).FirstOrDefault();
+
+                if (user == null)
+                {
+                    return new List<Post>();
+                }
+
+                // These are the user ids which we are following
+                var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
+
+                var userposts = db.Posts
+                    .Where(p => p.UserId.Id == user.Id)
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft)
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Include(p => p.Group)
+                    .Include(p => p.Comments)
+                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                    .Include("UserId")
+                    .AsNoTracking().Take(20);
+
+                var followposts = db.Posts
+                    .Where(p => followingIds.Contains(p.UserId.Id))
+                    .Where(p => !p.IsDeleted)
+                    .Include(p => p.Group)
+                    .Include(p => p.Comments)
+                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                    .Include("UserId")
+                    .AsNoTracking().Take(20);
+
+                var activityposts = userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
+                    .Skip(start)
+                    .Take(count)
+                    .ToList();
+
+                return activityposts;
+            }
+        }
+
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
@@ -52,35 +104,7 @@ namespace zapread.com.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
-
-                var userposts = db.Posts
-                    .Where(p => p.UserId.Id == user.Id)
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .OrderByDescending(p => p.TimeStamp)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
-                    .AsNoTracking().Take(20);
-
-                var followposts = db.Posts
-                    .Where(p => followingIds.Contains(p.UserId.Id))
-                    .Where(p => !p.IsDeleted)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
-                    .AsNoTracking().Take(20);
-
-                var activityposts = userposts.Union(followposts).OrderByDescending(p => p.TimeStamp).Take(10).ToList();
+                var activityposts = GetPosts(0, 10, user.Id);
 
                 int numUserPosts = db.Posts.Where(p => p.UserId.Id == user.Id).Count();
 
@@ -148,6 +172,61 @@ namespace zapread.com.Controllers
                 ViewBag.UserId = user.Id;
 
                 return View(vm);
+            }
+        }
+
+        [HttpPost]
+        [Route("InfiniteScroll/")]
+        public ActionResult InfiniteScroll(int BlockNumber, int? userId)
+        {
+            int BlockSize = 10;
+
+            using (var db = new ZapContext())
+            {
+                var uid = User.Identity.GetUserId();
+                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+
+                var posts = GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
+
+                string PostsHTMLString = "";
+
+                foreach (var p in posts)
+                {
+                    var pvm = new PostViewModel()
+                    {
+                        Post = p,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    };
+
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    PostsHTMLString += PostHTMLString;
+                }
+                return Json(new
+                {
+                    NoMoreData = posts.Count < BlockSize,
+                    HTMLString = PostsHTMLString,
+                });
+            }
+        }
+
+        protected string RenderPartialViewToString(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.RouteData.GetRequiredString("action");
+
+            ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult =
+                ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                ViewContext viewContext = new ViewContext
+                (ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
             }
         }
 
