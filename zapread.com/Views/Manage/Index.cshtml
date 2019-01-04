@@ -134,6 +134,8 @@
             },
             dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
         };
+
+
     </script>
 
     @*@Scripts.Render("~/bundles/DetailPost")*@
@@ -537,7 +539,7 @@
                         {
                             @Html.Partial(partialViewName: "_PartialPostRender", model: p)
                         }
-                        <button class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Show More</button>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
                     </div>
                 </div>
             </div>

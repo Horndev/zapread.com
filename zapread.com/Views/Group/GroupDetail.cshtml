@@ -124,7 +124,7 @@
             @if (Model.HasMorePosts)
             {
                 <div class="social-feed-box" id="showmore">
-                    <button class="btn btn-primary btn-block"><i class="fa fa-arrow-down"></i> Show More</button>
+                    <button id="btnLoadmore" class="btn btn-primary btn-block"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
                 </div>
             }
             <div class="social-feed-box">
@@ -265,9 +265,13 @@
         var loadmore = function () {
             if (!inProgress) {
                 inProgress = true;
+                $('#loadmore').show();
+                $('#btnLoadmore').prop('disabled', true);
                 $.post("@Url.Action("InfiniteScroll", 
                     "Group")", { "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" },
                             function (data) {
+                                $('#loadmore').hide();
+                                $('#btnLoadmore').prop('disabled', false);
                                 BlockNumber = BlockNumber + 10;
                                 NoMoreData = data.NoMoreData;
                                 $("#posts").append(data.HTMLString);
