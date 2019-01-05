@@ -266,8 +266,15 @@ namespace zapread.com.Controllers
                     post.PostTitle = p.Title;
                     post.Group = postGroup;
                     post.Content = contentStr;
+                    if (post.IsDraft) // Post was or is draft - set timestamp.
+                    {
+                        post.TimeStamp = DateTime.UtcNow;
+                    }
+                    else // Post has been published, don't update timestamp, update edit timestamp.
+                    {
+                        post.TimeStampEdited = DateTime.UtcNow;
+                    }
                     post.IsDraft = p.IsDraft;
-                    post.TimeStamp = DateTime.UtcNow;
                     await db.SaveChangesAsync();
 
                     return Json(new { result = "success", postId = post.PostId });
