@@ -22,6 +22,7 @@ namespace zapread.com.Models
         public string AppId { get; set; }
         public string AboutMe { get; set; }
         public DateTime? DateJoined { get; set; }
+        public DateTime? DateLastActivity { get; set; }
 
         public Int64 Reputation { get; set; }
 
