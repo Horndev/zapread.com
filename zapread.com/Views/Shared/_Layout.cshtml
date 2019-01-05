@@ -1,6 +1,10 @@
 ﻿@{ 
     var claimsIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
 }
+@{ 
+    var googleAnalyticsUrl = "https://www.googletagmanager.com/gtag/js?id=" + System.Configuration.ConfigurationManager.AppSettings["GoogleAnalytics"];
+}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,6 +30,16 @@
     {
         @Styles.Render("~/Content/css")
     }
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="@googleAnalyticsUrl"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', '@System.Configuration.ConfigurationManager.AppSettings["GoogleAnalytics"]');
+    </script>
 
 </head>
 <body class="top-navigation gray-bg">
