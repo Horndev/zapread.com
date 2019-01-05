@@ -186,8 +186,16 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sort">Score, New</param>
+        /// <param name="l"></param>
+        /// <param name="g">include subscribed groups null = yes</param>
+        /// <param name="f">include subscribed followers null = yes</param>
+        /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Index(string sort, string l)
+        public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             using (var db = new ZapContext())
             {

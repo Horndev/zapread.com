@@ -435,7 +435,7 @@ namespace zapread.com.Controllers
                         IsDeleted = false,
                         IsRead = false,
                         TimeStamp = DateTime.UtcNow,
-                        Title = "Private message from " + sender.Name,
+                        Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
 
                     receiver.Messages.Add(msg);
