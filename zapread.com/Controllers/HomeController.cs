@@ -230,20 +230,20 @@ namespace zapread.com.Controllers
                 {
                     // Get list of user subscribed groups (with highest activity on top)
                     var userGroups = user.Groups
-                        .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
+                        .OrderByDescending(grp => grp.TotalEarned + grp.TotalEarnedToDistribute)
                         .ToList();
 
-                    foreach (var g in userGroups)
+                    foreach (var grp in userGroups)
                     {
                         gi.Add(new GroupInfo()
                         {
-                            Id = g.GroupId,
-                            Name = g.GroupName,
-                            Icon = g.Icon,
+                            Id = grp.GroupId,
+                            Name = grp.GroupName,
+                            Icon = grp.Icon,
                             Level = 1,
                             Progress = 36,
-                            IsMod = g.Moderators.Contains(user),
-                            IsAdmin = g.Administrators.Contains(user),
+                            IsMod = grp.Moderators.Contains(user),
+                            IsAdmin = grp.Administrators.Contains(user),
                         });
                     }
                 }
@@ -255,7 +255,7 @@ namespace zapread.com.Controllers
                     postViews.Add(new PostViewModel()
                     {
                         Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                        ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     });
