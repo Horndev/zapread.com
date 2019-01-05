@@ -297,8 +297,8 @@ namespace zapread.com.Controllers
                         var alert = new UserAlert()
                         {
                             TimeStamp = DateTime.Now,
-                            Title = "New comment on your post: " + post.PostTitle,
-                            Content = "From: " + user.Name + "<br/> " + c.CommentContent,
+                            Title = "New comment on your post: <a href=" + @Url.Action("Detail", "Post", new { id = post.PostId }) + ">" + post.PostTitle + "</a>",
+                            Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",//< br/> " + c.CommentContent,
                             CommentLink = comment,
                             IsDeleted = false,
                             IsRead = false,

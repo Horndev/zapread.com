@@ -273,7 +273,7 @@ namespace zapread.com.Controllers
                     {
                         TimeStamp = DateTime.Now,
                         Title = "You received a tip!",
-                        Content = "From: " + user.Name + "<br/> Amount: " + amount.ToString() + " Satoshi.",
+                        Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a><br/> Amount: " + amount.ToString() + " Satoshi.",
                         IsDeleted = false,
                         IsRead = false,
                         To = receiver,
