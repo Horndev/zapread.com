@@ -174,6 +174,7 @@ namespace zapread.com.Models
         public int Score { get; set; }
         public string PostTitle { get; set; }
         public DateTime? TimeStamp { get; set; }
+        public DateTime? TimeStampEdited { get; set; }                  // When the post was last edited, or null
         public string Content { get; set; }
         public double TotalEarned { get; set; }
         // User who made post

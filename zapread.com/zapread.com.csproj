@@ -564,6 +564,10 @@
     <Compile Include="Migrations\201901021223377_AddLanguages.Designer.cs">
       <DependentUpon>201901021223377_AddLanguages.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901050104288_AddPostTimestampEdited.cs" />
+    <Compile Include="Migrations\201901050104288_AddPostTimestampEdited.Designer.cs">
+      <DependentUpon>201901050104288_AddPostTimestampEdited.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1780,6 +1784,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901021223377_AddLanguages.resx">
       <DependentUpon>201901021223377_AddLanguages.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901050104288_AddPostTimestampEdited.resx">
+      <DependentUpon>201901050104288_AddPostTimestampEdited.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
