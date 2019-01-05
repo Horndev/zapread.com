@@ -39,6 +39,7 @@ namespace zapread.com.Models
         public virtual UserFunds Funds { get; set; }
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }
+        public virtual UserIgnoreUser UserIgnores { get; set; }
         public virtual ICollection<Post> PostVotesUp { get; set; }
         public virtual ICollection<Post> PostVotesDown { get; set; }
         public virtual ICollection<Comment> CommentVotesUp { get; set; }
@@ -74,6 +75,13 @@ namespace zapread.com.Models
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class UserIgnoreUser
+    {
+        public int Id { get; set; }
+
+        public virtual ICollection<User> IgnoringUsers { get; set; }
     }
 
     public class UserAlert
