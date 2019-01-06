@@ -216,7 +216,6 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .SingleOrDefault(u => u.AppId == uid);
 
-
                 var posts = GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
 
                 try
