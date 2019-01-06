@@ -68,7 +68,7 @@ namespace zapread.com.Controllers
                         Tags = tags,
                         Icon = g.Icon != null ? "fa-" + g.Icon : "fa-bolt",
                         Level = g.Tier,
-                        Progress = Convert.ToInt32(100.0*(g.TotalEarned+g.TotalEarnedToDistribute)/1000.0),
+                        Progress = GetGroupProgress(g),
                         IsMember = isMember,
                         IsLoggedIn = user != null,
                     });
@@ -561,6 +561,107 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        protected int GetGroupProgress(Group g)
+        {
+            var e = g.TotalEarned + g.TotalEarnedToDistribute;
+            var level = GetGroupLevel(g);
+
+            if (g.Tier == 0)
+            {
+                return Convert.ToInt32(100.0 * e / 1000.0);
+            }
+            if (g.Tier == 1)
+            {
+                return Convert.ToInt32(100.0 * (e-1000.0) / 10000.0);
+            }
+            if (g.Tier == 2)
+            {
+                return Convert.ToInt32(100.0 * (e - 10000.0) / 50000.0);
+            }
+            if (g.Tier == 3)
+            {
+                return Convert.ToInt32(100.0 * (e - 50000.0) / 200000.0);
+            }
+            if (g.Tier == 4)
+            {
+                return Convert.ToInt32(100.0 * (e - 200000.0) / 500000.0);
+            }
+            if (g.Tier == 5)
+            {
+                return Convert.ToInt32(100.0 * (e - 500000.0) / 1000000.0);
+            }
+            if (g.Tier == 6)
+            {
+                return Convert.ToInt32(100.0 * (e - 1000000.0) / 5000000.0);
+            }
+            if (g.Tier == 7)
+            {
+                return Convert.ToInt32(100.0 * (e - 5000000.0) / 10000000.0);
+            }
+            if (g.Tier == 8)
+            {
+                return Convert.ToInt32(100.0 * (e - 10000000.0) / 20000000.0);
+            }
+            if (g.Tier == 9)
+            {
+                return Convert.ToInt32(100.0 * (e - 20000000.0) / 50000000.0);
+            }
+            return 100;// Convert.ToInt32(100.0 * (g.TotalEarned + g.TotalEarnedToDistribute) / 1000.0);
+        }
+
+        /// <summary>
+        /// Returns the tier of the group
+        /// </summary>
+        /// <param name="g"></param>
+        /// <returns></returns>
+        protected int GetGroupLevel(Group g)
+        {
+            //259 641.6
+            var e = g.TotalEarned + g.TotalEarnedToDistribute;
+
+            if (e < 1000)
+            {
+                return 0;
+            }
+            if (e < 10000)
+            {
+                return 1;
+            }
+            if (e < 50000)
+            {
+                return 2;
+            }
+            if (e < 200000)
+            {
+                return 3;
+            }
+            if (e < 500000)
+            {
+                return 4;
+            }
+            if (e < 1000000)
+            {
+                return 5;
+            }
+            if (e < 5000000)
+            {
+                return 6;
+            }
+            if (e < 10000000)
+            {
+                return 7;
+            }
+            if (e < 20000000)
+            {
+                return 8;
+            }
+            if (e < 50000000)
+            {
+                return 9;
+            }
+            return 10;
+        }
+
         public ActionResult GroupDetail(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -578,7 +679,7 @@ namespace zapread.com.Controllers
                     .SingleOrDefault(u => u.AppId == userId);
 
                 var group = db.Groups
-                    .AsNoTracking()
+                    //.AsNoTracking()
                     .FirstOrDefault(g => g.GroupId == id);
 
                 var groupPosts = db.Posts
@@ -599,6 +700,15 @@ namespace zapread.com.Controllers
                 if (groupPosts.Count() < 10)
                 {
                     vm.HasMorePosts = false;
+                }
+
+                // Check tier
+                var level = GetGroupLevel(group);
+
+                if (group.Tier < level)
+                {
+                    group.Tier = level;
+                    db.SaveChanges();
                 }
 
                 List<string> tags = group.Tags != null ? group.Tags.Split(',').ToList() : new List<string>();
