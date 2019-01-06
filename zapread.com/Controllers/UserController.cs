@@ -413,6 +413,55 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "User", new { username = username });
         }
 
+        [HttpPost]
+        [Route("ToggleIgnore")]
+        public ActionResult ToggleIgnore(int id)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return new HttpUnauthorizedResult("User not authorized");
+            }
+
+            var userId = User.Identity.GetUserId();
+
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Include(usr => usr.UserIgnores)
+                    .FirstOrDefault(u => u.AppId == userId);
+
+                var ignoredUser = db.Users
+                    .FirstOrDefault(u => u.Id == id);
+
+                if (ignoredUser == null)
+                {
+                    return Json(new { result = "error", message = "user not found." });
+                }
+
+                bool added = false;
+
+                if (user.UserIgnores == null)
+                {
+                    user.UserIgnores = new UserIgnoreUser();
+                    user.UserIgnores.IgnoringUsers = new List<User>();
+                }
+
+                if (user.UserIgnores.IgnoringUsers.Select(u => u.Id).Contains(id))
+                {
+                    user.UserIgnores.IgnoringUsers.Remove(ignoredUser);
+                }
+                else
+                {
+                    user.UserIgnores.IgnoringUsers.Add(ignoredUser);
+                    added = true;
+                }
+
+                db.SaveChanges();
+
+                return Json(new { result = "success", added });
+            }
+        }
+
         /// <summary>
         /// Returns a partial view of a users recent activity
         /// </summary>
