@@ -315,6 +315,9 @@ namespace zapread.com.Models
         public string Tags { get; set; }
 
         public string Icon { get; set; }
+
+        // Unlockable description of group - set by admin
+        public string ShortDescription { get; set; }
     }
 
     public class ZapReadGlobals

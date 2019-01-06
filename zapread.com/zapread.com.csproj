@@ -584,6 +584,10 @@
     <Compile Include="Migrations\201901060326592_removeUserIgnoreUser.Designer.cs">
       <DependentUpon>201901060326592_removeUserIgnoreUser.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901061807407_addGroupShortDescription.cs" />
+    <Compile Include="Migrations\201901061807407_addGroupShortDescription.Designer.cs">
+      <DependentUpon>201901061807407_addGroupShortDescription.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1815,6 +1819,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901060326592_removeUserIgnoreUser.resx">
       <DependentUpon>201901060326592_removeUserIgnoreUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901061807407_addGroupShortDescription.resx">
+      <DependentUpon>201901061807407_addGroupShortDescription.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
