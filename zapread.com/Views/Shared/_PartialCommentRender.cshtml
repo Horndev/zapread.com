@@ -48,7 +48,7 @@
         <div class=@if (Model.Comment.IsReply) { <text>" "</text> } else { <text>" social-comment"</text> }>
             @if (!isIgnoredUser)
             {
-                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })" class="pull-left">
+                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name.Trim() })" class="pull-left">
                     <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
                 </a>
             }

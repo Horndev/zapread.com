@@ -98,7 +98,7 @@
         </a>
         }
         <div class="media-body">
-            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })">
+            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
                 @if (Model.ViewerIgnoredUser)
                 {
                     <text>(Ignored) </text>
