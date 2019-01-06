@@ -187,9 +187,10 @@ namespace zapread.com.Controllers
                             .Where(u => u.AppId == uid)
                             .SelectMany(u => u.SpendingEvents);
 
+                    // need to ensure that tx.Amount is not null
                     var sum = userTxns
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .Sum(tx => tx.Amount);
+                        .Sum(tx => (double?)tx.Amount) ?? 0;
 
                     totalAmount = userTxns
                         .Sum(tx => tx.Amount);
