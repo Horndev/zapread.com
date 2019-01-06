@@ -33,7 +33,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.Index(sort: "Score", l: "").Result as ViewResult;
+            ViewResult result = controller.Index(sort: "Score", l: "", g: null, f: null).Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
