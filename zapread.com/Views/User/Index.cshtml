@@ -73,7 +73,7 @@
                         if (s === 1) {
                             // Subscribe
                             $('#subBtnText').html("Unsubscribe");
-                            $('#sublink').attr("onclick", "follow(@Model.User.Id,0);");//.onclick = follow(@Model.User.Id,0);
+                            $('#sublink').attr("onclick", "follow(@Model.User.Id,0);");
                         } else {
                             $('#subBtnText').html("Subscribe");
                             $('#sublink').attr("onclick", "follow(@Model.User.Id,1);");
@@ -108,6 +108,29 @@
             },
             dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
         };
+
+        var toggleUserIgnore = function (id) {
+            joinurl = "/User/ToggleIgnore/"
+            var data = JSON.stringify({ 'id': id });
+            $.ajax({
+                data: data.toString(),
+                type: 'POST',
+                url: joinurl,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.result == "success") {
+                        if (response.added) {
+                            $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
+                        }
+                        else {
+                            $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
+                        }
+                    }
+                }
+            });
+            return false;
+        }
 
         var BlockNumber = 10;  //Infinite Scroll starts from second block
         var NoMoreData = false;
@@ -302,6 +325,31 @@
                                     else
                                     {
                                         <button type="button" class="btn btn-default btn-sm btn-block" disabled><i class="fa fa-user"></i> Subscribe</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-button">
+                            <div class="row">
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-4">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        if (Model.IsIgnoring)
+                                        {
+                                            <a href="javascript:void(0);" id="i_@Model.User.Id" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.User.Id)"><i class="fa fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" id="i_@Model.User.Id" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.User.Id)"><i class="fa fa-ban"></i> <span id="igBtnText">Ignore</span></a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-warning btn-sm btn-block" disabled><i class="fa fa-ban"></i> Ignore</button>
                                     }
                                 </div>
                             </div>

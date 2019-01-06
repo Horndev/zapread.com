@@ -14,6 +14,7 @@ namespace zapread.com.Models
         public int NumFollowers { get; set; }
 
         public bool IsFollowing { get; set; }
+        public bool IsIgnoring { get; set; }
 
         public User User { get; set; }
 

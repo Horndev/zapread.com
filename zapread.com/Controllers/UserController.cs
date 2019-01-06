@@ -82,9 +82,11 @@ namespace zapread.com.Controllers
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = User.Identity.GetUserId();
-                    loggedInUser = db.Users.Where(u => u.AppId == userId)
+                    loggedInUser = db.Users
+                        .Include(usr => usr.UserIgnores.IgnoringUsers)
                         .Include(usr => usr.Funds)
-                        .AsNoTracking().FirstOrDefault();
+                        //.AsNoTracking()
+                        .SingleOrDefault(u => u.AppId == userId);
 
                     if (loggedInUser != null && loggedInUser.Name == username)
                     {
@@ -113,6 +115,8 @@ namespace zapread.com.Controllers
                 int numFollowing = user.Following.Count();
 
                 bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
+
+                bool isIgnoring = loggedInUser != null ? loggedInUser.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false;
 
                 var topFollowing = user.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
@@ -161,6 +165,7 @@ namespace zapread.com.Controllers
                     NumFollowers = numFollowers,
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing, 
+                    IsIgnoring = isIgnoring,
                     User = user,
                     ActivityPosts = postViews,
                     TopFollowers = topFollowers,
