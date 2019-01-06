@@ -571,7 +571,10 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users
-                    .Include(usr => usr.UserIgnores)
+                    .Include(usr => usr.IgnoringUsers)
+                    .Include(usr => usr.Groups)
+                    .Include(usr => usr.Groups.Select(grp => grp.Moderators))
+                    .AsNoTracking()
                     .SingleOrDefault(u => u.AppId == userId);
 
                 var group = db.Groups
@@ -618,8 +621,8 @@ namespace zapread.com.Controllers
                             Icon = g.Icon,
                             Level = 1,
                             Progress = 36,
-                            IsMod = g.Moderators.Contains(user),
-                            IsAdmin = g.Administrators.Contains(user),
+                            IsMod = g.Moderators.Select(m => m.Id).Contains(user.Id),
+                            IsAdmin = g.Administrators.Select(m => m.Id).Contains(user.Id),
                         });
                     }
                 }
@@ -641,9 +644,9 @@ namespace zapread.com.Controllers
 
                 List<int> viewerIgnoredUsers = new List<int>();
 
-                if (user != null && user.UserIgnores != null)
+                if (user != null && user.IgnoringUsers != null)
                 {
-                    viewerIgnoredUsers = user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
+                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
                 }
 
                 foreach (var p in groupPosts)
@@ -654,7 +657,7 @@ namespace zapread.com.Controllers
                         ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerIgnoredUser = user != null ? (user.UserIgnores != null ? p.UserId.Id != user.Id && user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+                        ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
 
                         ViewerIgnoredUsers = viewerIgnoredUsers,
                     });

@@ -40,6 +40,13 @@ namespace zapread.com.Models
         public virtual UserFunds Funds { get; set; }
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }
+
+        [InverseProperty("IgnoredByUsers")]
+        public virtual ICollection<User> IgnoringUsers { get; set; }
+
+        [InverseProperty("IgnoringUsers")]
+        public virtual ICollection<User> IgnoredByUsers { get; set; }
+
         public virtual UserIgnoreUser UserIgnores { get; set; }
         public virtual ICollection<Post> PostVotesUp { get; set; }
         public virtual ICollection<Post> PostVotesDown { get; set; }

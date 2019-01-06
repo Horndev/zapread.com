@@ -576,6 +576,10 @@
     <Compile Include="Migrations\201901051931577_AddUserDateLastActivity.Designer.cs">
       <DependentUpon>201901051931577_AddUserDateLastActivity.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901060306392_fixUserIgnores.cs" />
+    <Compile Include="Migrations\201901060306392_fixUserIgnores.Designer.cs">
+      <DependentUpon>201901060306392_fixUserIgnores.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1801,6 +1805,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901051931577_AddUserDateLastActivity.resx">
       <DependentUpon>201901051931577_AddUserDateLastActivity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901060306392_fixUserIgnores.resx">
+      <DependentUpon>201901060306392_fixUserIgnores.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

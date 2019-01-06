@@ -83,9 +83,9 @@ namespace zapread.com.Controllers
                 {
                     var userId = User.Identity.GetUserId();
                     loggedInUser = db.Users
-                        .Include(usr => usr.UserIgnores.IgnoringUsers)
+                        .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
-                        //.AsNoTracking()
+                        .AsNoTracking()
                         .SingleOrDefault(u => u.AppId == userId);
 
                     if (loggedInUser != null && loggedInUser.Name == username)
@@ -97,6 +97,7 @@ namespace zapread.com.Controllers
 
                 var user = db.Users.Where(u => u.Name == username)
                     .Include(u => u.Following)
+                    .Include(usr => usr.Groups)
                     .AsNoTracking().FirstOrDefault();
 
                 if (user == null)
@@ -116,7 +117,7 @@ namespace zapread.com.Controllers
 
                 bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
 
-                bool isIgnoring = loggedInUser != null ? (loggedInUser.UserIgnores != null ? loggedInUser.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false) : false;
+                bool isIgnoring = loggedInUser != null ? (loggedInUser.IgnoringUsers != null ? loggedInUser.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false) : false;
 
                 var topFollowing = user.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
@@ -432,7 +433,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users
-                    .Include(usr => usr.UserIgnores)
+                    .Include(usr => usr.IgnoringUsers)
                     .FirstOrDefault(u => u.AppId == userId);
 
                 var ignoredUser = db.Users
@@ -445,25 +446,18 @@ namespace zapread.com.Controllers
 
                 bool added = false;
 
-                if (user.UserIgnores == null)
+                if (user.IgnoringUsers == null)
                 {
-                    user.UserIgnores = new UserIgnoreUser();
-                    user.UserIgnores.IgnoringUsers = new List<User>();
+                    user.IgnoringUsers = new List<User>();
                 }
 
-                // Don't ignore yourself!
-                //if (user.UserIgnores.IgnoringUsers.Select(u => u.Id).Contains(user.Id))
-                //{
-                //    user.UserIgnores.IgnoringUsers.Remove(user);
-                //}
-
-                if (user.UserIgnores.IgnoringUsers.Select(u => u.Id).Contains(id))
+                if (user.IgnoringUsers.Select(u => u.Id).Contains(id))
                 {
-                    user.UserIgnores.IgnoringUsers.Remove(ignoredUser);
+                    user.IgnoringUsers.Remove(ignoredUser);
                 }
                 else
                 {
-                    user.UserIgnores.IgnoringUsers.Add(ignoredUser);
+                    user.IgnoringUsers.Add(ignoredUser);
                     added = true;
                 }
 
