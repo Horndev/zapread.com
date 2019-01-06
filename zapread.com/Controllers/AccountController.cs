@@ -57,21 +57,38 @@ namespace zapread.com.Controllers
 
         public async Task<JsonResult> UserBalance()
         {
-            var userId = User.Identity.GetUserId();
-
-            if (userId == null)
+            string userId = "?";
+            try
             {
-                return Json(new { balance = 0 });
+                userId = User.Identity.GetUserId();
+
+                if (userId == null)
+                {
+                    return Json(new { balance = 0 });
+                }
+
+                using (var db = new ZapContext())
+                {
+                    await EnsureUserExists(userId, db);
+                    var user = db.Users
+                        .Include(usr => usr.Funds)
+                        .FirstOrDefault(u => u.AppId == userId);
+
+                    return Json(new { balance = Math.Floor(user.Funds.Balance) });
+                }
             }
-
-            using (var db = new ZapContext())
+            catch (Exception e)
             {
-                await EnsureUserExists(userId, db);
-                var user = db.Users
-                    .Include(usr => usr.Funds)
-                    .FirstOrDefault(u => u.AppId == userId);
+                MailingService.Send(new UserEmailModel()
+                {
+                    Destination = "steven.horn.mail@gmail.com",
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userId,
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "Account Controller error",
+                });
 
-                return Json(new { balance = Math.Floor(user.Funds.Balance) });
+                return Json(new { balance = 0 });
             }
         }
 
@@ -174,17 +191,17 @@ namespace zapread.com.Controllers
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
             double totalAmount = 0.0;
-
-            // Get the logged in user ID
-            var uid = User.Identity.GetUserId();
-
+            string userId = "?";
             try
             {
+                // Get the logged in user ID
+                userId = User.Identity.GetUserId();
+            
                 using (var db = new ZapContext())
                 {
                     var userTxns = db.Users
                             .Include(i => i.SpendingEvents)
-                            .Where(u => u.AppId == uid)
+                            .Where(u => u.AppId == userId)
                             .SelectMany(u => u.SpendingEvents);
 
                     // need to ensure that tx.Amount is not null
@@ -203,7 +220,7 @@ namespace zapread.com.Controllers
                 MailingService.Send(new UserEmailModel()
                 {
                     Destination = "steven.horn.mail@gmail.com",
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + uid,
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + userId,
                     Email = "",
                     Name = "zapread.com Exception",
                     Subject = "Account Controller error",
