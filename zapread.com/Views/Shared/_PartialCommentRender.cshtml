@@ -3,12 +3,22 @@
 @using zapread.com.Models;
 @model zapread.com.Models.PostCommentsViewModel
 
+@{ 
+    var isIgnoredUser = Model.ViewerIgnoredUsers != null ? Model.ViewerIgnoredUsers.Contains(Model.Comment.UserId.Id) : false;
+}
+
 <div id="comment_@Model.Comment.CommentId">
     @if (Request.IsAuthenticated)
     {
         <div class="pull-right social-action dropdown" @if (Model.Comment.IsReply) { <text> style="left:15px;" </text> }>
             <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu ift-xs">
+                @if (isIgnoredUser)
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')" ;><i class="fa fa-eye"></i> Show Comment</button>
+                    </li>
+                }
                 <li>
                     @*<button class="btn btn-link btn-sm" onclick="alert('Comment replies not yet implmented (coming soon);')"><i class="fa fa-reply"></i> Reply</button>*@
                     <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
@@ -35,53 +45,69 @@
     }
 
     <div class=@if (Model.Comment.IsReply) { <text>"social-footer-reply"</text> } else { <text>"social-footer"</text> }>
-        <div class=@if (Model.Comment.IsReply) { <text>""</text> } else { <text>"social-comment"</text> }>
-            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })" class="pull-left">
-                <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
-            </a>
-            <div class="media-body">
-                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })">
-                    @Model.Comment.UserId.Name
-                </a> <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
-                @if (Request.IsAuthenticated)
-                {
-                    <div class="vote-actions">
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="@(Model.Comment.VotesUp.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="uVotec_@Model.Comment.CommentId">
-                            <i class="fa fa-chevron-up"> </i>
-                        </a>
-                        <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
-                            <i class="fa fa-chevron-down"> </i>
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="vote-actions">
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="text-muted" id="uVotec_@Model.Comment.CommentId">
-                            <i class="fa fa-chevron-up"> </i>
-                        </a>
-                        <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
-                            <i class="fa fa-chevron-down"> </i>
-                        </a>
-                    </div>
-                }
-                <div id="commentText_@Model.Comment.CommentId">
-                    @Html.Raw(Model.Comment.Text)
-                </div>
-            </div>
+        <div class=@if (Model.Comment.IsReply) { <text>" "</text> } else { <text>" social-comment"</text> }>
+            @if (!isIgnoredUser)
+            {
+                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })" class="pull-left">
+                    <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
+                </a>
+            }
 
+                <div class="media-body">
+
+                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })">
+                        @if (isIgnoredUser)
+                        {
+                            <text>(Ignored) </text>
+                        }
+                        @Model.Comment.UserId.Name
+                    </a> <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
+                    @if (Request.IsAuthenticated)
+                    {
+                        <div class="vote-actions" @if (isIgnoredUser) { <text> style="display: none" </text> }>
+                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="@(Model.Comment.VotesUp.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="uVotec_@Model.Comment.CommentId">
+                                <i class="fa fa-chevron-up"> </i>
+                            </a>
+                            <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
+                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
+                                <i class="fa fa-chevron-down"> </i>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="vote-actions">
+                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="text-muted" id="uVotec_@Model.Comment.CommentId">
+                                <i class="fa fa-chevron-up"> </i>
+                            </a>
+                            <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
+                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
+                                <i class="fa fa-chevron-down"> </i>
+                            </a>
+                        </div>
+                    }
+                    <div id="commentText_@Model.Comment.CommentId">
+                        @if(isIgnoredUser)
+                        {
+                            <span><br /></span>
+                        }
+                        else
+                        {
+                            <div>@Html.Raw(Model.Comment.Text)</div>
+                        }
+                    </div>
+                </div>
+            
             <div id="c_reply_@Model.Comment.CommentId">
             </div>
             <div id=@("rcomments_" + @Model.Comment.CommentId.ToString())>
-            @{
-                var subcomments = Model.Comments.Where(c => c.IsReply && !c.IsDeleted).Where(c => c.Parent.CommentId == Model.Comment.CommentId);
-                foreach (var cmt in subcomments)
-                {
-                    @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, Comments = Model.Comments.ToList() })
+                @{
+                    var subcomments = Model.Comments.Where(c => c.IsReply && !c.IsDeleted).Where(c => c.Parent.CommentId == Model.Comment.CommentId);
+                    foreach (var cmt in subcomments)
+                    {
+                        @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, Comments = Model.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
+                    }
                 }
-            }
             </div>
         </div>
     </div>

@@ -571,8 +571,8 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users
-                    .AsNoTracking()
-                    .FirstOrDefault(u => u.AppId == userId);
+                    .Include(usr => usr.UserIgnores)
+                    .SingleOrDefault(u => u.AppId == userId);
 
                 var group = db.Groups
                     .AsNoTracking()
@@ -639,6 +639,13 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (user != null && user.UserIgnores != null)
+                {
+                    viewerIgnoredUsers = user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
+                }
+
                 foreach (var p in groupPosts)
                 {
                     postViews.Add(new PostViewModel()
@@ -647,6 +654,9 @@ namespace zapread.com.Controllers
                         ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerIgnoredUser = user != null ? (user.UserIgnores != null ? p.UserId.Id != user.Id && user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
                     });
                 }
 

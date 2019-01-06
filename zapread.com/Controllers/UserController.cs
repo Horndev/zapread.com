@@ -116,7 +116,7 @@ namespace zapread.com.Controllers
 
                 bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
 
-                bool isIgnoring = loggedInUser != null ? loggedInUser.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false;
+                bool isIgnoring = loggedInUser != null ? (loggedInUser.UserIgnores != null ? loggedInUser.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false) : false;
 
                 var topFollowing = user.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
@@ -450,6 +450,12 @@ namespace zapread.com.Controllers
                     user.UserIgnores = new UserIgnoreUser();
                     user.UserIgnores.IgnoringUsers = new List<User>();
                 }
+
+                // Don't ignore yourself!
+                //if (user.UserIgnores.IgnoringUsers.Select(u => u.Id).Contains(user.Id))
+                //{
+                //    user.UserIgnores.IgnoringUsers.Remove(user);
+                //}
 
                 if (user.UserIgnores.IgnoringUsers.Select(u => u.Id).Contains(id))
                 {

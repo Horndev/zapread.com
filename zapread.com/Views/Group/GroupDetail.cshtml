@@ -102,7 +102,17 @@
                 <div class="ibox-content">
                     @foreach (var g in Model.SubscribedGroups)
                     {
-                        <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn @if (g.IsAdmin) { <text>btn-danger</text> } else if (g.IsMod) {  <text>btn-info</text>} else {  <text>btn-link</text>}  btn-outline btn-block text-left"><i class="fa fa-@g.Icon"></i> @g.Name</button>
+                        <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
+                            <i class="fa fa-@g.Icon"></i> @g.Name
+                            @if (g.IsAdmin)
+                            {
+                                <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
+                            }
+                            else if (g.IsMod)
+                            {
+                                <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
+                            }
+                        </button>
                     }
                 </div>
             </div>

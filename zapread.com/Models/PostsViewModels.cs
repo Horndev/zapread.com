@@ -11,6 +11,10 @@ namespace zapread.com.Models
         public bool ViewerIsMod;        // User has moderation privilage on this post
         public bool ViewerUpvoted;      // If the user has upvoted this post
         public bool ViewerDownvoted;    // If the user has downvoted this post
+        public bool ViewerIgnoredUser;  // If the user has ignored the user
+
+        // Not ideal!
+        public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
     }
 
     public class PostsViewModel
@@ -36,5 +40,6 @@ namespace zapread.com.Models
     {
         public Comment Comment { get; set; }
         public List<Comment> Comments { get; set; }
+        public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
     }
 }

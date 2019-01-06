@@ -101,7 +101,8 @@ namespace zapread.com.Controllers
             {
                 DateTime t = DateTime.Now;
 
-                var user = db.Users.Where(u => u.Id == userId).FirstOrDefault();
+                var user = db.Users
+                    .SingleOrDefault(u => u.Id == userId);
 
                 if (sort == "Score")
                 {
@@ -210,7 +211,8 @@ namespace zapread.com.Controllers
 
                 var user = db.Users
                     .Include("Settings")
-                    .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                    .Include(usr => usr.UserIgnores)
+                    .SingleOrDefault(u => u.AppId == uid);
 
 
                 var posts = GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
@@ -250,6 +252,13 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (user != null && user.UserIgnores != null)
+                {
+                    viewerIgnoredUsers = user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+                }
+
                 foreach (var p in posts)
                 {
                     postViews.Add(new PostViewModel()
@@ -258,6 +267,9 @@ namespace zapread.com.Controllers
                         ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                        ViewerIgnoredUser = user != null ? (user.UserIgnores != null ? p.UserId.Id != user.Id && user.UserIgnores.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
                     });
                 }
 

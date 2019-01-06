@@ -7,6 +7,12 @@
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
+            @if (Model.ViewerIgnoredUser)
+            {
+                <li>
+                    <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')";><i class="fa fa-eye"></i> Show Post</button>
+                </li>
+            }
             @if (User.Identity.Name == Model.Post.UserId.Name)
             {
                 using (Html.BeginForm("Edit", "Post",
@@ -37,13 +43,13 @@
                     new { ReturnUrl = ViewBag.ReturnUrl },
                     FormMethod.Post,
                     new { role = "form" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.Hidden("PostId", Model.Post.PostId)
-                        <li>
-                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
-                        </li>
-                    }
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("PostId", Model.Post.PostId)
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
+                    </li>
+                }
                 <li>
                     <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
                 </li>
@@ -85,11 +91,18 @@
         </ul>
     </div>
     <div class="social-avatar">
+        @if (!Model.ViewerIgnoredUser)
+        {
         <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
-            <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.Post.UserId.AppId})" />
+            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
         </a>
+        }
         <div class="media-body">
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })">
+                @if (Model.ViewerIgnoredUser)
+                {
+                    <text>(Ignored) </text>
+                }
                 @Model.Post.UserId.Name
             </a>
             @if (Model.Post.IsSticky)
@@ -103,7 +116,7 @@
             <small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>
         </div>
     </div>
-    <div class="social-body">
+    <div class="social-body" @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
         <div class="row">
             <div class="col-sm-auto vote-actions">
                 <div class="vote-actions">
@@ -143,18 +156,18 @@
             </div>
         </div>
     </div>
-    <div id=@("comments_" + @Model.Post.PostId.ToString())>
+    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
         @if (Model.Post.Comments != null)
         {
             foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply))
             {
-                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList() })
+                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
             }
         }
     </div>
     @if (Request.IsAuthenticated)
     {
-        <div class="social-footer">
+        <div class="social-footer" @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding ibox-comment">
                     <div class="sk-spinner sk-spinner-three-bounce">
