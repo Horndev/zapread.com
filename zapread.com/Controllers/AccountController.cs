@@ -210,7 +210,7 @@ namespace zapread.com.Controllers
                         .Sum(tx => (double?)tx.Amount) ?? 0;
 
                     totalAmount = userTxns
-                        .Sum(tx => tx.Amount);
+                        .Sum(tx => (double?)tx.Amount) ?? 0;
 
                     amount = sum;
                 }
