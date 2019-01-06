@@ -226,6 +226,8 @@
                                 $('#a1_' + id).hide();
                                 $('#a2_' + id).hide();
                             }
+                            var urla = $("#unreadAlerts").data("url");
+                            $("#unreadAlerts").load(urla);
                         }
                         else {
                             if (id === -1) { // Dismissed all
@@ -235,6 +237,8 @@
                                 $('#m1_' + id).hide();
                                 $('#m2_' + id).hide();
                             }
+                            var urlm = $("#unreadMessages").data("url");
+                            $("#unreadMessages").load(urlm);
                         }
                     }
                 },
