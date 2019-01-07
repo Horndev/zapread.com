@@ -6462,13 +6462,14 @@ dd.project-people {
 
 .message-content {
     display: block;
+    text-align: left;
 }
 
 .chat-discussion {
     background: #eee;
     padding: 15px;
-    height: 400px;
-    overflow-y: auto;
+    /*height: 400px;
+    overflow-y: auto;*/
 }
 
 .chat-users {
