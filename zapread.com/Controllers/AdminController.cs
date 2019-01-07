@@ -303,6 +303,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        // GET: Admin/Audit/{username}
+        [Route("Admin/Audit/{username}")]
+        public ActionResult Audit(string username)
+        {
+
+            return View();
+        }
+
         // GET: Admin
         public ActionResult Index()
         {
