@@ -121,6 +121,20 @@ namespace zapread.com.Controllers
         [HttpPost]
         public async Task<ActionResult> AddComment(NewComment c)
         {
+            // Check for empty comment
+
+            if (c.CommentContent.Replace(" ", "") == "<p><br></p>")
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error: Empty comment.",
+                    c.PostId,
+                    c.IsReply,
+                    c.CommentId,
+                });
+            }
+
             var userId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
@@ -397,7 +411,7 @@ namespace zapread.com.Controllers
                 {
                     HTMLString = CommentHTMLString,
                     c.PostId,
-                    Success = true,
+                    success = true,
                     IsReply = c.IsReply,
                     c.CommentId,
                 });

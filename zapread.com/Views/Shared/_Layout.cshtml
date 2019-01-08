@@ -391,7 +391,7 @@
                         onAjaxCommentSuccessA(result);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        var isCommenting = false;
+                        isCommenting = false;
                         alert("fail");
                     }
                 });
@@ -406,9 +406,18 @@
             $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
             $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
             $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
-            if (!result.Success) {
-                alert("Error commenting.");
-            } else if (result.Success) {
+            if (!result.success) {
+                if (result.IsReply) {
+                    $('#cr_input_' + result.CommentId.toString()).summernote('reset');
+                    $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
+                    $('#cr_input_' + result.CommentId.toString()).hide();
+                    $('#c_reply_' + result.CommentId.toString()).remove();
+                }
+                else {
+                    $('#c_input_' + result.PostId.toString()).summernote('reset');
+                }
+                alert(result.message);
+            } else {
                 if (result.IsReply) {
                     $('#cr_input_' + result.CommentId.toString()).summernote('reset');
                     $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
