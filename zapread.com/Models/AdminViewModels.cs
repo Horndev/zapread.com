@@ -5,6 +5,11 @@ using System.Web;
 
 namespace zapread.com.Models
 {
+    public class AuditUserViewModel
+    {
+        public string Username { get; set; }
+    }
+
     public class AdminViewModel
     {
         public ZapReadGlobals Globals { get; set; }

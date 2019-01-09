@@ -54,7 +54,8 @@ namespace zapread.com.Controllers
                 var unpaidInvoices = db.LightningTransactions
                     .Where(t => t.IsSettled == false)
                     .Where(t => t.IsDeposit == true)
-                    .Include(t => t.User);
+                    .Include(t => t.User)
+                    .Include(t => t.User.Funds);
 
                 foreach(var i in unpaidInvoices)
                 {
@@ -87,9 +88,12 @@ namespace zapread.com.Controllers
                                     else
                                     {
                                         // Update user balance - this is a deposit.
-                                        // user.Funds.Balance += i.Amount;
-                                        // userBalance = Math.Floor(user.Funds.Balance);
-                                        // db.SaveChanges();
+                                        var name = user.Name;
+                                        user.Funds.Balance += i.Amount;
+                                        userBalance = Math.Floor(user.Funds.Balance);
+                                        i.IsSettled = true;
+                                        i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date));
+                                        //db.SaveChangesAsync();
                                     }
 
                                     // Notify clients the invoice was paid.
@@ -113,9 +117,10 @@ namespace zapread.com.Controllers
                                 // We can't perform any action on the invoice, but we should mark it as settled.
                                 // Unfortunately, we don't know who paid the invoice so we can't credit the funds to any account.
                                 // The lost funds should probably go to community pot in that case.
-
+                                var amt = i.Amount;
                                 i.IsSettled = true;
-                                i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date)); 
+                                i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date));
+                                //db.SaveChanges();
                             }
                         }
                         else if (inv.settled != null && inv.settled == false)
@@ -130,11 +135,11 @@ namespace zapread.com.Controllers
                         // Darn, the hashstring wasn't recorded for some reason.  Can't look up the invoice in LND.
 
                         // Hide this transaction from appearing next time.
-                        i.IsSettled = true;
-                        i.TimestampSettled = DateTime.UtcNow;
+                        //i.IsSettled = true;
+                        //i.TimestampSettled = DateTime.UtcNow;
                     }
                 }
-                db.SaveChangesAsync();
+                db.SaveChanges();
             }
             return Json(new { result="success" }, JsonRequestBehavior.AllowGet);
         }
@@ -303,12 +308,251 @@ namespace zapread.com.Controllers
             }
         }
 
+        // GET Admin/UserBalance
+        [Route("Admin/UserBalance/{username}")]
+        public async Task<JsonResult> UserBalance(string username)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new { value = 0 }, JsonRequestBehavior.AllowGet);
+            }
+            using (var db = new ZapContext())
+            {
+
+                var user = await db.Users.Where(u => u.Name.Trim() == username.Trim())
+                    .Include(usr => usr.Funds)
+                    .AsNoTracking().SingleOrDefaultAsync();
+
+                if (user == null)
+                {
+                    // User doesn't exist.
+                    return Json(new { value = 0 }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { value = Math.Floor(user.Funds.Balance) }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         // GET: Admin/Audit/{username}
         [Route("Admin/Audit/{username}")]
         public ActionResult Audit(string username)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Audit/"+username });
+            }
 
-            return View();
+            if (username == null)
+            {
+                return RedirectToAction(actionName: "Index", controllerName: "Admin");
+            }
+
+            using (var db = new ZapContext())
+            {
+
+                var user = db.Users.Where(u => u.Name.Trim() == username.Trim())
+                    .Include(usr => usr.Funds)
+                    .AsNoTracking().FirstOrDefault();
+
+                if (user == null)
+                {
+                    // User doesn't exist.
+                    // TODO: send to user not found error page
+                    return RedirectToAction("Index", "Admin");
+                }
+
+                var vm = new AuditUserViewModel()
+                {
+                    Username = username,
+                };
+
+
+                return View(vm);
+            }
+        }
+
+        public class AuditDataItem
+        {
+            public string Created { get; set; }
+            public string Time { get; set; }
+            public string Type { get; set; }
+            public string Amount { get; set; }
+            public string URL { get; set; }
+            public string Memo { get; set; }
+            public bool Settled { get; set; }
+        }
+
+        [HttpPost, Route("Admin/GetLNTransactions/{username}")]
+        public ActionResult GetLNTransactions(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                User user;
+                user = db.Users
+                        .Include(usr => usr.LNTransactions)
+                        .Where(u => u.Name.Trim() == username.Trim())
+                        .SingleOrDefault();
+
+                var pageTxns = user.LNTransactions
+                    //.Where(tx => tx.TimestampSettled != null)
+                    .OrderByDescending(tx => tx.TimestampCreated)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToList();
+
+                var values = pageTxns.Select(t => new AuditDataItem()
+                {
+                    Created = t.TimestampCreated == null ? "" : t.TimestampCreated.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Time = t.TimestampSettled == null ? "" : t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                    Amount = Convert.ToString(t.Amount),
+                    Memo = t.Memo,
+                    Settled = t.IsSettled,
+                }).ToList();
+
+                int numrec = user.LNTransactions.Count();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        [HttpPost, Route("Admin/GetEarningEvents/{username}")]
+        public ActionResult GetEarningEvents(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                User u;
+                u = db.Users
+                        .Include(usr => usr.LNTransactions)
+                        .Where(usr => usr.Name.Trim() == username.Trim())
+                        .SingleOrDefault();
+
+                var pageEarnings = u.EarningEvents
+                    .OrderByDescending(e => e.TimeStamp)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToList();
+
+                var values = pageEarnings.Select(t => new AuditDataItem()
+                {
+                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Amount = t.Amount.ToString("0.##"),
+                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                }).ToList();
+
+                int numrec = u.EarningEvents.Count();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        [HttpPost, Route("Admin/GetSpendingEvents/{username}")]
+        public ActionResult GetSpendingEvents(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                User u;
+                u = db.Users
+                        .Include(usr => usr.LNTransactions)
+                        .Include(usr => usr.SpendingEvents)
+                        .Include(usr => usr.SpendingEvents.Select(s => s.Post))
+                        .Include(usr => usr.SpendingEvents.Select(s => s.Group))
+                        .Include(usr => usr.SpendingEvents.Select(s => s.Comment))
+                        .Include(usr => usr.SpendingEvents.Select(s => s.Comment).Select(c => c.Post))
+                        //.Where(usr => usr.Name == "renepickhardt").First(); //Debug issue observed by this user
+                        .Where(usr => usr.Name.Trim() == username.Trim())
+                        .SingleOrDefault();
+
+                var pageSpendings = u.SpendingEvents
+                    .OrderByDescending(e => e.TimeStamp)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToList();
+
+                var values = pageSpendings.Select(t => new AuditDataItem()
+                {
+                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
+                           t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
+                           t.Group != null ? "Group " + t.Group.GroupId.ToString() :
+                           "Other")),
+                    Amount = Convert.ToString(t.Amount),
+                    URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
+                            t.Comment != null ? Url.Action("Detail", "Post") + "/" + t.Comment.Post.PostId.ToString() : (
+                            t.Group != null ? Url.Action("Index", "Group") :
+                            "")),
+                }).ToList();
+
+                int numrec = u.SpendingEvents.Count();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        [HttpGet, Route("Admin/GetLNFlow/{username}/{days?}")]
+        public ActionResult GetLNFlow(string username, string days)
+        {
+            double amount = 0.0;
+            int numDays = Convert.ToInt32(days);
+            try
+            {
+                using (var db = new ZapContext())
+                {
+                    // Get the logged in user ID
+                    var uid = User.Identity.GetUserId();
+                    var userTxns = db.Users
+                            .Include(i => i.LNTransactions)
+                            .Where(u => u.Name.Trim() == username.Trim())
+                            .SelectMany(u => u.LNTransactions);
+
+                    var sum = userTxns
+                        .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
+                        .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount })
+                        .Sum(tx => tx.amt);
+
+                    amount = sum;
+                }
+            }
+            catch (Exception)
+            {
+                // todo: add some error logging
+
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                amount = 0.0;
+            }
+            string value = amount.ToString("0.##");
+            return Json(new { value }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Function to check if LN invoice was settled
+        [HttpGet, Route("Admin/CheckLNInvoice/{id}")]
+        public ActionResult CheckLNInvoice(int id)
+        {
+            using (var db = new ZapContext())
+            {
+                return Json(new { });
+            }
         }
 
         // GET: Admin
