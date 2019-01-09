@@ -19,7 +19,7 @@ At this time, development is only confirmed working with Microsoft Windows (sorr
 1.  Set up the database.config file (sensitive database connection data)
 1.  Compile and deploy
 
-## AppSettings
+## AppSettings.config
 
 The AppSettings.config file should contain the following keys:
 
@@ -54,7 +54,7 @@ The AppSettings.config file should contain the following keys:
 </appSettings>
 ```
 
-## Database
+## database.config
 
 Two SQL connection strings are required:
 
