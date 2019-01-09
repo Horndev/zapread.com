@@ -357,7 +357,7 @@ namespace zapread.com.Controllers
                     var message = new UserMessage()
                     {
                         TimeStamp = DateTime.Now,
-                        Title = "New reply to your comment in post: <a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
+                        Title = "New reply to your comment in post: <a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { id = post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
                         Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>" + "<br/> " + c.CommentContent,
                         CommentLink = comment,
                         IsDeleted = false,
