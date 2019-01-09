@@ -79,6 +79,7 @@ namespace zapread.com.Models
 
         public bool IsDeposit { get; set; }         // True if transaction is a deposit
         public bool IsSettled { get; set; }
+        public bool IsIgnored { get; set; }         // Don't check this invoice for payment status
 
         /// <summary>
         /// The fee which was paid (in Satoshi)
