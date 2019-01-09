@@ -64,8 +64,10 @@ Zapread: stores the website content (accounts, posts, images, etc.)
 
 # Contribution
 
-[TODO]
+Contribution to this repository is done through pull requests.  
 
+By contributing to this project, you are giving permission to the copyright owner to change the software license without notice.  Any changes to the license will only apply to versions of the software after the license has changed.
 
 ## License
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com?ref=badge_large)
