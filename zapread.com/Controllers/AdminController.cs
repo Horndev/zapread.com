@@ -54,8 +54,11 @@ namespace zapread.com.Controllers
                 var unpaidInvoices = db.LightningTransactions
                     .Where(t => t.IsSettled == false)
                     .Where(t => t.IsDeposit == true)
+                    .Where(t => t.IsIgnored == false)
                     .Include(t => t.User)
                     .Include(t => t.User.Funds);
+
+                var numinv = unpaidInvoices.Count();
 
                 foreach(var i in unpaidInvoices)
                 {
@@ -118,16 +121,25 @@ namespace zapread.com.Controllers
                                 // Unfortunately, we don't know who paid the invoice so we can't credit the funds to any account.
                                 // The lost funds should probably go to community pot in that case.
                                 var amt = i.Amount;
-                                i.IsSettled = true;
-                                i.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(inv.settle_date));
-                                //db.SaveChanges();
+                                i.IsIgnored = true;
                             }
                         }
                         else if (inv.settled != null && inv.settled == false)
                         {
                             // Still waiting.
+                            // nothing to do
+                            // check if invoice is expired - ignore if it is.
 
-                            // TODO 
+
+                            i.IsIgnored = false;
+                        }
+                        else
+                        {
+                            // Check if expired
+
+                            var start = Convert.ToInt64(inv.creation_date);
+                            var end = start + Convert.ToInt64(inv.expiry);
+
                         }
                     }
                     else
@@ -137,8 +149,10 @@ namespace zapread.com.Controllers
                         // Hide this transaction from appearing next time.
                         //i.IsSettled = true;
                         //i.TimestampSettled = DateTime.UtcNow;
+                        i.IsIgnored = true;
                     }
                 }
+
                 db.SaveChanges();
             }
             return Json(new { result="success" }, JsonRequestBehavior.AllowGet);
