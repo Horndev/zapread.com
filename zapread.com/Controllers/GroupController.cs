@@ -1106,9 +1106,19 @@ namespace zapread.com.Controllers
             {
                 var userId = User.Identity.GetUserId();
 
+                // Ensure not a duplicate group!
+                var cleanName = m.GroupName.CleanUnicode();
+
+                if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
+                {
+                    ModelState.AddModelError("GroupName", "Group already exists!");
+                    m.Icons = db.Icons.Select(i => i.Icon).ToList();
+                    return View(m);
+                }
+
                 Group g = new Group()
                 {
-                    GroupName = m.GroupName.CleanUnicode(),
+                    GroupName = cleanName,
                     TotalEarned = 0.0,
                     TotalEarnedToDistribute = 0.0,
                     Moderators = new List<User>(),

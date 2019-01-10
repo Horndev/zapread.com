@@ -6384,9 +6384,9 @@ var VideoDialog = /** @class */ (function () {
         var $video;
         if (ytMatch && ytMatch[1].length === 11) {
             var youtubeId = ytMatch[1];
-            $video = $$1('<iframe>')
+            $video = $$1('<iframe webkitallowfullscreen mozallowfullscreen allowfullscreen>')
                 .attr('frameborder', 0)
-                .attr('src', '//www.youtube.com/embed/' + youtubeId)
+                .attr('src', '//www.youtube.com/embed/' + youtubeId + '&origin=https://zapread.com')
                 .attr('width', '640').attr('height', '360');
         }
         else if (igMatch && igMatch[0].length) {

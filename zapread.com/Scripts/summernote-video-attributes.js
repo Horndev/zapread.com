@@ -202,7 +202,8 @@
                         var youtubeId = ytMatch[1];
                         $video = $('<iframe>')
                             .attr('frameborder', 0)
-                            .attr('src', '//www.youtube.com/embed/' + youtubeId + '?' + urlVars)
+                            .attr('src', '//www.youtube.com/embed/' + youtubeId + '?' + urlVars + '&origin=https://www.zapread.com')
+                            .attr('allowfullscreen','allowfullscreen')
                             .attr('width', videoWidth)
                             .attr('height', videoHeight);
                     } else if (igMatch && igMatch[0].length) {
