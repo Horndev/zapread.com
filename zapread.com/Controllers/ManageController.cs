@@ -737,7 +737,7 @@ namespace zapread.com.Controllers
             {
                 await EnsureUserExists(userId, db);
 
-                db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe;
+                db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe.CleanUnicode();
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
             }
@@ -798,7 +798,7 @@ namespace zapread.com.Controllers
                     .Include("Settings")
                     .Where(u => u.AppId == userId).First();
 
-                var otherUser = await UserManager.FindByNameAsync(alias);
+                var otherUser = await UserManager.FindByNameAsync(alias.CleanUnicode());
 
                 if (otherUser != null)
                 {
@@ -806,11 +806,11 @@ namespace zapread.com.Controllers
                 }
 
                 var aspUser = await UserManager.FindByIdAsync(userId);
-                aspUser.UserName = alias;
+                aspUser.UserName = alias.CleanUnicode();
                 await UserManager.UpdateAsync(aspUser);
                 await SignInManager.SignInAsync(aspUser, true, true);
 
-                user.Name = alias;
+                user.Name = alias.CleanUnicode();
 
                 await db.SaveChangesAsync();
                 return Json(new { Result = "Success" });

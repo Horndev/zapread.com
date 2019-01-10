@@ -10,6 +10,7 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using System.IO;
 using zapread.com.Helpers;
+using System.Text;
 
 namespace zapread.com.Controllers
 {
@@ -840,12 +841,14 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", success = false, message = "User not authorized." });
                 }
 
-                if (db.Groups.Select(grp => grp.GroupName).Contains(newName))
+                var cleanName = newName.CleanUnicode();
+
+                if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
                 {
                     return Json(new { result = "error", success = false, message = "Group name already used." });
                 }
 
-                g.GroupName = newName;
+                g.GroupName = cleanName;
 
                 db.SaveChanges();
 
@@ -1105,7 +1108,7 @@ namespace zapread.com.Controllers
 
                 Group g = new Group()
                 {
-                    GroupName = m.GroupName,
+                    GroupName = m.GroupName.CleanUnicode(),
                     TotalEarned = 0.0,
                     TotalEarnedToDistribute = 0.0,
                     Moderators = new List<User>(),

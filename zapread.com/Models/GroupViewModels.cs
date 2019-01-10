@@ -15,7 +15,7 @@ namespace zapread.com.Models
     {
         [Display(Name = "Name")]
         [Required]
-        [StringLength(60, MinimumLength = 2, ErrorMessage = "A valid group name 2 - 60 characters long is required.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "A valid group name 2 to 50 characters long is required.")]
         public string GroupName { get; set; }
 
         public string Icon { get; set; }
