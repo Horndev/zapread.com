@@ -9,6 +9,64 @@ The repository from https://github.com/Horndev/zapread.com-issues is being migra
 
 Current version is: 0.2-beta
 
+## ZapRead.com Mission
+
+1) To create a social economy.  To turn social media and networking upside-down.  To give users and the community control over their content.  Stop the selling of user data and innunduation of advertising without compensation.
+
+2) To create a new publishing model.  Previously - authors paid publishers who then charged users - this is not reflective of the value of publishers, as both consumers and authors were at the mercy of the publisher.  *Authors should be properly compensated for their work - by the value as determined by the consumers.*
+
+### Vote Examples
+
+100 satoshi up vote:
+
+* 60 goes to author
+* 20 goes to group
+* 10 goes to community
+* 10 goes to zapread
+
+100 satoshi down vote:
+
+* 0 goes to author
+* 80 goes to group
+* 10 goes to community
+* 10 goes to zapread
+
+The voting affects the post score.
+
+### Group payments
+
+When funds are sent to a group, not all posts in the group receive a portion.
+
+Factors: 
+
+* Time since post was made
+* Post score
+* receiving funds is a lottery (minimum 1 satoshi received)
+
+We don't want groups to be small, and there should be a incentive for continuing to post to bigger groups (more posts already)
+
+Example:
+
+Group A, 20,000 posts, first post 1 year ago
+
+100 satoshi vote
+
+Each post has a probability to receive funds.  Older posts have the least likelihood.
+
+Variable 1:  Post half life.  (Lambda)
+
+Lambda = 30 days.
+
+Post score means that higher posts are more likely to win funds.
+
+Variable 2:  Vote max divisions (M)
+
+Variable 3:  Vote min division (1 satoshi)
+
+This is the maximum number of draws which are made for a distribution to a group.  So if M = 1000, then a 10,000 satoshi vote will have 1000 lotteries.
+
+So, the algorithm is to pull M winners, biased by Lambda.
+
 # Getting started with development
 
 At this time, development is only confirmed working with Microsoft Windows (sorry).  It would be nice to port to .NET core, which can then run on any OS.  The reason it has not been ported yet is that .NET core was initially missing some basic Entity Framework features, but that has been resolved in newer releases.  The instructions here describe how to start development using a windows OS.
