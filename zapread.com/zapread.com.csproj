@@ -51,6 +51,12 @@
     <Reference Include="HtmlAgilityPack, Version=1.8.2.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.8.2\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="i18n, Version=2.1.14.0, Culture=neutral, PublicKeyToken=b54a7283d4bad1bb, processorArchitecture=MSIL">
+      <HintPath>..\packages\i18n.2.1.14\lib\net40\i18n.dll</HintPath>
+    </Reference>
+    <Reference Include="i18n.Domain, Version=2.1.14.0, Culture=neutral, PublicKeyToken=b54a7283d4bad1bb, processorArchitecture=MSIL">
+      <HintPath>..\packages\i18n.2.1.14\lib\net40\i18n.Domain.dll</HintPath>
+    </Reference>
     <Reference Include="Jdenticon, Version=2.1.0.0, Culture=neutral, PublicKeyToken=3fcf9f6e3475a4f8, processorArchitecture=MSIL">
       <HintPath>..\packages\Jdenticon-net.2.1.0\lib\net45\Jdenticon.dll</HintPath>
     </Reference>
@@ -1550,6 +1556,7 @@
     <Content Include="libman.json" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="readme.txt" />
     <Content Include="Scripts\DetailPostPage.js" />
     <Content Include="Scripts\jquery.signalR-2.3.0.js" />
     <Content Include="Scripts\jquery.signalR-2.3.0.min.js" />
