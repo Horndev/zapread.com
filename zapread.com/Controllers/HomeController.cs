@@ -199,7 +199,7 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
-            var userLanguages = Request.UserLanguages;
+            //var userLanguages = Request.UserLanguages;
 
             using (var db = new ZapContext())
             {
