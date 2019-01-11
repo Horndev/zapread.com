@@ -4,3 +4,6 @@
 [submodule "LndLib.NET"]
 	path = LndLib.NET
 	url = https://github.com/Horndev/LndLib.NET.git
+[submodule "RoboHash.Net"]
+	path = RoboHash.Net
+	url = https://github.com/Horndev/RoboHash.Net.git
