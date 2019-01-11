@@ -103,7 +103,7 @@
             <div id=@("rcomments_" + @Model.Comment.CommentId.ToString())>
                 @{
                     var subcomments = Model.Comments.Where(c => c.IsReply && !c.IsDeleted).Where(c => c.Parent.CommentId == Model.Comment.CommentId);
-                    foreach (var cmt in subcomments)
+                    foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                     {
                         @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, Comments = Model.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
                     }
