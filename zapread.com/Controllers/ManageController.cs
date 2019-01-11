@@ -19,6 +19,7 @@ using zapread.com.Services;
 using Microsoft.Owin;
 using System.Security.Principal;
 using System.Security.Claims;
+using System.Globalization;
 
 namespace zapread.com.Controllers
 {
@@ -611,6 +612,11 @@ namespace zapread.com.Controllers
                     });
                 }
 
+                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                    .Select(g => g.First())
+                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
@@ -631,6 +637,7 @@ namespace zapread.com.Controllers
                     TopFollowers = topFollowers,
                     UserBalance = u.Funds.Balance,
                     Settings = u.Settings,
+                    Languages = languages,
                 };
 
                 return View(model);

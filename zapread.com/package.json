@@ -21,6 +21,7 @@
     "truncate": "2.0.1",
     "jquery-ajax-unobtrusive": "3.2.4",
     "sweetalert": "2.1.0",
-    "jssocials": "1.5.0"
+    "jssocials": "1.5.0",
+    "bootstrap-chosen": "1.4.2"
   }
 }

@@ -116,6 +116,14 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/plugins/selectize").Include(
                       "~/node_modules/selectizebootstrap4/dist/css/selectize.bootstrap4.css"));
 
+            // chosen
+            bundles.Add(new ScriptBundle("~/plugins/chosen").Include(
+                      "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js"));
+
+            // chosen styles
+            bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
+                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css"));
+
             // Flot chart
             bundles.Add(new ScriptBundle("~/plugins/flot").Include(
                       "~/node_modules/jquery.flot/jquery.flot.js",

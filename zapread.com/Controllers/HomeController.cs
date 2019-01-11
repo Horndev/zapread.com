@@ -18,6 +18,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using System.Data.Entity;
 using zapread.com.Services;
+using System.Globalization;
 
 namespace zapread.com.Controllers
 {
@@ -198,6 +199,8 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
+            var userLanguages = Request.UserLanguages;
+
             using (var db = new ZapContext())
             {
                 string uid = null;

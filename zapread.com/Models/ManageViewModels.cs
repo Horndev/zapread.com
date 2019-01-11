@@ -46,7 +46,9 @@ namespace zapread.com.Models
         public bool TwoFactor { get; set; }
         public bool BrowserRemembered { get; set; }
         public FinancialViewModel Financial { get; set; }
-       
+        
+        public IList<string> Languages { get; set; }
+
         public UserSettings Settings { get; set; }
     }
 

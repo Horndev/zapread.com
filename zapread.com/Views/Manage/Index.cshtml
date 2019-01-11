@@ -5,18 +5,26 @@
 
 @section Styles {
     @Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
+    @Styles.Render("~/Content/plugins/chosen/chosenStyles")
 }
 
 @section Scripts {
     @Scripts.Render("~/plugins/dropZone")
     @Scripts.Render("~/plugins/moment")
-
+    @Scripts.Render("~/plugins/chosen")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
         $(document).ready(function () {
+
+            $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
+                var selectedValue = params.selected;
+                var values = $('#languagesSelect').val();
+                console.log(selectedValue);
+                console.log(values.join(','));
+            });
 
             // Set group list as clickable
             $(".clickable-row").click(function () {
@@ -57,6 +65,10 @@
                 }, 50);
             });
         });
+
+        var updateLanguages = function () {
+            console.log('updateLanguages');
+        };
 
         var settingToggle = function (e) {
             //alert('Not implemented yet.');
@@ -149,7 +161,7 @@
                 inProgress = true;
                 $('#loadmore').show();
                 $('#btnLoadmore').prop('disabled', true);
-                $.post("@Url.Action("InfiniteScroll", "Manage")", 
+                $.post("@Url.Action("InfiniteScroll", "Manage")",
                     { "BlockNumber": BlockNumber },
                     function (data) {
                         $('#loadmore').hide();
@@ -218,7 +230,6 @@
         };
     </script>
 
-    @*@Scripts.Render("~/bundles/DetailPost")*@
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -515,6 +526,29 @@
                                 </div>
                                 <div class="col">
                                     [experimental] Use dark color theme.  Refresh page to take effect.
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label class="font-normal">Multi select</label>
+                                        <div>
+                                            <select id='languagesSelect' data-placeholder="Choose a Language..." class="chosen-select" multiple @*onchange="updateLanguages()"*@>
+                                                @foreach (var l in Model.Languages)
+                                                {
+                                                    if (@l.Split(':')[0] == "en")
+                                                    {
+                                                        <option selected value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
