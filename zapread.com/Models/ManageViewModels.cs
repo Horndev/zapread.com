@@ -48,6 +48,7 @@ namespace zapread.com.Models
         public FinancialViewModel Financial { get; set; }
         
         public IList<string> Languages { get; set; }
+        public IList<string> KnownLanguages { get; set; }
 
         public UserSettings Settings { get; set; }
     }

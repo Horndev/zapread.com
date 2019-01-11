@@ -612,6 +612,7 @@ namespace zapread.com.Controllers
                     });
                 }
 
+                // List of languages known
                 var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
                     .GroupBy(ci => ci.TwoLetterISOLanguageName)
                     .Select(g => g.First())
@@ -637,10 +638,38 @@ namespace zapread.com.Controllers
                     TopFollowers = topFollowers,
                     UserBalance = u.Funds.Balance,
                     Settings = u.Settings,
-                    Languages = languages,
+                    Languages = u.Languages == null ? new List<string>() : u.Languages.Split(',').ToList(),
+                    KnownLanguages = languages,
                 };
 
                 return View(model);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UpdateUserLanguages(string languages)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return Json(new { result="error", success = false, message = "User not found" });
+            }
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SingleOrDefault();
+
+                if (user == null)
+                {
+                    return Json(new { result = "error", success = false, message = "User not found" });
+                }
+
+                user.Languages = languages;
+
+                db.SaveChanges();
+
+                return Json(new { result = "success", success = true });
             }
         }
 
