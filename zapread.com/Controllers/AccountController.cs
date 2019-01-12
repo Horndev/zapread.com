@@ -54,7 +54,7 @@ namespace zapread.com.Controllers
         }
 
         /* Monetary aspects */
-
+        [AllowAnonymous]
         public async Task<JsonResult> UserBalance()
         {
             string userId = "?";

@@ -103,30 +103,31 @@
          $.get("/Account/GetBalance", function (data, status) {
              $('#userVoteBalance').html(data.balance);
              userBalance = parseFloat(data.balance);
+             ub = data.balance;
              $(".userBalanceValue").each(function (i, e) {
                  $(e).html(data.balance);
              });
          });
 
          // If the user is logged in, then only show deposit if payment is greater than balance
-         $('#userVoteBalance').html(userBalance);
-         $.ajax({
-             type: "POST",
-             url: "/Account/UserBalance",
-             contentType: "application/json; charset=utf-8",
-             dataType: "json",
-             success: function (response) {
-                 ub = response.balance;
-                 $('#userVoteBalance').html(response.balance);
-                 userVote.b = ub;
-             },
-             failure: function (response) {
-                 //alert("failure " + JSON.stringify(response));
-             },
-             error: function (response) {
-                 //alert("error " + JSON.stringify(response));
-             }
-         });
+         //$('#userVoteBalance').html(userBalance);
+         //$.ajax({
+         //    type: "POST",
+         //    url: "/Account/UserBalance",
+         //    contentType: "application/json; charset=utf-8",
+         //    dataType: "json",
+         //    success: function (response) {
+         //        ub = response.balance;
+         //        $('#userVoteBalance').html(response.balance);
+         //        userVote.b = ub;
+         //    },
+         //    failure: function (response) {
+         //        //alert("failure " + JSON.stringify(response));
+         //    },
+         //    error: function (response) {
+         //        //alert("error " + JSON.stringify(response));
+         //    }
+         //});
 
          // If the user updates the amount
          $('#voteValueAmount').on('input', function () {

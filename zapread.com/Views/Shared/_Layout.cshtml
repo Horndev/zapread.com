@@ -113,11 +113,17 @@
                 $(this).removeClass("sharing");
             });
 
-            var urla = $("#unreadAlerts").data("url");
-            $("#unreadAlerts").load(urla);
+            // Only if logged in
+            @if (Request.IsAuthenticated)
+            {
+                <text>
+                var urla = $("#unreadAlerts").data("url");
+                $("#unreadAlerts").load(urla);
 
-            var urlm = $("#unreadMessages").data("url");
-            $("#unreadMessages").load(urlm);
+                var urlm = $("#unreadMessages").data("url");
+                $("#unreadMessages").load(urlm);
+                </text>
+            }
 
             // This hides the bottom parts of posts (for flow)
             $('.read-more').readMore({
@@ -415,7 +421,7 @@
                 contentType = "application/json; charset=utf-8";
                 processData = false;
                 isCommenting = true;
-                
+
                 $.ajax({
                     type: "POST",
                     url: action,
@@ -505,7 +511,7 @@
                     var msg = { "CommentContent": content.trim(), "CommentId": editingId };
                     console.log(msg);
                     $.post("@Url.Action("UpdateComment",
-                        "Comment")", 
+                        "Comment")",
                         msg,
                         function (data) {
                             if (data.Success) {
