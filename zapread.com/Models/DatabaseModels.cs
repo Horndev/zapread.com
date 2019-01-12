@@ -318,6 +318,9 @@ namespace zapread.com.Models
 
         // Unlockable description of group - set by admin
         public string ShortDescription { get; set; }
+
+        // Posts in this group are in this language by default
+        public string DefaultLanguage { get; set; }
     }
 
     public class ZapReadGlobals

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.IO;
 using zapread.com.Helpers;
 using System.Text;
+using System.Globalization;
 
 namespace zapread.com.Controllers
 {
@@ -1084,6 +1085,16 @@ namespace zapread.com.Controllers
             {
                 NewGroupViewModel vm = new NewGroupViewModel();
                 vm.Icons = db.Icons.Select(i => i.Icon).ToList();
+
+                // List of languages known
+                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                    .Select(g => g.First())
+                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+                vm.Language = "en";
+                vm.Languages = languages;
+
                 return View(vm);
             }
         }
@@ -1098,6 +1109,15 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     m.Icons = db.Icons.Select(i => i.Icon).ToList();
+
+                    // List of languages known
+                    var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                        .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                        .Select(g => g.First())
+                        .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+                    m.Languages = languages;
+
                     return View(m);
                 }
             }
@@ -1127,6 +1147,7 @@ namespace zapread.com.Controllers
                     Tags = m.Tags,
                     Icon = m.Icon,
                     CreationDate = DateTime.UtcNow,
+                    DefaultLanguage = m.Language,
                 };
                 
                 var u = db.Users.Where(us => us.AppId == userId).First();

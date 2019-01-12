@@ -43,7 +43,7 @@
                         <div class="form-group">
                             @Html.LabelFor(m => m.Tags, new { @class = "col-sm-2 control-label" })
                             <div class="col-sm-10">
-                                @Html.TextBoxFor(m => m.Tags, "", new { @class = "form-control", placeholder = "Tags", id="multisel" })
+                                @Html.TextBoxFor(m => m.Tags, "", new { @class = "form-control", placeholder = "Tags", id = "multisel" })
                                 @*<input id="multisel" type="text" class="form-control">*@
                                 <small id="multiselHelp" class="form-text text-muted">Tags help people search and filter groups.</small>
                             </div>
@@ -54,11 +54,26 @@
                                 <div class="row">
                                     <div class="col-sm-3">
                                         @Html.DropDownListFor(m => m.Icon,
-                                            Model.Icons.Select(x => new SelectListItem() { Text = x, Value = x}), 
+                                            Model.Icons.Select(x => new SelectListItem() { Text = x, Value = x}),
                                             new { @class = "repositories", id= "select-icon"})
                                     </div>
                                     <div class="col-sm-7">
                                         <small id="multiselHelp" class="form-text text-muted">Icons are a visual cue to help users identify the group.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Default Language</label>
+                            <div class="col-sm-10">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        @Html.DropDownListFor(m => m.Language,
+                                            Model.Languages.Select(x => new SelectListItem() { Text = x.Split(':')[1], Value = x.Split(':')[0] }),
+                                            new { @class = "form-control", id= "select-language"})
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <small id="multiselHelp" class="form-text text-muted">The default language of posts in the group.</small>
                                     </div>
                                 </div>
                             </div>

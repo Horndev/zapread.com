@@ -593,6 +593,10 @@
     <Compile Include="Migrations\201901090145117_addLNTransactionIgnore.Designer.cs">
       <DependentUpon>201901090145117_addLNTransactionIgnore.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901120236227_addGroupDefaultLanguage.cs" />
+    <Compile Include="Migrations\201901120236227_addGroupDefaultLanguage.Designer.cs">
+      <DependentUpon>201901120236227_addGroupDefaultLanguage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1833,6 +1837,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901090145117_addLNTransactionIgnore.resx">
       <DependentUpon>201901090145117_addLNTransactionIgnore.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901120236227_addGroupDefaultLanguage.resx">
+      <DependentUpon>201901120236227_addGroupDefaultLanguage.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

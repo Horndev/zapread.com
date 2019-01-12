@@ -12,6 +12,7 @@ using Microsoft.AspNet.Identity.Owin;
 using zapread.com.Services;
 using HtmlAgilityPack;
 using zapread.com.Helpers;
+using System.Globalization;
 
 namespace zapread.com.Controllers
 {
@@ -197,11 +198,25 @@ namespace zapread.com.Controllers
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
                 var post = new Post()
                 {
-                    Content = "",//"<h3>[Post Title]</h3> \r\n [add contents here] \r\n <br />",
+                    Content = "",
                     UserId = user,
                     Group = postGroup ?? communityGroup,
+                    Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
                 };
-                return View(post);
+
+                // List of languages known
+                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                    .Select(g => g.First())
+                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+                var vm = new NewPostViewModel()
+                {
+                    Post = post,
+                    Languages = languages,
+                };
+
+                return View(vm);
             }
         }
 
@@ -266,6 +281,8 @@ namespace zapread.com.Controllers
                     post.PostTitle = p.Title;
                     post.Group = postGroup;
                     post.Content = contentStr;
+                    post.Language = p.Language ?? post.Language;
+
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
                         post.TimeStamp = DateTime.UtcNow;
@@ -294,6 +311,7 @@ namespace zapread.com.Controllers
                         VotesUp = new List<User>() { user },
                         PostTitle = p.Title,
                         IsDraft = p.IsDraft,
+                        Language = p.Language,
                     };
 
                     db.Posts.Add(post);

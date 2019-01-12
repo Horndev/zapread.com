@@ -24,13 +24,20 @@ namespace zapread.com.Models
         [Display(Name = "Tags")]
         [StringLength(256, ErrorMessage = "Too many tags.  Maximum 256 characters allowed.")]
         public string Tags { get; set; }
+
+        [Display(Name = "Language")]
+        //[StringLength(2, ErrorMessage = "Error in language code.")]
+        public string Language { get; set; }
+
+        // Not displayed
+        public List<string> Languages { get; set; }
     }
 
     public class GroupAdminTagsViewModel
     {
         public int GroupId { get; set; }
         [Display(Name = "Tags")]
-        [StringLength(256, ErrorMessage = "Too many tags.  Maximum 256 characters allowed.")]
+        [StringLength(256, MinimumLength = 2, ErrorMessage = "Too many tags.  Maximum 256 characters allowed.")]
         public string Tags { get; set; }
     }
 

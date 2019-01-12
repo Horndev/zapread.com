@@ -1,4 +1,4 @@
-﻿@model zapread.com.Models.Post
+﻿@model zapread.com.Models.NewPostViewModel
 
 @{
     ViewBag.Title = "New Post";
@@ -7,11 +7,11 @@
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>New Post in <span id="postGroupActive">@Model.Group.GroupName</span></h2>
+        <h2>New Post in <span id="postGroupActive">@Model.Post.Group.GroupName</span></h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
-            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Group.GroupId })">@Model.Group.GroupName</a></li>
+            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Post.Group.GroupId })">@Model.Post.Group.GroupName</a></li>
             <li class="breadcrumb-item active">New</li>
         </ol>
     </div>
@@ -44,7 +44,23 @@
                             </div>
                             <div class="form-group">
                                 <label>Post Group</label>
-                                <input id="postGroup" type="text" class="form-control" value="@Model.Group.GroupName" />
+                                <input id="postGroup" type="text" class="form-control" value="@Model.Post.Group.GroupName" />
+                            </div>
+                            <div class="form-group">
+                                <label>Post Language</label>
+                                <select id='languageSelect' class="form-control">
+                                    @foreach (var l in Model.Languages)
+                                    {
+                                        if (Model.Post.Language == @l.Split(':')[0])
+                                        {
+                                            <option selected value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                        }
+                                    }
+                                </select>
                             </div>
                         </form>
                     </div>
@@ -55,7 +71,7 @@
                     </div>
 
                     <div class="click2edit wrapper p-md" style="min-height: 50;">
-                        @Html.Raw(Model.Content)
+                        @Html.Raw(Model.Post.Content)
                     </div>
                 </div>
                 <div class="ibox-footer">
@@ -111,7 +127,7 @@
 
     <script type="text/javascript">
     var knownGroups = [''];
-    var gid = @Model.Group.GroupId;
+    var gid = @Model.Post.Group.GroupId;
     var draftsTable = {};
     var postId = 0;
 
@@ -300,8 +316,10 @@
         $('#save').prop('disabled', true);
         var aHTML = $('.click2edit').summernote('code');
         var postTitle = $('#postTitle').val();
-        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': false });
-
+        var language = $('#languageSelect').val();
+        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': false, 'Language': language });
+        
+            
         $.ajax({
             type: "POST",
             url: "/Post/SubmitNewPost",
@@ -335,7 +353,8 @@
         $('#save').prop('disabled', true);
         var aHTML = $('.click2edit').summernote('code');
         var postTitle = $('#postTitle').val();
-        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true });
+        var language = $('#languageSelect').val();
+        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true, 'Language': language });
 
         $.ajax({
             type: "POST",

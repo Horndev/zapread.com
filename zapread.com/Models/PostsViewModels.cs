@@ -17,6 +17,12 @@ namespace zapread.com.Models
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
     }
 
+    public class NewPostViewModel
+    {
+        public Post Post { get; set; }
+        public List<string> Languages { get; set; }
+    }
+
     public class PostsViewModel
     {
         public List<PostViewModel> Posts;
@@ -34,6 +40,7 @@ namespace zapread.com.Models
         public int GroupId { get; set; }
         public string Title { get; set; }
         public bool IsDraft { get; set; }
+        public string Language { get; set; }
     }
 
     public class PostCommentsViewModel
