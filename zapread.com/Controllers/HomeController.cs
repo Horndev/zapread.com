@@ -98,11 +98,30 @@ namespace zapread.com.Controllers
                 seconds = epoch_seconds(date) - 1134028003
                 return round(sign * order + seconds / 45000, 7)*/
             double ln10 = 2.302585092994046;
+
+            List<string> userLanguages;
+            
+            try
+            {
+                userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
+
+                if (userLanguages.Count() == 0)
+                {
+                    userLanguages.Add("en");
+                }
+            }
+            catch
+            {
+                userLanguages = new List<string>() { "en" };
+            }
+            
+
             using (var db = new ZapContext())
             {
                 DateTime t = DateTime.Now;
 
                 var user = db.Users
+                    .Include(usr => usr.Settings)
                     .SingleOrDefault(u => u.Id == userId);
 
                 if (sort == "Score")
@@ -112,10 +131,20 @@ namespace zapread.com.Controllers
                     {
                         var ig = user.IgnoredGroups.Select(g => g.GroupId);
                         validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+
+                        var allLang = user.Settings.ViewAllLanguages;
+
+                        if (!allLang)
+                        {
+                            var languages = user.Languages == null ? new List<string>() { "en" } : user.Languages.Split(',').ToList();
+                            validposts = validposts
+                                .Where(p => p.Language == null || languages.Contains(p.Language));
+                        }
                     }
                     else
                     {
-                        validposts = db.Posts;
+                        validposts = db.Posts
+                            .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                     }
 
                     var sposts = validposts//db.Posts//.AsNoTracking()

@@ -541,7 +541,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 //var user = db.Users.Where(u => u.AppId == userId).First();
-                var post = db.Posts.FirstOrDefault(ps => ps.PostId == p.PostId);
+                var post = db.Posts.SingleOrDefault(ps => ps.PostId == p.PostId);
                 if (post == null)
                 {
                     return Json(new { result = "error" });
@@ -554,6 +554,31 @@ namespace zapread.com.Controllers
 
                 await db.SaveChangesAsync();
                 return Json(new { result = "success", postId = post.PostId });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ChangeLanguage(int postId, string newLanguage)
+        {
+            if (!User.IsInRole("Administrator"))
+            {
+                return Json(new { result = "error", success = false, message = "Admin role missing." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var post = db.Posts.SingleOrDefault(ps => ps.PostId == postId);
+
+                if (post == null)
+                {
+                    return Json(new { result = "error", success = false, message = "Post not found in database." });
+                }
+
+                post.Language = newLanguage;
+
+                db.SaveChanges();
+
+                return Json(new { result = "success", success = true });
             }
         }
     }

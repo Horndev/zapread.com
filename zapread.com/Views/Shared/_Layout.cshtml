@@ -320,6 +320,42 @@
             });
         };
 
+        var setPostLanguage = function (id) {
+            swal({
+                text: 'Enter new language code',
+                content: "input",
+                button: {
+                    text: "Ok",
+                    closeModal: false,
+                },
+            })
+            .then(name => {
+                if (!name) throw null;
+
+                $.post("@Url.Action("ChangeLanguage",
+                        "Post")",
+                        { "postId": id, "newLanguage": name },
+                        function (data) {
+                            if (data.success) {
+                                swal("Post language has been updated!", {
+                                    icon: "success",
+                                });
+                            }
+                            else {
+                                swal("Error", "Error: " + data.message, "error");
+                            }
+                        });
+             })
+            .catch(err => {
+                if (err) {
+                    swal("Error", "Error updating language.", "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+        };
+
         var deletePost = function (id) {
             swal({
                 title: "Are you sure?",

@@ -10,7 +10,7 @@
             @if (Model.ViewerIgnoredUser)
             {
                 <li>
-                    <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')";><i class="fa fa-eye"></i> Show Post</button>
+                    <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')" ;><i class="fa fa-eye"></i> Show Post</button>
                 </li>
             }
             @if (User.Identity.Name == Model.Post.UserId.Name)
@@ -52,6 +52,9 @@
                 }
                 <li>
                     <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
+                </li>
+                <li>
+                    <button class="btn btn-link btn-sm" type="submit" onclick="setPostLanguage(@Model.Post.PostId)"><i class="fa fa-times"></i> Set Language (Admin)</button>
                 </li>
             }
 
