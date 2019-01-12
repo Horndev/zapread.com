@@ -59,6 +59,7 @@
             var msg = '{ request: "' + invoice.toString() + '" }';
             $("#submitWithdrawInvoice").attr("disabled", "disabled");
             $.ajax({
+                async: true,
                 type: "POST",
                 url: "/Lightning/SubmitPaymentRequest",
                 data: msg,

@@ -32,6 +32,7 @@
         var gid = @Model.GroupId;
         var groupIcon = $('#select-icon').val();
         $.ajax({
+            async: true,
             url: "/Group/UpdateGroupIcon",
             type: "POST",
             dataType: "json",

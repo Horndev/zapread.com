@@ -29,6 +29,7 @@
                 console.log(userlangs);
 
                 $.ajax({
+                    async: true,
                     data: JSON.stringify({ 'languages': userlangs }),
                     type: 'POST',
                     url: '/Manage/UpdateUserLanguages',
@@ -95,6 +96,7 @@
             var value = e.checked;
 
             $.ajax({
+                async: true,
                 data: JSON.stringify({'setting':setting, 'value': value}),
                 type: 'POST',
                 url: '/Manage/UpdateUserSetting',
@@ -114,6 +116,7 @@
             leaveurl = "/Group/LeaveGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: leaveurl,
@@ -134,6 +137,7 @@
             joinurl = "/Group/JoinGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,

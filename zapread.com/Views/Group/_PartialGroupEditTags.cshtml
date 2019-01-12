@@ -38,6 +38,7 @@
         var gid = @Model.GroupId;
         var tags = $('#tagsel').val();
         $.ajax({
+            async: true,
             url: "/Group/UpdateGrouptags",
             type: "POST",
             dataType: "json",

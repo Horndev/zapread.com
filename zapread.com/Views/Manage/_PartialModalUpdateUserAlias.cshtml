@@ -37,6 +37,7 @@
         dataString = JSON.stringify({ alias: dataval });
         console.log(dataString);
         $.ajax({
+            async: true,
             type: "POST",
             url: action,
             data: dataString,

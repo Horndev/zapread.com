@@ -198,6 +198,7 @@
             joinurl = "/Group/ToggleIgnore"
             var data = JSON.stringify({ 'groupId': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,
@@ -221,6 +222,7 @@
             joinurl = "/Group/JoinGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,
@@ -242,6 +244,7 @@
             leaveurl = "/Group/LeaveGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: leaveurl,

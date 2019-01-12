@@ -290,6 +290,7 @@
 
             var msg = JSON.stringify({ 'Content': aHTML, 'PostId': @Model.PostId, 'UserId': '@Model.UserId.AppId', 'Title': postTitle, 'IsDraft': false });
             $.ajax({
+                async: true,
                 type: "POST",
                 url: "/Post/Update",
                 data: msg,
@@ -321,6 +322,7 @@
             var msg = JSON.stringify({ 'Content': aHTML, 'PostId': @Model.PostId, 'UserId': '@Model.UserId.AppId', 'Title': postTitle, 'IsDraft': true });
            
             $.ajax({
+                async: true,
                 type: "POST",
                 url: "/Post/Update",
                 data: msg,

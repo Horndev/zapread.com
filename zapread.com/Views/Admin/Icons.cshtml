@@ -107,6 +107,7 @@
         var delicon = function (item) {
             var msg = { iD: item };
             $.ajax({
+                async: true,
                 type: "POST",
                 url: "/Admin/DeleteIcon",
                 contentType: "application/json; charset=utf-8",
@@ -129,6 +130,7 @@
             var iconVal = $('#newIcon').val();
             var msg = { icon: iconVal };
             $.ajax({
+                async: true,
                 type: "POST",
                 url: "/Admin/AddIcon",
                 contentType: "application/json; charset=utf-8",

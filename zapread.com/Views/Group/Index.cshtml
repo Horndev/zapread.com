@@ -121,6 +121,7 @@
                     if (!query.length) return callback();
                     //alert(JSON.stringify(query));
                     $.ajax({
+                        async: true,
                         url: '/Group/Search',
                         type: 'POST',
                         dataType: 'json',
@@ -168,6 +169,7 @@
             joinurl = "/Group/JoinGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,
@@ -189,6 +191,7 @@
             leaveurl = "/Group/LeaveGroup"
             var data = JSON.stringify({ 'gid': id });
             $.ajax({
+                async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: leaveurl,

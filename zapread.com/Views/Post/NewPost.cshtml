@@ -173,6 +173,7 @@
             autoFocus: true,
             source: function (request, response) {
                 $.ajax({
+                    async: true,
                     url: "/Group/GetGroups",
                     type: "POST",
                     dataType: "json",
@@ -321,6 +322,7 @@
         
             
         $.ajax({
+            async: true,
             type: "POST",
             url: "/Post/SubmitNewPost",
             data: msg,
@@ -357,6 +359,7 @@
         var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true, 'Language': language });
 
         $.ajax({
+            async: true,
             type: "POST",
             url: "/Post/SubmitNewPost",
             data: msg,

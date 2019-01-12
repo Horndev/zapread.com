@@ -156,6 +156,7 @@
         }
 
         $.ajax({
+            async: true,
             type: "POST",
             url: url,
             data: JSON.stringify({ "id": id }),

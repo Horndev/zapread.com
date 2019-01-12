@@ -46,6 +46,7 @@
         var isAdmin = $('#UserGroupAdministrator').is(":checked");
         var data = { group: gname, user: uname, isAdmin: $('#UserGroupAdministator').is(":checked"), isMod: $('#UserGroupModerator').is(":checked"), isMember: $('#UserGroupMember').is(":checked") };
         $.ajax({
+            async: true,
             url: "/Admin/UpdateUserGroupRoles",
             type: "POST",
             dataType: "json",
@@ -66,6 +67,7 @@
                 autoFocus: true,
                 source: function (request, response) {
                     $.ajax({
+                        async: true,
                         url: "/Admin/GetUsers",
                         type: "POST",
                         dataType: "json",
@@ -79,6 +81,7 @@
                 },
                 change: function (event, ui) {
                     $.ajax({
+                        async: true,
                         url: "/Admin/GetUserGroupRoles",
                         type: "POST",
                         dataType: "json",
