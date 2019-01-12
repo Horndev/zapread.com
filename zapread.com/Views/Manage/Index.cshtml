@@ -548,6 +548,38 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-auto">
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.ViewAllLanguages) { <text> checked</text> } class="onoffswitch-checkbox" id="ViewAllLanguages" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="ViewAllLanguages">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    View posts in all languages.
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.ViewTranslatedLanguages) { <text> checked</text> } class="onoffswitch-checkbox" id="ViewTranslatedLanguages" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="ViewTranslatedLanguages">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    [experimental] View google translated posts automatically if they exist.
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-lg-12">
                                     <div>
                                         <br />

@@ -909,6 +909,15 @@ namespace zapread.com.Controllers
                     user.Settings.ColorTheme = value ? "dark" : "light";
                     User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme);
                 }
+                else if (setting == "ViewAllLanguages")
+                {
+                    user.Settings.ViewAllLanguages = value;
+                }
+                else if (setting == "ViewTranslatedLanguages")
+                {
+                    user.Settings.ViewTranslatedLanguages = value;
+                }
+
                 await db.SaveChangesAsync();
                 return Json(new { Result = "Success" });
             }
