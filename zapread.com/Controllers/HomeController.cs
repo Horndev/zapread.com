@@ -24,7 +24,7 @@ namespace zapread.com.Controllers
 {
     public class HomeController : Controller
     {
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Any)]
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
