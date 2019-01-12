@@ -10,7 +10,7 @@
             @if (Model.ViewerIgnoredUser)
             {
                 <li>
-                    <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')" ;><i class="fa fa-eye"></i> Show Post</button>
+                    <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')"><i class="fa fa-eye"></i> Show Post</button>
                 </li>
             }
             @if (User.Identity.Name == Model.Post.UserId.Name)
@@ -32,6 +32,9 @@
             }
             else
             {
+                <li>
+                    <button class="btn btn-link btn-sm" type="submit" onclick="alert('Not yet implemented.')"><i class="fa fa-globe"></i> Translate</button>
+                </li>
                 <li>
                     <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-flag"></i> Report Spam</button>
                 </li>
