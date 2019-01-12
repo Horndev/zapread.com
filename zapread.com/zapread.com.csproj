@@ -597,6 +597,14 @@
     <Compile Include="Migrations\201901120236227_addGroupDefaultLanguage.Designer.cs">
       <DependentUpon>201901120236227_addGroupDefaultLanguage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901120320461_AddViewAllLanguagesUserSetting.cs" />
+    <Compile Include="Migrations\201901120320461_AddViewAllLanguagesUserSetting.Designer.cs">
+      <DependentUpon>201901120320461_AddViewAllLanguagesUserSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201901120321575_AddViewTranslatedLanguagesUserSetting.cs" />
+    <Compile Include="Migrations\201901120321575_AddViewTranslatedLanguagesUserSetting.Designer.cs">
+      <DependentUpon>201901120321575_AddViewTranslatedLanguagesUserSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1840,6 +1848,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901120236227_addGroupDefaultLanguage.resx">
       <DependentUpon>201901120236227_addGroupDefaultLanguage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901120320461_AddViewAllLanguagesUserSetting.resx">
+      <DependentUpon>201901120320461_AddViewAllLanguagesUserSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901120321575_AddViewTranslatedLanguagesUserSetting.resx">
+      <DependentUpon>201901120321575_AddViewTranslatedLanguagesUserSetting.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -141,7 +141,12 @@ namespace zapread.com.Models
         // Alerts:
         public bool AlertOnOwnPostCommented { get; set; }
 
+        // Customization
         public string ColorTheme { get; set; }
+
+        // Languages
+        public bool ViewAllLanguages { get; set; }
+        public bool ViewTranslatedLanguages { get; set; }
     }
 
     public class ZapIcon
