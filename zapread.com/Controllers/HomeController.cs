@@ -72,10 +72,29 @@ namespace zapread.com.Controllers
                     }
                 }
 
-                var icon = Identicon.FromValue(UserId, size: (int)size);
+                // Use generated icon
 
-                icon.SaveAsPng(ms);
-                return File(ms.ToArray(), "image/png");
+                // Identicon
+                //var icon = Identicon.FromValue(UserId, size: (int)size);
+                //icon.SaveAsPng(ms);
+                //return File(ms.ToArray(), "image/png");
+
+                // RoboHash
+                var imagesPath = Server.MapPath("~/bin");
+                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
+                    basePath: imagesPath);
+                var r = RoboHash.Net.RoboHash.Create(UserId);
+                using (var image = r.Render(
+                    set: null,
+                    backgroundSet: RoboHash.Net.RoboConsts.Any,
+                    color: null,
+                    width: (int)size,
+                    height: (int)size))
+                {
+                    Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
+                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    return File(data, "image/png");
+                }
             }
         }
 

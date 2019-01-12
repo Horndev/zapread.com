@@ -1869,6 +1869,14 @@
       <Project>{d0cd86c8-a6f9-4c6c-9bf0-eaa461e7fbad}</Project>
       <Name>Owin.Security.Providers.Reddit</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RoboHash.Net\RoboHash.Net\RoboHash.Net.Resources\Robohash.Net.Resources.csproj">
+      <Project>{bbe45286-3846-42a4-9809-b632f6d624fe}</Project>
+      <Name>Robohash.Net.Resources</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoboHash.Net\RoboHash.Net\RoboHash.Net\RoboHash.Net.csproj">
+      <Project>{8b5d7c04-6f59-4dd0-9f67-cc0dc6aeb275}</Project>
+      <Name>RoboHash.Net</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

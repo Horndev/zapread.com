@@ -116,6 +116,7 @@
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.0.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Interactive.Async, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.1.1\lib\net46\System.Interactive.Async.dll</HintPath>
     </Reference>
@@ -207,6 +208,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\HomeControllerTest.cs" />
     <Compile Include="Services\TranslationTest.cs" />
+    <Compile Include="Services\RoboHashTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
@@ -215,6 +217,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RoboHash.Net\RoboHash.Net\RoboHash.Net.Resources\Robohash.Net.Resources.csproj">
+      <Project>{bbe45286-3846-42a4-9809-b632f6d624fe}</Project>
+      <Name>Robohash.Net.Resources</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoboHash.Net\RoboHash.Net\RoboHash.Net\RoboHash.Net.csproj">
+      <Project>{8b5d7c04-6f59-4dd0-9f67-cc0dc6aeb275}</Project>
+      <Name>RoboHash.Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\zapread.com\zapread.com.csproj">
       <Project>{ECCE89DD-7AD3-4109-9F7C-32292EAC36AD}</Project>
       <Name>zapread.com</Name>
