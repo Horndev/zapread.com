@@ -38,9 +38,16 @@ namespace zapread.com.Controllers
                 return Json(new { result = "error", message = "Invalid" });
             }
 
+            bool IsUserOwner = false;
+            bool IsUserAnonymous = false;
+
             var userId = User.Identity.GetUserId();
 
             // if userId is null, then it is anonymous
+            if (userId == null)// Anonymous vote
+            {
+                IsUserAnonymous = true;
+            }
 
             using (var db = new ZapContext())
             {
@@ -143,15 +150,25 @@ namespace zapread.com.Controllers
                         Type = 0,
                     };
 
-                    var webratio = 0.1;
-                    var comratio = 0.1;
-
-                    //post.EarningEvents.Add(ea);
+                    var webratio = 0.1;     // Website income
+                    var comratio = 0.1;     // Community pool
 
                     var owner = post.UserId;
+
+                    if (user != null && owner.Id == user.Id)
+                    {
+                        IsUserOwner = true;
+                    }
+
                     if (owner != null)
                     {
-                        owner.Reputation += v.a;
+                        // If user is not anonymous, and user is not owner, add reputation
+
+                        if (!IsUserAnonymous && !IsUserOwner)
+                        {
+                            owner.Reputation += v.a;
+                        }
+
                         owner.EarningEvents.Add(ea);
                         owner.TotalEarned += 0.6 * v.a;
                         
@@ -225,7 +242,13 @@ namespace zapread.com.Controllers
                     var comratio = 0.1;
 
                     var owner = post.UserId;
-                    if (owner != null)
+
+                    if (user != null && owner.Id == user.Id)
+                    {
+                        IsUserOwner = true;
+                    }
+
+                    if (!IsUserAnonymous && !IsUserOwner)
                     {
                         owner.Reputation -= v.a;
                     }
@@ -272,7 +295,16 @@ namespace zapread.com.Controllers
                 return Json(new { result = "error", message = "Invalid" });
             }
 
+            bool IsUserOwner = false;
+            bool IsUserAnonymous = false;
+
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                IsUserAnonymous = true;
+            }
+
             using (var db = new ZapContext())
             {
                 var comment = db.Comments
@@ -367,9 +399,18 @@ namespace zapread.com.Controllers
                     var comratio = 0.1;
 
                     var owner = comment.UserId;
+
+                    if (user != null && user.Id == owner.Id)
+                    {
+                        IsUserOwner = true;
+                    }
+
                     if (owner != null)
                     {
-                        owner.Reputation += v.a;
+                        if (!IsUserAnonymous && !IsUserOwner)
+                        {
+                            owner.Reputation += v.a;
+                        }
                         owner.EarningEvents.Add(ea);
                         owner.TotalEarned += 0.6 * v.a;
                         if (owner.Funds == null)
@@ -441,7 +482,13 @@ namespace zapread.com.Controllers
                     var comratio = 0.1;
 
                     var owner = comment.UserId;
-                    if (owner != null)
+
+                    if (user != null && user.Id == owner.Id)
+                    {
+                        IsUserOwner = true;
+                    }
+
+                    if (!IsUserAnonymous && !IsUserOwner)
                     {
                         owner.Reputation -= v.a;
                     }
