@@ -99,7 +99,7 @@ namespace zapread.com.Services
                 {
                     MailingService.Send(new UserEmailModel()
                     {
-                        Destination = "steven.horn.mail@gmail.com",
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                         Body = " Withdraw from user which doesn't exist.",
                         Email = "",
                         Name = "zapread.com Monitoring",

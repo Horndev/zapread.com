@@ -24,7 +24,7 @@ namespace zapread.com.Controllers
 {
     public class HomeController : Controller
     {
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Any)]
         public ActionResult UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
@@ -430,7 +430,7 @@ namespace zapread.com.Controllers
             message.Name = "ZapRead Feedback";
             message.Subject = "ZapRead Feedback";
             message.Body = msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid;
-            message.Destination = "steven.horn.mail@gmail.com";
+            message.Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
             MailingService.Send(message);
 
             return Json(new { result = "success" });
@@ -446,7 +446,7 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Index");
             }
 
-            model.Destination = "steven.horn.mail@gmail.com";
+            model.Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
             MailingService.Send(model);
 
             return RedirectToAction("FeedbackSuccess");

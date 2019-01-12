@@ -440,7 +440,7 @@ namespace zapread.com.Controllers
                     Services.MailingService.Send(new UserEmailModel()
                     {
                         Body = "Error during community distribution.  Total to distribute is negative.",
-                        Destination = "steven.horn.mail@gmail.com",
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "Community payout error",

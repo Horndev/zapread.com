@@ -309,7 +309,7 @@ namespace zapread.com.Controllers
                         // Send an email.
                         MailingService.Send(new UserEmailModel()
                         {
-                            Destination = "steven.horn.mail@gmail.com",
+                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                             Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + userId,
                             Email = "",
                             Name = "zapread.com Exception",
