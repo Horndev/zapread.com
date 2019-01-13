@@ -136,7 +136,7 @@
              userVote.amount = amt;
              userTip.amount = amt;
 
-             if (userVote.amount > userVote.b) {
+             if (parseInt(userVote.amount) > parseInt(userVote.b)) {
                  $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
                  $("#voteDepositInvoiceFooter").removeClass("bg-success");
                  $("#voteDepositInvoiceFooter").removeClass("bg-error");
@@ -165,51 +165,48 @@
      $(function () {
          $("#voteOkButton").click(function () {
              var userBalance = userVote.b;
-
+             var depositUse = "userDeposit";
+             var memo = "ZapRead.com";
              if (isTip) {
-                 if (userVote.amount > userBalance) {
-                     // User must pay via LN.  Request an invoice for payment
-                     var isanon = '1';
-                     if (IsAuthenticated) {
-                         isanon = '0';
-                     }
+                 depositUse = "tip";
+                 memo = 'ZapRead.com ' + $('#voteModalTitle').html();
+             } else if (userVote.t == 1) {
+                 depositUse = "votePost";
+                 memo = 'ZapRead.com vote post ID: ' + userVote.id;
+             } else if (userVote.t == 2) {
+                 depositUse = "voteComment"
+                 memo = 'ZapRead.com vote comment ID: ' + userVote.id;
+             }
+             var isanon = '1';
+             if (IsAuthenticated) {
+                 isanon = '0';
+             }
 
-                     var memo = 'ZapRead.com ' + $('#voteModalTitle').html();
-                     var msg = '{ amount: "' + userVote.amount.toString() + '", memo: "' + memo + '", anon: "' + isanon + '" }';
+             var msg = JSON.stringify({
+                 "amount": userVote.amount.toString(),
+                 "memo": memo,
+                 "anon": isanon,
+                 "use": depositUse,
+                 "useId": userVote.id,
+                 "useAction": userVote.d    // direction of vote 0=down; 1=up
+             });
 
-                     //console.log(msg);
-                     updateVoteInvoice(msg);
-                 }
-                 else {
-                     // Note that vote tx is zero since it is not tied to an LN transaction
-                     doTip(userVote.id, userVote.amount, null);
-                     //doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
-                 }
+             if (parseInt(userVote.amount) > parseInt(userBalance)) {
+                 // Not enough funds - ask for invoice
+                 updateVoteInvoice(msg);
              }
              else {
-                 // Check that the user vote is actually valid
-                 if (userVote.id > 0) {
-                     if (userVote.amount > userBalance) {
-                         // User must pay via LN.  Request an invoice for payment
-                         var isanon = '1';
-                         if (IsAuthenticated) {
-                             isanon = '0';
-                         }
-
-                         var memo = 'ZapRead.com vote post ID: ' + userVote.id;
-                         var msg = '{ amount: "' + userVote.amount.toString() + '", memo: "' + memo + '", anon: "' + isanon + '" }';
-
-                         updateVoteInvoice(msg);
-                     }
-                     else {
-                         // Note that vote tx is zero since it is not tied to an LN transaction
-                         doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
-                     }
+                 if (isTip) {
+                     doTip(userVote.id, userVote.amount, null);
+                 }
+                 else {
+                     doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
                  }
              }
          });
      });
 
+     // This function gets an invoice and displays it to the user
      var updateVoteInvoice = function (msg) {
          $.ajax({
              type: "POST",
@@ -229,8 +226,12 @@
                  $("#voteDepositInvoiceFooter").show();
                  $("#voteDepositQR").show();
                  $("#voteDepositInvoice").show();
-                 //$('#voteModalTitle').html('Vote');
                  $('#voteModal').modal('show');
+
+                 // Start backup polling to see if it gets paid
+                 //setTimeout(function () {
+                 //    checkInvoicePaid(response.Id);
+                 //}, 5000);
              },
              failure: function (response) {
                  //alert("failure " + JSON.stringify(response));

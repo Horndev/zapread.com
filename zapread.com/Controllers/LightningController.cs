@@ -66,9 +66,11 @@ namespace zapread.com.Controllers
         /// <param name="amount">number in Satoshi</param>
         /// <param name="memo">encoded in invoice</param>
         /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
+        /// <param name="use">what the invoice is used for</param>
+        /// <param name="useId">target of invoice (user id, post id, etc)</param>
         /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
-        public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use)
+        public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use, int? useId, int? useAction)
 
         {
             bool isAnon = !(anon == null || anon != "1");
@@ -99,7 +101,7 @@ namespace zapread.com.Controllers
                     macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
                     macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
 
-            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "432000");
+            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "3600");
 
             LnRequestInvoiceResponse resp = new LnRequestInvoiceResponse()
             {
@@ -116,8 +118,40 @@ namespace zapread.com.Controllers
                 {
                     user = db.Users.Where(u => u.AppId == userId).First();
                 }
+                TransactionUse usedFor = TransactionUse.Undefined;
+                TransactionUseAction usedForAction = TransactionUseAction.Undefined;
+                int usedForId = useId != null ? useId.Value : -1;
+                if (use == "tip")
+                {
+                    usedFor = TransactionUse.Tip;
+                }
+                else if (use == "votePost")
+                {
+                    usedFor = TransactionUse.VotePost;
+                }
+                else if (use == "voteComment")
+                {
+                    usedFor = TransactionUse.VoteComment;
+                }
+                else if (use == "userDeposit")
+                {
+                    usedFor = TransactionUse.UserDeposit;
+                    usedForId = userId != null ? user.Id : -1;
+                }
 
-                //create a new transaction
+                if (useAction != null)
+                {
+                    if (useAction.Value == 0)
+                    {
+                        usedForAction = TransactionUseAction.VoteDown;
+                    }
+                    else if (useAction.Value == 1)
+                    {
+                        usedForAction = TransactionUseAction.VoteUp;
+                    }
+                }
+
+                //create a new transaction record in database
                 LNTransaction t = new LNTransaction()
                 {
                     User = user,
@@ -129,8 +163,9 @@ namespace zapread.com.Controllers
                     IsDeposit = true,
                     TimestampCreated = DateTime.Now,
                     PaymentRequest = inv.payment_request,
-                    UsedFor = TransactionUse.UserDeposit,
-                    UsedForId = userId != null ? user.Id : -1,
+                    UsedFor = usedFor,
+                    UsedForId = usedForId,
+                    UsedForAction = usedForAction,
                 };
                 db.LightningTransactions.Add(t);
                 db.SaveChanges();

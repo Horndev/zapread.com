@@ -139,7 +139,16 @@
              if (LNmode == "deposit") {
                  var amount = $("#depositValueAmount").val();
                  var memo = 'ZapRead.com deposit';
-                 var msg = '{ amount: "' + amount.toString() + '", memo: "' + memo + '" }';
+
+                 var msg = JSON.stringify({
+                     "amount": amount.toString(),
+                     "memo": memo,
+                     "anon": '0',
+                     "use": "userDeposit",
+                     "useId": -1,           // undefined
+                     "useAction": -1        // undefined
+                 });
+
                  $.ajax({
                      type: "POST",
                      url: "/Lightning/GetDepositInvoice",

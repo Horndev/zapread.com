@@ -605,6 +605,10 @@
     <Compile Include="Migrations\201901120321575_AddViewTranslatedLanguagesUserSetting.Designer.cs">
       <DependentUpon>201901120321575_AddViewTranslatedLanguagesUserSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901131740027_addTxUseAction.cs" />
+    <Compile Include="Migrations\201901131740027_addTxUseAction.Designer.cs">
+      <DependentUpon>201901131740027_addTxUseAction.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1854,6 +1858,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901120321575_AddViewTranslatedLanguagesUserSetting.resx">
       <DependentUpon>201901120321575_AddViewTranslatedLanguagesUserSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901131740027_addTxUseAction.resx">
+      <DependentUpon>201901131740027_addTxUseAction.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

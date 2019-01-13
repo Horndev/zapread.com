@@ -52,6 +52,13 @@ namespace zapread.com.Models
         UserDeposit = 4,
     }
 
+    public enum TransactionUseAction
+    {
+        Undefined = -1,
+        VoteDown = 0,
+        VoteUp = 1,
+    }
+
     public class LNTransaction
     {
         [Key]
@@ -62,6 +69,8 @@ namespace zapread.com.Models
         public TransactionUse UsedFor { get; set; }
 
         public int UsedForId { get; set; }
+
+        public TransactionUseAction UsedForAction { get; set; }
 
         public string PaymentRequest { get; set; }
 
