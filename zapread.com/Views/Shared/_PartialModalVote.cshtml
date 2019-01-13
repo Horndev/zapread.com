@@ -101,13 +101,32 @@
 
          var userBalance = userVote.b;
          $.get("/Account/GetBalance", function (data, status) {
-             $('#userVoteBalance').html(data.balance);
              userBalance = parseFloat(data.balance);
+             $('#userVoteBalance').html(data.balance);
              ub = data.balance;
-             userVote.b = ub;
+             //userVote.b = ub;
              $(".userBalanceValue").each(function (i, e) {
                  $(e).html(data.balance);
              });
+         });
+
+         $('#userVoteBalance').html(userBalance);
+         $.ajax({
+             type: "POST",
+             url: "/Account/UserBalance",
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             success: function (response) {
+                 ub = response.balance;
+                 $('#userVoteBalance').html(response.balance);
+                 userVote.b = ub;
+             },
+             failure: function (response) {
+                 //alert("failure " + JSON.stringify(response));
+             },
+             error: function (response) {
+                 //alert("error " + JSON.stringify(response));
+             }
          });
 
          // If the user updates the amount
@@ -201,7 +220,6 @@
              success: function (response) {
                  $("#voteDepositInvoiceInput").val(response.Invoice);
                  $("#voteDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-
                  $("#voteDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
                  $("#lnDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
                  $("#voteDepositInvoiceFooter").removeClass("bg-success");

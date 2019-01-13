@@ -24,13 +24,17 @@ namespace zapread.com.Hubs
         // Send notification only to user
         public void NotifyInvoicePaid(string invoice, string userId)
         {
-            //Clients.All.notifyInvoicePaid(invoice);
             Clients.Group(userId).notifyInvoicePaid(invoice);
+        }
+
+        public void SendUserMessage(string message, string userId)
+        {
+            Clients.Group(userId).sendUserMessage(message);
         }
 
         public override Task OnConnected()
         {
-            string name = Context.User.Identity.GetUserId();//.Name;
+            string name = Context.User.Identity.GetUserId();
 
             if (name != null)
             {

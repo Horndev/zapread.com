@@ -10,5 +10,7 @@ namespace zapread.com.Models
         public string Invoice { get; set; }
 
         public string Result { get; set; }
+
+        public int Id { get; set; }
     }
 }

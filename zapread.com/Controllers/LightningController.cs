@@ -57,6 +57,9 @@ namespace zapread.com.Controllers
                 return Json(tx, JsonRequestBehavior.AllowGet);
             }
         }
+
+
+
         /// <summary>
         /// Provide a new LN invoice with given parameters
         /// </summary>
@@ -65,7 +68,8 @@ namespace zapread.com.Controllers
         /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
         /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
-        public ActionResult GetDepositInvoice(string amount, string memo, string anon)
+        public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use)
+
         {
             bool isAnon = !(anon == null || anon != "1");
             if (!isAnon && !User.Identity.IsAuthenticated)
@@ -130,6 +134,7 @@ namespace zapread.com.Controllers
                 };
                 db.LightningTransactions.Add(t);
                 db.SaveChanges();
+                resp.Id = t.Id;
             }
 
             // If a listener is not already running, this should start
