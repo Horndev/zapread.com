@@ -613,10 +613,17 @@ namespace zapread.com.Controllers
                 }
 
                 // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                    .Select(g => g.First())
+                    .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
+
+                var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
                     .GroupBy(ci => ci.TwoLetterISOLanguageName)
                     .Select(g => g.First())
                     .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+                var languages = languagesEng.Concat(languagesNat).ToList();
 
                 var model = new ManageUserViewModel
                 {

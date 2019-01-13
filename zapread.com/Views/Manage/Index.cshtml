@@ -1,6 +1,7 @@
 ﻿@model zapread.com.Models.ManageUserViewModel
 @{
     ViewBag.Title = "Manage";
+    List<string> included = new List<string>();
 }
 
 @section Styles {
@@ -591,9 +592,10 @@
                                         <select id='languagesSelect' data-placeholder="Choose a Language..." class="chosen-select" multiple @*onchange="updateLanguages()"*@>
                                             @foreach (var l in Model.KnownLanguages)
                                             {
-                                                if (Model.Languages.Contains(@l.Split(':')[0]))
+                                                if (!included.Contains(@l.Split(':')[0]) && Model.Languages.Contains(@l.Split(':')[0]))
                                                 {
                                                     <option selected value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                                    included.Add(@l.Split(':')[0]);
                                                 }
                                                 else
                                                 {

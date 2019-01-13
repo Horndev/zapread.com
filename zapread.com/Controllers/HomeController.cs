@@ -166,13 +166,15 @@ namespace zapread.com.Controllers
                             .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                     }
 
+                    DateTime scoreStart = new DateTime(2018, 07, 01);
+
                     var sposts = validposts//db.Posts//.AsNoTracking()
                         .Select(p => new
                         {
                             pst = p,
                             s = (p.Score > 0.0 ? p.Score : -1 * p.Score) < 1 ? 1 : (p.Score > 0.0 ? p.Score : -1 * p.Score),   // Absolute value of s
                             sign = p.Score > 0.0 ? 1.0 : -1.0,              // Sign of s
-                            dt = 1.0 * DbFunctions.DiffSeconds(DateTime.UtcNow, p.TimeStamp),
+                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.TimeStamp),
                         })
                         .Select(p => new
                         {
@@ -211,10 +213,20 @@ namespace zapread.com.Controllers
                     {
                         var ig = user.IgnoredGroups.Select(g => g.GroupId);
                         validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+
+                        var allLang = user.Settings.ViewAllLanguages;
+
+                        if (!allLang)
+                        {
+                            var languages = user.Languages == null ? new List<string>() { "en" } : user.Languages.Split(',').ToList();
+                            validposts = validposts
+                                .Where(p => p.Language == null || languages.Contains(p.Language));
+                        }
                     }
                     else
                     {
-                        validposts = db.Posts;
+                        validposts = db.Posts
+                            .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                     }
 
                     var posts = validposts//db.Posts//.AsNoTracking()
