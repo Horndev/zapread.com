@@ -628,6 +628,7 @@
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\MailingService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1545,6 +1546,8 @@
     <Content Include="node_modules\summernote\dist\summernote-bs4.min.js" />
     <Content Include="node_modules\summernote\dist\summernote.css" />
     <Content Include="node_modules\sweetalert\dist\sweetalert.min.js" />
+    <Content Include="node_modules\toastr\build\toastr.min.css" />
+    <Content Include="node_modules\toastr\build\toastr.min.js" />
     <Content Include="node_modules\truncate\truncate.js" />
     <Content Include="package.json" />
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.eot" />

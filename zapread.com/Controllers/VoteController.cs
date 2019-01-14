@@ -9,6 +9,7 @@ using zapread.com.Database;
 using System.Data.Entity;
 using zapread.com.Models;
 using zapread.com.Helpers;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -213,7 +214,9 @@ namespace zapread.com.Controllers
                     {
                         return Json(new { result = "error", message = "Error" });
                     }
-                    
+
+                    NotificationService.SendIncomeNotification(0.6 * v.a, owner.AppId, "Post upvote", Url.Action("Detail", "Post", new { post.PostId }));
+
                     return Json(new { result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
                 else
@@ -460,6 +463,8 @@ namespace zapread.com.Controllers
                     {
                         return Json(new { result = "error", message = "Error" });
                     }
+
+                    NotificationService.SendIncomeNotification(0.6 * v.a, owner.AppId, "Comment upvote", Url.Action("Detail", "Post", new { PostId = comment.Post.PostId }));
 
                     return Json(new { result = "success", delta = 1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
                 }

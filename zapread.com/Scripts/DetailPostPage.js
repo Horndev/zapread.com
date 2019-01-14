@@ -11,6 +11,22 @@
     // Streaming updates
     var hub = $.connection.notificationHub;
 
+    hub.client.SendUserMessage = function (envelope) {
+        console.log(envelope.message);
+        console.log(envelope.clickUrl);
+
+        toastr.options.onclick = function () {
+            console.log('clicked');
+            window.open(envelope.clickUrl, '_blank');
+        };
+
+        if (envelope.hasReason) {
+            toastr.success(envelope.message, envelope.reason);
+        } else {
+            toastr.success(envelope.message, 'Message Received');
+        }
+    };
+
     hub.client.NotifyInvoicePaid = function (invoiceResponse) {
         if (invoiceResponse.invoice == $("#lightningDepositInvoiceInput").val()) {
             $("#lightningDepositInvoiceResult").html("Successfully received deposit.");

@@ -22,6 +22,7 @@
     @Styles.Render("~/Content/style/textspinners")
     @Styles.Render("~/plugins/summernoteStyles")
     @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/Content/style/toastr")
     @if (claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
     {
         @Styles.Render("~/Content/css-dark")
@@ -42,7 +43,7 @@
                 Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
             }
             @RenderBody()
-            <div class="small-chat-box fadeInRight animated">
+            @*<div class="small-chat-box fadeInRight animated">
                 <div class="heading" draggable="true">
                     Feedback
                 </div>
@@ -67,7 +68,7 @@
                 <a class="open-small-chat">
                     <i class="fa fa-comments" style="color:white;"></i>
                 </a>
-            </div>
+            </div>*@
             <!-- Footer -->
             @Html.Partial("_Footer")
         </div>
@@ -93,9 +94,21 @@
     <script src="~/Scripts/read-more.js"></script>
     <script src="~/signalr/hubs"></script>
     @Scripts.Render("~/bundles/DetailPost")
+    @Scripts.Render("~/plugins/toastr")
 
     <script type="text/javascript">
         $(document).ready(function () {
+            toastr.options.closeMethod = 'fadeOut';
+            toastr.options.closeDuration = 700;
+            toastr.options.positionClass = 'toast-bottom-right';
+            toastr.options.closeEasing = 'swing';
+            toastr.options.closeButton = true;
+            toastr.options.hideMethod = 'slideUp';
+            toastr.options.progressBar = true;
+            toastr.options.timeOut = 30000; // How long the toast will display without user interaction
+            toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
+            //toastr.success('Welcome to ZapRead.com', 'Zelgada Says');
+
             $('[data-toggle="tooltip"]').tooltip()
 
             $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {

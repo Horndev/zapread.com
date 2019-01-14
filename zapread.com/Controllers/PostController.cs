@@ -16,7 +16,7 @@ using System.Globalization;
 
 namespace zapread.com.Controllers
 {
-    [RoutePrefix("{Type:regex(Post|post)}")]
+    //[RoutePrefix("{Type:regex(Post|post)}")]
     public class PostController : Controller
     {
         private ApplicationRoleManager _roleManager;
@@ -461,7 +461,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        [Route("Detail/{PostId}")]
+        [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult Detail(int PostId)
         {

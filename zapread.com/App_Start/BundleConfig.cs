@@ -81,6 +81,14 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/style/social").Include(
                       "~/Content/bootstrap-social.css"));
 
+            // toastr notification 
+            bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
+                      "~/node_modules/toastr/build/toastr.min.js"));
+
+            // toastr notification styles
+            bundles.Add(new StyleBundle("~/Content/style/toastr").Include(
+                      "~/node_modules/toastr/build/toastr.min.css"));
+
             // dropZone styles
             bundles.Add(new StyleBundle("~/Content/plugins/dropzone/dropZoneStyles").Include(
                       "~/node_modules/dropzone/dist/min/basic.min.css",

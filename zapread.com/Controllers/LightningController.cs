@@ -58,7 +58,17 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult CheckInvoice(int id)
+        {
+            using (ZapContext db = new ZapContext())
+            {
+                var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.Id == id);
 
+                return Json(tx);
+            }
+        }
 
         /// <summary>
         /// Provide a new LN invoice with given parameters
