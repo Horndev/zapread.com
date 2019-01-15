@@ -37,6 +37,7 @@ namespace zapread.com.Models
     public class ChatMessagesViewModel
     {
         public User OtherUser { get; set; }
+        public User ThisUser { get; set; }
         public List<ChatMessageViewModel> Messages = new List<ChatMessageViewModel>();
     }
 }

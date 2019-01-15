@@ -1677,6 +1677,7 @@
     <Content Include="Views\Messages\_PartialRecentUnreadAlerts.cshtml" />
     <Content Include="Views\User\_PartialUserGroups.cshtml" />
     <Content Include="Views\Admin\Audit.cshtml" />
+    <Content Include="Views\Messages\_PartialChatMessage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

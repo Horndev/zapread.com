@@ -40,38 +40,30 @@
                             <div class="chat-discussion">
                                 @foreach (var c in Model.Messages)
                                 {
-                                <div class="chat-message @if(c.IsReceived){<text>left</text>}else{<text>right</text>}">
-                                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = c.Message.From.Name })">
-                                        <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = c.Message.From.AppId })" alt="@c.Message.From.Name">
-                                    </a>
-                                    <div class="message">
-                                        <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = c.Message.From.Name })"> @c.From.Name </a>
-                                        <span class="postTime message-date">@c.Message.TimeStamp.Value.ToString("o")</span>
-                                        @*<small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>*@
-                                        <span class="message-content">
-                                            @Html.Raw(c.Message.Content)
-                                        </span>
-                                    </div>
-                                </div>
+                                    @Html.Partial(partialViewName: "_PartialChatMessage", model: c)
                                 }
+                                <div id="endMessages">
+
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="chat-message-form">
-                                <div class="m_input wrapper p-md" id="message_input"></div>
-                            </div>
-                            <div class="chat-message-form">
-                                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
-                                @*<button id="btnMessageSave" type="button" class="btn btn-secondary" disabled>Save Draft</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>*@
-                            </div>
-                            @*<div class="chat-message-form">
-                                <div id="reply" class="form-group">
-                                    <textarea class="form-control message-input" name="message" placeholder="Enter message text"></textarea>
+                            <div class="chatReply ibox-content">
+                                <div class="sk-spinner sk-spinner-three-bounce">
+                                    <div class="sk-bounce1"></div>
+                                    <div class="sk-bounce2"></div>
+                                    <div class="sk-bounce3"></div>
                                 </div>
-                            </div>*@
+
+                                <div class="chat-message-form">
+                                    <div class="m_input wrapper p-md" id="message_input"></div>
+                                </div>
+                                <div class="chat-message-form">
+                                    <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -117,8 +109,6 @@
 
     var sendMessage = function (id) {
         var dataString;
-        //event.preventDefault();
-        //event.stopImmediatePropagation();
         var action = "/Messages/SendMessage";
         var contentType = "application/json; charset=utf-8";
         var dataval = '';
@@ -126,7 +116,7 @@
         var messageElement = '#message_input';
         dataval = $(messageElement).summernote('code');
         dataString = JSON.stringify({ id: id, content: dataval });
-        console.log(dataString);
+        $('#chatReply').addClass('sk-loading');
         $.ajax({
             type: "POST",
             url: action,
@@ -135,9 +125,32 @@
             contentType: contentType,
             success: function (result) {
                 if (result.Result === "Success") {
-                    $('#messageComposeModal').modal('hide');
+                    $(".m_input").summernote('reset');
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Messages/GetMessage",
+                        data: JSON.stringify({ 'id': result.Id, 'userId':@Model.ThisUser.Id }),
+                        dataType: "json",
+                        contentType: contentType,
+                        success: function (result) {
+                            $("#endMessages").append(result.HTMLString);
+                            $('.postTime').each(function (i, e) {
+                                var time = moment.utc($(e).html()).local().calendar();
+                                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                                $(e).html('<span>' + time + ' - ' + date + '</span>');
+                                $(e).removeClass("postTime");
+                            });
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert("fail");
+                        }
+                    });
+
+                    $('#chatReply').removeClass('sk-loading');
                 }
                 else {
+                    $('#chatReply').removeClass('sk-loading');
                     alert('Error sending message');
                 }
             },

@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -130,6 +131,7 @@ namespace zapread.com.Controllers
                 }
 
                 vm.OtherUser = otheruser;
+                vm.ThisUser = user;
                 vm.Messages = messages.OrderBy(mv => mv.Message.TimeStamp).ToList();
 
                 return View(vm);
@@ -454,6 +456,7 @@ namespace zapread.com.Controllers
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
 
+
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
 
@@ -479,11 +482,62 @@ namespace zapread.com.Controllers
                             });
                     }
                     
-                    return Json(new { Result = "Success" });
+                    return Json(new { Result = "Success", Id = msg.Id });
                 }
             }
 
             return Json(new { Result = "Failure" });
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult GetMessage(int id, int userId)
+        {
+            string HTMLString = "";
+
+            using (var db = new ZapContext())
+            {
+                var msg = db.Messages
+                    .Include("From")
+                    .Include("To")
+                    .SingleOrDefault(m => m.Id == id);
+
+                var mvm = new ChatMessageViewModel()
+                {
+                    Message = msg,
+                    From = msg.From,
+                    To = msg.To,
+                    IsReceived = msg.To.Id == userId,
+                };
+
+                HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
+
+                return Json(new
+                {
+                    HTMLString,
+                });
+            }
+        }
+
+        protected string RenderPartialViewToString(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.RouteData.GetRequiredString("action");
+
+            ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult =
+                ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                ViewContext viewContext = new ViewContext
+                (ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
+            }
+        }
+
+
     }
 }

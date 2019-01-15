@@ -25,6 +25,7 @@ namespace zapread.com.Database
         public DbSet<SpendingEvent> SpendingEvents { get; set; }
         public DbSet<ZapReadGlobals> ZapreadGlobals { get; set; }
         public DbSet<ZapIcon> Icons { get; set; }
+        public DbSet<UserMessage> Messages { get; set; }
 
         public DbSet<PendingPostVote> PendingPostVotes { get; set; }
         public DbSet<PendingCommentVote> PendingCommentVotes { get; set; }

@@ -43,32 +43,6 @@
                 Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
             }
             @RenderBody()
-            @*<div class="small-chat-box fadeInRight animated">
-                <div class="heading" draggable="true">
-                    Feedback
-                </div>
-                <div class="content">
-                    Please provide your comments and suggestions.
-                </div>
-                <div class="form-chat">
-                    <div class="input-group input-group-sm">
-                        <textarea id="feedbackText" rows="2" class="form-control"></textarea>
-                    </div>
-                    <br />
-                    <div class="form-group pull-right">
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary btn-outline" type="button" onclick="dofeedback()">
-                                Send
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div id="small-chat">
-                <a class="open-small-chat">
-                    <i class="fa fa-comments" style="color:white;"></i>
-                </a>
-            </div>*@
             <!-- Footer -->
             @Html.Partial("_Footer")
         </div>
@@ -107,7 +81,6 @@
             toastr.options.progressBar = true;
             toastr.options.timeOut = 30000; // How long the toast will display without user interaction
             toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
-            //toastr.success('Welcome to ZapRead.com', 'Zelgada Says');
 
             $('[data-toggle="tooltip"]').tooltip()
 
