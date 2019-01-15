@@ -52,6 +52,8 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
+                Models.User user = null;
+
                 var post = db.Posts
                     .Include("VotesUp")
                     .Include("VotesDown")
@@ -64,7 +66,7 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", message = "Invalid Post" });
                 }
 
-                Models.User user = null;
+                //Models.User user = null;
 
                 if (userId == null)// Anonymous vote
                 { 

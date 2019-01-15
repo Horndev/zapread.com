@@ -19,18 +19,21 @@ using zapread.com.Models;
 using System.Data.Entity;
 using zapread.com.Services;
 using System.Globalization;
+using LightningLib.lndrpc;
 
 namespace zapread.com.Controllers
 {
     public class HomeController : Controller
     {
+        private static DateTime lastLNCheck = DateTime.Now;
+
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
             if (UserId != null)
             {
-
+                // use the value passed
             }
             else
             {
@@ -259,7 +262,120 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
-            //var userLanguages = Request.UserLanguages;
+            // Check for settled invoices which were not applied every 5 minutes
+            if (false)//DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
+            {
+                lastLNCheck = DateTime.Now;
+                var lndClient = new LndRpcClient(
+                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
+                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
+                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
+                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+
+                using (var db = new ZapContext())
+                {
+                    // These are the unpaid invoices in database
+                    var unpaidInvoices = db.LightningTransactions
+                        .Where(t => t.IsSettled == false)
+                        .Where(t => t.IsDeposit == true)
+                        .Where(t => t.IsIgnored == false)
+                        .Include(t => t.User)
+                        .Include(t => t.User.Funds);
+
+                    var website = db.ZapreadGlobals
+                    .SingleOrDefault(ix => ix.Id == 1);
+
+                    var invoiceDebug = unpaidInvoices.ToList();
+
+                    foreach (var i in unpaidInvoices)
+                    {
+                        if (i.HashStr != null)
+                        {
+                            var inv = lndClient.GetInvoice(rhash: i.HashStr);
+                            if (inv.settled != null && inv.settled == true)
+                            {
+                                // Paid but not applied in DB
+                                var use = i.UsedFor;
+                                if (use == TransactionUse.VotePost)
+                                {
+                                    var vc = new VoteController();
+                                    var v = new VoteController.Vote()
+                                    {
+                                        a = Convert.ToInt32(i.Amount),
+                                        d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
+                                        Id = i.UsedForId,
+                                        tx = i.Id
+                                    };
+                                    await vc.Post(v);
+
+                                    i.IsSpent = true;
+                                    i.IsSettled = true;
+                                    i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                }
+                                else if (use == TransactionUse.VoteComment)
+                                {
+                                    int z = 1;
+                                }
+                                else if (use == TransactionUse.UserDeposit)
+                                {
+                                    if (i.User == null)
+                                    {
+                                        // Not sure how to deal with this other than add funds to Community
+                                        website.CommunityEarnedToDistribute += i.Amount;
+                                        i.IsSpent = true;
+                                        i.IsSettled = true;
+                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                    }
+                                    else
+                                    {
+                                        // Deposit funds in user account
+                                        int z = 1;
+                                    }
+                                }
+                                else if (use == TransactionUse.Undefined)
+                                {
+                                    if (i.User == null)
+                                    {
+                                        // Not sure how to deal with this other than add funds to Community
+                                        website.CommunityEarnedToDistribute += i.Amount;
+                                        i.IsSpent = true;
+                                        i.IsSettled = true;
+                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                    }
+                                    else
+                                    {
+                                        // Not sure what the user was doing - deposit into their account.
+                                        int z = 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Not settled - check expiry
+                                var t1 = Convert.ToInt64(inv.creation_date);
+                                var tNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                                var tExpire = t1 + Convert.ToInt64(inv.expiry);
+                                if (tNow > tExpire)
+                                {
+                                    // Expired - let's stop checking this invoice
+                                    i.IsIgnored = true;
+                                }
+                                else
+                                {
+                                    int w = 1; // keep waiting
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No hash string to look it up.  Must be an error somewhere.
+                            i.IsIgnored = true;
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+            }
 
             using (var db = new ZapContext())
             {
