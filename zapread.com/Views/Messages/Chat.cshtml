@@ -45,28 +45,42 @@
                                 <div id="endMessages">
 
                                 </div>
+
+                            </div>
+                            <div class="chat-discussion" style="height:200px;">
+                                <br /><br />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="chatReply ibox-content">
-                    <div class="sk-spinner sk-spinner-three-bounce">
-                        <div class="sk-bounce1"></div>
-                        <div class="sk-bounce2"></div>
-                        <div class="sk-bounce3"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="chat-message-form">
-                                <div class="m_input wrapper p-md" id="message_input"></div>
+                
+            </div>
+        </div>
+    </div>
+    <div class="row" style="position: fixed; bottom:15px; width: 100%">
+        <div class="col-lg-3">
+        </div>
+        <div class="col-lg-6">
+            <div class="ibox chat-view">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <div class="chatReply ibox-content">
+                            <div class="sk-spinner sk-spinner-three-bounce">
+                                <div class="sk-bounce1"></div>
+                                <div class="sk-bounce2"></div>
+                                <div class="sk-bounce3"></div>
                             </div>
-                            <div class="chat-message-form">
-                                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="chat-message-form">
+                                        <div class="m_input wrapper p-md" id="message_input"></div>
+                                    </div>
+                                    <div class="chat-message-form">
+                                        <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <br /><br />
                     </div>
                 </div>
             </div>
@@ -107,7 +121,7 @@
                 }
             }
         });
-
+        window.scrollTo(0, document.body.scrollHeight+50);
     });
 
     var sendMessage = function (id) {
@@ -118,7 +132,7 @@
         var dataString = '';
         var messageElement = '#message_input';
         dataval = $(messageElement).summernote('code');
-        dataString = JSON.stringify({ id: id, content: dataval });
+        dataString = JSON.stringify({ id: id, content: dataval, isChat: true });
         $('#chatReply').addClass('sk-loading');
         $.ajax({
             type: "POST",
@@ -144,6 +158,7 @@
                                 $(e).html('<span>' + time + ' - ' + date + '</span>');
                                 $(e).removeClass("postTime");
                             });
+                            window.scrollTo(0, document.body.scrollHeight+10);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             alert("fail");

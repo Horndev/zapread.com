@@ -263,7 +263,7 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             // Check for settled invoices which were not applied every 5 minutes
-            if (false)//DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
+            if (DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
             {
                 lastLNCheck = DateTime.Now;
                 var lndClient = new LndRpcClient(
@@ -298,19 +298,22 @@ namespace zapread.com.Controllers
                                 var use = i.UsedFor;
                                 if (use == TransactionUse.VotePost)
                                 {
-                                    var vc = new VoteController();
-                                    var v = new VoteController.Vote()
+                                    if (false) // Disable for now
                                     {
-                                        a = Convert.ToInt32(i.Amount),
-                                        d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
-                                        Id = i.UsedForId,
-                                        tx = i.Id
-                                    };
-                                    await vc.Post(v);
+                                        var vc = new VoteController();
+                                        var v = new VoteController.Vote()
+                                        {
+                                            a = Convert.ToInt32(i.Amount),
+                                            d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
+                                            Id = i.UsedForId,
+                                            tx = i.Id
+                                        };
+                                        await vc.Post(v);
 
-                                    i.IsSpent = true;
-                                    i.IsSettled = true;
-                                    i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        i.IsSpent = true;
+                                        i.IsSettled = true;
+                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                    }
                                 }
                                 else if (use == TransactionUse.VoteComment)
                                 {
@@ -330,6 +333,11 @@ namespace zapread.com.Controllers
                                     {
                                         // Deposit funds in user account
                                         int z = 1;
+                                        var user = i.User;
+                                        user.Funds.Balance += i.Amount;
+                                        i.IsSettled = true;
+                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+
                                     }
                                 }
                                 else if (use == TransactionUse.Undefined)
@@ -354,7 +362,7 @@ namespace zapread.com.Controllers
                                 // Not settled - check expiry
                                 var t1 = Convert.ToInt64(inv.creation_date);
                                 var tNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                                var tExpire = t1 + Convert.ToInt64(inv.expiry);
+                                var tExpire = t1 + Convert.ToInt64(inv.expiry) + 10000; //Add a buffer time
                                 if (tNow > tExpire)
                                 {
                                     // Expired - let's stop checking this invoice

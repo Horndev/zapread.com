@@ -429,7 +429,7 @@ namespace zapread.com.Controllers
         /// <param name="id"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<JsonResult> SendMessage(int id, string content)
+        public async Task<JsonResult> SendMessage(int id, string content, bool? isChat)
         {
             var userId = User.Identity.GetUserId();
             if (userId != null)
@@ -464,42 +464,48 @@ namespace zapread.com.Controllers
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
 
-                    string HTMLString = "";
-
-                    var mvm = new ChatMessageViewModel()
+                    if (isChat != null & isChat.Value)
                     {
-                        Message = msg,
-                        From = msg.From,
-                        To = msg.To,
-                        IsReceived = true,
-                    };
+                        // Live update to any listeners
+                        string HTMLString = "";
 
-                    HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
+                        var mvm = new ChatMessageViewModel()
+                        {
+                            Message = msg,
+                            From = msg.From,
+                            To = msg.To,
+                            IsReceived = true,
+                        };
 
-                    NotificationService.SendPrivateChat(HTMLString, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }))
-                    
-                    NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
+                        HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
-                    // Send email
-                    if (receiver.Settings == null)
-                    {
-                        receiver.Settings = new UserSettings();
+                        NotificationService.SendPrivateChat(HTMLString, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
                     }
-
-                    if (receiver.Settings.NotifyOnPrivateMessage)
+                    else
                     {
-                        string mentionedEmail = UserManager.FindById(receiver.AppId).Email;
-                        MailingService.Send(user: "Notify",
-                            message: new UserEmailModel()
-                            {
-                                Subject = "New private message",
-                                Body = "From: " + sender.Name + "<br/> " + content + "<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
-                                Destination = mentionedEmail,
-                                Email = "",
-                                Name = "ZapRead.com Notify"
-                            });
+                        // Send popup and email if not in chat
+                        NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
+
+                        // Send email
+                        if (receiver.Settings == null)
+                        {
+                            receiver.Settings = new UserSettings();
+                        }
+
+                        if (receiver.Settings.NotifyOnPrivateMessage)
+                        {
+                            string mentionedEmail = UserManager.FindById(receiver.AppId).Email;
+                            MailingService.Send(user: "Notify",
+                                message: new UserEmailModel()
+                                {
+                                    Subject = "New private message",
+                                    Body = "From: " + sender.Name + "<br/> " + content + "<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
+                                    Destination = mentionedEmail,
+                                    Email = "",
+                                    Name = "ZapRead.com Notify"
+                                });
+                        }
                     }
-                    
                     return Json(new { Result = "Success", Id = msg.Id });
                 }
             }

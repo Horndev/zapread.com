@@ -30,16 +30,13 @@
     hub.client.SendUserChat = function (envelope) {
         // TODO: check if we are in chat page with the right user
         console.log(envelope.message);
-        $("#endMessages").append(envelope.HTMLString);
+        $("#endMessages").append(envelope.message);
         $('.postTime').each(function (i, e) {
             var time = moment.utc($(e).html()).local().calendar();
             var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
             $(e).html('<span>' + time + ' - ' + date + '</span>');
             $(e).removeClass("postTime");
         });
-        $('html, body').animate({
-            scrollTop: $("#message_input").offset().top
-        }, 2000);
     };
 
     hub.client.NotifyInvoicePaid = function (invoiceResponse) {
