@@ -20,9 +20,7 @@
         <div class="col-lg-12">
             <div class="ibox ">
                 <div class="ibox-content">
-
-                    Your private chats with XYZ
-
+                    Your private chats with @Model.OtherUser.Name
                 </div>
             </div>
         </div>
@@ -33,7 +31,7 @@
         <div class="col-lg-6">
             <div class="ibox chat-view">
                 <div class="ibox-title">
-                    <small class="float-right text-muted">Last message:  Mon Jan 26 2015 - 18:39:23</small>
+                    <small class="float-right text-muted">Last message:  <span class="postTime" style="display: inline">@Model.Messages.Last().Message.TimeStamp.Value.ToString("o")</span></small>
                 </div>
 
                 <div class="ibox-content">
@@ -42,16 +40,19 @@
                             <div class="chat-discussion">
                                 @foreach (var c in Model.Messages)
                                 {
-                                    <div class="chat-message @if(c.IsReceived){<text>left</text>}else{<text>right</text>}">
-                                        <img class="message-avatar" src="~/Images/a1.jpg" alt="">
-                                        <div class="message">
-                                            <a class="message-author" href="#"> @c.From.Name </a>
-                                            <span class="message-date"> @c.Message.TimeStamp.Value.ToString("o") </span>
-                                            <span class="message-content">
-                                                @Html.Raw(c.Message.Content)
-                                            </span>
-                                        </div>
+                                <div class="chat-message @if(c.IsReceived){<text>left</text>}else{<text>right</text>}">
+                                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = c.Message.From.Name })">
+                                        <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = c.Message.From.AppId })" alt="@c.Message.From.Name">
+                                    </a>
+                                    <div class="message">
+                                        <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = c.Message.From.Name })"> @c.From.Name </a>
+                                        <span class="postTime message-date">@c.Message.TimeStamp.Value.ToString("o")</span>
+                                        @*<small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>*@
+                                        <span class="message-content">
+                                            @Html.Raw(c.Message.Content)
+                                        </span>
                                     </div>
+                                </div>
                                 }
                             </div>
                         </div>
@@ -59,10 +60,18 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="chat-message-form">
+                                <div class="m_input wrapper p-md" id="message_input"></div>
+                            </div>
+                            <div class="chat-message-form">
+                                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                                @*<button id="btnMessageSave" type="button" class="btn btn-secondary" disabled>Save Draft</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>*@
+                            </div>
+                            @*<div class="chat-message-form">
                                 <div id="reply" class="form-group">
                                     <textarea class="form-control message-input" name="message" placeholder="Enter message text"></textarea>
                                 </div>
-                            </div>
+                            </div>*@
                         </div>
                     </div>
                     <div>
@@ -73,11 +82,70 @@
         </div>
     </div>
 </div>
-c7vd    x cx cx sycfuhtjf vruy76yuhjuy7h68yuisd78z8duir78z7u7u7suj i78zuji78ijk ui78uijkmjkixu78ijhhvbefrvt vtt7eg7f8bvef87cebcerfbbcerfy7tr68tvr6trv7royw,vtb87fd67dyn7xcr6ft6revft 6ervgt6e v6tvtr6vtr6vtg6vvbg,b l g6bhgb76y hb7g0bg0b7glb6v-6g5v
+
 @section Scripts {
 @Scripts.Render("~/plugins/moment")
 <script type="text/javascript">
     $(document).ready(function () {
+        $(".m_input").summernote({
+            callbacks: {
+                onImageUpload: function (files) {
+                    that = $(this);
+                    sendFile(files[0], that);
+                }
+            },
+            focus: false,
+            placeholder: 'Write message...',
+            disableDragAndDrop: false,
+            dialogsInBody: true,
+            toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+            minHeight: 100,
+            maxHeight: 600,
+            hint: {
+                match: /\B@@(\w*)$/,
+                search: function (keyword, callback) {
+                    callback($.grep(usermentions, function (item) {
+                        return item.indexOf(keyword) == 0;
+                    }));
+                },
+                content: function (item) {
+                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                }
+            }
+        });
     });
+
+    var sendMessage = function (id) {
+        var dataString;
+        //event.preventDefault();
+        //event.stopImmediatePropagation();
+        var action = "/Messages/SendMessage";
+        var contentType = "application/json; charset=utf-8";
+        var dataval = '';
+        var dataString = '';
+        var messageElement = '#message_input';
+        dataval = $(messageElement).summernote('code');
+        dataString = JSON.stringify({ id: id, content: dataval });
+        console.log(dataString);
+        $.ajax({
+            type: "POST",
+            url: action,
+            data: dataString,
+            dataType: "json",
+            contentType: contentType,
+            success: function (result) {
+                if (result.Result === "Success") {
+                    $('#messageComposeModal').modal('hide');
+                }
+                else {
+                    alert('Error sending message');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("fail");
+            }
+        });
+
+    }
 </script>
 }

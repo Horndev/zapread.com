@@ -6463,6 +6463,7 @@ dd.project-people {
 .message-content {
     display: block;
     text-align: left;
+    overflow-wrap: break-word;
 }
 
 .chat-discussion {

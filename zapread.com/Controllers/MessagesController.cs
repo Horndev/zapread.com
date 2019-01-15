@@ -98,11 +98,12 @@ namespace zapread.com.Controllers
                 var receivedMessages = user.Messages
                     .Where(m => m.From != null && m.From.Id == otherUserId)
                     .Where(m => !m.IsDeleted)
-                    .Where(m => m.Title.StartsWith("Private")).ToList();
+                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
+
                 var sentMessages = otheruser.Messages
                     .Where(m => m.From != null && m.From.Id == thisUserId)
                     .Where(m => !m.IsDeleted)
-                    .Where(m => m.Title.StartsWith("Private")).ToList();
+                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
 
                 var messages = new List<ChatMessageViewModel>();
 
@@ -128,6 +129,7 @@ namespace zapread.com.Controllers
                     });
                 }
 
+                vm.OtherUser = otheruser;
                 vm.Messages = messages.OrderBy(mv => mv.Message.TimeStamp).ToList();
 
                 return View(vm);
@@ -454,6 +456,8 @@ namespace zapread.com.Controllers
 
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
+
+                    NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     // Send email
                     if (receiver.Settings == null)

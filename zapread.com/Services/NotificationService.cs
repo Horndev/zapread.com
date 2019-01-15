@@ -17,5 +17,11 @@ namespace zapread.com.Services
 
             context.Clients.Group(groupName: userId).SendUserMessage(new { message, reason, hasReason = reason != null, clickUrl });
         }
+
+        public static void SendPrivateMessage(string content, string userId, string reason, string clickUrl)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            context.Clients.Group(groupName: userId).SendUserMessage(new { message=content, reason, hasReason = reason != null, clickUrl });
+        }
     }
 }
