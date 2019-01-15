@@ -68,6 +68,7 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+
             using (var db = new ZapContext())
             {
                 var vm = new ChatMessagesViewModel();
@@ -94,8 +95,14 @@ namespace zapread.com.Controllers
 
                 // Better to just search from & to?
 
-                var receivedMessages = user.Messages.Where(m => m.From != null && m.From.Id == otherUserId).Where(m => !m.IsDeleted).Where(m => m.Title.StartsWith("Private")).ToList();
-                var sentMessages = otheruser.Messages.Where(m => m.From != null && m.From.Id == thisUserId).Where(m => !m.IsDeleted).Where(m => m.Title.StartsWith("Private")).ToList();
+                var receivedMessages = user.Messages
+                    .Where(m => m.From != null && m.From.Id == otherUserId)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.Title.StartsWith("Private")).ToList();
+                var sentMessages = otheruser.Messages
+                    .Where(m => m.From != null && m.From.Id == thisUserId)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.Title.StartsWith("Private")).ToList();
 
                 var messages = new List<ChatMessageViewModel>();
 
@@ -408,6 +415,12 @@ namespace zapread.com.Controllers
             return Json(new { Result = "Failure" });
         }
 
+        /// <summary>
+        /// Send a private message
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public async Task<JsonResult> SendMessage(int id, string content)
         {
             var userId = User.Identity.GetUserId();
@@ -429,6 +442,7 @@ namespace zapread.com.Controllers
 
                     var msg = new UserMessage()
                     {
+                        IsPrivateMessage = true, 
                         Content = content,
                         From = sender,
                         To = receiver,

@@ -120,6 +120,7 @@ namespace zapread.com.Models
 
         public DateTime? TimeStamp { get; set; }
 
+        public bool IsPrivateMessage { get; set; }
         public bool IsRead { get; set; }
         public bool IsDeleted { get; set; }
     }
