@@ -132,7 +132,11 @@ namespace zapread.com.Controllers
 
                 vm.OtherUser = otheruser;
                 vm.ThisUser = user;
-                vm.Messages = messages.OrderBy(mv => mv.Message.TimeStamp).ToList();
+                vm.Messages = messages
+                    .OrderByDescending(mv => mv.Message.TimeStamp)
+                    .Take(10)
+                    .OrderBy(mv => mv.Message.TimeStamp)
+                    .ToList();
 
                 return View(vm);
             }
@@ -460,6 +464,20 @@ namespace zapread.com.Controllers
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
 
+                    string HTMLString = "";
+
+                    var mvm = new ChatMessageViewModel()
+                    {
+                        Message = msg,
+                        From = msg.From,
+                        To = msg.To,
+                        IsReceived = true,
+                    };
+
+                    HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
+
+                    NotificationService.SendPrivateChat(HTMLString, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }))
+                    
                     NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     // Send email

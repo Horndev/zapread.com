@@ -48,21 +48,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="chatReply ibox-content">
+                    <div class="sk-spinner sk-spinner-three-bounce">
+                        <div class="sk-bounce1"></div>
+                        <div class="sk-bounce2"></div>
+                        <div class="sk-bounce3"></div>
+                    </div>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="chatReply ibox-content">
-                                <div class="sk-spinner sk-spinner-three-bounce">
-                                    <div class="sk-bounce1"></div>
-                                    <div class="sk-bounce2"></div>
-                                    <div class="sk-bounce3"></div>
-                                </div>
-
-                                <div class="chat-message-form">
-                                    <div class="m_input wrapper p-md" id="message_input"></div>
-                                </div>
-                                <div class="chat-message-form">
-                                    <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
-                                </div>
+                            <div class="chat-message-form">
+                                <div class="m_input wrapper p-md" id="message_input"></div>
+                            </div>
+                            <div class="chat-message-form">
+                                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
                             </div>
                         </div>
                     </div>
@@ -79,6 +78,9 @@
 @Scripts.Render("~/plugins/moment")
 <script type="text/javascript">
     $(document).ready(function () {
+
+        
+
         $(".m_input").summernote({
             callbacks: {
                 onImageUpload: function (files) {
@@ -105,6 +107,7 @@
                 }
             }
         });
+
     });
 
     var sendMessage = function (id) {
