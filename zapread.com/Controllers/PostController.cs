@@ -397,7 +397,7 @@ namespace zapread.com.Controllers
                             message: new UserEmailModel()
                             {
                                 Subject = "New post by user you are following: " + user.Name,
-                                Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='http://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", //, // "From: " + user.Name + "<br/> " + comment.Text + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='http://www.zapread.com'>zapread.com</a>",
+                                Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='https://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", 
                                 Destination = followerEmail,
                                 Email = "",
                                 Name = "ZapRead.com Notify"

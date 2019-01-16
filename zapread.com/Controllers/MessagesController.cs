@@ -45,9 +45,11 @@ namespace zapread.com.Controllers
                     .Include("Messages")
                     .Include("Alerts.PostLink")
                     .Include("Messages.PostLink")
+                    .Include("Messages.From")
                     .Where(u => u.AppId == userId).First();
 
-                var messages = user.Messages.Where(m => !m.IsRead && !m.IsDeleted).ToList();
+                var messages = user.Messages
+                    .Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
                 var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
@@ -455,11 +457,10 @@ namespace zapread.com.Controllers
                         From = sender,
                         To = receiver,
                         IsDeleted = false,
-                        IsRead = false,
+                        IsRead = (isChat != null & isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
-
 
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
@@ -497,7 +498,10 @@ namespace zapread.com.Controllers
                                 message: new UserEmailModel()
                                 {
                                     Subject = "New private message",
-                                    Body = "From: " + sender.Name + "<br/> " + content + "<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
+                                    Body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" 
+                                        + sender.Name + "</a><br/> " + content 
+                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
+                                        + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
                                     Destination = mentionedEmail,
                                     Email = "",
                                     Name = "ZapRead.com Notify"

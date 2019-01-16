@@ -66,6 +66,12 @@
                                         {
                                             
                                         }
+                                        @if (m.IsPrivateMessage)
+                                        {
+                                            <p>
+                                                <a href="@Url.Action(actionName: "Chat", controllerName: "Messages", routeValues: new { username = m.From.Name })">Go to chat</a>
+                                            </p>
+                                        }
                                     </div>
                                     <div>
                                         @Html.Raw(m.Content)
