@@ -28,15 +28,18 @@
     };
 
     hub.client.SendUserChat = function (envelope) {
-        // TODO: check if we are in chat page with the right user
-        console.log(envelope.message);
-        $("#endMessages").append(envelope.message);
-        $('.postTime').each(function (i, e) {
-            var time = moment.utc($(e).html()).local().calendar();
-            var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-            $(e).html('<span>' + time + ' - ' + date + '</span>');
-            $(e).removeClass("postTime");
-        });
+        if (typeof ChattingWithId !== 'undefined') {
+            if (envelope.reason === ChattingWithId) {
+                $("#endMessages").append(envelope.message);
+                $('.postTime').each(function (i, e) {
+                    var time = moment.utc($(e).html()).local().calendar();
+                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                    $(e).html('<span>' + time + ' - ' + date + '</span>');
+                    $(e).removeClass("postTime");
+                });
+                window.scrollTo(0, document.body.scrollHeight + 10);
+            }
+        }
     };
 
     hub.client.NotifyInvoicePaid = function (invoiceResponse) {

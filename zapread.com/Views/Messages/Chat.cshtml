@@ -91,10 +91,8 @@
 @section Scripts {
 @Scripts.Render("~/plugins/moment")
 <script type="text/javascript">
+    var ChattingWithId = "@Model.OtherUser.AppId";
     $(document).ready(function () {
-
-        
-
         $(".m_input").summernote({
             callbacks: {
                 onImageUpload: function (files) {

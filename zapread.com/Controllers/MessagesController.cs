@@ -464,24 +464,22 @@ namespace zapread.com.Controllers
                     receiver.Messages.Add(msg);
                     await db.SaveChangesAsync();
 
-                    if (isChat != null & isChat.Value)
+                    // Live update to any listeners
+                    string HTMLString = "";
+
+                    var mvm = new ChatMessageViewModel()
                     {
-                        // Live update to any listeners
-                        string HTMLString = "";
+                        Message = msg,
+                        From = msg.From,
+                        To = msg.To,
+                        IsReceived = true,
+                    };
 
-                        var mvm = new ChatMessageViewModel()
-                        {
-                            Message = msg,
-                            From = msg.From,
-                            To = msg.To,
-                            IsReceived = true,
-                        };
+                    HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
-                        HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
+                    NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
-                        NotificationService.SendPrivateChat(HTMLString, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
-                    }
-                    else
+                    if (isChat != null & !isChat.Value)
                     {
                         // Send popup and email if not in chat
                         NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
