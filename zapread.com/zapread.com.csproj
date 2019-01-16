@@ -613,6 +613,10 @@
     <Compile Include="Migrations\201901150137576_addprivatemessageflag.Designer.cs">
       <DependentUpon>201901150137576_addprivatemessageflag.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901160220351_addUserIsOnline.cs" />
+    <Compile Include="Migrations\201901160220351_addUserIsOnline.Designer.cs">
+      <DependentUpon>201901160220351_addUserIsOnline.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -1872,6 +1876,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901150137576_addprivatemessageflag.resx">
       <DependentUpon>201901150137576_addprivatemessageflag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901160220351_addUserIsOnline.resx">
+      <DependentUpon>201901160220351_addUserIsOnline.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

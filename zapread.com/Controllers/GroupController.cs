@@ -107,6 +107,7 @@ namespace zapread.com.Controllers
                         IsModerator = group.Moderators.Select(u => u.Id).Contains(m.Id),
                         IsGroupAdministrator = group.Administrators.Select(u => u.Id).Contains(m.Id),
                         IsSiteAdministrator = m.Name == "Zelgada",
+                        IsOnline = m.IsOnline,
                     });
                 }
                 

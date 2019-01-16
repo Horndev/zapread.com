@@ -28,6 +28,8 @@ namespace zapread.com.Models
 
         public string PGPPubKey { get; set; }
 
+        public bool IsOnline { get; set; }
+
         // Comma-separated list of language codes. e.g.: en,es,it,fr
         public string Languages { get; set; }
 

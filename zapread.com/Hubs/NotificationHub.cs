@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
+using zapread.com.Database;
 
 namespace zapread.com.Hubs
 {
@@ -39,9 +40,51 @@ namespace zapread.com.Hubs
             if (name != null)
             {
                 Groups.Add(Context.ConnectionId, name);
+
+                try
+                {
+                    using (var db = new ZapContext())
+                    {
+                        var user = db.Users
+                            .SingleOrDefault(u => u.AppId == name);
+
+                        user.DateLastActivity = DateTime.UtcNow;
+                        user.IsOnline = true;
+                        db.SaveChanges();
+                    }
+                }
+                catch
+                {
+
+                }
             }
-            
             return base.OnConnected();
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            string name = Context.User.Identity.GetUserId();
+
+            if (name != null)
+            {
+                try
+                {
+                    using (var db = new ZapContext())
+                    {
+                        var user = db.Users
+                            .SingleOrDefault(u => u.AppId == name);
+
+                        user.DateLastActivity = DateTime.UtcNow;
+                        user.IsOnline = false;
+                        db.SaveChanges();
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+            return base.OnDisconnected(stopCalled);
         }
     }
 }

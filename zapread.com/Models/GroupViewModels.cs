@@ -88,6 +88,8 @@ namespace zapread.com.Models
         public bool IsGroupAdministrator { get; set; }
 
         public bool IsModerator { get; set; }
+
+        public bool IsOnline { get; set; }
     }
 
     /// <summary>
