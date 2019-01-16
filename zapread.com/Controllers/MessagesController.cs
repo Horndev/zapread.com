@@ -457,7 +457,7 @@ namespace zapread.com.Controllers
                         From = sender,
                         To = receiver,
                         IsDeleted = false,
-                        IsRead = (isChat != null & isChat.Value) ? true : false,
+                        IsRead = (isChat != null && isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
@@ -480,7 +480,7 @@ namespace zapread.com.Controllers
 
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
-                    if (isChat != null & !isChat.Value)
+                    if (isChat == null || (isChat != null && !isChat.Value))
                     {
                         // Send popup and email if not in chat
                         NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));

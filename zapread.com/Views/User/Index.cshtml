@@ -332,6 +332,14 @@
                         <div class="user-button">
                             <div class="row">
                                 <div class="col-md-4">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        <a href="@Url.Action("Chat", "Messages", new { username = Model.User.Name })" class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </a>
+                                    }
+                                    else
+                                    {
+                                        <button disabled class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </button>
+                                    }
                                 </div>
                                 <div class="col-md-4">
                                 </div>
