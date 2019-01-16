@@ -122,7 +122,7 @@
             <small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>
         </div>
     </div>
-    <div class="social-body" @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
+    <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
         <div class="row">
             <div class="col-sm-auto vote-actions">
                 <div class="vote-actions">
@@ -157,12 +157,22 @@
                             <button id="nsfwb_@Model.Post.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.Post.PostId)">Show NSFW</button>
                         }
                     </div>
+
                 </p>
                 <br />
             </div>
+
+        </div>
+        <div class="row">
+            <div class="col col-auto">
+                <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
+            </div>
+            @*<div class="col col-auto">
+                <a href="javascript:void(0);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i> Reply</a>
+            </div>*@
         </div>
     </div>
-    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
+    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (true@*Model.ViewerIgnoredUser*@) { <text>style="display: none"</text>}>
         @if (Model.Post.Comments != null)
         {
             foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))

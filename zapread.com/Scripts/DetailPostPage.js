@@ -14,17 +14,21 @@
     hub.client.SendUserMessage = function (envelope) {
         console.log(envelope.message);
         console.log(envelope.clickUrl);
-
-        toastr.options.onclick = function () {
-            console.log('clicked');
-            window.open(envelope.clickUrl, '_blank');
-        };
-
-        if (envelope.hasReason) {
-            toastr.success(envelope.message, envelope.reason);
+        if (typeof ChattingWithId !== 'undefined') {
+            // Skip
         } else {
-            toastr.success(envelope.message, 'Message Received');
+            toastr.options.onclick = function () {
+                console.log('clicked');
+                window.open(envelope.clickUrl, '_blank');
+            };
+
+            if (envelope.hasReason) {
+                toastr.success(envelope.message, envelope.reason);
+            } else {
+                toastr.success(envelope.message, 'Message Received');
+            }
         }
+        
     };
 
     hub.client.SendUserChat = function (envelope) {

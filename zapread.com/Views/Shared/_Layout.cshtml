@@ -283,6 +283,10 @@
             $("#nsfwb_" + id).hide();
         };
 
+        var toggleChat = function (id) {
+            $('#comments_' + id.toString()).toggle('show');
+        };
+
         var deleteComment = function (id) {
             swal({
                 title: "Are you sure?",
@@ -433,6 +437,7 @@
             $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
             $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
             $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
+            $('#comments_' + result.PostId.toString()).show();
             if (!result.success) {
                 if (result.IsReply) {
                     $('#cr_input_' + result.CommentId.toString()).summernote('reset');

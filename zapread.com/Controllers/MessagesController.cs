@@ -479,12 +479,12 @@ namespace zapread.com.Controllers
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
+                    
+                    // Send popup and email if not in chat
+                    NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     if (isChat == null || (isChat != null && !isChat.Value))
                     {
-                        // Send popup and email if not in chat
-                        NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
-
                         // Send email
                         if (receiver.Settings == null)
                         {
