@@ -20,6 +20,7 @@ using Microsoft.Owin;
 using System.Security.Principal;
 using System.Security.Claims;
 using System.Globalization;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -456,7 +457,7 @@ namespace zapread.com.Controllers
                 if (db.Users.Where(us => us.AppId == userId).Count() == 0)
                 {
                     // no user entry
-                    u = new Models.User()
+                    u = new User()
                     {
                         AboutMe = "Nothing to tell.",
                         AppId = userId,
@@ -936,7 +937,7 @@ namespace zapread.com.Controllers
             if (db.Users.Where(u => u.AppId == userId).Count() == 0)
             {
                 // no user entry
-                User u = new Models.User()
+                User u = new User()
                 {
                     AboutMe = "Nothing to tell.",
                     AppId = userId,

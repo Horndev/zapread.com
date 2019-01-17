@@ -5,6 +5,7 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using System.Web;
 using zapread.com.Models;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Database
 {

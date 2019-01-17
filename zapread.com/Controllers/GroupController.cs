@@ -12,6 +12,7 @@ using System.IO;
 using zapread.com.Helpers;
 using System.Text;
 using System.Globalization;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {

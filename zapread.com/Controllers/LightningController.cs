@@ -15,6 +15,7 @@ using Microsoft.AspNet.Identity;
 using System.Threading;
 using zapread.com.Services;
 using System.Net;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -123,7 +124,7 @@ namespace zapread.com.Controllers
             using (ZapContext db = new ZapContext())
             {
                 // TODO: ensure user exists?
-                zapread.com.Models.User user = null;
+                User user = null;
                 if (userId != null)
                 {
                     user = db.Users.Where(u => u.AppId == userId).First();

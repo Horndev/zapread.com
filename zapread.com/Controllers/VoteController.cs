@@ -10,6 +10,7 @@ using System.Data.Entity;
 using zapread.com.Models;
 using zapread.com.Helpers;
 using zapread.com.Services;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -52,7 +53,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                Models.User user = null;
+                User user = null;
 
                 var post = db.Posts
                     .Include("VotesUp")
@@ -325,7 +326,7 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", message = "Invalid Comment" });
                 }
 
-                zapread.com.Models.User user = null;
+                User user = null;
 
                 if (userId == null) // Anonymous vote
                 {

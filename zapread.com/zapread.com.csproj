@@ -618,15 +618,16 @@
       <DependentUpon>201901160220351_addUserIsOnline.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
+    <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\EmailModels.cs" />
     <Compile Include="Models\FinanceModels.cs" />
     <Compile Include="Models\GroupViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\LightningModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="Models\DatabaseModels.cs" />
+    <Compile Include="Models\Database\DatabaseModels.cs" />
     <Compile Include="Models\MessagesViewModel.cs" />
     <Compile Include="Models\PostsViewModels.cs" />
     <Compile Include="Models\StatisticsModels.cs" />

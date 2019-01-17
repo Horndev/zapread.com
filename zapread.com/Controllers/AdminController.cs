@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Hubs;
 using zapread.com.Models;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {

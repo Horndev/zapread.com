@@ -13,6 +13,7 @@ using zapread.com.Services;
 using HtmlAgilityPack;
 using zapread.com.Helpers;
 using System.Globalization;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -227,7 +228,7 @@ namespace zapread.com.Controllers
                 if (db.Users.Where(u => u.AppId == userId).Count() == 0)
                 {
                     // no user entry
-                    User u = new Models.User()
+                    User u = new User()
                     {
                         AboutMe = "Nothing to tell.",
                         AppId = userId,

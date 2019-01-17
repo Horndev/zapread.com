@@ -19,6 +19,7 @@ using System.Drawing.Imaging;
 using System.Data.Entity;
 using Microsoft.Owin.Host.SystemWeb;
 using zapread.com.Services;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -99,7 +100,7 @@ namespace zapread.com.Controllers
                 if (db.Users.Where(u => u.AppId == userId).Count() == 0)
                 {
                     // no user entry
-                    User u = new Models.User()
+                    User u = new User()
                     {
                         AboutMe = "Nothing to tell.",
                         AppId = userId,

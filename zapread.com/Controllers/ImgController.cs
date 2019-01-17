@@ -76,7 +76,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> UploadImage(HttpPostedFileBase file)
+        public JsonResult UploadImage(HttpPostedFileBase file)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
