@@ -1682,6 +1682,7 @@
     <Content Include="Views\User\_PartialUserGroups.cshtml" />
     <Content Include="Views\Admin\Audit.cshtml" />
     <Content Include="Views\Messages\_PartialChatMessage.cshtml" />
+    <Content Include="Views\Shared\_PartialPostReplyInput.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

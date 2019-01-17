@@ -168,7 +168,7 @@
                 <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
             </div>
             @*<div class="col col-auto">
-                <a href="javascript:void(0);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i> Reply</a>
+                <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i> Reply</a>
             </div>*@
         </div>
     </div>
@@ -183,7 +183,7 @@
     </div>
     @if (Request.IsAuthenticated)
     {
-        <div class="social-footer" @if (Model.ViewerIgnoredUser) { <text>style="display: none"</text>}>
+        <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (true) { <text>style="display: none"</text>}>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding ibox-comment">
                     <div class="sk-spinner sk-spinner-three-bounce">
@@ -198,7 +198,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="ibox-content no-padding">
-                                    <div class="c_input wrapper p-md" id="c_input_@Model.Post.PostId.ToString()"></div>
+                                    <div class="@("c_input_" + @Model.Post.PostId.ToString()) wrapper p-md" id="c_input_@Model.Post.PostId.ToString()"></div>
                                 </div>
                             </div>
                             <div class="col-sm-auto">
