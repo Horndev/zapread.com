@@ -61,6 +61,10 @@
                                 <div class="input-group mb-3" id="lightningWithdrawInvoice">
                                     <input type="text" id="lightningWithdrawInvoiceInput" class="form-control" placeholder="Paste invoice" aria-label="invoice" aria-describedby="basic-addon2">
                                 </div>
+                                <div>
+                                    <video id="preview" style="display:none"></video>
+                                    <a href="javascript:void(0);" onclick="scan();" class="btn btn-sm btn-outline btn-primary">Scan QR</a>
+                                </div>
                             </div>
                         </div>
 
@@ -115,6 +119,28 @@
              });
          });
      });
+
+    var scan = function () {
+
+        //alert('Sorry. Not yet implemented.');
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        scanner.addListener('scan', function (content) {
+            console.log(content);
+            $('#lightningWithdrawInvoiceInput').val(content);
+            $("#preview").hide();
+            scanner.stop();
+        });
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]);
+            } else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+            });
+        $("#preview").show();
+    };
 
     var LNmode = "deposit";
 
