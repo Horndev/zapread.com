@@ -13,6 +13,8 @@ namespace zapread.com.Models
         public bool ViewerDownvoted;    // If the user has downvoted this post
         public bool ViewerIgnoredUser;  // If the user has ignored the user
 
+        public int NumComments;
+
         // Not ideal!
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
     }
