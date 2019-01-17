@@ -47,6 +47,36 @@
         $(document).ready(function () {
             // make height unrestricted
             $('.scroll_content').css({ "max-height": "" });
+
+            $(".c_input_" + "@Model.Post.PostId").summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                focus: false,
+                placeholder: 'Write comment...',
+                disableDragAndDrop: false,
+                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                minHeight: 60,
+                maxHeight: 300,
+                hint: {
+                    match: /\B@@(\w*)$/,
+                    search: function (keyword, callback) {
+                        callback($.grep(usermentions, function (item) {
+                            return item.indexOf(keyword) == 0;
+                        }));
+                    },
+                    content: function (item) {
+                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                    }
+                }
+            });
+
+            $(".c_input_" + "@Model.Post.PostId").each(function (i, e) {
+                $(e).removeClass(".c_input_" + "@Model.Post.PostId");
+            });
         });
     </script>
 }

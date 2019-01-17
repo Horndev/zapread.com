@@ -183,7 +183,7 @@
     </div>
     @if (Request.IsAuthenticated)
     {
-        <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (true) { <text>style="display: none"</text>}>
+        <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text>style="display: none"</text>}>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding ibox-comment">
                     <div class="sk-spinner sk-spinner-three-bounce">
