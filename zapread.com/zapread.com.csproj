@@ -621,6 +621,7 @@
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Database\User.cs" />
+    <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Finance\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />

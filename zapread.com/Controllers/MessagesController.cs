@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
+using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
