@@ -617,6 +617,10 @@
     <Compile Include="Migrations\201901160220351_addUserIsOnline.Designer.cs">
       <DependentUpon>201901160220351_addUserIsOnline.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901180044103_addUserSettingCollapseDiscussions.cs" />
+    <Compile Include="Migrations\201901180044103_addUserSettingCollapseDiscussions.Designer.cs">
+      <DependentUpon>201901180044103_addUserSettingCollapseDiscussions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
@@ -1883,6 +1887,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901160220351_addUserIsOnline.resx">
       <DependentUpon>201901160220351_addUserIsOnline.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901180044103_addUserSettingCollapseDiscussions.resx">
+      <DependentUpon>201901180044103_addUserSettingCollapseDiscussions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
