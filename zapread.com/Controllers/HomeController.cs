@@ -102,7 +102,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected List<Post> GetPosts(int start, int count, string sort = "Score", int userId = 0)
+        protected async Task<List<Post>> GetPosts(int start, int count, string sort = "Score", int userId = 0)
         {
             //Reddit algorithm
             /*epoch = datetime(1970, 1, 1)
@@ -143,9 +143,9 @@ namespace zapread.com.Controllers
             {
                 DateTime t = DateTime.Now;
 
-                var user = db.Users
+                var user = await db.Users
                     .Include(usr => usr.Settings)
-                    .SingleOrDefault(u => u.Id == userId);
+                    .SingleOrDefaultAsync(u => u.Id == userId);
 
                 if (sort == "Score")
                 {
@@ -172,7 +172,7 @@ namespace zapread.com.Controllers
 
                     DateTime scoreStart = new DateTime(2018, 07, 01);
 
-                    var sposts = validposts//db.Posts//.AsNoTracking()
+                    var sposts = await validposts//db.Posts//.AsNoTracking()
                         .Select(p => new
                         {
                             pst = p,
@@ -205,8 +205,7 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
                         .Skip(start)
-                        .Take(count).ToList();
-
+                        .Take(count).ToListAsync();
 
                     return sposts;
                 }
@@ -233,7 +232,7 @@ namespace zapread.com.Controllers
                             .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                     }
 
-                    var posts = validposts//db.Posts//.AsNoTracking()
+                    var posts = await validposts
                         .OrderByDescending(p => p.TimeStamp)
                         .Include(p => p.Group)
                         .Include(p => p.Comments)
@@ -246,7 +245,8 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
                         .Skip(start)
-                        .Take(count).ToList();
+                        .Take(count).ToListAsync();
+
                     return posts;
                 }
             }
@@ -283,10 +283,10 @@ namespace zapread.com.Controllers
                         .Include(t => t.User)
                         .Include(t => t.User.Funds);
 
-                    var website = db.ZapreadGlobals
-                    .SingleOrDefault(ix => ix.Id == 1);
+                    var website = await db.ZapreadGlobals
+                    .SingleOrDefaultAsync(ix => ix.Id == 1);
 
-                    var invoiceDebug = unpaidInvoices.ToList();
+                    //var invoiceDebug = unpaidInvoices.ToList();
 
                     foreach (var i in unpaidInvoices)
                     {
@@ -397,14 +397,14 @@ namespace zapread.com.Controllers
 
                 await EnsureUserExists(uid, db);
 
-                var user = db.Users
+                var user = await db.Users
                     .Include("Settings")
                     .Include(usr => usr.IgnoringUsers)
                     .Include(usr => usr.Groups)
                     .AsNoTracking()
-                    .SingleOrDefault(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid);
 
-                var posts = GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
+                var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
 
                 try
                 {
@@ -503,16 +503,17 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public ActionResult InfiniteScroll(int BlockNumber, string sort)
+        public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
             
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                var user = await db.Users.AsNoTracking()
+                    .SingleOrDefaultAsync(u => u.AppId == uid);
 
-                var posts = GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
+                var posts = await GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
 
                 string PostsHTMLString = "";
 

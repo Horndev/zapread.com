@@ -85,16 +85,16 @@ namespace zapread.com.Controllers
         }
 
         // GET: Group/Members/1
-        public ActionResult Members(int id)
+        public async Task<ActionResult> Members(int id)
         {
             using (var db = new ZapContext())
             {
-                var group = db.Groups
+                var group = await db.Groups
                     .Include(g => g.Members)
                     .Include(g => g.Moderators)
                     .Include(g => g.Administrators)
                     .AsNoTracking()
-                    .FirstOrDefault(g => g.GroupId == id);
+                    .FirstOrDefaultAsync(g => g.GroupId == id);
 
                 List<GroupMemberViewModel> groupMembers = new List<GroupMemberViewModel>();
 
@@ -126,14 +126,14 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public ActionResult InfiniteScroll(int id, int BlockNumber, string sort)
+        public async Task<ActionResult> InfiniteScroll(int id, int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            var posts = GetPosts(id, BlockNumber, BlockSize, sort);
+            var posts = await GetPosts(id, BlockNumber, BlockSize, sort);
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid);
 
                 string PostsHTMLString = "";
 
@@ -178,7 +178,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected List<Post> GetPosts(int id, int start, int count, string sort = "New")
+        protected async Task<List<Post>> GetPosts(int id, int start, int count, string sort = "New")
         {
             //Reddit algorithm
             /*epoch = datetime(1970, 1, 1)
@@ -200,13 +200,13 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 DateTime t = DateTime.Now;
-                var group = db.Groups
+                var group = await db.Groups
                    .AsNoTracking()
-                   .FirstOrDefault(g => g.GroupId == id);
+                   .FirstOrDefaultAsync(g => g.GroupId == id);
 
                 if (sort == "Score")
                 {
-                    var sposts = db.Posts//.AsNoTracking()
+                    var sposts = await db.Posts//.AsNoTracking()
                         .Select(p => new
                         {
                             pst = p,
@@ -241,13 +241,13 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDraft)
                         .Where(p => p.Group.GroupId == group.GroupId)
                         .Skip(start)
-                        .Take(count).ToList();
+                        .Take(count).ToListAsync();
                     return sposts;
                 }
                 //if (sort == "New")
                 //{
 
-                var posts = db.Posts//.AsNoTracking()
+                var posts = await db.Posts//.AsNoTracking()
                     .OrderByDescending(p => p.TimeStamp)
                     .Include(p => p.Group)
                     .Include(p => p.Comments)
@@ -261,7 +261,7 @@ namespace zapread.com.Controllers
                     .Where(p => !p.IsDraft)
                     .Where(p => p.Group.GroupId == group.GroupId)
                     .Skip(start)
-                    .Take(count).ToList();
+                    .Take(count).ToListAsync();
                 return posts;
                 //}
             }

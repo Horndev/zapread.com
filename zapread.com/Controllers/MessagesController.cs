@@ -11,6 +11,7 @@ using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
+using System.Data.Entity;
 
 namespace zapread.com.Controllers
 {
@@ -77,17 +78,19 @@ namespace zapread.com.Controllers
             {
                 var vm = new ChatMessagesViewModel();
 
-                var user = db.Users
+                var user = await db.Users
                     .Include("Messages")
                     .Include("Messages.PostLink")
                     .Include("Messages.From")
-                    .Where(u => u.AppId == userId).FirstOrDefault();
+                    .Where(u => u.AppId == userId)
+                    .SingleOrDefaultAsync();
 
-                var otheruser = db.Users
+                var otheruser = await db.Users
                     .Include("Messages")
                     .Include("Messages.PostLink")
                     .Include("Messages.From")
-                    .Where(u => u.Name == username).FirstOrDefault();
+                    .Where(u => u.Name == username)
+                    .SingleOrDefaultAsync();
 
                 if (otheruser == null)
                 {

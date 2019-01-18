@@ -243,7 +243,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<JsonResult> GetPostStats()
+        public JsonResult GetPostStats()
         {
             var endDate = DateTime.UtcNow;
 
