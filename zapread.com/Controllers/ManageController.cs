@@ -87,29 +87,32 @@ namespace zapread.com.Controllers
             public string Memo { get; set; }
         }
 
-        public ActionResult GetLNTransactions(DataTableParameters dataTableParameters)
+        public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
                 User u;
-                u = db.Users
+                u = await db.Users
                         .Include(usr => usr.LNTransactions)
-                        .Where(us => us.AppId == userId).First();
+                        .Where(us => us.AppId == userId)
+                        .SingleOrDefaultAsync();
 
                 var pageTxns = u.LNTransactions
+                    .AsParallel()
                     .Where(tx => tx.TimestampSettled != null)
                     .OrderByDescending(tx => tx.TimestampSettled)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
                     .ToList();
 
-                var values = pageTxns.Select(t => new DataItem() {
-                    Time = t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Type = t.IsDeposit ? "Deposit" : "Withdrawal",
-                    Amount = Convert.ToString(t.Amount),
-                    Memo = t.Memo,
-                }).ToList();
+                var values = pageTxns.AsParallel()
+                    .Select(t => new DataItem() {
+                        Time = t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                        Amount = Convert.ToString(t.Amount),
+                        Memo = t.Memo,
+                    }).ToList();
 
                 int numrec = u.LNTransactions.Where(tx => tx.TimestampSettled != null).Count();
 
@@ -124,28 +127,32 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult GetEarningEvents(DataTableParameters dataTableParameters)
+        public async Task<ActionResult> GetEarningEvents(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
                 User u;
-                u = db.Users
+                u = await db.Users
                         .Include(usr => usr.LNTransactions)
-                        .Where(us => us.AppId == userId).First();
+                        .Where(us => us.AppId == userId)
+                        .SingleOrDefaultAsync();
 
                 var pageEarnings = u.EarningEvents
+                    .AsParallel()
                     .OrderByDescending(e => e.TimeStamp)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
                     .ToList();
 
-                var values = pageEarnings.Select(t => new DataItem()
-                {
-                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Amount = t.Amount.ToString("0.##"),
-                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
-                }).ToList();
+                var values = pageEarnings
+                    .AsParallel()
+                    .Select(t => new DataItem()
+                    {
+                        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Amount = t.Amount.ToString("0.##"),
+                        Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                    }).ToList();
 
                 int numrec = u.EarningEvents.Count();
 
