@@ -20,7 +20,7 @@ namespace zapread.com.Tests.Controllers
             GroupController controller = new GroupController();
 
             // Act
-            ViewResult result = controller.Members(1) as ViewResult;
+            ViewResult result = controller.Members(1).Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
