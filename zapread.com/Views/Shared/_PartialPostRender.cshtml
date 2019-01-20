@@ -99,9 +99,9 @@
     <div class="social-avatar">
         @if (!Model.ViewerIgnoredUser)
         {
-        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
-            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
-        </a>
+            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
+                <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
+            </a>
         }
         <div class="media-body">
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
@@ -164,26 +164,21 @@
 
         </div>
         <div class="row">
-            <div class="col col-auto">
+
+            @*@if (Request.IsAuthenticated)
+            {
+                <div class="col col-auto" data-toggle="tooltip" data-placement="bottom" title="Reply">
+                    <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                </div>
+            }*@
+            <div class="col col-auto" @*data-toggle="tooltip" data-placement="bottom" title="Discuss"*@>
                 <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
             </div>
-            @*<div class="col col-auto">
-                <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i> Reply</a>
-            </div>*@
         </div>
-    </div>
-    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.NumComments < 1) { <text>style="display: none"</text>}>
-        @if (Model.Post.Comments != null)
-        {
-            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
-            {
-                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
-            }
-        }
     </div>
     @if (Request.IsAuthenticated)
     {
-        <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text>style="display: none"</text>}>
+        <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding ibox-comment">
                     <div class="sk-spinner sk-spinner-three-bounce">
@@ -212,4 +207,14 @@
             </div>
         </div>
     }
+    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
+        @if (Model.Post.Comments != null)
+        {
+            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
+            {
+                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
+            }
+        }
+    </div>
+
 </div>

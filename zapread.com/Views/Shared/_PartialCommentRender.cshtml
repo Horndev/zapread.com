@@ -7,7 +7,7 @@
     var isIgnoredUser = Model.ViewerIgnoredUsers != null ? Model.ViewerIgnoredUsers.Contains(Model.Comment.UserId.Id) : false;
 }
 
-<div id="comment_@Model.Comment.CommentId">
+<div class ="" id="comment_@Model.Comment.CommentId">
     @if (Request.IsAuthenticated)
     {
         <div class="pull-right social-action dropdown" @if (Model.Comment.IsReply) { <text> style="left:15px;" </text> }>
@@ -20,7 +20,6 @@
                     </li>
                 }
                 <li>
-                    @*<button class="btn btn-link btn-sm" onclick="alert('Comment replies not yet implmented (coming soon);')"><i class="fa fa-reply"></i> Reply</button>*@
                     <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
                 </li>
                 @if (User.Identity.Name == Model.Comment.UserId.Name)
@@ -51,54 +50,65 @@
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name.Trim() })" class="pull-left">
                     <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
                 </a>
+                
             }
+            <div class="media-body">
 
-                <div class="media-body">
+                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })">
+                    @if (isIgnoredUser)
+                    {
+                        <text>(Ignored) </text>
+                    }
+                    @Model.Comment.UserId.Name
+                </a> <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
+                @if (Request.IsAuthenticated)
+                {
+                    <div class="vote-actions" @if (isIgnoredUser) { <text> style="display: none" </text> }>
+                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="@(Model.Comment.VotesUp.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="uVotec_@Model.Comment.CommentId">
+                            <i class="fa fa-chevron-up"> </i>
+                        </a>
+                        <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
+                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
+                            <i class="fa fa-chevron-down"> </i>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="vote-actions">
+                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="text-muted" id="uVotec_@Model.Comment.CommentId">
+                            <i class="fa fa-chevron-up"> </i>
+                        </a>
+                        <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
+                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
+                            <i class="fa fa-chevron-down"> </i>
+                        </a>
+                    </div>
+                }
 
-                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })">
+                    <div id="commentText_@Model.Comment.CommentId" style="position: relative;">
                         @if (isIgnoredUser)
-                        {
-                            <text>(Ignored) </text>
-                        }
-                        @Model.Comment.UserId.Name
-                    </a> <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
-                    @if (Request.IsAuthenticated)
-                    {
-                        <div class="vote-actions" @if (isIgnoredUser) { <text> style="display: none" </text> }>
-                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="@(Model.Comment.VotesUp.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="uVotec_@Model.Comment.CommentId">
-                                <i class="fa fa-chevron-up"> </i>
-                            </a>
-                            <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
-                                <i class="fa fa-chevron-down"> </i>
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="vote-actions">
-                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 1, 2, 100)" class="text-muted" id="uVotec_@Model.Comment.CommentId">
-                                <i class="fa fa-chevron-up"> </i>
-                            </a>
-                            <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                            <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
-                                <i class="fa fa-chevron-down"> </i>
-                            </a>
-                        </div>
-                    }
-                    <div id="commentText_@Model.Comment.CommentId">
-                        @if(isIgnoredUser)
                         {
                             <span><br /></span>
                         }
                         else
                         {
-                            <div>@Html.Raw(Model.Comment.Text)</div>
+                            <div>@Html.Raw(Model.Comment.Text)</div><br />
+                            <div class="" @*data-toggle="tooltip" data-placement="bottom" title="Reply"*@ style="position: absolute; bottom: 0px;left: 0px;">
+                                <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                            </div>
                         }
+                        <div class="row">
+                            @if (Request.IsAuthenticated)
+                            {
+
+                                <div class="col col-md-11">
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
-            
-            <div id="c_reply_@Model.Comment.CommentId">
+            </div>
+            <div id="c_reply_@Model.Comment.CommentId" style="display: none">
             </div>
             <div id=@("rcomments_" + @Model.Comment.CommentId.ToString())>
                 @{

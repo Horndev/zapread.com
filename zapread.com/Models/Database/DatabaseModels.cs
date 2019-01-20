@@ -8,7 +8,6 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
-
     public class UserAlert
     {
         public int Id { get; set; }

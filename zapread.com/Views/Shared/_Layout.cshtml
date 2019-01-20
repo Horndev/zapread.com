@@ -317,6 +317,41 @@
             $('#preply_' + id.toString()).toggle('show');
         };
 
+        var showReply = function (id) {
+            $(".c_input_" + id.toString()).summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                focus: false,
+                placeholder: 'Write comment...',
+                disableDragAndDrop: false,
+                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                minHeight: 60,
+                maxHeight: 300,
+                hint: {
+                    match: /\B@@(\w*)$/,
+                    search: function (keyword, callback) {
+                        callback($.grep(usermentions, function (item) {
+                            return item.indexOf(keyword) == 0;
+                        }));
+                    },
+                    content: function (item) {
+                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                    }
+                }
+            });
+
+            $('.c_input_' + id.toString()).each(function (i, e) {
+                $(e).removeClass("c_input_" + id.toString());
+            });
+
+            $(".note-statusbar").css("display", "none");
+            $('#preply_' + id.toString()).toggle('show');
+        };
+
         var deleteComment = function (id) {
             swal({
                 title: "Are you sure?",
@@ -605,6 +640,7 @@
         };
 
         var replyComment = function (id) {
+            $('#c_reply_' + id.toString()).toggle('show');
             $('#c_reply_' + id.toString()).load('@Url.Action("GetInputBox", "Comment")' + "/" + id.toString(), function () {
                 $(".c_input").summernote({
                     callbacks: {
