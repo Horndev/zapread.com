@@ -13,6 +13,7 @@ using zapread.com.Helpers;
 using System.Text;
 using System.Globalization;
 using zapread.com.Models.Database;
+using System.Data.Entity.SqlServer;
 
 namespace zapread.com.Controllers
 {
@@ -196,7 +197,7 @@ namespace zapread.com.Controllers
                 sign = 1 if s > 0 else -1 if s < 0 else 0
                 seconds = epoch_seconds(date) - 1134028003
                 return round(sign * order + seconds / 45000, 7)*/
-            double ln10 = 2.302585092994046;
+
             using (var db = new ZapContext())
             {
                 DateTime t = DateTime.Now;
@@ -206,29 +207,27 @@ namespace zapread.com.Controllers
 
                 if (sort == "Score")
                 {
+                    DateTime scoreStart = new DateTime(2018, 07, 01);
                     var sposts = await db.Posts//.AsNoTracking()
                         .Select(p => new
                         {
-                            pst = p,
-                            s = (p.Score > 0.0 ? p.Score : -1 * p.Score) < 1 ? 1 : (p.Score > 0.0 ? p.Score : -1 * p.Score),   // Absolute value of s
-                            sign = p.Score > 0.0 ? 1.0 : -1.0,              // Sign of s
-                            dt = 1.0 * DbFunctions.DiffSeconds(DateTime.UtcNow, p.TimeStamp),
+                            p,
+                            s = Math.Abs((double)p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.Score),    // Max (|x|,1)                                                           
                         })
                         .Select(p => new
                         {
-                            pst = p.pst,
-                            order = ((p.s - 1) + (-1.0 / p.s / p.s) * (p.s - 1) * (p.s - 1) / 2.0 + (-2.0 / p.s / p.s / p.s) * (p.s - 1) * (p.s - 1) * (p.s - 1) / 6.0) / ln10,
-                            sign = p.sign,
-                            dt = p.dt,
+                            p.p,
+                            order = SqlFunctions.Log10(p.s),
+                            sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
                         })
                         .Select(p => new
                         {
-                            pst = p.pst,
-                            hot = p.sign * p.order + p.dt / 45000
+                            p.p,
+                            hot = p.sign * p.order + p.dt / 90000
                         })
                         .OrderByDescending(p => p.hot)
-                        //.OrderByDescending(p => 5.0-5*p.dt+5.0*p.dt*p.dt/2.0-5*p.dt*p.dt*p.dt/6.0+5*p.dt*p.dt*p.dt*p.dt/24.0)
-                        .Select(p => p.pst)
+                        .Select(p => p.p)
                         .Include(p => p.Group)
                         .Include(p => p.Comments)
                         .Include(p => p.Comments.Select(cmt => cmt.Parent))

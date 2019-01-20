@@ -22,6 +22,7 @@ using System.Globalization;
 using LightningLib.lndrpc;
 using zapread.com.Models.Database;
 using System.Text;
+using System.Data.Entity.SqlServer;
 
 namespace zapread.com.Controllers
 {
@@ -45,7 +46,6 @@ namespace zapread.com.Controllers
         //[Route("sitemap.xml", Name = "GetSitemapXml"), OutputCache(Duration = 86400)]
         //public ContentResult SitemapXml()
         //{
-        //    // I'll talk about this in a later blog post.
         //}
 
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
@@ -157,7 +157,6 @@ namespace zapread.com.Controllers
             {
                 userLanguages = new List<string>() { "en" };
             }
-            
 
             using (var db = new ZapContext())
             {
@@ -191,29 +190,88 @@ namespace zapread.com.Controllers
                     }
 
                     DateTime scoreStart = new DateTime(2018, 07, 01);
+                    //DateTime epoch = new DateTime(1970, 01, 01);
 
-                    var sposts = await validposts//db.Posts//.AsNoTracking()
+                    //var debug_score = validposts
+                    //    .Select(p => new
+                    //    {
+                    //        p,
+                    //        abs_s = p.Score > 0.0 ? p.Score : -1 * p.Score,                 // Absolute value of s
+                    //        sign = p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+                    //        dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.TimeStamp),    // time since start
+                    //        t = 1.0 * DbFunctions.DiffSeconds(epoch, p.TimeStamp)           // epoch time
+                    //    })
+                    //    .Select(p => new
+                    //    {
+                    //        p.p,
+                    //        s = p.abs_s < 1 ? 1 : p.abs_s,    // Max (|x|,1)
+                    //        p.sign,
+                    //        p.dt,
+                    //        p.abs_s,
+                    //        p.t,
+                    //    })
+                    //    .Select(p => new
+                    //    {
+                    //        p.p,
+                    //        order = SqlFunctions.Log10((double)p.s),//((p.s - 1) + (-1.0 / p.s / p.s) * (p.s - 1) * (p.s - 1) / 2.0 + (-2.0 / p.s / p.s / p.s) * (p.s - 1) * (p.s - 1) * (p.s - 1) / 6.0) / ln10,
+                    //        p.sign,
+                    //        p.dt,
+                    //        p.abs_s,
+                    //        p.s,
+                    //        p.t,
+                    //    })
+                    //    .Select(p => new
+                    //    {
+                    //        p.p,
+                    //        p.sign,
+                    //        p.dt,
+                    //        p.abs_s,
+                    //        p.s,
+                    //        p.order,
+                    //        hot = p.sign * p.order + p.dt / 90000,
+                    //        p.t,
+                    //    })
+                    //    .ToList()
+                    //    .Select(p => new
+                    //    {
+                    //        sign  = Convert.ToString(p.sign),
+                    //        dt = Convert.ToString(p.dt),
+                    //        abs_s = Convert.ToString(p.abs_s),
+                    //        s = Convert.ToString(p.s),
+                    //        order = Convert.ToString(p.order),
+                    //        hot = Convert.ToString(p.hot),
+                    //        t_epoch = Convert.ToString(p.t),
+                    //        t = p.p.TimeStamp.Value.ToString("o"),
+                    //        score = Convert.ToString(p.p.Score),
+                    //    });
+
+                    //var debug_CSV = debug_score.Select(p => p.sign + "," + p.dt + "," + p.abs_s + "," + p.s + "," + p.order + "," + p.hot + "," + p.t_epoch + "," + p.t + "," + p.score + ",");
+
+                    //var CSV = "sign,dt,abs_s, s,order,hot,tepoch,t,score" + Environment.NewLine +
+                    //    string.Join(Environment.NewLine, debug_CSV);
+
+                    //System.IO.File.WriteAllText("D:\\debug4.csv", CSV);
+
+                    var sposts = await validposts
                         .Select(p => new
                         {
-                            pst = p,
-                            s = (p.Score > 0.0 ? p.Score : -1 * p.Score) < 1 ? 1 : (p.Score > 0.0 ? p.Score : -1 * p.Score),   // Absolute value of s
-                            sign = p.Score > 0.0 ? 1.0 : -1.0,              // Sign of s
-                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.TimeStamp),
+                            p,
+                            s = Math.Abs((double)p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.Score),    // Max (|x|,1)                                                           
                         })
                         .Select(p => new
                         {
-                            pst = p.pst,
-                            order = ((p.s - 1) + (-1.0 / p.s / p.s) * (p.s - 1) * (p.s - 1) / 2.0 + (-2.0 / p.s / p.s / p.s) * (p.s - 1) * (p.s - 1) * (p.s - 1) / 6.0) / ln10,
-                            sign = p.sign,
-                            dt = p.dt,
+                            p.p,
+                            order = SqlFunctions.Log10(p.s),
+                            sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
                         })
                         .Select(p => new
                         {
-                            pst = p.pst,
-                            hot = p.sign * p.order + p.dt / 45000
+                            p.p,
+                            hot = p.sign * p.order + p.dt / 90000
                         })
                         .OrderByDescending(p => p.hot)
-                        .Select(p => p.pst)
+                        .Select(p => p.p)
                         .Include(p => p.Group)
                         .Include(p => p.Comments)
                         .Include(p => p.Comments.Select(cmt => cmt.Parent))
