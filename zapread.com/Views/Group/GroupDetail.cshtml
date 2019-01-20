@@ -2,7 +2,7 @@
 
 @model zapread.com.Models.GroupViewModel
 @{
-    ViewBag.Title = "Group Detail";
+    ViewBag.Title = Model.Group.GroupName + (string.IsNullOrEmpty(Model.Group.ShortDescription) ? "" : " - " + Model.Group.ShortDescription);
     ViewBag.ViewInfo = "Group:" + Model.Group.GroupName;
 }
 
@@ -43,6 +43,20 @@
         <small>@(Model.Group.TotalEarned + Model.Group.TotalEarnedToDistribute) Satoshi earned</small>
     </div>
     <div class="col-lg-2">
+    </div>
+    <div>
+        <script>
+            (function () {
+                var cx = '011527487946990464906:hzzt0pfk0iu';
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
+        </script>
+        <gcse:search></gcse:search>
     </div>
 </div>
 

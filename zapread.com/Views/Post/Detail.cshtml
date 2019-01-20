@@ -1,7 +1,7 @@
 ﻿@model zapread.com.Models.PostViewModel
 
 @{
-    ViewBag.Title = Model.Post.PostTitle;
+    ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -17,6 +17,20 @@
         </ol>
     </div>
     <div class="col-lg-2">
+    </div>
+    <div>
+        <script>
+            (function () {
+                var cx = '011527487946990464906:hzzt0pfk0iu';
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
+        </script>
+        <gcse:search></gcse:search>
     </div>
 </div>
 
