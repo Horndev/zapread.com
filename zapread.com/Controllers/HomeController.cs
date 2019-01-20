@@ -21,12 +21,32 @@ using zapread.com.Services;
 using System.Globalization;
 using LightningLib.lndrpc;
 using zapread.com.Models.Database;
+using System.Text;
 
 namespace zapread.com.Controllers
 {
     public class HomeController : Controller
     {
         private static DateTime lastLNCheck = DateTime.Now;
+
+        [Route("robots.txt", Name = "GetRobotsText"), OutputCache(Duration = 86400)]
+        public ContentResult RobotsText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine("user-agent: *");
+            stringBuilder.AppendLine("disallow: ");
+            //stringBuilder.Append("sitemap: ");
+            //stringBuilder.AppendLine(this.Url.RouteUrl("GetSitemapXml", null, this.Request.Url.Scheme).TrimEnd('/'));
+
+            return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
+        }
+
+        //[Route("sitemap.xml", Name = "GetSitemapXml"), OutputCache(Duration = 86400)]
+        //public ContentResult SitemapXml()
+        //{
+        //    // I'll talk about this in a later blog post.
+        //}
 
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult UserImage(int? size, string UserId)
