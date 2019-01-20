@@ -10,6 +10,7 @@ namespace zapread.com.Models
     public class GroupAdminBarViewModel
     {
         public int GroupId { get; set; }
+        public int Tier { get; set; }
     }
 
     public class NewGroupViewModel

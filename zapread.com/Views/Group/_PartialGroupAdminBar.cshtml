@@ -55,10 +55,16 @@
                                     </div>
                                 </div>
                                 <div class="ibox-content">
-                                    <button class="btn btn-sm btn-outline btn-primary" onclick="changeName(@Model.GroupId);">Change Group Name</button>
-                                    @*<h1 class="no-margins">Not yet implemented.</h1>*@
-                                    @*<div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
-                                        <small>BTC User Deposits</small>*@
+                                    @if (Model.Tier >= 2)
+                                    {
+                                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeShortDesc(@Model.GroupId);">Set Group Short Description</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="">Unlocked at Tier 2</button>
+                                    }
+                                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeName(@Model.GroupId);">Change Group Name</button>
+                                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="alert('Not yet implemented.');" disabled>Delete Group</button>
                                 </div>
                             </div>
                         </div>
@@ -165,32 +171,66 @@
 
 @Html.Script(
 @<script type="text/javascript">
-     var changeName = function (groupId) {
-         swal({
-             text: 'Enter new group name',
-             content: "input",
-             button: {
-                 text: "Ok",
-                 closeModal: false,
-             },
-         })
-         .then(name => {
-            if (!name) throw null;
+    var changeShortDesc = function (groupId) {
+        swal({
+            text: 'Enter new group description',
+            content: "input",
+            button: {
+                text: "Ok",
+                closeModal: false,
+            },
+        })
+        .then(desc => {
+            if (!desc) throw null;
+            $.post("@Url.Action("ChangeShortDesc",
+                "Group")",
+                { "groupId": groupId, "newDesc": desc },
+                function (data) {
+                    if (data.success) {
+                        swal("Your group short description has been updated!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error updating group short description: " + data.message, "error");
+                    }
+                });
+        })
+        .catch(err => {
+            if (err) {
+                swal("Error", "Error updating group short description.", "error");
+            } else {
+                swal.stopLoading();
+                swal.close();
+            }
+        });
+    };
 
+    var changeName = function (groupId) {
+        swal({
+            text: 'Enter new group name',
+            content: "input",
+            button: {
+                text: "Ok",
+                closeModal: false,
+            },
+        })
+        .then(name => {
+            if (!name) throw null;
             $.post("@Url.Action("ChangeName",
-                    "Group")",
-                    { "groupId": groupId, "newName": name },
-                    function (data) {
-                        if (data.success) {
-                            swal("Your group name has been updated!", {
-                                icon: "success",
-                            });
-                        }
-                        else {
-                            swal("Error", "Error updating group name: " + data.message, "error");
-                        }
-                    });
-         })
+                "Group")",
+                { "groupId": groupId, "newName": name },
+                function (data) {
+                    if (data.success) {
+                        swal("Your group name has been updated!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error updating group name: " + data.message, "error");
+                    }
+                });
+        })
         .catch(err => {
             if (err) {
                 swal("Error", "Error updating group name.", "error");
@@ -199,6 +239,6 @@
                 swal.close();
             }
         });
-     };
+    };
 </script>
         )

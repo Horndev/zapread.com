@@ -795,12 +795,20 @@ namespace zapread.com.Controllers
         public PartialViewResult GroupAdminBar(string groupId)
         {
             ViewBag.groupId = groupId;
-            var vm = new GroupAdminBarViewModel()
+            using (var db = new ZapContext())
             {
-                GroupId = Convert.ToInt32(groupId),
-            };
+                int gid = Convert.ToInt32(groupId);
+                var group = db.Groups.AsNoTracking()
+                    .SingleOrDefault(g => g.GroupId == gid);
 
-            return PartialView("_PartialGroupAdminBar", model: vm);
+                var vm = new GroupAdminBarViewModel()
+                {
+                    GroupId = Convert.ToInt32(groupId),
+                    Tier = group.Tier,
+                };
+
+                return PartialView("_PartialGroupAdminBar", model: vm);
+            }
         }
 
         public PartialViewResult AdminAddUserToGroupRoleForm(int groupId)
@@ -854,6 +862,47 @@ namespace zapread.com.Controllers
                 }
 
                 g.GroupName = cleanName;
+
+                db.SaveChanges();
+
+                return Json(new { result = "success", success = true });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ChangeShortDesc(int groupId, string newDesc)
+        {
+            using (var db = new ZapContext())
+            {
+                var uid = User.Identity.GetUserId();
+                var user = await db.Users
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(u => u.AppId == uid);
+
+                if (user == null)
+                {
+                    return Json(new { result = "error", success = false, message = "User not authorized." });
+                }
+
+                var g = await db.Groups.SingleOrDefaultAsync(grp => grp.GroupId == groupId);
+                if (g == null)
+                {
+                    return Json(new { result = "error", success = false, message = "Group not found in database." });
+                }
+
+                if (!g.Administrators.Select(a => a.Id).Contains(user.Id))
+                {
+                    return Json(new { result = "error", success = false, message = "User not authorized." });
+                }
+
+                var cleanName = newDesc.CleanUnicode();
+
+                if (cleanName.Length > 60)
+                {
+                    return Json(new { result = "error", success = false, message = "Group short description must be 60 characters or less." });
+                }
+
+                g.ShortDescription = cleanName;
 
                 db.SaveChanges();
 

@@ -33,14 +33,15 @@
                 }
             }
         </p>
-        <h2><i class="fa @Model.GroupInfo.Icon"></i> @Model.GroupInfo.Name</h2>
-        <ol class="breadcrumb">
+        <h2><i class="fa @Model.GroupInfo.Icon"></i> @Model.GroupInfo.Name @if (!string.IsNullOrEmpty(Model.Group.ShortDescription)) { <text> - </text> @Model.Group.ShortDescription }</h2>
+
+<ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="/Group">Groups</a></li>
             <li class="breadcrumb-item active">@Model.GroupInfo.Name</li>
         </ol>
 
-        <small>@(Model.Group.TotalEarned + Model.Group.TotalEarnedToDistribute) Satoshi earned</small>
+        <small>Tier @Model.Group.Tier - @(Model.Group.TotalEarned + Model.Group.TotalEarnedToDistribute) Satoshi earned</small>
     </div>
     <div class="col-lg-2">
     </div>
@@ -61,12 +62,12 @@
 </div>
 
 @if (Model.IsGroupAdmin)
-{
-    Html.RenderAction("GroupAdminBar", controllerName: "Group", routeValues: new { groupId = Model.Group.GroupId });
-}
+            {
+                Html.RenderAction("GroupAdminBar", controllerName: "Group", routeValues: new { groupId = Model.Group.GroupId });
+            }
 
-@if (Model.IsGroupMod)
-{
+            @if (Model.IsGroupMod)
+            {
     <div class="wrapper wrapper-content ">
         <div class="row ">
             <div class="col-lg-12">
@@ -115,11 +116,11 @@
                 </div>
                 <div class="ibox-content">
                     @foreach (var g in Model.SubscribedGroups)
-                    {
+        {
                         <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
                             <i class="fa fa-@g.Icon"></i> @g.Name
                             @if (g.IsAdmin)
-                            {
+        {
                                 <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
                             }
                             else if (g.IsMod)
@@ -141,12 +142,12 @@
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
-                    @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+            @Html.Partial(partialViewName: "_PartialPostRender", model: p)
                 }
             </div>
 
             @if (Model.HasMorePosts)
-            {
+        {
                 <div class="social-feed-box" id="showmore">
                     <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
                 </div>
@@ -162,181 +163,181 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/Content/plugins/selectize")
+            @Styles.Render("~/Content/plugins/selectize")
 }
 
-@section Scripts {
-    @Scripts.Render("~/plugins/selectize")
+        @section Scripts {
+            @Scripts.Render("~/plugins/selectize")
     @Scripts.Render("~/plugins/moment")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
-        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+            var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
         $(document).ready(function () {
             // Add slimscroll to element
             $('.scroll_content').slimscroll({
-                height: ''
+                    height: ''
             })
 
             // This loads all async partial views on page
             $(".partialContents").each(function (index, item) {
-                var url = $(item).data("url");
-                if (url && url.length > 0) {
+                    var url = $(item).data("url");
+                    if (url && url.length > 0) {
                     $(item).load(url);
-                }
-            });
+                    }
+                });
 
             // Collapse ibox function
             $('.collapse-link').on('click', function () {
-                var ibox = $(this).closest('div.ibox');
-                var button = $(this).find('i');
-                var content = ibox.children('.ibox-content');
-                content.slideToggle(200);
-                button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
-                ibox.toggleClass('').toggleClass('border-bottom');
-                setTimeout(function () {
-                    ibox.resize();
-                    ibox.find('[id^=map-]').resize();
-                }, 50);
-            });
+                    var ibox = $(this).closest('div.ibox');
+                    var button = $(this).find('i');
+                    var content = ibox.children('.ibox-content');
+                    content.slideToggle(200);
+                    button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+                    ibox.toggleClass('').toggleClass('border-bottom');
+                    setTimeout(function () {
+                        ibox.resize();
+                        ibox.find('[id^=map-]').resize();
+                    }, 50);
+                });
 
             // Close ibox function
             $('.close-link').on('click', function () {
-                var content = $(this).closest('div.ibox');
-                content.remove();
+                    var content = $(this).closest('div.ibox');
+                    content.remove();
+                });
             });
-        });
 
-        var toggleIgnore = function (id) {
-            joinurl = "/Group/ToggleIgnore"
-            var data = JSON.stringify({ 'groupId': id });
+            var toggleIgnore = function (id) {
+                joinurl = "/Group/ToggleIgnore"
+                var data = JSON.stringify({ 'groupId': id });
             $.ajax({
-                async: true,
+                    async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    if (response.result == "success") {
-                        if (response.added) {
+                        if (response.result == "success") {
+                            if (response.added) {
                             $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
-                        }
-                        else {
+                            }
+                            else {
                             $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
+                            }
                         }
                     }
-                }
-            });
-            return false;
-        }
+                });
+                return false;
+            }
 
-        var join = function (id) {
-            joinurl = "/Group/JoinGroup"
-            var data = JSON.stringify({ 'gid': id });
+            var join = function (id) {
+                joinurl = "/Group/JoinGroup"
+                var data = JSON.stringify({ 'gid': id });
             $.ajax({
-                async: true,
+                    async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: joinurl,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    if (response.result == "success") {
+                        if (response.result == "success") {
                         $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
                         $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
-                        var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                            var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
                         $('#group_membercount_' + id.toString()).html(numMembers + 1);
+                        }
                     }
-                }
-            });
-            return false;
-        }
+                });
+                return false;
+            }
 
-        var leave = function (id) {
-            leaveurl = "/Group/LeaveGroup"
-            var data = JSON.stringify({ 'gid': id });
+            var leave = function (id) {
+                leaveurl = "/Group/LeaveGroup"
+                var data = JSON.stringify({ 'gid': id });
             $.ajax({
-                async: true,
+                    async: true,
                 data: data.toString(),
                 type: 'POST',
                 url: leaveurl,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    if (response.result == "success") {
+                        if (response.result == "success") {
                         $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Join ");
                         $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
-                        var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                            var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
                         $('#group_membercount_' + id.toString()).html(numMembers - 1);
+                        }
                     }
-                }
-            });
-            return false;
-        }
+                });
+                return false;
+            }
 
-        /* Infinite scroll */
+            /* Infinite scroll */
 
-        var BlockNumber = 10;
-        var NoMoreData = false;
-        var inProgress = false;
+            var BlockNumber = 10;
+            var NoMoreData = false;
+            var inProgress = false;
 
         $(window).scroll(function () {
-            if ($(window).scrollTop() == $(document).height() - 
+                if ($(window).scrollTop() == $(document).height() -
             $(window).height() && !NoMoreData && !inProgress) {
-                loadmore();
-            }
-        });
+                    loadmore();
+                }
+            });
 
-        var loadmore = function () {
-            if (!inProgress) {
-                inProgress = true;
+            var loadmore = function () {
+                if (!inProgress) {
+                    inProgress = true;
                 $('#loadmore').show();
                 $('#btnLoadmore').prop('disabled', true);
                 $.post("@Url.Action("InfiniteScroll", 
                     "Group")", { "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" },
-                            function (data) {
+                                function (data) {
                                 $('#loadmore').hide();
                                 $('#btnLoadmore').prop('disabled', false);
-                                BlockNumber = BlockNumber + 10;
-                                NoMoreData = data.NoMoreData;
+                        BlockNumber = BlockNumber + 10;
+                        NoMoreData = data.NoMoreData;
                                 $("#posts").append(data.HTMLString);
-                                inProgress = false;
+                        inProgress = false;
                                 $('.postTime').each(function (i, e) {
-                                    var time = moment.utc($(e).html()).local().calendar();
-                                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                            var time = moment.utc($(e).html()).local().calendar();
+                            var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
                                     $(e).html('<span>' + time + ' - ' + date + '</span>');
-                                });
-                                if (NoMoreData) {
+                        });
+                        if (NoMoreData) {
                                     $('#showmore').hide();
-                                }
+                        }
 
                                 $(".sharing").each(function () {
                                     $(this).jsSocials({
-                                        url: $(this).data('url'),
+                                url: $(this).data('url'),
                                         text: $(this).data('sharetext'),
                                         showLabel: false,
                                         shareIn: "popup",
                                         shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
                                     });
                                     $(this).removeClass("sharing");
-                                });
+                        });
 
                                 $('.read-more').readMore({
-                                    readMoreLinkClass: "read-more__link",
+                            readMoreLinkClass: "read-more__link",
                                     readMoreText: "Read more",
                                     readLessText: "Read less",
                                     readMoreHeight: 800
                                 });
 
                                 $(".c_input").summernote({
-                                    callbacks: {
-                                        onImageUpload: function (files) {
-                                            that = $(this);
-                                            sendFile(files[0], that);
-                                        }
-                                    },
+                            callbacks: {
+                                onImageUpload: function (files) {
+                                    that = $(this);
+                                    sendFile(files[0], that);
+                                }
+                            },
                                     focus: false,
                                     placeholder: 'Write comment...',
                                     disableDragAndDrop: true,
@@ -344,21 +345,21 @@
                                     minHeight: 60,
                                     maxHeight: 300,
                                     hint: {
-                                        match: /\B@@(\w*)$/,
+                                match: /\B@@(\w*)$/,
                                         search: function (keyword, callback) {
-                                            callback($.grep(usermentions, function (item) {
-                                                return item.indexOf(keyword) == 0;
-                                            }));
-                                        },
+                                    callback($.grep(usermentions, function (item) {
+                                        return item.indexOf(keyword) == 0;
+                                    }));
+                                },
                                         content: function (item) {
-                                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                                        }
-                                    }
-                                });
+                                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                                }
+                            }
+                        });
 
                                 $('.c_input').each(function (i, e) {
                                     $(e).removeClass("c_input");
-                                });
+                        });
 
                                 $(".note-statusbar").css("display", "none");
                     });
