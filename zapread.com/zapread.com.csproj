@@ -623,6 +623,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\Admin\AdminUsersViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
@@ -1690,6 +1691,7 @@
     <Content Include="Views\Admin\Audit.cshtml" />
     <Content Include="Views\Messages\_PartialChatMessage.cshtml" />
     <Content Include="Views\Shared\_PartialPostReplyInput.cshtml" />
+    <Content Include="Views\Admin\Users.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

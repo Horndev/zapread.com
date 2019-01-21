@@ -27,12 +27,7 @@
                 <ul class="nav navbar-top-links navbar-right">
                     <li class="dropdown">
                         <a class="count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-envelope"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">
-                            @*@if (true)
-                            {
-                                Html.RenderAction("UnreadMessages", "Messages");
-                            }*@
-                            </span>
+                            <i class="fa fa-envelope"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">-</span>
                         </a>
                         <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
@@ -51,12 +46,7 @@
                     </li>
                     <li class="dropdown">
                         <a class="count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-bell"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">
-                            @*@if (true)
-                            {
-                                Html.RenderAction("UnreadAlerts", "Messages");
-                            }*@
-                            </span>
+                            <i class="fa fa-bell"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">-</span>
                         </a>
                         <ul class="dropdown-menu dropdown-alerts dropdown-menu-right"  style="overflow: auto;max-height: 500px;">
                             <li>

@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Hubs;
 using zapread.com.Models;
+using zapread.com.Models.Admin;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
@@ -570,12 +571,83 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Admin/Users")]
+        public async Task<ActionResult> Users()
+        {
+            var vm = new AdminUsersViewModel();
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users" });
+            }
+            using (var db = new ZapContext())
+            {
+                var userCount = await db.Users.CountAsync();
+
+                vm.NumUsers = userCount;
+
+                return View(vm);
+            }
+        }
+
+        /// <summary>
+        /// Queries the users for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost, Route("Admin/GetUsersTable")]
+        public async Task<ActionResult> GetUsersTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                var pageUsers = await db.Users
+                    .OrderByDescending(u => u.Id)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                var values = pageUsers.AsParallel()
+                    .Select(u => new UsersDataItem()
+                    {
+                        UserName = u.Name,
+                        DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
+                        LastSeen = "?",
+                        NumPosts = "?",
+                        NumComments = "?",
+                        Balance = "?",
+                        Id = u.AppId,
+                    }).ToList();
+
+                int numrec = db.Users.Count();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class UsersDataItem
+        {
+            public string UserName { get; set; }
+            public string DateJoined { get; set; }
+            public string LastSeen { get; set; }
+            public string NumPosts { get; set; }
+            public string NumComments { get; set; }
+            public string Balance { get; set; }
+            public string Id { get; set; }
+        }
+
         // GET: Admin
         public ActionResult Index()
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = "/Roles/Index" });
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin" });
             }
 
             AdminViewModel vm;

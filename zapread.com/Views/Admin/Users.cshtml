@@ -1,0 +1,91 @@
+﻿@model zapread.com.Models.Admin.AdminUsersViewModel
+
+@{
+    ViewBag.Title = "Admin Users page";
+}
+
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Administration</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Admin</a></li>
+            <li class="breadcrumb-item active">Users</li>
+        </ol>
+        <small>Website administration page.</small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="ibox float-e-margins">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-1">
+        </div>
+        <div class="col-lg-11">
+            <div class="ibox-content no-padding">
+                <table id="usersTable" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Date Joined</th>
+                            <th>Last Seen</th>
+                            <th>Posts</th>
+                            <th>Comments</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/css/datatables")
+}
+
+@section Scripts {
+@Scripts.Render("~/plugins/moment")
+@Scripts.Render("~/bundles/datatables")
+
+<script type="text/javascript">
+    var usersTable = {};
+    $(document).ready(function () {
+        usersTable = $('#usersTable').DataTable({
+            "searching": false,
+            //"bInfo": false,
+            "lengthChange": false,
+            "pageLength": 25,
+            "processing": true,
+            "serverSide": true,
+            "sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+            "ajax": {
+                type: "POST",
+                contentType: "application/json",
+                url: "/Admin/GetUsersTable",
+                data: function (d) {
+                    return JSON.stringify(d);
+                }
+            },
+            "columns": [
+                { "data": "UserName", "orderable": false },
+                { "data": "DateJoined", "orderable": true },
+                { "data": "LastSeen", "orderable": false },
+                { "data": "NumPosts", "orderable": false },
+                { "data": "NumComments", "orderable": false },
+                { "data": "Balance", "orderable": false },
+            ],
+        });
+    });
+</script>
+}
