@@ -68,7 +68,7 @@
                             <i class="fa fa-chevron-up"> </i>
                         </a>
                         <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
+                        <a href="#/" style ="position: relative;z-index: 1;" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="@(Model.Comment.VotesDown.Select(v => v.AppId).Contains(User.Identity.GetUserId()) ? "" : "text-muted")" id="dVotec_@Model.Comment.CommentId">
                             <i class="fa fa-chevron-down"> </i>
                         </a>
                     </div>
@@ -80,7 +80,7 @@
                             <i class="fa fa-chevron-up"> </i>
                         </a>
                         <div id="sVotec_@Model.Comment.CommentId">@Model.Comment.Score</div>
-                        <a href="#/" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
+                        <a href="#/" style ="position: relative;z-index: 1;" onclick="vote(@Model.Comment.CommentId, 0, 2, 100)" class="text-muted" id="dVotec_@Model.Comment.CommentId">
                             <i class="fa fa-chevron-down"> </i>
                         </a>
                     </div>
