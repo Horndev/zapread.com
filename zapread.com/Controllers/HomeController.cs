@@ -283,7 +283,8 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
                         .Skip(start)
-                        .Take(count).ToListAsync();
+                        .Take(count)
+                        .ToListAsync();
 
                     return sposts;
                 }
@@ -323,10 +324,45 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
                         .Skip(start)
-                        .Take(count).ToListAsync();
+                        .Take(count)
+                        .ToListAsync();
 
                     return posts;
                 }
+            }
+        }
+
+        /// <summary>
+        /// This method is run once when first launched to ensure database globals are in place.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> Install()
+        {
+            using (var db = new ZapContext())
+            {
+                var zapreadGlobals = await db.ZapreadGlobals
+                    .SingleOrDefaultAsync(i => i.Id == 1);
+
+                // This is run only the first time the app is launched in the database.
+                // The global entry should only be created once in the database.
+                if (zapreadGlobals == null)
+                {
+                    // Initialize everything with zeros.
+                    db.ZapreadGlobals.Add(new Models.ZapReadGlobals()
+                    {
+                        Id = 1,
+                        CommunityEarnedToDistribute = 0.0,
+                        TotalDepositedCommunity = 0.0,
+                        TotalEarnedCommunity = 0.0,
+                        TotalWithdrawnCommunity = 0.0,
+                        ZapReadEarnedBalance = 0.0,
+                        ZapReadTotalEarned = 0.0,
+                        ZapReadTotalWithdrawn = 0.0,
+                        LNWithdraws = new List<LNTransaction>(),
+                    });
+                    db.SaveChanges();
+                }
+                return Json(new { result = "success" });
             }
         }
 
@@ -341,217 +377,234 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
-            // Check for settled invoices which were not applied every 5 minutes
-            if (DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
+            string uid = null;
+
+            if (User != null) // This is the case when testing unauthorized call
             {
-                lastLNCheck = DateTime.Now;
-                var lndClient = new LndRpcClient(
-                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
-                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
-                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+                uid = User.Identity.GetUserId();
+            }
 
-                using (var db = new ZapContext())
+            try
+            {
+                // Check for settled invoices which were not applied every 5 minutes
+                if (DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
                 {
-                    // These are the unpaid invoices in database
-                    var unpaidInvoices = db.LightningTransactions
-                        .Where(t => t.IsSettled == false)
-                        .Where(t => t.IsDeposit == true)
-                        .Where(t => t.IsIgnored == false)
-                        .Include(t => t.User)
-                        .Include(t => t.User.Funds);
+                    lastLNCheck = DateTime.Now;
+                    var lndClient = new LndRpcClient(
+                        host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
+                        macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
+                        macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
+                        macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
 
-                    var website = await db.ZapreadGlobals
-                    .SingleOrDefaultAsync(ix => ix.Id == 1);
-
-                    //var invoiceDebug = unpaidInvoices.ToList();
-
-                    foreach (var i in unpaidInvoices)
+                    using (var db = new ZapContext())
                     {
-                        if (i.HashStr != null)
+                        // These are the unpaid invoices in database
+                        var unpaidInvoices = db.LightningTransactions
+                            .Where(t => t.IsSettled == false)
+                            .Where(t => t.IsDeposit == true)
+                            .Where(t => t.IsIgnored == false)
+                            .Include(t => t.User)
+                            .Include(t => t.User.Funds);
+
+                        var website = await db.ZapreadGlobals
+                        .SingleOrDefaultAsync(ix => ix.Id == 1);
+
+                        //var invoiceDebug = unpaidInvoices.ToList();
+
+                        foreach (var i in unpaidInvoices)
                         {
-                            var inv = lndClient.GetInvoice(rhash: i.HashStr);
-                            if (inv.settled != null && inv.settled == true)
+                            if (i.HashStr != null)
                             {
-                                // Paid but not applied in DB
-                                var use = i.UsedFor;
-                                if (use == TransactionUse.VotePost)
+                                var inv = lndClient.GetInvoice(rhash: i.HashStr);
+                                if (inv.settled != null && inv.settled == true)
                                 {
-                                    if (false) // Disable for now
+                                    // Paid but not applied in DB
+                                    var use = i.UsedFor;
+                                    if (use == TransactionUse.VotePost)
                                     {
-                                        var vc = new VoteController();
-                                        var v = new VoteController.Vote()
+                                        if (false) // Disable for now
                                         {
-                                            a = Convert.ToInt32(i.Amount),
-                                            d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
-                                            Id = i.UsedForId,
-                                            tx = i.Id
-                                        };
-                                        await vc.Post(v);
+                                            var vc = new VoteController();
+                                            var v = new VoteController.Vote()
+                                            {
+                                                a = Convert.ToInt32(i.Amount),
+                                                d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
+                                                Id = i.UsedForId,
+                                                tx = i.Id
+                                            };
+                                            await vc.Post(v);
 
-                                        i.IsSpent = true;
-                                        i.IsSettled = true;
-                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                            i.IsSpent = true;
+                                            i.IsSettled = true;
+                                            i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        }
+                                    }
+                                    else if (use == TransactionUse.VoteComment)
+                                    {
+                                        int z = 1;
+                                    }
+                                    else if (use == TransactionUse.UserDeposit)
+                                    {
+                                        if (i.User == null)
+                                        {
+                                            // Not sure how to deal with this other than add funds to Community
+                                            website.CommunityEarnedToDistribute += i.Amount;
+                                            i.IsSpent = true;
+                                            i.IsSettled = true;
+                                            i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        }
+                                        else
+                                        {
+                                            // Deposit funds in user account
+                                            int z = 1;
+                                            var user = i.User;
+                                            user.Funds.Balance += i.Amount;
+                                            i.IsSettled = true;
+                                            i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+
+                                        }
+                                    }
+                                    else if (use == TransactionUse.Undefined)
+                                    {
+                                        if (i.User == null)
+                                        {
+                                            // Not sure how to deal with this other than add funds to Community
+                                            website.CommunityEarnedToDistribute += i.Amount;
+                                            i.IsSpent = true;
+                                            i.IsSettled = true;
+                                            i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        }
+                                        else
+                                        {
+                                            // Not sure what the user was doing - deposit into their account.
+                                            int z = 1;
+                                        }
                                     }
                                 }
-                                else if (use == TransactionUse.VoteComment)
+                                else
                                 {
-                                    int z = 1;
-                                }
-                                else if (use == TransactionUse.UserDeposit)
-                                {
-                                    if (i.User == null)
+                                    // Not settled - check expiry
+                                    var t1 = Convert.ToInt64(inv.creation_date);
+                                    var tNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                                    var tExpire = t1 + Convert.ToInt64(inv.expiry) + 10000; //Add a buffer time
+                                    if (tNow > tExpire)
                                     {
-                                        // Not sure how to deal with this other than add funds to Community
-                                        website.CommunityEarnedToDistribute += i.Amount;
-                                        i.IsSpent = true;
-                                        i.IsSettled = true;
-                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        // Expired - let's stop checking this invoice
+                                        i.IsIgnored = true;
                                     }
                                     else
                                     {
-                                        // Deposit funds in user account
-                                        int z = 1;
-                                        var user = i.User;
-                                        user.Funds.Balance += i.Amount;
-                                        i.IsSettled = true;
-                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
-
-                                    }
-                                }
-                                else if (use == TransactionUse.Undefined)
-                                {
-                                    if (i.User == null)
-                                    {
-                                        // Not sure how to deal with this other than add funds to Community
-                                        website.CommunityEarnedToDistribute += i.Amount;
-                                        i.IsSpent = true;
-                                        i.IsSettled = true;
-                                        i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
-                                    }
-                                    else
-                                    {
-                                        // Not sure what the user was doing - deposit into their account.
-                                        int z = 1;
+                                        int w = 1; // keep waiting
                                     }
                                 }
                             }
                             else
                             {
-                                // Not settled - check expiry
-                                var t1 = Convert.ToInt64(inv.creation_date);
-                                var tNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                                var tExpire = t1 + Convert.ToInt64(inv.expiry) + 10000; //Add a buffer time
-                                if (tNow > tExpire)
-                                {
-                                    // Expired - let's stop checking this invoice
-                                    i.IsIgnored = true;
-                                }
-                                else
-                                {
-                                    int w = 1; // keep waiting
-                                }
+                                // No hash string to look it up.  Must be an error somewhere.
+                                i.IsIgnored = true;
                             }
                         }
-                        else
+
+                        db.SaveChanges();
+                    }
+                }
+
+                using (var db = new ZapContext())
+                {
+                    
+                    // This should not be needed anymore - it is done on login
+                    //await EnsureUserExists(uid, db);
+
+                    var user = await db.Users
+                        .Include(usr => usr.Settings)
+                        .Include(usr => usr.IgnoringUsers)
+                        .Include(usr => usr.Groups)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
+
+                    var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
+
+                    try
+                    {
+                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                    }
+
+                    var gi = new List<GroupInfo>();
+
+                    if (user != null)
+                    {
+                        // Get list of user subscribed groups (with highest activity on top)
+                        var userGroups = user.Groups
+                            .OrderByDescending(grp => grp.TotalEarned + grp.TotalEarnedToDistribute)
+                            .ToList();
+
+                        foreach (var grp in userGroups)
                         {
-                            // No hash string to look it up.  Must be an error somewhere.
-                            i.IsIgnored = true;
+                            gi.Add(new GroupInfo()
+                            {
+                                Id = grp.GroupId,
+                                Name = grp.GroupName,
+                                Icon = grp.Icon,
+                                Level = 1,
+                                Progress = 36,
+                                IsMod = grp.Moderators.Select(m => m.Id).Contains(user.Id),
+                                IsAdmin = grp.Administrators.Select(m => m.Id).Contains(user.Id),
+                            });
                         }
                     }
 
-                    db.SaveChanges();
-                }
-            }
+                    List<PostViewModel> postViews = new List<PostViewModel>();
 
-            using (var db = new ZapContext())
-            {
-                string uid = null;
+                    List<int> viewerIgnoredUsers = new List<int>();
 
-                if (User != null) // This is the case when testing unauthorized call
-                {
-                    uid = User.Identity.GetUserId();
-                }
-
-                await EnsureUserExists(uid, db);
-
-                var user = await db.Users
-                    .Include("Settings")
-                    .Include(usr => usr.IgnoringUsers)
-                    .Include(usr => usr.Groups)
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
-
-                var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
-
-                try
-                {
-                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                }
-                catch (Exception)
-                {
-                    //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                }
-
-                var gi = new List<GroupInfo>();
-
-                if (user != null)
-                {
-                    // Get list of user subscribed groups (with highest activity on top)
-                    var userGroups = user.Groups
-                        .OrderByDescending(grp => grp.TotalEarned + grp.TotalEarnedToDistribute)
-                        .ToList();
-
-                    foreach (var grp in userGroups)
+                    if (user != null && user.IgnoringUsers != null)
                     {
-                        gi.Add(new GroupInfo()
+                        viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+                    }
+
+                    foreach (var p in posts)
+                    {
+                        postViews.Add(new PostViewModel()
                         {
-                            Id = grp.GroupId,
-                            Name = grp.GroupName,
-                            Icon = grp.Icon,
-                            Level = 1,
-                            Progress = 36,
-                            IsMod = grp.Moderators.Select(m => m.Id).Contains(user.Id),
-                            IsAdmin = grp.Administrators.Select(m => m.Id).Contains(user.Id),
+                            Post = p,
+                            ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
+                            ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                            ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                            ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+                            NumComments = 0,
+
+                            ViewerIgnoredUsers = viewerIgnoredUsers,
                         });
                     }
-                }
 
-                List<PostViewModel> postViews = new List<PostViewModel>();
-
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (user != null && user.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
-                }
-
-                foreach (var p in posts)
-                {
-                    postViews.Add(new PostViewModel()
+                    PostsViewModel vm = new PostsViewModel()
                     {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
-                        NumComments = 0,
+                        Posts = postViews,
+                        //Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
+                        //Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
+                        UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
+                        Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
+                        SubscribedGroups = gi,
+                    };
 
-                        ViewerIgnoredUsers = viewerIgnoredUsers,
-                    });
+                    return View(vm);
                 }
-
-                PostsViewModel vm = new PostsViewModel()
+            }
+            catch (Exception e)
+            {
+                MailingService.Send(new UserEmailModel()
                 {
-                    Posts = postViews,
-                    //Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
-                    //Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
-                    UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
-                    Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
-                    SubscribedGroups = gi,
-                };
-
-                return View(vm);
+                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + uid ?? "anonymous",
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "Exception on index",
+                });
+                throw e;
             }
         }
 
@@ -703,7 +756,15 @@ namespace zapread.com.Controllers
         {
             if (userId != null)
             {
-                if (db.Users.Where(u => u.AppId == userId).Count() == 0)
+                var user = await db.Users
+                    .Include(usr => usr.ProfileImage)
+                    .Include(usr => usr.ThumbImage)
+                    .Include(usr => usr.Funds)
+                    .Include(usr => usr.Settings)
+                    .Where(u => u.AppId == userId)
+                    .SingleOrDefaultAsync();
+
+                if (user == null)
                 {
                     // no user entry
                     User u = new User()
@@ -723,13 +784,6 @@ namespace zapread.com.Controllers
                 else
                 {
                     // ensure all properties are not null
-                    var user = db.Users
-                        .Include(usr => usr.ProfileImage)
-                        .Include(usr => usr.ThumbImage)
-                        .Include(usr => usr.Funds)
-                        .Include(usr => usr.Settings)
-                        .Where(u => u.AppId == userId).First();
-
                     if (user.Funds == null)
                     {
                         // DANGER!
@@ -747,6 +801,7 @@ namespace zapread.com.Controllers
                     {
                         user.ProfileImage = new UserImage();
                     }
+                    await db.SaveChangesAsync();
                 }
             }
         }

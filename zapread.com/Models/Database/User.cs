@@ -19,6 +19,9 @@ namespace zapread.com.Models.Database
         public string Name { get; set; }
 
         [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(37)]                  // should be 36, added 1 char for buffer
+        [Index]                             // often queried on, so index added
         public string AppId { get; set; }
         public string AboutMe { get; set; }
         public DateTime? DateJoined { get; set; }
