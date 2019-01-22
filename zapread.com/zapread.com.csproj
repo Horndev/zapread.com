@@ -1543,6 +1543,12 @@
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="node_modules\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.min.js" />
     <Content Include="node_modules\jquery-slimscroll\jquery.slimscroll.min.js" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_444444_256x240.png" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_555555_256x240.png" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_777620_256x240.png" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_777777_256x240.png" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="node_modules\jquery-ui-dist\images\ui-icons_ffffff_256x240.png" />
     <Content Include="node_modules\jquery-ui-dist\jquery-ui.min.css" />
     <Content Include="node_modules\jquery-ui-dist\jquery-ui.min.js" />
     <Content Include="node_modules\jquery.flot.tooltip\js\jquery.flot.tooltip.min.js" />
