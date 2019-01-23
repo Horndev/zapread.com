@@ -3,14 +3,14 @@
 
 <div class="form-group">
     <div class="input-group mb-3">
-        <input id="User" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="basic-addon2" style="margin-bottom:5px">
+        <input id="GroupUser" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="basic-addon2" style="margin-bottom:5px">
         <div class="input-group-append">
-            <button id="UserSelect" class="btn btn-outline-secondary" type="button" onclick="userGo()">Fetch</button>
+            <button id="GroupUserSelect" class="btn btn-outline-secondary" type="button" onclick="GroupUserGo()">Fetch</button>
         </div>
     </div>
 </div>
 
-<div id="UserGroupRoles" style="display:none">
+<div id="GroupUserGroupRoles" style="display:none">
     <div class="form-check">
         <input class="form-check-input" type="checkbox" value="" id="GroupAdminUserGroupAdministrator">
         <label class="form-check-label" for="defaultCheck1">
@@ -25,18 +25,18 @@
     </div>
     <br />
     <div class="form-group">
-        <button id="UserUpdate" class="btn btn-outline-secondary" type="button" onclick="userUpdate()">Update</button>
+        <button id="GroupUserUpdate" class="btn btn-outline-secondary" type="button" onclick="GroupUserUpdate()">Update</button>
     </div>
 </div>
 
 @Html.Script(
 @<script type="text/javascript">
-    var userGo = function () {
-        $('#UserGroupRoles').show();
+    var GroupUserGo = function () {
+        $('#GroupUserGroupRoles').show();
     };
-    var userUpdate = function () {
+    var GroupUserUpdate = function () {
         // Only works if user is group admin
-        var uname = $("#User").val();
+        var uname = $("#GroupUser").val();
         var gname = "@Model.GroupName";
         var isAdmin = $('#GroupAdminUserGroupAdministrator').is(":checked");
         var data = { group: gname, user: uname, isAdmin: $('#GroupAdminUserGroupAdministrator').is(":checked"), isMod: $('#GroupAdminUserGroupModerator').is(":checked") };
@@ -58,7 +58,7 @@
     };
 
     $(document).ready(function () {
-        $("#User").autocomplete({
+        $("#GroupUser").autocomplete({
                 autoFocus: true,
                 source: function (request, response) {
                     $.ajax({
@@ -80,7 +80,7 @@
                         url: "/Group/GetUserGroupRoles",
                         type: "POST",
                         dataType: "json",
-                        data: { group: "@Model.GroupName", user: $("#User").val() },
+                        data: { group: "@Model.GroupName", user: $("#GroupUser").val() },
                         success: function (data) {
                             //$('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
                             $('#GroupAdminUserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
