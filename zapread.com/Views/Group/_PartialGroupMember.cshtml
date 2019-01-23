@@ -32,6 +32,12 @@
                     }
                     </span>
                 <p>@Model.AboutMe</p>
+                @if (Model.LastSeen.HasValue)
+                {
+                    <span>
+                        Last Seen: <span class="postTime">@Model.LastSeen.Value.ToString("o")</span>
+                    </span>
+                }
             </div>
 
             <div class="clearfix"></div>

@@ -110,6 +110,7 @@ namespace zapread.com.Controllers
                         IsGroupAdministrator = group.Administrators.Select(u => u.Id).Contains(m.Id),
                         IsSiteAdministrator = m.Name == "Zelgada",
                         IsOnline = m.IsOnline,
+                        LastSeen = m.DateLastActivity,
                     });
                 }
                 

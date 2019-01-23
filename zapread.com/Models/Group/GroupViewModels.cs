@@ -92,6 +92,8 @@ namespace zapread.com.Models
         public bool IsModerator { get; set; }
 
         public bool IsOnline { get; set; }
+
+        public DateTime? LastSeen { get; set; }
     }
 
     /// <summary>
