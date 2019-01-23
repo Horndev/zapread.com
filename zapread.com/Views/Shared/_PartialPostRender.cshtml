@@ -148,17 +148,19 @@
                         }
                     </a>
                 </h3>
-                <p>
-                    <div class="read-more" data-options="800">
-                        @Html.Raw(Model.Post.Content)
+                @*<p>*@
+                    <div class="post-box">
+                        <div class="post-content">
+                            @Html.Raw(Model.Post.Content)
+                        </div>
                         @if (Model.Post.IsNSFW)
                         {
                             <div id="nsfw_@Model.Post.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
                             <button id="nsfwb_@Model.Post.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.Post.PostId)">Show NSFW</button>
                         }
+                        <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
                     </div>
-
-                </p>
+                @*</p>*@
                 <br />
             </div>
 
