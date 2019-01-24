@@ -1,15 +1,41 @@
-﻿using System.Web;
+﻿using System.IO;
+using System.Web;
+using System.Web.Hosting;
 using System.Web.Optimization;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// from https://stackoverflow.com/questions/15005481/mvc4-stylebundle-can-you-add-a-cache-busting-query-string-in-debug-mode
+    /// </summary>
+    internal static class BundleExtensions
+    {
+        public static Bundle WithLastModifiedToken(this Bundle sb)
+        {
+            sb.Transforms.Add(new LastModifiedBundleTransform());
+            return sb;
+        }
+        public class LastModifiedBundleTransform : IBundleTransform
+        {
+            public void Process(BundleContext context, BundleResponse response)
+            {
+                foreach (var file in response.Files)
+                {
+                    var lastWrite = File.GetLastWriteTime(HostingEnvironment.MapPath(file.IncludedVirtualPath)).Ticks.ToString();
+                    file.IncludedVirtualPath = string.Concat(file.IncludedVirtualPath, "?v=", lastWrite);
+                }
+            }
+        }
+    }
+
     public class BundleConfig
     {
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
-                        "~/Scripts/DetailPostPage.js"));
+                        "~/Scripts/DetailPostPage.js")
+                        .WithLastModifiedToken());
 
             bundles.Add(new ScriptBundle("~/bundles/truncate").Include(
                         "~/Scripts/jquery.truncate.js"));
@@ -56,10 +82,12 @@ namespace zapread.com
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/site.css"));
+                      "~/Content/site.css")
+                      .WithLastModifiedToken());
 
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
-                      "~/Content/Site_dark.css"));
+                      "~/Content/Site_dark.css")
+                      .WithLastModifiedToken());
 
             // Sweet Alert
             bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
@@ -105,12 +133,14 @@ namespace zapread.com
             // summernote styles
             bundles.Add(new StyleBundle("~/plugins/summernoteStyles").Include(
                       "~/Scripts/summernote/dist/summernote.css",
-                      "~/Scripts/summernote/dist/summernote-bs4.css"));
+                      "~/Scripts/summernote/dist/summernote-bs4.css")
+                      .WithLastModifiedToken());
 
             // summernote 
             bundles.Add(new ScriptBundle("~/plugins/summernote").Include(
                       "~/Scripts/summernote/dist/summernote-bs4.js",
-                      "~/Scripts/summernote-video-attributes.js"));
+                      "~/Scripts/summernote-video-attributes.js")
+                      .WithLastModifiedToken());
 
             // summernote 
             bundles.Add(new ScriptBundle("~/plugins/moment").Include(
