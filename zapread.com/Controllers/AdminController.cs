@@ -855,8 +855,10 @@ namespace zapread.com.Controllers
 
         public PartialViewResult AdminAddUserToGroupRoleForm(string groupName)
         {
-            var vm = new AddUserToGroupRoleViewModel();
-            vm.GroupName = groupName;
+            var vm = new AddUserToGroupRoleViewModel
+            {
+                GroupName = groupName
+            };
             return PartialView("_PartialAddUserToGroupRoleForm", vm);
         }
 
