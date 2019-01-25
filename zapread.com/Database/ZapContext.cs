@@ -11,7 +11,7 @@ namespace zapread.com.Database
 {
     public class ZapContext : DbContext
     {
-        public ZapContext() : base("name=Zapread")
+        public ZapContext() : base("name=ZapreadAzure")
         {
 
         }

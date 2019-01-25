@@ -24,7 +24,7 @@ namespace zapread.com.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("Zapread", throwIfV1Schema: false)
+            : base("ZapreadAzure", throwIfV1Schema: false)
         {
         }
 
