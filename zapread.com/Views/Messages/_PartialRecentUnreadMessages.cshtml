@@ -21,6 +21,12 @@
                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(0,@m.Id)" class="btn btn-sm btn-outline" data-toggle="tooltip" data-placement="top" title="Dismiss"><icon class="fa fa-minus-circle"></icon></a>
                 </span>
                 @if (m.From != null) { <text>From: <a href="@Url.Action("Index", controllerName: "User", routeValues: new { username = m.From.Name })" class="btn btn-link">@m.From.Name</a></text>}
+                @if (m.CommentLink != null)
+                {
+                    <p>
+                        Replied to your <a href="@Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { PostId = m.PostLink.PostId })" style="padding-left: 0px;">comment</a>
+                    </p>
+                }
                 @if (m.IsPrivateMessage)
                 {
                     <p>

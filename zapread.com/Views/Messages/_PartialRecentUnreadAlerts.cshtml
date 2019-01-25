@@ -24,7 +24,7 @@
                 @Html.Raw(m.Title) <br />
                 @if (m.PostLink != null)
                 {
-                    <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = m.PostLink.PostId})">
+                    <span>Post:</span> <a href="@Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { PostId = m.PostLink.PostId})">
                         @if (m.PostLink.PostTitle != null)
                         {
                             <text>@m.PostLink.PostTitle</text> }

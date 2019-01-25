@@ -210,12 +210,13 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users
-                    //.Include("Alerts")
                     .Include("Messages")
-                    //.Include("Alerts.PostLink")
+                    .Include("Messages.CommentLink")
                     .Include("Messages.PostLink")
                     .Include("Messages.From")
-                    .Where(u => u.AppId == userId).FirstOrDefault();
+                    .Where(u => u.AppId == userId)
+                    .AsNoTracking()
+                    .FirstOrDefault();
 
                 var vm = new RecentUnreadMessagesViewModel();
 
