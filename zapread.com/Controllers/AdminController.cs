@@ -571,6 +571,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Admin/Lightning")]
+        public async Task<ActionResult> Lightning()
+        {
+            return View();
+        }
+
         [Route("Admin/Users")]
         public async Task<ActionResult> Users()
         {

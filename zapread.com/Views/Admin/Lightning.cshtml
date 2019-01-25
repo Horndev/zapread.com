@@ -1,7 +1,7 @@
-﻿@model zapread.com.Models.Admin.AdminUsersViewModel
+﻿@*@model zapread.com.Models.Admin.AdminUsersViewModel*@
 
 @{
-    ViewBag.Title = "Admin Users page";
+    ViewBag.Title = "Admin Lightning page";
 }
 
 
@@ -11,7 +11,7 @@
         <h2>Administration</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Admin</a></li>
-            <li class="breadcrumb-item active">Users</li>
+            <li class="breadcrumb-item active">Lightning</li>
         </ol>
         <small>Website administration page.</small>
     </div>
@@ -32,19 +32,7 @@
         </div>
         <div class="col-lg-11">
             <div class="ibox-content no-padding">
-                <table id="usersTable" class="table table-striped" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>User Name</th>
-                            <th>Date Joined</th>
-                            <th>Last Seen</th>
-                            <th>Posts</th>
-                            <th>Comments</th>
-                            <th>Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h1>TODO</h1>
             </div>
         </div>
     </div>
@@ -89,33 +77,6 @@
                 ibox.resize();
                 ibox.find('[id^=map-]').resize();
             }, 50);
-        });
-
-        // Table
-        usersTable = $('#usersTable').DataTable({
-            "searching": false,
-            //"bInfo": false,
-            "lengthChange": false,
-            "pageLength": 25,
-            "processing": true,
-            "serverSide": true,
-            "sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
-            "ajax": {
-                type: "POST",
-                contentType: "application/json",
-                url: "/Admin/GetUsersTable",
-                data: function (d) {
-                    return JSON.stringify(d);
-                }
-            },
-            "columns": [
-                { "data": "UserName", "orderable": false },
-                { "data": "DateJoined", "orderable": true },
-                { "data": "LastSeen", "orderable": false },
-                { "data": "NumPosts", "orderable": false },
-                { "data": "NumComments", "orderable": false },
-                { "data": "Balance", "orderable": false },
-            ],
         });
     });
 </script>
