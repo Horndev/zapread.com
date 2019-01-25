@@ -348,7 +348,7 @@ namespace zapread.com.Controllers
                 if (zapreadGlobals == null)
                 {
                     // Initialize everything with zeros.
-                    db.ZapreadGlobals.Add(new Models.ZapReadGlobals()
+                    db.ZapreadGlobals.Add(new ZapReadGlobals()
                     {
                         Id = 1,
                         CommunityEarnedToDistribute = 0.0,

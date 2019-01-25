@@ -626,12 +626,17 @@
     <Compile Include="Migrations\201901220316519_addAppIdIndex.Designer.cs">
       <DependentUpon>201901220316519_addAppIdIndex.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901250159371_AddLNConfig.cs" />
+    <Compile Include="Migrations\201901250159371_AddLNConfig.Designer.cs">
+      <DependentUpon>201901250159371_AddLNConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AdminUsersViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
+    <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Finance\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
@@ -1910,6 +1915,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901220316519_addAppIdIndex.resx">
       <DependentUpon>201901220316519_addAppIdIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901250159371_AddLNConfig.resx">
+      <DependentUpon>201901250159371_AddLNConfig.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

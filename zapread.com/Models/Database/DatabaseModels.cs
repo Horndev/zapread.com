@@ -230,26 +230,5 @@ namespace zapread.com.Models
         public string DefaultLanguage { get; set; }
     }
 
-    public class ZapReadGlobals
-    {
-        [Key]
-        public int Id { get; set; }
-
-        public double ZapReadEarnedBalance { get; set; }
-
-        public double ZapReadTotalEarned { get; set; }
-
-        public double ZapReadTotalWithdrawn { get; set; }
-
-        public ICollection<LNTransaction> LNWithdraws { get; set; }
-
-        // Funds waiting to be distributed to users
-        public double CommunityEarnedToDistribute { get; set; }
-
-        public double TotalEarnedCommunity { get; set; }
-
-        public double TotalDepositedCommunity { get; set; }
-
-        public double TotalWithdrawnCommunity { get; set; }
-    }
+    
 }
