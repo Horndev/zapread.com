@@ -14,6 +14,7 @@ using System.Text;
 using System.Globalization;
 using zapread.com.Models.Database;
 using System.Data.Entity.SqlServer;
+using zapread.com.Models.Admin;
 
 namespace zapread.com.Controllers
 {
@@ -824,7 +825,7 @@ namespace zapread.com.Controllers
                 }
 
                 groupName = g.GroupName;
-                var vm = new AddUserToGroupRoleModel();
+                var vm = new AddUserToGroupRoleViewModel();
                 vm.GroupName = groupName;
                 return PartialView("_PartialAddUserToGroupRoleForm", vm);
             }
