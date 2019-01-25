@@ -32,7 +32,36 @@
         </div>
         <div class="col-lg-10">
             <div class="ibox-content no-padding">
-                <h1>TODO</h1>
+                <form>
+                    <div class="form-group">
+                        <label>LN Pubkey</label>
+                        <input id="LnPubkey" type="text" class="form-control" value="@Model.LnPubkey">
+                    </div>
+                    <div class="form-group">
+                        <label>LN Node URL</label>
+                        <input id="LnMainnetHost" type="text" class="form-control" value="@Model.LnMainnetHost" />
+                    </div>
+                    <div class="form-group">
+                        <label>Admin Macaroon</label>
+                        <input id="LnMainnetMacaroonAdmin" type="text" class="form-control" value="@Model.LnMainnetMacaroonAdmin" />
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Macaroon</label>
+                        <input id="LnMainnetMacaroonInvoice" type="text" class="form-control" value="@Model.LnMainnetMacaroonInvoice" />
+                    </div>
+                    <div class="form-group">
+                        <label>Read Macaroon</label>
+                        <input id="LnMainnetMacaroonRead" type="text" class="form-control" value="@Model.LnMainnetMacaroonRead" />
+                    </div>
+                </form>
+            </div>
+            <div class="ibox-footer">
+                <div class="row text-right">
+                    <div class="col-sm-8"></div>
+                    <div class="col-sm-4 text-right">
+                        <button id="save" class="btn btn-primary btn-sm" onclick="save()" type="button">Save</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -47,7 +76,11 @@
 @Scripts.Render("~/bundles/datatables")
 
 <script type="text/javascript">
-    var usersTable = {};
+
+    var save = function () {
+        alert('Not yet implemented');
+    };
+
     $(document).ready(function () {
 
         // Close ibox function
