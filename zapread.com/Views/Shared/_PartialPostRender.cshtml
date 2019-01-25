@@ -91,7 +91,7 @@
             <li class="dropdown-submenu pull-left">
                 <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
                 <ul class="dropdown-menu">
-                    <li><div class="sharing" data-url="@Url.Action("Detail","Post", new { id = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle - Earn Bitcoin at ZapRead.com"></div></li>
+                    <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { id = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle - Earn Bitcoin at ZapRead.com"></div></li>
                 </ul>
             </li>
         </ul>
@@ -137,7 +137,7 @@
             </div>
             <div class="col">
                 <h3>
-                    <a href="@Url.Action("Detail","Post", new { id = Model.Post.PostId })">
+                    <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
                         @if (Model.Post.PostTitle == null)
                         {
                             <text>Post</text>
@@ -149,17 +149,21 @@
                     </a>
                 </h3>
                 @*<p>*@
-                    <div class="post-box">
-                        <div class="post-content">
-                            @Html.Raw(Model.Post.Content)
-                        </div>
-                        @if (Model.Post.IsNSFW)
-                        {
-                            <div id="nsfw_@Model.Post.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
-                            <button id="nsfwb_@Model.Post.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.Post.PostId)">Show NSFW</button>
-                        }
-                        <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
+                <div @if(!Model.IsDetailView){<text>class="post-box"</text>}>
+                    <div @if(!Model.IsDetailView){<text>class="post-content"</text>}>
+                        @Html.Raw(Model.Post.Content)
                     </div>
+                    @if (Model.Post.IsNSFW)
+                    {
+                        <div id="nsfw_@Model.Post.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
+                        <button id="nsfwb_@Model.Post.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.Post.PostId)">Show NSFW</button>
+                    }
+                    @if (!Model.IsDetailView)
+                    {
+                        <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
+                    }
+
+                </div>
                 @*</p>*@
                 <br />
             </div>

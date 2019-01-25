@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
+    Model.IsDetailView = true;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
