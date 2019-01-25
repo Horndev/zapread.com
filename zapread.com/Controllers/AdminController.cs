@@ -574,7 +574,23 @@ namespace zapread.com.Controllers
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
-            return View();
+            using (var db = new ZapContext())
+            {
+                var globals = await db.ZapreadGlobals.Where(g => g.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                var vm = new AdminLightningViewModel()
+                {
+                    LnMainnetHost = globals.LnMainnetHost,
+                    LnPubkey = globals.LnPubkey,
+                    LnMainnetMacaroonAdmin = globals.LnMainnetMacaroonAdmin,
+                    LnMainnetMacaroonInvoice = globals.LnMainnetMacaroonInvoice,
+                    LnMainnetMacaroonRead = globals.LnMainnetMacaroonRead, 
+                };
+
+                return View(vm);
+            }
         }
 
         [Route("Admin/Users")]
