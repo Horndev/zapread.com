@@ -632,6 +632,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\Admin\AdminLightningViewModel.cs" />
     <Compile Include="Models\Admin\AdminUsersViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Database\User.cs" />
