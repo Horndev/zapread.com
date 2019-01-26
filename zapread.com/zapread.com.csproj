@@ -636,6 +636,10 @@
     <Compile Include="Migrations\201901250159371_AddLNConfig.Designer.cs">
       <DependentUpon>201901250159371_AddLNConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201901261841537_addAlertsForAllNotify.cs" />
+    <Compile Include="Migrations\201901261841537_addAlertsForAllNotify.Designer.cs">
+      <DependentUpon>201901261841537_addAlertsForAllNotify.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1918,6 +1922,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901250159371_AddLNConfig.resx">
       <DependentUpon>201901250159371_AddLNConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201901261841537_addAlertsForAllNotify.resx">
+      <DependentUpon>201901261841537_addAlertsForAllNotify.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
