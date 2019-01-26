@@ -52,11 +52,6 @@
                 window.location = $(this).data("href");
             });
 
-            // Add slimscroll to element
-            $('.scroll_content').slimscroll({
-                height: ''
-            })
-
             // This loads all partial views on page
             $(".partialContents").each(function (index, item) {
                 var url = $(item).data("url");
@@ -394,13 +389,35 @@
                     </div>
                     <div>
                         <div class="ibox-content profile-content">
-                            <h4>Email Notifications</h4>
+                            <h4>Notifications</h4>
+                            <div class="row">
+                                <div class="col-auto">
+                                    Email
+                                </div>
+                                <div class="col-auto">
+                                    Alert
+                                </div>
+                                <div class="col">
+                                    &nbsp;
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="switch">
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyPost" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyPost">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertComment">
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -423,6 +440,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-auto">
+                                    &nbsp;
+                                </div>
                                 <div class="col">
                                     Your comments receive a reply.
                                 </div>
@@ -438,6 +458,9 @@
                                             </label>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-auto">
+                                    &nbsp;
                                 </div>
                                 <div class="col">
                                     New post in a subscribed group.
@@ -455,11 +478,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-auto">
+                                    &nbsp;
+                                </div>
                                 <div class="col">
                                     New post from a subscribed user.
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="switch">
@@ -472,11 +497,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-auto">
+                                    &nbsp;
+                                </div>
                                 <div class="col">
                                     New Private Message
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="switch">
@@ -489,11 +516,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-auto">
+                                    &nbsp;
+                                </div>
                                 <div class="col">
                                     Received tip.
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="switch">
@@ -506,13 +535,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-auto">
+                                    &nbsp;
+                                </div>
                                 <div class="col">
                                     Mentioned by others.
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div>
+                    @*<div>
                         <div class="ibox-content profile-content">
                             <h4>Receive Alerts</h4>
                             <div class="row">
@@ -532,7 +564,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                     <div>
                         <div class="ibox-content profile-content">
                             <h4>Customization</h4>

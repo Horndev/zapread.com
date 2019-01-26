@@ -689,7 +689,6 @@
     <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="favicon.ico" />
-    <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Images\a1.jpg" />
@@ -1730,15 +1729,6 @@
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
     <Folder Include="Views\Vote\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

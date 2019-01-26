@@ -60,9 +60,6 @@
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
         $(document).ready(function () {
-            // make height unrestricted
-            $('.scroll_content').css({ "max-height": "" });
-
             // Collapse ibox function
             $('.collapse-link').on('click', function () {
                 var ibox = $(this).closest('div.ibox');
