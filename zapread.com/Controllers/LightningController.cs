@@ -82,7 +82,6 @@ namespace zapread.com.Controllers
         /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
         public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use, int? useId, int? useAction)
-
         {
             bool isAnon = !(anon == null || anon != "1");
             if (!isAnon && !User.Identity.IsAuthenticated)

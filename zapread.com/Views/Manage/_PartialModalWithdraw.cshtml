@@ -104,46 +104,6 @@
                     $("#lightningWithdrawInvoiceResult").show();
                 }
             });
-            //var msg = '{ amount: "' + amount.toString() + '", memo: "' + memo + '" }';
-            //$.ajax({
-            //    type: "POST",
-            //    url: "/Lightning/GetDepositInvoice",
-            //    data: msg,
-            //    contentType: "application/json; charset=utf-8",
-            //    dataType: "json",
-            //    success: function (response) {
-            //        $("#lightningDepositInvoiceInput").val(response.Invoice);
-            //        $("#lightningDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-            //        $("#lightningDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-
-            //        $("#getInvoice").html("Update");    // Change button text from get invoice to update
-
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-success");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-error");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-muted");
-            //        $("#lightningDepositInvoiceResult").addClass("bg-info");
-            //        $("#lightningDepositInvoiceResult").html("Please pay invoice to complete your deposit.");
-            //        $("#lightningDepositInvoiceResult").show();
-            //        $("#lightningDepositQR").show();
-            //        $("#lightningDepositInvoice").show();
-            //    },
-            //    failure: function (response) {
-            //        $("#lightningDepositInvoiceResult").html("Failed to generate invoice");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-success");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-muted");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-info");
-            //        $("#lightningDepositInvoiceResult").addClass("bg-error");
-            //        $("#lightningDepositInvoiceResult").show();
-            //    },
-            //    error: function (response) {
-            //        $("#lightningDepositInvoiceResult").html("Error generating invoice");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-success");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-info");
-            //        $("#lightningDepositInvoiceResult").removeClass("bg-muted");
-            //        $("#lightningDepositInvoiceResult").addClass("bg-error");
-            //        $("#lightningDepositInvoiceResult").show();
-            //    }
-            //});
         });
     });
 
