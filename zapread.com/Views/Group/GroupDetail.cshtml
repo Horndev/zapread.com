@@ -175,11 +175,6 @@
             var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
         $(document).ready(function () {
-            // Add slimscroll to element
-            $('.scroll_content').slimscroll({
-                    height: ''
-            })
-
             // This loads all async partial views on page
             $(".partialContents").each(function (index, item) {
                     var url = $(item).data("url");
