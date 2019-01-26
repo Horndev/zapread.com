@@ -110,9 +110,16 @@
         }
     };
 
-    $.connection.hub.start()
+    $.connection.hub.start({
+        waitForPageLoad: false
+        }, function () {
+            var cn = this;
+            $(window).bind("beforeunload", function () {
+                cn.stop();
+            });
+        })
         .done(function () {
-            console.log("Hub Connected!");
+            console.log("Hub Connected!, transport = " + $.connection.hub.transport.name);
         })
         .fail(function () {
             console.log("Could not Connect!");
