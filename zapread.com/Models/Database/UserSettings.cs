@@ -20,6 +20,12 @@ namespace zapread.com.Models.Database
 
         // Alerts:
         public bool AlertOnOwnPostCommented { get; set; }
+        public bool AlertOnOwnCommentReplied { get; set; }
+        public bool AlertOnNewPostSubscribedGroup { get; set; }
+        public bool AlertOnNewPostSubscribedUser { get; set; }
+        public bool AlertOnReceivedTip { get; set; }
+        public bool AlertOnPrivateMessage { get; set; }
+        public bool AlertOnMentioned { get; set; }
 
         // Customization
         public string ColorTheme { get; set; }
@@ -29,4 +35,13 @@ namespace zapread.com.Models.Database
         public bool ViewAllLanguages { get; set; }
         public bool ViewTranslatedLanguages { get; set; }
     }
+
+    //public class UserAlertSetting
+    //{
+    //    public int Id { get; set; }
+    //    public string Name { get; set; }                // Used as a key
+    //    public string ShortDescription { get; set; }    // Presented to user
+    //    public string LongDescription { get; set; }     // Presented to user
+    //    public bool IsEnabled { get; set; }
+    //}
 }

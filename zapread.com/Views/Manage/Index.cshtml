@@ -416,8 +416,8 @@
                                 <div class="col-auto">
                                     <div class="switch">
                                         <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertComment">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPost" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertPost">
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -441,7 +441,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertComment">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     Your comments receive a reply.
@@ -460,7 +468,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnNewPostSubscribedGroup) { <text> checked</text> } class="onoffswitch-checkbox" id="alertNewPostGroup" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertNewPostGroup">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     New post in a subscribed group.
@@ -479,7 +495,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnNewPostSubscribedUser) { <text> checked</text> } class="onoffswitch-checkbox" id="alertNewPostUser" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertNewPostUser">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     New post from a subscribed user.
@@ -498,7 +522,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnPrivateMessage) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPrivateMessage" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertPrivateMessage">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     New Private Message
@@ -517,7 +549,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnReceivedTip) { <text> checked</text> } class="onoffswitch-checkbox" id="alertOnReceivedTip" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertOnReceivedTip">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     Received tip.
@@ -536,7 +576,15 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    &nbsp;
+                                    <div class="switch">
+                                        <div class="onoffswitch">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnMentioned) { <text> checked</text> } class="onoffswitch-checkbox" id="alertOnMentioned" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertOnMentioned">
+                                                <span class="onoffswitch-inner"></span>
+                                                <span class="onoffswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     Mentioned by others.

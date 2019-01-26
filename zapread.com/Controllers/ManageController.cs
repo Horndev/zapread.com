@@ -917,9 +917,33 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.NotifyOnMentioned = value;
                 }
+                else if (setting == "alertPost")
+                {
+                    user.Settings.AlertOnOwnPostCommented = value;
+                }
                 else if (setting == "alertComment")
                 {
                     user.Settings.AlertOnOwnPostCommented = value;
+                }
+                else if (setting == "alertNewPostGroup")
+                {
+                    user.Settings.AlertOnNewPostSubscribedGroup = value;
+                }
+                else if (setting == "alertNewPostUser")
+                {
+                    user.Settings.AlertOnNewPostSubscribedUser = value;
+                }
+                else if (setting == "alertPrivateMessage")
+                {
+                    user.Settings.AlertOnPrivateMessage = value;
+                }
+                else if (setting == "alertReceivedTip")
+                {
+                    user.Settings.AlertOnReceivedTip = value;
+                }
+                else if (setting == "alertMentioned")
+                {
+                    user.Settings.AlertOnMentioned = value;
                 }
                 else if (setting == "colorTheme")
                 {
