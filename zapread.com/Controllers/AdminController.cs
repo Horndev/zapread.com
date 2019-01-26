@@ -1,10 +1,12 @@
-﻿using LightningLib.lndrpc;
+﻿using LightningLib.DataEncoders;
+using LightningLib.lndrpc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -44,11 +46,19 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public ActionResult VerifyInvoices()
         {
-            var lndClient = new LndRpcClient(
-                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
-                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
-                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+            LndRpcClient lndClient;
+            using (var db = new ZapContext())
+            {
+                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                lndClient = new LndRpcClient(
+                host: g.LnMainnetHost,
+                macaroonAdmin: g.LnMainnetMacaroonAdmin,
+                macaroonRead: g.LnMainnetMacaroonRead,
+                macaroonInvoice: g.LnMainnetMacaroonInvoice);
+            }
 
             using (var db = new ZapContext())
             {
@@ -576,21 +586,55 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var globals = await db.ZapreadGlobals.Where(g => g.Id == 1)
+                var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)
                     .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 var vm = new AdminLightningViewModel()
                 {
-                    LnMainnetHost = globals.LnMainnetHost,
-                    LnPubkey = globals.LnPubkey,
-                    LnMainnetMacaroonAdmin = globals.LnMainnetMacaroonAdmin,
-                    LnMainnetMacaroonInvoice = globals.LnMainnetMacaroonInvoice,
-                    LnMainnetMacaroonRead = globals.LnMainnetMacaroonRead, 
+                    LnMainnetHost = g.LnMainnetHost,
+                    LnPubkey = g.LnPubkey,
+                    LnMainnetMacaroonAdmin = g.LnMainnetMacaroonAdmin,
+                    LnMainnetMacaroonInvoice = g.LnMainnetMacaroonInvoice,
+                    LnMainnetMacaroonRead = g.LnMainnetMacaroonRead, 
                 };
 
                 return View(vm);
             }
+        }
+
+        [HttpPost, Route("Admin/Lightning/Update")]
+        public async Task<ActionResult> LightningUpdate(string LnMainnetHost, string LnPubkey, string LnMainnetMacaroonAdmin, string LnMainnetMacaroonInvoice, string LnMainnetMacaroonRead)
+        {
+            using (var db = new ZapContext())
+            {
+                var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .FirstOrDefaultAsync();
+
+                g.LnMainnetHost = LnMainnetHost;
+                g.LnPubkey = LnPubkey;
+                g.LnMainnetMacaroonAdmin = LnMainnetMacaroonAdmin;
+                g.LnMainnetMacaroonInvoice = LnMainnetMacaroonInvoice;
+                g.LnMainnetMacaroonRead = LnMainnetMacaroonRead;
+
+                await db.SaveChangesAsync();
+
+                return Json(new { result = "success" });
+            }
+        }
+
+        [HttpPost, Route("Admin/Lightning/Macaroon/Upload")]
+        public JsonResult LightningUploadInvoice(HttpPostedFileBase file, string macaroonType)
+        {
+            byte[] fileData = null;
+            using (var binaryReader = new BinaryReader(file.InputStream))
+            {
+                fileData = binaryReader.ReadBytes(file.ContentLength);
+            }
+            HexEncoder h = new HexEncoder();
+            var macaroon = h.EncodeData(fileData);
+
+            return Json(new { result = "success", macaroon });
         }
 
         [Route("Admin/Users")]

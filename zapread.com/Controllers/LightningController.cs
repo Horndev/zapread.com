@@ -105,11 +105,19 @@ namespace zapread.com.Controllers
                 memo = "Zapread.com";
             }
 
-            var lndClient = new LndRpcClient(
-                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
-                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
-                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+            LndRpcClient lndClient;
+            using (var db = new ZapContext())
+            {
+                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                lndClient = new LndRpcClient(
+                host: g.LnMainnetHost,
+                macaroonAdmin: g.LnMainnetMacaroonAdmin,
+                macaroonRead: g.LnMainnetMacaroonRead,
+                macaroonInvoice: g.LnMainnetMacaroonInvoice);
+            }
 
             var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "3600");
 
@@ -299,11 +307,19 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
 
-            var lndClient = new LndRpcClient(
-                    host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
-                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
-                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
+            LndRpcClient lndClient;
+            using (var db = new ZapContext())
+            {
+                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                lndClient = new LndRpcClient(
+                host: g.LnMainnetHost,
+                macaroonAdmin: g.LnMainnetMacaroonAdmin,
+                macaroonRead: g.LnMainnetMacaroonRead,
+                macaroonInvoice: g.LnMainnetMacaroonInvoice);
+            }
 
             string ip = GetClientIpAddress(Request);
 

@@ -390,14 +390,19 @@ namespace zapread.com.Controllers
                 if (DateTime.Now - lastLNCheck > TimeSpan.FromMinutes(5))
                 {
                     lastLNCheck = DateTime.Now;
-                    var lndClient = new LndRpcClient(
-                        host: System.Configuration.ConfigurationManager.AppSettings["LnMainnetHost"],
-                        macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"],
-                        macaroonRead: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonRead"],
-                        macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings["LnMainnetMacaroonInvoice"]);
-
+                    LndRpcClient lndClient;
                     using (var db = new ZapContext())
                     {
+                        var gb = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                            .AsNoTracking()
+                            .FirstOrDefault();
+
+                        lndClient = new LndRpcClient(
+                            host: gb.LnMainnetHost,
+                            macaroonAdmin: gb.LnMainnetMacaroonAdmin,
+                            macaroonRead: gb.LnMainnetMacaroonRead,
+                            macaroonInvoice: gb.LnMainnetMacaroonInvoice);
+
                         // These are the unpaid invoices in database
                         var unpaidInvoices = db.LightningTransactions
                             .Where(t => t.IsSettled == false)
