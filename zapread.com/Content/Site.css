@@ -15,25 +15,26 @@
     overflow: hidden;
 }
 
-    .post-box .read-more-button {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        margin: 0;
-        padding: 70px 0;
-        /* "transparent" only works here because == rgba(0,0,0,0) */
-        /*background-image: linear-gradient(to bottom, transparent, black);*/
-        background-image: -webkit-gradient( linear, left top, left bottom, color-stop(0, rgba(26, 179, 148, 0)), color-stop(1, rgba(26, 179, 148, 100))); /* Chrome 10-25, iOS 5+, Safari 5.1+ */
-    }
+.post-box .read-more-button {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    padding: 70px 0;
+    /* "transparent" only works here because == rgba(0,0,0,0) */
+    /*background-image: linear-gradient(to bottom, transparent, black);*/
+    background-image: -webkit-gradient( linear, left top, left bottom, color-stop(0, rgba(26, 179, 148, 0)), color-stop(1, rgba(26, 179, 148, 100))); /* Chrome 10-25, iOS 5+, Safari 5.1+ */
+}
 
-        .post-box .read-more-button .button {
-            position: absolute;
-            bottom: 0;
-            margin-left: auto;
-            transform: translate(-50%, -0);
-        }
+.post-box .read-more-button .button {
+    position: absolute;
+    bottom: 0;
+    margin-left: auto;
+    transform: translate(-50%, -0);
+}
 /* */
 
 .ibox-comment {
