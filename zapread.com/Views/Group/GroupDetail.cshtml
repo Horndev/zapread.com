@@ -310,15 +310,16 @@
                                     $('#showmore').hide();
                         }
 
-                                $(".sharing").each(function () {
-                                    $(this).jsSocials({
-                                url: $(this).data('url'),
-                                        text: $(this).data('sharetext'),
-                                        showLabel: false,
-                                        shareIn: "popup",
-                                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-                                    });
-                                    $(this).removeClass("sharing");
+                                    $(".sharing").each(function () {
+                                        $(this).jsSocials({
+                                            url: $(this).data('url'),
+                                            text: $(this).data('sharetext'),
+                                            showLabel: false,
+                                            showCount: false,
+                                            shareIn: "popup",
+                                            shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                                        });
+                                        $(this).removeClass("sharing");
                         });
 
                                 $('.read-more').readMore({
