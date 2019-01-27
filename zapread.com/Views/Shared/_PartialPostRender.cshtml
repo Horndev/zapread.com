@@ -120,6 +120,11 @@
                 @Model.Post.Group.GroupName
             </a>
             <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
+            @if (Model.Post.TimeStampEdited != null)
+            {
+                <span class="text-muted" style="display:inline"> edited </span>
+                <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
+            }
         </div>
     </div>
     <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
