@@ -53,8 +53,14 @@
                 <div class="ibox float-e-margins d-none d-lg-block">
                     <div class="ibox-title">
                         <h5>Your Top Groups</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-down"></i>
+                            </a>
+                        </div>
                     </div>
-                    <div class="ibox-content">
+                    
+                    <div id="group-box" class="ibox-content" style="display:none">
                         @foreach(var g in Model.SubscribedGroups)
                         {
                         <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
@@ -67,7 +73,6 @@
                             {
                                  <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
                             }
-                            @*<i class="fa fa-@g.Icon"></i> @g.Name*@
                         </button>
                         }
                     </div>

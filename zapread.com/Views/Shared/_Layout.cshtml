@@ -164,10 +164,6 @@
         var $el, $ps, $up, totalHeight;
 
         var readMoreButton = function (e) {
-
-        //}
-        //$(".post-box .button").click(function () {
-
             totalHeight = 0
 
             $el = $(e);
@@ -327,8 +323,8 @@
             });
 
             $(".note-statusbar").css("display", "none");
-            $('#comments_' + id.toString()).toggle('show');
-            $('#preply_' + id.toString()).toggle('show');
+            $('#comments_' + id.toString()).slideToggle(200);
+            $('#preply_' + id.toString()).slideToggle(200);
         };
 
         var showReply = function (id) {
