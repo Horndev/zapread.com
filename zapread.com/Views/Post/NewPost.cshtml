@@ -69,7 +69,7 @@
                         <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">
                         </div>
                     </div>
-
+                    <div class="sticky-top sticky-offset" id="editorToolbar"></div>
                     <div class="click2edit wrapper p-md" style="min-height: 50;">
                         @Html.Raw(Model.Post.Content)
                     </div>
@@ -126,13 +126,14 @@
     @Scripts.Render("~/bundles/datatables")
 
     <script type="text/javascript">
+
     var knownGroups = [''];
     var gid = @Model.Post.Group.GroupId;
     var draftsTable = {};
     var postId = 0;
 
     $(document).ready(function () {
-
+        
         draftsTable = $('#draftsTable').DataTable({
             "searching": true,
             //"bInfo": false,
@@ -211,6 +212,8 @@
         });
 
         $('.click2edit').summernote({
+            toolbarContainer: '#editorToolbar',
+            otherStaticBar: '.navbar',
             callbacks: {
                 onImageUpload: function (files) {
                     that = $(this);
