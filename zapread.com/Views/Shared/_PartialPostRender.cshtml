@@ -120,6 +120,11 @@
                 @Model.Post.Group.GroupName
             </a>
             <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
+            @if (Model.Post.TimeStampEdited != null)
+            {
+                <span class="text-muted" style="display:inline"> edited </span>
+                <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
+            }
         </div>
     </div>
     <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
@@ -216,7 +221,7 @@
     <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
         @if (Model.Post.Comments != null)
         {
-            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsDeleted && !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
+            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
             {
                 @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
             }

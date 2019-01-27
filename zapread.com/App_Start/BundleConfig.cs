@@ -132,8 +132,8 @@ namespace zapread.com
 
             // summernote styles
             bundles.Add(new StyleBundle("~/plugins/summernoteStyles").Include(
-                      "~/Scripts/summernote/dist/summernote.css",
-                      "~/Scripts/summernote/dist/summernote-bs4.css")
+                      "~/node_modules/summernote/dist/summernote.css",
+                      "~/node_modules/summernote/dist/summernote-bs4.css")
                       .WithLastModifiedToken());
 
             // summernote 

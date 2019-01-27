@@ -168,13 +168,10 @@
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             percentComplete = parseInt(percentComplete * 100);
-                            //console.log(percentComplete);
                             $("#progressUploadBar").css("width", percentComplete.toString() + "%");
                             if (percentComplete === 100) {
-                                //alert("upload complete");
                                 $("#progressUploadBar").css("width", "100%");
                             }
-
                         }
                     }, false);
                     return xhr;
@@ -187,7 +184,6 @@
                 processData: false,
                 success: function (result) {
                     $(that).summernote('insertImage', '/Img/Content/' + result.imgId, function (i) {
-                        // Applied to img tag
                         i.attr('class', 'img-fluid');
                     });
                 }
