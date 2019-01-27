@@ -138,7 +138,7 @@ namespace zapread.com
 
             // summernote 
             bundles.Add(new ScriptBundle("~/plugins/summernote").Include(
-                      "~/node_modules/summernote/dist/summernote-bs4.js",
+                      "~/Scripts/summernote/dist/summernote-bs4.js",
                       "~/Scripts/summernote-video-attributes.js")
                       .WithLastModifiedToken());
 
