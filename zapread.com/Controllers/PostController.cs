@@ -542,18 +542,46 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                //var user = db.Users.Where(u => u.AppId == userId).First();
-                var post = db.Posts.SingleOrDefault(ps => ps.PostId == p.PostId);
+                var user = await db.Users
+                    .SingleOrDefaultAsync(u => u.AppId == userId);
+                var post = await db.Posts
+                    .Include(ps => ps.UserId)
+                    .SingleOrDefaultAsync(ps => ps.PostId == p.PostId);
+
                 if (post == null)
                 {
                     return Json(new { result = "error" });
                 }
+
+                if (post.UserId.Id != user.Id)
+                {
+                    return Json(new { result = "error", message = "User authentication error." });
+                }
+
                 var contentStr = p.Content;
                 post.Content = contentStr;
                 post.PostTitle = p.Title;
-                post.IsDraft = p.IsDraft;
-                post.TimeStamp = DateTime.UtcNow;
 
+                if (post.IsDraft)
+                {
+                    if (p.IsDraft)
+                    {
+                        // Post was draft - still draft
+                        post.TimeStampEdited = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        // Post was draft - now live
+                        post.TimeStamp = DateTime.UtcNow;
+                    }
+                }
+                else
+                {
+                    // Post was already live - only edit timestamp can be changed.
+                    post.TimeStampEdited = DateTime.UtcNow;
+                }
+
+                post.IsDraft = p.IsDraft;
                 await db.SaveChangesAsync();
                 return Json(new { result = "success", postId = post.PostId });
             }
