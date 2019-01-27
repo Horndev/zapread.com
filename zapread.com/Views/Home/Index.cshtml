@@ -177,15 +177,16 @@
                                 $(e).css('display', 'inline');
                                 $(e).removeClass("postTime");
                             });
-                            $(".sharing").each(function (i, e) {
-                                $(e).jsSocials({
-                                    url: $(e).data('url'),
-                                    text: $(e).data('sharetext'),
+                            $(".sharing").each(function () {
+                                $(this).jsSocials({
+                                    url: $(this).data('url'),
+                                    text: $(this).data('sharetext'),
                                     showLabel: false,
+                                    showCount: false,
                                     shareIn: "popup",
                                     shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
                                 });
-                                $(e).removeClass("sharing");
+                                $(this).removeClass("sharing");
                             });
                         });
 
