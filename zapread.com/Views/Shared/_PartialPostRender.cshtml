@@ -119,7 +119,7 @@
             <a href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
                 @Model.Post.Group.GroupName
             </a>
-            <small class="postTime text-muted" style="display: inline">@Model.Post.TimeStamp.Value.ToString("o")</small>
+            <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
         </div>
     </div>
     <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>

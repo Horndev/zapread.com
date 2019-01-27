@@ -152,11 +152,10 @@
                 $('.small-chat-box').toggleClass('active');
             });
 
-            // Remove read more if height is low
+            // show the read more
             $(".post-box").each(function (index, item) {
-                if ($(item).height() < 700) {
-                    rm = $(item).find(".read-more-button");
-                    rm.hide();
+                if ($(item).height() >= 800) {
+                    $(item).find(".read-more-button").show();
                 }
             });
         }); //end ready
@@ -545,6 +544,7 @@
                     var time = moment.utc($(e).html()).local().calendar();
                     var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
                     $(e).html('<span>' + time + ' - ' + date + '</span>');
+                    $(e).css('display', 'inline');
                     $(e).removeClass("postTime");
                 });
             }

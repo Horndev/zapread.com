@@ -13,5 +13,6 @@ namespace zapread.com.Models.Admin
         public double PendingGroupToDistribute { get; set; }
         public double LNTotalDeposited { get; set; }
         public double LNTotalWithdrawn { get; set; }
+        public double LNFeesPaid { get; set; }
     }
 }
