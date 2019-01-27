@@ -727,6 +727,7 @@ namespace zapread.com.Controllers
                 var gd = db.Groups.Sum(g => g.TotalEarnedToDistribute);
                 var LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount))/100000000.0;
                 var LNwth = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                var LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
 
                 // Calculate post and comment stats.
                 var startDate = DateTime.Now.AddDays(-1 * 31);
@@ -761,6 +762,7 @@ namespace zapread.com.Controllers
                     PendingGroupToDistribute = gd,
                     LNTotalDeposited = LNdep,
                     LNTotalWithdrawn = LNwth,
+                    LNFeesPaid = LNfee,
                 };
 
                 return View(vm);
