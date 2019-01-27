@@ -45,6 +45,22 @@ namespace zapread.com.Controllers
             public bool IsReply { get; set; }
         }
 
+        [HttpPost, AllowAnonymous]
+        public JsonResult GetMentions(string searchstr)
+        {
+            using (var db = new ZapContext())
+            {
+                var users = db.Users
+                    .Where(u => u.Name.StartsWith(searchstr))
+                    .Select(u => u.Name)
+                    .Take(10)
+                    .AsNoTracking()
+                    .ToList();
+
+                return Json(new { users });
+            }
+        }
+
         [HttpGet]
         public PartialViewResult GetInputBox(int id)
         {
