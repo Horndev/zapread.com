@@ -504,6 +504,11 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
                 }
 
+                if (pst == null)
+                {
+                    return RedirectToAction("PostNotFound");
+                }
+
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
@@ -511,15 +516,17 @@ namespace zapread.com.Controllers
                     ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                     ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
                     ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
-                    NumComments = pst.Comments.Count(),
-
+                    NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
                     ViewerIgnoredUsers = viewerIgnoredUsers,
                 };
 
                 return View(vm);
             }
+        }
 
-                
+        public ActionResult PostNotFound()
+        {
+            return View();
         }
 
         public class UpdatePostMessage
