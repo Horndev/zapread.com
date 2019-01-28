@@ -617,13 +617,12 @@
 
         var CancelButton = function (context) {
             var ui = $.summernote.ui;
-
             // create button
             var button = ui.button({
                 contents: '<i class="fa fa-times"/> Cancel',
-                tooltip: false,//'hello',
+                tooltip: false,
                 click: function () {
-                    //need to reset text - fetch from db
+                    var e = "#commentText_" + editingId.toString();
                     $(e).summernote('reset');
                     // This returns the editor to normal state
                     $(e).summernote('destroy');
