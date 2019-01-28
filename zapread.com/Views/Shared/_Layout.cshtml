@@ -351,11 +351,26 @@
                 hint: {
                     match: /\B@@(\w*)$/,
                     search: function (keyword, callback) {
-                        callback($.grep(usermentions, function (item) {
-                            return item.indexOf(keyword) == 0;
-                        }));
+                        if (!keyword.length) return callback();
+                        var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                        $.ajax({
+                            async: true,
+                            url: '/Comment/GetMentions',
+                            type: 'POST',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: msg,
+                            error: function () {
+                                callback();
+                            },
+                            success: function (res) {
+                                callback(res.users);
+                            }
+                        });
                     },
                     content: function (item) {
+                        //return '@@' + item;
+                        //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                         return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                     }
                 }
@@ -579,7 +594,7 @@
                 tooltip: false,
                 click: function () {
                     var e = "#commentText_" + editingId.toString();
-                    $(e).summernote('destroy');//context.invoke('destroy');
+                    $(e).summernote('destroy');
                     var content = $(e).html();
                     var msg = { "CommentContent": content.trim(), "CommentId": editingId };
                     console.log(msg);
@@ -609,9 +624,9 @@
                 tooltip: false,//'hello',
                 click: function () {
                     //need to reset text - fetch from db
-                    context.invoke('reset');
+                    $(e).summernote('reset');
                     // This returns the editor to normal state
-                    context.invoke('destroy');
+                    $(e).summernote('destroy');
                     isEditing = false;
                 }
             });
@@ -641,11 +656,26 @@
                     hint: {
                         match: /\B@@(\w*)$/,
                         search: function (keyword, callback) {
-                            callback($.grep(usermentions, function (item) {
-                                return item.indexOf(keyword) == 0;
-                            }));
+                            if (!keyword.length) return callback();
+                            var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                            $.ajax({
+                                async: true,
+                                url: '/Comment/GetMentions',
+                                type: 'POST',
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                data: msg,
+                                error: function () {
+                                    callback();
+                                },
+                                success: function (res) {
+                                    callback(res.users);
+                                }
+                            });
                         },
                         content: function (item) {
+                            //return '@@' + item;
+                            //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                             return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                         }
                     }
@@ -676,11 +706,26 @@
                     hint: {
                         match: /\B@@(\w*)$/,
                         search: function (keyword, callback) {
-                            callback($.grep(usermentions, function (item) {
-                                return item.indexOf(keyword) == 0;
-                            }));
+                            if (!keyword.length) return callback();
+                            var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                            $.ajax({
+                                async: true,
+                                url: '/Comment/GetMentions',
+                                type: 'POST',
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                data: msg,
+                                error: function () {
+                                    callback();
+                                },
+                                success: function (res) {
+                                    callback(res.users);
+                                }
+                            });
                         },
                         content: function (item) {
+                            //return '@@' + item;
+                            //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                             return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                         }
                     }
