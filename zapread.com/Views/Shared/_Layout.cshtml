@@ -579,7 +579,7 @@
                 tooltip: false,
                 click: function () {
                     var e = "#commentText_" + editingId.toString();
-                    context.invoke('destroy');
+                    $(e).summernote('destroy');//context.invoke('destroy');
                     var content = $(e).html();
                     var msg = { "CommentContent": content.trim(), "CommentId": editingId };
                     console.log(msg);
