@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
@@ -69,7 +70,7 @@ namespace zapread.com.Controllers
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult Index(string username)
+        public async Task<ActionResult> Index(string username)
         {
             if (username == null)
             {
@@ -83,11 +84,11 @@ namespace zapread.com.Controllers
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = User.Identity.GetUserId();
-                    loggedInUser = db.Users
+                    loggedInUser = await db.Users
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .AsNoTracking()
-                        .SingleOrDefault(u => u.AppId == userId);
+                        .SingleOrDefaultAsync(u => u.AppId == userId);
 
                     if (loggedInUser != null && loggedInUser.Name == username)
                     {
@@ -126,6 +127,11 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in activityposts)
                 {
                     postViews.Add(new PostViewModel()
@@ -135,6 +141,9 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 
@@ -185,7 +194,7 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [Route("InfiniteScroll/")]
-        public ActionResult InfiniteScroll(int BlockNumber, int? userId)
+        public async Task<ActionResult> InfiniteScroll(int BlockNumber, int? userId)
         {
             int BlockSize = 10;
 
@@ -198,6 +207,11 @@ namespace zapread.com.Controllers
 
                 string PostsHTMLString = "";
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in posts)
                 {
                     var pvm = new PostViewModel()
@@ -207,6 +221,9 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);

@@ -19,6 +19,10 @@ namespace zapread.com.Models
 
         // Not ideal!
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+
+        public Dictionary<int, int> GroupMemberCounts;
+        public Dictionary<int, int> GroupPostCounts;
+        public Dictionary<int, int> GroupLevels;
     }
 
     public class NewPostViewModel
