@@ -139,6 +139,17 @@ namespace zapread.com.Controllers
                 var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid);
 
                 string PostsHTMLString = "";
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (user != null && user.IgnoringUsers != null)
+                {
+                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
+                }
+
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
 
                 foreach (var p in posts)
                 {
@@ -149,6 +160,11 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
@@ -668,7 +684,7 @@ namespace zapread.com.Controllers
             return 10;
         }
 
-        public ActionResult GroupDetail(int id)
+        public async Task<ActionResult> GroupDetail(int id)
         {
             var userId = User.Identity.GetUserId();
             GroupViewModel vm = new GroupViewModel() {
@@ -677,12 +693,12 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include(usr => usr.IgnoringUsers)
                     .Include(usr => usr.Groups)
                     .Include(usr => usr.Groups.Select(grp => grp.Moderators))
                     .AsNoTracking()
-                    .SingleOrDefault(u => u.AppId == userId);
+                    .SingleOrDefaultAsync(u => u.AppId == userId);
 
                 var group = db.Groups
                     //.AsNoTracking()
@@ -765,6 +781,11 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
                 }
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in groupPosts)
                 {
                     postViews.Add(new PostViewModel()
@@ -777,6 +798,9 @@ namespace zapread.com.Controllers
                         NumComments = 0,
 
                         ViewerIgnoredUsers = viewerIgnoredUsers,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 

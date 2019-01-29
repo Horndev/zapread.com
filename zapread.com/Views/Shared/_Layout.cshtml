@@ -78,6 +78,28 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            $(".pop").popover({
+                trigger: "manual",
+                html: true,
+                animation: false
+            })
+                .on("mouseenter", function () {
+                    var _this = this;
+                    $(this).popover("show");
+                    $('[data-toggle="tooltip"]').tooltip()
+                    $(".popover").on("mouseleave", function () {
+                        $(_this).popover('hide');
+                    });
+                }).on("mouseleave", function () {
+                    var _this = this;
+                    setTimeout(function () {
+                        if (!$(".popover:hover").length) {
+                            $(_this).popover("hide");
+                        }
+                    }, 300);
+                });
+
             toastr.options.closeMethod = 'fadeOut';
             toastr.options.closeDuration = 700;
             toastr.options.positionClass = 'toast-bottom-right';
@@ -153,6 +175,40 @@
                 }
             });
         }); //end ready
+
+        var follow = function (uid, s) {
+
+            var msg = JSON.stringify({ 'id': uid, 's': s });
+            $.ajax({
+                type: "POST",
+                url: "/user/SetFollowing",
+                data: msg,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.Result === "Success") {
+                        if (s === 1) {
+                            // Subscribe
+                            $('#subBtnText').html("Unsubscribe");
+                            $('#sublink').attr("onclick", "follow(uid,0);");
+                        } else {
+                            $('#subBtnText').html("Subscribe");
+                            $('#sublink').attr("onclick", "follow(uid,1);");
+                        }
+                    }
+                    else {
+                        alert(response.Message);
+                    }
+                },
+                failure: function (response) {
+                    console.log('follow failure');
+                },
+                error: function (response) {
+                    console.log('follow error');
+                }
+            });
+            return false;
+        };
 
         var $el, $ps, $up, totalHeight;
 

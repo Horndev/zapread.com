@@ -28,7 +28,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.Index(username: "Jimbob") as ViewResult;
+            ViewResult result = controller.Index(username: "Jimbob").Result as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
