@@ -54,39 +54,7 @@
             });
         });
 
-        var follow = function (uid, s) {
-
-            var msg = JSON.stringify({ 'id': uid, 's': s });
-            $.ajax({
-                type: "POST",
-                url: "/user/SetFollowing",
-                data: msg,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.Result === "Success") {
-                        if (s === 1) {
-                            // Subscribe
-                            $('#subBtnText').html("Unsubscribe");
-                            $('#sublink').attr("onclick", "follow(@Model.User.Id,0);");
-                        } else {
-                            $('#subBtnText').html("Subscribe");
-                            $('#sublink').attr("onclick", "follow(@Model.User.Id,1);");
-                        }
-                    }
-                    else {
-                        alert(response.Message);
-                    }
-                },
-                failure: function (response) {
-                    console.log('follow failure');
-                },
-                error: function (response) {
-                    console.log('follow error');
-                }
-            });
-            return false;
-        };
+        
 
         Dropzone.options.dropzoneForm = {
             paramName: "file", // The name that will be used to transfer the file

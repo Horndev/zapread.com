@@ -464,15 +464,15 @@ namespace zapread.com.Controllers
 
         [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult Detail(int PostId)
+        public async Task<ActionResult> Detail(int PostId)
         {
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users
+                var user = await db.Users
                     .Include("Settings")
                     .Include(usr => usr.IgnoringUsers)
-                    .SingleOrDefault(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid);
 
                 if (user != null)
                 {
@@ -509,6 +509,11 @@ namespace zapread.com.Controllers
                     return RedirectToAction("PostNotFound");
                 }
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
@@ -518,6 +523,9 @@ namespace zapread.com.Controllers
                     ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
                     NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
                     ViewerIgnoredUsers = viewerIgnoredUsers,
+                    GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                    GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                    GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                 };
 
                 return View(vm);

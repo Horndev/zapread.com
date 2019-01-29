@@ -505,6 +505,11 @@ namespace zapread.com.Controllers
                         viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
                     }
 
+                    var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                     foreach (var p in posts)
                     {
                         postViews.Add(new PostViewModel()
@@ -517,6 +522,10 @@ namespace zapread.com.Controllers
                             NumComments = 0,
 
                             ViewerIgnoredUsers = viewerIgnoredUsers,
+
+                            GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                            GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                            GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                         });
                     }
 
@@ -528,6 +537,7 @@ namespace zapread.com.Controllers
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
                         SubscribedGroups = gi,
+                        
                     };
 
                     return View(vm);
@@ -587,6 +597,11 @@ namespace zapread.com.Controllers
 
                 string PostsHTMLString = "";
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in posts)
                 {
                     var pvm = new PostViewModel()
@@ -596,6 +611,10 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);

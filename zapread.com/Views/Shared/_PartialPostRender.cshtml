@@ -104,7 +104,9 @@
             </a>
         }
         <div class="media-body">
-            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
+            <a class="pop" data-container="body" data-toggle="popover" data-offset="-28vw" data-placement="top"
+               data-content="<a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.Post.UserId.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'><i class='fa fa-envelope'></i> </a>&nbsp;<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(@Model.Post.UserId.Id,1);'><i class='fa fa-user-plus'></i></a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert(&quot;Not yet implemented.&quot;);'><i class='fa fa-bolt'></i> </a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert(&quot;Not yet implemented.  Please go to user page to ignore.&quot;);'><i class='fa fa-minus-circle'></i> </a>"
+               data-original-title="" title="" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
                 @if (Model.ViewerIgnoredUser)
                 {
                     <text>(Ignored) </text>
@@ -116,7 +118,9 @@
                 <span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>
             }
             posted in
-            <a href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
+            <a class="pop" data-container="body" data-toggle="popover" data-placement="top"
+               data-content="<span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>@Model.GroupLevels[Model.Post.Group.GroupId]<i class='fa fa-arrow-up'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>@Model.GroupPostCounts[Model.Post.Group.GroupId] <i class='fa fa-pencil'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>@Model.GroupMemberCounts[Model.Post.Group.GroupId] <i class='fa fa-user'></i></span><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert(&quot;Not yet implemented. Check back soon&quot;);'><i class='fa fa-user-plus'></i></a>"
+               data-original-title="" title="" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
                 @Model.Post.Group.GroupName
             </a>
             <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
@@ -154,8 +158,8 @@
                     </a>
                 </h3>
                 @*<p>*@
-                <div @if(!Model.IsDetailView){<text>class="post-box"</text>}>
-                    <div @if(!Model.IsDetailView){<text>class="post-content"</text>}>
+                <div @if (!Model.IsDetailView) { <text> class="post-box" </text> }>
+                    <div @if (!Model.IsDetailView) { <text> class="post-content" </text> }>
                         @Html.Raw(Model.Post.Content)
                     </div>
                     @if (Model.Post.IsNSFW)
@@ -177,11 +181,11 @@
         <div class="row">
 
             @*@if (Request.IsAuthenticated)
-            {
-                <div class="col col-auto" data-toggle="tooltip" data-placement="bottom" title="Reply">
-                    <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
-                </div>
-            }*@
+                {
+                    <div class="col col-auto" data-toggle="tooltip" data-placement="bottom" title="Reply">
+                        <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                    </div>
+                }*@
             <div class="col col-auto" @*data-toggle="tooltip" data-placement="bottom" title="Discuss"*@>
                 <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
             </div>
