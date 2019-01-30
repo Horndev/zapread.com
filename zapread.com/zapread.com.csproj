@@ -673,6 +673,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap-social.css" />
     <Content Include="Content\FFFFFF-0.png" />
+    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\patterns\1.png" />
@@ -1615,6 +1616,11 @@
     <Content Include="AppSettings.config" />
     <Content Include="database.config" />
     <Content Include="libman.json" />
+    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\font-awesome\fonts\FontAwesome.otf" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -1726,6 +1732,7 @@
     <Content Include="Views\Admin\Users.cshtml" />
     <Content Include="Views\Admin\Lightning.cshtml" />
     <Content Include="Views\Post\PostNotFound.cshtml" />
+    <Content Include="Views\Shared\_PartialModalSearch.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

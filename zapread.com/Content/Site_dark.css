@@ -7,6 +7,19 @@
  *
 */
 
+
+.nav {
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+.cse .gsc-control-cse,
+.gsc-control-cse {
+    padding: 0em !important;
+    width: auto;
+}
+
+
 .note-toolbar {
     background-color: #222;
 }
@@ -253,7 +266,7 @@ h5 {
 }
 
 .navbar-top-links li a {
-    padding: 20px 10px;
+    padding: 20px 0px;
     min-height: 50px;
 }
 
@@ -425,9 +438,9 @@ ul.nav-second-level {
 .count-info .badge {
     line-height: 12px;
     padding: 2px 5px;
-    position: absolute;
-    right: 12px;
-    top: 12px;
+    position: relative;
+    right: 15px;
+    top: 8px;
 }
 
 .arrow {
@@ -796,7 +809,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 }
 
 .top-navigation .nav > li > a {
-    padding: 15px 20px;
+    /*padding: 15px 20px;*/
     color: #676a6c;
 }
 
@@ -9907,7 +9920,7 @@ body.md-skin {
 }
 
 .md-skin .navbar-top-links li a {
-    padding: 20px 10px;
+    padding: 20px 0px;
     min-height: 50px;
 }
 
