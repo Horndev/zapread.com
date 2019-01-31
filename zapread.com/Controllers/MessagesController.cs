@@ -488,6 +488,7 @@ namespace zapread.com.Controllers
                     // Send popup and email if not in chat
                     NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
+                    isChat = false;
                     if (isChat == null || (isChat != null && !isChat.Value))
                     {
                         // Send email

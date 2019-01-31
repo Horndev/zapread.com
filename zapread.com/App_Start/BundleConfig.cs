@@ -76,7 +76,7 @@ namespace zapread.com
                         "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
-                      "~/node_modules/font-awesome/css/font-awesome.css", new CssRewriteUrlTransform()));
+                      "~/node_modules/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
 
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
@@ -171,8 +171,9 @@ namespace zapread.com
                       "~/node_modules/jquery.flot/jquery.flot.time.js"));
             /*"~/node_modules/jquery.flot/jquery.flot.spline.js"));*/
 
+
             // Needed for some fixes in dependancies
-            BundleTable.EnableOptimizations = false;
+            // BundleTable.EnableOptimizations = false;
 
         }
     }
