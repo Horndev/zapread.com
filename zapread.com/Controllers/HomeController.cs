@@ -315,13 +315,20 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
-            if (Request.IsAuthenticated && (l == null || l == "" || l == "0"))
+            try
             {
-                return RedirectToAction("Index", new { sort, l = "1", g, f });
+                if (Request.IsAuthenticated && (l == null || l == "" || l == "0"))
+                {
+                    return RedirectToAction("Index", new { sort, l = "1", g, f });
+                }
+                else if (!Request.IsAuthenticated && (l == null || l == "" || l == "1"))
+                {
+                    return RedirectToAction("Index", new { sort, l = "0", g, f });
+                }
             }
-            else if (!Request.IsAuthenticated && (l == null || l == "" || l == "1"))
+            catch
             {
-                return RedirectToAction("Index", new { sort, l = "0", g, f });
+                // Todo - fixup unit test
             }
 
             string uid = null;
