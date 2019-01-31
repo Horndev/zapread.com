@@ -7,6 +7,10 @@
  *
 */
 
+.tooltip-hover .arrow {
+    display: none !important;
+}
+
 .nav {
     -ms-flex-wrap: nowrap;
     flex-wrap: nowrap;
@@ -6889,7 +6893,7 @@ table.shoping-cart-table {
 
 .social-avatar .media-body a {
     font-size: 14px;
-    display: block;
+    /*display: block;*/
 }
 
 .social-body {
