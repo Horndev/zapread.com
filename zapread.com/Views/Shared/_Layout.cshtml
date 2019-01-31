@@ -88,6 +88,7 @@
                     var _this = this;
                     $(this).popover("show");
                     $('[data-toggle="tooltip"]').tooltip()
+                    $(".popover").addClass("tooltip-hover");
                     $(".popover").on("mouseleave", function () {
                         $(_this).popover('hide');
                     });

@@ -661,6 +661,7 @@
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\User\UserLinkViewModel.cs" />
     <Compile Include="Models\User\UserViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hubs\NotificationHub.cs" />
@@ -1733,6 +1734,7 @@
     <Content Include="Views\Admin\Lightning.cshtml" />
     <Content Include="Views\Post\PostNotFound.cshtml" />
     <Content Include="Views\Shared\_PartialModalSearch.cshtml" />
+    <Content Include="Views\Shared\_PartialUserLink.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
