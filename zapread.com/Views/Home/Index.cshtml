@@ -18,9 +18,9 @@
         </ol>
     </div>
     <div class="row">
-        <div class="col-md-2">
+        <div class="d-none d-lg-block col-lg-2" >
             @*button for groups V*@
-            <div class="ibox-title">
+            <div class="ibox-title" style="white-space:nowrap">
                 <h5>Your Top Groups</h5>
                 <div class="ibox-tools">
                     <a class="collapse-link" data-id="topGroups">
@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8" align="center">
+        <div class="col-lg-8" align="center">
             @*Sort by
             @if (Model.Sort != "Score")
             {
@@ -49,7 +49,7 @@
                 <i class="fa fa-comments"></i> active
             </button>
         </div>
-        <div class="col-md-2"></div>
+        <div class="col-lg-2"></div>
     </div>
 </div>
 
