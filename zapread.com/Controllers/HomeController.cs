@@ -226,8 +226,70 @@ namespace zapread.com.Controllers
 
                     return sposts;
                 }
-                //if (sort == "New")
-                else {
+                else if (sort == "Active")
+                {
+                    IQueryable<Post> validposts;
+                    if (userId > 0)
+                    {
+                        var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                        validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+
+                        var allLang = user.Settings.ViewAllLanguages;
+
+                        if (!allLang)
+                        {
+                            var languages = user.Languages == null ? new List<string>() { "en" } : user.Languages.Split(',').ToList();
+                            validposts = validposts
+                                .Where(p => p.Language == null || languages.Contains(p.Language));
+                        }
+                    }
+                    else
+                    {
+                        validposts = db.Posts
+                            .Where(p => p.Language == null || userLanguages.Contains(p.Language));
+                    }
+
+                    DateTime scoreStart = new DateTime(2018, 07, 01);
+
+                    // Use number of comments as score
+                    var sposts = await validposts
+                        .Where(p => !p.IsDeleted)
+                        .Where(p => !p.IsDraft)
+                        .Select(p => new
+                        {
+                            p,
+                            s =  (Math.Abs((double)p.Comments.Count) < 1.0 ? 1.0 : 100000.0 * Math.Abs((double)p.Comments.Count)),    // Max (|x|,1)                                                           
+                        })
+                        .Select(p => new
+                        {
+                            p.p,
+                            order = SqlFunctions.Log10(p.s),
+                            sign = p.p.Comments.Count >= 0.0 ? 1.0 : -1.0,                              // Sign of s
+                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
+                        })
+                        .Select(p => new
+                        {
+                            p.p,
+                            active = p.sign * p.order + p.dt / 2000000 // Reduced time effect
+                        })
+                        .OrderByDescending(p => p.active)
+                        .Select(p => p.p)
+                        .Include(p => p.Group)
+                        .Include(p => p.Comments)
+                        .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                        .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                        .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                        .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                        .Include("UserId")
+                        .AsNoTracking()
+                        .Skip(start)
+                        .Take(count)
+                        .ToListAsync();
+
+                    return sposts;
+                }
+                else //(sort == "New")
+                { 
                     IQueryable<Post> validposts;
                     if (userId > 0)
                     {
@@ -551,7 +613,7 @@ namespace zapread.com.Controllers
                         //Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
                         //Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
-                        Sort = sort == null ? "Score" : sort == "New" ? "New" : "UNK",
+                        Sort = sort == null ? "Score" : sort,
                         SubscribedGroups = gi,
                         
                     };
