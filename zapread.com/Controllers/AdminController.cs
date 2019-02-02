@@ -642,10 +642,12 @@ namespace zapread.com.Controllers
         {
             var vm = new AdminUsersViewModel();
 
+            // Redirect to login screen if not authenticated.
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users" });
             }
+
             using (var db = new ZapContext())
             {
                 var userCount = await db.Users.CountAsync();
@@ -666,8 +668,51 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var pageUsers = await db.Users
-                    .OrderByDescending(u => u.Id)
+                var sorts = dataTableParameters.Order;
+
+                // Build our query
+                var pageUsersQS = db.Users
+                    .Include("Funds")
+                    .Include("Posts")
+                    .Include("Comments");
+                IOrderedQueryable<User> pageUsersQ = null;// pageUsersQS.OrderByDescending(q => q.Id);
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.DateJoined);
+                        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.DateLastActivity);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Posts.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Comments.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Funds == null ? 0 : q.Funds.Balance);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateJoined);
+                        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateLastActivity);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Posts.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Comments.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Funds == null ? 0 : q.Funds.Balance);
+                    }
+                }
+
+                if (pageUsersQ == null)
+                {
+                    pageUsersQ = pageUsersQS.OrderByDescending(q => q.Id);
+                }
+
+                var pageUsers = await pageUsersQ
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
@@ -677,10 +722,10 @@ namespace zapread.com.Controllers
                     {
                         UserName = u.Name,
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
-                        LastSeen = "?",
-                        NumPosts = "?",
-                        NumComments = "?",
-                        Balance = "?",
+                        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
+                        NumPosts = u.Posts.Count.ToString(),
+                        NumComments = u.Comments.Count.ToString(),
+                        Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
                         Id = u.AppId,
                     }).ToList();
 
