@@ -1322,6 +1322,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 
 .btn-rounded {
     border-radius: 50px;
+
 }
 
 .btn-large-dim {
@@ -4818,7 +4819,7 @@ code {
     background-color: #ffffff;
     border-color: #e7eaec;
     border-image: none;
-    border-style: solid solid none;
+    /*border-style: solid solid none;*/
     border-width: 2px 0 0;
     color: inherit;
     margin-bottom: 0;
@@ -6853,7 +6854,7 @@ table.shoping-cart-table {
 
 .social-feed-box {
     /*padding: 15px;*/
-    border: 1px solid #e7eaec;
+    /*border: 1px solid #e7eaec;*/
     background: #fff;
     margin-bottom: 15px;
 }
