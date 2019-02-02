@@ -82,8 +82,10 @@
         // Table
         usersTable = $('#usersTable').DataTable({
             "searching": false,
-            //"bInfo": false,
+            "bInfo": false,
             "lengthChange": false,
+            "ordering": true,
+            "order": [[1, "desc"]],
             "pageLength": 25,
             "processing": true,
             "serverSide": true,
@@ -96,19 +98,28 @@
                     return JSON.stringify(d);
                 }
             },
+            //"aoColumns": [
+            //    { "orderSequence": ["desc", "asc"] },
+            //    { "orderSequence": ["desc", "asc"] },
+            //    { "orderSequence": ["desc", "asc"] },
+            //    { "orderSequence": ["desc", "asc"] },
+            //    { "orderSequence": ["desc", "asc"] },
+            //    { "orderSequence": ["asc", "desc"] }
+            //],
             "columns": [
                 {
                     "data": null,//"UserName",
+                    "name": 'Name',
                     "orderable": false,
                     "mRender": function (data, type, row) {
                         return "<a target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
                     }
                 },
-                { "data": "DateJoined", "orderable": true },
-                { "data": "LastSeen", "orderable": false },
-                { "data": "NumPosts", "orderable": false },
-                { "data": "NumComments", "orderable": false },
-                { "data": "Balance", "orderable": false },
+                { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["asc", "desc"] },
+                { "data": "LastSeen", "orderable": true, "name": "LastSeen", "type": "date", "orderSequence": ["asc", "desc"] },
+                { "data": "NumPosts", "orderable": true, "name": "NumPosts", "type": "num", "orderSequence": ["asc", "desc"] },
+                { "data": "NumComments", "orderable": true, "name": "NumComments", "type": "num", "orderSequence": ["asc", "desc"] },
+                { "data": "Balance", "orderable": true, "name": "Balance", "type": "num-fmt", "orderSequence": ["asc", "desc"] },
             ],
         });
     });
