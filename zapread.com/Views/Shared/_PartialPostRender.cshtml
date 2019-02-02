@@ -106,16 +106,6 @@
         }
             <div class="media-body">
                 @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser })
-                @*<a class="pop" data-container="body" data-toggle="popover" data-offset="-28vw" data-placement="top"
-           data-content="<span class='btn btn-link btn-sm' data-toggle='tooltip' data-placement='bottom' title='Reputation'>@Model.Post.UserId.Reputation.ToAbbrString() <i class='fa fa-star'></i></span><a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.Post.UserId.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'><i class='fa fa-envelope'></i> </a>&nbsp;<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(@Model.Post.UserId.Id,1);'><i class='fa fa-user-plus'></i></a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert(&quot;Not yet implemented.&quot;);'><i class='fa fa-bolt'></i> </a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert(&quot;Not yet implemented.  Please go to user page to ignore.&quot;);'><i class='fa fa-minus-circle'></i> </a>"
-           data-original-title="" title="" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
-            @if (Model.ViewerIgnoredUser)
-            {
-                <text>(Ignored) </text>
-            }
-            @Model.Post.UserId.Name
-        </a>*@
-                @*<div></div>*@
                 @if (Model.Post.IsSticky)
                 {
                     <span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>
@@ -229,9 +219,18 @@
     <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
         @if (Model.Post.Comments != null)
         {
+            var numshown = 0;
             foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
             {
-                @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
+                var vm = new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers };
+
+                // Have the top 3 root comments start visible
+                if (numshown < 3 && comment.Score > 0)
+                {
+                    numshown += 1;
+                    vm.StartVisible = true;
+                }
+                @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
             }
         }
     </div>

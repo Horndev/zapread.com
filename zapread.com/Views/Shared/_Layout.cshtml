@@ -79,27 +79,32 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
+            // popups for users, groups, etc.
             $(".pop").popover({
                 trigger: "manual",
                 html: true,
                 animation: false
             })
-                .on("mouseenter", function () {
-                    var _this = this;
-                    $(this).popover("show");
-                    $('[data-toggle="tooltip"]').tooltip()
-                    $(".popover").addClass("tooltip-hover");
-                    $(".popover").on("mouseleave", function () {
-                        $(_this).popover('hide');
-                    });
-                }).on("mouseleave", function () {
-                    var _this = this;
-                    setTimeout(function () {
-                        if (!$(".popover:hover").length) {
-                            $(_this).popover("hide");
-                        }
-                    }, 300);
+            .on("mouseenter", function () {
+                var _this = this;
+                $(this).popover("show");
+                $('[data-toggle="tooltip"]').tooltip()
+                $(".popover").addClass("tooltip-hover");
+                $(".popover").on("mouseleave", function () {
+                    $(_this).popover('hide');
                 });
+            })
+            .on("mouseleave", function () {
+                var _this = this;
+                setTimeout(function () {
+                    if (!$(".popover:hover").length) {
+                        $(_this).popover("hide");
+                    }
+                }, 300);
+            });
+            $(".pop").each(function () {
+                $(this).removeClass("pop");
+            });
 
             toastr.options.closeMethod = 'fadeOut';
             toastr.options.closeDuration = 700;
