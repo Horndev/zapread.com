@@ -642,10 +642,12 @@ namespace zapread.com.Controllers
         {
             var vm = new AdminUsersViewModel();
 
+            // Redirect to login screen if not authenticated.
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users" });
             }
+
             using (var db = new ZapContext())
             {
                 var userCount = await db.Users.CountAsync();
@@ -667,7 +669,9 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var pageUsers = await db.Users
+                    .Include("Funds")
                     .OrderByDescending(u => u.Id)
+                    .AsNoTracking()
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
@@ -677,10 +681,10 @@ namespace zapread.com.Controllers
                     {
                         UserName = u.Name,
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
-                        LastSeen = "?",
+                        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
                         NumPosts = "?",
                         NumComments = "?",
-                        Balance = "?",
+                        Balance = (u.Funds.Balance / 100000000.0).ToString("F8"),
                         Id = u.AppId,
                     }).ToList();
 
