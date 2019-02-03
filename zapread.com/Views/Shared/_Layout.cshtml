@@ -181,6 +181,7 @@
                 }
             });
 
+            // Make post quotable
             $(".post-quotable").each(function (ix, e) {
                 // Trigger when mouse is released (i.e. possible selection made)
                 $(e).mouseup(function () {
@@ -207,6 +208,7 @@
                         .popover("show");
                     }
                 });
+                $(e).removeClass("post-quotable");
             });
 
             $.fn.extend({
