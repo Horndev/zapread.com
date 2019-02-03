@@ -334,10 +334,17 @@ namespace zapread.com.Controllers
 
                     if (numDistributions > 0)
                     {
-                        var groupPostsRecent = db.Posts
+                        var groupPostsRecent = await db.Posts
                             .Include("Group")
-                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30).ToList();
-                        var groupPostsOld = db.Posts.Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30).ToList();
+                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30)
+                            .Where(p => !p.IsDeleted)
+                            .Where(p => !p.IsDraft)
+                            .ToListAsync();
+                        var groupPostsOld = await db.Posts
+                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30)
+                            .Where(p => !p.IsDeleted)
+                            .Where(p => !p.IsDraft)
+                            .ToListAsync();
 
                         var numPostsOld = groupPostsOld.Count();
                         var numPostsNew = groupPostsRecent.Count();
@@ -470,9 +477,16 @@ namespace zapread.com.Controllers
                 numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
                 if (numDistributions > 0)
                 {
-                    var sitePostsRecent = db.Posts
-                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30).ToList();
-                    var sitePostsOld = db.Posts.Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30).ToList();
+                    var sitePostsRecent = await db.Posts
+                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30)
+                        .Where(p => !p.IsDeleted)
+                        .Where(p => !p.IsDraft)
+                        .ToListAsync();
+                    var sitePostsOld = await db.Posts
+                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30)
+                        .Where(p => !p.IsDeleted)
+                        .Where(p => !p.IsDraft)
+                        .ToListAsync();
 
                     var numPostsOld = sitePostsOld.Count();
                     var numPostsNew = sitePostsRecent.Count();
@@ -556,7 +570,7 @@ namespace zapread.com.Controllers
                     foreach (var uid in payoutUserAmount.Keys)
                     {
                         // This is where payouts should be made for each user link to group
-                        var owner = db.Users.FirstOrDefault(u => u.Id == uid);
+                        var owner = await db.Users.FirstOrDefaultAsync(u => u.Id == uid);
                         double earnedAmount = payoutUserAmount[uid];
                         var ea = new EarningEvent()
                         {
@@ -573,8 +587,8 @@ namespace zapread.com.Controllers
                     }
 
                     //record distribution
-                    website.CommunityEarnedToDistribute -= distributed;// toDistribute;
-                    website.TotalEarnedCommunity += distributed;// toDistribute;
+                    website.CommunityEarnedToDistribute -= distributed;
+                    website.TotalEarnedCommunity += distributed;
 
                     await db.SaveChangesAsync();
                 }
