@@ -1593,6 +1593,7 @@
     <Content Include="node_modules\summernote\dist\summernote-bs4.js" />
     <Content Include="node_modules\summernote\dist\summernote-bs4.min.js" />
     <Content Include="node_modules\summernote\dist\summernote.css" />
+    <Content Include="node_modules\summernote\dist\summernote.min.js" />
     <Content Include="node_modules\sweetalert\dist\sweetalert.min.js" />
     <Content Include="node_modules\toastr\build\toastr.min.css" />
     <Content Include="node_modules\toastr\build\toastr.min.js" />
@@ -1642,6 +1643,7 @@
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Scripts\summernote\dist\summernote.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
