@@ -57,5 +57,6 @@ namespace zapread.com.Models
         public Comment Comment { get; set; }
         public List<Comment> Comments { get; set; }
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+        public bool StartVisible { get; set; }
     }
 }
