@@ -62,11 +62,13 @@ namespace zapread.com.Controllers
         }
 
         [HttpGet]
-        public PartialViewResult GetInputBox(int id)
+        public async Task<PartialViewResult> GetInputBox(int id)
         {
             using (var db = new ZapContext())
             {
-                Comment comment = db.Comments.Include(cmt => cmt.Post).FirstOrDefault(cmt => cmt.CommentId == id);
+                Comment comment = await db.Comments
+                    .Include(cmt => cmt.Post)
+                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
                 return PartialView("_PartialCommentReplyInput", comment);
             }
         }
