@@ -181,7 +181,7 @@
                 }
             });
 
-            $(".post-box").each(function (ix, e) {
+            $(".post-quotable").each(function (ix, e) {
                 // Trigger when mouse is released (i.e. possible selection made)
                 $(e).mouseup(function () {
                     var selection = getSelected();
@@ -189,11 +189,10 @@
                     if (selection && selection != "") {
                         // User made a selection
                         var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
-                        
                         selectionMarker = markSelection(markerId);
-
-                        var popText = selection.toString() + '<hr/><button class="btn btn-sm btn-link" onclick="alert(&quot;Feature comming soon.&quot;);"><i class="fa fa-reply"></i> Reply</button>';
-
+                        selectionText = selection.toString();
+                        var postId = $(e).data('postid');
+                        var popText = selectionText + '<hr/><button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>';
                         $(selectionMarker).popover({
                             trigger: "hover",
                             html: true,
@@ -209,8 +208,31 @@
                     }
                 });
             });
+
+            $.fn.extend({
+                placeCursorAtEnd: function () {
+                    // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
+                    if (this.length === 0) {
+                        throw new Error("Cannot manipulate an element if there is no element!");
+                    }
+                    var el = this[0];
+                    var range = document.createRange();
+                    var sel = window.getSelection();
+                    var childLength = el.childNodes.length;
+                    if (childLength > 0) {
+                        var lastNode = el.childNodes[childLength - 1];
+                        var lastNodeChildren = lastNode.childNodes.length;
+                        range.setStart(lastNode, lastNodeChildren);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    return this;
+                }
+            });
         }); //end ready
 
+        var selectionText;
         var selectionMarker;
 
         // adapted from https://stackoverflow.com/a/1589912/847076
@@ -268,7 +290,6 @@
             }
             return false;
         }
-
 
         var follow = function (uid, s) {
 
@@ -433,7 +454,17 @@
             $("#nsfwb_" + id).hide();
         };
 
-        var toggleChat = function (id) {
+        var postQuoteComment = function (id) {
+            toggleChat(id, true);
+
+            $('.c_input_' + id.toString()).summernote('code', '<blockquote class="blockquote">' + selectionText + '</blockquote><br/> ');
+            $(selectionMarker).popover('hide');
+            var editbox = $('.c_input_' + id.toString()).parent().find('.note-editable');
+            editbox.placeCursorAtEnd();
+            $('.c_input_' + id.toString()).summernote('focus')
+        };
+
+        var toggleChat = function (id, show=false) {
             $(".c_input_" + id.toString()).summernote({
                 callbacks: {
                     onImageUpload: function (files) {
@@ -444,7 +475,7 @@
                 focus: false,
                 placeholder: 'Write comment...',
                 disableDragAndDrop: false,
-                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']],'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
                 minHeight: 60,
                 maxHeight: 300,
                 hint: {
@@ -475,13 +506,18 @@
                 }
             });
 
-            $('.c_input_' + id.toString()).each(function (i, e) {
-                $(e).removeClass("c_input_" + id.toString());
-            });
-
+            //$('.c_input_' + id.toString()).each(function (i, e) {
+            //    $(e).removeClass("c_input_" + id.toString());
+            //});
             $(".note-statusbar").css("display", "none");
-            $('#comments_' + id.toString()).slideToggle(200);
-            $('#preply_' + id.toString()).slideToggle(200);
+            if (!show) {
+                $('#comments_' + id.toString()).slideToggle(200);
+                $('#preply_' + id.toString()).slideToggle(200);
+            }
+            else {
+                $('#comments_' + id.toString()).slideDown(200);
+                $('#preply_' + id.toString()).slideDown(200);
+            }
         };
 
         var showReply = function (id) {
