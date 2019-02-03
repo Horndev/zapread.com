@@ -77,6 +77,12 @@ namespace zapread.com.Models.Database
 
         public ICollection<LNTransaction> LNTransactions { get; set; }
 
+        [InverseProperty("UserId")]
+        public virtual ICollection<Post> Posts { get; set; }
+
+        [InverseProperty("UserId")]
+        public virtual ICollection<Comment> Comments { get; set; }
+
         [InverseProperty("To")]
         public virtual ICollection<UserMessage> Messages { get; set; }
 

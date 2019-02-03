@@ -648,6 +648,8 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\Database\Comment.cs" />
+    <Compile Include="Models\Database\Post.cs" />
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />

@@ -62,8 +62,8 @@ namespace zapread.com
                         "~/node_modules/datatables.net-scroller-bs4/js/scroller.bootstrap4.min.js"));
 
             bundles.Add(new StyleBundle("~/bundles/css/datatables").Include(
-                      "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min",
-                      "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min"));
+                      "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
+                      "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
