@@ -242,7 +242,7 @@ namespace zapread.com.Controllers
                         .Select(p => new
                         {
                             p.p,
-                            hot = p.sign * p.order + p.dt / 90000
+                            hot = (p.sign * p.order) + (p.dt / 90000),
                         })
                         .OrderByDescending(p => p.hot)
                         .Select(p => p.p)
@@ -312,10 +312,8 @@ namespace zapread.com.Controllers
             int maxDistributions = 1000;    // Per group
             int minDistributionSize = 1;    // Go as low as 1 Satoshi
 
-
             using (var db = new ZapContext())
             {
-
                 // GROUP PAYOUTS
                 var gids = db.Groups.Select(g => g.GroupId).ToList();
                 double distributed = 0.0;
@@ -642,7 +640,7 @@ namespace zapread.com.Controllers
             {
                 return Convert.ToInt32(100.0 * (e - 20000000.0) / 50000000.0);
             }
-            return 100;// Convert.ToInt32(100.0 * (g.TotalEarned + g.TotalEarnedToDistribute) / 1000.0);
+            return 100;
         }
 
         /// <summary>
@@ -1390,7 +1388,6 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult CreateNewGroup(NewGroupViewModel m)
         {
-
             return RedirectToAction("Index","Home");
         }
     }
