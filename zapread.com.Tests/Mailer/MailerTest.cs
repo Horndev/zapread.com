@@ -39,6 +39,7 @@ namespace zapread.com.Tests.Mailer
 
             var routeData = new RouteData();
             routeData.Values.Add("controller", "MessagesController");
+            routeData.Values.Add("action", "GetMessage");
             mock.SetupGet(m => m.RouteData).Returns(routeData);
 
             var view = new Mock<IView>();

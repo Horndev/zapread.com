@@ -551,6 +551,45 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet, AllowAnonymous]
+        public JsonResult TestMailer()
+        {
+            string HTMLString = "";
+
+            using (var db = new ZapContext())
+            {
+                var msg = db.Messages
+                    .Include("From")
+                    .Include("To")
+                    .SingleOrDefault(m => m.Id == 1);
+
+                var mvm = new ChatMessageViewModel()
+                {
+                    Message = msg,
+                    From = msg.From,
+                    To = msg.To,
+                    IsReceived = false,
+                };
+                HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
+
+                var result = PreMailer.Net.PreMailer.MoveCssInline(
+                    baseUri: new Uri("https://www.zapread.com"),
+                    html: HTMLString,
+                    removeComments: true
+                    );
+
+                var msgHTML = result.Html; 		// Resultant HTML, with CSS in-lined.
+                var msgWarn = String.Join(",", result.Warnings); 	// string[] of any warnings that occurred during processing.
+
+                return Json(new
+                {
+                    HTMLString,
+                    msgHTML,
+                    msgWarn
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         public string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

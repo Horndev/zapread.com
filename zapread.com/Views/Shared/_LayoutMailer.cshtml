@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    @RenderSection("Styles", required: false)
+    @Styles.Render("~/Content/bootstrap")
+    @Styles.Render("~/Content/font-awesome/css")
+    @Styles.Render("~/Content/style/textspinners")
+    @Styles.Render("~/plugins/summernoteStyles")
+    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/Content/style/toastr")
+    @Styles.Render("~/Content/css")
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>

@@ -383,6 +383,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImgController.cs" />
     <Compile Include="Controllers\LightningController.cs" />
+    <Compile Include="Controllers\MailerController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
@@ -1745,6 +1746,9 @@
     <Content Include="Views\Post\PostNotFound.cshtml" />
     <Content Include="Views\Shared\_PartialModalSearch.cshtml" />
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
+    <Content Include="Views\Shared\_LayoutMailer.cshtml" />
+    <Content Include="Views\Mailer\Index.cshtml" />
+    <Content Include="Views\Mailer\NewPost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
