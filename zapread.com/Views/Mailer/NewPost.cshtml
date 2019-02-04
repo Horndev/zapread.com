@@ -1,7 +1,62 @@
-﻿
+﻿@using zapread.com.Helpers;
+@using zapread.com.Models;
+@using zapread.com.Models.UserViews;
+@model zapread.com.Models.PostViewModel
+
 @{
-    ViewBag.Title = "NewPost";
+    ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
 }
 
-<h2>NewPost</h2>
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="social-feed-box" style="background-color:white">
+                <div class="social-avatar">
+                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
+                    </a>
+                    <div class="media-body">
+                        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">
+                            @Model.Post.UserId.Name
+                        </a>
+                        posted in
+                        <a href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
+                            @Model.Post.Group.GroupName
+                        </a>
+                        <h3 style="display: block;">
+                            <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
+                                @if (Model.Post.PostTitle == null)
+                                {
+                                    <text>Post</text>
+                                }
+                                else
+                                {
+                                    @Model.Post.PostTitle
+                                }
+                            </a>
+                        </h3>
+                    </div>
+                </div>
+                <div class="social-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="post-quotable post-box" data-postid="@Model.Post.PostId">
+                                <div class="post-content">
+                                    @Html.Raw(Model.Post.Content)
+                                </div>
+                            </div>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="social-feed-box">
+                <span></span>
+            </div>
+            <div class="social-feed-box" style="margin-bottom:50px;">
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
 
