@@ -48,6 +48,9 @@
     <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.9.11\lib\net45\AngleSharp.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -219,6 +222,9 @@
     </Reference>
     <Reference Include="Ninject.Web.WebApi, Version=3.3.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.0\lib\net45\Ninject.Web.WebApi.dll</HintPath>
+    </Reference>
+    <Reference Include="PreMailer.Net, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PreMailer.Net.2.0.1\lib\net45\PreMailer.Net.dll</HintPath>
     </Reference>
     <Reference Include="QRCoder, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.3.3\lib\net40\QRCoder.dll</HintPath>

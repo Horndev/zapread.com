@@ -551,7 +551,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected string RenderPartialViewToString(string viewName, object model)
+        public string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
                 viewName = ControllerContext.RouteData.GetRequiredString("action");
@@ -569,7 +569,5 @@ namespace zapread.com.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
-
-
     }
 }
