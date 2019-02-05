@@ -933,6 +933,10 @@ namespace zapread.com.Controllers
 
                 vm.Balance = Convert.ToInt32(Math.Floor(u.Funds.Balance));
                 vm.TotalEarned = Convert.ToInt32(u.TotalEarned);
+                vm.NumPosts = Convert.ToInt32(u.Posts.Where(p => !p.IsDeleted && !p.IsDraft).Count());
+
+                var appUser = UserManager.FindById(u.AppId);
+                vm.Email = appUser.Email;
 
                 return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
             }

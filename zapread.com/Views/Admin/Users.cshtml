@@ -98,14 +98,6 @@
                     return JSON.stringify(d);
                 }
             },
-            //"aoColumns": [
-            //    { "orderSequence": ["desc", "asc"] },
-            //    { "orderSequence": ["desc", "asc"] },
-            //    { "orderSequence": ["desc", "asc"] },
-            //    { "orderSequence": ["desc", "asc"] },
-            //    { "orderSequence": ["desc", "asc"] },
-            //    { "orderSequence": ["asc", "desc"] }
-            //],
             "columns": [
                 {
                     "data": null,//"UserName",
@@ -115,11 +107,11 @@
                         return "<a target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
                     }
                 },
-                { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["asc", "desc"] },
-                { "data": "LastSeen", "orderable": true, "name": "LastSeen", "type": "date", "orderSequence": ["asc", "desc"] },
-                { "data": "NumPosts", "orderable": true, "name": "NumPosts", "type": "num", "orderSequence": ["asc", "desc"] },
-                { "data": "NumComments", "orderable": true, "name": "NumComments", "type": "num", "orderSequence": ["asc", "desc"] },
-                { "data": "Balance", "orderable": true, "name": "Balance", "type": "num-fmt", "orderSequence": ["asc", "desc"] },
+                { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["desc", "asc"] },
+                { "data": "LastSeen", "orderable": true, "name": "LastSeen", "type": "date", "orderSequence": ["desc", "asc"] },
+                { "data": "NumPosts", "orderable": true, "name": "NumPosts", "type": "num", "orderSequence": ["desc", "asc"] },
+                { "data": "NumComments", "orderable": true, "name": "NumComments", "type": "num", "orderSequence": ["desc", "asc"] },
+                { "data": "Balance", "orderable": true, "name": "Balance", "type": "num-fmt", "orderSequence": ["desc", "asc"] },
             ],
         });
     });
