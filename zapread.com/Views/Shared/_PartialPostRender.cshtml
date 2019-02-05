@@ -5,6 +5,8 @@
 @model zapread.com.Models.PostViewModel
 
 <div class="social-feed-box" id=@("post_" + @Model.Post.PostId.ToString())>
+    <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
+    <i class="fa fa-minus-square togglebutton"></i></button>
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
@@ -97,7 +99,7 @@
             </li>
         </ul>
     </div>
-    <div class="social-avatar" onclick="$(this).parent().find('.social-body').slideToggle();">
+    <div class="social-avatar" >
         @if (!Model.ViewerIgnoredUser)
         {
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
