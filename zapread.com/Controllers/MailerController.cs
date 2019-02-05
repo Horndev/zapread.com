@@ -10,6 +10,8 @@ using zapread.com.Models;
 using zapread.com.Services;
 using System.Data.Entity;
 using HtmlAgilityPack;
+using zapread.com.Models.Database;
+using System.Threading.Tasks;
 
 namespace zapread.com.Controllers
 {
@@ -25,18 +27,13 @@ namespace zapread.com.Controllers
         /// Mailer renders HTML for new Post.
         /// </summary>
         /// <returns></returns>
-        public ActionResult NewPost(int id)
+        public ActionResult MailerNewPost(int id)
         {
             using (var db = new ZapContext())
             {
 
-                var pst = db.Posts
+                Post pst = db.Posts
                     .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
                     .Include("UserId")
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == id);
@@ -58,41 +55,51 @@ namespace zapread.com.Controllers
                     Post = pst,
                 };
 
-                string HTMLString = RenderViewToString("NewPost", vm);
-
-                PreMailer.Net.InlineResult result;
-                string msgHTML;
-                SendTestMail(HTMLString, out result, out msgHTML);
-
+                ViewBag.Message = "New post from a user you are following: " + pst.UserId.Name;
                 return View(vm);
             }
         }
 
-        [HttpGet, AllowAnonymous]
-        public JsonResult TestMailer()
+        public async Task<bool> SendNewPost(int id, string email, string subject)
         {
-            string HTMLString = RenderViewToString("Index", null);
-
-            //var baseUri = new Uri("https://www.zapread.com");
-            //var pm = new PreMailer.Net.PreMailer(HTMLString, baseUri);
-
-            PreMailer.Net.InlineResult result;
-            string msgHTML;
-            SendTestMail(HTMLString, out result, out msgHTML);
-
-            var msgWarn = String.Join(",", result.Warnings);    // string[] of any warnings that occurred during processing.
-            Encoding utf8 = Encoding.UTF8;
-            Encoding ascii = Encoding.ASCII;
-            return Json(new
+            using (var db = new ZapContext())
             {
-                HTMLString,
-                msg = ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(msgHTML))),
-                msgWarn
-            }, JsonRequestBehavior.AllowGet);
+                Post pst = await db.Posts
+                    .Include(p => p.Group)
+                    .Include("UserId")
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.PostId == id);
+
+                var groups = db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                if (pst == null)
+                {
+                    return false;
+                }
+
+                PostViewModel vm = new PostViewModel()
+                {
+                    Post = pst,
+                };
+
+                ViewBag.Message = subject;
+                string HTMLString = RenderViewToString("MailerNewPost", vm);
+
+                //debug
+                //email = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+
+                await SendMailAsync(HTMLString, email, subject);
+            }
+            return true;
         }
 
-        private static void SendTestMail(string HTMLString, out PreMailer.Net.InlineResult result, out string msgHTML)
+        private Task SendMailAsync(string HTMLString, string email, string subject)
         {
+            PreMailer.Net.InlineResult result;
+            string msgHTML;
             var baseUri = new Uri("https://www.zapread.com/");
             result = PreMailer.Net.PreMailer.MoveCssInline(
                                 baseUri: baseUri,
@@ -126,33 +133,14 @@ namespace zapread.com.Controllers
 
             msgHTML = doc.DocumentNode.OuterHtml;
 
-            MailingService.Send(new UserEmailModel()
+            return MailingService.SendAsync(new UserEmailModel()
             {
-                Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                Destination = email,
                 Body = msgHTML,
                 Email = "",
-                Name = "zapread.com Mailer",
-                Subject = "zapread.com Mailer Test",
+                Name = "zapread.com",
+                Subject = subject,
             });
-        }
-
-        protected string RenderPartialViewToString(string viewName, object model)
-        {
-            if (string.IsNullOrEmpty(viewName))
-                viewName = ControllerContext.RouteData.GetRequiredString("action");
-
-            ViewData.Model = model;
-
-            using (StringWriter sw = new StringWriter())
-            {
-                ViewEngineResult viewResult =
-                ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
-                ViewContext viewContext = new ViewContext
-                (ControllerContext, viewResult.View, ViewData, TempData, sw);
-                viewResult.View.Render(viewContext, sw);
-
-                return sw.GetStringBuilder().ToString();
-            }
         }
 
         // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
@@ -166,7 +154,7 @@ namespace zapread.com.Controllers
             using (StringWriter sw = new StringWriter())
             {
                 ViewEngineResult viewResult =
-                ViewEngines.Engines.FindView(ControllerContext, viewName, null);
+                    ViewEngines.Engines.FindView(ControllerContext, "~/Views/Mailer/"+viewName+".cshtml", null);
                 ViewContext viewContext = new ViewContext
                 (ControllerContext, viewResult.View, ViewData, TempData, sw);
                 viewResult.View.Render(viewContext, sw);

@@ -4,13 +4,19 @@
 @model zapread.com.Models.PostViewModel
 
 @{
+    Layout = "~/Views/Shared/_LayoutMailer.cshtml";
     ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
+    ViewBag.Message = "New post from a user you are following: " + Model.Post.UserId.Name;
 }
 
-<div class="wrapper wrapper-content ">
+<div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-lg-8">
-            <div class="social-feed-box" style="background-color:white">
+            <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                <h3 style="display:inline-block">@ViewBag.Message</h3>
+                <hr />
+            </div>
+            <div class="container" style="background-color:white;margin-bottom: 0px;">
                 <div class="social-avatar">
                     <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
                         <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
@@ -44,17 +50,15 @@
                                 <div class="post-content">
                                     @Html.Raw(Model.Post.Content)
                                 </div>
+                                
                             </div>
-                            <br />
+                            <hr />
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="social-feed-box">
-                <span></span>
-            </div>
-            <div class="social-feed-box" style="margin-bottom:50px;">
-                <span></span>
+            <div class="container" style="background-color:white;">
+                Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
             </div>
         </div>
     </div>

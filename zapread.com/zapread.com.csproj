@@ -1748,7 +1748,7 @@
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
-    <Content Include="Views\Mailer\NewPost.cshtml" />
+    <Content Include="Views\Mailer\MailerNewPost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
