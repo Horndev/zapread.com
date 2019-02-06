@@ -65,9 +65,26 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ActionResult MailerNewComment(int id)
+        public ActionResult MailerNewComment(int? id)
         {
-            return View();
+            using (var db = new ZapContext())
+            {
+                var c = db.Comments
+                    .Include(cmt => cmt.UserId)
+                    //.Include(cmt => cmt.Post.Comments)
+                    .Take(1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+                    //.FirstOrDefault(cmt => cmt.CommentId == id);
+
+                var vm = new PostCommentsViewModel()
+                {
+                    Comment = c,
+                    //Comments = c.Post.Comments.ToList(),
+                };
+
+                return View(vm);
+            }
         }
 
         public ActionResult MailerCommentReply(int id)
@@ -178,4 +195,4 @@ namespace zapread.com.Controllers
             }
         }
     }
-}
+}//

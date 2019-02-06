@@ -1749,6 +1749,7 @@
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
     <Content Include="Views\Mailer\MailerNewPost.cshtml" />
+    <Content Include="Views\Mailer\MailerNewComment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

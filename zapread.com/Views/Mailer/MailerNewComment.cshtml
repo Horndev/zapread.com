@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNet.Identity;
+@using zapread.com.Helpers;
+@using zapread.com.Models;
+@using zapread.com.Models.UserViews;
+@model zapread.com.Models.PostCommentsViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutMailer.cshtml";
+    ViewBag.Title = "MailerNewComment";
+}
+
+<div>
+    <div class="social-footer">
+        <div class=" social-comment">
+            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name.Trim() })" class="pull-left">
+                <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
+            </a>
+            <div class="media-body">
+                @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Comment.UserId, IsIgnored = false })
+                <div id="commentText_@Model.Comment.CommentId" style="position: relative;">
+                    <div>@Html.Raw(Model.Comment.Text)</div><br />
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
