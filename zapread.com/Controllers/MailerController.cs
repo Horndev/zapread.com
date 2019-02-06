@@ -60,6 +60,21 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Mailer renders HTML for comment on post
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult MailerNewComment(int id)
+        {
+            return View();
+        }
+
+        public ActionResult MailerCommentReply(int id)
+        {
+            return View();
+        }
+
         public async Task<bool> SendNewPost(int id, string email, string subject)
         {
             using (var db = new ZapContext())
