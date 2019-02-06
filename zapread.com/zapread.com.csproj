@@ -1749,6 +1749,7 @@
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
     <Content Include="Views\Mailer\MailerNewPost.cshtml" />
+    <Content Include="Views\Mailer\MailerNewComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />
   </ItemGroup>

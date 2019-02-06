@@ -60,6 +60,72 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Mailer renders HTML for comment on post
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<ActionResult> MailerNewComment(int? id)
+        {
+            using (var db = new ZapContext())
+            {
+                var c = await db.Comments
+                    .Include(cmt => cmt.UserId)
+                    .Include(cmt => cmt.Post)
+                    //.Take(1)
+                    //.AsNoTracking()
+                    //.FirstOrDefault();
+                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
+
+                var vm = new PostCommentsViewModel()
+                {
+                    Comment = c,
+                };
+
+                return View(vm);
+            }
+        }
+
+        /// <summary>
+        /// Render HTML for comment reply
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult MailerCommentReply(int id)
+        {
+            return View();
+        }
+
+        public async Task<bool> SendPostComment(long id, string email, string subject)
+        {
+            using (var db = new ZapContext())
+            {
+                var c = await db.Comments
+                    .Include(cmt => cmt.UserId)
+                    .Include(cmt => cmt.Post)
+                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
+
+                var vm = new PostCommentsViewModel()
+                {
+                    Comment = c,
+                };
+
+                if (c == null)
+                {
+                    return false;
+                }
+
+                ViewBag.Message = subject;
+                string HTMLString = RenderViewToString("MailerNewComment", vm);
+
+                //debug
+                //email = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+
+                await SendMailAsync(HTMLString, email, subject);
+            }
+            return true;
+        }
+
         public async Task<bool> SendNewPost(int id, string email, string subject)
         {
             using (var db = new ZapContext())
@@ -163,4 +229,4 @@ namespace zapread.com.Controllers
             }
         }
     }
-}
+}//

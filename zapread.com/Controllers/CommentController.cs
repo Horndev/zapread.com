@@ -159,14 +159,15 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 await EnsureUserExists(userId, db);
-                var user = db.Users
+                var user = await db.Users
                     .Include(usr => usr.Settings)
-                    .Where(u => u.AppId == userId).First();
+                    .Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync();
 
-                var post = db.Posts
+                var post = await db.Posts
                     .Include(pst => pst.UserId)
                     .Include(pst => pst.UserId.Settings)
-                    .FirstOrDefault(p => p.PostId == c.PostId);
+                    .FirstOrDefaultAsync(p => p.PostId == c.PostId);
 
                 if (post == null)
                 {
@@ -224,7 +225,6 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync();
 
                 // Find user mentions
-
                 var doc = new HtmlDocument();
                 doc.LoadHtml(c.CommentContent);
                 var spans = doc.DocumentNode.SelectNodes("//span");
@@ -345,29 +345,13 @@ namespace zapread.com.Controllers
                     // Send Email
                     if (postOwner.Settings.NotifyOnOwnPostCommented)
                     {
-                        var cdoc = new HtmlDocument();
-                        cdoc.LoadHtml(comment.Text);
-                        var baseUri = new Uri("https://www.zapread.com/");
-                        var imgs = cdoc.DocumentNode.SelectNodes("//img/@src");
-                        if (imgs != null)
-                        {
-                            foreach (var item in imgs)
-                            {
-                                item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                            }
-                        }
-                        string commentContent = cdoc.DocumentNode.OuterHtml;
-
+                        string subject = "New comment on your post: " + post.PostTitle;
                         string ownerEmail = UserManager.FindById(postOwner.AppId).Email;
-                        MailingService.Send(user: "Notify",
-                            message: new UserEmailModel()
-                            {
-                                Subject = "New comment on your post: " + post.PostTitle,
-                                Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='http://www.zapread.com'>zapread.com</a>",
-                                Destination = ownerEmail,
-                                Email = "",
-                                Name = "ZapRead.com Notify"
-                            });
+
+                        var mailer = DependencyResolver.Current.GetService<MailerController>();
+                        mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+                        await mailer.SendPostComment(comment.CommentId, ownerEmail, subject);
                     }
                 }
 
