@@ -252,11 +252,16 @@ namespace zapread.com.Controllers
         }
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public JsonResult GetPostStats()
         {
             var endDate = DateTime.UtcNow;
+            DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
             // The starting point for statistics
             var startDate = endDate.AddDays(-1 * 31);
@@ -275,55 +280,13 @@ namespace zapread.com.Controllers
                     .Where(x => x.TimeStamp > startDate && x.TimeStamp <= endDate);
 
                 var allSpends = db.SpendingEvents.Where(x => x.TimeStamp > startDate && x.TimeStamp <= endDate);
-
                 var binnedPostStats = GroupPostsByDate(allPosts, bin, startDate);
                 var binnedCommentStats = GroupCommentsByDate(allComments, bin, startDate);
                 var binnedSpendingStats = GroupSpendsByDate(allSpends, bin, startDate);
 
-                DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
-
-                var postStats = binnedPostStats.Select(x => new
-                    {
-                        x.Key,
-                        Count = x.Count()
-                    }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = x.Count
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
-
-                var commentStats = binnedCommentStats.Select(x => new
-                    {
-                        x.Key,
-                        Count = x.Count()
-                    }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = x.Count
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
-
-                var spendingStats = binnedSpendingStats.Select(x => new
-                {
-                    x.Key,
-                    //Count = x.Count()
-                    Sum = x.Sum(y => y.Amount)
-                }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = Convert.ToInt32(x.Sum)
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
+                List<Stat> postStats = GetPostStats(epochUTC, startDate, bin, binnedPostStats);
+                List<Stat> commentStats = GetCommentStats(epochUTC, startDate, bin, binnedCommentStats);
+                List<Stat> spendingStats = GetSpendingStats(epochUTC, startDate, bin, binnedSpendingStats);
 
                 var maxPosts = postStats.Max(x => x.Count);
                 var maxComments = commentStats.Max(x => x.Count);
@@ -332,6 +295,54 @@ namespace zapread.com.Controllers
 
                 return Json(new { postStats, commentStats, spendingStats, maxPostComments, maxSpent }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        private List<Stat> GetSpendingStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, SpendingEvent>> binnedSpendingStats)
+        {
+            return binnedSpendingStats.Select(x => new
+            {
+                x.Key,
+                Sum = x.Sum(y => y.Amount)
+            }).ToList()
+                                .Select(x => new Stat
+                                {
+                                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                                    Count = Convert.ToInt32(x.Sum)
+                                })
+                                .OrderBy(x => x.TimeStampUtc)
+                                .ToList();
+        }
+
+        private List<Stat> GetCommentStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Comment>> binnedCommentStats)
+        {
+            return binnedCommentStats.Select(x => new
+            {
+                x.Key,
+                Count = x.Count()
+            }).ToList()
+                                .Select(x => new Stat
+                                {
+                                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                                    Count = x.Count
+                                })
+                                .OrderBy(x => x.TimeStampUtc)
+                                .ToList();
+        }
+
+        private List<Stat> GetPostStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Post>> binnedPostStats)
+        {
+            return binnedPostStats.Select(x => new
+            {
+                x.Key,
+                Count = x.Count()
+            }).ToList()
+                .Select(x => new Stat
+                {
+                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                    Count = x.Count
+                })
+                .OrderBy(x => x.TimeStampUtc)
+                .ToList();
         }
 
         // GET Admin/UserBalance
