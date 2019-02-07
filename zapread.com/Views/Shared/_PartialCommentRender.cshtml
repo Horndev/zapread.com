@@ -12,7 +12,7 @@
     @if (Request.IsAuthenticated)
     {
         <div class="pull-right social-action dropdown" @if (Model.Comment.IsReply) { <text> style="left:15px;" </text> }>
-            <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
+            <a id="cid_@Model.Comment.CommentId"></a><button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu ift-xs">
                 @if (isIgnoredUser)
                 {
@@ -105,7 +105,7 @@
                     </div>
                 }
 
-                <div id="commentText_@Model.Comment.CommentId" style="position: relative;">
+                <div class="comment-quotable" id="commentText_@Model.Comment.CommentId" style="position: relative;" data-commentid="@Model.Comment.CommentId">
                     @if (isIgnoredUser)
                     {
                         <span><br /></span>

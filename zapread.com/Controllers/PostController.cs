@@ -378,31 +378,38 @@ namespace zapread.com.Controllers
 
                     if (u.Settings.NotifyOnNewPostSubscribedUser)
                     {
-                        // send email
-                        var doc = new HtmlDocument();
-                        doc.LoadHtml(post.Content);
-                        var baseUri = new Uri("https://www.zapread.com/");
-                        var imgs = doc.DocumentNode.SelectNodes("//img/@src");
-                        if (imgs != null)
-                        {
-                            foreach (var item in imgs)
-                            {
-                                // TODO: check if external url
-                                item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                            }
-                        }
-                        string postContent = doc.DocumentNode.OuterHtml;
-
                         string followerEmail = UserManager.FindById(u.AppId).Email;
-                        MailingService.Send(user: "Notify",
-                            message: new UserEmailModel()
-                            {
-                                Subject = "New post by user you are following: " + user.Name,
-                                Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='https://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", 
-                                Destination = followerEmail,
-                                Email = "",
-                                Name = "ZapRead.com Notify"
-                            });
+                        string subject = "New post by user you are following: " + user.Name;
+
+                        var mailer = DependencyResolver.Current.GetService<MailerController>();
+                        mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+                        await mailer.SendNewPost(post.PostId, followerEmail, subject);
+
+                        //// send email
+                        //var doc = new HtmlDocument();
+                        //doc.LoadHtml(post.Content);
+                        //var baseUri = new Uri("https://www.zapread.com/");
+                        //var imgs = doc.DocumentNode.SelectNodes("//img/@src");
+                        //if (imgs != null)
+                        //{
+                        //    foreach (var item in imgs)
+                        //    {
+                        //        // TODO: check if external url
+                        //        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
+                        //    }
+                        //}
+                        //string postContent = doc.DocumentNode.OuterHtml;
+
+                        //MailingService.Send(user: "Notify",
+                        //    message: new UserEmailModel()
+                        //    {
+                        //        Subject = subject,
+                        //        Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='https://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", 
+                        //        Destination = followerEmail,
+                        //        Email = "",
+                        //        Name = "ZapRead.com Notify"
+                        //    });
                     }
                 }
 

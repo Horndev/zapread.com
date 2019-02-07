@@ -48,6 +48,9 @@
     <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.9.11\lib\net45\AngleSharp.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -220,6 +223,9 @@
     <Reference Include="Ninject.Web.WebApi, Version=3.3.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.0\lib\net45\Ninject.Web.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="PreMailer.Net, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PreMailer.Net.2.0.1\lib\net45\PreMailer.Net.dll</HintPath>
+    </Reference>
     <Reference Include="QRCoder, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.3.3\lib\net40\QRCoder.dll</HintPath>
     </Reference>
@@ -377,6 +383,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImgController.cs" />
     <Compile Include="Controllers\LightningController.cs" />
+    <Compile Include="Controllers\MailerController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
@@ -1739,6 +1746,12 @@
     <Content Include="Views\Post\PostNotFound.cshtml" />
     <Content Include="Views\Shared\_PartialModalSearch.cshtml" />
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
+    <Content Include="Views\Shared\_LayoutMailer.cshtml" />
+    <Content Include="Views\Mailer\Index.cshtml" />
+    <Content Include="Views\Mailer\MailerNewPost.cshtml" />
+    <Content Include="Views\Mailer\MailerNewComment.cshtml" />
+    <Content Include="Views\Messages\All.cshtml" />
+    <Content Include="Views\Messages\Chats.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

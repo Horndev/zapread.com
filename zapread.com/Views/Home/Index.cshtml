@@ -89,7 +89,7 @@
             <div class="social-feed-box">
                 <span></span>
             </div>
-            <div class="social-feed-box">
+            <div class="social-feed-box" style="margin-bottom:50px;">
                 <span></span>
             </div>
         </div>
@@ -210,6 +210,37 @@
                             $(".pop").each(function () {
                                 $(this).removeClass("pop");
                             });
+
+                            // Make post quotable
+                            $(".post-quotable").each(function (ix, e) {
+                                // Trigger when mouse is released (i.e. possible selection made)
+                                $(e).mouseup(function () {
+                                    var selection = getSelected();
+                                    $(selectionMarker).popover('hide');
+                                    if (selection && selection != "") {
+                                        // User made a selection
+                                        var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                                        selectionMarker = markSelection(markerId);
+                                        selectionText = selection.toString();
+                                        var postId = $(e).data('postid');
+                                        var popText = selectionText + '<hr/><button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>';
+                                        $(selectionMarker).popover({
+                                            trigger: "hover",
+                                            html: true,
+                                            animation: false,
+                                            title: "Quote",
+                                            placement: "top",
+                                            content: popText
+                                        })
+                                            .on('hidden.bs.popover', function () {
+                                                $(selectionMarker).popover('dispose');
+                                            })
+                                            .popover("show");
+                                    }
+                                });
+                                $(e).removeClass("post-quotable");
+                            });
+
                         });
 
 

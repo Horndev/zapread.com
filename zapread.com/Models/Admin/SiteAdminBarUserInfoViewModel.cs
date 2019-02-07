@@ -14,5 +14,7 @@ namespace zapread.com.Models.Admin
         public int TotalWithdrawn { get; set; }
         public int TotalEarned { get; set; }
         public int TotalSpent { get; set; }
+
+        public string Email { get; set; }
     }
 }
