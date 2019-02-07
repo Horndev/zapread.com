@@ -199,14 +199,15 @@ namespace zapread.com.Controllers
 
             msgHTML = doc.DocumentNode.OuterHtml;
 
-            return MailingService.SendAsync(new UserEmailModel()
-            {
-                Destination = email,
-                Body = msgHTML,
-                Email = "",
-                Name = "zapread.com",
-                Subject = subject,
-            });
+            return MailingService.SendAsync(user: "Notify",
+                message: new UserEmailModel()
+                {
+                    Destination = email,
+                    Body = msgHTML,
+                    Email = "",
+                    Name = "zapread.com",
+                    Subject = subject,
+                });
         }
 
         // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
