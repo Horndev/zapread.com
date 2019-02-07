@@ -48,6 +48,107 @@ namespace zapread.com.Controllers
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
         [HttpPost]
+        public async Task<ActionResult> GetChatsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserChatsQSReceived = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.IsPrivateMessage)
+                    .Include(m => m.From)
+                    .Include(m => m.To)
+                    .Select(m => new { other = m.From.Name, otherid = m.From.AppId, toid = m.To.AppId, m });
+
+                var pageUserChatsQSSent = db.Users
+                    .SelectMany(u => u.Messages.Where(m => m.From.AppId == userId))
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.IsPrivateMessage)
+                    .Include(m => m.To)
+                    .Include(m => m.From)
+                    .Select(m => new { other = m.To.Name, otherid = m.To.AppId, toid = m.To.AppId, m });
+
+                var messageSet = pageUserChatsQSReceived.Union(pageUserChatsQSSent);
+
+                var pageUserChatsQS = messageSet//pageUserChatsQSReceived;
+                    .GroupBy(a => a.other)
+                    .Select(x => x.OrderByDescending(y => y.m.TimeStamp).FirstOrDefault())
+                    .AsQueryable();
+
+                var cq = pageUserChatsQS.ToList();
+
+                // Build our query
+                var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp); ;
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.m.TimeStamp ?? DateTime.UtcNow);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                    }
+                }
+
+                var pageUserChats = await pageUserChatsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                var values = pageUserChats.AsParallel()
+                    .Select(u => new ChatsDataItem()
+                    {
+                        From = u.other,
+                        LastMessage = u.m.TimeStamp.HasValue ? u.m.TimeStamp.Value.ToString("o") : "?",
+                        FromID = u.otherid,
+                        Status = u.toid == userId ? "Waiting" : "Replied",
+                    }).ToList();
+
+                int numrec = await pageUserChatsQ.CountAsync();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class ChatsDataItem
+        {
+            public string Status { get; set; }
+            public string Type { get; set; }
+            public string From { get; set; }
+            public string FromID { get; set; }
+            public string LastMessage { get; set; }
+        }
+
+        /// <summary>
+        /// Queries the users for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
         public async Task<ActionResult> GetMessagesTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
