@@ -304,13 +304,13 @@ namespace zapread.com.Controllers
                 x.Key,
                 Sum = x.Sum(y => y.Amount)
             }).ToList()
-                                .Select(x => new Stat
-                                {
-                                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                                    Count = Convert.ToInt32(x.Sum)
-                                })
-                                .OrderBy(x => x.TimeStampUtc)
-                                .ToList();
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = Convert.ToInt32(x.Sum)
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
         }
 
         private List<Stat> GetCommentStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Comment>> binnedCommentStats)
@@ -320,13 +320,13 @@ namespace zapread.com.Controllers
                 x.Key,
                 Count = x.Count()
             }).ToList()
-                                .Select(x => new Stat
-                                {
-                                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                                    Count = x.Count
-                                })
-                                .OrderBy(x => x.TimeStampUtc)
-                                .ToList();
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = x.Count
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
         }
 
         private List<Stat> GetPostStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Post>> binnedPostStats)
@@ -336,13 +336,13 @@ namespace zapread.com.Controllers
                 x.Key,
                 Count = x.Count()
             }).ToList()
-                .Select(x => new Stat
-                {
-                    TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                    Count = x.Count
-                })
-                .OrderBy(x => x.TimeStampUtc)
-                .ToList();
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = x.Count
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
         }
 
         // GET Admin/UserBalance
