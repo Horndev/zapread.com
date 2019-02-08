@@ -24,9 +24,9 @@ namespace zapread.com.Models.Database
         [InverseProperty("Parent")]
         public virtual ICollection<Comment> Replies { get; set; }
 
-
         public virtual User UserId { get; set; }
         public DateTime? TimeStamp { get; set; }
+        public DateTime? TimeStampEdited { get; set; }
 
         public string Text { get; set; }
 

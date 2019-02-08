@@ -647,6 +647,10 @@
     <Compile Include="Migrations\201901261841537_addAlertsForAllNotify.Designer.cs">
       <DependentUpon>201901261841537_addAlertsForAllNotify.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902080329307_AddCommentTimestampEdited.cs" />
+    <Compile Include="Migrations\201902080329307_AddCommentTimestampEdited.Designer.cs">
+      <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1955,6 +1959,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201901261841537_addAlertsForAllNotify.resx">
       <DependentUpon>201901261841537_addAlertsForAllNotify.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902080329307_AddCommentTimestampEdited.resx">
+      <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
