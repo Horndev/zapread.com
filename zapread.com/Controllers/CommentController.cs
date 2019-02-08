@@ -43,6 +43,8 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
             public int CommentId { get; set; }
             public bool IsReply { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsTest { get; set; }
         }
 
         [HttpPost, AllowAnonymous]
@@ -137,6 +139,11 @@ namespace zapread.com.Controllers
             });
         }
 
+        /// <summary>
+        /// Add a comment
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> AddComment(NewComment c)
         {
@@ -203,12 +210,14 @@ namespace zapread.com.Controllers
                     }
                 }
 
-                db.Comments.Add(comment);
+                if (!c.IsTest)
+                    db.Comments.Add(comment);
                 if (!c.IsReply)
                 {
                     post.Comments.Add(comment);
                 }
-                await db.SaveChangesAsync();
+                if (!c.IsTest)
+                    await db.SaveChangesAsync();
 
                 // Find user mentions
                 try
@@ -220,7 +229,8 @@ namespace zapread.com.Controllers
                     {
                         foreach (var s in spans)
                         {
-                            await NotifyUserMentioned(db, user, post, comment, s);
+                            if (!c.IsTest)
+                                await NotifyUserMentioned(db, user, post, comment, s);
                         }
                     }
                 }
@@ -240,12 +250,14 @@ namespace zapread.com.Controllers
                 // Only send messages if not own post.
                 if (!c.IsReply && (postOwner.AppId != user.AppId))
                 {
-                    await NotifyPostOwnerOfComment(db, user, post, comment, postOwner);
+                    if (!c.IsTest)
+                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner);
                 }
 
                 if (c.IsReply && commentOwner.AppId != user.AppId)
                 {
-                    await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
+                    if (!c.IsTest)
+                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
                 }
 
                 string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { Comment = comment, Comments = new List<Comment>() });
@@ -275,6 +287,7 @@ namespace zapread.com.Controllers
                 TotalEarned = 0.0,
                 VotesUp = new List<User>(),
                 VotesDown = new List<User>(),
+                IsDeleted = c.IsDeleted,
             };
         }
 

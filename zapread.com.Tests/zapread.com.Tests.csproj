@@ -210,6 +210,7 @@
     <Compile Include="Controllers\GroupControllerTest.cs" />
     <Compile Include="Controllers\ManageControllerTest.cs" />
     <Compile Include="Controllers\AdminControllerTest.cs" />
+    <Compile Include="Controllers\CommentControllerTest.cs" />
     <Compile Include="Controllers\UserControllerTests.cs" />
     <Compile Include="Controllers\VoteControllerTests.cs" />
     <Compile Include="Database\LndConfigTest.cs" />
