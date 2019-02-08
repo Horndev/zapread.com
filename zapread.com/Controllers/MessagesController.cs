@@ -274,8 +274,8 @@ namespace zapread.com.Controllers
                     .Include(m => m.CommentLink)
                     .Where(m => !m.IsDeleted);
 
-                // Build our query
-                IOrderedQueryable<UserAlert> pageUserAlertsQ = null;
+                // Build our query and ensure default sort order
+                IOrderedQueryable<UserAlert> pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(m => m.TimeStamp);
 
                 foreach (var s in sorts)
                 {
@@ -287,14 +287,8 @@ namespace zapread.com.Controllers
                     else
                     {
                         if (dataTableParameters.Columns[s.Column].Name == "Date")
-                            pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(q => q.TimeStamp);
+                            pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(q => q.TimeStamp ?? DateTime.UtcNow);
                     }
-                }
-
-                // Ensure default sort order
-                if (pageUserAlertsQ == null)
-                {
-                    pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(m => m.TimeStamp);
                 }
 
                 var pageUserAlerts = await pageUserAlertsQ
@@ -302,30 +296,34 @@ namespace zapread.com.Controllers
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
 
-                var values = pageUserAlerts.AsParallel()
-                    .Select(u => new AlertDataItem()
-                    {
-                        AlertId = u.Id,
-                        Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
-                        Title = u.Title,
-                        Message = u.Content,
-                        Status = u.IsRead ? "Read" : "Unread",
-                        Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
-                        Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
-                        HasCommentLink = u.CommentLink != null,
-                    }).ToList();
+                List<AlertDataItem> values = GetAlertDataItems(pageUserAlerts);
 
                 int numrec = await pageUserAlertsQ.CountAsync();
 
-                var ret = new
+                return Json(new
                 {
                     draw = dataTableParameters.Draw,
                     recordsTotal = numrec,
                     recordsFiltered = numrec,
                     data = values
-                };
-                return Json(ret);
+                });
             }
+        }
+
+        private static List<AlertDataItem> GetAlertDataItems(List<UserAlert> pageUserAlerts)
+        {
+            return pageUserAlerts.AsParallel()
+                                .Select(u => new AlertDataItem()
+                                {
+                                    AlertId = u.Id,
+                                    Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                                    Title = u.Title,
+                                    Message = u.Content,
+                                    Status = u.IsRead ? "Read" : "Unread",
+                                    Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                                    Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                                    HasCommentLink = u.CommentLink != null,
+                                }).ToList();
         }
 
         public class AlertDataItem
