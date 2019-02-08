@@ -42,6 +42,11 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        public async Task<ActionResult> Alerts()
+        {
+            return View();
+        }
+
         /// <summary>
         /// Queries the users for a paging table.
         /// </summary>
@@ -144,7 +149,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// Queries the users for a paging table.
+        /// Queries messages for a paging table.
         /// </summary>
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
@@ -237,10 +242,102 @@ namespace zapread.com.Controllers
             public string Date { get; set; }
             public string Link { get; set; }
             public string Anchor { get; set; }
-            public string Message { get; set; }
-            
+            public string Message { get; set; } 
         }
 
+        /// <summary>
+        /// Queries alerts for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetAlertsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserAlertsQS = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Alerts)
+                    .Include(m => m.PostLink)
+                    .Include(m => m.CommentLink)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.CommentLink != null);
+
+                // Build our query
+                IOrderedQueryable<UserAlert> pageUserAlertsQ = null;
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(q => q.TimeStamp);
+                    }
+                }
+
+                // Ensure default sort order
+                if (pageUserAlertsQ == null)
+                {
+                    pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(m => m.TimeStamp);
+                }
+
+                var pageUserAlerts = await pageUserAlertsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                var values = pageUserAlerts.AsParallel()
+                    .Select(u => new AlertDataItem()
+                    {
+                        Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                        Message = u.Content,
+                        Status = u.IsRead ? "Read" : "Unread",
+                        Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                        Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                    }).ToList();
+
+                int numrec = await pageUserAlertsQ.CountAsync();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class AlertDataItem
+        {
+            public string Status { get; set; }
+            public string Type { get; set; }
+            public string From { get; set; }
+            public string FromID { get; set; }
+            public string Date { get; set; }
+            public string Link { get; set; }
+            public string Anchor { get; set; }
+            public string Message { get; set; }
+        }
+
+        /// <summary>
+        /// Get all unread messages and alerts
+        /// </summary>
+        /// <returns></returns>
         // GET: Messages
         public ActionResult Index()
         {

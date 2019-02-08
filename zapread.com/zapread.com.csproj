@@ -1755,6 +1755,7 @@
     <Content Include="Views\Mailer\MailerNewComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />
+    <Content Include="Views\Messages\Alerts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
