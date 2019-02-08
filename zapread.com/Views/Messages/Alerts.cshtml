@@ -26,7 +26,7 @@
                         <tr>
                             <th>Status</th>
                             <th>Date</th>
-                            <th>From</th>
+                            <th>Title</th>
                             <th>Message</th>
                             <th>Link</th>
                             <th>Action</th>
@@ -45,10 +45,10 @@
 
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
-    @Scripts.Render("~/bundles/datatables")
+@Scripts.Render("~/plugins/moment")
+@Scripts.Render("~/bundles/datatables")
 
-    <script type="text/javascript">
+<script type="text/javascript">
     var usersTable = {};
     $(document).ready(function () {
         // Close ibox function
@@ -103,22 +103,18 @@
                     }
                 },
                 { "data": "Date", "orderable": true, "name": "Date", "type": "date", "orderSequence": ["desc", "asc"] },
-                {
-                    "data": null,
-                    "name": 'From',
-                    "orderable": true,
-                    "mRender": function (data, type, row) {
-                        return "<div style='display:inline-block;white-space: nowrap;'><img class='img-circle' src='/Home/UserImage/?UserID=" + encodeURIComponent(data.FromID) + "&size=30'/><a target='_blank' href='/user/" + encodeURIComponent(data.From) + "''> " + data.From + "</a></div>";
-                    }
-                },
-
+                { "data": "Title", "orderable": false, "name": "Title" },
                 { "data": "Message", "orderable": false, "name": "Message"},
                 {
                     "data": null,
                     "name": 'Link',
                     "orderable": false,
                     "mRender": function (data, type, row) {
-                        return "<a href='/Post/Detail/" + data.Link + "#cid_" + data.Anchor+"'>Go to Comment</a>";
+                        var linkText = "Go to Post";
+                        if (data.HasCommentLink) {
+                            linkText = "Go to Comment";
+                        }
+                        return "<a href='/Post/Detail/" + data.Link + "#cid_" + data.Anchor + "'>" + linkText+"</a>";
                     }
                 },
                 {
@@ -126,11 +122,34 @@
                     "name": 'Action',
                     "orderable": false,
                     "mRender": function (data, type, row) {
-                        return "TODO";
+                        return "<button class='btn btn-danger btn-outline btn-sm' id='a_"+data.AlertId+"' onclick='deletea(" + data.AlertId + ");'>Delete</button>";
                     }
                 },
             ],
         });
-    });
-    </script>
+    }); // end ready
+
+    var deletea = function (id) {
+        var url = "/Messages/DeleteAlert";
+
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: url,
+            data: JSON.stringify({ "id": id }),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                if (result.Result == "Success") {
+                    $('#a_' + id).parent().parent().hide();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("fail");
+            }
+        });
+        return false;
+    };
+
+</script>
 }

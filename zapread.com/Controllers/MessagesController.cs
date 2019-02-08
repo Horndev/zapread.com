@@ -32,6 +32,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<ActionResult> Chats()
         {
             return View();
@@ -268,8 +272,7 @@ namespace zapread.com.Controllers
                     .SelectMany(u => u.Alerts)
                     .Include(m => m.PostLink)
                     .Include(m => m.CommentLink)
-                    .Where(m => !m.IsDeleted)
-                    .Where(m => m.CommentLink != null);
+                    .Where(m => !m.IsDeleted);
 
                 // Build our query
                 IOrderedQueryable<UserAlert> pageUserAlertsQ = null;
@@ -302,11 +305,14 @@ namespace zapread.com.Controllers
                 var values = pageUserAlerts.AsParallel()
                     .Select(u => new AlertDataItem()
                     {
+                        AlertId = u.Id,
                         Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                        Title = u.Title,
                         Message = u.Content,
                         Status = u.IsRead ? "Read" : "Unread",
                         Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
                         Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                        HasCommentLink = u.CommentLink != null,
                     }).ToList();
 
                 int numrec = await pageUserAlertsQ.CountAsync();
@@ -324,14 +330,14 @@ namespace zapread.com.Controllers
 
         public class AlertDataItem
         {
+            public int AlertId { get; set; }
             public string Status { get; set; }
-            public string Type { get; set; }
-            public string From { get; set; }
-            public string FromID { get; set; }
+            public string Title { get; set; }
             public string Date { get; set; }
             public string Link { get; set; }
             public string Anchor { get; set; }
             public string Message { get; set; }
+            public bool HasCommentLink { get; set; }
         }
 
         /// <summary>
