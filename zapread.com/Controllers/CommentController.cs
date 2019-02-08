@@ -121,17 +121,18 @@ namespace zapread.com.Controllers
                 var comment = db.Comments.FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
                 if (comment == null)
                 {
-                    return Json(new { Success = false });
+                    return Json(new { Success = false, message = "Comment not found." });
                 }
                 if (comment.UserId.AppId != userId)
                 {
-                    return Json(new { Success = false });
+                    return Json(new { Success = false, message = "User does not have rights to edit comment." });
                 }
                 comment.Text = c.CommentContent;
+                comment.TimeStampEdited = DateTime.UtcNow;
                 db.SaveChanges();
             }
 
-            return this.Json(new
+            return Json(new
             {
                 HTMLString = "",
                 c.PostId,
