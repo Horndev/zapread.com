@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Tests.Mailer
 {
