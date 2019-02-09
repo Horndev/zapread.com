@@ -78,7 +78,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-
             // popups for users, groups, etc.
             $(".pop").popover({
                 trigger: "manual",
@@ -193,7 +192,10 @@
                         selectionMarker = markSelection(markerId);
                         selectionText = selection.toString();
                         var postId = $(e).data('postid');
-                        var popText = selectionText + '<hr/><button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>';
+                        var popText = selectionText + '<hr/>' +
+                            '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                            '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ',true);">' +
+                                '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
                         $(selectionMarker).popover({
                             trigger: "hover",
                             html: true,
@@ -223,7 +225,10 @@
                         selectionMarker = markSelection(markerId);
                         selectionText = selection.toString();
                         var commentid = $(e).data('commentid');
-                        var popText = selectionText + '<hr/><button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>';
+                        var popText = selectionText + '<hr/>' +
+                            '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                            '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ',true);">' +
+                            '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
                         $(selectionMarker).popover({
                             trigger: "hover",
                             html: true,
@@ -499,8 +504,14 @@
         };
 
         // TODO: Needs cleanup and code refactor with showreply(id)
-        var commentQuoteComment = function (id) {
+        var commentQuoteComment = function (id, mention = false) {
             $('#c_reply_' + id.toString()).toggle('show');
+            var quotetext = '<blockquote class="blockquote">' + selectionText + '</blockquote><br/>';
+            if (mention) {
+                var username = $('#comment_' + id.toString()).find('.post-username').data('user');
+                quotetext = '<span class="badge badge-info userhint" style="margin-bottom: 10px;margin-right: 10px;">@@' + username + '</span>' +
+                    '<blockquote class="blockquote" style="display:inline-flex;">' + selectionText + '</blockquote><br/><br/>';
+            }
             $('#c_reply_' + id.toString()).load('@Url.Action("GetInputBox", "Comment")' + "/" + id.toString(), function () {
                 $(".c_input").summernote({
                     callbacks: {
@@ -543,7 +554,7 @@
                     }
                 });
                 $(".note-statusbar").css("display", "none");
-                $('#c_reply_' + id.toString()).find('.c_input').summernote('code', '<blockquote class="blockquote">' + selectionText + '</blockquote><br/> ');
+                $('#c_reply_' + id.toString()).find('.c_input').summernote('code', quotetext);
                 $(selectionMarker).popover('hide');
                 var editbox = $('#c_reply_' + id.toString()).parent().find('.note-editable');
                 editbox.placeCursorAtEnd();
@@ -551,10 +562,15 @@
             });
         };
 
-        var postQuoteComment = function (id) {
+        var postQuoteComment = function (id, mention = false) {
             toggleChat(id, true);
-
-            $('.c_input_' + id.toString()).summernote('code', '<blockquote class="blockquote">' + selectionText + '</blockquote><br/> ');
+            var quotetext = '<blockquote class="blockquote">' + selectionText + '</blockquote><br/>';
+            if (mention) {
+                var username = $('#post_' + id.toString()).find('.post-username').data('user');
+                quotetext = '<span class="badge badge-info userhint" style="margin-bottom: 10px;margin-right: 10px;">@@' + username + '</span>' +
+                    '<blockquote class="blockquote" style="display:inline-flex;">' + selectionText + '</blockquote><br/><br/>';
+            }
+            $('.c_input_' + id.toString()).summernote('code', quotetext);
             $(selectionMarker).popover('hide');
             var editbox = $('.c_input_' + id.toString()).parent().find('.note-editable');
             editbox.placeCursorAtEnd();

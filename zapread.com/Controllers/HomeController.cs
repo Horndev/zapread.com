@@ -689,7 +689,6 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
-
                         GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
                         GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
                         GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
