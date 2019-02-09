@@ -12,6 +12,7 @@ using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 
 namespace zapread.com.Controllers
 {
@@ -31,6 +32,316 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> Chats()
+        {
+            return View();
+        }
+
+        public async Task<ActionResult> All()
+        {
+            return View();
+        }
+
+        public async Task<ActionResult> Alerts()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Queries the users for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetChatsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserChatsQSReceived = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.IsPrivateMessage)
+                    .Include(m => m.From)
+                    .Include(m => m.To)
+                    .Select(m => new { other = m.From.Name, otherid = m.From.AppId, toid = m.To.AppId, m });
+
+                var pageUserChatsQSSent = db.Users
+                    .SelectMany(u => u.Messages.Where(m => m.From.AppId == userId))
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.IsPrivateMessage)
+                    .Include(m => m.To)
+                    .Include(m => m.From)
+                    .Select(m => new { other = m.To.Name, otherid = m.To.AppId, toid = m.To.AppId, m });
+
+                var messageSet = pageUserChatsQSReceived.Union(pageUserChatsQSSent);
+
+                var pageUserChatsQS = messageSet//pageUserChatsQSReceived;
+                    .GroupBy(a => a.other)
+                    .Select(x => x.OrderByDescending(y => y.m.TimeStamp).FirstOrDefault())
+                    .AsQueryable();
+
+                var cq = pageUserChatsQS.ToList();
+
+                // Build our query
+                var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp); ;
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.m.TimeStamp ?? DateTime.UtcNow);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                    }
+                }
+
+                var pageUserChats = await pageUserChatsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                var values = pageUserChats.AsParallel()
+                    .Select(u => new ChatsDataItem()
+                    {
+                        From = u.other,
+                        LastMessage = u.m.TimeStamp.HasValue ? u.m.TimeStamp.Value.ToString("o") : "?",
+                        FromID = u.otherid,
+                        Status = u.toid == userId ? "Waiting" : "Replied",
+                    }).ToList();
+
+                int numrec = await pageUserChatsQ.CountAsync();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class ChatsDataItem
+        {
+            public string Status { get; set; }
+            public string Type { get; set; }
+            public string From { get; set; }
+            public string FromID { get; set; }
+            public string LastMessage { get; set; }
+        }
+
+        /// <summary>
+        /// Queries messages for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetMessagesTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserMessagesQS = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Include(m => m.From)
+                    .Include(m => m.PostLink)
+                    .Include(m => m.CommentLink)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.CommentLink != null);
+
+                // Build our query
+                IOrderedQueryable<UserMessage> pageUserMessagesQ = null;
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserMessagesQ = pageUserMessagesQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserMessagesQ = pageUserMessagesQS.OrderBy(q => q.From != null ? q.From.Name : "");
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserMessagesQ = pageUserMessagesQS.OrderByDescending(q => q.TimeStamp);
+                        else if (dataTableParameters.Columns[s.Column].Name == "From")
+                            pageUserMessagesQ = pageUserMessagesQS.OrderByDescending(q => q.From != null ? q.From.Name : "");
+                    }
+                }
+
+                // Ensure default sort order
+                if (pageUserMessagesQ == null)
+                {
+                    pageUserMessagesQ = pageUserMessagesQS.OrderByDescending(m => m.TimeStamp);
+                }
+
+                var pageUserMessages = await pageUserMessagesQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                var values = pageUserMessages.AsParallel()
+                    .Select(u => new MessageDataItem()
+                    {
+                        Type = u.IsPrivateMessage ? "Private Message" : u.CommentLink != null ? "Comment" : "?",
+                        Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                        From = u.From != null ? u.From.Name : "?",
+                        FromID = u.From != null ? u.From.AppId : "?",
+                        Message = u.Content,
+                        Status = u.IsRead ? "Read" : "Unread",
+                        Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                        Anchor = u.CommentLink !=null ? u.CommentLink.CommentId.ToString() : "",
+                    }).ToList();
+
+                int numrec = await pageUserMessagesQ.CountAsync();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class MessageDataItem
+        {
+            public string Status { get; set; }
+            public string Type { get; set; }
+            public string From { get; set; }
+            public string FromID { get; set; }
+            public string Date { get; set; }
+            public string Link { get; set; }
+            public string Anchor { get; set; }
+            public string Message { get; set; } 
+        }
+
+        /// <summary>
+        /// Queries alerts for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetAlertsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserAlertsQS = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Alerts)
+                    .Include(m => m.PostLink)
+                    .Include(m => m.CommentLink)
+                    .Where(m => !m.IsDeleted);
+
+                // Build our query and ensure default sort order
+                IOrderedQueryable<UserAlert> pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(m => m.TimeStamp);
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(q => q.TimeStamp ?? DateTime.UtcNow);
+                    }
+                }
+
+                var pageUserAlerts = await pageUserAlertsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                List<AlertDataItem> values = GetAlertDataItems(pageUserAlerts);
+
+                int numrec = await pageUserAlertsQ.CountAsync();
+
+                return Json(new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                });
+            }
+        }
+
+        private static List<AlertDataItem> GetAlertDataItems(List<UserAlert> pageUserAlerts)
+        {
+            return pageUserAlerts.AsParallel()
+                                .Select(u => new AlertDataItem()
+                                {
+                                    AlertId = u.Id,
+                                    Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                                    Title = u.Title,
+                                    Message = u.Content,
+                                    Status = u.IsRead ? "Read" : "Unread",
+                                    Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                                    Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                                    HasCommentLink = u.CommentLink != null,
+                                }).ToList();
+        }
+
+        public class AlertDataItem
+        {
+            public int AlertId { get; set; }
+            public string Status { get; set; }
+            public string Title { get; set; }
+            public string Date { get; set; }
+            public string Link { get; set; }
+            public string Anchor { get; set; }
+            public string Message { get; set; }
+            public bool HasCommentLink { get; set; }
+        }
+
+        /// <summary>
+        /// Get all unread messages and alerts
+        /// </summary>
+        /// <returns></returns>
         // GET: Messages
         public ActionResult Index()
         {

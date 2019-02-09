@@ -12,7 +12,7 @@
     @if (Request.IsAuthenticated)
     {
         <div class="pull-right social-action dropdown" @if (Model.Comment.IsReply) { <text> style="left:15px;" </text> }>
-            <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
+            <a id="cid_@Model.Comment.CommentId"></a><button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu ift-xs">
                 @if (isIgnoredUser)
                 {
@@ -59,19 +59,14 @@
                 }
                 else
                 {
-                    @*<a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name })">
-                        @if (isIgnoredUser)
-                        {
-                            <text>(Ignored) </text>
-                        }
-                        else
-                        {
-                            @Model.Comment.UserId.Name
-                        }
-                    </a>*@
                     @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Comment.UserId, IsIgnored = isIgnoredUser })
                 }
                 <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
+                @if (Model.Comment.TimeStampEdited != null)
+                {
+                    <span class="text-muted" style="display:inline"> edited </span>
+                    <small class="postTime text-muted" style="display: none">@Model.Comment.TimeStampEdited.Value.ToString("o")</small>
+                }
                 @if (Request.IsAuthenticated && !Model.Comment.IsDeleted)
                 {
                     <div class="vote-actions" @if (isIgnoredUser) { <text> style="display: none" </text> }>
