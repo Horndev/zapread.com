@@ -394,6 +394,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
+    <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
@@ -669,6 +670,7 @@
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Finance\FinanceModels.cs" />
+    <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />

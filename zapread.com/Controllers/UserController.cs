@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.GroupView;
 
 namespace zapread.com.Controllers
 {
@@ -56,13 +58,13 @@ namespace zapread.com.Controllers
         }
 
 
-        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                         .AsNoTracking()
-                        .Where(us => us.Id == userId).FirstOrDefault();
+                        .Where(us => us.Id == userId).FirstOrDefaultAsync();
 
                 if (user == null)
                 {
@@ -98,10 +100,10 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .AsNoTracking().Take(20);
 
-                var activityposts = userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
+                var activityposts = await userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToList();
+                    .ToListAsync();
 
                 return activityposts;
             }
@@ -149,7 +151,7 @@ namespace zapread.com.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                var activityposts = GetPosts(0, 10, user.Id);
+                var activityposts = await GetPosts(0, 10, user.Id);
 
                 int numUserPosts = db.Posts.Where(p => p.UserId.Id == user.Id).Count();
 
@@ -241,34 +243,23 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                User user = await db.Users.AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == uid);
 
-                var posts = GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
+                List<Post> posts = await GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
 
-                string PostsHTMLString = "";
-
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
+                List<GroupStats> groups = await db.Groups.AsNoTracking()
+                        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
                         .ToListAsync();
 
+                string PostsHTMLString = "";
                 foreach (var p in posts)
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                    };
-
+                    PostViewModel pvm = HTMLRenderHelpers.CreatePostViewModel(p, user, groups);
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
                     PostsHTMLString += PostHTMLString;
                 }
+
                 return Json(new
                 {
                     NoMoreData = posts.Count < BlockSize,
