@@ -154,7 +154,7 @@
             <div class="col">
                 
                 @*<p>*@
-                <div class="post-quotable @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.Post.PostId">
+                <div class="post-quotable post-content @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.Post.PostId" data-userid="@Model.Post.UserId.Id">
                     <div @if (!Model.IsDetailView) { <text> class="post-content" </text> }>
                         @Html.Raw(Model.Post.Content)
                     </div>
