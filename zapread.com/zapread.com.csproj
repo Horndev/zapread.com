@@ -1559,6 +1559,8 @@
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite%402x.png" />
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite.png" />
     <Content Include="node_modules\bootstrap-chosen\dist\chosen.jquery-1.4.2\chosen.jquery.min.js" />
+    <Content Include="node_modules\bootstrap-tour\build\css\bootstrap-tour.min.css" />
+    <Content Include="node_modules\bootstrap-tour\build\js\bootstrap-tour.min.js" />
     <Content Include="node_modules\bootstrap\dist\css\bootstrap.min.css" />
     <Content Include="node_modules\bootstrap\dist\js\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">

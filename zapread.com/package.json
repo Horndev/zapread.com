@@ -24,6 +24,7 @@
     "jssocials": "1.5.0",
     "bootstrap-chosen": "1.4.2",
     "toastr": "2.1.4",
-    "webrtc-adapter": "7.1.1"
+    "webrtc-adapter": "7.1.1",
+    "bootstrap-tour": "0.12.0"
   }
 }
