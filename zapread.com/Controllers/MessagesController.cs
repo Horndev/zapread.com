@@ -32,12 +32,21 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<ActionResult> Chats()
         {
             return View();
         }
 
         public async Task<ActionResult> All()
+        {
+            return View();
+        }
+
+        public async Task<ActionResult> Alerts()
         {
             return View();
         }
@@ -144,7 +153,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// Queries the users for a paging table.
+        /// Queries messages for a paging table.
         /// </summary>
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
@@ -237,10 +246,102 @@ namespace zapread.com.Controllers
             public string Date { get; set; }
             public string Link { get; set; }
             public string Anchor { get; set; }
-            public string Message { get; set; }
-            
+            public string Message { get; set; } 
         }
 
+        /// <summary>
+        /// Queries alerts for a paging table.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> GetAlertsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+
+                var pageUserAlertsQS = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Alerts)
+                    .Include(m => m.PostLink)
+                    .Include(m => m.CommentLink)
+                    .Where(m => !m.IsDeleted);
+
+                // Build our query and ensure default sort order
+                IOrderedQueryable<UserAlert> pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(m => m.TimeStamp);
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "Date")
+                            pageUserAlertsQ = pageUserAlertsQS.OrderByDescending(q => q.TimeStamp ?? DateTime.UtcNow);
+                    }
+                }
+
+                var pageUserAlerts = await pageUserAlertsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync();
+
+                List<AlertDataItem> values = GetAlertDataItems(pageUserAlerts);
+
+                int numrec = await pageUserAlertsQ.CountAsync();
+
+                return Json(new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                });
+            }
+        }
+
+        private static List<AlertDataItem> GetAlertDataItems(List<UserAlert> pageUserAlerts)
+        {
+            return pageUserAlerts.AsParallel()
+                                .Select(u => new AlertDataItem()
+                                {
+                                    AlertId = u.Id,
+                                    Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                                    Title = u.Title,
+                                    Message = u.Content,
+                                    Status = u.IsRead ? "Read" : "Unread",
+                                    Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                                    Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                                    HasCommentLink = u.CommentLink != null,
+                                }).ToList();
+        }
+
+        public class AlertDataItem
+        {
+            public int AlertId { get; set; }
+            public string Status { get; set; }
+            public string Title { get; set; }
+            public string Date { get; set; }
+            public string Link { get; set; }
+            public string Anchor { get; set; }
+            public string Message { get; set; }
+            public bool HasCommentLink { get; set; }
+        }
+
+        /// <summary>
+        /// Get all unread messages and alerts
+        /// </summary>
+        /// <returns></returns>
         // GET: Messages
         public ActionResult Index()
         {
