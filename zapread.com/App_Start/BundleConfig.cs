@@ -73,7 +73,7 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/node_modules/popper.js/dist/umd/popper.min.js",
                         "~/node_modules/bootstrap/dist/js/bootstrap.min.js",
-                        "~/node_modules/bootstrap-tour/build/js/bootstrap-tour.min.js",
+                        "~/Scripts/bootstrap-tour.min.js",
                         "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
@@ -83,7 +83,7 @@ namespace zapread.com
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
-                      "~/node_modules/bootstrap-tour/build/css/bootstrap-tour.min.css"));
+                      "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css")

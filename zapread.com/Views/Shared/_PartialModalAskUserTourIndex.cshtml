@@ -1,0 +1,95 @@
+﻿@*
+    This view renders a modal which presents the user with a request to do a tour of the homepage
+
+    This should be rendered if the user does not have the dismiss cookie.
+*@
+
+<div class="modal fade" id="modalTourIndex" data-show="true" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalTourIndexTitle">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modalTourIndexTitle">ZapRead Tour</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Would you like a quick tour and explaination of ZapRead.com?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button id="btnTourStart" type="button" class="btn btn-primary">Yes</button>
+                <button id="btnTourDismiss" type="button" class="btn btn-secondary" onclick="alert('.');">Don't ask again</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Remind me later</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Script(
+@<script type="text/javascript">
+    $(document).ready(function () {
+        $('#modalTourIndex').modal('show');
+
+        // Instance the tour
+        var tour = new Tour({
+            steps: [{
+
+                element: "#goHome",
+                title: "Go Home",
+                content: "Click here to return to the home page at any time.",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper',
+                onShown: function (tour) {
+                    $('body').addClass('tour-open')
+                },
+                onHidden: function (tour) {
+                    $('body').removeClass('tour-close')
+                }
+            },
+            //{
+            //    element: "#step2",
+            //    title: "Title of my step",
+            //    content: "Content of my step",
+            //    placement: "top",
+            //    backdrop: true,
+            //    backdropContainer: '#wrapper',
+            //    onShown: function (tour) {
+            //        $('body').addClass('tour-open')
+            //    },
+            //    onHidden: function (tour) {
+            //        $('body').removeClass('tour-close')
+            //    }
+            //},
+            //{
+            //    element: "#step3",
+            //    title: "Title of my step",
+            //    content: "Introduce new users to your product by walking them through it step by step.",
+            //    placement: "bottom"
+            //},
+            {
+                element: "#step4",
+                title: "Title of my step",
+                content: "Introduce new users to your product by walking them through it step by step.",
+                placement: "top"
+            }
+            ]
+        });
+
+        // Initialize the tour
+        //tour.init();
+
+        $('#btnTourStart').click(function () {
+            $('#modalTourIndex').modal('hide');
+            tour.restart();
+
+            // Start the tour
+            // tour.start();
+        })
+    });
+
+
+</script>
+)

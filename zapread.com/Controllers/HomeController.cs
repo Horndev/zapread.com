@@ -367,6 +367,38 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// If the user is away for longer than 30 days, it presents the tour again.
+        /// value is "hide"     : do not present the tour to the user
+        ///          "show"     : present to user
+        /// </summary>
+        /// <returns></returns>
+        private string SetOrUpdateUserTourCookie(string value = "")
+        {
+            string cookieResultValue;
+
+            //Check if user is returning
+            if (HttpContext.Request.Cookies["ZapRead.com.Tour"] != null)
+            {
+                var cookie = HttpContext.Request.Cookies.Get("ZapRead.com.Tour");
+                cookie.Expires = DateTime.Now.AddDays(30);   //update
+                HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
+                HttpContext.Response.SetCookie(cookie);
+                cookieResultValue = cookie.Value;
+            }
+            else
+            {
+                HttpCookie cookie = new HttpCookie("ZapRead.com.Tour");
+                cookie.Value = value;
+                cookie.Expires = DateTime.Now.AddDays(30);
+                HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
+                HttpContext.Response.SetCookie(cookie);
+                cookieResultValue = cookie.Value;
+            }
+
+            return cookieResultValue;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="sort">Score, New</param>
@@ -398,6 +430,13 @@ namespace zapread.com.Controllers
             if (User != null) // This is the case when testing unauthorized call
             {
                 uid = User.Identity.GetUserId();
+            }
+
+            ViewBag.ShowTourModal = false;
+            if (SetOrUpdateUserTourCookie("show") != "hide")
+            {
+                // User has not dismissed tour request
+                ViewBag.ShowTourModal = true;
             }
 
             try

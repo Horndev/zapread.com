@@ -7,6 +7,11 @@
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
 
+@if(ViewBag.ShowTourModal)
+{
+    @Html.Partial(partialViewName: "_PartialModalAskUserTourIndex")
+}
+
 <div class="wrapper border-bottom white-bg page-heading" style="padding-bottom: 0px;">
     <div class="col-lg-12">
         <br />
