@@ -1604,6 +1604,7 @@
     <Content Include="node_modules\jquery.flot\jquery.flot.pie.js" />
     <Content Include="node_modules\jquery.flot\jquery.flot.resize.js" />
     <Content Include="node_modules\jquery.flot\jquery.flot.time.js" />
+    <Content Include="node_modules\jquery\dist\jquery.js" />
     <Content Include="node_modules\jquery\dist\jquery.min.js" />
     <Content Include="node_modules\jssocials\dist\jssocials-theme-flat.css" />
     <Content Include="node_modules\jssocials\dist\jssocials.css" />

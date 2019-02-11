@@ -14,8 +14,17 @@
                 </button>
             </div>
             <div class="modal-body">
+                <h3>
+                    Welcome!
+                </h3>
                 <p>
-                    Would you like a quick tour and explaination of ZapRead.com?
+                    ZapRead.com is a social media platform where you can vote with Bitcoin to reward quality content, and bury poor content.  The Bitcoin you spend is passed on to the creators of quality content throughout the website!
+                </p>
+                <p>
+                    If you contribute quality content, you too will earn Bitcoin. Payments are made over the <a href="https://en.wikipedia.org/wiki/Lightning_Network" target="_blank"  data-toggle="tooltip" data-placement="bottom" title="Opens in new window."><i class="fa fa-bolt"></i> Lightning Network</a>.
+                </p>
+                <p>
+                    <b>Would you like a quick tour and explaination of ZapRead.com?</b>
                 </p>
             </div>
             <div class="modal-footer">
@@ -31,11 +40,10 @@
 @<script type="text/javascript">
     $(document).ready(function () {
         $('#modalTourIndex').modal('show');
-
+        $('[data-toggle="tooltip"]').tooltip()
         // Instance the tour
         var tour = new Tour({
             steps: [{
-
                 element: "#goHome",
                 title: "Go Home",
                 content: "Click here to return to the home page at any time.",

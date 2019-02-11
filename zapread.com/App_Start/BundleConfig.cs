@@ -37,23 +37,22 @@ namespace zapread.com
                         "~/Scripts/DetailPostPage.js")
                         .WithLastModifiedToken());
 
-            bundles.Add(new ScriptBundle("~/bundles/truncate").Include(
-                        "~/Scripts/jquery.truncate.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/node_modules/jquery/dist/jquery.min.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/jquery-unobtrusive").Include(
-                        "~/node_modules/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/plugins/jquery-ui").Include(
-                        "~/node_modules/jquery-ui-dist/jquery-ui.min.js"));
-
             bundles.Add(new ScriptBundle("~/Content/plugins/css/jquery-ui").Include(
                         "~/node_modules/jquery-ui-dist/jquery-ui.min.css"));
 
+            bundles.Add(new ScriptBundle("~/bundles/truncate").Include(
+                        "~/Scripts/jquery.truncate.js"));
+
+            // Jquery
+            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
+                        "~/node_modules/jquery/dist/jquery.js",
+                        "~/node_modules/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
+                        "~/node_modules/jquery-ui-dist/jquery-ui.min.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
+
+            
 
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
@@ -92,6 +91,14 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
                       .WithLastModifiedToken());
+
+            // Plugins together
+            bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
+                        "~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
+                        "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
+                        "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
+                        "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
+                        "~/node_modules/toastr/build/toastr.min.js"));          // toastr notification 
 
             // Sweet Alert
             bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
@@ -177,8 +184,7 @@ namespace zapread.com
 
 
             // Needed for some fixes in dependancies
-            // BundleTable.EnableOptimizations = false;
-
+            BundleTable.EnableOptimizations = true;// false;
         }
     }
 }
