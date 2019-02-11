@@ -3,6 +3,7 @@
 
 @{
     ViewBag.Title = "Zapread.com";
+    bool firstPost = true;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -78,13 +79,15 @@
                 <span></span>
             </div>
             <div class="social-feed-box">
-                <button onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
+                <button id="btnNewPost" onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
             </div>
 
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
+                    p.IsFirstPost = firstPost;
                     @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                    firstPost = false;
                 }
             </div>
             <div class="social-feed-box">

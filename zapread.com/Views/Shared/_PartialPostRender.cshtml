@@ -4,7 +4,7 @@
 @using zapread.com.Models.UserViews;
 @model zapread.com.Models.PostViewModel
 
-<div class="social-feed-box" id=@("post_" + @Model.Post.PostId.ToString())>
+<div class="social-feed-box @(Model.IsFirstPost ? "firstPost" : "")" id=@("post_" + @Model.Post.PostId.ToString())>
     <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
     <i class="fa fa-minus-square togglebutton"></i></button>
     <div class="pull-right social-action dropdown">
@@ -107,13 +107,14 @@
             </a>
         }
             <div class="media-body">
-                @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser })
+                @*<div id="@(Model.IsFirstPost ? "postUserName" : "")">*@
+                @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })
                 @if (Model.Post.IsSticky)
                 {
                     <span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>
                 }
                 posted in
-                <a class="pop" data-container="body" data-toggle="popover" data-placement="top"
+                <a id="@(Model.IsFirstPost ? "postGroupName" : "")" class="pop " data-container="body" data-toggle="popover" data-placement="top"
                    data-content="<span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>@Model.GroupLevels[Model.Post.Group.GroupId]<i class='fa fa-arrow-up'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>@Model.GroupPostCounts[Model.Post.Group.GroupId] <i class='fa fa-pencil'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>@Model.GroupMemberCounts[Model.Post.Group.GroupId] <i class='fa fa-user'></i></span><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert(&quot;Not yet implemented. Check back soon&quot;);'><i class='fa fa-plus'></i></a>"
                    data-original-title="" title="" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
                     @Model.Post.Group.GroupName
@@ -124,7 +125,7 @@
                     <span class="text-muted" style="display:inline"> edited </span>
                     <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
                 }
-                <h3 style="display: block;">
+                <h3 class="@(Model.IsFirstPost ? "firstPostTitle" : "")" style="display: block;">
                     <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
                         @if (Model.Post.PostTitle == null)
                         {
@@ -142,11 +143,11 @@
         <div class="row">
             <div class="col-sm-auto vote-actions">
                 <div class="vote-actions">
-                    <a href="#/" onclick="vote(@Model.Post.PostId, 1, 1, 100)" class="@(Model.ViewerUpvoted ? "" : "text-muted ")" id="uVote_@Model.Post.PostId">
+                    <a href="#/" onclick="vote(@Model.Post.PostId, 1, 1, 100)" class="@(Model.ViewerUpvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteUp" : "")" id="uVote_@Model.Post.PostId">
                         <i class="fa fa-chevron-up"> </i>
                     </a>
                     <div id="sVote_@Model.Post.PostId">@Model.Post.Score.ToAbbrString()</div>
-                    <a href="#/" onclick="vote(@Model.Post.PostId, 0, 1, 100)" class="@(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.Post.PostId">
+                    <a href="#/" onclick="vote(@Model.Post.PostId, 0, 1, 100)" class="@(Model.ViewerDownvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteDown" : "")" id="dVote_@Model.Post.PostId">
                         <i class="fa fa-chevron-down"> </i>
                     </a>
                 </div>

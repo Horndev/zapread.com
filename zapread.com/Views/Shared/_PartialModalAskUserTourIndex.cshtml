@@ -43,34 +43,86 @@
         $('[data-toggle="tooltip"]').tooltip()
         // Instance the tour
         var tour = new Tour({
+            name: "index",
             steps: [{
                 element: "#goHome",
                 title: "Go Home",
                 content: "Click here to return to the home page at any time.",
                 placement: "top",
                 backdrop: true,
-                backdropContainer: '#wrapper',
-                onShown: function (tour) {
-                    $('body').addClass('tour-open')
-                },
-                onHidden: function (tour) {
-                    $('body').removeClass('tour-close')
-                }
+                backdropContainer: '#wrapper'
+                //onShown: function (tour) {
+                //    $('body').addClass('tour-open')
+                //},
+                //onHidden: function (tour) {
+                //    $('body').removeClass('tour-close')
+                //}
             },
-            //{
-            //    element: "#step2",
-            //    title: "Title of my step",
-            //    content: "Content of my step",
-            //    placement: "top",
-            //    backdrop: true,
-            //    backdropContainer: '#wrapper',
-            //    onShown: function (tour) {
-            //        $('body').addClass('tour-open')
-            //    },
-            //    onHidden: function (tour) {
-            //        $('body').removeClass('tour-close')
-            //    }
-            //},
+            {
+                element: ".firstPost",
+                title: "This is a post.",
+                content: "<p>All content on ZapRead.com is submitted as a post.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: "#btnNewPost",
+                title: "Submitting new posts.",
+                content: "<p>It costs nothing to submit a post.</p><p>All new posts start with a score of 1.  Good quality posts are rewarded, poor quality posts are not.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: ".firstPostVoteUp",
+                title: "Vote up ...",
+                content: "<p> ... if you think this post is of high quality.</p><p><ul><li>60% goes to the author</li><li>20% goes to the group</li><li>10% goes to all authors</li><li>10% goes to server fees and maintenance</li></ul></p><p>The post score is increased and it becomes more visible.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: ".firstPostVoteDown",
+                title: "Vote down ...",
+                content: "<p> ... if the post is of poor quality.</p><p><ul><li>80% goes to the group</li><li>10% goes to all authors</li><li>10% goes to server fees and maintenance</li></ul></p><p>The post score is reduced and it becomes less visible.  Think of the money paid as additional compensation to the other good quality posts.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: ".postUserName",
+                title: "The author",
+                content: "<p>This is the user who authored this post.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: ".firstPostTitle",
+                title: "The title",
+                content: "<p>Posts usually have a title.</p><p>Clicking on the title takes you into a full-page view of the post.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: "#postGroupName",
+                title: "The group",
+                content: "<p>This is the group where the post was submitted.</p><p>All posts are a part of a group.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: "#navGroups",
+                title: "The groups",
+                content: "<p>This link takes to to a listing of all the groups on ZapRead.</p><p>It costs nothing to create a new group.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+
             //{
             //    element: "#step3",
             //    title: "Title of my step",
