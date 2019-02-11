@@ -483,6 +483,7 @@ namespace zapread.com.Controllers
                     u = db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.EarningEvents)
+                        .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
                         .AsNoTracking()
@@ -609,6 +610,13 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (u != null && u.IgnoringUsers != null)
+                {
+                    viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
+                }
+
                 var groups = await db.Groups
                         .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
                         .AsNoTracking()
@@ -623,7 +631,7 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
-
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
                         GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
                         GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
                         GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
