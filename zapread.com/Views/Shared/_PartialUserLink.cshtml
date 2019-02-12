@@ -1,7 +1,7 @@
 ﻿@using zapread.com.Helpers;
 @model zapread.com.Models.UserViews.UserLinkViewModel
 
-<a class="pop post-username @(Model.IsFirstPost ? "postUserName" : "")" data-user="@Url.Encode(Model.User.Name)" data-container="body" data-toggle="popover" @*data-offset="-28vw"*@ data-placement="top"
+<a class="pop post-username" data-user="@Url.Encode(Model.User.Name)" data-container="body" data-toggle="popover" @*data-offset="-28vw"*@ data-placement="top"
    data-content="<span class='btn btn-link btn-sm' data-toggle='tooltip' data-placement='bottom' title='Reputation'>@Model.User.Reputation.ToAbbrString() <i class='fa fa-star'></i></span><a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.User.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'><i class='fa fa-envelope'></i> </a>&nbsp;<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(@Model.User.Id,1);'><i class='fa fa-user-plus'></i></a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert(&quot;Not yet implemented.&quot;);'><i class='fa fa-bolt'></i> </a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert(&quot;Not yet implemented.  Please go to user page to ignore.&quot;);'><i class='fa fa-minus-circle'></i> </a>"
    data-original-title="" title="" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.User.Name.Trim() })">
     

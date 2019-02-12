@@ -146,7 +146,7 @@
                     <a href="#/" onclick="vote(@Model.Post.PostId, 1, 1, 100)" class="@(Model.ViewerUpvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteUp" : "")" id="uVote_@Model.Post.PostId">
                         <i class="fa fa-chevron-up"> </i>
                     </a>
-                    <div id="sVote_@Model.Post.PostId">@Model.Post.Score.ToAbbrString()</div>
+                    <div id="sVote_@Model.Post.PostId" class="@(Model.IsFirstPost ? "firstPostScore" : "")">@Model.Post.Score.ToAbbrString()</div>
                     <a href="#/" onclick="vote(@Model.Post.PostId, 0, 1, 100)" class="@(Model.ViewerDownvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteDown" : "")" id="dVote_@Model.Post.PostId">
                         <i class="fa fa-chevron-down"> </i>
                     </a>

@@ -29,7 +29,7 @@
             </div>
             <div class="modal-footer">
                 <button id="btnTourStart" type="button" class="btn btn-primary">Yes</button>
-                <button id="btnTourDismiss" type="button" class="btn btn-secondary" onclick="alert('.');">Don't ask again</button>
+                <button id="btnTourDismiss" type="button" class="btn btn-secondary">Don't ask again</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Remind me later</button>
             </div>
         </div>
@@ -61,8 +61,8 @@
             {
                 element: ".firstPost",
                 title: "This is a post.",
-                content: "<p>All content on ZapRead.com is submitted as a post.</p>",
-                placement: "top",
+                content: "<p>All content on ZapRead.com is submitted as a post.</p><p>Every post has an author, and belongs to a <em>group</em>.</p><p>You can click on the post tile to view the entire post, including discussions.</p>",
+                placement: "left",
                 backdrop: true,
                 backdropContainer: '#wrapper'
             },
@@ -78,7 +78,7 @@
                 element: ".firstPostVoteUp",
                 title: "Vote up ...",
                 content: "<p> ... if you think this post is of high quality.</p><p><ul><li>60% goes to the author</li><li>20% goes to the group</li><li>10% goes to all authors</li><li>10% goes to server fees and maintenance</li></ul></p><p>The post score is increased and it becomes more visible.</p>",
-                placement: "top",
+                placement: "right",
                 backdrop: true,
                 backdropContainer: '#wrapper'
             },
@@ -86,34 +86,18 @@
                 element: ".firstPostVoteDown",
                 title: "Vote down ...",
                 content: "<p> ... if the post is of poor quality.</p><p><ul><li>80% goes to the group</li><li>10% goes to all authors</li><li>10% goes to server fees and maintenance</li></ul></p><p>The post score is reduced and it becomes less visible.  Think of the money paid as additional compensation to the other good quality posts.</p>",
-                placement: "top",
+                placement: "right",
                 backdrop: true,
                 backdropContainer: '#wrapper'
             },
             {
-                element: ".postUserName",
-                title: "The author",
-                content: "<p>This is the user who authored this post.</p>",
-                placement: "top",
+                element: ".firstPostScore",
+                title: "Post score",
+                content: "<p>This is the post score.  If the score is greater than 0, then the author will receive daily group and community payments.  The score increases as users vote up and decreases as users vote down.</p>",
+                placement: "right",
                 backdrop: true,
                 backdropContainer: '#wrapper'
-            },
-            {
-                element: ".firstPostTitle",
-                title: "The title",
-                content: "<p>Posts usually have a title.</p><p>Clicking on the title takes you into a full-page view of the post.</p>",
-                placement: "top",
-                backdrop: true,
-                backdropContainer: '#wrapper'
-            },
-            {
-                element: "#postGroupName",
-                title: "The group",
-                content: "<p>This is the group where the post was submitted.</p><p>All posts are a part of a group.</p>",
-                placement: "top",
-                backdrop: true,
-                backdropContainer: '#wrapper'
-            },
+                },
             {
                 element: "#navGroups",
                 title: "The groups",
@@ -121,32 +105,59 @@
                 placement: "top",
                 backdrop: true,
                 backdropContainer: '#wrapper'
-            },
-
-            //{
-            //    element: "#step3",
-            //    title: "Title of my step",
-            //    content: "Introduce new users to your product by walking them through it step by step.",
-            //    placement: "bottom"
-            //},
+            }, 
             {
-                element: "#step4",
-                title: "Title of my step",
-                content: "Introduce new users to your product by walking them through it step by step.",
-                placement: "top"
+                element: "#sortButtons",
+                title: "Sort content",
+                content: "<p><em>Hot</em> shows posts which are recent and high scoring, the default view.</p><p><em>New</em> shows the most recent posts.</p><p><em>Active</em> shows recent posts which have more discussion.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: "#navRegister",
+                title: "Register an account.",
+                content: "<p>You need to create an account to make posts.  Start by registering.  You will need an email account, or other supported log-in account, like google, github, or reddit.</p>",
+                placement: "top",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            },
+            {
+                element: ".page-heading",
+                title: "The end",
+                content: "That's it for our tour.  Welcome, and enjoy!",
+                placement: "bottom"
             }
             ]
         });
 
         // Initialize the tour
-        //tour.init();
+        tour.init();
 
         $('#btnTourStart').click(function () {
             $('#modalTourIndex').modal('hide');
             tour.restart();
+        })
 
-            // Start the tour
-            // tour.start();
+        $('#btnTourDismiss').click(function () {
+            $('#modalTourIndex').modal('hide');
+            leaveurl = "/Home/DismissTour"
+            var data = JSON.stringify({ 'id': 1 });
+            $.ajax({
+                async: true,
+                data: data.toString(),
+                type: 'POST',
+                url: leaveurl,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.result == "success") {
+                        swal("Ok, you will not be asked for a tour next time.", {
+                            icon: "success",
+                        });
+                    }
+                }
+            });
         })
     });
 
