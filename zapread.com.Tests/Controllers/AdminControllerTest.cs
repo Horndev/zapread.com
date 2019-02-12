@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Models.Admin;
 
 namespace zapread.com.Tests.Controllers
 {
@@ -22,6 +23,77 @@ namespace zapread.com.Tests.Controllers
         public void TestGetPostStats()
         {
             // Arrange
+            AdminController controller = CreateAdminController_LoggedIn();
+
+            // Act
+            JsonResult result = controller.GetPostStats() as JsonResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void TestIcons()
+        {
+            // Arrange
+            AdminController controller = CreateAdminController_LoggedIn();
+
+            // Act
+            ViewResult result = controller.Icons() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+
+            //Assert.AreEqual("Icon", result.Values["action"]);
+        }
+
+        [TestMethod]
+        public void TestUserBalance()
+        {
+            // Arrange
+            AdminController controller = CreateAdminController_LoggedIn();
+
+            // Act
+            JsonResult result = controller.UserBalance("test").Result as JsonResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Data);
+        }
+
+        [TestMethod]
+        public void TestUsers()
+        {
+            // Arrange
+            AdminController controller = CreateAdminController_LoggedIn();
+
+            // Act
+            ViewResult result = controller.Users().Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ViewData.Model);
+
+            Assert.IsTrue(((AdminUsersViewModel)result.ViewData.Model).NumUsers > 0);
+        }
+
+        [TestMethod]
+        public void TestIndex()
+        {
+            // Arrange
+            AdminController controller = CreateAdminController_LoggedIn();
+
+            // Act
+            ViewResult result = controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ViewData.Model);
+        }
+
+
+        private static AdminController CreateAdminController_LoggedIn()
+        {
             var context = new Mock<HttpContextBase>();
 
             var identity = new GenericIdentity("test");
@@ -46,12 +118,7 @@ namespace zapread.com.Tests.Controllers
 
             AdminController controller = new AdminController();
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
-
-            // Act
-            JsonResult result = controller.GetPostStats() as JsonResult;
-
-            // Assert
-            Assert.IsNotNull(result);
+            return controller;
         }
     }
 }

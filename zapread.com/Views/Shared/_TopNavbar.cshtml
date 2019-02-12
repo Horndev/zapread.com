@@ -1,15 +1,17 @@
 ﻿<div class="white-bg">
     <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
-        <a class="navbar-brand" href="/"><img src="~/Content/logo.png" style="width:27px;height:32px" /></a>
-        <span class="navbar-text" style="color:darkgreen;font-weight: 900;">
-            <a href="/" style="color:darkgreen;font-weight: 900;">Social Economy</a>
-        </span>
+        <div id="goHome" >
+            <a class="navbar-brand" href="/"><img src="~/Content/logo.png" style="width:27px;height:32px" /></a>
+            <span class="navbar-text" style="color:darkgreen;font-weight: 900;">
+                <a href="/" style="color:darkgreen;font-weight: 900;">Social Economy</a>
+            </span>
+        </div>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"><i class="fa fa-reorder" style="font-size: 22px;"></i></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="nav navbar-nav">
-                <li class="nav-item">
+                <li id="navGroups" class="nav-item">
                     @Html.ActionLink("Groups", "Index", "Group", new { area = "" }, new { @class = "nav-link" })
                 </li>
                 <li class="nav-item">
@@ -115,7 +117,7 @@
             else
             {
                 <ul class="nav navbar-nav">
-                    <li class="nav-item">
+                    <li id="navRegister" class="nav-item">
                         <a href="@Url.Action("Register", "Account")" class="nav-link" style="white-space:nowrap">
                             <i class="fa fa-user-plus"></i> Register
                         </a>

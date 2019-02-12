@@ -17,6 +17,7 @@ namespace zapread.com.Models
         public int NumComments;
 
         public bool IsDetailView;       // If the post is being viewed by itself
+        public bool IsFirstPost;        // If the post is the first post on a page
 
         // Not ideal!
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
