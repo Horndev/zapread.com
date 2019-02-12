@@ -170,6 +170,17 @@ namespace zapread.com.Controllers
                     .Where(u => u.AppId == userId)
                     .FirstOrDefaultAsync();
 
+                if (user == null)
+                {
+                    return this.Json(new
+                    {
+                        HTMLString = "",
+                        c.PostId,
+                        Success = false,
+                        c.CommentId
+                    });
+                }
+
                 var post = await db.Posts
                     .Include(pst => pst.UserId)
                     .Include(pst => pst.UserId.Settings)
@@ -200,6 +211,7 @@ namespace zapread.com.Controllers
                     postOwner.Settings = new UserSettings();
                 }
 
+                // This is the owner of the comment being replied to
                 User commentOwner = null;
 
                 if (c.IsReply)
@@ -210,16 +222,18 @@ namespace zapread.com.Controllers
                         commentOwner.Settings = new UserSettings();
                     }
                 }
-
-                if (!c.IsTest)
-                    db.Comments.Add(comment);
+                
                 if (!c.IsReply)
                 {
                     post.Comments.Add(comment);
                 }
-                if (!c.IsTest)
-                    await db.SaveChangesAsync();
 
+                if (!c.IsTest)
+                {
+                    db.Comments.Add(comment);
+                    await db.SaveChangesAsync();
+                }
+                    
                 // Find user mentions
                 try
                 {
@@ -246,7 +260,6 @@ namespace zapread.com.Controllers
                         Subject = "User comment error",
                     });
                 }
-
 
                 // Only send messages if not own post.
                 if (!c.IsReply && (postOwner.AppId != user.AppId))
