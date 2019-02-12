@@ -5,7 +5,12 @@
 @model zapread.com.Models.PostCommentsViewModel
 
 @{
+    if (Model.Comment.UserId == null)
+    {
+        Model.Comment.UserId = new zapread.com.Models.Database.User() { Id = -1, Name="Anonymous" };
+    }
     var isIgnoredUser = Model.ViewerIgnoredUsers != null ? Model.ViewerIgnoredUsers.Contains(Model.Comment.UserId.Id) : false;
+
 }
 
 <div class="" id="comment_@Model.Comment.CommentId">
