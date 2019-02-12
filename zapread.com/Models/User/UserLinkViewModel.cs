@@ -11,5 +11,7 @@ namespace zapread.com.Models.UserViews
         public User User { get; set; }
 
         public bool IsIgnored { get; set; }
+
+        public bool IsFirstPost { get; set; }
     }
 }
