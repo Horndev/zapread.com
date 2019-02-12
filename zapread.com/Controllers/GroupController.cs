@@ -712,9 +712,9 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .SingleOrDefaultAsync(u => u.AppId == userId);
 
-                var group = db.Groups
+                var group = await db.Groups
                     //.AsNoTracking()
-                    .FirstOrDefault(g => g.GroupId == id);
+                    .FirstOrDefaultAsync(g => g.GroupId == id);
 
                 var groupPosts = db.Posts
                     .Include(p => p.Group)
@@ -723,7 +723,7 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.UserId)
                     .AsNoTracking()
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft)
