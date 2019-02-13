@@ -22,19 +22,15 @@ namespace zapread.com.Controllers
     {
         // GET: Group
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             var userId = User.Identity.GetUserId();
 
-            GroupsViewModel vm = new GroupsViewModel();
-
-            var gi = new List<GroupInfo>();
-
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include(u => u.Settings)
-                    .FirstOrDefault(u => u.AppId == userId);
+                    .FirstOrDefaultAsync(u => u.AppId == userId);
 
                 if (user != null)
                 {
@@ -44,46 +40,43 @@ namespace zapread.com.Controllers
                     }
                     catch (Exception)
                     {
-                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                        ; //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
                     }
                 }
 
-                var groups = db.Groups
+                var groups = await db.Groups
                     .Include(g => g.Members)
-                    .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
-                    .Take(100).ToList();
+                    .AsNoTracking()
+                    .Select(g => new { numPosts=g.Posts.Count(), numMembers = g.Members.Count(), g})
+                    .OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute)
+                    .Take(100)
+                    .ToListAsync();
 
-                foreach(var g in groups)
+                GroupsViewModel vm = new GroupsViewModel
                 {
-                    int num_members = g.Members != null ? g.Members.Count() : 0;
+                    TotalPosts = (await db.Posts.CountAsync()).ToString("N0"),
+                    Groups = groups
+                        .AsParallel()
+                        .Select(g => new GroupInfo()
+                        {
+                            Id = g.g.GroupId,
+                            CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
+                            Name = g.g.GroupName,
+                            NumMembers = g.numMembers,
+                            NumPosts = g.numPosts,
+                            Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
+                            Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
+                            Level = g.g.Tier,
+                            Progress = GetGroupProgress(g.g),
+                            IsMember = user == null ? false : g.g.Members.Contains(user),
+                            IsLoggedIn = user != null,
+                            IsMod = user != null ? g.g.Moderators.Select(m => m.Id).Contains(user.Id) : false,
+                            IsAdmin = user != null ? g.g.Administrators.Select(m => m.Id).Contains(user.Id) : false,
+                        }).ToList(),
+                };
 
-                    int num_posts = db.Posts.Where(p => p.Group != null).Where(p => p.Group.GroupId == g.GroupId).Count();
-
-                    bool isMember = user == null ? false : g.Members.Contains(user);
-
-                    List<string> tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>();
-
-                    gi.Add(new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        CreatedddMMMYYYY = g.CreationDate == null ? "2 Aug 2018" : g.CreationDate.Value.ToString("dd MMM yyyy"),
-                        Name = g.GroupName,
-                        NumMembers = num_members,
-                        NumPosts = num_posts,
-                        Tags = tags,
-                        Icon = g.Icon != null ? "fa-" + g.Icon : "fa-bolt",
-                        Level = g.Tier,
-                        Progress = GetGroupProgress(g),
-                        IsMember = isMember,
-                        IsLoggedIn = user != null,
-                    });
-                }
-                vm.TotalPosts = db.Posts.Count().ToString("N0");
+                return View(vm);
             }
-
-            vm.Groups = gi;
-            
-            return View(vm);
         }
 
         // GET: Group/Members/1
@@ -595,7 +588,7 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        protected int GetGroupProgress(Group g)
+        protected static int GetGroupProgress(Group g)
         {
             var e = g.TotalEarned + g.TotalEarnedToDistribute;
             var level = GetGroupLevel(g);
@@ -648,7 +641,7 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="g"></param>
         /// <returns></returns>
-        protected int GetGroupLevel(Group g)
+        protected static int GetGroupLevel(Group g)
         {
             //259 641.6
             var e = g.TotalEarned + g.TotalEarnedToDistribute;

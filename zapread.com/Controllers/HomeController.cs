@@ -484,7 +484,6 @@ namespace zapread.com.Controllers
                         .SingleOrDefaultAsync(ix => ix.Id == 1);
 
                         //var invoiceDebug = unpaidInvoices.ToList();
-
                         foreach (var i in unpaidInvoices)
                         {
                             if (i.HashStr != null)
@@ -515,7 +514,7 @@ namespace zapread.com.Controllers
                                     }
                                     else if (use == TransactionUse.VoteComment)
                                     {
-                                        int z = 1;
+                                        ;
                                     }
                                     else if (use == TransactionUse.UserDeposit)
                                     {
@@ -530,7 +529,6 @@ namespace zapread.com.Controllers
                                         else
                                         {
                                             // Deposit funds in user account
-                                            int z = 1;
                                             var user = i.User;
                                             user.Funds.Balance += i.Amount;
                                             i.IsSettled = true;
@@ -551,7 +549,7 @@ namespace zapread.com.Controllers
                                         else
                                         {
                                             // Not sure what the user was doing - deposit into their account.
-                                            int z = 1;
+                                            ;
                                         }
                                     }
                                 }
