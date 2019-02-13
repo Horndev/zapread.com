@@ -24,25 +24,10 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index()
         {
-            var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                    .Include(u => u.Settings)
-                    .FirstOrDefaultAsync(u => u.AppId == userId);
-
-                if (user != null)
-                {
-                    try
-                    {
-                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                    }
-                    catch (Exception)
-                    {
-                        ; //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                    }
-                }
-
+                User user = await GetCurrentUser(db);
+                ValidateClaims(user);
                 int userid = user != null ? user.Id : 0;
                 var groups = await db.Groups
                     .Select(g => new
@@ -79,6 +64,30 @@ namespace zapread.com.Controllers
                 };
                 return View(vm);
             }
+        }
+
+        private void ValidateClaims(User user)
+        {
+            if (user != null)
+            {
+                try
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                }
+                catch (Exception)
+                {
+                    ; //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                }
+            }
+        }
+
+        private async Task<User> GetCurrentUser(ZapContext db)
+        {
+            var userId = User.Identity.GetUserId();
+            var user = await db.Users
+                .Include(u => u.Settings)
+                .FirstOrDefaultAsync(u => u.AppId == userId);
+            return user;
         }
 
         // GET: Group/Members/1
