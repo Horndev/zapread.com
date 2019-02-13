@@ -436,29 +436,10 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                // Todo - fixup unit test
+                ; // Todo - fixup unit test
             }
 
-            string uid = null;
-
-            if (User != null) // This is the case when testing unauthorized call
-            {
-                uid = User.Identity.GetUserId();
-            }
-
-            ViewBag.ShowTourModal = false;
-            try
-            {
-                if (SetOrUpdateUserTourCookie(defaultValue: "show") != "hide")
-                {
-                    // User has not dismissed tour request
-                    ViewBag.ShowTourModal = true;
-                }
-            }
-            catch
-            {
-                //TODO proper exception handling
-            }
+            SetTourCookie();
 
             try
             {
@@ -590,57 +571,15 @@ namespace zapread.com.Controllers
 
                 using (var db = new ZapContext())
                 {
-                    var user = await db.Users
-                        .Include(usr => usr.Settings)
-                        .Include(usr => usr.IgnoringUsers)
-                        .Include(usr => usr.Groups)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(u => u.AppId == uid);
-
+                    User user = await GetCurrentUser(db);
                     var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
+                    ValidateClaims(user);
 
-                    try
-                    {
-                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                    }
-                    catch (Exception)
-                    {
-                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                    }
-
-                    var gi = new List<GroupInfo>();
-
-                    if (user != null)
-                    {
-                        // Get list of user subscribed groups (with highest activity on top)
-                        var userGroups = user.Groups
-                            .OrderByDescending(grp => grp.TotalEarned + grp.TotalEarnedToDistribute)
-                            .ToList();
-
-                        foreach (var grp in userGroups)
-                        {
-                            gi.Add(new GroupInfo()
-                            {
-                                Id = grp.GroupId,
-                                Name = grp.GroupName,
-                                Icon = grp.Icon,
-                                Level = 1,
-                                Progress = 36,
-                                IsMod = grp.Moderators.Select(m => m.Id).Contains(user.Id),
-                                IsAdmin = grp.Administrators.Select(m => m.Id).Contains(user.Id),
-                            });
-                        }
-                    }
+                    List<GroupInfo> gi = GetUserGroups(user);
+                    List<int> viewerIgnoredUsers = GetUserIgnoredUsers(user);
 
                     List<PostViewModel> postViews = new List<PostViewModel>();
-
-                    List<int> viewerIgnoredUsers = new List<int>();
-
-                    if (user != null && user.IgnoringUsers != null)
-                    {
-                        viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
-                    }
-
+                   
                     var groups = await db.Groups
                         .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
                         .AsNoTracking()
@@ -668,12 +607,10 @@ namespace zapread.com.Controllers
                     PostsViewModel vm = new PostsViewModel()
                     {
                         Posts = postViews,
-                        //Upvoted = user == null ? new List<int>() : user.PostVotesUp.Select(p => p.PostId).ToList(),
-                        //Downvoted = user == null ? new List<int>() : user.PostVotesDown.Select(p => p.PostId).ToList(),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort == null ? "Score" : sort,
                         SubscribedGroups = gi,
-                        
+
                     };
 
                     return View(vm);
@@ -684,12 +621,102 @@ namespace zapread.com.Controllers
                 MailingService.Send(new UserEmailModel()
                 {
                     Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + uid ?? "anonymous",
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + User.Identity.GetUserId() ?? "anonymous",
                     Email = "",
                     Name = "zapread.com Exception",
                     Subject = "Exception on index",
                 });
                 throw e;
+            }
+        }
+
+        private static List<int> GetUserIgnoredUsers(User user)
+        {
+            List<int> viewerIgnoredUsers = new List<int>();
+
+            if (user != null && user.IgnoringUsers != null)
+            {
+                viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+            }
+
+            return viewerIgnoredUsers;
+        }
+
+        private static List<GroupInfo> GetUserGroups(User user)
+        {
+            var gi = new List<GroupInfo>();
+            if (user != null)
+            {
+                // Get list of user subscribed groups (with highest activity on top)
+                int userid = user != null ? user.Id : 0;
+                var userGroups = user.Groups
+                    .Select(grp => new
+                    {
+                        IsModerator = grp.Moderators.Select(m => m.Id).Contains(userid),
+                        IsAdmin = grp.Administrators.Select(m => m.Id).Contains(userid),
+                        TotalIncome = grp.TotalEarned + grp.TotalEarnedToDistribute,
+                        grp,
+                    })
+                    .OrderByDescending(grp => grp.TotalIncome)
+                    .ToList();
+                gi = userGroups.Select(grp => new GroupInfo()
+                {
+                    Id = grp.grp.GroupId,
+                    Name = grp.grp.GroupName,
+                    Icon = grp.grp.Icon,
+                    Level = 1,
+                    Progress = 36,
+                    IsMod = grp.IsModerator,
+                    IsAdmin = grp.IsAdmin,
+                }).ToList();
+            }
+            return gi;
+        }
+
+        private void ValidateClaims(User user)
+        {
+            try
+            {
+                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+            }
+            catch (Exception)
+            {
+                //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+            }
+        }
+
+        private async Task<User> GetCurrentUser(ZapContext db)
+        {
+            string userid = null;
+
+            if (User != null) // This is the case when testing unauthorized call
+            {
+                userid = User.Identity.GetUserId();
+            }
+
+            var user = await db.Users
+                .Include(usr => usr.Settings)
+                .Include(usr => usr.IgnoringUsers)
+                .Include(usr => usr.Groups)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.AppId == userid);
+            return user;
+        }
+
+        private void SetTourCookie()
+        {
+            ViewBag.ShowTourModal = false;
+            try
+            {
+                if (SetOrUpdateUserTourCookie(defaultValue: "show") != "hide")
+                {
+                    // User has not dismissed tour request
+                    ViewBag.ShowTourModal = true;
+                }
+            }
+            catch
+            {
+                ; //TODO proper exception handling
             }
         }
 
