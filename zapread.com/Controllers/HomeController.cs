@@ -575,42 +575,12 @@ namespace zapread.com.Controllers
                     var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
                     ValidateClaims(user);
 
-                    List<GroupInfo> gi = GetUserGroups(user);
-                    List<int> viewerIgnoredUsers = GetUserIgnoredUsers(user);
-
-                    List<PostViewModel> postViews = new List<PostViewModel>();
-                   
-                    var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                    foreach (var p in posts)
-                    {
-                        postViews.Add(new PostViewModel()
-                        {
-                            Post = p,
-                            ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
-                            ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                            ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                            ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
-                            NumComments = 0,
-
-                            ViewerIgnoredUsers = viewerIgnoredUsers,
-
-                            GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                            GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                            GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                        });
-                    }
-
                     PostsViewModel vm = new PostsViewModel()
                     {
-                        Posts = postViews,
+                        Posts = await GeneratePostViewModels(user, posts, db),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
-                        Sort = sort == null ? "Score" : sort,
-                        SubscribedGroups = gi,
-
+                        Sort = sort ?? "Score",
+                        SubscribedGroups = GetUserGroups(user),
                     };
 
                     return View(vm);
@@ -628,6 +598,33 @@ namespace zapread.com.Controllers
                 });
                 throw e;
             }
+        }
+
+        private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db)
+        {
+            List<int> viewerIgnoredUsers = GetUserIgnoredUsers(user);
+            var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+            var groupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc);
+            var groupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc);
+            var groupLevels = groups.ToDictionary(i => i.GroupId, i => i.l);
+            List<PostViewModel> postViews = posts
+                .Select(p => new PostViewModel()
+                {
+                    Post = p,
+                    ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
+                    ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+                    NumComments = 0,
+                    ViewerIgnoredUsers = viewerIgnoredUsers,
+                    GroupMemberCounts = groupMemberCounts,
+                    GroupPostCounts = groupPostCounts,
+                    GroupLevels = groupLevels,
+                }).ToList();
+            return postViews;
         }
 
         private static List<int> GetUserIgnoredUsers(User user)
