@@ -25,7 +25,6 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> Index()
         {
             var userId = User.Identity.GetUserId();
-
             using (var db = new ZapContext())
             {
                 var user = await db.Users
@@ -44,37 +43,40 @@ namespace zapread.com.Controllers
                     }
                 }
 
+                int userid = user != null ? user.Id : 0;
                 var groups = await db.Groups
-                    .Include(g => g.Members)
-                    .AsNoTracking()
-                    .Select(g => new { numPosts=g.Posts.Count(), numMembers = g.Members.Count(), g})
+                    .Select(g => new
+                    {
+                        numPosts = g.Posts.Count(),
+                        numMembers = g.Members.Count(),
+                        IsMember = g.Members.Select(m => m.Id).Contains(userid),
+                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
+                        g,
+                    }).AsNoTracking()
                     .OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute)
                     .Take(100)
                     .ToListAsync();
-
-                GroupsViewModel vm = new GroupsViewModel
+                GroupsViewModel vm = new GroupsViewModel()
                 {
                     TotalPosts = (await db.Posts.CountAsync()).ToString("N0"),
-                    Groups = groups
-                        .AsParallel()
-                        .Select(g => new GroupInfo()
-                        {
-                            Id = g.g.GroupId,
-                            CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
-                            Name = g.g.GroupName,
-                            NumMembers = g.numMembers,
-                            NumPosts = g.numPosts,
-                            Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
-                            Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
-                            Level = g.g.Tier,
-                            Progress = GetGroupProgress(g.g),
-                            IsMember = user == null ? false : g.g.Members.Contains(user),
-                            IsLoggedIn = user != null,
-                            IsMod = user != null ? g.g.Moderators.Select(m => m.Id).Contains(user.Id) : false,
-                            IsAdmin = user != null ? g.g.Administrators.Select(m => m.Id).Contains(user.Id) : false,
-                        }).ToList(),
+                    Groups = groups.Select(g => new GroupInfo()
+                    {
+                        Id = g.g.GroupId,
+                        CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
+                        Name = g.g.GroupName,
+                        NumMembers = g.numMembers,
+                        NumPosts = g.numPosts,
+                        Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
+                        Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
+                        Level = g.g.Tier,
+                        Progress = GetGroupProgress(g.g),
+                        IsMember = g.IsMember,
+                        IsLoggedIn = user != null,
+                        IsMod = g.IsModerator,
+                        IsAdmin = g.IsAdmin,
+                    }).ToList(),
                 };
-
                 return View(vm);
             }
         }
