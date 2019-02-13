@@ -20,6 +20,7 @@ using System.Data.Entity;
 using Microsoft.Owin.Host.SystemWeb;
 using zapread.com.Services;
 using zapread.com.Models.Database;
+using System.Collections.Generic;
 
 namespace zapread.com.Controllers
 {
@@ -112,6 +113,33 @@ namespace zapread.com.Controllers
                         DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
+                    await db.SaveChangesAsync();
+                }
+                else
+                {
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId);
+                    if (user.Settings == null)
+                    {
+                        user.Settings = new UserSettings()
+                        {
+                            ColorTheme = "light",
+                            NotifyOnPrivateMessage = true,
+                            NotifyOnMentioned = true,
+                            NotifyOnNewPostSubscribedGroup = true,
+                            NotifyOnNewPostSubscribedUser = true,
+                            NotifyOnOwnCommentReplied = true,
+                            NotifyOnOwnPostCommented = true,
+                            NotifyOnReceivedTip = true,
+                        };
+                    }
+                    if (user.Languages == null)
+                    {
+                        user.Languages = "en";
+                    }
+                    if (user.LNTransactions == null)
+                    {
+                        user.LNTransactions = new List<LNTransaction>();
+                    }
                     await db.SaveChangesAsync();
                 }
             }
@@ -373,31 +401,37 @@ namespace zapread.com.Controllers
                 return View(model);
             }
 
+            SignInStatus result;
+
             // Add administrator user impersonation code here (for debug)
-
-            ////string userNameToImpersonate = "THEUSERNAMEHERE";
-
-            ////var userToImpersonate = await UserManager
-            ////    .FindByNameAsync(userNameToImpersonate);
-            ////var identityToImpersonate = await UserManager
-            ////    .CreateIdentityAsync(userToImpersonate,
-            ////        DefaultAuthenticationTypes.ApplicationCookie);
-            ////var authenticationManager = HttpContext.GetOwinContext().Authentication;
-            ////authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            ////authenticationManager.SignIn(new AuthenticationProperties()
-            ////{
-            ////    IsPersistent = false
-            ////}, identityToImpersonate);
-            ////var result = SignInStatus.Success;
-
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(
-                userName: model.UserName,
-                password: model.Password,
-                isPersistent: model.RememberMe,
-                shouldLockout: false);
-
+            string userNameToImpersonate = null;//"USERTOIMPERSONATE";
+            if (userNameToImpersonate != null)
+            {
+                var userToImpersonate = await UserManager
+                .FindByNameAsync(userNameToImpersonate);
+                var identityToImpersonate = await UserManager
+                    .CreateIdentityAsync(userToImpersonate,
+                        DefaultAuthenticationTypes.ApplicationCookie);
+                var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                authenticationManager.SignIn(new AuthenticationProperties()
+                {
+                    IsPersistent = false
+                }, identityToImpersonate);
+                result = SignInStatus.Success;
+                model.UserName = userNameToImpersonate;
+            }
+            else
+            {
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, change to shouldLockout: true
+                result = await SignInManager.PasswordSignInAsync(
+                    userName: model.UserName,
+                    password: model.Password,
+                    isPersistent: model.RememberMe,
+                    shouldLockout: false);
+            }
+            
             switch (result)
             {
                 case SignInStatus.Success:
