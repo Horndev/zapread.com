@@ -44,6 +44,9 @@
         // Instance the tour
         var tour = new Tour({
             name: "index",
+            onEnd: function (tour) {
+                dismissTour();
+            },
             steps: [{
                 element: "#goHome",
                 title: "Go Home",
@@ -141,26 +144,29 @@
 
         $('#btnTourDismiss').click(function () {
             $('#modalTourIndex').modal('hide');
-            leaveurl = "/Home/DismissTour"
-            var data = JSON.stringify({ 'id': 1 });
-            $.ajax({
-                async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: leaveurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.result == "success") {
-                        swal("Ok, you will not be asked for a tour next time.", {
-                            icon: "success",
-                        });
-                    }
-                }
-            });
+            dismissTour();
         })
     });
 
+    var dismissTour = function () {
+        leaveurl = "/Home/DismissTour"
+        var data = JSON.stringify({ 'id': 1 });
+        $.ajax({
+            async: true,
+            data: data.toString(),
+            type: 'POST',
+            url: leaveurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    swal("Ok, you will not be asked for a tour next time.", {
+                        icon: "success",
+                    });
+                }
+            }
+        });
+    };
 
 </script>
 )
