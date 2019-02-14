@@ -1661,7 +1661,11 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\main.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\Posts\post-functions.js" />
+    <Content Include="Scripts\Posts\quotable.js" />
+    <Content Include="Scripts\Posts\readmore.js" />
     <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
