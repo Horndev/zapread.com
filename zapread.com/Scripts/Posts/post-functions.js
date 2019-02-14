@@ -271,7 +271,7 @@ var deletePost = function (id) {
                 if (data.Success) {
                     $('#post_' + id.toString()).hide();
                     swal("Deleted! Your post has been deleted.", {
-                        icon: "success",
+                        icon: "success"
                     });
                 }
                 else {
