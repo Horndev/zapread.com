@@ -52,8 +52,6 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
-            
-
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
                         "~/node_modules/datatables.net/js/jquery.dataTables.min.js",
@@ -98,7 +96,12 @@ namespace zapread.com
                         "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
                         "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
                         "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
-                        "~/node_modules/toastr/build/toastr.min.js"));          // toastr notification 
+                        "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
+                        "~/Scripts/main.js",                                    // Custom for all
+                        "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                        "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
+                        "~/Scripts/Posts/post-functions.js"                     // For functions related to posts (NSFW, etc.)
+                        ));
 
             // Sweet Alert
             bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
