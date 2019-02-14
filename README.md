@@ -7,9 +7,7 @@
 
 Website for zapread.com
 
-The repository from https://github.com/Horndev/zapread.com-issues is being migrated to this one over time.  New issues should be created here, but legacy issues can still be found in the other issues github repository.
-
-Current version is: 0.2-beta
+Current version is: 0.2-beta.  You can track progress to the next version on the [projects page](https://github.com/Horndev/zapread.com/projects).
 
 ## ZapRead.com Mission
 
@@ -33,7 +31,7 @@ Current version is: 0.2-beta
 * 10 goes to community
 * 10 goes to zapread
 
-The voting affects the post score.
+The voting affects the post score. 
 
 ### Group payments
 
@@ -68,6 +66,12 @@ Variable 3:  Vote min division (1 satoshi)
 This is the maximum number of draws which are made for a distribution to a group.  So if M = 1000, then a 10,000 satoshi vote will have 1000 lotteries.
 
 So, the algorithm is to pull M winners, biased by Lambda.
+
+### User Reputation
+
+When logged-in users vote a post up or down, it modifies the authors reputation proportional to the amount paid.
+
+Users with high reputation need to spend less to move the post score, while users with low reputation need to spend more.  This is an incentive to create content which increases user reputation.  Spam and unwelcome posts will be inhibited as there is no reward for such behaviour.
 
 # Getting started with development
 
