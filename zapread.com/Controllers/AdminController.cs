@@ -36,6 +36,15 @@ namespace zapread.com.Controllers
             RoleManager = roleManager;
         }
 
+        /// <summary>
+        /// Controller for listing of vote events
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> Votes()
+        {
+            return View();
+        }
+
         #region Lightning Payments Admin
 
         /// <summary>
@@ -370,6 +379,8 @@ namespace zapread.com.Controllers
             }
         }
 
+        #region audit
+
         // GET: Admin/Audit/{username}
         [Route("Admin/Audit/{username}")]
         public ActionResult Audit(string username)
@@ -592,6 +603,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Lightning
+
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
@@ -647,6 +662,10 @@ namespace zapread.com.Controllers
 
             return Json(new { result = "success", macaroon });
         }
+
+        #endregion
+
+        #region Users
 
         [Route("Admin/Users")]
         public async Task<ActionResult> Users()
@@ -763,6 +782,10 @@ namespace zapread.com.Controllers
             public string Balance { get; set; }
             public string Id { get; set; }
         }
+
+        #endregion
+
+        #region Admin Panel
 
         // GET: Admin
         public ActionResult Index()
@@ -921,6 +944,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Admin Bar
+
         public PartialViewResult SiteAdminBarUserInfo(int userId)
         {
             using (var db = new ZapContext())
@@ -1072,6 +1099,7 @@ namespace zapread.com.Controllers
             return Json(new { success = true });
         }
 
+        #endregion
 
         public ApplicationUserManager UserManager
         {

@@ -126,6 +126,46 @@ namespace zapread.com.Controllers
             return true;
         }
 
+        /// <summary>
+        /// Generates the HTML to be mailed out
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="subject"></param>
+        /// <returns></returns>
+        public async Task<string> GenerateNewPostEmailBod(int id, string subject)
+        {
+            using (var db = new ZapContext())
+            {
+                Post pst = await db.Posts
+                    .Include(p => p.Group)
+                    .Include("UserId")
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.PostId == id);
+
+                var groups = db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                if (pst == null)
+                {
+                    return null;
+                }
+
+                PostViewModel vm = new PostViewModel()
+                {
+                    Post = pst,
+                };
+
+                ViewBag.Message = subject;
+                string HTMLString = RenderViewToString("MailerNewPost", vm);
+
+                string msgHTML = CleanMail(HTMLString, subject);
+
+                return msgHTML;
+            }
+        }
+
         public async Task<bool> SendNewPost(int id, string email, string subject)
         {
             using (var db = new ZapContext())
@@ -162,7 +202,7 @@ namespace zapread.com.Controllers
             return true;
         }
 
-        private Task SendMailAsync(string HTMLString, string email, string subject)
+        private string CleanMail(string HTMLString, string subject)
         {
             PreMailer.Net.InlineResult result;
             string msgHTML;
@@ -198,6 +238,12 @@ namespace zapread.com.Controllers
             }
 
             msgHTML = doc.DocumentNode.OuterHtml;
+            return msgHTML;
+        }
+
+        private Task SendMailAsync(string HTMLString, string email, string subject)
+        {
+            string msgHTML = CleanMail(HTMLString, subject);
 
             return MailingService.SendAsync(user: "Notify",
                 message: new UserEmailModel()
