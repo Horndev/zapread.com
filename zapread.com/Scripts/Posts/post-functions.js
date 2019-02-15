@@ -39,8 +39,8 @@ var dismiss = function (t, id) {
                 else {
                     if (id === -1) { // Dismissed all
                         $('[id^="m_"]').hide();
-                        $('[id^="m_1"]').hide();
-                        $('[id^="m_2"]').hide();
+                        $('[id^="m1_"]').hide();
+                        $('[id^="m2_"]').hide();
                     } else {
                         $('#m_' + id).hide();
                         $('#m1_' + id).hide();
