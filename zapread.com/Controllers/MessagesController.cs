@@ -662,9 +662,10 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
+                    var user = await db.Users
                         .Include("Alerts")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync();
 
                     if (user == null)
                     {
@@ -705,9 +706,10 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
+                    var user = await db.Users
                         .Include("Messages")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync();
 
                     if (user == null)
                     {
@@ -754,12 +756,12 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var sender = db.Users
-                        .Where(u => u.AppId == userId).FirstOrDefault();
+                    var sender = await db.Users
+                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
 
-                    var receiver = db.Users
+                    var receiver = await db.Users
                         .Include("Messages")
-                        .Where(u => u.Id == id).FirstOrDefault();
+                        .Where(u => u.Id == id).FirstOrDefaultAsync();
 
                     if (sender == null)
                     {
@@ -794,11 +796,13 @@ namespace zapread.com.Controllers
 
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
+                    // Send stream update
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
                     
-                    // Send popup and email if not in chat
+                    // Send stream update popup
                     NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
+                    // email if not in chat
                     isChat = false;
                     if (isChat == null || (isChat != null && !isChat.Value))
                     {
