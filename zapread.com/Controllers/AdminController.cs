@@ -1,4 +1,5 @@
-﻿using LightningLib.DataEncoders;
+﻿using Hangfire;
+using LightningLib.DataEncoders;
 using LightningLib.lndrpc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -16,6 +17,7 @@ using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -614,6 +616,12 @@ namespace zapread.com.Controllers
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
+            // Re-register Periodic hangfire monitor
+
+            RecurringJob.AddOrUpdate<LNTransactionMonitor>(
+                x => x.CheckLNTransactions(),
+                Cron.MinuteInterval(5), queue: "lightning");
+
             using (var db = new ZapContext())
             {
                 var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)

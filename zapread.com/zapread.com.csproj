@@ -692,6 +692,7 @@
     <Compile Include="Hubs\NotificationHub.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
+    <Compile Include="Services\LNTransactionMonitor.cs" />
     <Compile Include="Services\MailingService.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Startup.cs" />
