@@ -19,7 +19,6 @@
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
         $(document).ready(function () {
-
             $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
                 var selectedValue = params.selected;
                 var values = $('#languagesSelect').val();
@@ -87,10 +86,13 @@
         };
 
         var settingToggle = function (e) {
-            //alert('Not implemented yet.');
             var setting = e.id;
             var value = e.checked;
-
+            let spinner = $(e).parent().find(".switch-spinner");
+            spinner.removeClass("fa-check");
+            spinner.addClass("fa-refresh");
+            spinner.addClass("fa-spin");
+            spinner.show();
             $.ajax({
                 async: true,
                 data: JSON.stringify({'setting':setting, 'value': value}),
@@ -99,13 +101,14 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    if (response.Result == "Success") {
-                        //alert('setting updated.');
+                    if (response.success) {
+                        spinner.removeClass("fa-refresh");
+                        spinner.removeClass("fa-spin");
+                        spinner.addClass("fa-check");
+                        //spinner.hide();
                     }
                 }
             });
-
-            //e.checked ? alert(e.id + "active") : alert(e.id + "inactive");
         }
 
         var leave = function (id) {
@@ -122,7 +125,6 @@
                     if (response.result == "success") {
                         $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Rejoin ");
                         $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
-                        //alert('left!');
                     }
                 }
             });
@@ -250,8 +252,6 @@
                                     });
                                 },
                                 content: function (item) {
-                                    //return '@@' + item;
-                                    //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                                     return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                                 }
                             }
@@ -265,7 +265,6 @@
             }
         };
     </script>
-
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -424,6 +423,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyPost" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyPost">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -435,6 +435,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPost" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="alertPost">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -451,6 +452,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyComment" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyComment">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -462,6 +464,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.AlertOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="alertComment">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -478,6 +481,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnNewPostSubscribedGroup) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyNewPostGroup" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyNewPostGroup">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -489,6 +493,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.AlertOnNewPostSubscribedGroup) { <text> checked</text> } class="onoffswitch-checkbox" id="alertNewPostGroup" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="alertNewPostGroup">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -505,6 +510,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnNewPostSubscribedUser) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyNewPostUser" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyNewPostUser">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -516,6 +522,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.AlertOnNewPostSubscribedUser) { <text> checked</text> } class="onoffswitch-checkbox" id="alertNewPostUser" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="alertNewPostUser">
+                                                <i class="fa fa-refresh fa-spin switch-spinner""></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -532,6 +539,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnPrivateMessage) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyPrivateMessage" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyPrivateMessage">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -543,6 +551,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.AlertOnPrivateMessage) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPrivateMessage" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="alertPrivateMessage">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -559,6 +568,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnReceivedTip) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyReceivedTip" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyReceivedTip">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -568,8 +578,9 @@
                                 <div class="col-auto">
                                     <div class="switch">
                                         <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnReceivedTip) { <text> checked</text> } class="onoffswitch-checkbox" id="alertOnReceivedTip" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertOnReceivedTip">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnReceivedTip) { <text> checked</text> } class="onoffswitch-checkbox" id="alertReceivedTip" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertReceivedTip">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -586,6 +597,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.NotifyOnMentioned) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyMentioned" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="notifyMentioned">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -595,8 +607,9 @@
                                 <div class="col-auto">
                                     <div class="switch">
                                         <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnMentioned) { <text> checked</text> } class="onoffswitch-checkbox" id="alertOnMentioned" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertOnMentioned">
+                                            <input type="checkbox" @if (Model.Settings.AlertOnMentioned) { <text> checked</text> } class="onoffswitch-checkbox" id="alertMentioned" onclick="settingToggle(this)">
+                                            <label class="onoffswitch-label" for="alertMentioned">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -609,27 +622,6 @@
                             </div>
                         </div>
                     </div>
-                    @*<div>
-                        <div class="ibox-content profile-content">
-                            <h4>Receive Alerts</h4>
-                            <div class="row">
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertComment">
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    Your posts receive a comment.
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
                     <div>
                         <div class="ibox-content profile-content">
                             <h4>Customization</h4>
@@ -639,6 +631,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.ColorTheme == "dark") { <text> checked</text> } class="onoffswitch-checkbox" id="colorTheme" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="colorTheme">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -655,6 +648,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.ViewAllLanguages) { <text> checked</text> } class="onoffswitch-checkbox" id="ViewAllLanguages" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="ViewAllLanguages">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -671,6 +665,7 @@
                                         <div class="onoffswitch">
                                             <input type="checkbox" @if (Model.Settings.ViewTranslatedLanguages) { <text> checked</text> } class="onoffswitch-checkbox" id="ViewTranslatedLanguages" onclick="settingToggle(this)">
                                             <label class="onoffswitch-label" for="ViewTranslatedLanguages">
+                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
                                                 <span class="onoffswitch-inner"></span>
                                                 <span class="onoffswitch-switch"></span>
                                             </label>
@@ -709,7 +704,7 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>Top Subscribed</h3>
+                        <h3>You are subscribing to</h3>
                         <p class="small">
                             You are subscribed to content from these users.  Their content will appear in your activity feed.
                         </p>
@@ -726,7 +721,7 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>Top Subscribing</h3>
+                        <h3>Subscribing to you</h3>
                         <p class="small">
                             These users are subscribing to you.  Your content will appear in their activity feed.
                         </p>
@@ -798,7 +793,7 @@
 </div>
 
 
-<p class="text-success">@ViewBag.StatusMessage</p>
+@*<p class="text-success">@ViewBag.StatusMessage</p>
 <div>
     <h4>Change your account settings</h4>
     <hr />
@@ -822,4 +817,4 @@
             @Html.ActionLink("Manage", "ManageLogins") ]
         </dd>
     </dl>
-</div>
+</div>*@
