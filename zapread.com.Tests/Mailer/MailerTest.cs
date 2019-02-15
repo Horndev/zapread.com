@@ -33,10 +33,10 @@ namespace zapread.com.Tests.Mailer
                 mock.SetupGet(p => p.HttpContext.Request.IsAuthenticated).Returns(true);
                 mock.SetupGet(p => p.HttpContext.User.Identity.IsAuthenticated).Returns(true);
             }
-            else
-            {
-                mock.SetupGet(p => p.HttpContext.Request.IsAuthenticated).Returns(false);
-            }
+            //else
+            //{
+            //    mock.SetupGet(p => p.HttpContext.Request.IsAuthenticated).Returns(false);
+            //}
 
             var routeData = new RouteData();
             routeData.Values.Add("controller", "MessagesController");

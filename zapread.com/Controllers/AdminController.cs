@@ -42,7 +42,11 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         public async Task<ActionResult> Votes()
         {
-            return View();
+            using (var db = new ZapContext())
+            {
+                var votes = await db.SpendingEvents.Take(100).ToListAsync();
+                return View();
+            }
         }
 
         #region Lightning Payments Admin
