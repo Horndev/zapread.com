@@ -461,7 +461,7 @@ namespace zapread.com.Controllers
             {
                 string aboutMe = "Nothing to tell.";
                 User u;
-                if (db.Users.Where(us => us.AppId == userId).Count() == 0)
+                if (await db.Users.Where(us => us.AppId == userId).CountAsync() == 0)
                 {
                     // no user entry
                     u = new User()
@@ -901,13 +901,13 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { Result = "Error updating user settings" });
+                return Json(new { success = false, result="error", message = "Error updating user settings" });
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include("Settings")
-                    .Where(u => u.AppId == userId).First();
+                    .Where(u => u.AppId == userId).FirstOrDefaultAsync();
 
                 if (user.Settings == null)
                 {
@@ -948,7 +948,7 @@ namespace zapread.com.Controllers
                 }
                 else if (setting == "alertComment")
                 {
-                    user.Settings.AlertOnOwnPostCommented = value;
+                    user.Settings.AlertOnOwnCommentReplied = value;
                 }
                 else if (setting == "alertNewPostGroup")
                 {
@@ -985,7 +985,7 @@ namespace zapread.com.Controllers
                 }
 
                 await db.SaveChangesAsync();
-                return Json(new { Result = "Success" });
+                return Json(new { success=true, result = "success" });
             }
         }
         private async Task EnsureUserExists(string userId, ZapContext db)

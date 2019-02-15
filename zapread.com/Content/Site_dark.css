@@ -7,6 +7,13 @@
  *
 */
 
+.switch-spinner {
+    display: none;
+    position: absolute;
+    margin-left: 13px;
+    font-size: 16px;
+}
+
 .blockquote {
     border-left: 5px solid #1ab394;
     padding-left: 5px;

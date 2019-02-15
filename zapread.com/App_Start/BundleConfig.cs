@@ -174,7 +174,7 @@ namespace zapread.com
 
             // chosen styles
             bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
-                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css"));
+                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css", new CssRewriteUrlTransform()));
 
             // Flot chart
             bundles.Add(new ScriptBundle("~/plugins/flot").Include(
