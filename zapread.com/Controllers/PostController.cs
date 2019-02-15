@@ -14,6 +14,7 @@ using HtmlAgilityPack;
 using zapread.com.Helpers;
 using System.Globalization;
 using zapread.com.Models.Database;
+using Hangfire;
 
 namespace zapread.com.Controllers
 {
@@ -359,6 +360,11 @@ namespace zapread.com.Controllers
                     .Include("Settings")
                     .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
 
+                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                string subject = "New post by user you are following: " + user.Name;
+                string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject);
+
                 foreach (var u in followUsers)
                 {
                     // Add Alert
@@ -383,12 +389,18 @@ namespace zapread.com.Controllers
                     if (u.Settings.NotifyOnNewPostSubscribedUser)
                     {
                         string followerEmail = UserManager.FindById(u.AppId).Email;
-                        string subject = "New post by user you are following: " + user.Name;
 
-                        var mailer = DependencyResolver.Current.GetService<MailerController>();
-                        mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                        await mailer.SendNewPost(post.PostId, followerEmail, subject);
+                        // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
+                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                            new UserEmailModel()
+                            {
+                                Destination = followerEmail,
+                                Body = emailBody,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = subject,
+                            }, "Notify"));
+                        //await mailer.SendNewPost(post.PostId, followerEmail, subject);
                     }
                 }
 

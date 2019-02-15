@@ -11,6 +11,7 @@ using zapread.com.Models;
 using zapread.com.Helpers;
 using zapread.com.Services;
 using zapread.com.Models.Database;
+using Hangfire;
 
 namespace zapread.com.Controllers
 {
@@ -25,6 +26,19 @@ namespace zapread.com.Controllers
             public int d { get; set; }
             public int a { get; set; }
             public int tx { get; set; }
+        }
+
+        private static void Doit()
+        {
+            MailingService.Send(user: "Notify",
+                message: new UserEmailModel()
+                {
+                    Subject = "Async message from Hangfire",
+                    Body = "Testing Hangfire",
+                    Destination = "steven.horn.mail@gmail.com",
+                    Email = "",
+                    Name = "ZapRead.com Notify"
+                });
         }
 
         /// <summary>
@@ -58,6 +72,16 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1);
+
+                //BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                //    new UserEmailModel()
+                //    {
+                //        Subject = "Async message from Hangfire",
+                //        Body = "Testing Hangfire",
+                //        Destination = "steven.horn.mail@gmail.com",
+                //        Email = "",
+                //        Name = "ZapRead.com Notify"
+                //    }, "Notify"));
 
                 User user = null;
 
@@ -141,9 +165,6 @@ namespace zapread.com.Controllers
                         user.PostVotesUp.Add(post);
                     }
 
-                    //post.VotesDown.Remove(user);
-                    //user.PostVotesDown.Remove(post);
-                    //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
                     post.Score += v.a;
 
                     // Record and assign earnings
