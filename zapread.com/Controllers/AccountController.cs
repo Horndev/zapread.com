@@ -145,9 +145,9 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult Balance()
+        public async Task<ActionResult> Balance()
         {
-            ViewBag.Balance = GetUserBalance();
+            ViewBag.Balance = await GetUserBalance();
             return PartialView("_PartialBalance");
         }
 
@@ -156,18 +156,18 @@ namespace zapread.com.Controllers
         // Returns the currently logged in user balance
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult GetBalance()
+        public async Task<ActionResult> GetBalance()
         {
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = GetUserBalance();
+                userBalance = await GetUserBalance();
             }
             string balance = userBalance.ToString("0.##");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
-        private double GetUserBalance()
+        private async Task<double> GetUserBalance()
         {
             double balance;
             try
@@ -176,9 +176,10 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var user = db.Users
+                    var user = await db.Users
                         .Include(i => i.Funds)
-                        .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
 
                     if (user == null)
                     {
@@ -190,12 +191,12 @@ namespace zapread.com.Controllers
                         if (user.Funds == null)
                         {
                             // Neets to be initialized
-                            var user_modified = db.Users
+                            var user_modified = await db.Users
                                 .Include(i => i.Funds)
-                                .FirstOrDefault(u => u.AppId == uid);
+                                .FirstOrDefaultAsync(u => u.AppId == uid);
 
                             user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            db.SaveChanges();
+                            await db.SaveChangesAsync();
                             user = user_modified;
                         }
                         balance = user.Funds.Balance;
