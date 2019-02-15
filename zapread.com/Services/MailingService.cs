@@ -69,7 +69,7 @@ namespace zapread.com.Services
             mmessage.IsBodyHtml = true;
             if (message.Email != null && message.Email != "")
             {
-                mmessage.ReplyTo = new MailAddress(message.Email);
+                mmessage.ReplyToList.Add(new MailAddress(message.Email));
             }
 
             using (var smtp = new SmtpClient())
@@ -104,7 +104,7 @@ namespace zapread.com.Services
             mmessage.IsBodyHtml = true;
             if (message.Email != null && message.Email != "")
             {
-                mmessage.ReplyTo = new MailAddress(message.Email);
+                mmessage.ReplyToList.Add(new MailAddress(message.Email));
             }
 
             using (var smtp = new SmtpClient())

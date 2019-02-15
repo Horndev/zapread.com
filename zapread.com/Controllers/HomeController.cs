@@ -483,22 +483,22 @@ namespace zapread.com.Controllers
                                     var use = i.UsedFor;
                                     if (use == TransactionUse.VotePost)
                                     {
-                                        if (false) // Disable for now
-                                        {
-                                            var vc = new VoteController();
-                                            var v = new VoteController.Vote()
-                                            {
-                                                a = Convert.ToInt32(i.Amount),
-                                                d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
-                                                Id = i.UsedForId,
-                                                tx = i.Id
-                                            };
-                                            await vc.Post(v);
+                                        //if (false) // Disable for now
+                                        //{
+                                        //    var vc = new VoteController();
+                                        //    var v = new VoteController.Vote()
+                                        //    {
+                                        //        a = Convert.ToInt32(i.Amount),
+                                        //        d = i.UsedForAction == TransactionUseAction.VoteDown ? 0 : 1,
+                                        //        Id = i.UsedForId,
+                                        //        tx = i.Id
+                                        //    };
+                                        //    await vc.Post(v);
 
-                                            i.IsSpent = true;
-                                            i.IsSettled = true;
-                                            i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
-                                        }
+                                        //    i.IsSpent = true;
+                                        //    i.IsSettled = true;
+                                        //    i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
+                                        //}
                                     }
                                     else if (use == TransactionUse.VoteComment)
                                     {
@@ -554,7 +554,7 @@ namespace zapread.com.Controllers
                                     }
                                     else
                                     {
-                                        int w = 1; // keep waiting
+                                        ; // keep waiting
                                     }
                                 }
                             }
