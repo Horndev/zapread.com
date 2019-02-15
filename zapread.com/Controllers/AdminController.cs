@@ -620,7 +620,7 @@ namespace zapread.com.Controllers
 
             RecurringJob.AddOrUpdate<LNTransactionMonitor>(
                 x => x.CheckLNTransactions(),
-                Cron.MinuteInterval(5), queue: "lightning");
+                Cron.MinuteInterval(5));
 
             using (var db = new ZapContext())
             {
