@@ -1,5 +1,11 @@
 ﻿/* Functions for posts */
 
+/**
+ * Dismiss messages an alerts
+ * @param {any} t  : type (1 = alert)
+ * @param {any} id : object id
+ * @returns {bool} : true on success
+ */
 var dismiss = function (t, id) {
     var url = "";
     if (t === 1) {
@@ -20,6 +26,8 @@ var dismiss = function (t, id) {
                 if (t === 1) {
                     if (id === -1) { // Dismissed all
                         $('[id^="a_"]').hide();
+                        $('[id^="a1_"]').hide();
+                        $('[id^="a2_"]').hide();
                     } else {
                         $('#a_' + id).hide();
                         $('#a1_' + id).hide();
@@ -31,6 +39,8 @@ var dismiss = function (t, id) {
                 else {
                     if (id === -1) { // Dismissed all
                         $('[id^="m_"]').hide();
+                        $('[id^="m_1"]').hide();
+                        $('[id^="m_2"]').hide();
                     } else {
                         $('#m_' + id).hide();
                         $('#m1_' + id).hide();
