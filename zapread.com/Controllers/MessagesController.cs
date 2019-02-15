@@ -13,6 +13,7 @@ using zapread.com.Models.Database;
 using zapread.com.Services;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
+using Hangfire;
 
 namespace zapread.com.Controllers
 {
@@ -662,9 +663,10 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
+                    var user = await db.Users
                         .Include("Alerts")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync();
 
                     if (user == null)
                     {
@@ -705,9 +707,10 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
+                    var user = await db.Users
                         .Include("Messages")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync();
 
                     if (user == null)
                     {
@@ -754,14 +757,14 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var sender = db.Users
-                        .Where(u => u.AppId == userId).FirstOrDefault();
+                    var sender = await db.Users
+                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
 
-                    var receiver = db.Users
+                    var receiver = await db.Users
                         .Include("Messages")
-                        .Where(u => u.Id == id).FirstOrDefault();
+                        .Where(u => u.Id == id).FirstOrDefaultAsync();
 
-                    if (sender == null)
+                    if (sender == null || receiver == null)
                     {
                         return Json(new { Result = "Failure" });
                     }
@@ -794,41 +797,36 @@ namespace zapread.com.Controllers
 
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
+                    // Send stream update
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
                     
-                    // Send popup and email if not in chat
+                    // Send stream update popup
                     NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
+                    // email if not in chat
                     isChat = false;
                     if (isChat == null || (isChat != null && !isChat.Value))
                     {
                         // Send email
-                        if (receiver.Settings == null)
+                        if (receiver.Settings!= null && receiver.Settings.NotifyOnPrivateMessage)
                         {
-                            receiver.Settings = new UserSettings();
-                        }
-
-                        if (receiver.Settings.NotifyOnPrivateMessage)
-                        {
-                            string mentionedEmail = UserManager.FindById(receiver.AppId).Email;
-                            MailingService.Send(user: "Notify",
-                                message: new UserEmailModel()
-                                {
-                                    Subject = "New private message",
-                                    Body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" 
-                                        + sender.Name + "</a><br/> " + content 
+                            string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
+                            string subject = "New private message";
+                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>"
+                                        + sender.Name + "</a><br/> " + content
                                         + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
-                                        + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
-                                    Destination = mentionedEmail,
-                                    Email = "",
-                                    Name = "ZapRead.com Notify"
-                                });
+                                        + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
+
+                            BackgroundJob.Enqueue<MailingService>(x => x.SendEmail(
+                                mentionedEmail,
+                                subject,
+                                body,
+                                "Notify"));
                         }
                     }
                     return Json(new { Result = "Success", Id = msg.Id });
                 }
             }
-
             return Json(new { Result = "Failure" });
         }
 
