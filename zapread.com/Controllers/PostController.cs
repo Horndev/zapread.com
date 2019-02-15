@@ -249,9 +249,16 @@ namespace zapread.com.Controllers
         public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
         {
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                return Json(new { result = "failure", success = false, message = "Error finding user account." });
+            }
+
             using (var db = new ZapContext())
             {
-                var user = db.Users.Where(u => u.AppId == userId).First();
+                var user = await db.Users.Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync();
 
                 // Cleanup post HTML
                 HtmlDocument postDocument = new HtmlDocument();
@@ -326,7 +333,6 @@ namespace zapread.com.Controllers
                 }
 
                 // Send alerts to users subscribed to group
-
                 var subusers = db.Users
                     .Include("Alerts")
                     .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
@@ -344,12 +350,10 @@ namespace zapread.com.Controllers
                         To = u,
                         PostLink = post,
                     };
-
                     u.Alerts.Add(alert);
                 }
 
                 // Send alerts to users subscribed to users
-
                 var followUsers = db.Users
                     .Include("Alerts")
                     .Include("Settings")
@@ -385,31 +389,6 @@ namespace zapread.com.Controllers
                         mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
 
                         await mailer.SendNewPost(post.PostId, followerEmail, subject);
-
-                        //// send email
-                        //var doc = new HtmlDocument();
-                        //doc.LoadHtml(post.Content);
-                        //var baseUri = new Uri("https://www.zapread.com/");
-                        //var imgs = doc.DocumentNode.SelectNodes("//img/@src");
-                        //if (imgs != null)
-                        //{
-                        //    foreach (var item in imgs)
-                        //    {
-                        //        // TODO: check if external url
-                        //        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                        //    }
-                        //}
-                        //string postContent = doc.DocumentNode.OuterHtml;
-
-                        //MailingService.Send(user: "Notify",
-                        //    message: new UserEmailModel()
-                        //    {
-                        //        Subject = subject,
-                        //        Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='https://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", 
-                        //        Destination = followerEmail,
-                        //        Email = "",
-                        //        Name = "ZapRead.com Notify"
-                        //    });
                     }
                 }
 

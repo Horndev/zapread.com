@@ -27,6 +27,11 @@ namespace zapread.com.Controllers
             public int tx { get; set; }
         }
 
+        /// <summary>
+        /// User voting on a post
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> Post(Vote v)
         {
@@ -40,34 +45,33 @@ namespace zapread.com.Controllers
                 return Json(new { result = "error", message = "Invalid" });
             }
 
+            var userId = User.Identity.GetUserId();
+
             bool IsUserOwner = false;
             bool IsUserAnonymous = false;
 
-            var userId = User.Identity.GetUserId();
-
-            // if userId is null, then it is anonymous
-            if (userId == null)// Anonymous vote
+            if (userId == null) // Anonymous vote
             {
                 IsUserAnonymous = true;
             }
 
             using (var db = new ZapContext())
             {
+                var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1);
+
                 User user = null;
 
-                var post = db.Posts
-                    .Include("VotesUp")
-                    .Include("VotesDown")
+                var post = await db.Posts
+                    .Include(p => p.VotesUp)
+                    .Include(p => p.VotesDown)
                     .Include(p => p.UserId)
                     .Include(p => p.UserId.Funds)
-                    .FirstOrDefault(p => p.PostId == v.Id);
+                    .FirstOrDefaultAsync(p => p.PostId == v.Id);
 
                 if (post == null)
                 {
                     return Json(new { result = "error", message = "Invalid Post" });
                 }
-
-                //Models.User user = null;
 
                 if (userId == null)// Anonymous vote
                 { 
@@ -87,11 +91,11 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    user = db.Users
+                    user = await db.Users
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.SpendingEvents)
-                        .FirstOrDefault(u => u.AppId == userId);
+                        .FirstOrDefaultAsync(u => u.AppId == userId);
 
                     if (user == null)
                     {
@@ -167,7 +171,6 @@ namespace zapread.com.Controllers
                     if (owner != null)
                     {
                         // If user is not anonymous, and user is not owner, add reputation
-
                         if (!IsUserAnonymous && !IsUserOwner)
                         {
                             owner.Reputation += v.a;
@@ -185,6 +188,10 @@ namespace zapread.com.Controllers
                             owner.Funds.Balance += 0.6 * v.a;
                         }
                     }
+                    else
+                    {
+                        ; // TODO: log this error
+                    }
 
                     var postGroup = post.Group;
                     if (postGroup != null)
@@ -197,8 +204,6 @@ namespace zapread.com.Controllers
                         comratio += 0.2;
                     }
 
-                    var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
-
                     if (website != null)
                     {
                         // Will be distributed to all users
@@ -207,6 +212,10 @@ namespace zapread.com.Controllers
                         // And to the website
                         website.ZapReadTotalEarned += webratio * v.a;
                         website.ZapReadEarnedBalance += webratio * v.a;
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to load Zapread DB globals.");
                     }
 
                     try
@@ -269,8 +278,6 @@ namespace zapread.com.Controllers
                         comratio += 0.8;
                     }
 
-                    var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
-
                     if (website != null)
                     {
                         // Will be distributed to all users
@@ -285,7 +292,6 @@ namespace zapread.com.Controllers
                     return Json(new { result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
             }
-            // All paths have returned
         }
 
         [HttpPost]
