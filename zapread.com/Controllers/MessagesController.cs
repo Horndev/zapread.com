@@ -460,7 +460,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        public PartialViewResult UnreadMessages()
+        public async Task<PartialViewResult> UnreadMessages()
         {
             var userId = User.Identity.GetUserId();
             var vm = new UnreadModel();
@@ -468,16 +468,14 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
-                        //.Include("Alerts")
+                    var numUnread = await db.Users
                         .Include("Messages")
-                        //.Include("Alerts.PostLink")
-                        .Include("Messages.PostLink")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.Messages)
+                        .Where(m => !m.IsRead && !m.IsDeleted)
+                        .CountAsync();
 
-                    var messages = user.Messages.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp);
-
-                    vm.NumUnread = messages.Count();
+                    vm.NumUnread = numUnread;
                 }
             }
             return PartialView("_UnreadMessages", model: vm);
@@ -542,7 +540,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        public PartialViewResult UnreadAlerts()
+        public async Task<PartialViewResult> UnreadAlerts()
         {
             string userId = null;
             if (User != null)
@@ -555,16 +553,14 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    var user = db.Users
+                    var numUnread = await db.Users
                         .Include("Alerts")
-                        //.Include("Messages")
-                        //.Include("Alerts.PostLink")
-                        //.Include("Messages.PostLink")
-                        .Where(u => u.AppId == userId).First();
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.Alerts)
+                        .Where(m => !m.IsRead && !m.IsDeleted)
+                        .CountAsync();
 
-                    var messages = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp);
-
-                    vm.NumUnread = messages.Count();
+                    vm.NumUnread = numUnread;
                 }
             }
             return PartialView("_UnreadMessages", model: vm);
