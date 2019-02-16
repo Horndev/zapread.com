@@ -7,6 +7,10 @@
  *
 */
 
+.togglebutton {
+    color: lightgrey;
+}
+
 .switch-spinner {
     display: none;
     position: absolute;
