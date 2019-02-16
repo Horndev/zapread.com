@@ -10,7 +10,6 @@
         Model.Comment.UserId = new zapread.com.Models.Database.User() { Id = -1, Name="Anonymous" };
     }
     var isIgnoredUser = Model.ViewerIgnoredUsers != null ? Model.ViewerIgnoredUsers.Contains(Model.Comment.UserId.Id) : false;
-
 }
 
 <div class="" id="comment_@Model.Comment.CommentId">
@@ -66,7 +65,7 @@
                 {
                     @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Comment.UserId, IsIgnored = isIgnoredUser })
                 }
-                <small>- commented </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
+                <small>-@if (Model.Comment.IsReply) { <text> replied to <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentComment.UserId.Name.Trim() })">@@@Model.ParentComment.UserId.Name</a> </text>  } else { <text> commented </text> }</small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
                 @if (Model.Comment.TimeStampEdited != null)
                 {
                     <span class="text-muted" style="display:inline"> edited </span>
@@ -140,7 +139,7 @@
                     var subcomments = Model.Comments.Where(c => c.IsReply).Where(c => c.Parent.CommentId == Model.Comment.CommentId);
                     foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                     {
-                        @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, Comments = Model.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
+                        @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, ParentComment=Model.Comment, Comments = Model.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
                     }
                 }
             </div>
