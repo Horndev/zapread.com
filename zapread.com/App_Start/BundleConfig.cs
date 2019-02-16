@@ -97,6 +97,7 @@ namespace zapread.com
                         "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
                         "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
                         "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
+                        "~/node_modules/moment/min/moment-with-locales.min.js", // Time formatting
                         "~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
