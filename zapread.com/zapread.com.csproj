@@ -659,6 +659,10 @@
     <Compile Include="Migrations\201902080329307_AddCommentTimestampEdited.Designer.cs">
       <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902172310303_UserSettingsShowTours_Online.cs" />
+    <Compile Include="Migrations\201902172310303_UserSettingsShowTours_Online.Designer.cs">
+      <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1988,6 +1992,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201902080329307_AddCommentTimestampEdited.resx">
       <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902172310303_UserSettingsShowTours_Online.resx">
+      <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
