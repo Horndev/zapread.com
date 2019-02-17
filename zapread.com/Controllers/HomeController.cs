@@ -49,7 +49,7 @@ namespace zapread.com.Controllers
         //}
 
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult UserImage(int? size, string UserId)
+        public async Task<ActionResult> UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
             if (UserId != null)
@@ -67,42 +67,19 @@ namespace zapread.com.Controllers
             // Check for image in DB
             using (var db = new ZapContext())
             {
-                MemoryStream ms = new MemoryStream();
+                var i = await db.Users
+                    .Where(u => u.AppId == UserId || u.Name == UserId)
+                    .Select(u => u.ProfileImage)
+                    .FirstAsync();
 
-                if (db.Users.Where(u => u.AppId == UserId).Count() > 0)
+                if (i.Image != null)
                 {
-                    var img = db.Users.Where(u => u.AppId == UserId).First().ProfileImage;
-                    if (img.Image != null)
-                    {
-                        Image png = Image.FromStream(new MemoryStream(img.Image));
-                        Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
-                        byte[] data = thumb.ToByteArray(ImageFormat.Png);
-
-                        return File(data, "image/png");
-                    }
+                    Image png = Image.FromStream(new MemoryStream(i.Image));
+                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
+                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    return File(data, "image/png");
                 }
-                // Alternative if userId was username
-                else if (db.Users.Where(u => u.Name == UserId).Count() > 0)
-                {
-                    var userAppId = db.Users.Where(u => u.Name == UserId).FirstOrDefault().AppId;
-                    var img = db.Users.Where(u => u.AppId == userAppId).First().ProfileImage;
-                    if (img.Image != null)
-                    {
-                        Image png = Image.FromStream(new MemoryStream(img.Image));
-                        Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
-                        byte[] data = thumb.ToByteArray(ImageFormat.Png);
-
-                        return File(data, "image/png");
-                    }
-                }
-
-                // Use generated icon
-
-                // Identicon
-                //var icon = Identicon.FromValue(UserId, size: (int)size);
-                //icon.SaveAsPng(ms);
-                //return File(ms.ToArray(), "image/png");
-
+                
                 // RoboHash
                 var imagesPath = Server.MapPath("~/bin");
                 RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(

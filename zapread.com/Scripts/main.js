@@ -1,5 +1,17 @@
 ﻿/* ZapRead global functions */
 
+var toggleComment = function (e) {
+    $(e).parent().find('.comment-body').fadeToggle({duration:0});
+    if ($(e).find('.togglebutton').hasClass("fa-minus-square")) {
+        $(e).find('.togglebutton').removeClass("fa-minus-square");
+        $(e).find('.togglebutton').addClass("fa-plus-square");
+    }
+    else {
+        $(e).find('.togglebutton').removeClass("fa-plus-square");
+        $(e).find('.togglebutton').addClass("fa-minus-square");
+    }
+};
+
 var togglePost = function (e) {
     $(e).parent().find('.social-body').slideToggle();
     if ($(e).find('.togglebutton').hasClass("fa-minus-square")) {

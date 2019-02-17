@@ -73,16 +73,6 @@ namespace zapread.com.Controllers
             {
                 var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1);
 
-                //BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                //    new UserEmailModel()
-                //    {
-                //        Subject = "Async message from Hangfire",
-                //        Body = "Testing Hangfire",
-                //        Destination = "steven.horn.mail@gmail.com",
-                //        Email = "",
-                //        Name = "ZapRead.com Notify"
-                //    }, "Notify"));
-
                 User user = null;
 
                 var post = await db.Posts

@@ -85,6 +85,7 @@
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
+                    // We mark the first post with identifiers used in the tour
                     p.IsFirstPost = firstPost;
                     @Html.Partial(partialViewName: "_PartialPostRender", model: p)
                     firstPost = false;
