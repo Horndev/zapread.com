@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-sm-auto">
                         <div class="btn-group-vertical">
-                            <button id="bcr_@Model.CommentId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId, @Model.CommentId.ToString(), true)">Submit <span id="csr_@Model.CommentId.ToString()" class="loading open-circle" style="display:none"></span></button>
+                            <button id="bcr_@Model.CommentId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId, @Model.CommentId.ToString(), true)">Submit <i id="csr_@Model.CommentId.ToString()" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                         </div>
                     </div>
                 </div>
