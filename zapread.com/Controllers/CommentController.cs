@@ -274,7 +274,7 @@ namespace zapread.com.Controllers
                         await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { Comment = comment, Comments = new List<Comment>() });
+                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
 
                 return this.Json(new
                 {
