@@ -31,6 +31,10 @@ namespace zapread.com.Models.Database
         public string ColorTheme { get; set; }
         public bool CollapseDiscussions { get; set; }
 
+        // Features
+        public bool ShowTours { get; set; }
+        public bool ShowOnline { get; set; }
+
         // Languages
         public bool ViewAllLanguages { get; set; }
         public bool ViewTranslatedLanguages { get; set; }

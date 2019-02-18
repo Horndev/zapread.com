@@ -21,6 +21,7 @@ using System.Security.Principal;
 using System.Security.Claims;
 using System.Globalization;
 using zapread.com.Models.Database;
+using zapread.com.Models.Manage;
 
 namespace zapread.com.Controllers
 {
@@ -983,6 +984,14 @@ namespace zapread.com.Controllers
                 else if (setting == "ViewTranslatedLanguages")
                 {
                     user.Settings.ViewTranslatedLanguages = value;
+                }
+                else if (setting == "showOnline")
+                {
+                    user.Settings.ShowOnline = value;
+                }
+                else if (setting == "showTours")
+                {
+                    user.Settings.ShowTours = value;
                 }
 
                 await db.SaveChangesAsync();
