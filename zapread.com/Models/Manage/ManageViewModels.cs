@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using System;
 using zapread.com.Models.Database;
+using zapread.com.Models.Manage;
 
 namespace zapread.com.Models
 {

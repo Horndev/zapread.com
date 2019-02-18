@@ -685,6 +685,7 @@
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
+    <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
@@ -1790,6 +1791,7 @@
     <Content Include="Views\Messages\Alerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalAskUserTourIndex.cshtml" />
     <Content Include="Views\Admin\Votes.cshtml" />
+    <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,4 +1,6 @@
 ﻿@model zapread.com.Models.ManageUserViewModel
+@using zapread.com.Models.Manage
+
 @{
     ViewBag.Title = "Manage";
     List<string> included = new List<string>();
@@ -233,59 +235,15 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.NotifyOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyPost" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="notifyPost">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPost" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertPost">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("notifyPost", Model.Settings.NotifyOnOwnPostCommented))
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("alertPost",  Model.Settings.AlertOnOwnPostCommented))
                                 <div class="col">
                                     Your posts receive a comment.
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.NotifyOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="notifyComment">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertComment">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("notifyComment", Model.Settings.NotifyOnOwnCommentReplied))
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("alertComment",  Model.Settings.AlertOnOwnCommentReplied))
                                 <div class="col">
                                     Your comments receive a reply.
                                 </div>
@@ -455,6 +413,18 @@
                                 </div>
                                 <div class="col">
                                     [experimental] Use dark color theme.  Refresh page to take effect.
+                                </div>
+                            </div>
+                            <div class="row">
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("showOnline", Model.Settings.ShowOnline))
+                                <div class="col">
+                                    Hide online status.
+                                </div>
+                            </div>
+                            <div class="row">
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("showTours", Model.Settings.ShowTours))
+                                <div class="col">
+                                    Reset guided tours.
                                 </div>
                             </div>
                             <div class="row">
