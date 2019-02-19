@@ -40,12 +40,16 @@ namespace zapread.com
                         "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
                         "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
                         "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
-                        "~/node_modules/moment/min/moment-with-locales.min.js", // Time formatting
+                        "~/node_modules/moment/min/moment-with-locales.min.js"  // Time formatting
+                        ));
+
+            // Shared scripts
+            bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         "~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js"                     // For functions related to posts (NSFW, etc.)
-                        ));
+                        ).WithLastModifiedToken());
 
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(

@@ -175,13 +175,6 @@
 
         </div>
         <div class="row">
-
-            @*@if (Request.IsAuthenticated)
-                {
-                    <div class="col col-auto" data-toggle="tooltip" data-placement="bottom" title="Reply">
-                        <a href="javascript:void(0);" onclick="showReply(@Model.Post.PostId)" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
-                    </div>
-                }*@
             <div class="col col-auto" @*data-toggle="tooltip" data-placement="bottom" title="Discuss"*@>
                 <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
             </div>
