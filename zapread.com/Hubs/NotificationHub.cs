@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -33,24 +34,28 @@ namespace zapread.com.Hubs
             Clients.Group(userId).sendUserMessage(message);
         }
 
-        public override Task OnConnected()
+        public override async Task OnConnected()
         {
             string name = Context.User.Identity.GetUserId();
 
             if (name != null)
             {
-                Groups.Add(Context.ConnectionId, name);
+                await Groups.Add(Context.ConnectionId, name);
 
                 try
                 {
                     using (var db = new ZapContext())
                     {
-                        var user = db.Users
-                            .SingleOrDefault(u => u.AppId == name);
+                        var user = await db.Users
+                            .Include(usr => usr.Settings)
+                            .SingleOrDefaultAsync(u => u.AppId == name);
 
-                        user.DateLastActivity = DateTime.UtcNow;
-                        user.IsOnline = true;
-                        db.SaveChanges();
+                        if (!user.Settings.ShowOnline)
+                        {
+                            user.DateLastActivity = DateTime.UtcNow;
+                            user.IsOnline = true;
+                        }
+                        await db.SaveChangesAsync();
                     }
                 }
                 catch
@@ -58,10 +63,10 @@ namespace zapread.com.Hubs
 
                 }
             }
-            return base.OnConnected();
+            await base.OnConnected();
         }
 
-        public override Task OnDisconnected(bool stopCalled)
+        public override async Task OnDisconnected(bool stopCalled)
         {
             string name = Context.User.Identity.GetUserId();
 
@@ -71,12 +76,16 @@ namespace zapread.com.Hubs
                 {
                     using (var db = new ZapContext())
                     {
-                        var user = db.Users
-                            .SingleOrDefault(u => u.AppId == name);
+                        var user = await db.Users
+                            .Include(usr => usr.Settings)
+                            .SingleOrDefaultAsync(u => u.AppId == name);
 
-                        user.DateLastActivity = DateTime.UtcNow;
+                        if (!user.Settings.ShowOnline)
+                        {
+                            user.DateLastActivity = DateTime.UtcNow;
+                        }
                         user.IsOnline = false;
-                        db.SaveChanges();
+                        await db.SaveChangesAsync();
                     }
                 }
                 catch
@@ -84,7 +93,7 @@ namespace zapread.com.Hubs
 
                 }
             }
-            return base.OnDisconnected(stopCalled);
+            await base.OnDisconnected(stopCalled);
         }
     }
 }
