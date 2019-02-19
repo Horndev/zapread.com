@@ -77,8 +77,17 @@ namespace zapread.com.Controllers
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
                     return File(data, "image/png");
                 }
-                
+
                 // RoboHash
+                var user = await db.Users
+                    .Where(u => u.AppId == UserId || u.Name == UserId)
+                    .FirstOrDefaultAsync();
+
+                // Should generate robohash off the appId if Name supplied
+                if (user != null)
+                {
+                    UserId = user.AppId;
+                }
                 var imagesPath = Server.MapPath("~/bin");
                 RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
                     basePath: imagesPath);
@@ -92,6 +101,13 @@ namespace zapread.com.Controllers
                 {
                     Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    
+                    if (user != null)
+                    {
+                        UserImage img = new UserImage() { Image = data };
+                        user.ProfileImage = img;
+                        await db.SaveChangesAsync();
+                    }
                     return File(data, "image/png");
                 }
             }
@@ -423,7 +439,6 @@ namespace zapread.com.Controllers
                     User user = await GetCurrentUser(db);
                     var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
                     ValidateClaims(user);
-
                     PostsViewModel vm = new PostsViewModel()
                     {
                         Posts = await GeneratePostViewModels(user, posts, db),
@@ -431,7 +446,6 @@ namespace zapread.com.Controllers
                         Sort = sort ?? "Score",
                         SubscribedGroups = GetUserGroups(user),
                     };
-
                     return View(vm);
                 }
             }

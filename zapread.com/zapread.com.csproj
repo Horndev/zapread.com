@@ -659,6 +659,10 @@
     <Compile Include="Migrations\201902080329307_AddCommentTimestampEdited.Designer.cs">
       <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902172310303_UserSettingsShowTours_Online.cs" />
+    <Compile Include="Migrations\201902172310303_UserSettingsShowTours_Online.Designer.cs">
+      <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -681,6 +685,7 @@
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
+    <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
@@ -1670,6 +1675,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\Manage\index.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\Posts\post-functions.js" />
     <Content Include="Scripts\Posts\quotable.js" />
@@ -1785,6 +1791,7 @@
     <Content Include="Views\Messages\Alerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalAskUserTourIndex.cshtml" />
     <Content Include="Views\Admin\Votes.cshtml" />
+    <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1988,6 +1995,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201902080329307_AddCommentTimestampEdited.resx">
       <DependentUpon>201902080329307_AddCommentTimestampEdited.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902172310303_UserSettingsShowTours_Online.resx">
+      <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

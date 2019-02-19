@@ -70,7 +70,7 @@ var commentQuoteComment = function (id, mention) {
         quotetext = '<span class="badge badge-info userhint" style="margin-bottom: 10px;margin-right: 10px;">@@' + username + '</span>' +
             '<blockquote class="blockquote" style="display:inline-flex;">' + selectionText + '</blockquote><br/><br/>';
     }
-    $('#c_reply_' + id.toString()).load('@Url.Action("GetInputBox", "Comment")' + "/" + id.toString(), function () {
+    $('#c_reply_' + id.toString()).load('/Comment/GetInputBox' + "/" + id.toString(), function () {
         $(".c_input").summernote({
             callbacks: {
                 onImageUpload: function (files) {
@@ -88,7 +88,7 @@ var commentQuoteComment = function (id, mention) {
                 match: /\B@@(\w*)$/,
                 search: function (keyword, callback) {
                     if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                    var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                     $.ajax({
                         async: true,
                         url: '/Comment/GetMentions',

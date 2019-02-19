@@ -1,4 +1,6 @@
 ﻿@model zapread.com.Models.ManageUserViewModel
+@using zapread.com.Models.Manage
+
 @{
     ViewBag.Title = "Manage";
     List<string> included = new List<string>();
@@ -10,8 +12,7 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/dropZone")
-    @Scripts.Render("~/plugins/chosen")
+    @Scripts.Render("~/bundles/manage/index")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
@@ -80,189 +81,6 @@
             });
         });
 
-        var updateLanguages = function () {
-            console.log('updateLanguages');
-        };
-
-        var settingToggle = function (e) {
-            var setting = e.id;
-            var value = e.checked;
-            let spinner = $(e).parent().find(".switch-spinner");
-            spinner.removeClass("fa-check");
-            spinner.addClass("fa-refresh");
-            spinner.addClass("fa-spin");
-            spinner.show();
-            $.ajax({
-                async: true,
-                data: JSON.stringify({'setting':setting, 'value': value}),
-                type: 'POST',
-                url: '/Manage/UpdateUserSetting',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        spinner.removeClass("fa-refresh");
-                        spinner.removeClass("fa-spin");
-                        spinner.addClass("fa-check");
-                        //spinner.hide();
-                    }
-                }
-            });
-        }
-
-        var leave = function (id) {
-            leaveurl = "/Group/LeaveGroup"
-            var data = JSON.stringify({ 'gid': id });
-            $.ajax({
-                async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: leaveurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.result == "success") {
-                        $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Rejoin ");
-                        $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
-                    }
-                }
-            });
-            return false; // Prevent jump to top of page
-        }
-
-        var join = function (id) {
-            joinurl = "/Group/JoinGroup"
-            var data = JSON.stringify({ 'gid': id });
-            $.ajax({
-                async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: joinurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.result == "success") {
-                        $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
-                        $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
-                        //alert('joined!');
-                    }
-                }
-            });
-            return false; // Prevent jump to top of page
-        }
-
-        Dropzone.options.dropzoneForm = {
-            paramName: "file", // The name that will be used to transfer the file
-            maxFilesize: 15, // MB
-            acceptedFiles: "image/*",
-            maxFiles: 1,
-            addRemoveLinks: true,
-            init: function () {
-                this.on("addedfile", function () {
-                    if (this.files[1] != null) {
-                        this.removeFile(this.files[0]);
-                    }
-                });
-            },
-            dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
-        };
-
-        var BlockNumber = 10;  //Infinite Scroll starts from second block
-        var NoMoreData = false;
-        var inProgress = false;
-        $(window).scroll(function () {
-            if ($(window).scrollTop() == $(document).height() -
-            $(window).height() && !NoMoreData && !inProgress) {
-                loadmore();
-            }
-        });
-        var loadmore = function () {
-            if (!inProgress) {
-                inProgress = true;
-                $('#loadmore').show();
-                $('#btnLoadmore').prop('disabled', true);
-                $.post("@Url.Action("InfiniteScroll", "Manage")",
-                    { "BlockNumber": BlockNumber },
-                    function (data) {
-                        $('#loadmore').hide();
-                        $('#btnLoadmore').prop('disabled', false);
-                        BlockNumber = BlockNumber + 10;
-                        NoMoreData = data.NoMoreData;
-                        $("#posts").append(data.HTMLString);
-                        inProgress = false;
-                        $('.postTime').each(function (i, e) {
-                            var time = moment.utc($(e).html()).local().calendar();
-                            var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                            $(e).html('<span>' + time + ' - ' + date + '</span>');
-                            $(e).css('display', 'inline');
-                            $(e).removeClass("postTime");
-                        });
-                        if (NoMoreData) {
-                            $('#showmore').hide();
-                        }
-                        $(".sharing").each(function () {
-                            $(this).jsSocials({
-                                url: $(this).data('url'),
-                                text: $(this).data('sharetext'),
-                                showLabel: false,
-                                showCount: false,
-                                shareIn: "popup",
-                                shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-                            });
-                            $(this).removeClass("sharing");
-                        });
-                        $('.read-more').readMore({
-                            readMoreLinkClass: "read-more__link",
-                            readMoreText: "Read more",
-                            readLessText: "Read less",
-                            readMoreHeight: 800
-                        });
-                        $(".c_input").summernote({
-                            callbacks: {
-                                onImageUpload: function (files) {
-                                    that = $(this);
-                                    sendFile(files[0], that);
-                                }
-                            },
-                            focus: false,
-                            placeholder: 'Write comment...',
-                            disableDragAndDrop: true,
-                            toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-                            minHeight: 60,
-                            maxHeight: 300,
-                            hint: {
-                                match: /\B@@(\w*)$/,
-                                search: function (keyword, callback) {
-                                    if (!keyword.length) return callback();
-                                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
-                                    $.ajax({
-                                        async: true,
-                                        url: '/Comment/GetMentions',
-                                        type: 'POST',
-                                        contentType: "application/json; charset=utf-8",
-                                        dataType: 'json',
-                                        data: msg,
-                                        error: function () {
-                                            callback();
-                                        },
-                                        success: function (res) {
-                                            callback(res.users);
-                                        }
-                                    });
-                                },
-                                content: function (item) {
-                                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                                }
-                            }
-                        });
-                        $('.c_input').each(function (i, e) {
-                            $(e).removeClass("c_input");
-                        });
-
-                        $(".note-statusbar").css("display", "none");
-                    });
-            }
-        };
     </script>
 }
 
@@ -417,59 +235,15 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.NotifyOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyPost" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="notifyPost">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnPostCommented) { <text> checked</text> } class="onoffswitch-checkbox" id="alertPost" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertPost">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("notifyPost", Model.Settings.NotifyOnOwnPostCommented))
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("alertPost",  Model.Settings.AlertOnOwnPostCommented))
                                 <div class="col">
                                     Your posts receive a comment.
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.NotifyOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="notifyComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="notifyComment">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="switch">
-                                        <div class="onoffswitch">
-                                            <input type="checkbox" @if (Model.Settings.AlertOnOwnCommentReplied) { <text> checked</text> } class="onoffswitch-checkbox" id="alertComment" onclick="settingToggle(this)">
-                                            <label class="onoffswitch-label" for="alertComment">
-                                                <i class="fa fa-refresh fa-spin switch-spinner"></i>
-                                                <span class="onoffswitch-inner"></span>
-                                                <span class="onoffswitch-switch"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("notifyComment", Model.Settings.NotifyOnOwnCommentReplied))
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("alertComment",  Model.Settings.AlertOnOwnCommentReplied))
                                 <div class="col">
                                     Your comments receive a reply.
                                 </div>
@@ -641,6 +415,18 @@
                                     [experimental] Use dark color theme.  Refresh page to take effect.
                                 </div>
                             </div>
+                            <div class="row">
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("showOnline", Model.Settings.ShowOnline))
+                                <div class="col">
+                                    Hide online status.
+                                </div>
+                            </div>
+                            @*<div class="row">
+                                @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("showTours", Model.Settings.ShowTours))
+                                <div class="col">
+                                    Reset guided tours.
+                                </div>
+                            </div>*@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="switch">
