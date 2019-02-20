@@ -46,6 +46,45 @@ namespace zapread.com.Controllers
         //{
         //}
 
+        [Authorize]
+        public async Task<ActionResult> UpdateImageCache(string UserId)
+        {
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Where(u => u.AppId == UserId || u.Name == UserId)
+                    .FirstOrDefaultAsync();
+
+                // Should generate robohash off the appId if Name was supplied
+                if (user != null)
+                {
+                    UserId = user.AppId;
+                }
+                var imagesPath = Server.MapPath("~/bin");
+                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
+                    basePath: imagesPath);
+                var r = RoboHash.Net.RoboHash.Create(UserId);
+                using (var image = r.Render(
+                    set: null,
+                    backgroundSet: RoboHash.Net.RoboConsts.Any,
+                    color: null,
+                    width: 1024,
+                    height: 1024))
+                {
+                    // Cache to DB at full resolution
+                    if (user != null)
+                    {
+                        Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
+                        byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
+                        UserImage img = new UserImage() { Image = DBdata };
+                        user.ProfileImage = img;
+                        await db.SaveChangesAsync();
+                    }
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> UserImage(int? size, string UserId)
         {

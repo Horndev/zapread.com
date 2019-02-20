@@ -33,6 +33,7 @@
                 <table id="usersTable" class="table table-striped" style="width:100%">
                     <thead>
                         <tr>
+                            <th>User Image</th>
                             <th>User Name</th>
                             <th>Date Joined</th>
                             <th>Last Seen</th>
@@ -84,7 +85,7 @@
             "bInfo": false,
             "lengthChange": false,
             "ordering": true,
-            "order": [[1, "desc"]],
+            "order": [[2, "desc"]],
             "pageLength": 25,
             "processing": true,
             "serverSide": true,
@@ -98,6 +99,15 @@
                 }
             },
             "columns": [
+                {
+                    "data": null,//"User Image",
+                    "name": 'Image',
+                    "orderable": false,
+                    "mRender": function (data, type, row) {
+                        return "<img src='/Home/UserImage/?UserId=" + encodeURIComponent(data.UserName) + "&size=100'\>";
+                        //return "<a href='/Home/UpdateImageCache/?UserId=" + encodeURIComponent(data.UserName) + "'><img src='/Home/UserImage/?UserId=" + encodeURIComponent(data.UserName) + "&size=200'\></a>";
+                    }
+                },
                 {
                     "data": null,//"UserName",
                     "name": 'Name',
