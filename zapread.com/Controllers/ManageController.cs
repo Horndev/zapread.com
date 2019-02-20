@@ -850,7 +850,7 @@ namespace zapread.com.Controllers
 
                     }
 
-                    Bitmap thumb = ImageExtensions.ResizeImage(img, 200, 200);
+                    Bitmap thumb = ImageExtensions.ResizeImage(img, 1024, 1024);
 
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
 
