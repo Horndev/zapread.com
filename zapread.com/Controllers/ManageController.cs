@@ -834,10 +834,21 @@ namespace zapread.com.Controllers
                 {
                     string _FileName = Path.GetFileName(file.FileName);
                     MemoryStream ms = new MemoryStream();
-                    //file.InputStream.CopyTo(ms);
-                    //byte[] data = ms.ToArray();
 
                     Image img = Image.FromStream(file.InputStream);
+
+                    // Images should retain aspect ratio
+                    double ar = Convert.ToDouble(img.Width) / Convert.ToDouble(img.Height); // Aspect ratio
+                    int max_wh = 512; // desired max width or height
+                    
+                    if (img.Height > img.Width)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
 
                     Bitmap thumb = ImageExtensions.ResizeImage(img, 200, 200);
 
