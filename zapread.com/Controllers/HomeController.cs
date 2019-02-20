@@ -83,7 +83,7 @@ namespace zapread.com.Controllers
                     .Where(u => u.AppId == UserId || u.Name == UserId)
                     .FirstOrDefaultAsync();
 
-                // Should generate robohash off the appId if Name supplied
+                // Should generate robohash off the appId if Name was supplied
                 if (user != null)
                 {
                     UserId = user.AppId;
@@ -96,15 +96,18 @@ namespace zapread.com.Controllers
                     set: null,
                     backgroundSet: RoboHash.Net.RoboConsts.Any,
                     color: null,
-                    width: (int)size,
-                    height: (int)size))
+                    width: 1024,
+                    height: 1024))
                 {
                     Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
-                    
+
+                    // Cache to DB at full resolution
                     if (user != null)
                     {
-                        UserImage img = new UserImage() { Image = data };
+                        Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
+                        byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
+                        UserImage img = new UserImage() { Image = DBdata };
                         user.ProfileImage = img;
                         await db.SaveChangesAsync();
                     }
