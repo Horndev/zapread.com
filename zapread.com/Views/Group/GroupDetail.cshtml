@@ -353,6 +353,10 @@
                     $(e).removeClass("c_input");
                 });
                 $(".note-statusbar").css("display", "none");
+                $(".impression").each(function (ix, e) {
+                    $(e).load($(e).data("url"));
+                    $(e).removeClass("impression");
+                });
             });
         }
     };

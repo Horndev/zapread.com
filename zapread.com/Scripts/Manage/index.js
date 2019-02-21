@@ -178,7 +178,10 @@ var loadmore = function () {
                 $('.c_input').each(function (i, e) {
                     $(e).removeClass("c_input");
                 });
-
+                $(".impression").each(function (ix, e) {
+                    $(e).load($(e).data("url"));
+                    $(e).removeClass("impression");
+                });
                 $(".note-statusbar").css("display", "none");
             });
     }
