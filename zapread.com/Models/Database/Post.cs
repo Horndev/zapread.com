@@ -15,6 +15,7 @@ namespace zapread.com.Models.Database
         [Key]
         public int PostId { get; set; }
         public int Score { get; set; }
+        public long Impressions { get; set; }                           // Number of times post was rendered
         public string PostTitle { get; set; }
         public DateTime? TimeStamp { get; set; }
         public DateTime? TimeStampEdited { get; set; }                  // When the post was last edited, or null
