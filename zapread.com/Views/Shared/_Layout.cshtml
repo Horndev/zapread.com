@@ -259,8 +259,12 @@
                     return this;
                 }
             });
+            $(".impression").each(function (ix, e) {
+                $(e).load($(e).data("url"));
+                $(e).removeClass("impression");
+            });
         }); //end ready
-
+        
         var toggleChat = function (id, show) {
             show = typeof show !== 'undefined' ? show : false;
             $(".c_input_" + id.toString()).summernote({

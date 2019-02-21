@@ -663,6 +663,10 @@
     <Compile Include="Migrations\201902172310303_UserSettingsShowTours_Online.Designer.cs">
       <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902210025592_AddPostImpressions.cs" />
+    <Compile Include="Migrations\201902210025592_AddPostImpressions.Designer.cs">
+      <DependentUpon>201902210025592_AddPostImpressions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1792,6 +1796,7 @@
     <Content Include="Views\Shared\_PartialModalAskUserTourIndex.cshtml" />
     <Content Include="Views\Admin\Votes.cshtml" />
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
+    <Content Include="Views\Post\_Impressions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1998,6 +2003,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201902172310303_UserSettingsShowTours_Online.resx">
       <DependentUpon>201902172310303_UserSettingsShowTours_Online.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902210025592_AddPostImpressions.resx">
+      <DependentUpon>201902210025592_AddPostImpressions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
