@@ -108,6 +108,23 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet, Route("Post/Impressions/{id}")]
+        public async Task<PartialViewResult> Impressions(int? id)
+        {
+            using (var db = new ZapContext())
+            {
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == id);
+                if (post != null)
+                {
+                    post.Impressions += 1;
+                    ViewBag.PostImpressions = post.Impressions;
+                    await db.SaveChangesAsync();
+                }
+                return PartialView("_Impressions");
+            }
+        }
+
         public async Task<JsonResult> ToggleStickyPost(int id)
         {
             var userId = User.Identity.GetUserId();

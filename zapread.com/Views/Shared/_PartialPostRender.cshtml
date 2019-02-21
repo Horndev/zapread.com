@@ -10,6 +10,9 @@
     <div class="pull-right social-action dropdown">
         <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
         <ul class="dropdown-menu m-t-xs">
+            <li>
+                <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.Post.PostId"></span> Impression(s)</button>
+            </li>
             @if (Model.ViewerIgnoredUser)
             {
                 <li>
@@ -124,6 +127,7 @@
                     <span class="text-muted" style="display:inline"> edited </span>
                     <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
                 }
+                <span class="appear" data-src="/Post/Impressions/@Model.Post.PostId"></span>
                 <h3 class="@(Model.IsFirstPost ? "firstPostTitle" : "")" style="display: block;">
                     <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
                         @if (Model.Post.PostTitle == null)
@@ -202,7 +206,7 @@
                             </div>
                             <div class="col-sm-auto">
                                 <div class="btn-group-vertical">
-                                    <button id="bc_@Model.Post.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId.ToString(), 0, false)">Submit <span id="cs_@Model.Post.PostId.ToString()" class="loading open-circle" style="display:none"></span></button>
+                                    <button id="bc_@Model.Post.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId.ToString(), 0, false)">Submit <i id="cs_@Model.Post.PostId.ToString()" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                                 </div>
                             </div>
                         </div>

@@ -127,6 +127,10 @@
                         if (NoMoreData) {
                             $('#showmore').hide();
                         }
+                        $(".impression").each(function (ix, e) {
+                            $(e).load($(e).data("url"));
+                            $(e).removeClass("impression");
+                        });
                         $(".sharing").each(function () {
                             $(this).jsSocials({
                                 url: $(this).data('url'),
