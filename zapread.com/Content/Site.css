@@ -7,6 +7,10 @@
  *
 */
 
+.commentCollapsed {
+    width: 100%;
+}
+
 .togglebutton {
     color: lightgrey;
 }
