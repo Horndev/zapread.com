@@ -274,7 +274,7 @@ namespace zapread.com.Controllers
                         await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
+                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { StartVisible=true, Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
 
                 return this.Json(new
                 {
@@ -342,9 +342,11 @@ namespace zapread.com.Controllers
                     .SelectMany(p => p.Comments)
                     .ToListAsync();
 
-                var cid = commentIds.FirstOrDefault();
+                string CommentHTMLString = "";
 
-                var cmt = await db.Comments
+                foreach (var cid in commentIds.Take(3)) // Comments in 3's
+                {
+                    var cmt = await db.Comments
                     .Include(c => c.Post)
                     .Include(c => c.Post.Comments)
                     .Include(c => c.Post.Comments.Select(cm => cm.Parent))
@@ -355,33 +357,34 @@ namespace zapread.com.Controllers
                     .Include(c => c.Parent.UserId)
                     .FirstOrDefaultAsync(c => c.CommentId == cid);
 
-                if (cmt == null)
-                {
-                    return Json(new
+                    if (cmt == null)
                     {
-                        success = true,
-                        more = false,
-                        HTMLString = ""
-                    });
+                        return Json(new
+                        {
+                            success = true,
+                            more = false,
+                            HTMLString = ""
+                        });
+                    }
+
+                    var vm = new PostCommentsViewModel
+                    {
+                        NestLevel = nestLevel ?? 1,
+                        Comment = cmt,
+                        Comments = postComments,
+                        ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
+                        StartVisible = cmt.Score >= 0,
+                    };
+
+                    CommentHTMLString += RenderPartialViewToString("_PartialCommentRender", vm);
+                    shown.Add(cmt.CommentId);
                 }
-
-                var vm = new PostCommentsViewModel
-                {
-                    NestLevel = nestLevel??1, 
-                    Comment = cmt,
-                    Comments = postComments,
-                    ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
-                };
-
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", vm);
-
-                shown.Add(cmt.CommentId);
-
+                
                 return Json(new
                 {
                     success = true,
                     shown = String.Join(";", shown),
-                    hasMore = commentIds.Count() > 1,
+                    hasMore = commentIds.Count() > 3,
                     HTMLString = CommentHTMLString
                 });
             }
