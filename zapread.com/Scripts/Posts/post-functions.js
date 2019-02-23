@@ -263,8 +263,10 @@ var onAjaxCommentSuccessA = function (result) {
             $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
         }
         else {
+            $('#preply_' + result.PostId.toString()).hide();
             $('#c_input_' + result.PostId.toString()).summernote('reset');
-            $("#comments_" + result.PostId.toString()).append(result.HTMLString);
+            $("#comments_" + result.PostId.toString()).prepend(result.HTMLString);
+            $("#wc_" + result.PostId.toString()).show();
         }
         $('.postTime').each(function (i, e) {
             var time = moment.utc($(e).html()).local().calendar();

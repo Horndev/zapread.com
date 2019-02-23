@@ -13,10 +13,10 @@
 }
 
 <div class="" id="comment_@Model.Comment.CommentId" style="min-height: 24px; background-color: #f9f9f9;">
-    <button class="pull-left btn btn-sm btn-link" style="display:flex;padding-left: 4px;" onclick="toggleComment(this);">
-        <i class="fa fa-minus-square togglebutton"></i>
+    <button class="btn btn-sm btn-link @if (Model.StartVisible) {<text>pull-left</text>}" style="display:flex;padding-left: 4px;" onclick="toggleComment(this);">
+        <i class="fa @if (!Model.StartVisible) {<text>fa-plus-square</text>} else {<text>fa-minus-square</text>} togglebutton" style="padding-top: 2px;"></i> <span id="cel" class="btn btn-link btn-sm" style="@if (Model.StartVisible) {<text>display:none;</text>}font-size: 10pt; border-top-width: 0px; padding-top: 0px; vertical-align: top;"> [@Model.Comment.Score] Show comment...</span>
     </button>
-    <div class="comment-body" style="width:100%;">
+    <div class="comment-body" style="width:100%;@if (!Model.StartVisible) {<text>display:none;</text> } ">
         @if (Request.IsAuthenticated)
         {
             <div class="pull-right social-action dropdown" @if (Model.Comment.IsReply) { <text> style="left:15px;" </text> }>
@@ -148,7 +148,16 @@
                         var subcomments = Model.Comments.Where(c => c.IsReply).Where(c => c.Parent.CommentId == Model.Comment.CommentId);
                         foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                         {
-                            @Html.Partial(partialViewName: "_PartialCommentRender", model: new PostCommentsViewModel { Comment = cmt, ParentComment = Model.Comment, Comments = Model.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers })
+                            var vm = new PostCommentsViewModel
+                            {
+                                NestLevel = Model.NestLevel + 1,
+                                Comment = cmt,
+                                ParentComment = Model.Comment,
+                                Comments = Model.Comments.ToList(),
+                                ViewerIgnoredUsers = Model.ViewerIgnoredUsers,
+                                StartVisible = Model.NestLevel < 4,
+                            };
+                            @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
                         }
                     }
                 </div>
