@@ -178,14 +178,17 @@
             </div>
 
         </div>
-        <div class="row">
-            <div class="col col-auto" @*data-toggle="tooltip" data-placement="bottom" title="Discuss"*@>
-                <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId)" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
+        @*<div class="row">
+            <div class="col col-auto">
+                <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId);" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
             </div>
-        </div>
+        </div>*@
     </div>
     @if (Request.IsAuthenticated)
     {
+    <div onclick="writeComment(this);" data-postid="@Model.Post.PostId">
+        <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+    </div>
         <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
                 <div class="ibox-content no-padding ibox-comment">
@@ -215,23 +218,47 @@
             </div>
         </div>
     }
-    <div id=@("comments_" + @Model.Post.PostId.ToString()) @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
-        @if (Model.Post.Comments != null)
-        {
-            var numshown = 0;
-            foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
+        <div id=@("comments_" + @Model.Post.PostId.ToString()) @*@if (Model.NumComments < 1) { <text> style="display: none" </text> }*@>
+            @if (Model.Post.Comments != null)
             {
-                var vm = new PostCommentsViewModel { Comment = comment, Comments = Model.Post.Comments.ToList(), ViewerIgnoredUsers = Model.ViewerIgnoredUsers };
-
-                // Have the top 3 root comments start visible
-                if (numshown < 3 && comment.Score > 0)
+                var numshown = 0;
+                bool showmore = false;
+                List<long> rootshown = new List<long>();
+                foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                 {
-                    numshown += 1;
-                    vm.StartVisible = true;
+                    var vm = new PostCommentsViewModel
+                    {
+                        NestLevel = 1, // Root level comment
+                        Comment = comment,
+                        Comments = Model.Post.Comments.ToList(),
+                        ViewerIgnoredUsers = Model.ViewerIgnoredUsers
+                    };
+
+                    // Have the top 3 root comments start visible
+                    if (numshown < 3 && comment.Score >= 0)
+                    {
+                        numshown += 1;
+                        vm.StartVisible = true;
+                        @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
+                        rootshown.Add(comment.CommentId);
+                    }
+                    else if (numshown < 3)
+                    {
+                        numshown += 1;
+                        vm.StartVisible = false;
+                        @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
+                    }
+                    if (numshown >= 3)
+                    {
+                        showmore = true;
+                    }
                 }
-                @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
+                if (showmore)
+                {
+                    <div class="insertComments" id="mc_@Model.Post.PostId"></div> @*new comments appear below this div*@ 
+                    <text><div onclick="loadMoreComments(this);" data-postid="@Model.Post.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div></text>
+                }
             }
-        }
-    </div>
+        </div>
 
 </div>
