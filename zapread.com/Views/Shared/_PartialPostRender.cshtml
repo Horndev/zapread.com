@@ -156,8 +156,6 @@
                 </div>
             </div>
             <div class="col">
-                
-                @*<p>*@
                 <div class="post-quotable post-content @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.Post.PostId" data-userid="@Model.Post.UserId.Id">
                     <div @if (!Model.IsDetailView) { <text> class="post-content" </text> }>
                         @Html.Raw(Model.Post.Content)
@@ -171,9 +169,7 @@
                     {
                         <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
                     }
-
                 </div>
-                @*</p>*@
                 <br />
             </div>
 
