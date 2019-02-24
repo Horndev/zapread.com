@@ -87,17 +87,12 @@
     var userVote = { id: 0, d: 0, t: 0, amount: 1, tx: 0, b: 0 }
     var userTip = { username: "", amount: 1 }
     var isTip = false;
+    var voteReadyEvent = new Event('voteReady');
 
      $(document).ready(function () {
          var userdefaultvote = '1';
          $('#payAmount').html(userdefaultvote);
          $('#voteValueAmount').val(userdefaultvote);
-
-         // If user is anonymous, there is no balance, and the user must vote using a lightning payment
-         //$('#userBalance').html('0');
-         //$(".userBalanceValue").each(function (i, e) {
-         //    $(e).html("0");
-         //});
 
          var userBalance = userVote.b;
          $.get("/Account/GetBalance", function (data, status) {
@@ -132,10 +127,8 @@
          // If the user updates the amount
          $('#voteValueAmount').on('input', function () {
              amt = $(this).val()
-             // $('#payAmount').html(amt);
              userVote.amount = amt;
              userTip.amount = amt;
-
              if (parseInt(userVote.amount) > parseInt(userVote.b)) {
                  $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
                  $("#voteDepositInvoiceFooter").removeClass("bg-success");
@@ -155,10 +148,9 @@
                  $("#voteDepositInvoiceFooter").removeClass("bg-success");
                  $("#voteDepositInvoiceFooter").removeClass("bg-error");
                  $("#voteDepositInvoiceFooter").addClass("bg-info");
-                 
              }
          });
-
+         document.dispatchEvent(voteReadyEvent);
      });
 
      // This function is called when a user clicks the button to either pay with balance or invoice
@@ -449,7 +441,7 @@
                     $("#voteDepositInvoiceFooter").removeClass("bg-success");
                     $("#voteDepositInvoiceFooter").removeClass("bg-info");
                     $("#voteDepositInvoiceFooter").addClass("bg-error");
-                    $("#voteDepositInvoiceFooter").html(result.message);
+                    $("#voteDepositInvoiceFooter").html(response.message);
                     $("#voteDepositInvoiceFooter").show();
                 }
             }

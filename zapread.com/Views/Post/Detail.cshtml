@@ -106,6 +106,15 @@
             $(".c_input_" + "@Model.Post.PostId").each(function (i, e) {
                 $(e).removeClass(".c_input_" + "@Model.Post.PostId");
             });
+
+            @if(ViewBag.showVote != null && ViewBag.showVote)
+            {
+                <text>
+                document.addEventListener("voteReady", function (e) {
+                    vote(@Model.Post.PostId, @ViewBag.vote, 1, 100);
+                });
+                </text>
+            }
         });
     </script>
 }

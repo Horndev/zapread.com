@@ -477,9 +477,15 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="PostId"></param>
+        /// <param name="vote">0 = downvote, 1 = upvote</param>
+        /// <returns></returns>
         [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int PostId)
+        public async Task<ActionResult> Detail(int PostId, int? vote)
         {
             using (var db = new ZapContext())
             {
@@ -512,39 +518,49 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == PostId);
 
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (user != null && user.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
-                }
-
                 if (pst == null)
                 {
                     return RedirectToAction("PostNotFound");
                 }
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                PostViewModel vm = new PostViewModel()
+                if (vote.HasValue)
                 {
-                    Post = pst,
-                    ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
-                    ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                    ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                    ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
-                    NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
-                    ViewerIgnoredUsers = viewerIgnoredUsers,
-                    GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                    GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                    GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                };
+                    ViewBag.showVote = true;
+                    ViewBag.vote = vote.Value;
+                }
 
-                return View(vm);
+                return View(await GeneratePostViewModel(db, user, pst));
             }
+        }
+
+        private static async Task<PostViewModel> GeneratePostViewModel(ZapContext db, User user, Post pst)
+        {
+            List<int> viewerIgnoredUsers = new List<int>();
+
+            if (user != null && user.IgnoringUsers != null)
+            {
+                viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+            }
+
+            var groups = await db.Groups
+                    .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+            PostViewModel vm = new PostViewModel()
+            {
+                Post = pst,
+                ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
+                ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
+                NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
+                ViewerIgnoredUsers = viewerIgnoredUsers,
+                GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
+            };
+            return vm;
         }
 
         public ActionResult PostNotFound()
