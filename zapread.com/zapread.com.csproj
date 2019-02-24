@@ -730,6 +730,8 @@
     <Content Include="Content\patterns\triangular.png" />
     <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
+    <Content Include="Content\vdn.png" />
+    <Content Include="Content\vup.png" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
