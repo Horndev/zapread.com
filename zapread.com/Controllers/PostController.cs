@@ -477,9 +477,15 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="PostId"></param>
+        /// <param name="vote">0 = downvote, 1 = upvote</param>
+        /// <returns></returns>
         [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int PostId)
+        public async Task<ActionResult> Detail(int PostId, int? vote)
         {
             using (var db = new ZapContext())
             {
@@ -542,6 +548,12 @@ namespace zapread.com.Controllers
                     GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
                     GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                 };
+
+                if (vote.HasValue)
+                {
+                    ViewBag.showVote = true;
+                    ViewBag.vote = vote.Value;
+                }
 
                 return View(vm);
             }
