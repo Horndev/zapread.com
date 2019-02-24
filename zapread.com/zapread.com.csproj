@@ -711,6 +711,7 @@
     <Content Include="Content\bootstrap-tour.min.css" />
     <Content Include="Content\FFFFFF-0.png" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\fonts-embedded.css" />
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\patterns\1.png" />
