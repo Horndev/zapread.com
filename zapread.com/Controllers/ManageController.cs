@@ -133,18 +133,13 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                User u;
-                u = await db.Users
-                        .Include(usr => usr.LNTransactions)
-                        .Where(us => us.AppId == userId)
-                        .SingleOrDefaultAsync();
-
-                var pageEarnings = u.EarningEvents
-                    .AsParallel()
+                var pageEarnings = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(us => us.EarningEvents)
                     .OrderByDescending(e => e.TimeStamp)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToList();
+                    .ToListAsync();
 
                 var values = pageEarnings
                     .AsParallel()
@@ -155,7 +150,10 @@ namespace zapread.com.Controllers
                         Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
                     }).ToList();
 
-                int numrec = u.EarningEvents.Count();
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(us => us.EarningEvents)
+                    .CountAsync();
 
                 var ret = new
                 {

@@ -39,7 +39,7 @@ namespace zapread.com.Controllers
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -62,6 +62,11 @@ namespace zapread.com.Controllers
             string userId = "?";
             try
             {
+                if (!Request.IsAuthenticated)
+                {
+                    return Json(new { balance = 0 });
+                }
+
                 userId = User.Identity.GetUserId();
 
                 if (userId == null)
@@ -71,10 +76,14 @@ namespace zapread.com.Controllers
 
                 using (var db = new ZapContext())
                 {
-                    await EnsureUserExists(userId, db);
-                    var user = db.Users
+                    var user = await db.Users
                         .Include(usr => usr.Funds)
-                        .FirstOrDefault(u => u.AppId == userId);
+                        .FirstOrDefaultAsync(u => u.AppId == userId);
+
+                    if (user == null)
+                    {
+                        return Json(new { balance = 0 });
+                    }
 
                     return Json(new { balance = Math.Floor(user.Funds.Balance) });
                 }
@@ -216,7 +225,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetSpendingSum/{days?}")]
-        public ActionResult GetSpendingSum(string days)
+        public async Task<ActionResult> GetSpendingSum(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -229,18 +238,18 @@ namespace zapread.com.Controllers
             
                 using (var db = new ZapContext())
                 {
-                    var userTxns = db.Users
-                            .Include(i => i.SpendingEvents)
-                            .Where(u => u.AppId == userId)
-                            .SelectMany(u => u.SpendingEvents);
+                    var sum = await db.Users
+                        .Include(i => i.SpendingEvents)
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.SpendingEvents)
+                        .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)
+                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
 
-                    // need to ensure that tx.Amount is not null
-                    var sum = userTxns
-                        .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .Sum(tx => (double?)tx.Amount) ?? 0;
-
-                    totalAmount = userTxns
-                        .Sum(tx => (double?)tx.Amount) ?? 0;
+                    totalAmount = await db.Users
+                        .Include(i => i.SpendingEvents)
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.SpendingEvents)
+                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
 
                     amount = sum;
                 }
@@ -267,7 +276,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetEarningsSum/{days?}")]
-        public ActionResult GetEarningsSum(string days)
+        public async Task<ActionResult> GetEarningsSum(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -278,18 +287,18 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var userTxns = db.Users
-                            .Include(i => i.EarningEvents)
-                            .Where(u => u.AppId == uid)
-                            .SelectMany(u => u.EarningEvents);
-
-                    var sum = userTxns
+                    var sum = await db.Users
+                        .Include(i => i.EarningEvents)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.EarningEvents)
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .Sum(tx => tx.Amount);
+                        .SumAsync(tx => tx.Amount);
                     
-
-                    totalAmount = userTxns
-                        .Sum(tx => tx.Amount);
+                    totalAmount = await db.Users
+                        .Include(i => i.EarningEvents)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.EarningEvents)
+                        .SumAsync(tx => tx.Amount);
 
                     amount = sum;
                 }
@@ -309,7 +318,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetLNFlow/{days?}")]
-        public ActionResult GetLNFlow(string days)
+        public async Task<ActionResult> GetLNFlow(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -319,15 +328,13 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var userTxns = db.Users
-                            .Include(i => i.LNTransactions)
-                            .Where(u => u.AppId == uid)
-                            .SelectMany(u => u.LNTransactions);
-
-                    var sum = userTxns
+                    var sum = await db.Users
+                        .Include(i => i.LNTransactions)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.LNTransactions)
                         .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
                         .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0*tx.Amount })
-                        .Sum(tx => tx.amt);
+                        .SumAsync(tx => tx.amt);
                         
                     amount = sum;
                 }
