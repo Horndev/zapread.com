@@ -148,7 +148,33 @@ namespace zapread.com.Controllers
                         Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         Amount = t.Amount.ToString("0.##"),
                         Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                        URL = t.OriginId.ToString()
                     }).ToList();
+
+                //var postEarning = await db.Users
+                //    .Where(us => us.AppId == userId)
+                //    .SelectMany(us => us.EarningEvents)
+                //    .OrderByDescending(e => e.TimeStamp)
+                //    .Skip(dataTableParameters.Start)
+                //    .Take(dataTableParameters.Length)
+                //    .Where(t => t.Type == 0 && t.OriginType == 0)
+                //    .Join(
+                //        inner: db.Posts, 
+                //        outerKeySelector: e => e.OriginId, 
+                //        innerKeySelector: p => p.PostId,
+                //        resultSelector: (e, p) => new { e.TimeStamp, e.Amount, p.PostId, p.PostTitle })
+                //    .ToListAsync();
+                
+                //var postValues = postEarning
+                //    .AsParallel()
+                //    .Select(t => new DataItem()
+                //    {
+                //        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                //        Amount = t.Amount.ToString("0.##"),
+                //        Type = "Post",
+                //        URL = Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { id = t.PostId }),
+                //        Memo = t.PostTitle,
+                //    }).ToList();
 
                 int numrec = await db.Users
                     .Where(us => us.AppId == userId)

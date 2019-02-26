@@ -167,6 +167,7 @@ namespace zapread.com.Controllers
                         OriginType = 0,
                         TimeStamp = DateTime.UtcNow,
                         Type = 0,
+                        OriginId = post.PostId,
                     };
 
                     var webratio = 0.1;     // Website income
@@ -413,9 +414,10 @@ namespace zapread.com.Controllers
                     var ea = new Models.EarningEvent()
                     {
                         Amount = 0.6 * v.a,
-                        OriginType = 1, // Comment
+                        OriginType = 1,                                 // Comment
                         TimeStamp = DateTime.UtcNow,
-                        Type = 0, // Direct earning
+                        Type = 0,                                       // Direct earning
+                        OriginId = Convert.ToInt32(comment.CommentId),  // For linking back to comment
                     };
 
                     var webratio = 0.1;
