@@ -20,6 +20,7 @@ using System.Data.Entity;
 using Microsoft.Owin.Host.SystemWeb;
 using zapread.com.Services;
 using zapread.com.Models.Database;
+using System.Collections.Generic;
 
 namespace zapread.com.Controllers
 {
@@ -114,12 +115,39 @@ namespace zapread.com.Controllers
                     db.Users.Add(u);
                     await db.SaveChangesAsync();
                 }
+                else
+                {
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId);
+                    if (user.Settings == null)
+                    {
+                        user.Settings = new UserSettings()
+                        {
+                            ColorTheme = "light",
+                            NotifyOnPrivateMessage = true,
+                            NotifyOnMentioned = true,
+                            NotifyOnNewPostSubscribedGroup = true,
+                            NotifyOnNewPostSubscribedUser = true,
+                            NotifyOnOwnCommentReplied = true,
+                            NotifyOnOwnPostCommented = true,
+                            NotifyOnReceivedTip = true,
+                        };
+                    }
+                    if (user.Languages == null)
+                    {
+                        user.Languages = "en";
+                    }
+                    if (user.LNTransactions == null)
+                    {
+                        user.LNTransactions = new List<LNTransaction>();
+                    }
+                    await db.SaveChangesAsync();
+                }
             }
         }
 
-        public ActionResult Balance()
+        public async Task<ActionResult> Balance()
         {
-            ViewBag.Balance = GetUserBalance();
+            ViewBag.Balance = await GetUserBalance();
             return PartialView("_PartialBalance");
         }
 
@@ -128,18 +156,18 @@ namespace zapread.com.Controllers
         // Returns the currently logged in user balance
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult GetBalance()
+        public async Task<ActionResult> GetBalance()
         {
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = GetUserBalance();
+                userBalance = await GetUserBalance();
             }
             string balance = userBalance.ToString("0.##");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
-        private double GetUserBalance()
+        private async Task<double> GetUserBalance()
         {
             double balance;
             try
@@ -148,9 +176,10 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var user = db.Users
+                    var user = await db.Users
                         .Include(i => i.Funds)
-                        .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
 
                     if (user == null)
                     {
@@ -162,12 +191,12 @@ namespace zapread.com.Controllers
                         if (user.Funds == null)
                         {
                             // Neets to be initialized
-                            var user_modified = db.Users
+                            var user_modified = await db.Users
                                 .Include(i => i.Funds)
-                                .FirstOrDefault(u => u.AppId == uid);
+                                .FirstOrDefaultAsync(u => u.AppId == uid);
 
                             user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            db.SaveChanges();
+                            await db.SaveChangesAsync();
                             user = user_modified;
                         }
                         balance = user.Funds.Balance;
@@ -373,31 +402,37 @@ namespace zapread.com.Controllers
                 return View(model);
             }
 
+            SignInStatus result;
+
             // Add administrator user impersonation code here (for debug)
-
-            ////string userNameToImpersonate = "THEUSERNAMEHERE";
-
-            ////var userToImpersonate = await UserManager
-            ////    .FindByNameAsync(userNameToImpersonate);
-            ////var identityToImpersonate = await UserManager
-            ////    .CreateIdentityAsync(userToImpersonate,
-            ////        DefaultAuthenticationTypes.ApplicationCookie);
-            ////var authenticationManager = HttpContext.GetOwinContext().Authentication;
-            ////authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            ////authenticationManager.SignIn(new AuthenticationProperties()
-            ////{
-            ////    IsPersistent = false
-            ////}, identityToImpersonate);
-            ////var result = SignInStatus.Success;
-
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(
-                userName: model.UserName,
-                password: model.Password,
-                isPersistent: model.RememberMe,
-                shouldLockout: false);
-
+            string userNameToImpersonate = null;//"USERTOIMPERSONATE";
+            if (userNameToImpersonate != null)
+            {
+                var userToImpersonate = await UserManager
+                .FindByNameAsync(userNameToImpersonate);
+                var identityToImpersonate = await UserManager
+                    .CreateIdentityAsync(userToImpersonate,
+                        DefaultAuthenticationTypes.ApplicationCookie);
+                var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                authenticationManager.SignIn(new AuthenticationProperties()
+                {
+                    IsPersistent = false
+                }, identityToImpersonate);
+                result = SignInStatus.Success;
+                model.UserName = userNameToImpersonate;
+            }
+            else
+            {
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, change to shouldLockout: true
+                result = await SignInManager.PasswordSignInAsync(
+                    userName: model.UserName,
+                    password: model.Password,
+                    isPersistent: model.RememberMe,
+                    shouldLockout: false);
+            }
+            
             switch (result)
             {
                 case SignInStatus.Success:

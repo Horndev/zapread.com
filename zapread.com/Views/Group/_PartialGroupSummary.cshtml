@@ -6,7 +6,15 @@
         </div>
     </td>
     <td class="project-title">
-        <a href="@Url.Action("GroupDetail", "Group", new { id = Model.Id })">@Model.Name</a>
+        <a href="@Url.Action("GroupDetail", "Group", new { id = Model.Id })">@Model.Name</a> 
+        @if (Model.IsAdmin)
+        {
+            <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
+        }
+        else if (Model.IsMod)
+        {
+            <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
+        }
         <br />
         <small>Created @Model.CreatedddMMMYYYY</small>
     </td>

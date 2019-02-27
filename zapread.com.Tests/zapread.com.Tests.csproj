@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.9.11\lib\net45\AngleSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.4.3.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
@@ -104,6 +107,9 @@
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="PreMailer.Net, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PreMailer.Net.2.0.1\lib\net45\PreMailer.Net.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp, Version=106.5.4.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.106.5.4\lib\net452\RestSharp.dll</HintPath>
@@ -203,10 +209,14 @@
     <Compile Include="Controllers\MessagesControllerTest.cs" />
     <Compile Include="Controllers\GroupControllerTest.cs" />
     <Compile Include="Controllers\ManageControllerTest.cs" />
+    <Compile Include="Controllers\AdminControllerTest.cs" />
+    <Compile Include="Controllers\CommentControllerTest.cs" />
+    <Compile Include="Controllers\PostControllerTest.cs" />
     <Compile Include="Controllers\UserControllerTests.cs" />
     <Compile Include="Controllers\VoteControllerTests.cs" />
     <Compile Include="Database\LndConfigTest.cs" />
     <Compile Include="Helpers\NumbersTest.cs" />
+    <Compile Include="Mailer\MailerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\HomeControllerTest.cs" />
     <Compile Include="Services\TranslationTest.cs" />

@@ -14,6 +14,7 @@
     <link href="@Url.Content("~/node_modules/jquery-ui-dist/jquery-ui.min.css")" rel="stylesheet" type="text/css" />
     @RenderSection("Styles", required: false)
     @Styles.Render("~/Content/bootstrap")
+    @Styles.Render("~/Content/bootstrap-tour")
     @Styles.Render("~/Content/font-awesome/css")
     @Styles.Render("~/Content/style/textspinners")
     @Styles.Render("~/plugins/summernoteStyles")
@@ -27,9 +28,6 @@
     {
         @Styles.Render("~/Content/css")
     }
-
-    
-
     <script type="text/javascript">
         var appInsights = window.appInsights || function (a) {
             function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement("script"); b.src = a.url || "https://az416426.vo.msecnd.net/scripts/a/ai.0.js", d.getElementsByTagName("script")[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ["Event", "Exception", "Metric", "PageView", "Trace", "Dependency"]; f.length;)b("track" + f.pop()); if (b("setAuthenticatedUserContext"), b("clearAuthenticatedUserContext"), b("startTrackEvent"), b("stopTrackEvent"), b("startTrackPage"), b("stopTrackPage"), b("flush"), !a.disableExceptionTracking) { f = "onerror", b("_" + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c["_" + f](a, b, d, e, h), i } } return c
@@ -58,26 +56,48 @@
     <!-- End wrapper-->
     <!-- Section for main scripts render -->
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jquery-unobtrusive")
-    @Scripts.Render("~/bundles/plugins/jquery-ui")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/plugins/summernote")
-    @Scripts.Render("~/bundles/sweetalert")
-    @Scripts.Render("~/bundles/jssocials")
+    @Scripts.Render("~/bundles/plugins")
     <!-- Handler for local scripts -->
     @RenderSection("scripts", required: false)
     @Html.RenderPartialViewScripts()
-
-    @*<script src="~/Scripts/read-more.js"></script>*@
     <script src="~/Scripts/jquery.signalR-2.4.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
     @Scripts.Render("~/bundles/DetailPost")
-    @Scripts.Render("~/plugins/toastr")
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js"></script>
     <script type="text/javascript" src="~/Scripts/instascan.min.js"></script>
 
     <script type="text/javascript">
+        var toggleChat;
+        
         $(document).ready(function () {
+            // popups for users, groups, etc.
+            $(".pop").popover({
+                trigger: "manual",
+                html: true,
+                animation: false
+            })
+            .on("mouseenter", function () {
+                var _this = this;
+                $(this).popover("show");
+                $('[data-toggle="tooltip"]').tooltip()
+                $(".popover").addClass("tooltip-hover");
+                $(".popover").on("mouseleave", function () {
+                    $(_this).popover('hide');
+                });
+            })
+            .on("mouseleave", function () {
+                var _this = this;
+                setTimeout(function () {
+                    if (!$(".popover:hover").length) {
+                        $(_this).popover("hide");
+                    }
+                }, 300);
+            });
+            $(".pop").each(function () {
+                $(this).removeClass("pop");
+            });
+
             toastr.options.closeMethod = 'fadeOut';
             toastr.options.closeDuration = 700;
             toastr.options.positionClass = 'toast-bottom-right';
@@ -101,7 +121,7 @@
                     showLabel: false,
                     showCount: false,
                     shareIn: "popup",
-                    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                    shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp"]
                 });
                 $(this).removeClass("sharing");
             });
@@ -146,157 +166,108 @@
                 }
             });
 
-            // Open close small chat
-            $('.open-small-chat').on('click', function () {
-                $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
-                $('.small-chat-box').toggleClass('active');
+            // show the read more
+            $(".post-box").each(function (index, item) {
+                if ($(item).height() >= 800) {
+                    $(item).find(".read-more-button").show();
+                }
             });
 
-            // Remove read more if height is low
-            $(".post-box").each(function (index, item) {
-                if ($(item).height() < 700) {
-                    rm = $(item).find(".read-more-button");
-                    rm.hide();
+            // Make post quotable
+            $(".post-quotable").each(function (ix, e) {
+                // Trigger when mouse is released (i.e. possible selection made)
+                $(e).mouseup(function () {
+                    var selection = getSelected();
+                    $(selectionMarker).popover('hide');
+                    if (selection && selection != "") {
+                        // User made a selection
+                        var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                        selectionMarker = markSelection(markerId);
+                        selectionText = selection.toString();
+                        var postId = $(e).data('postid');
+                        var popText = selectionText + '<hr/>' +
+                            '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                            '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ',true);">' +
+                                '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                        $(selectionMarker).popover({
+                            trigger: "hover",
+                            html: true,
+                            animation: false,
+                            title: "Quote",
+                            placement: "top",
+                            content: popText
+                        })
+                        .on('hidden.bs.popover', function () {
+                            $(selectionMarker).popover('dispose');
+                        })
+                        .popover("show");
+                    }
+                });
+                $(e).removeClass("post-quotable");
+            });
+
+            // Make comments quotable
+            $(".comment-quotable").each(function (ix, e) {
+                // Trigger when mouse is released (i.e. possible selection made)
+                $(e).mouseup(function () {
+                    var selection = getSelected();
+                    $(selectionMarker).popover('hide');
+                    if (selection && selection != "") {
+                        // User made a selection
+                        var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                        selectionMarker = markSelection(markerId);
+                        selectionText = selection.toString();
+                        var commentid = $(e).data('commentid');
+                        var popText = selectionText + '<hr/>' +
+                            '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                            '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ',true);">' +
+                            '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                        $(selectionMarker).popover({
+                            trigger: "hover",
+                            html: true,
+                            animation: false,
+                            title: "Quote",
+                            placement: "top",
+                            content: popText
+                        })
+                            .on('hidden.bs.popover', function () {
+                                $(selectionMarker).popover('dispose');
+                            })
+                            .popover("show");
+                    }
+                });
+                $(e).removeClass("post-quotable");
+            });
+
+            $.fn.extend({
+                placeCursorAtEnd: function () {
+                    // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
+                    if (this.length === 0) {
+                        throw new Error("Cannot manipulate an element if there is no element!");
+                    }
+                    var el = this[0];
+                    var range = document.createRange();
+                    var sel = window.getSelection();
+                    var childLength = el.childNodes.length;
+                    if (childLength > 0) {
+                        var lastNode = el.childNodes[childLength - 1];
+                        var lastNodeChildren = lastNode.childNodes.length;
+                        range.setStart(lastNode, lastNodeChildren);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                    return this;
                 }
+            });
+            $(".impression").each(function (ix, e) {
+                $(e).load($(e).data("url"));
+                $(e).removeClass("impression");
             });
         }); //end ready
 
-
-        var $el, $ps, $up, totalHeight;
-
-        var readMoreButton = function (e) {
-
-        //}
-        //$(".post-box .button").click(function () {
-
-            totalHeight = 0
-
-            $el = $(e);
-            $p = $el.parent();
-            $up = $p.parent();
-            $ps = $up.find(".post-content");
-
-            // measure how tall inside should be by adding together heights of all inside paragraphs (except read-more paragraph)
-            $ps.each(function () {
-                totalHeight += $(this).outerHeight();
-            });
-            console.log(totalHeight);
-
-            $up
-                .css({
-                    // Set height to prevent instant jumpdown when max height is removed
-                    "height": $up.height(),
-                    "max-height": 9999
-                })
-                .animate({
-                    "height": totalHeight
-                });
-
-            // fade out read-more
-            $p.fadeOut();
-            // Change the "read more" word accordingly
-            //if ($p.text() === "Read More") {
-            //    $(this).text("Read Less");
-            //} else {
-            //    $p.text("Read More");
-            //}
-
-            // prevent jump-down
-            return false;
-
-        };
-
-
-        var dismiss = function (t, id) {
-            var url = "";
-            if (t == 1) {
-                url = "/Messages/DismissAlert";
-            }
-            else if (t == 0) {
-                url = "/Messages/DismissMessage";
-            }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: JSON.stringify({ "id": id }),
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                success: function (result) {
-                    if (result.Result == "Success") {
-                        // Hide post
-                        if (t == 1) {
-                            if (id === -1) { // Dismissed all
-                                $('[id^="a_"]').hide();
-                            } else {
-                                $('#a_' + id).hide();
-                                $('#a1_' + id).hide();
-                                $('#a2_' + id).hide();
-                            }
-                            var urla = $("#unreadAlerts").data("url");
-                            $("#unreadAlerts").load(urla);
-                        }
-                        else {
-                            if (id === -1) { // Dismissed all
-                                $('[id^="m_"]').hide();
-                            } else {
-                                $('#m_' + id).hide();
-                                $('#m1_' + id).hide();
-                                $('#m2_' + id).hide();
-                            }
-                            var urlm = $("#unreadMessages").data("url");
-                            $("#unreadMessages").load(urlm);
-                        }
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("fail");
-                }
-            });
-            return false;
-        };
-
-        var stickyPost = function (id) {
-            $.ajax({
-                type: "POST",
-                url: "/Post/ToggleStickyPost",
-                data: JSON.stringify({ "id": id }),
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                success: function (result) {
-                    if (result.Result == "Success") {
-                        alert("Post successfully toggled Sticky.");
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("fail");
-                }
-            });
-        };
-
-        var nsfwPost = function (id) {
-            $.ajax({
-                type: "POST",
-                url: "/Post/ToggleNSFW",
-                data: JSON.stringify({ "id":id}),
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                success: function (result) {
-                    if (result.Result == "Success") {
-                        alert("Post successfully toggled NSFW.");
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("fail");
-                }
-            });
-        };
-
-        var showNSFW = function (id) {
-            $("#nsfw_" + id).hide();
-            $("#nsfwb_" + id).hide();
-        };
-
-        var toggleChat = function (id) {
+        var writeComment = function (e) {
+            var id = $(e).data("postid");
             $(".c_input_" + id.toString()).summernote({
                 callbacks: {
                     onImageUpload: function (files) {
@@ -307,356 +278,128 @@
                 focus: false,
                 placeholder: 'Write comment...',
                 disableDragAndDrop: false,
-                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
                 minHeight: 60,
                 maxHeight: 300,
                 hint: {
                     match: /\B@@(\w*)$/,
                     search: function (keyword, callback) {
-                        callback($.grep(usermentions, function (item) {
-                            return item.indexOf(keyword) == 0;
-                        }));
-                    },
-                    content: function (item) {
-                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                    }
-                }
-            });
-
-            $('.c_input_' + id.toString()).each(function (i, e) {
-                $(e).removeClass("c_input_" + id.toString());
-            });
-
-            $(".note-statusbar").css("display", "none");
-            $('#comments_' + id.toString()).toggle('show');
-            $('#preply_' + id.toString()).toggle('show');
-        };
-
-        var showReply = function (id) {
-            $(".c_input_" + id.toString()).summernote({
-                callbacks: {
-                    onImageUpload: function (files) {
-                        that = $(this);
-                        sendFile(files[0], that);
-                    }
-                },
-                focus: false,
-                placeholder: 'Write comment...',
-                disableDragAndDrop: false,
-                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
-                minHeight: 60,
-                maxHeight: 300,
-                hint: {
-                    match: /\B@@(\w*)$/,
-                    search: function (keyword, callback) {
-                        callback($.grep(usermentions, function (item) {
-                            return item.indexOf(keyword) == 0;
-                        }));
-                    },
-                    content: function (item) {
-                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                    }
-                }
-            });
-
-            $('.c_input_' + id.toString()).each(function (i, e) {
-                $(e).removeClass("c_input_" + id.toString());
-            });
-
-            $(".note-statusbar").css("display", "none");
-            $('#preply_' + id.toString()).toggle('show');
-        };
-
-        var deleteComment = function (id) {
-            swal({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this comment!",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true
-            }).then((willDelete) => {
-                if (willDelete) {
-                    $.post("@Url.Action("DeleteComment",
-                    "Comment")",
-                    { "Id": id },
-                    function (data) {
-                        if (data.Success) {
-                            $('#comment_' + id.toString()).hide();
-                            swal("Deleted! Your comment has been deleted.", {
-                                icon: "success",
-                            });
-                        }
-                        else {
-                            swal("Error", "Error deleting comment.", "error");
-                        }
-                    });
-
-                } else {
-                    console.log("cancelled delete");
-                }
-            });
-        };
-
-        var setPostLanguage = function (id) {
-            swal({
-                text: 'Enter new language code',
-                content: "input",
-                button: {
-                    text: "Ok",
-                    closeModal: false,
-                },
-            })
-            .then(name => {
-                if (!name) throw null;
-
-                $.post("@Url.Action("ChangeLanguage",
-                        "Post")",
-                        { "postId": id, "newLanguage": name },
-                        function (data) {
-                            if (data.success) {
-                                swal("Post language has been updated!", {
-                                    icon: "success",
-                                });
-                            }
-                            else {
-                                swal("Error", "Error: " + data.message, "error");
+                        if (!keyword.length) return callback();
+                        var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                        $.ajax({
+                            async: true,
+                            url: '/Comment/GetMentions',
+                            type: 'POST',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: msg,
+                            error: function () {
+                                callback();
+                            },
+                            success: function (res) {
+                                callback(res.users);
                             }
                         });
-             })
-            .catch(err => {
-                if (err) {
-                    swal("Error", "Error updating language.", "error");
-                } else {
-                    swal.stopLoading();
-                    swal.close();
-                }
-            });
-        };
-
-        var deletePost = function (id) {
-            swal({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this post!",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true
-            }).then((willDelete) => {
-                if (willDelete) {
-                    $.post("@Url.Action("DeletePost",
-                    "Post")",
-                    { "PostId": id },
-                    function (data) {
-                        if (data.Success) {
-                            $('#post_' + id.toString()).hide();
-                            swal("Deleted! Your post has been deleted.", {
-                                icon: "success",
-                            });
-                        }
-                        else {
-                            swal("Error", "Error deleting post.", "error");
-                        }
-                    });
-                } else {
-                    console.log("cancelled delete");
-                }
-            });
-        };
-
-        // For submitting comments (TODO: move this to own file)
-        var isCommenting = false;
-
-        var submitCommentA = function (postId, commentId, isReply) {
-            if (!isCommenting) {
-                var action = "/Comment/AddComment";
-                var dataval = '';
-                var commentElement = '';
-                var dataString = '';
-                if (isReply) {
-                    $('#sc_' + commentId.toString()).children('.ibox-content').addClass('sk-loading');
-                    commentElement = '#cr_input_' + commentId.toString();
-                    dataval = $(commentElement).summernote('code');
-                    dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-                    $('#csr_' + commentId.toString()).show();
-                    $('#bcr_' + commentId.toString()).prop('disabled', true);
-                }
-                else {
-                    $('#pc_' + postId.toString()).children('.ibox-content').addClass('sk-loading');
-                    commentElement = '#c_input_' + postId.toString();
-                    dataval = $(commentElement).summernote('code');
-                    dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-                    $('#cs_' + postId.toString()).show();
-                    $('#bc_' + postId.toString()).prop('disabled', true);
-                }
-                contentType = "application/json; charset=utf-8";
-                processData = false;
-                isCommenting = true;
-
-                $.ajax({
-                    type: "POST",
-                    url: action,
-                    data: dataString,
-                    dataType: "json",
-                    contentType: contentType,
-                    success: function (result) {
-                        isCommenting = false;
-                        onAjaxCommentSuccessA(result);
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        isCommenting = false;
-                        alert("fail");
+                    content: function (item) {
+                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                     }
-                });
-            }
-            return false;
-        };
-
-        var onAjaxCommentSuccessA = function (result) {
-            $('#cs_' + result.PostId.toString()).hide();
-            $('#csr_' + result.CommentId.toString()).hide();
-            $('#bc_' + result.PostId.toString()).prop('disabled', false);
-            $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
-            $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
-            $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
-            $('#comments_' + result.PostId.toString()).show();
-            if (!result.success) {
-                if (result.IsReply) {
-                    $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-                    $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-                    $('#cr_input_' + result.CommentId.toString()).hide();
-                    $('#c_reply_' + result.CommentId.toString()).remove();
-                }
-                else {
-                    $('#c_input_' + result.PostId.toString()).summernote('reset');
-                }
-                alert(result.message);
-            } else {
-                if (result.IsReply) {
-                    $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-                    $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-                    $('#cr_input_' + result.CommentId.toString()).hide();
-                    $('#c_reply_' + result.CommentId.toString()).remove();
-                    $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
-                }
-                else {
-                    $('#c_input_' + result.PostId.toString()).summernote('reset');
-                    $("#comments_" + result.PostId.toString()).append(result.HTMLString);
-                }
-                $('.postTime').each(function (i, e) {
-                    var time = moment.utc($(e).html()).local().calendar();
-                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                    $(e).html('<span>' + time + ' - ' + date + '</span>');
-                    $(e).removeClass("postTime");
-                });
-            }
-        };
-
-        var dofeedback = function () {
-            var msg = $('#feedbackText').val();
-            var feebackLocation = window.location.href;
-            $.ajax({
-                url: "/Home/SendFeedback",
-                type: "POST",
-                dataType: "json",
-                data: { msg: msg, loc: feebackLocation },
-                success: function (data) {
-                    alert('Feedback successfully sent.  Thank you!');
                 }
             });
 
-            $('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
-            $('.small-chat-box').toggleClass('active');
+            $(e).hide();
+            $(".note-statusbar").css("display", "none");
+            $('#preply_' + id.toString()).slideDown(200);
         };
 
-        var OkButton = function (context) {
-            var ui = $.summernote.ui;
-
-            // create button
-            var button = ui.button({
-                contents: '<i class="fa fa-save"/> Save',
-                tooltip: false,
-                click: function () {
-                    var e = "#commentText_" + editingId.toString();
-                    context.invoke('destroy');
-                    var content = $(e).html();
-                    var msg = { "CommentContent": content.trim(), "CommentId": editingId };
-                    console.log(msg);
-                    $.post("@Url.Action("UpdateComment",
-                        "Comment")",
-                        msg,
-                        function (data) {
-                            if (data.Success) {
-                                console.log('update comment successful.');
+        var toggleChat = function (id, show) {
+            show = typeof show !== 'undefined' ? show : false;
+            $(".c_input_" + id.toString()).summernote({
+                callbacks: {
+                    onImageUpload: function (files) {
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
+                focus: false,
+                placeholder: 'Write comment...',
+                disableDragAndDrop: false,
+                toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+                minHeight: 60,
+                maxHeight: 300,
+                hint: {
+                    match: /\B@@(\w*)$/,
+                    search: function (keyword, callback) {
+                        if (!keyword.length) return callback();
+                        var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                        $.ajax({
+                            async: true,
+                            url: '/Comment/GetMentions',
+                            type: 'POST',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: msg,
+                            error: function () {
+                                callback();
+                            },
+                            success: function (res) {
+                                callback(res.users);
                             }
-                            else {
-                                alert("Error updating comment");
-                            }
-                    });
-                    isEditing = false;
-                }
-            });
-            return button.render();   // return button as jquery object
-        };
-
-        var CancelButton = function (context) {
-            var ui = $.summernote.ui;
-
-            // create button
-            var button = ui.button({
-                contents: '<i class="fa fa-times"/> Cancel',
-                tooltip: false,//'hello',
-                click: function () {
-                    //need to reset text - fetch from db
-                    context.invoke('reset');
-                    // This returns the editor to normal state
-                    context.invoke('destroy');
-                    isEditing = false;
-                }
-            });
-            return button.render();   // return button as jquery object
-        };
-
-        var editingId = -1;
-        var isEditing = false;
-        var editComment = function (id) {
-            if (!isEditing) {
-                console.log("edit " + id.toString());
-                var e = "#commentText_" + id.toString();
-                editingId = id;
-                $(e).summernote({
-                    focus: true,
-                    disableDragAndDrop: true,
-                    toolbar: [
-                        ['okbutton', ['ok']],
-                        ['cancelbutton', ['cancel']],
-                        'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'
-                    ],
-                    buttons: {
-                        ok: OkButton,
-                        cancel: CancelButton
+                        });
                     },
-                    height: 100,
-                    hint: {
-                        match: /\B@@(\w*)$/,
-                        search: function (keyword, callback) {
-                            callback($.grep(usermentions, function (item) {
-                                return item.indexOf(keyword) == 0;
-                            }));
-                        },
-                        content: function (item) {
-                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                        }
+                    content: function (item) {
+                        return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                     }
-                });
-                isEditing = true;
+                }
+            });
+
+            //$('.c_input_' + id.toString()).each(function (i, e) {
+            //    $(e).removeClass("c_input_" + id.toString());
+            //});
+            $(".note-statusbar").css("display", "none");
+            if (!show) {
+                $('#comments_' + id.toString()).slideToggle(200);
+                $('#preply_' + id.toString()).slideToggle(200);
             }
             else {
-                alert("You can only edit one comment at a time.  Save or Cancel your editing.");
+                $('#comments_' + id.toString()).slideDown(200);
+                $('#preply_' + id.toString()).slideDown(200);
             }
+        };
+
+        var loadMoreComments = function (e) {
+            var msg = JSON.stringify({ 'postId': $(e).data('postid'), 'nestLevel': $(e).data('nest'), 'rootshown': $(e).data('shown') });
+            $.ajax({
+                type: "POST",
+                url: "/Comment/LoadMoreComments",
+                data: msg,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        $(e).data('shown', response.shown); // update data
+                        if (!response.hasMore) {
+                            $(e).hide();
+                        }
+                        $(e).parent().find('.insertComments').append(response.HTMLString); // Inject
+                    }
+                    else {
+                        alert(response.Message);
+                    }
+                },
+                failure: function (response) {
+                    console.log('load more failure');
+                },
+                error: function (response) {
+                    console.log('load more error');
+                }
+            });
+            return false;
         };
 
         var replyComment = function (id) {
             $('#c_reply_' + id.toString()).toggle('show');
-            $('#c_reply_' + id.toString()).load('@Url.Action("GetInputBox", "Comment")' + "/" + id.toString(), function () {
+            $('#c_reply_' + id.toString()).load('/Comment/GetInputBox' + "/" + id.toString(), function () {
                 $(".c_input").summernote({
                     callbacks: {
                         onImageUpload: function (files) {
@@ -667,17 +410,32 @@
                     focus: false,
                     placeholder: 'Write comment...',
                     disableDragAndDrop: true,
-                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+                    toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
                     minHeight: 60,
                     maxHeight: 300,
                     hint: {
                         match: /\B@@(\w*)$/,
                         search: function (keyword, callback) {
-                            callback($.grep(usermentions, function (item) {
-                                return item.indexOf(keyword) == 0;
-                            }));
+                            if (!keyword.length) return callback();
+                            var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                            $.ajax({
+                                async: true,
+                                url: '/Comment/GetMentions',
+                                type: 'POST',
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                data: msg,
+                                error: function () {
+                                    callback();
+                                },
+                                success: function (res) {
+                                    callback(res.users);
+                                }
+                            });
                         },
                         content: function (item) {
+                            //return '@@' + item;
+                            //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                             return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                         }
                     }
@@ -685,49 +443,7 @@
                 $(".note-statusbar").css("display", "none");
             });
         };
-
-        function sendFile(file, that) {
-            var data = new FormData();
-            data.append('file', file);
-            console.log("Uploading File.");
-            $("#progressUploadBar").css("width", "0%");
-            $("#progressUpload").show();
-            $.ajax({
-                xhr: function () {
-                    var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function (evt) {
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            percentComplete = parseInt(percentComplete * 100);
-                            $("#progressUploadBar").css("width", percentComplete.toString() + "%");
-                            if (percentComplete === 100) {
-                                $("#progressUploadBar").css("width", "100%");
-                            }
-                        }
-                    }, false);
-                    return xhr;
-                },
-                data: data,
-                type: 'POST',
-                url: '/Img/UploadImage',
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (result) {
-                    $("#progressUpload").hide();
-                    $(that).summernote('insertImage', '/Img/Content/' + result.imgId, function (i) {
-                        // Applied to img tag
-                        i.attr('class', 'img-fluid');
-                    });
-
-                },
-                error: function (data) {
-                    $("#progressUpload").hide();
-                    console.log(data);
-                    alert(JSON.stringify(data));
-                }
-            });
-        }
     </script>
+    @Scripts.Render("~/bundles/shared")
 </body>
 </html>

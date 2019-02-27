@@ -285,7 +285,6 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
     @Scripts.Render("~/bundles/datatables")
 
     <script type="text/javascript">
@@ -296,7 +295,6 @@
         var lightningTable = {};
 
         $(document).ready(function () {
-
             $.get("/Account/GetLNFlow/7", function (data, status) {
                 $("#lightningFlowBalance").html(data.value);
             });

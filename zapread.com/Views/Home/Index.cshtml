@@ -3,45 +3,49 @@
 
 @{
     ViewBag.Title = "Zapread.com";
+    bool firstPost = true;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
 
-<div class="wrapper border-bottom white-bg page-heading">
-    <div class="col-lg-10">
+@if(ViewBag.ShowTourModal)
+{
+    @Html.Partial(partialViewName: "_PartialModalAskUserTourIndex")
+}
+
+<div class="wrapper border-bottom white-bg page-heading" style="padding-bottom: 0px;">
+    <div class="col-lg-12">
         <br />
-        <h2>Popular</h2>
-        <ol class="breadcrumb">
+        <h2 style="display: inline-flex;">Popular</h2>
+        <ol class="breadcrumb pull-right">
             <li class="breadcrumb-item"><a href="/">@ViewContext.RouteData.Values["controller"].ToString()</a></li>
             <li class="breadcrumb-item"><a>Feeds</a></li>
             <li class="breadcrumb-item active">Popular</li>
         </ol>
-        <small>Read popular content from across Zapread.com</small>
     </div>
-    <div class="col-lg-2">
-        Sort by
-        @if (Model.Sort != "Score")
-        {
-            <a href="/?sort=Score" class="btn btn-primary btn-outline btn-sm">Hot</a>
-        }
-        @if (Model.Sort != "New")
-        {
-            <a href="/?sort=New" class="btn btn-primary btn-outline btn-sm">New</a>
-        }
-    </div>
-    <div>
-        <script>
-            (function () {
-                var cx = '011527487946990464906:hzzt0pfk0iu';
-                var gcse = document.createElement('script');
-                gcse.type = 'text/javascript';
-                gcse.async = true;
-                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(gcse, s);
-            })();
-        </script>
-        <gcse:search></gcse:search>
+    <div class="row">
+        <div class="d-none d-lg-block col-lg-2" >
+            <div class="ibox-title" style="white-space:nowrap">
+                <h5>Your Top Groups</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link" data-id="topGroups">
+                        <i class="fa fa-chevron-down"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div id="sortButtons" class="col-lg-8" align="center">
+            <button onclick="window.location.href='/?sort=Score'" class="btn btn-primary btn-rounded" type="button">
+                <i class="fa fa-fire"></i> hot
+            </button>
+            <button onclick="window.location.href='/?sort=New'" class="btn btn-primary btn-rounded" type="button">
+                <i class="fa fa-certificate"></i> new
+            </button>
+            <button onclick="window.location.href='/?sort=Active'" class="btn btn-primary btn-rounded" type="button">
+                <i class="fa fa-comments"></i> active
+            </button>
+        </div>
+        <div class="col-lg-2"></div>
     </div>
 </div>
 
@@ -50,11 +54,8 @@
         <div class="col-lg-2">
             @if (Model.SubscribedGroups.Count() > 0)
             {
-                <div class="ibox float-e-margins d-none d-lg-block">
-                    <div class="ibox-title">
-                        <h5>Your Top Groups</h5>
-                    </div>
-                    <div class="ibox-content">
+                <div id="topGroups" class="ibox float-e-margins d-none d-lg-block">
+                    <div id="group-box" class="ibox-content" style="display:none">
                         @foreach(var g in Model.SubscribedGroups)
                         {
                         <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
@@ -67,7 +68,6 @@
                             {
                                  <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
                             }
-                            @*<i class="fa fa-@g.Icon"></i> @g.Name*@
                         </button>
                         }
                     </div>
@@ -79,23 +79,26 @@
                 <span></span>
             </div>
             <div class="social-feed-box">
-                <button onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
+                <button id="btnNewPost" onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
             </div>
 
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
+                    // We mark the first post with identifiers used in the tour
+                    p.IsFirstPost = firstPost;
                     @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                    firstPost = false;
                 }
             </div>
             <div class="social-feed-box">
-                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
+                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
             </div>
 
             <div class="social-feed-box">
                 <span></span>
             </div>
-            <div class="social-feed-box">
+            <div class="social-feed-box" style="margin-bottom:50px;">
                 <span></span>
             </div>
         </div>
@@ -103,8 +106,6 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
-
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
@@ -115,6 +116,9 @@
             // Collapse ibox function
             $('.collapse-link').on('click', function () {
                 var ibox = $(this).closest('div.ibox');
+                if (typeof $(this).data('id') !== 'undefined') {
+                    ibox = $('#' + $(this).data('id'));
+                }
                 var button = $(this).find('i');
                 var content = ibox.children('.ibox-content');
                 content.slideToggle(200);
@@ -143,6 +147,11 @@
                 loadmore();
             }
         });
+
+        var addposts = function (data) {
+            $("#posts").append(data.HTMLString);
+        };
+
         var loadmore = function () {
             if (!inProgress) {
                 inProgress = true;
@@ -155,73 +164,100 @@
                         $('#btnLoadmore').prop('disabled', false);
                         BlockNumber = BlockNumber + 10;
                         NoMoreData = data.NoMoreData;
-                        $("#posts").append(data.HTMLString);
                         inProgress = false;
-                        $('.postTime').each(function (i, e) {
-                            var time = moment.utc($(e).html()).local().calendar();
-                            var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                            $(e).html('<span>' + time + ' - ' + date + '</span>');
-                            $(e).removeClass("postTime");
+
+                        // Wait for new posts to be added then tidy up.
+                        $.when(addposts(data), $.ready).then(function () {
+                            // show the read more
+                            $(".post-box").each(function (index, item) {
+                                if ($(item).height() >= 800) {
+                                    $(item).find(".read-more-button").show();
+                                }
+                            });
+                            $(".impression").each(function (ix, e) {
+                                $(e).load($(e).data("url"));
+                                $(e).removeClass("impression");
+                            });
+                            $('.postTime').each(function (i, e) {
+                                var time = moment.utc($(e).html()).local().calendar();
+                                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                                $(e).html('<span>' + time + ' - ' + date + '</span>');
+                                $(e).css('display', 'inline');
+                                $(e).removeClass("postTime");
+                            });
+                            $(".sharing").each(function () {
+                                $(this).jsSocials({
+                                    url: $(this).data('url'),
+                                    text: $(this).data('sharetext'),
+                                    showLabel: false,
+                                    showCount: false,
+                                    shareIn: "popup",
+                                    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                                });
+                                $(this).removeClass("sharing");
+                            });
+                            $(".pop").popover({
+                                trigger: "manual",
+                                html: true,
+                                animation: false
+                            })
+                            .on("mouseenter", function () {
+                                var _this = this;
+                                $(this).popover("show");
+                                $('[data-toggle="tooltip"]').tooltip()
+                                $(".popover").addClass("tooltip-hover");
+                                $(".popover").on("mouseleave", function () {
+                                    $(_this).popover('hide');
+                                });
+                            })
+                            .on("mouseleave", function () {
+                                var _this = this;
+                                setTimeout(function () {
+                                    if (!$(".popover:hover").length) {
+                                        $(_this).popover("hide");
+                                    }
+                                }, 300);
+                            });
+                            $(".pop").each(function () {
+                                $(this).removeClass("pop");
+                            });
+
+                            // Make post quotable
+                            $(".post-quotable").each(function (ix, e) {
+                                // Trigger when mouse is released (i.e. possible selection made)
+                                $(e).mouseup(function () {
+                                    var selection = getSelected();
+                                    $(selectionMarker).popover('hide');
+                                    if (selection && selection != "") {
+                                        // User made a selection
+                                        var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                                        selectionMarker = markSelection(markerId);
+                                        selectionText = selection.toString();
+                                        var postId = $(e).data('postid');
+                                        var popText = selectionText + '<hr/><button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>';
+                                        $(selectionMarker).popover({
+                                            trigger: "hover",
+                                            html: true,
+                                            animation: false,
+                                            title: "Quote",
+                                            placement: "top",
+                                            content: popText
+                                        })
+                                            .on('hidden.bs.popover', function () {
+                                                $(selectionMarker).popover('dispose');
+                                            })
+                                            .popover("show");
+                                    }
+                                });
+                                $(e).removeClass("post-quotable");
+                            });
+
                         });
-                        $(".post-box").each(function (index, item) {
-                            if ($(item).height() < 700) {
-                                rm = $(item).find(".read-more-button");
-                                rm.hide();
-                                $(item).removeClass("post-box");
-                            }
-                        });
+
 
                         if (NoMoreData) {
                             $('#showmore').hide();
                         }
-                        $(".sharing").each(function (i, e) {
-                            $(e).jsSocials({
-                                url: $(e).data('url'),
-                                text: $(e).data('sharetext'),
-                                showLabel: false,
-                                shareIn: "popup",
-                                shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-                            });
-                            $(e).removeClass("sharing");
-                        });
-                        //$('.read-more').readMore({
-                        //    readMoreLinkClass: "read-more__link",
-                        //    readMoreText: "Read more",
-                        //    readLessText: "Read less",
-                        //    readMoreHeight: 800
-                        //});
-                        //$(".c_input").summernote({
-                        //    callbacks: {
-                        //        onImageUpload: function (files) {
-                        //            that = $(this);
-                        //            sendFile(files[0], that);
-                        //        }
-                        //    },
-                        //    focus: false,
-                        //    placeholder: 'Write comment...',
-                        //    disableDragAndDrop: true,
-                        //    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-                        //    minHeight: 60,
-                        //    maxHeight: 300,
-                        //    hint: {
-                        //        match: /\B@@(\w*)$/,
-                        //        search: function (keyword, callback) {
-                        //            callback($.grep(usermentions, function (item) {
-                        //                return item.indexOf(keyword) == 0;
-                        //            }));
-                        //        },
-                        //        content: function (item) {
-                        //            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                        //        }
-                        //    }
-                        //});
-                        //$('.c_input').each(function (i, e) {
-                        //    $(e).removeClass("c_input");
-                        //});
-
-                        $(".note-statusbar").css("display", "none");
-
-                        
                     }
                 );
             }

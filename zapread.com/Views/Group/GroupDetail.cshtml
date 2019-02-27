@@ -45,20 +45,6 @@
     </div>
     <div class="col-lg-2">
     </div>
-    <div>
-        <script>
-            (function () {
-                var cx = '011527487946990464906:hzzt0pfk0iu';
-                var gcse = document.createElement('script');
-                gcse.type = 'text/javascript';
-                gcse.async = true;
-                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(gcse, s);
-            })();
-        </script>
-        <gcse:search></gcse:search>
-    </div>
 </div>
 
 @if (Model.IsGroupAdmin)
@@ -66,8 +52,8 @@
                 Html.RenderAction("GroupAdminBar", controllerName: "Group", routeValues: new { groupId = Model.Group.GroupId });
             }
 
-            @if (Model.IsGroupMod)
-            {
+@if (Model.IsGroupMod)
+{
     <div class="wrapper wrapper-content ">
         <div class="row ">
             <div class="col-lg-12">
@@ -142,14 +128,14 @@
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
-            @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                    @Html.Partial(partialViewName: "_PartialPostRender", model: p)
                 }
             </div>
 
             @if (Model.HasMorePosts)
         {
                 <div class="social-feed-box" id="showmore">
-                    <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
+                    <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                 </div>
             }
             <div class="social-feed-box">
@@ -163,202 +149,216 @@
 </div>
 
 @section Styles {
-            @Styles.Render("~/Content/plugins/selectize")
+@Styles.Render("~/Content/plugins/selectize")
 }
 
-        @section Scripts {
-            @Scripts.Render("~/plugins/selectize")
-    @Scripts.Render("~/plugins/moment")
+@section Scripts {
+@Scripts.Render("~/plugins/selectize")
 
-    <script type="text/javascript">
-        var ub = @Model.UserBalance;
-            var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+<script type="text/javascript">
+    var ub = @Model.UserBalance;
+    var IsAuthenticated = "@Request.IsAuthenticated" == "True";
 
-        $(document).ready(function () {
-            // This loads all async partial views on page
-            $(".partialContents").each(function (index, item) {
-                    var url = $(item).data("url");
-                    if (url && url.length > 0) {
-                    $(item).load(url);
-                    }
-                });
-
-            // Collapse ibox function
-            $('.collapse-link').on('click', function () {
-                    var ibox = $(this).closest('div.ibox');
-                    var button = $(this).find('i');
-                    var content = ibox.children('.ibox-content');
-                    content.slideToggle(200);
-                    button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
-                    ibox.toggleClass('').toggleClass('border-bottom');
-                    setTimeout(function () {
-                        ibox.resize();
-                        ibox.find('[id^=map-]').resize();
-                    }, 50);
-                });
-
-            // Close ibox function
-            $('.close-link').on('click', function () {
-                    var content = $(this).closest('div.ibox');
-                    content.remove();
-                });
-            });
-
-            var toggleIgnore = function (id) {
-                joinurl = "/Group/ToggleIgnore"
-                var data = JSON.stringify({ 'groupId': id });
-            $.ajax({
-                    async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: joinurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                        if (response.result == "success") {
-                            if (response.added) {
-                            $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
-                            }
-                            else {
-                            $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
-                            }
-                        }
-                    }
-                });
-                return false;
-            }
-
-            var join = function (id) {
-                joinurl = "/Group/JoinGroup"
-                var data = JSON.stringify({ 'gid': id });
-            $.ajax({
-                    async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: joinurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                        if (response.result == "success") {
-                        $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
-                        $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
-                            var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
-                        $('#group_membercount_' + id.toString()).html(numMembers + 1);
-                        }
-                    }
-                });
-                return false;
-            }
-
-            var leave = function (id) {
-                leaveurl = "/Group/LeaveGroup"
-                var data = JSON.stringify({ 'gid': id });
-            $.ajax({
-                    async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: leaveurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                        if (response.result == "success") {
-                        $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Join ");
-                        $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
-                            var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
-                        $('#group_membercount_' + id.toString()).html(numMembers - 1);
-                        }
-                    }
-                });
-                return false;
-            }
-
-            /* Infinite scroll */
-
-            var BlockNumber = 10;
-            var NoMoreData = false;
-            var inProgress = false;
-
-        $(window).scroll(function () {
-                if ($(window).scrollTop() == $(document).height() -
-            $(window).height() && !NoMoreData && !inProgress) {
-                    loadmore();
+    $(document).ready(function () {
+        // This loads all async partial views on page
+        $(".partialContents").each(function (index, item) {
+                var url = $(item).data("url");
+                if (url && url.length > 0) {
+                $(item).load(url);
                 }
             });
 
-            var loadmore = function () {
-                if (!inProgress) {
-                    inProgress = true;
-                $('#loadmore').show();
-                $('#btnLoadmore').prop('disabled', true);
-                $.post("@Url.Action("InfiniteScroll", 
-                    "Group")", { "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" },
-                                function (data) {
-                                $('#loadmore').hide();
-                                $('#btnLoadmore').prop('disabled', false);
-                        BlockNumber = BlockNumber + 10;
-                        NoMoreData = data.NoMoreData;
-                                $("#posts").append(data.HTMLString);
-                        inProgress = false;
-                                $('.postTime').each(function (i, e) {
-                            var time = moment.utc($(e).html()).local().calendar();
-                            var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                                    $(e).html('<span>' + time + ' - ' + date + '</span>');
-                        });
-                        if (NoMoreData) {
-                                    $('#showmore').hide();
-                        }
+        // Collapse ibox function
+        $('.collapse-link').on('click', function () {
+            var ibox = $(this).closest('div.ibox');
+            var button = $(this).find('i');
+            var content = ibox.children('.ibox-content');
+            content.slideToggle(200);
+            button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+            ibox.toggleClass('').toggleClass('border-bottom');
+            setTimeout(function () {
+                ibox.resize();
+                ibox.find('[id^=map-]').resize();
+            }, 50);
+        });
 
-                                $(".sharing").each(function () {
-                                    $(this).jsSocials({
-                                url: $(this).data('url'),
-                                        text: $(this).data('sharetext'),
-                                        showLabel: false,
-                                        shareIn: "popup",
-                                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-                                    });
-                                    $(this).removeClass("sharing");
-                        });
+        // Close ibox function
+        $('.close-link').on('click', function () {
+            var content = $(this).closest('div.ibox');
+            content.remove();
+        });
+    });
 
-                                $('.read-more').readMore({
-                            readMoreLinkClass: "read-more__link",
-                                    readMoreText: "Read more",
-                                    readLessText: "Read less",
-                                    readMoreHeight: 800
-                                });
-
-                                $(".c_input").summernote({
-                            callbacks: {
-                                onImageUpload: function (files) {
-                                    that = $(this);
-                                    sendFile(files[0], that);
-                                }
-                            },
-                                    focus: false,
-                                    placeholder: 'Write comment...',
-                                    disableDragAndDrop: true,
-                                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-                                    minHeight: 60,
-                                    maxHeight: 300,
-                                    hint: {
-                                match: /\B@@(\w*)$/,
-                                        search: function (keyword, callback) {
-                                    callback($.grep(usermentions, function (item) {
-                                        return item.indexOf(keyword) == 0;
-                                    }));
-                                },
-                                        content: function (item) {
-                                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                                }
-                            }
-                        });
-
-                                $('.c_input').each(function (i, e) {
-                                    $(e).removeClass("c_input");
-                        });
-
-                                $(".note-statusbar").css("display", "none");
-                    });
+    var toggleIgnore = function (id) {
+        joinurl = "/Group/ToggleIgnore";
+        var data = JSON.stringify({ 'groupId': id });
+        $.ajax({
+            async: true,
+            data: data.toString(),
+            type: 'POST',
+            url: joinurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    if (response.added) {
+                        $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
+                    }
+                    else {
+                        $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
+                    }
+                }
             }
-        };
-    </script>
+        });
+        return false;
+    };
+
+    var join = function (id) {
+        joinurl = "/Group/JoinGroup";
+        var data = JSON.stringify({ 'gid': id });
+        $.ajax({
+            async: true,
+            data: data.toString(),
+            type: 'POST',
+            url: joinurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
+                    $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
+                    var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                    $('#group_membercount_' + id.toString()).html(numMembers + 1);
+                }
+            }
+        });
+        return false;
+    };
+
+    var leave = function (id) {
+        leaveurl = "/Group/LeaveGroup";
+        var data = JSON.stringify({ 'gid': id });
+        $.ajax({
+            async: true,
+            data: data.toString(),
+            type: 'POST',
+            url: leaveurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Join ");
+                    $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
+                    var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
+                    $('#group_membercount_' + id.toString()).html(numMembers - 1);
+                }
+            }
+        });
+        return false;
+    };
+
+    /* Infinite scroll */
+    var BlockNumber = 10;
+    var NoMoreData = false;
+    var inProgress = false;
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() == $(document).height() - $(window).height() && !NoMoreData && !inProgress) {
+            loadmore();
+        }
+    });
+
+    var loadmore = function () {
+        if (!inProgress) {
+            inProgress = true;
+            $('#loadmore').show();
+            $('#btnLoadmore').prop('disabled', true);
+            $.post(
+                "@Url.Action("InfiniteScroll", "Group")", 
+                { "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" },
+                function (data) {
+                    $('#loadmore').hide();
+                    $('#btnLoadmore').prop('disabled', false);
+                    BlockNumber = BlockNumber + 10;
+                    NoMoreData = data.NoMoreData;
+                    $("#posts").append(data.HTMLString);
+                    inProgress = false;
+                    $('.postTime').each(function (i, e) {
+                        var time = moment.utc($(e).html()).local().calendar();
+                        var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                        $(e).html('<span>' + time + ' - ' + date + '</span>');
+                        $(e).css('display', 'inline');
+                        $(e).removeClass("postTime");
+                    });
+                    if (NoMoreData) {
+                        $('#showmore').hide();
+                    }
+                    $(".sharing").each(function () {
+                        $(this).jsSocials({
+                            url: $(this).data('url'),
+                            text: $(this).data('sharetext'),
+                            showLabel: false,
+                            showCount: false,
+                            shareIn: "popup",
+                            shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+                        });
+                        $(this).removeClass("sharing");
+                    });
+                    $('.read-more').readMore({
+                        readMoreLinkClass: "read-more__link",
+                            readMoreText: "Read more",
+                            readLessText: "Read less",
+                            readMoreHeight: 800
+                        });
+                    $(".c_input").summernote({
+                        callbacks: {
+                            onImageUpload: function (files) {
+                                that = $(this);
+                                sendFile(files[0], that);
+                            }
+                        },
+                        focus: false,
+                        placeholder: 'Write comment...',
+                        disableDragAndDrop: true,
+                        toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+                        minHeight: 60,
+                        maxHeight: 300,
+                        hint: {
+                            match: /\B@@(\w*)$/,
+                            search: function (keyword, callback) {
+                                if (!keyword.length) return callback();
+                                var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                                $.ajax({
+                                    async: true,
+                                    url: '/Comment/GetMentions',
+                                    type: 'POST',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: 'json',
+                                    data: msg,
+                                    error: function () {
+                                        callback();
+                                    },
+                                    success: function (res) {
+                                        callback(res.users);
+                                    }
+                                });
+                            },
+                        content: function (item) {
+                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                        }
+                    }
+                });
+
+                $('.c_input').each(function (i, e) {
+                    $(e).removeClass("c_input");
+                });
+                $(".note-statusbar").css("display", "none");
+                $(".impression").each(function (ix, e) {
+                    $(e).load($(e).data("url"));
+                    $(e).removeClass("impression");
+                });
+            });
+        }
+    };
+</script>
 }

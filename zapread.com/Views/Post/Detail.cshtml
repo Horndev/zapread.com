@@ -19,20 +19,6 @@
     </div>
     <div class="col-lg-2">
     </div>
-    <div>
-        <script>
-            (function () {
-                var cx = '011527487946990464906:hzzt0pfk0iu';
-                var gcse = document.createElement('script');
-                gcse.type = 'text/javascript';
-                gcse.async = true;
-                gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(gcse, s);
-            })();
-        </script>
-        <gcse:search></gcse:search>
-    </div>
 </div>
 
 <div class="wrapper wrapper-content ">
@@ -44,7 +30,7 @@
             <div class="social-feed-box">
                 <span></span>
             </div>
-            <div class="social-feed-box">
+            <div class="social-feed-box" style="margin-bottom:50px;">
                 <span></span>
             </div>
         </div>
@@ -53,8 +39,6 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
-
     <script type="text/javascript">
         var ub = 100;//
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
@@ -96,9 +80,22 @@
                 hint: {
                     match: /\B@@(\w*)$/,
                     search: function (keyword, callback) {
-                        callback($.grep(usermentions, function (item) {
-                            return item.indexOf(keyword) == 0;
-                        }));
+                        if (!keyword.length) return callback();
+                        var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                        $.ajax({
+                            async: true,
+                            url: '/Comment/GetMentions',
+                            type: 'POST',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: msg,
+                            error: function () {
+                                callback();
+                            },
+                            success: function (res) {
+                                callback(res.users);
+                            }
+                        });
                     },
                     content: function (item) {
                         return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
@@ -109,6 +106,15 @@
             $(".c_input_" + "@Model.Post.PostId").each(function (i, e) {
                 $(e).removeClass(".c_input_" + "@Model.Post.PostId");
             });
+
+            @if(ViewBag.showVote != null && ViewBag.showVote)
+            {
+                <text>
+                document.addEventListener("voteReady", function (e) {
+                    vote(@Model.Post.PostId, @ViewBag.vote, 1, 100);
+                });
+                </text>
+            }
         });
     </script>
 }

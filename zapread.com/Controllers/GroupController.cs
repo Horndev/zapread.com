@@ -22,68 +22,72 @@ namespace zapread.com.Controllers
     {
         // GET: Group
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var userId = User.Identity.GetUserId();
-
-            GroupsViewModel vm = new GroupsViewModel();
-
-            var gi = new List<GroupInfo>();
-
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .Include(u => u.Settings)
-                    .FirstOrDefault(u => u.AppId == userId);
-
-                if (user != null)
+                User user = await GetCurrentUser(db);
+                ValidateClaims(user);
+                int userid = user != null ? user.Id : 0;
+                var groups = await db.Groups
+                    .Select(g => new
+                    {
+                        numPosts = g.Posts.Count(),
+                        numMembers = g.Members.Count(),
+                        IsMember = g.Members.Select(m => m.Id).Contains(userid),
+                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
+                        g,
+                    }).AsNoTracking()
+                    .OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute)
+                    .Take(100)
+                    .ToListAsync();
+                GroupsViewModel vm = new GroupsViewModel()
                 {
-                    try
+                    TotalPosts = (await db.Posts.CountAsync()).ToString("N0"),
+                    Groups = groups.Select(g => new GroupInfo()
                     {
-                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                    }
-                    catch (Exception)
-                    {
-                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                    }
-                }
-
-                var groups = db.Groups
-                    .Include(g => g.Members)
-                    .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
-                    .Take(100).ToList();
-
-                foreach(var g in groups)
-                {
-                    int num_members = g.Members != null ? g.Members.Count() : 0;
-
-                    int num_posts = db.Posts.Where(p => p.Group != null).Where(p => p.Group.GroupId == g.GroupId).Count();
-
-                    bool isMember = user == null ? false : g.Members.Contains(user);
-
-                    List<string> tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>();
-
-                    gi.Add(new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        CreatedddMMMYYYY = g.CreationDate == null ? "2 Aug 2018" : g.CreationDate.Value.ToString("dd MMM yyyy"),
-                        Name = g.GroupName,
-                        NumMembers = num_members,
-                        NumPosts = num_posts,
-                        Tags = tags,
-                        Icon = g.Icon != null ? "fa-" + g.Icon : "fa-bolt",
-                        Level = g.Tier,
-                        Progress = GetGroupProgress(g),
-                        IsMember = isMember,
+                        Id = g.g.GroupId,
+                        CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
+                        Name = g.g.GroupName,
+                        NumMembers = g.numMembers,
+                        NumPosts = g.numPosts,
+                        Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
+                        Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
+                        Level = g.g.Tier,
+                        Progress = GetGroupProgress(g.g),
+                        IsMember = g.IsMember,
                         IsLoggedIn = user != null,
-                    });
-                }
-                vm.TotalPosts = db.Posts.Count().ToString("N0");
+                        IsMod = g.IsModerator,
+                        IsAdmin = g.IsAdmin,
+                    }).ToList(),
+                };
+                return View(vm);
             }
+        }
 
-            vm.Groups = gi;
-            
-            return View(vm);
+        private void ValidateClaims(User user)
+        {
+            if (user != null)
+            {
+                try
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                }
+                catch (Exception)
+                {
+                    ; //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                }
+            }
+        }
+
+        private async Task<User> GetCurrentUser(ZapContext db)
+        {
+            var userId = User.Identity.GetUserId();
+            var user = await db.Users
+                .Include(u => u.Settings)
+                .FirstOrDefaultAsync(u => u.AppId == userId);
+            return user;
         }
 
         // GET: Group/Members/1
@@ -139,6 +143,17 @@ namespace zapread.com.Controllers
                 var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid);
 
                 string PostsHTMLString = "";
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (user != null && user.IgnoringUsers != null)
+                {
+                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
+                }
+
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
 
                 foreach (var p in posts)
                 {
@@ -149,6 +164,11 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
@@ -226,7 +246,7 @@ namespace zapread.com.Controllers
                         .Select(p => new
                         {
                             p.p,
-                            hot = p.sign * p.order + p.dt / 90000
+                            hot = (p.sign * p.order) + (p.dt / 90000),
                         })
                         .OrderByDescending(p => p.hot)
                         .Select(p => p.p)
@@ -296,10 +316,8 @@ namespace zapread.com.Controllers
             int maxDistributions = 1000;    // Per group
             int minDistributionSize = 1;    // Go as low as 1 Satoshi
 
-
             using (var db = new ZapContext())
             {
-
                 // GROUP PAYOUTS
                 var gids = db.Groups.Select(g => g.GroupId).ToList();
                 double distributed = 0.0;
@@ -318,10 +336,17 @@ namespace zapread.com.Controllers
 
                     if (numDistributions > 0)
                     {
-                        var groupPostsRecent = db.Posts
+                        var groupPostsRecent = await db.Posts
                             .Include("Group")
-                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30).ToList();
-                        var groupPostsOld = db.Posts.Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30).ToList();
+                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30)
+                            .Where(p => !p.IsDeleted)
+                            .Where(p => !p.IsDraft)
+                            .ToListAsync();
+                        var groupPostsOld = await db.Posts
+                            .Where(p => p.Group.GroupId == gid && p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30)
+                            .Where(p => !p.IsDeleted)
+                            .Where(p => !p.IsDraft)
+                            .ToListAsync();
 
                         var numPostsOld = groupPostsOld.Count();
                         var numPostsNew = groupPostsRecent.Count();
@@ -454,9 +479,16 @@ namespace zapread.com.Controllers
                 numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
                 if (numDistributions > 0)
                 {
-                    var sitePostsRecent = db.Posts
-                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30).ToList();
-                    var sitePostsOld = db.Posts.Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30).ToList();
+                    var sitePostsRecent = await db.Posts
+                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) <= 30)
+                        .Where(p => !p.IsDeleted)
+                        .Where(p => !p.IsDraft)
+                        .ToListAsync();
+                    var sitePostsOld = await db.Posts
+                        .Where(p => p.Score > 0 && DbFunctions.DiffDays(DateTime.UtcNow, p.TimeStamp) > 30)
+                        .Where(p => !p.IsDeleted)
+                        .Where(p => !p.IsDraft)
+                        .ToListAsync();
 
                     var numPostsOld = sitePostsOld.Count();
                     var numPostsNew = sitePostsRecent.Count();
@@ -540,7 +572,7 @@ namespace zapread.com.Controllers
                     foreach (var uid in payoutUserAmount.Keys)
                     {
                         // This is where payouts should be made for each user link to group
-                        var owner = db.Users.FirstOrDefault(u => u.Id == uid);
+                        var owner = await db.Users.FirstOrDefaultAsync(u => u.Id == uid);
                         double earnedAmount = payoutUserAmount[uid];
                         var ea = new EarningEvent()
                         {
@@ -557,8 +589,8 @@ namespace zapread.com.Controllers
                     }
 
                     //record distribution
-                    website.CommunityEarnedToDistribute -= distributed;// toDistribute;
-                    website.TotalEarnedCommunity += distributed;// toDistribute;
+                    website.CommunityEarnedToDistribute -= distributed;
+                    website.TotalEarnedCommunity += distributed;
 
                     await db.SaveChangesAsync();
                 }
@@ -567,7 +599,7 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        protected int GetGroupProgress(Group g)
+        protected static int GetGroupProgress(Group g)
         {
             var e = g.TotalEarned + g.TotalEarnedToDistribute;
             var level = GetGroupLevel(g);
@@ -612,7 +644,7 @@ namespace zapread.com.Controllers
             {
                 return Convert.ToInt32(100.0 * (e - 20000000.0) / 50000000.0);
             }
-            return 100;// Convert.ToInt32(100.0 * (g.TotalEarned + g.TotalEarnedToDistribute) / 1000.0);
+            return 100;
         }
 
         /// <summary>
@@ -620,7 +652,7 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="g"></param>
         /// <returns></returns>
-        protected int GetGroupLevel(Group g)
+        protected static int GetGroupLevel(Group g)
         {
             //259 641.6
             var e = g.TotalEarned + g.TotalEarnedToDistribute;
@@ -668,7 +700,7 @@ namespace zapread.com.Controllers
             return 10;
         }
 
-        public ActionResult GroupDetail(int id)
+        public async Task<ActionResult> GroupDetail(int id)
         {
             var userId = User.Identity.GetUserId();
             GroupViewModel vm = new GroupViewModel() {
@@ -677,16 +709,16 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include(usr => usr.IgnoringUsers)
                     .Include(usr => usr.Groups)
                     .Include(usr => usr.Groups.Select(grp => grp.Moderators))
                     .AsNoTracking()
-                    .SingleOrDefault(u => u.AppId == userId);
+                    .SingleOrDefaultAsync(u => u.AppId == userId);
 
-                var group = db.Groups
+                var group = await db.Groups
                     //.AsNoTracking()
-                    .FirstOrDefault(g => g.GroupId == id);
+                    .FirstOrDefaultAsync(g => g.GroupId == id);
 
                 var groupPosts = db.Posts
                     .Include(p => p.Group)
@@ -695,7 +727,7 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.UserId)
                     .AsNoTracking()
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft)
@@ -765,6 +797,11 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
                 }
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in groupPosts)
                 {
                     postViews.Add(new PostViewModel()
@@ -777,6 +814,9 @@ namespace zapread.com.Controllers
                         NumComments = 0,
 
                         ViewerIgnoredUsers = viewerIgnoredUsers,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 
@@ -1352,7 +1392,6 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult CreateNewGroup(NewGroupViewModel m)
         {
-
             return RedirectToAction("Index","Home");
         }
     }

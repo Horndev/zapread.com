@@ -21,6 +21,7 @@ using System.Security.Principal;
 using System.Security.Claims;
 using System.Globalization;
 using zapread.com.Models.Database;
+using zapread.com.Models.Manage;
 
 namespace zapread.com.Controllers
 {
@@ -167,43 +168,44 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult GetSpendingEvents(DataTableParameters dataTableParameters)
+        public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                User u;
-                u = db.Users
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(usr => usr.SpendingEvents)
+                    .CountAsync();
+
+                var pageSpendings = await db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.SpendingEvents)
                         .Include(usr => usr.SpendingEvents.Select(s => s.Post))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Group))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment).Select(c => c.Post))
-                        //.Where(usr => usr.Name == "renepickhardt").First(); //Debug issue observed by this user
-                        .Where(us => us.AppId == userId).First();
+                        .Where(us => us.AppId == userId)
+                        .SelectMany(usr => usr.SpendingEvents)
+                        .OrderByDescending(e => e.TimeStamp)
+                        .Skip(dataTableParameters.Start)
+                        .Take(dataTableParameters.Length)
+                        .ToListAsync();
 
-                var pageSpendings = u.SpendingEvents
-                    .OrderByDescending(e => e.TimeStamp)
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
-                    .ToList();
-
-                var values = pageSpendings.Select(t => new DataItem()
-                {
-                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
-                           t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
-                           t.Group != null ? "Group " + t.Group.GroupId.ToString() :
-                           "Other")),
-                    Amount = Convert.ToString(t.Amount),
-                    URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
+                var values = pageSpendings.AsParallel()
+                    .Select(t => new DataItem()
+                    {
+                        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
+                            t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
+                            t.Group != null ? "Group " + t.Group.GroupId.ToString() :
+                            "Other")),
+                        Amount = Convert.ToString(t.Amount),
+                        URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
                             t.Comment != null ? Url.Action("Detail", "Post") + "/" + t.Comment.Post.PostId.ToString() : (
                             t.Group != null ? Url.Action("Index", "Group") :
                             "")),
-                }).ToList();
-
-                int numrec = u.SpendingEvents.Count();
+                    }).ToList();
 
                 var ret = new
                 {
@@ -380,13 +382,13 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                var u = db.Users
+                var u = await db.Users
                         .AsNoTracking()
-                        .Where(us => us.Id == userId).FirstOrDefault();
+                        .Where(us => us.Id == userId).FirstOrDefaultAsync();
 
                 if (u == null)
                 {
@@ -431,10 +433,10 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .AsNoTracking().Take(20);
 
-                var activityposts = userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
+                var activityposts = await userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToList();
+                    .ToListAsync();
 
                 return activityposts;
             }
@@ -461,7 +463,7 @@ namespace zapread.com.Controllers
             {
                 string aboutMe = "Nothing to tell.";
                 User u;
-                if (db.Users.Where(us => us.AppId == userId).Count() == 0)
+                if (await db.Users.Where(us => us.AppId == userId).CountAsync() == 0)
                 {
                     // no user entry
                     u = new User()
@@ -483,6 +485,7 @@ namespace zapread.com.Controllers
                     u = db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.EarningEvents)
+                        .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
                         .AsNoTracking()
@@ -502,7 +505,7 @@ namespace zapread.com.Controllers
                 ViewBag.UserName = u.Name;
                 ViewBag.UserId = u.Id;
 
-                var activityposts = GetPosts(0, 10, userId: u.Id);
+                var activityposts = await GetPosts(0, 10, userId: u.Id);
 
                 // Get record of recent LN transactions
                 var recentTxs = u.LNTransactions
@@ -609,6 +612,18 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                List<int> viewerIgnoredUsers = new List<int>();
+
+                if (u != null && u.IgnoringUsers != null)
+                {
+                    viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
+                }
+
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in activityposts)
                 {
                     postViews.Add(new PostViewModel()
@@ -618,6 +633,10 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+                        ViewerIgnoredUsers = viewerIgnoredUsers,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 
@@ -690,7 +709,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public ActionResult InfiniteScroll(int BlockNumber)
+        public async Task<ActionResult> InfiniteScroll(int BlockNumber)
         {
             int BlockSize = 10;
 
@@ -699,9 +718,14 @@ namespace zapread.com.Controllers
                 var uid = User.Identity.GetUserId();
                 var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
-                var posts = GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
+                var posts = await GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
 
                 string PostsHTMLString = "";
+
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
 
                 foreach (var p in posts)
                 {
@@ -712,6 +736,9 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
@@ -807,12 +834,23 @@ namespace zapread.com.Controllers
                 {
                     string _FileName = Path.GetFileName(file.FileName);
                     MemoryStream ms = new MemoryStream();
-                    //file.InputStream.CopyTo(ms);
-                    //byte[] data = ms.ToArray();
 
                     Image img = Image.FromStream(file.InputStream);
 
-                    Bitmap thumb = ImageExtensions.ResizeImage(img, 200, 200);
+                    // Images should retain aspect ratio
+                    double ar = Convert.ToDouble(img.Width) / Convert.ToDouble(img.Height); // Aspect ratio
+                    int max_wh = 512; // desired max width or height
+                    
+                    if (img.Height > img.Width)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    Bitmap thumb = ImageExtensions.ResizeImage(img, 1024, 1024);
 
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
 
@@ -876,13 +914,13 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { Result = "Error updating user settings" });
+                return Json(new { success = false, result="error", message = "Error updating user settings" });
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include("Settings")
-                    .Where(u => u.AppId == userId).First();
+                    .Where(u => u.AppId == userId).FirstOrDefaultAsync();
 
                 if (user.Settings == null)
                 {
@@ -923,7 +961,7 @@ namespace zapread.com.Controllers
                 }
                 else if (setting == "alertComment")
                 {
-                    user.Settings.AlertOnOwnPostCommented = value;
+                    user.Settings.AlertOnOwnCommentReplied = value;
                 }
                 else if (setting == "alertNewPostGroup")
                 {
@@ -958,9 +996,17 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.ViewTranslatedLanguages = value;
                 }
+                else if (setting == "showOnline")
+                {
+                    user.Settings.ShowOnline = value;
+                }
+                else if (setting == "showTours")
+                {
+                    user.Settings.ShowTours = value;
+                }
 
                 await db.SaveChangesAsync();
-                return Json(new { Result = "Success" });
+                return Json(new { success=true, result = "success" });
             }
         }
         private async Task EnsureUserExists(string userId, ZapContext db)

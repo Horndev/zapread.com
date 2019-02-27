@@ -7,6 +7,41 @@
  *
 */
 
+.switch-spinner {
+    display: none;
+    position: absolute;
+    margin-left: 13px;
+    font-size: 16px;
+}
+
+.blockquote {
+    border-left: 5px solid #1ab394;
+    padding-left: 5px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    display: flex;
+}
+
+.tooltip-hover .arrow {
+    display: none !important;
+}
+
+.nav {
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+.cse .gsc-control-cse,
+.gsc-control-cse {
+    padding: 0em !important;
+    width: auto;
+}
+
+
+.note-toolbar {
+    background-color: #222;
+}
+
 /* Read more */
 
 .post-box {
@@ -249,7 +284,7 @@ h5 {
 }
 
 .navbar-top-links li a {
-    padding: 20px 10px;
+    padding: 20px 0px;
     min-height: 50px;
 }
 
@@ -421,9 +456,9 @@ ul.nav-second-level {
 .count-info .badge {
     line-height: 12px;
     padding: 2px 5px;
-    position: absolute;
-    right: 12px;
-    top: 12px;
+    position: relative;
+    right: 15px;
+    top: 8px;
 }
 
 .arrow {
@@ -792,7 +827,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 }
 
 .top-navigation .nav > li > a {
-    padding: 15px 20px;
+    /*padding: 15px 20px;*/
     color: #676a6c;
 }
 
@@ -4833,7 +4868,7 @@ code {
     background-color: #222;
     border-color: #000;
     border-image: none;
-    border-style: solid solid none;
+    /*border-style: solid solid none;*/
     border-width: 2px 0 0;
     color: inherit;
     margin-bottom: 0;
@@ -6865,13 +6900,13 @@ table.shoping-cart-table {
     }
 
 .social-feed-separated .social-feed-box .social-avatar {
-    padding: 15px 15px 0 15px;
+    padding: 15px 15px 1px 15px;
     float: none;
 }
 
 .social-feed-box {
     /*padding: 15px;*/
-    border: 1px solid #000;
+    /*border: 1px solid #000;*/
     background: #222;
     margin-bottom: 15px;
 }
@@ -6911,7 +6946,7 @@ table.shoping-cart-table {
 
 .social-avatar .media-body a {
     font-size: 14px;
-    display: block;
+    /*display: block;*/
 }
 
 .social-body {
@@ -9903,7 +9938,7 @@ body.md-skin {
 }
 
 .md-skin .navbar-top-links li a {
-    padding: 20px 10px;
+    padding: 20px 0px;
     min-height: 50px;
 }
 

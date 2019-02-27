@@ -31,17 +31,12 @@ namespace zapread.com.Models.Database
         public string ColorTheme { get; set; }
         public bool CollapseDiscussions { get; set; }
 
+        // Features
+        public bool ShowTours { get; set; }
+        public bool ShowOnline { get; set; }
+
         // Languages
         public bool ViewAllLanguages { get; set; }
         public bool ViewTranslatedLanguages { get; set; }
     }
-
-    //public class UserAlertSetting
-    //{
-    //    public int Id { get; set; }
-    //    public string Name { get; set; }                // Used as a key
-    //    public string ShortDescription { get; set; }    // Presented to user
-    //    public string LongDescription { get; set; }     // Presented to user
-    //    public bool IsEnabled { get; set; }
-    //}
 }

@@ -1,4 +1,4 @@
-﻿@model zapread.com.Models.Post
+﻿@model zapread.com.Models.Database.Post
 
 @{
     ViewBag.Title = "Edit Post";
@@ -96,7 +96,6 @@
 
 @section Scripts {
     @Scripts.Render("~/plugins/selectize")
-    @Scripts.Render("~/plugins/moment")
     @Scripts.Render("~/bundles/datatables")
     <script type="text/javascript">
         var draftsTable = {};
@@ -150,7 +149,7 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['table', ['table']],
                     ['insert', ['link', 'picture', 'videoAttributes']],
-                    ['view', ['fullscreen']]
+                    ['view', ['fullscreen', 'codeview']]
                 ],
                 focus: true
             });
@@ -168,13 +167,10 @@
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             percentComplete = parseInt(percentComplete * 100);
-                            //console.log(percentComplete);
                             $("#progressUploadBar").css("width", percentComplete.toString() + "%");
                             if (percentComplete === 100) {
-                                //alert("upload complete");
                                 $("#progressUploadBar").css("width", "100%");
                             }
-
                         }
                     }, false);
                     return xhr;
@@ -187,7 +183,6 @@
                 processData: false,
                 success: function (result) {
                     $(that).summernote('insertImage', '/Img/Content/' + result.imgId, function (i) {
-                        // Applied to img tag
                         i.attr('class', 'img-fluid');
                     });
                 }

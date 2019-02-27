@@ -4,23 +4,10 @@
 {
     <li id="a1_@m.Id">
         <div class="dropdown-messages-box">
-            @*@if (m.From != null)
-                {
-                    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = m.From.Name })" class="pull-left">
-                        <img alt="image" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = m.From.AppId })">
-                    </a>
-                }
-                else
-                {
-                    <a href="#" class="pull-left">
-                        <img alt="image" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = "" })">
-                    </a>
-                }*@
             <div class="media-body">
                 <span class="pull-right">
                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(1,@m.Id)" class="btn btn-sm btn-link" data-toggle="tooltip" data-placement="top" title="Dismiss"><icon class="fa fa-minus-circle"></icon></a>
                 </span>
-
                 @Html.Raw(m.Title) <br />
                 @if (m.PostLink != null)
                 {

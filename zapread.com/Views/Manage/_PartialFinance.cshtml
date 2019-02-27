@@ -64,23 +64,3 @@
         }
     </tbody>
 </table>
-
-
-
-@*@section Scripts {
-    @Scripts.Render("~/plugins/moment")
-
-    <script type="text/javascript">
-
-        $(document).ready(function () {
-            
-            // This formats the timestamps on the page
-            $('.eventTime').each(function (i, e) {
-                var time = moment.utc($(e).html()).local().calendar();
-                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                $(e).html('<span>' + time + ' - ' + date + '</span>');
-            });
-        });
-        
-    </script>
-}*@

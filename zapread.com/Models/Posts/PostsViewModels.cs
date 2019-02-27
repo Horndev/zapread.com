@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
@@ -16,9 +17,14 @@ namespace zapread.com.Models
         public int NumComments;
 
         public bool IsDetailView;       // If the post is being viewed by itself
+        public bool IsFirstPost;        // If the post is the first post on a page
 
         // Not ideal!
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+
+        public Dictionary<int, int> GroupMemberCounts;
+        public Dictionary<int, int> GroupPostCounts;
+        public Dictionary<int, int> GroupLevels;
     }
 
     public class NewPostViewModel
@@ -50,7 +56,10 @@ namespace zapread.com.Models
     public class PostCommentsViewModel
     {
         public Comment Comment { get; set; }
-        public List<Comment> Comments { get; set; }
-        public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+        public Comment ParentComment { get; set; }
+        public List<Comment> Comments { get; set; } // All comments
+        public List<int> ViewerIgnoredUsers;        // If the user has ignored the user
+        public bool StartVisible { get; set; }
+        public int NestLevel { get; set; }          // How far down the comment nesting is
     }
 }

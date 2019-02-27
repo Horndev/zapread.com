@@ -1,4 +1,5 @@
-﻿using LightningLib.DataEncoders;
+﻿using Hangfire;
+using LightningLib.DataEncoders;
 using LightningLib.lndrpc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -16,6 +17,7 @@ using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -34,6 +36,19 @@ namespace zapread.com.Controllers
         {
             UserManager = userManager;
             RoleManager = roleManager;
+        }
+
+        /// <summary>
+        /// Controller for listing of vote events
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> Votes()
+        {
+            using (var db = new ZapContext())
+            {
+                var votes = await db.SpendingEvents.Take(100).ToListAsync();
+                return View();
+            }
         }
 
         #region Lightning Payments Admin
@@ -252,11 +267,16 @@ namespace zapread.com.Controllers
         }
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public JsonResult GetPostStats()
         {
             var endDate = DateTime.UtcNow;
+            DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
             // The starting point for statistics
             var startDate = endDate.AddDays(-1 * 31);
@@ -275,55 +295,13 @@ namespace zapread.com.Controllers
                     .Where(x => x.TimeStamp > startDate && x.TimeStamp <= endDate);
 
                 var allSpends = db.SpendingEvents.Where(x => x.TimeStamp > startDate && x.TimeStamp <= endDate);
-
                 var binnedPostStats = GroupPostsByDate(allPosts, bin, startDate);
                 var binnedCommentStats = GroupCommentsByDate(allComments, bin, startDate);
                 var binnedSpendingStats = GroupSpendsByDate(allSpends, bin, startDate);
 
-                DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
-
-                var postStats = binnedPostStats.Select(x => new
-                    {
-                        x.Key,
-                        Count = x.Count()
-                    }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = x.Count
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
-
-                var commentStats = binnedCommentStats.Select(x => new
-                    {
-                        x.Key,
-                        Count = x.Count()
-                    }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = x.Count
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
-
-                var spendingStats = binnedSpendingStats.Select(x => new
-                {
-                    x.Key,
-                    //Count = x.Count()
-                    Sum = x.Sum(y => y.Amount)
-                }).ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(bin, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = Convert.ToInt32(x.Sum)
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
+                List<Stat> postStats = GetPostStats(epochUTC, startDate, bin, binnedPostStats);
+                List<Stat> commentStats = GetCommentStats(epochUTC, startDate, bin, binnedCommentStats);
+                List<Stat> spendingStats = GetSpendingStats(epochUTC, startDate, bin, binnedSpendingStats);
 
                 var maxPosts = postStats.Max(x => x.Count);
                 var maxComments = commentStats.Max(x => x.Count);
@@ -332,6 +310,54 @@ namespace zapread.com.Controllers
 
                 return Json(new { postStats, commentStats, spendingStats, maxPostComments, maxSpent }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        private List<Stat> GetSpendingStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, SpendingEvent>> binnedSpendingStats)
+        {
+            return binnedSpendingStats.Select(x => new
+            {
+                x.Key,
+                Sum = x.Sum(y => y.Amount)
+            }).ToList()
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = Convert.ToInt32(x.Sum)
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
+        }
+
+        private List<Stat> GetCommentStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Comment>> binnedCommentStats)
+        {
+            return binnedCommentStats.Select(x => new
+            {
+                x.Key,
+                Count = x.Count()
+            }).ToList()
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = x.Count
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
+        }
+
+        private List<Stat> GetPostStats(DateTime epochUTC, DateTime startDate, DateGroupType bin, IQueryable<IGrouping<int?, Post>> binnedPostStats)
+        {
+            return binnedPostStats.Select(x => new
+            {
+                x.Key,
+                Count = x.Count()
+            }).ToList()
+            .Select(x => new Stat
+            {
+                TimeStampUtc = Convert.ToInt64((GetDate(bin, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                Count = x.Count
+            })
+            .OrderBy(x => x.TimeStampUtc)
+            .ToList();
         }
 
         // GET Admin/UserBalance
@@ -358,6 +384,8 @@ namespace zapread.com.Controllers
                 return Json(new { value = Math.Floor(user.Funds.Balance) }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        #region audit
 
         // GET: Admin/Audit/{username}
         [Route("Admin/Audit/{username}")]
@@ -581,9 +609,19 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Lightning
+
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
+            // Re-register Periodic hangfire monitor
+
+            RecurringJob.AddOrUpdate<LNTransactionMonitor>(
+                x => x.CheckLNTransactions(),
+                Cron.MinuteInterval(5));
+
             using (var db = new ZapContext())
             {
                 var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)
@@ -637,15 +675,21 @@ namespace zapread.com.Controllers
             return Json(new { result = "success", macaroon });
         }
 
+        #endregion
+
+        #region Users
+
         [Route("Admin/Users")]
         public async Task<ActionResult> Users()
         {
             var vm = new AdminUsersViewModel();
 
+            // Redirect to login screen if not authenticated.
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users" });
             }
+
             using (var db = new ZapContext())
             {
                 var userCount = await db.Users.CountAsync();
@@ -666,8 +710,51 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var pageUsers = await db.Users
-                    .OrderByDescending(u => u.Id)
+                var sorts = dataTableParameters.Order;
+
+                // Build our query
+                var pageUsersQS = db.Users
+                    .Include("Funds")
+                    .Include("Posts")
+                    .Include("Comments");
+                IOrderedQueryable<User> pageUsersQ = null;// pageUsersQS.OrderByDescending(q => q.Id);
+
+                foreach (var s in sorts)
+                {
+                    if (s.Dir == "asc")
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.DateJoined);
+                        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.DateLastActivity);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Posts.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Comments.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.Funds == null ? 0 : q.Funds.Balance);
+                    }
+                    else
+                    {
+                        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateJoined);
+                        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateLastActivity);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Posts.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Comments.Count);
+                        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Funds == null ? 0 : q.Funds.Balance);
+                    }
+                }
+
+                if (pageUsersQ == null)
+                {
+                    pageUsersQ = pageUsersQS.OrderByDescending(q => q.Id);
+                }
+
+                var pageUsers = await pageUsersQ
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
@@ -677,10 +764,10 @@ namespace zapread.com.Controllers
                     {
                         UserName = u.Name,
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
-                        LastSeen = "?",
-                        NumPosts = "?",
-                        NumComments = "?",
-                        Balance = "?",
+                        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
+                        NumPosts = u.Posts.Count.ToString(),
+                        NumComments = u.Comments.Count.ToString(),
+                        Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
                         Id = u.AppId,
                     }).ToList();
 
@@ -707,6 +794,10 @@ namespace zapread.com.Controllers
             public string Balance { get; set; }
             public string Id { get; set; }
         }
+
+        #endregion
+
+        #region Admin Panel
 
         // GET: Admin
         public ActionResult Index()
@@ -865,6 +956,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Admin Bar
+
         public PartialViewResult SiteAdminBarUserInfo(int userId)
         {
             using (var db = new ZapContext())
@@ -888,6 +983,10 @@ namespace zapread.com.Controllers
 
                 vm.Balance = Convert.ToInt32(Math.Floor(u.Funds.Balance));
                 vm.TotalEarned = Convert.ToInt32(u.TotalEarned);
+                vm.NumPosts = Convert.ToInt32(u.Posts.Where(p => !p.IsDeleted && !p.IsDraft).Count());
+
+                var appUser = UserManager.FindById(u.AppId);
+                vm.Email = appUser.Email;
 
                 return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
             }
@@ -1012,6 +1111,7 @@ namespace zapread.com.Controllers
             return Json(new { success = true });
         }
 
+        #endregion
 
         public ApplicationUserManager UserManager
         {

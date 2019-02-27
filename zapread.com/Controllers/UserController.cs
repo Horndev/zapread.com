@@ -1,27 +1,70 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.GroupView;
 
 namespace zapread.com.Controllers
 {
     [RoutePrefix("user")]
     public class UserController : Controller
     {
-        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        private ApplicationSignInManager _signInManager;
+        private ApplicationUserManager _userManager;
+
+        public UserController()
+        {
+
+        }
+
+        public UserController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        {
+            UserManager = userManager;
+            SignInManager = signInManager;
+        }
+
+        public ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
+            private set
+            {
+                _signInManager = value;
+            }
+        }
+
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
+
+
+        protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                         .AsNoTracking()
-                        .Where(us => us.Id == userId).FirstOrDefault();
+                        .Where(us => us.Id == userId).FirstOrDefaultAsync();
 
                 if (user == null)
                 {
@@ -57,10 +100,10 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .AsNoTracking().Take(20);
 
-                var activityposts = userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
+                var activityposts = await userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToList();
+                    .ToListAsync();
 
                 return activityposts;
             }
@@ -69,7 +112,7 @@ namespace zapread.com.Controllers
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public ActionResult Index(string username)
+        public async Task<ActionResult> Index(string username)
         {
             if (username == null)
             {
@@ -83,11 +126,11 @@ namespace zapread.com.Controllers
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = User.Identity.GetUserId();
-                    loggedInUser = db.Users
+                    loggedInUser = await db.Users
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .AsNoTracking()
-                        .SingleOrDefault(u => u.AppId == userId);
+                        .SingleOrDefaultAsync(u => u.AppId == userId);
 
                     if (loggedInUser != null && loggedInUser.Name == username)
                     {
@@ -108,7 +151,7 @@ namespace zapread.com.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                var activityposts = GetPosts(0, 10, user.Id);
+                var activityposts = await GetPosts(0, 10, user.Id);
 
                 int numUserPosts = db.Posts.Where(p => p.UserId.Id == user.Id).Count();
 
@@ -126,6 +169,11 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
+                var groups = await db.Groups
+                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .AsNoTracking()
+                        .ToListAsync();
+
                 foreach (var p in activityposts)
                 {
                     postViews.Add(new PostViewModel()
@@ -135,6 +183,9 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
+                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 
@@ -185,33 +236,30 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [Route("InfiniteScroll/")]
-        public ActionResult InfiniteScroll(int BlockNumber, int? userId)
+        public async Task<ActionResult> InfiniteScroll(int BlockNumber, int? userId)
         {
             int BlockSize = 10;
 
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                User user = await db.Users.AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == uid);
 
-                var posts = GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
+                List<Post> posts = await GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
+
+                List<GroupStats> groups = await db.Groups.AsNoTracking()
+                        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .ToListAsync();
 
                 string PostsHTMLString = "";
-
                 foreach (var p in posts)
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    };
-
+                    PostViewModel pvm = HTMLRenderHelpers.CreatePostViewModel(p, user, groups);
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
                     PostsHTMLString += PostHTMLString;
                 }
+
                 return Json(new
                 {
                     NoMoreData = posts.Count < BlockSize,

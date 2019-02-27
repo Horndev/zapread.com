@@ -28,9 +28,7 @@
 
 <div class="wrapper wrapper-content">
     <div class="row">
-        <div class="col-lg-1">
-        </div>
-        <div class="col-lg-11">
+        <div class="col-lg-12">
             <div class="ibox-content no-padding">
                 <table id="usersTable" class="table table-striped" style="width:100%">
                     <thead>
@@ -55,26 +53,15 @@
 }
 
 @section Scripts {
-@Scripts.Render("~/plugins/moment")
 @Scripts.Render("~/bundles/datatables")
 
 <script type="text/javascript">
     var usersTable = {};
     $(document).ready(function () {
-
         // Close ibox function
         $('.close-link').on('click', function () {
             var content = $(this).closest('div.ibox');
             content.remove();
-        });
-
-        // Small todo handler
-        $('.check-link').on('click', function () {
-            var button = $(this).find('i');
-            var label = $(this).next('span');
-            button.toggleClass('fa-check-square').toggleClass('fa-square-o');
-            label.toggleClass('todo-completed');
-            return false;
         });
 
         // Collapse ibox function
@@ -94,8 +81,10 @@
         // Table
         usersTable = $('#usersTable').DataTable({
             "searching": false,
-            //"bInfo": false,
+            "bInfo": false,
             "lengthChange": false,
+            "ordering": true,
+            "order": [[1, "desc"]],
             "pageLength": 25,
             "processing": true,
             "serverSide": true,
@@ -109,12 +98,19 @@
                 }
             },
             "columns": [
-                { "data": "UserName", "orderable": false },
-                { "data": "DateJoined", "orderable": true },
-                { "data": "LastSeen", "orderable": false },
-                { "data": "NumPosts", "orderable": false },
-                { "data": "NumComments", "orderable": false },
-                { "data": "Balance", "orderable": false },
+                {
+                    "data": null,//"UserName",
+                    "name": 'Name',
+                    "orderable": false,
+                    "mRender": function (data, type, row) {
+                        return "<a target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
+                    }
+                },
+                { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["desc", "asc"] },
+                { "data": "LastSeen", "orderable": true, "name": "LastSeen", "type": "date", "orderSequence": ["desc", "asc"] },
+                { "data": "NumPosts", "orderable": true, "name": "NumPosts", "type": "num", "orderSequence": ["desc", "asc"] },
+                { "data": "NumComments", "orderable": true, "name": "NumComments", "type": "num", "orderSequence": ["desc", "asc"] },
+                { "data": "Balance", "orderable": true, "name": "Balance", "type": "num-fmt", "orderSequence": ["desc", "asc"] },
             ],
         });
     });

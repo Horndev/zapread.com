@@ -11,8 +11,6 @@
 
 @section Scripts {
     @Scripts.Render("~/plugins/dropZone")
-    @Scripts.Render("~/plugins/moment")
-
 <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
@@ -54,39 +52,7 @@
             });
         });
 
-        var follow = function (uid, s) {
-
-            var msg = JSON.stringify({ 'id': uid, 's': s });
-            $.ajax({
-                type: "POST",
-                url: "/user/SetFollowing",
-                data: msg,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.Result === "Success") {
-                        if (s === 1) {
-                            // Subscribe
-                            $('#subBtnText').html("Unsubscribe");
-                            $('#sublink').attr("onclick", "follow(@Model.User.Id,0);");
-                        } else {
-                            $('#subBtnText').html("Subscribe");
-                            $('#sublink').attr("onclick", "follow(@Model.User.Id,1);");
-                        }
-                    }
-                    else {
-                        alert(response.Message);
-                    }
-                },
-                failure: function (response) {
-                    console.log('follow failure');
-                },
-                error: function (response) {
-                    console.log('follow error');
-                }
-            });
-            return false;
-        };
+        
 
         Dropzone.options.dropzoneForm = {
             paramName: "file", // The name that will be used to transfer the file
@@ -155,57 +121,27 @@
                             var time = moment.utc($(e).html()).local().calendar();
                             var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
                             $(e).html('<span>' + time + ' - ' + date + '</span>');
+                            $(e).css('display', 'inline');
                             $(e).removeClass("postTime");
                         });
                         if (NoMoreData) {
                             $('#showmore').hide();
                         }
-                        $(".sharing").each(function (i, e) {
-                            $(e).jsSocials({
-                                url: $(e).data('url'),
-                                text: $(e).data('sharetext'),
+                        $(".impression").each(function (ix, e) {
+                            $(e).load($(e).data("url"));
+                            $(e).removeClass("impression");
+                        });
+                        $(".sharing").each(function () {
+                            $(this).jsSocials({
+                                url: $(this).data('url'),
+                                text: $(this).data('sharetext'),
                                 showLabel: false,
+                                showCount: false,
                                 shareIn: "popup",
                                 shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
                             });
-                            $(e).removeClass("sharing");
+                            $(this).removeClass("sharing");
                         });
-                        $('.read-more').readMore({
-                            readMoreLinkClass: "read-more__link",
-                            readMoreText: "Read more",
-                            readLessText: "Read less",
-                            readMoreHeight: 800
-                        });
-                        $(".c_input").summernote({
-                            callbacks: {
-                                onImageUpload: function (files) {
-                                    that = $(this);
-                                    sendFile(files[0], that);
-                                }
-                            },
-                            focus: false,
-                            placeholder: 'Write comment...',
-                            disableDragAndDrop: true,
-                            toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-                            minHeight: 60,
-                            maxHeight: 300,
-                            hint: {
-                                match: /\B@@(\w*)$/,
-                                search: function (keyword, callback) {
-                                    callback($.grep(usermentions, function (item) {
-                                        return item.indexOf(keyword) == 0;
-                                    }));
-                                },
-                                content: function (item) {
-                                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                                }
-                            }
-                        });
-                        $('.c_input').each(function (i, e) {
-                            $(e).removeClass("c_input");
-                        });
-
-                        $(".note-statusbar").css("display", "none");
                     });
             }
         };
@@ -362,7 +298,7 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>Top Subscribed</h3>
+                        <h3>@Model.User.Name is subscribed to</h3>
                         <p class="small">
                             @Model.User.Name is subscribed to content from these users.  Their content will appear in the activity feed.
                         </p>
@@ -379,7 +315,7 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>Top Subscribing</h3>
+                        <h3>Subscribing to @Model.User.Name</h3>
                         <p class="small">
                             These users are subscribing to @Model.User.Name.  @Model.User.Name's content will appear in their activity feed.
                         </p>
@@ -434,7 +370,7 @@
                         }
                     </div>
                     <div>
-                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                     </div>
                 </div>
             </div>
