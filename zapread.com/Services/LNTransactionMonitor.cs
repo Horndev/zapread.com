@@ -128,6 +128,21 @@ namespace zapread.com.Services
                 }
 
                 db.SaveChanges();
+
+                // These are non-settled withdraws in the database
+                var unpaidWithdraws = db.LightningTransactions
+                    .Where(t => t.IsSettled == false)   // Not settled
+                    .Where(t => t.IsDeposit == false)   // Withdraw
+                    .Where(t => t.IsIgnored == false)   // Still valid
+                    .Include(t => t.User)
+                    .Include(t => t.User.Funds);
+
+                foreach (var i in unpaidWithdraws)
+                {
+
+                }
+
+                db.SaveChanges();
             }
         }
     }

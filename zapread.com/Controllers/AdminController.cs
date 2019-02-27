@@ -434,6 +434,7 @@ namespace zapread.com.Controllers
             public string URL { get; set; }
             public string Memo { get; set; }
             public bool Settled { get; set; }
+            public string PaymentHash { get; set; }
         }
 
         [HttpPost, Route("Admin/GetLNTransactions/{username}")]
@@ -462,6 +463,7 @@ namespace zapread.com.Controllers
                     Amount = Convert.ToString(t.Amount),
                     Memo = t.Memo,
                     Settled = t.IsSettled,
+                    PaymentHash = t.HashStr,
                 }).ToList();
 
                 int numrec = user.LNTransactions.Count();
