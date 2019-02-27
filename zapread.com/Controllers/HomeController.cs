@@ -417,6 +417,8 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
+            //PaymentPoller.Subscribe();
+
             try
             {
                 if (Request.IsAuthenticated && (l == null || l == "" || l == "0"))

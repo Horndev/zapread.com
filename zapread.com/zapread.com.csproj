@@ -704,6 +704,7 @@
     <Compile Include="Services\LNTransactionMonitor.cs" />
     <Compile Include="Services\MailingService.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\PaymentPoller.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

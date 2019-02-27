@@ -332,7 +332,14 @@
                     { "data": "Type", "orderable": false },
                     { "data": "Amount", "orderable": false },
                     { "data": "Memo", "orderable": false },
-                    { "data": "Settled", "orderable": false },
+                    //{ "data": "Settled", "orderable": false },
+                    {
+                        "data": null,//"Type",
+                        "orderable": false,
+                        "mRender": function (data, type, row) {
+                            return "<span title='" + data.PaymentHash +"'>" + data.Settled.toString() + "</span>";
+                        }
+                    }
                 ],
             });
 
