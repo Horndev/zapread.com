@@ -141,6 +141,35 @@ namespace zapread.com.Controllers
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
 
+
+
+                
+
+                var commentIds = pageEarnings
+                    .Where(e => e.Type == 0 && e.OriginType == 1)
+                    .Select(e => Convert.ToInt64(e.OriginId)).ToList();
+
+                var groupIds = pageEarnings
+                    .Where(e => e.Type == 1)
+                    .Select(e => e.OriginId).ToList();
+
+                var comments = await db.Comments
+                    .Include(c => c.Post)
+                    .Where(c => commentIds.Contains(c.CommentId)).ToListAsync();
+
+                var postIds = pageEarnings
+                    .Where(e => e.Type == 0 && e.OriginType == 0)
+                    .Select(e => e.OriginId).ToList();
+
+                var cids = comments.Where(c => c.Post != null)
+                    .Select(c => c.Post.PostId);
+
+                postIds = postIds.Union(cids).ToList();
+
+                var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync();
+                var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync();
+                
+
                 var values = pageEarnings
                     .AsParallel()
                     .Select(t => new DataItem()
@@ -148,7 +177,8 @@ namespace zapread.com.Controllers
                         Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         Amount = t.Amount.ToString("0.##"),
                         Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
-                        URL = t.OriginId.ToString()
+                        URL = GetEarningURL(t, commentIds, comments),
+                        Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
                     }).ToList();
 
                 //var postEarning = await db.Users
@@ -164,7 +194,7 @@ namespace zapread.com.Controllers
                 //        innerKeySelector: p => p.PostId,
                 //        resultSelector: (e, p) => new { e.TimeStamp, e.Amount, p.PostId, p.PostTitle })
                 //    .ToListAsync();
-                
+
                 //var postValues = postEarning
                 //    .AsParallel()
                 //    .Select(t => new DataItem()
@@ -190,6 +220,63 @@ namespace zapread.com.Controllers
                 };
                 return Json(ret);
             }
+        }
+
+        private string GetEarningURL(EarningEvent t, List<long> commentIds, List<Comment> comments)
+        {
+            if (t.Type == 1)
+            {
+                if (t.OriginId > 0)
+                    return Url.Action(controllerName: "Group", actionName: "GroupDetail", routeValues: new { id = t.OriginId });
+            }
+            else if (t.Type == 0 && t.OriginType == 0)
+            {
+                if (t.OriginId > 0)
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = t.OriginId });
+            }
+            else if (t.Type == 0 && t.OriginType == 1)
+            {
+                var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                if (postId > 0)
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = postId });
+            }
+            return  t.OriginId.ToString();
+        }
+
+        private static string GetEarningMemo(EarningEvent t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
+        {
+            if (t.Type == 1)
+            {
+                if (t.OriginId > 0)
+                    return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
+            }
+            else if (t.Type == 0 && t.OriginType == 0)
+            {
+                string memo = postIds.Contains(t.OriginId) ? posts.FirstOrDefault(p => p.PostId == t.OriginId)?.PostTitle : "";
+                if (memo == null)
+                    memo = "";
+                if (memo.Length > 33)
+                    memo = memo.Substring(0, 30) + "...";
+                return memo;
+            }
+            else if (t.Type == 0 && t.OriginType == 1) // Comment
+            {
+                if (t.OriginId > 0)
+                {
+                    var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                    if (postId != null && postId > 0)
+                    {
+                        string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
+                        if (memo == null)
+                            memo = "";
+                        if (memo.Length > 33)
+                            memo = memo.Substring(0, 30) + "...";
+                        return memo;
+                    }
+                    return postId.ToString();
+                }
+            }
+            return "";
         }
 
         public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
