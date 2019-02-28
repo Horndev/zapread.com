@@ -386,6 +386,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\FinanceController.cs" />
     <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImgController.cs" />
@@ -1805,6 +1806,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="node_modules\selectize\dist\js\" />
     <Folder Include="Views\Comment\" />
+    <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
     <Folder Include="Views\Vote\" />
