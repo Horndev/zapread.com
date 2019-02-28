@@ -45,7 +45,23 @@
         var tour = new Tour({
             name: "index",
             onEnd: function (tour) {
-                dismissTour();
+                swal("Do you wish to view the tour another time?",{
+                    buttons: {
+                        cancel: "No thanks",
+                        postpone: {
+                            text: "Another time",
+                            value: "postpone",
+                        }
+                    }
+                }).then(function (value) {
+                    switch (value) {
+                        case "postpone":
+                            swal("Ok", "We'll ask you another time.", "success");
+                            break;
+                        default:
+                            dismissTour();
+                    }
+                });
             },
             steps: [{
                 element: "#goHome",
