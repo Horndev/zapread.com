@@ -770,8 +770,9 @@ namespace zapread.com.Controllers
                     User = u,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId),
                     Logins = await UserManager.GetLoginsAsync(userId),
-                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                    BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
                     Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
@@ -1031,18 +1032,27 @@ namespace zapread.com.Controllers
             {
                 var user = await db.Users
                     .Include("Settings")
-                    .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(u => u.AppId == userId);
 
                 if (user.Settings == null)
                 {
                     user.Settings = new UserSettings();
                 }
 
-                if (setting == "notifyPost")
+                // These are the possible settings
+                switch (setting)
                 {
-                    user.Settings.NotifyOnOwnPostCommented = value;
+                    case "notifyPost":
+                        user.Settings.NotifyOnOwnPostCommented = value;
+                        break;
+                    case "emailTwoFactor":
+                        await UserManager.SetTwoFactorEnabledAsync(userId, value);
+                        break;
+                    default:
+                        break;
                 }
-                else if (setting == "notifyComment")
+
+                if (setting == "notifyComment")
                 {
                     user.Settings.NotifyOnOwnCommentReplied = value;
                 }
@@ -1115,11 +1125,12 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.ShowTours = value;
                 }
-
+                
                 await db.SaveChangesAsync();
-                return Json(new { success=true, result = "success" });
+                return Json(new { success = true, result = "success" });
             }
         }
+
         private async Task EnsureUserExists(string userId, ZapContext db)
         {
             if (db.Users.Where(u => u.AppId == userId).Count() == 0)
