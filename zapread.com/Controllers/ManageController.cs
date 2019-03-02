@@ -604,165 +604,30 @@ namespace zapread.com.Controllers
                     aboutMe = u.AboutMe;
                 }
 
-                try
-                {
-                    User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
-                }
-                catch (Exception)
-                {
-                    //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                }
+                ValidateClaims(u);
 
                 ViewBag.UserName = u.Name;
                 ViewBag.UserId = u.Id;
-
-                var activityposts = await GetPosts(0, 10, userId: u.Id);
-
-                // Get record of recent LN transactions
-                var recentTxs = u.LNTransactions
-                    .Where(tx => tx.TimestampSettled != null)
-                    .OrderByDescending(tx => tx.TimestampSettled)
-                    .Take(5);
-
-                var txnView = new List<LNTxViewModel>();
-
-                foreach (var tx in recentTxs)
-                {
-                    txnView.Add(new LNTxViewModel()
-                    {
-                        Timestamp = (DateTime)tx.TimestampSettled,
-                        Type = tx.IsDeposit ? "Deposit" : "Withdrawal",
-                        Value = tx.Amount,
-                    });
-                }
-
-                var recentSpendings = u.SpendingEvents
-                    .OrderByDescending(s => s.TimeStamp)
-                    .Take(5);
-
-                var spendingsView = new List<SpendingsViewModel>();
-
-                foreach (var s in recentSpendings)
-                {
-                    string link = "";
-                    if (s.Post != null)
-                    {
-                        link = "Post " + s.Post.PostId.ToString();
-                    }
-                    else if (s.Comment != null)
-                    {
-                        link = "Comment " + s.Comment.CommentId.ToString();
-                    }
-                    else if (s.Group != null)
-                    {
-                        link = "Group " + s.Group.GroupId.ToString();
-                    }
-
-                    spendingsView.Add(new SpendingsViewModel()
-                    {
-                        TimeStamp = s.TimeStamp.Value,
-                        Value = Convert.ToString(s.Amount),
-                        Link = link,
-                    });
-                }
-
-                var recentEarnings = u.EarningEvents
-                    .OrderByDescending(e => e.TimeStamp)
-                    .Take(5);
-
-                var earningsView = new List<EarningsViewModel>();
-
-                foreach (var e in recentEarnings)
-                {
-                    earningsView.Add(new EarningsViewModel()
-                    {
-                        TimeStamp = e.TimeStamp.Value,
-                        Value = e.Amount.ToString("0.#"),
-                        Type = e.Type == 0 ? (e.OriginType == 0 ? "Post" : "Comment") : e.Type == 1 ? "Group" : e.Type == 2 ? "Community" : "Unknown",
-                        ItemId = 0,
-                    });
-                }
-
-                var gi = new List<GroupInfo>();
-
-                var userGroups = u.Groups.ToList();
-
-                foreach(var g in userGroups)
-                {
-                    gi.Add(new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        Name = g.GroupName,
-                        Icon = "fa-bolt",
-                        Level = 1,
-                        Progress = 36,
-                        NumPosts = g.Posts.Count(),
-                        UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
-                        IsMod = g.Moderators.Contains(u),
-                        IsAdmin = g.Administrators.Contains(u),
-                    });
-                }
-
-                int numUserPosts = db.Posts.Where(p => p.UserId.AppId == userId).Count();
-
-                int numFollowers = db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).Count();
-
-                int numFollowing = u.Following.Count();
-
-                bool isFollowing = false;
-
-                // List of top persons following
-                var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
-
-                var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
                 if (u.Settings == null)
                 {
                     u.Settings = new UserSettings();
                 }
 
-                List<PostViewModel> postViews = new List<PostViewModel>();
-
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (u != null && u.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
-                }
-
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                foreach (var p in activityposts)
-                {
-                    postViews.Add(new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
-                        ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                        ViewerIgnoredUsers = viewerIgnoredUsers,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                    });
-                }
-
-                // List of languages known
-                var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
-
-                var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                var languages = languagesEng.Concat(languagesNat).ToList();
+                var activityposts = await GetPosts(0, 10, userId: u.Id);
+                List<LNTxViewModel> txnView = GetRecentTransactions(u);
+                List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
+                List<EarningsViewModel> earningsView = GetRecentEarnings(u);
+                List<GroupInfo> gi = GetUserGroups(u);
+                int numUserPosts = db.Posts.Where(p => p.UserId.AppId == userId).Count();
+                int numFollowers = db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).Count();
+                int numFollowing = u.Following.Count();
+                bool isFollowing = false;
+                var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                List<int> viewerIgnoredUsers = GetUserIgnored(u);
+                List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers);
+                List<string> languages = GetLanguages();
 
                 var model = new ManageUserViewModel
                 {
@@ -770,8 +635,9 @@ namespace zapread.com.Controllers
                     User = u,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId),
                     Logins = await UserManager.GetLoginsAsync(userId),
-                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                    BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
                     Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
@@ -789,6 +655,179 @@ namespace zapread.com.Controllers
                 };
 
                 return View(model);
+            }
+        }
+
+        private static List<int> GetUserIgnored(User u)
+        {
+            List<int> viewerIgnoredUsers = new List<int>();
+
+            if (u != null && u.IgnoringUsers != null)
+            {
+                viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
+            }
+
+            return viewerIgnoredUsers;
+        }
+
+        private static async Task<List<PostViewModel>> GetUserActivtiesView(ZapContext db, User u, List<Post> activityposts, List<int> viewerIgnoredUsers)
+        {
+            List<PostViewModel> postViews = new List<PostViewModel>();
+            var groups = await db.Groups
+                    .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+            foreach (var p in activityposts)
+            {
+                postViews.Add(new PostViewModel()
+                {
+                    Post = p,
+                    ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
+                    ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    NumComments = 0,
+                    ViewerIgnoredUsers = viewerIgnoredUsers,
+                    GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                    GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                    GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
+                });
+            }
+
+            return postViews;
+        }
+
+        private static List<LNTxViewModel> GetRecentTransactions(User u)
+        {
+            // Get record of recent LN transactions
+            var recentTxs = u.LNTransactions
+                .Where(tx => tx.TimestampSettled != null)
+                .OrderByDescending(tx => tx.TimestampSettled)
+                .Take(5);
+
+            var txnView = new List<LNTxViewModel>();
+
+            foreach (var tx in recentTxs)
+            {
+                txnView.Add(new LNTxViewModel()
+                {
+                    Timestamp = (DateTime)tx.TimestampSettled,
+                    Type = tx.IsDeposit ? "Deposit" : "Withdrawal",
+                    Value = tx.Amount,
+                });
+            }
+
+            return txnView;
+        }
+
+        private static List<SpendingsViewModel> GetRecentSpending(User u)
+        {
+            var recentSpendings = u.SpendingEvents
+                                .OrderByDescending(s => s.TimeStamp)
+                                .Take(5);
+
+            var spendingsView = new List<SpendingsViewModel>();
+
+            foreach (var s in recentSpendings)
+            {
+                string link = "";
+                if (s.Post != null)
+                {
+                    link = "Post " + s.Post.PostId.ToString();
+                }
+                else if (s.Comment != null)
+                {
+                    link = "Comment " + s.Comment.CommentId.ToString();
+                }
+                else if (s.Group != null)
+                {
+                    link = "Group " + s.Group.GroupId.ToString();
+                }
+
+                spendingsView.Add(new SpendingsViewModel()
+                {
+                    TimeStamp = s.TimeStamp.Value,
+                    Value = Convert.ToString(s.Amount),
+                    Link = link,
+                });
+            }
+
+            return spendingsView;
+        }
+
+        private static List<EarningsViewModel> GetRecentEarnings(User u)
+        {
+            var earningsView = new List<EarningsViewModel>();
+
+            var recentEarnings = u.EarningEvents
+                .OrderByDescending(e => e.TimeStamp)
+                .Take(5);
+
+            foreach (var e in recentEarnings)
+            {
+                earningsView.Add(new EarningsViewModel()
+                {
+                    TimeStamp = e.TimeStamp.Value,
+                    Value = e.Amount.ToString("0.#"),
+                    Type = e.Type == 0 ? (e.OriginType == 0 ? "Post" : "Comment") : e.Type == 1 ? "Group" : e.Type == 2 ? "Community" : "Unknown",
+                    ItemId = 0,
+                });
+            }
+
+            return earningsView;
+        }
+
+        private static List<GroupInfo> GetUserGroups(User u)
+        {
+            var gi = new List<GroupInfo>();
+
+            var userGroups = u.Groups.ToList();
+
+            foreach (var g in userGroups)
+            {
+                gi.Add(new GroupInfo()
+                {
+                    Id = g.GroupId,
+                    Name = g.GroupName,
+                    Icon = "fa-bolt",
+                    Level = 1,
+                    Progress = 36,
+                    NumPosts = g.Posts.Count(),
+                    UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
+                    IsMod = g.Moderators.Contains(u),
+                    IsAdmin = g.Administrators.Contains(u),
+                });
+            }
+
+            return gi;
+        }
+
+        private static List<string> GetLanguages()
+        {
+            // List of languages known
+            var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                .Select(g => g.First())
+                .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
+
+            var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                .Select(g => g.First())
+                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+            var languages = languagesEng.Concat(languagesNat).ToList();
+            return languages;
+        }
+
+        private void ValidateClaims(User u)
+        {
+            try
+            {
+                User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
+            }
+            catch (Exception)
+            {
+                //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
             }
         }
 
@@ -1031,18 +1070,27 @@ namespace zapread.com.Controllers
             {
                 var user = await db.Users
                     .Include("Settings")
-                    .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(u => u.AppId == userId);
 
                 if (user.Settings == null)
                 {
                     user.Settings = new UserSettings();
                 }
 
-                if (setting == "notifyPost")
+                // These are the possible settings
+                switch (setting)
                 {
-                    user.Settings.NotifyOnOwnPostCommented = value;
+                    case "notifyPost":
+                        user.Settings.NotifyOnOwnPostCommented = value;
+                        break;
+                    case "emailTwoFactor":
+                        await UserManager.SetTwoFactorEnabledAsync(userId, value);
+                        break;
+                    default:
+                        break;
                 }
-                else if (setting == "notifyComment")
+
+                if (setting == "notifyComment")
                 {
                     user.Settings.NotifyOnOwnCommentReplied = value;
                 }
@@ -1115,11 +1163,12 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.ShowTours = value;
                 }
-
+                
                 await db.SaveChangesAsync();
-                return Json(new { success=true, result = "success" });
+                return Json(new { success = true, result = "success" });
             }
         }
+
         private async Task EnsureUserExists(string userId, ZapContext db)
         {
             if (db.Users.Where(u => u.AppId == userId).Count() == 0)

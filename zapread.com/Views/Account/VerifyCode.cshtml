@@ -3,35 +3,59 @@
     ViewBag.Title = "Verify";
 }
 
-<h2>@ViewBag.Title.</h2>
-
-@using (Html.BeginForm("VerifyCode", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" })) {
-    @Html.AntiForgeryToken()
-    @Html.Hidden("provider", @Model.Provider)
-    @Html.Hidden("rememberMe", @Model.RememberMe)
-    <h4>Enter verification code</h4>
-    <hr />
-    @Html.ValidationSummary("", new { @class = "text-danger" })
-    <div class="form-group">
-        @Html.LabelFor(m => m.Code, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(m => m.Code, new { @class = "form-control" })
-        </div>
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Send Code</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+            <li class="breadcrumb-item"><a>Account</a></li>
+            <li class="breadcrumb-item active">@ViewBag.Title</li>
+        </ol>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <div class="checkbox">
-                @Html.CheckBoxFor(m => m.RememberBrowser)
-                @Html.LabelFor(m => m.RememberBrowser)
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="ibox-content">
+                <h4>Enter verification code</h4>
+                <section id="codeForm">
+                    @using (Html.BeginForm("VerifyCode", "Account",
+                        new { ReturnUrl = Model.ReturnUrl },
+                        FormMethod.Post,
+                        new { @class = "m-t", role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("provider", @Model.Provider)
+                        @Html.Hidden("rememberMe", @Model.RememberMe)
+                        <hr />
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Code, new { @class = "col-md-2 control-label" })
+                            <div class="col-md-10">
+                                @Html.TextBoxFor(m => m.Code, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <div class="checkbox">
+                                    @Html.CheckBoxFor(m => m.RememberBrowser)
+                                    @Html.LabelFor(m => m.RememberBrowser)
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b">Submit</button>
+                    }
+                </section>
             </div>
         </div>
+        <div class="col-md-3"></div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-default" value="Submit" />
-        </div>
-    </div>
-}
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
