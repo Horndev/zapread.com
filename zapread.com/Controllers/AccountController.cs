@@ -481,7 +481,7 @@ namespace zapread.com.Controllers
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe});
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
@@ -538,6 +538,16 @@ namespace zapread.com.Controllers
         public ActionResult Register()
         {
             return View();
+        }
+
+        public async Task<ActionResult> SendEmailConfirmation()
+        {
+            var userId = User.Identity.GetUserId();
+
+            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId, code = code }, protocol: Request.Url.Scheme);
+            await UserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
+            return RedirectToAction(actionName: "Index", controllerName: "Manage", routeValues: null);
         }
 
         //
