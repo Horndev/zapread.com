@@ -619,8 +619,8 @@ namespace zapread.com.Controllers
                 List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
                 List<EarningsViewModel> earningsView = GetRecentEarnings(u);
                 List<GroupInfo> gi = GetUserGroups(u);
-                int numUserPosts = db.Posts.Where(p => p.UserId.AppId == userId).Count();
-                int numFollowers = db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).Count();
+                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync();
+                int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync();
                 int numFollowing = u.Following.Count();
                 bool isFollowing = false;
                 var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
@@ -637,7 +637,7 @@ namespace zapread.com.Controllers
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                     EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId),
                     Logins = await UserManager.GetLoginsAsync(userId),
-                    BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),  // This is an extension method which can't be mocked for test
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
                     Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
