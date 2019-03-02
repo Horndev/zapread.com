@@ -226,7 +226,12 @@
                             @if (!Model.EmailConfirmed)
                             {
                                 <div class="row">
-                                    <a class="btn btn-link btn-sm" href='@Url.Action("SendEmailConfirmation", "Account", null)'>Confirm Email</a>
+                                    <div class="col-auto">
+                                        <a class="btn btn-outline btn-sm btn-danger" href='@Url.Action("SendEmailConfirmation", "Account", null)'><i class="fa fa-exclamation"></i> Confirm Email</a>
+                                    </div>
+                                    <div class="col">
+                                        Confirm your email to secure your account.
+                                    </div>
                                 </div>
                             }
                             else
