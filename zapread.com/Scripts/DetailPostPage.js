@@ -49,9 +49,8 @@
     };
 
     hub.client.NotifyInvoicePaid = function (invoiceResponse) {
-        if (invoiceResponse.invoice == $("#lightningDepositInvoiceInput").val()) {
+        if (invoiceResponse.invoice === $("#lightningDepositInvoiceInput").val()) {
             $("#lightningDepositInvoiceResult").html("Successfully received deposit.");
-
             $("#lightningDepositInvoiceResult").removeClass("bg-error");
             $("#lightningDepositInvoiceResult").removeClass("bg-info");
             $("#lightningDepositInvoiceResult").removeClass("bg-muted");
@@ -68,7 +67,7 @@
 
             $(".partialContents").each(function (index, item) {
                 var url = $(item).data("url");
-                if (url && url.length > 0 && url == "/Account/Balance") {
+                if (url && url.length > 0 && url === "/Account/Balance") {
                     $(item).load(url);
                 }
             });
@@ -93,11 +92,10 @@
             catch (err) {
                 console.log("couldn't refresh lightningTable");
             }
-            
         }
 
         // Check if vote
-        if (invoiceResponse.invoice == $("#voteDepositInvoiceInput").val()) {
+        if (invoiceResponse.invoice === $("#voteDepositInvoiceInput").val()) {
             // Ok, the user paid the invoice.  Now we need to claim the vote.
             // If this transaction id is not found, or already claimed, the vote will not work.
             userVote.tx = invoiceResponse.txid;
@@ -108,7 +106,6 @@
             else {
                 doVote(userVote.id, userVote.d, userVote.t, userVote.amount, userVote.tx);
             }
-            
         }
     };
 
