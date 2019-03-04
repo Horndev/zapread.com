@@ -199,6 +199,7 @@
                             $(".pop").popover({
                                 trigger: "manual",
                                 html: true,
+                                sanitize: false,
                                 animation: false
                             })
                             .on("mouseenter", function () {
@@ -238,6 +239,7 @@
                                         $(selectionMarker).popover({
                                             trigger: "hover",
                                             html: true,
+                                            sanitize: false,
                                             animation: false,
                                             title: "Quote",
                                             placement: "top",
