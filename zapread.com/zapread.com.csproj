@@ -1684,6 +1684,8 @@
     <Content Include="Scripts\Manage\index.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\Posts\post-functions.js" />
+    <Content Include="Scripts\Posts\post-initialize.js" />
+    <Content Include="Scripts\Posts\post-ui.js" />
     <Content Include="Scripts\Posts\quotable.js" />
     <Content Include="Scripts\Posts\readmore.js" />
     <Content Include="Scripts\read-more.js" />

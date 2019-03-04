@@ -7,6 +7,14 @@
  *
 */
 
+.jssocials-share-copy .jssocials-share-link {
+    background: #0a88ff;
+}
+
+.jssocials-share-copy .jssocials-share-link:hover {
+    background: #006ed6;
+}
+
 .commentCollapsed {
     width: 100%;
 }
