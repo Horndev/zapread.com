@@ -69,8 +69,58 @@
 
     <script type="text/javascript">
         var toggleChat;
-        
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+                if (successful) {
+                    swal("Post url copied to clipboard", {
+                        icon: "success"
+                    });
+                }
+                else {
+                    swal("Error", "Error copying url to clipboard", "error");
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                swal("Error", "Error copying url to clipboard: " + err, "error");
+            }
+
+            document.body.removeChild(textArea);
+        }
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function () {
+                console.log('Async: Copying to clipboard was successful!');
+                swal("Post url copied to clipboard", {
+                    icon: "success"
+                });
+            }, function (err) {
+                swal("Error", "Error copying url to clipboard: " + err, "error");
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
         $(document).ready(function () {
+            jsSocials.shares.copy = {
+                label: "Copy",
+                logo: "fa fa-copy",
+                shareUrl: "javascript:(function() { copyTextToClipboard('{url}'); return false; })()",
+                countUrl: "",
+                shareIn: "self"
+            };
+
             // popups for users, groups, etc.
             $(".pop").popover({
                 trigger: "manual",
@@ -121,7 +171,7 @@
                     showLabel: false,
                     showCount: false,
                     shareIn: "popup",
-                    shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp"]
+                    shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp", "copy"]
                 });
                 $(this).removeClass("sharing");
             });
