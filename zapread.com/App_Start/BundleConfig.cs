@@ -49,6 +49,8 @@ namespace zapread.com
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
+                        "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
+                        "~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
                         "~/Scripts/Lightning/account-payments-ui.js"            // Related to the user interface for deposit/withdraw
                         ).WithLastModifiedToken());
 
