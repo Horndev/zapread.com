@@ -142,7 +142,7 @@ var setPostLanguage = function (id) {
         function (data) {
             if (data.success) {
                 swal("Post language has been updated!", {
-                    icon: "success",
+                    icon: "success"
                 });
             }
             else {

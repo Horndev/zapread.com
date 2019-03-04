@@ -1,33 +1,254 @@
 ﻿/* ZapRead global functions */
 
-var toggleComment = function (e) {
-    $(e).parent().find('.comment-body').first().fadeToggle({ duration: 0 });
-    if ($(e).find('.togglebutton').hasClass("fa-minus-square")) {
-        $(e).removeClass('pull-left');
-        $(e).addClass('commentCollapsed');
-        $(e).find('.togglebutton').removeClass("fa-minus-square");
-        $(e).find('.togglebutton').addClass("fa-plus-square");
-        $(e).find('#cel').show();
+$(document).ready(function () {
+    // Set up social sharing links
+    jsSocials.shares.copy = {
+        label: "Copy",
+        logo: "fa fa-copy",
+        shareUrl: "javascript:(function() { copyTextToClipboard('{url}'); return false; })()",
+        countUrl: "",
+        shareIn: "self"
+    };
+
+    $(".sharing").each(function () {
+        $(this).jsSocials({
+            url: $(this).data('url'),
+            text: $(this).data('sharetext'),
+            showLabel: false,
+            showCount: false,
+            shareIn: "popup",
+            shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp", "copy"]
+        });
+        $(this).removeClass("sharing");
+    });
+
+    // popups for users, groups, etc.
+    $(".pop").popover({
+        trigger: "manual",
+        html: true,
+        sanitize: false,
+        animation: false
+    })
+    .on("mouseenter", function () {
+        var _this = this;
+        $(this).popover("show");
+        $('[data-toggle="tooltip"]').tooltip()
+        $(".popover").addClass("tooltip-hover");
+        $(".popover").on("mouseleave", function () {
+            $(_this).popover('hide');
+        });
+    })
+    .on("mouseleave", function () {
+        var _this = this;
+        setTimeout(function () {
+            if (!$(".popover:hover").length) {
+                $(_this).popover("hide");
+            }
+        }, 300);
+        });
+
+    $(".pop").each(function () {
+        $(this).removeClass("pop");
+    });
+
+    toastr.options.closeMethod = 'fadeOut';
+    toastr.options.closeDuration = 700;
+    toastr.options.positionClass = 'toast-bottom-right';
+    toastr.options.closeEasing = 'swing';
+    toastr.options.closeButton = true;
+    toastr.options.hideMethod = 'slideUp';
+    toastr.options.progressBar = true;
+    toastr.options.timeOut = 30000; // How long the toast will display without user interaction
+    toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {
+        e.stopPropagation();
+    });
+
+    // This loads all async partial views on page
+    $(".partialContents").each(function (index, item) {
+        var url = $(item).data("url");
+        if (url && url.length > 0) {
+            $(item).load(url);
+        }
+    });
+
+}); // End document ready
+
+
+var writeComment = function (e) {
+    var id = $(e).data("postid");
+    $(".c_input_" + id.toString()).summernote({
+        callbacks: {
+            onImageUpload: function (files) {
+                that = $(this);
+                sendFile(files[0], that);
+            }
+        },
+        focus: false,
+        placeholder: 'Write comment...',
+        disableDragAndDrop: false,
+        toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+        minHeight: 60,
+        maxHeight: 300,
+        hint: {
+            match: /\B@@(\w*)$/,
+            search: function (keyword, callback) {
+                if (!keyword.length) return callback();
+                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                $.ajax({
+                    async: true,
+                    url: '/Comment/GetMentions',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: msg,
+                    error: function () {
+                        callback();
+                    },
+                    success: function (res) {
+                        callback(res.users);
+                    }
+                });
+            },
+            content: function (item) {
+                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+            }
+        }
+    });
+
+    $(e).hide();
+    $(".note-statusbar").css("display", "none");
+    $('#preply_' + id.toString()).slideDown(200);
+};
+
+var toggleChat = function (id, show) {
+    show = typeof show !== 'undefined' ? show : false;
+    $(".c_input_" + id.toString()).summernote({
+        callbacks: {
+            onImageUpload: function (files) {
+                that = $(this);
+                sendFile(files[0], that);
+            }
+        },
+        focus: false,
+        placeholder: 'Write comment...',
+        disableDragAndDrop: false,
+        toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+        minHeight: 60,
+        maxHeight: 300,
+        hint: {
+            match: /\B@@(\w*)$/,
+            search: function (keyword, callback) {
+                if (!keyword.length) return callback();
+                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                $.ajax({
+                    async: true,
+                    url: '/Comment/GetMentions',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: msg,
+                    error: function () {
+                        callback();
+                    },
+                    success: function (res) {
+                        callback(res.users);
+                    }
+                });
+            },
+            content: function (item) {
+                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+            }
+        }
+    });
+
+    $(".note-statusbar").css("display", "none");
+    if (!show) {
+        $('#comments_' + id.toString()).slideToggle(200);
+        $('#preply_' + id.toString()).slideToggle(200);
     }
     else {
-        $(e).addClass('pull-left');
-        $(e).removeClass('commentCollapsed');
-        $(e).find('.togglebutton').removeClass("fa-plus-square");
-        $(e).find('.togglebutton').addClass("fa-minus-square");
-        $(e).find('#cel').hide();
+        $('#comments_' + id.toString()).slideDown(200);
+        $('#preply_' + id.toString()).slideDown(200);
     }
 };
 
-var togglePost = function (e) {
-    $(e).parent().find('.social-body').slideToggle();
-    if ($(e).find('.togglebutton').hasClass("fa-minus-square")) {
-        $(e).find('.togglebutton').removeClass("fa-minus-square");
-        $(e).find('.togglebutton').addClass("fa-plus-square");
-    }
-    else {
-        $(e).find('.togglebutton').removeClass("fa-plus-square");
-        $(e).find('.togglebutton').addClass("fa-minus-square");
-    }
+var loadMoreComments = function (e) {
+    var msg = JSON.stringify({ 'postId': $(e).data('postid'), 'nestLevel': $(e).data('nest'), 'rootshown': $(e).data('shown') });
+    $.ajax({
+        type: "POST",
+        url: "/Comment/LoadMoreComments",
+        data: msg,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                $(e).data('shown', response.shown); // update data
+                if (!response.hasMore) {
+                    $(e).hide();
+                }
+                $(e).parent().find('.insertComments').append(response.HTMLString); // Inject
+            }
+            else {
+                alert(response.Message);
+            }
+        },
+        failure: function (response) {
+            console.log('load more failure');
+        },
+        error: function (response) {
+            console.log('load more error');
+        }
+    });
+    return false;
+};
+
+var replyComment = function (id) {
+    $('#c_reply_' + id.toString()).toggle('show');
+    $('#c_reply_' + id.toString()).load('/Comment/GetInputBox' + "/" + id.toString(), function () {
+        $(".c_input").summernote({
+            callbacks: {
+                onImageUpload: function (files) {
+                    that = $(this);
+                    sendFile(files[0], that);
+                }
+            },
+            focus: false,
+            placeholder: 'Write comment...',
+            disableDragAndDrop: true,
+            toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+            minHeight: 60,
+            maxHeight: 300,
+            hint: {
+                match: /\B@@(\w*)$/,
+                search: function (keyword, callback) {
+                    if (!keyword.length) return callback();
+                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                    $.ajax({
+                        async: true,
+                        url: '/Comment/GetMentions',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: msg,
+                        error: function () {
+                            callback();
+                        },
+                        success: function (res) {
+                            callback(res.users);
+                        }
+                    });
+                },
+                content: function (item) {
+                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                }
+            }
+        });
+        $(".note-statusbar").css("display", "none");
+    });
 };
 
 var follow = function (uid, s) {
@@ -102,5 +323,47 @@ function sendFile(file, that) {
             console.log(data);
             alert(JSON.stringify(data));
         }
+    });
+}
+
+function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Fallback: Copying text command was ' + msg);
+        if (successful) {
+            swal("Post url copied to clipboard", {
+                icon: "success"
+            });
+        }
+        else {
+            swal("Error", "Error copying url to clipboard", "error");
+        }
+    } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+        swal("Error", "Error copying url to clipboard: " + err, "error");
+    }
+
+    document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(function () {
+        console.log('Async: Copying to clipboard was successful!');
+        swal("Post url copied to clipboard", {
+            icon: "success"
+        });
+    }, function (err) {
+        swal("Error", "Error copying url to clipboard: " + err, "error");
+        console.error('Async: Could not copy text: ', err);
     });
 }
