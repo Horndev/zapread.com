@@ -1,5 +1,13 @@
 ﻿
 $(document).ready(function () {
+    // This formats the timestamps on the page
+    $('.postTime').each(function (i, e) {
+        var time = moment.utc($(e).html()).local().calendar();
+        var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+        $(e).html('<span>' + time + ' - ' + date + '</span>');
+        $(e).css('display', 'inline');
+        $(e).removeClass("postTime");
+    });
 
     // show the read more
     $(".post-box").each(function (index, item) {

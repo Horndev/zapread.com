@@ -51,7 +51,10 @@ namespace zapread.com
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-                        "~/Scripts/Lightning/account-payments-ui.js"            // Related to the user interface for deposit/withdraw
+                        "~/Scripts/Utility/clipboard-element.js",               // For copy to clipboard
+                        "~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
+                        "~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
+                        "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
 
             // Manage/Index scripts
@@ -62,7 +65,7 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
-                        "~/Scripts/DetailPostPage.js")
+                        "~/Scripts/Realtime/signalr-initialize.js")
                         .WithLastModifiedToken());
 
             // chosen scripts
