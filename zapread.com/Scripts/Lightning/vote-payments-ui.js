@@ -1,6 +1,9 @@
 ﻿
 // This function is called when a user clicks the button to either pay with balance or invoice
 var onVote = function (e) {
+    $('#voteOkButton').hide();
+    $('#btnCheckLNVote').show();
+
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
     var memo = "ZapRead.com";
@@ -88,7 +91,11 @@ var updateVoteInvoice = function (msg) {
 };
 
 var onCancelVote = function (e) {
-
+    $('#voteOkButton').show();
+    $('#btnCheckLNVote').hide();
+    $("#voteDepositInvoiceFooter").hide();
+    $("#voteDepositQR").hide();
+    $("#voteDepositInvoice").hide();
 };
 
 // User pressed vote button

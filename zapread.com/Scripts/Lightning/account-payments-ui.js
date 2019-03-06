@@ -131,8 +131,8 @@ var onCancelDepositWithdraw = function (e) {
  * @param {any} e Element calling the function
  */
 var checkInvoicePaid = function (e) {
-    var invoice = $("#lightningDepositInvoiceInput").val();
-    $("#spinCheckPayment").show();
+    var invoice = $("#" + $(e).data('invoice-element')).val();
+    $("#" + $(e).data('spin-element')).show();
 
     var postData = JSON.stringify({
         "invoice": invoice.toString(),
@@ -146,7 +146,7 @@ var checkInvoicePaid = function (e) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             if (response.success) {
                 if (response.result === true) {
                     // Payment has been successfully made
@@ -158,11 +158,11 @@ var checkInvoicePaid = function (e) {
             }
         },
         failure: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             alert(response.message);
         },
         error: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             alert(response.message);
         }
     });
