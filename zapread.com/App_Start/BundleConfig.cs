@@ -61,6 +61,11 @@ namespace zapread.com
                         "~/Scripts/Manage/index.js")
                         .WithLastModifiedToken());
 
+            // Post/NewPost scripts
+            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
+                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
+                        .WithLastModifiedToken());
+
             bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
                         "~/Scripts/DetailPostPage.js")
                         .WithLastModifiedToken());

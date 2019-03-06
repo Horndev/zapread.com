@@ -131,12 +131,6 @@ var loadmore = function () {
                     });
                     $(this).removeClass("sharing");
                 });
-                $('.read-more').readMore({
-                    readMoreLinkClass: "read-more__link",
-                    readMoreText: "Read more",
-                    readLessText: "Read less",
-                    readMoreHeight: 800
-                });
                 $(".c_input").summernote({
                     callbacks: {
                         onImageUpload: function (files) {
