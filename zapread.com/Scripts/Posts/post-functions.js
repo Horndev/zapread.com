@@ -168,7 +168,7 @@ var deletePost = function (id) {
         dangerMode: true
     }).then(function(willDelete) {
         if (willDelete) {
-            $.post("Post/DeletePost",
+            $.post("/Post/DeletePost",
             { "PostId": id },
             function (data) {
                 if (data.Success) {

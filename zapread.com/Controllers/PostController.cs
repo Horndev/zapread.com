@@ -343,8 +343,10 @@ namespace zapread.com.Controllers
                     db.Posts.Add(post);
                     await db.SaveChangesAsync();
                 }
-                
-                if (p.IsDraft)
+
+                bool quiet = false;  // Used when debugging
+
+                if (p.IsDraft || quiet)
                 {
                     // Don't send any alerts
                     return Json(new { result = "success", postId = post.PostId });
