@@ -1,20 +1,17 @@
 ﻿
 // This function is called when a user clicks the button to either pay with balance or invoice
 var onVote = function (e) {
-    $('#voteOkButton').hide();
-    $('#btnCheckLNVote').show();
-
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
     var memo = "ZapRead.com";
     if (isTip) {
         depositUse = "tip";
         memo = 'ZapRead.com ' + $('#voteModalTitle').html();
-    } else if (userVote.t == 1) {
+    } else if (userVote.t === 1) {
         depositUse = "votePost";
         memo = 'ZapRead.com vote post ID: ' + userVote.id;
-    } else if (userVote.t == 2) {
-        depositUse = "voteComment"
+    } else if (userVote.t === 2) {
+        depositUse = "voteComment";
         memo = 'ZapRead.com vote comment ID: ' + userVote.id;
     }
     var isanon = '1';
@@ -34,6 +31,8 @@ var onVote = function (e) {
     if (parseInt(userVote.amount) > parseInt(userBalance)) {
         // Not enough funds - ask for invoice
         updateVoteInvoice(msg);
+        $('#voteOkButton').hide();
+        $('#btnCheckLNVote').show();
     }
     else {
         if (isTip) {

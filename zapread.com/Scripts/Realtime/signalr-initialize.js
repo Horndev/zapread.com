@@ -110,6 +110,9 @@ $(document).ready(function () {
             else {
                 doVote(userVote.id, userVote.d, userVote.t, userVote.amount, userVote.tx);
             }
+
+            $('#voteOkButton').show();
+            $('#btnCheckLNVote').hide();
         }
     };
 
