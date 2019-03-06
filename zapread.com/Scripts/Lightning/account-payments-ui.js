@@ -113,8 +113,17 @@ var onPayInvoice = function (e) {
     });
 };
 
+/**
+ * Resets the LN deposit/withdraw invoice
+ * @param {any} e button element which clicked
+ */
 var onCancelDepositWithdraw = function (e) {
+    $("#btnCheckLNDeposit").hide();
+    $("#doLightningTransactionBtn").show();
 
+    $("#lightningTransactionInvoiceResult").hide();
+    $("#lightningDepositQR").hide();
+    $("#lightningDepositInvoice").hide();
 };
 
 /**
@@ -122,8 +131,8 @@ var onCancelDepositWithdraw = function (e) {
  * @param {any} e Element calling the function
  */
 var checkInvoicePaid = function (e) {
-    var invoice = $("#lightningDepositInvoiceInput").val();
-    $("#spinCheckPayment").show();
+    var invoice = $("#" + $(e).data('invoice-element')).val();
+    $("#" + $(e).data('spin-element')).show();
 
     var postData = JSON.stringify({
         "invoice": invoice.toString(),
@@ -137,7 +146,7 @@ var checkInvoicePaid = function (e) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             if (response.success) {
                 if (response.result === true) {
                     // Payment has been successfully made
@@ -149,12 +158,37 @@ var checkInvoicePaid = function (e) {
             }
         },
         failure: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             alert(response.message);
         },
         error: function (response) {
-            $("#spinCheckPayment").hide();
+            $("#" + $(e).data('spin-element')).hide();
             alert(response.message);
         }
     });
+};
+
+var switchWithdraw = function () {
+    $('#doLightningTransactionBtn').hide();
+    $('#btnCheckLNDeposit').hide();
+    $('#btnPayLNWithdraw').show();
+    $("#lightningTransactionInvoiceResult").show();
+    $("#lightningDepositQR").hide();
+    $("#lightningDepositInvoice").hide();
+    $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+    $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+    $("#lightningTransactionInvoiceResult").addClass("bg-muted");
+    $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+    $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
+};
+
+var switchDeposit = function () {
+    $('#doLightningTransactionBtn').show();
+    $('#btnCheckLNDeposit').hide();
+    $('#btnPayLNWithdraw').hide();
+    $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+    $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+    $("#lightningTransactionInvoiceResult").addClass("bg-muted");
+    $("#lightningTransactionInvoiceResult").removeClass("bg-success");
+    $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
 };

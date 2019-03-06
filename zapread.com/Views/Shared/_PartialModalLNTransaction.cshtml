@@ -75,15 +75,12 @@
                                 <a href="lightning:xxx" id="lightningDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
                             </div>
                             <input type="text" id="lightningDepositInvoiceInput" class="form-control" placeholder="Getting invoice" aria-label="invoice" aria-describedby="basic-addon2">
-                            
                             <div class="input-group-append">
-                                <button class="btn btn-primary" id="lightningDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
+                                <button class="btn btn-primary" type="button" onclick="copyToClipboard(this, 'lightningDepositInvoiceInput');"><span class="fa fa-copy"></span> Copy</button>
                             </div>
-
                             <div class="col-md-2 pull-right">
                                 <!-- Small modal -->
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm"><i class="fa fa-qrcode"></i></button>
-
                                 <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -102,7 +99,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btnCheckLNDeposit" type="button" class="btn btn-info" style="display:none;" onclick="checkInvoicePaid(this);">Check Payment <i id="spinCheckPayment" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                <button id="btnCheckLNDeposit" type="button" class="btn btn-info" style="display:none;" onclick="checkInvoicePaid(this);" data-invoice-element="lightningDepositInvoiceInput" data-spin-element="spinCheckPaymentLN">Check Payment <i id="spinCheckPaymentLN" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                 <button id="btnPayLNWithdraw" type="button" class="btn btn-primary" style="display:none" onclick="onPayInvoice(this);">Withdraw</button>
                 <button id="doLightningTransactionBtn" type="button" class="btn btn-primary" onclick="onGetInvoice(this);">Get Invoice</button>
                 <button onclick="onCancelDepositWithdraw(this);" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -121,68 +118,5 @@
              });
          });
      });
-
-    var scan = function () {
-
-        //alert('Sorry. Not yet implemented.');
-        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-        scanner.addListener('scan', function (content) {
-            console.log(content);
-            $('#lightningWithdrawInvoiceInput').val(content);
-            $("#preview").hide();
-            scanner.stop();
-        });
-        Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-                scanner.start(cameras[0]);
-            } else {
-                console.error('No cameras found.');
-            }
-        }).catch(function (e) {
-            console.error(e);
-            });
-        $("#preview").show();
-    };
-
-    var switchWithdraw = function () {
-        $('#doLightningTransactionBtn').hide();
-        $('#btnCheckLNDeposit').hide();
-        $('#btnPayLNWithdraw').show();
-        $("#lightningTransactionInvoiceResult").show();
-        $("#lightningDepositQR").hide();
-        $("#lightningDepositInvoice").hide();
-        $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-        $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-        $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-        $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-        $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
-    };
-
-    var switchDeposit = function () {
-        $('#doLightningTransactionBtn').show();
-        $('#btnCheckLNDeposit').hide();
-        $('#btnPayLNWithdraw').hide();
-        $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-        $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-        $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-        $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-        $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
-    };
-
-    // Deposit modal copy invoice to clipboard
-    $(function () {
-        $("#lightningDepositInvoiceCopy").click(function () {
-            $("#lightningDepositInvoiceInput").focus();
-            $("#lightningDepositInvoiceInput").select();
-            try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
-                console.log('Copying text command was ' + msg);
-                $("#lightningDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
-            } catch (err) {
-                console.log('Oops, unable to copy');
-            }
-        });
-    });
 </script>
 )
