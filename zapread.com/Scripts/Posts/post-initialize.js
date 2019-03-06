@@ -8,7 +8,6 @@ $(document).ready(function () {
         $(e).css('display', 'inline');
         $(e).removeClass("postTime");
     });
-
     // show the read more
     $(".post-box").each(function (index, item) {
         if ($(item).height() >= 800) {
@@ -17,72 +16,10 @@ $(document).ready(function () {
     });
 
     // Make post quotable
-    $(".post-quotable").each(function (ix, e) {
-        // Trigger when mouse is released (i.e. possible selection made)
-        $(e).mouseup(function () {
-            var selection = getSelected();
-            $(selectionMarker).popover('hide');
-            if (selection && selection != "") {
-                // User made a selection
-                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
-                selectionMarker = markSelection(markerId);
-                selectionText = selection.toString();
-                var postId = $(e).data('postid');
-                var popText = selectionText + '<hr/>' +
-                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
-                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ',true);">' +
-                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
-                $(selectionMarker).popover({
-                    trigger: "hover",
-                    html: true,
-                    sanitize: false,
-                    animation: false,
-                    title: "Quote",
-                    placement: "top",
-                    content: popText
-                })
-                    .on('hidden.bs.popover', function () {
-                        $(selectionMarker).popover('dispose');
-                    })
-                    .popover("show");
-            }
-        });
-        $(e).removeClass("post-quotable");
-    });
+    makePostsQuotable();
 
     // Make comments quotable
-    $(".comment-quotable").each(function (ix, e) {
-        // Trigger when mouse is released (i.e. possible selection made)
-        $(e).mouseup(function () {
-            var selection = getSelected();
-            $(selectionMarker).popover('hide');
-            if (selection && selection != "") {
-                // User made a selection
-                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
-                selectionMarker = markSelection(markerId);
-                selectionText = selection.toString();
-                var commentid = $(e).data('commentid');
-                var popText = selectionText + '<hr/>' +
-                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
-                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ',true);">' +
-                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
-                $(selectionMarker).popover({
-                    trigger: "hover",
-                    html: true,
-                    sanitize: false,
-                    animation: false,
-                    title: "Quote",
-                    placement: "top",
-                    content: popText
-                })
-                    .on('hidden.bs.popover', function () {
-                        $(selectionMarker).popover('dispose');
-                    })
-                    .popover("show");
-            }
-        });
-        $(e).removeClass("post-quotable");
-    });
+    makeCommentsQuotable();
 
     $.fn.extend({
         placeCursorAtEnd: function () {
@@ -111,3 +48,71 @@ $(document).ready(function () {
         $(e).removeClass("impression");
     });
 });
+
+var makeCommentsQuotable = function () {
+    $(".comment-quotable").each(function (ix, e) {
+        // Trigger when mouse is released (i.e. possible selection made)
+        $(e).mouseup(function () {
+            var selection = getSelected();
+            $(selectionMarker).popover('hide');
+            if (selection && selection != "") {
+                // User made a selection
+                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                selectionMarker = markSelection(markerId);
+                selectionText = selection.toString();
+                var commentid = $(e).data('commentid');
+                var popText = selectionText + '<hr/>' +
+                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ',true);">' +
+                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                $(selectionMarker).popover({
+                    trigger: "hover",
+                    html: true,
+                    sanitize: false,
+                    animation: false,
+                    title: "Quote",
+                    placement: "top",
+                    content: popText
+                }).on('hidden.bs.popover', function () {
+                    $(selectionMarker).popover('dispose');
+                })
+                    .popover("show");
+            }
+        });
+        $(e).removeClass("post-quotable");
+    });
+};
+
+var makePostsQuotable = function () {
+    $(".post-quotable").each(function (ix, e) {
+        // Trigger when mouse is released (i.e. possible selection made)
+        $(e).mouseup(function () {
+            var selection = getSelected();
+            $(selectionMarker).popover('hide');
+            if (selection && selection != "") {
+                // User made a selection
+                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                selectionMarker = markSelection(markerId);
+                selectionText = selection.toString();
+                var postId = $(e).data('postid');
+                var popText = selectionText + '<hr/>' +
+                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ',true);">' +
+                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                $(selectionMarker).popover({
+                    trigger: "hover",
+                    html: true,
+                    sanitize: false,
+                    animation: false,
+                    title: "Quote",
+                    placement: "top",
+                    content: popText
+                }).on('hidden.bs.popover', function () {
+                    $(selectionMarker).popover('dispose');
+                })
+                    .popover("show");
+            }
+        });
+        $(e).removeClass("post-quotable");
+    });
+};

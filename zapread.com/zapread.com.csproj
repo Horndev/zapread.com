@@ -1685,6 +1685,7 @@
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\Manage\index.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\Posts\post-editor.js" />
     <Content Include="Scripts\Posts\post-functions.js" />
     <Content Include="Scripts\Posts\post-initialize.js" />
     <Content Include="Scripts\Posts\post-ui.js" />
