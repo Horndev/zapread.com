@@ -55,19 +55,22 @@ var del = function (postId) {
     });
 };
 
-var submit = function () {
+var submit = function (postId, groupId, userId, isUpdate) {
     $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
     $('#submit').prop('disabled', true);
     $('#save').prop('disabled', true);
     var aHTML = $('.click2edit').summernote('code');
     var postTitle = $('#postTitle').val();
     var language = $('#languageSelect').val();
-    var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': false, 'Language': language });
-
+    var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': groupId, 'UserId': userId, 'Title': postTitle, 'IsDraft': false, 'Language': language });
+    var url = "/Post/SubmitNewPost/";
+    if (isUpdate) {
+        url = "/Post/Update";
+    }
     $.ajax({
         async: true,
         type: "POST",
-        url: "/Post/SubmitNewPost/",
+        url: url,
         data: msg,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
@@ -91,14 +94,14 @@ var submit = function () {
     $('.click2edit').summernote('destroy');
 };
 
-var save = function () {
+var save = function (postId, groupId, userId, isUpdate) {
     $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
     $('#submit').prop('disabled', true);
     $('#save').prop('disabled', true);
     var aHTML = $('.click2edit').summernote('code');
     var postTitle = $('#postTitle').val();
     var language = $('#languageSelect').val();
-    var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true, 'Language': language });
+    var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': groupId, 'UserId': userId, 'Title': postTitle, 'IsDraft': true, 'Language': language });
 
     $.ajax({
         async: true,
