@@ -149,8 +149,9 @@ var checkInvoicePaid = function (e) {
             $("#" + $(e).data('spin-element')).hide();
             if (response.success) {
                 if (response.result === true) {
+                    handleInvoicePaid(response);
                     // Payment has been successfully made
-                    alert('Payment confirmed');
+                    console.log('Payment confirmed');
                 }
             }
             else {

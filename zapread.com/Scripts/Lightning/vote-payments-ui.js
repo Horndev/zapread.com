@@ -1,25 +1,25 @@
 ﻿
 // This function is called when a user clicks the button to either pay with balance or invoice
 var onVote = function (e) {
-    $('#voteOkButton').hide();
-    $('#btnCheckLNVote').show();
-
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
     var memo = "ZapRead.com";
     if (isTip) {
         depositUse = "tip";
         memo = 'ZapRead.com ' + $('#voteModalTitle').html();
-    } else if (userVote.t == 1) {
+    } else if (userVote.t === 1) {
         depositUse = "votePost";
         memo = 'ZapRead.com vote post ID: ' + userVote.id;
-    } else if (userVote.t == 2) {
-        depositUse = "voteComment"
+    } else if (userVote.t === 2) {
+        depositUse = "voteComment";
         memo = 'ZapRead.com vote comment ID: ' + userVote.id;
     }
     var isanon = '1';
     if (IsAuthenticated) {
         isanon = '0';
+    }
+    else {
+        console.log('Anonymous vote.');
     }
 
     var msg = JSON.stringify({
@@ -34,6 +34,8 @@ var onVote = function (e) {
     if (parseInt(userVote.amount) > parseInt(userBalance)) {
         // Not enough funds - ask for invoice
         updateVoteInvoice(msg);
+        $('#voteOkButton').hide();
+        $('#btnCheckLNVote').show();
     }
     else {
         if (isTip) {
@@ -159,7 +161,7 @@ var doVote = function (id, d, t, amount, tx) {
     var did = '#dVote_';
     var sid = '#sVote_';    // element for score
 
-    if (t == 2) {
+    if (t === 2) {
         voteurl = '/Vote/Comment';
         uid = '#uVotec_';
         did = '#dVotec_';
@@ -174,13 +176,13 @@ var doVote = function (id, d, t, amount, tx) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            if (response.result == "success") {
+            if (response.result === "success") {
                 del = Number(response.delta);
-                if (del == 1) {
+                if (del === 1) {
                     $(uid + id.toString()).removeClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }
-                else if (del == 0) {
+                else if (del === 0) {
                     $(uid + id.toString()).addClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }
