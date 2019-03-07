@@ -470,7 +470,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users.Where(u => u.AppId == userId).First();
-                var post = db.Posts.AsNoTracking().Include(p => p.UserId).FirstOrDefault(p => p.PostId == i.PostId);
+                var post = db.Posts.Include(p => p.UserId).Include(p => p.Group).FirstOrDefault(p => p.PostId == i.PostId);
                 if (post == null)
                 {
                     return RedirectToAction("Index", "Home");

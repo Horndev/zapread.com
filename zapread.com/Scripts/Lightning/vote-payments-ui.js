@@ -18,6 +18,9 @@ var onVote = function (e) {
     if (IsAuthenticated) {
         isanon = '0';
     }
+    else {
+        console.log('Anonymous vote.');
+    }
 
     var msg = JSON.stringify({
         "amount": userVote.amount.toString(),
@@ -158,7 +161,7 @@ var doVote = function (id, d, t, amount, tx) {
     var did = '#dVote_';
     var sid = '#sVote_';    // element for score
 
-    if (t == 2) {
+    if (t === 2) {
         voteurl = '/Vote/Comment';
         uid = '#uVotec_';
         did = '#dVotec_';
@@ -173,13 +176,13 @@ var doVote = function (id, d, t, amount, tx) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            if (response.result == "success") {
+            if (response.result === "success") {
                 del = Number(response.delta);
-                if (del == 1) {
+                if (del === 1) {
                     $(uid + id.toString()).removeClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }
-                else if (del == 0) {
+                else if (del === 0) {
                     $(uid + id.toString()).addClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }

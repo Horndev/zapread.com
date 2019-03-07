@@ -70,7 +70,7 @@
                         </div>
                     </div>
                     <div class="sticky-top sticky-offset" id="editorToolbar"></div>
-                    <div class="click2edit wrapper p-md" style="min-height: 50;">
+                    <div class="click2edit wrapper p-md" style="min-height: 50px;">
                         @Html.Raw(Model.Post.Content)
                     </div>
                 </div>
@@ -78,9 +78,9 @@
                     <div class="row text-right">
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
-                            <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit()" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save()" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit()" type="button">Submit</button>
+                            <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(0,@Model.Post.Group.GroupId,false);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(0,@Model.Post.Group.GroupId,false);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -128,9 +128,7 @@
 <script type="text/javascript">
 
     var knownGroups = [''];
-    var gid = @Model.Post.Group.GroupId;
     var draftsTable = {};
-    var postId = 0;
 
     $(document).ready(function () {
         draftsTable = $('#draftsTable').DataTable({
