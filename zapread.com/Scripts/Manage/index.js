@@ -30,7 +30,7 @@ var settingToggle = function (e) {
 };
 
 var leave = function (id) {
-    leaveurl = "/Group/LeaveGroup";
+    var leaveurl = "/Group/LeaveGroup";
     var data = JSON.stringify({ 'gid': id });
     $.ajax({
         async: true,
@@ -50,7 +50,7 @@ var leave = function (id) {
 };
 
 var join = function (id) {
-    joinurl = "/Group/JoinGroup";
+    var joinurl = "/Group/JoinGroup";
     var data = JSON.stringify({ 'gid': id });
     $.ajax({
         async: true,
@@ -69,21 +69,7 @@ var join = function (id) {
     return false; // Prevent jump to top of page
 };
 
-Dropzone.options.dropzoneForm = {
-    paramName: "file", // The name that will be used to transfer the file
-    maxFilesize: 15, // MB
-    acceptedFiles: "image/*",
-    maxFiles: 1,
-    addRemoveLinks: true,
-    init: function () {
-        this.on("addedfile", function () {
-            if (this.files[1] !== null) {
-                this.removeFile(this.files[0]);
-            }
-        });
-    },
-    dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
-};
+
 
 var BlockNumber = 10;  //Infinite Scroll starts from second block
 var NoMoreData = false;
@@ -134,7 +120,7 @@ var loadmore = function () {
                 $(".c_input").summernote({
                     callbacks: {
                         onImageUpload: function (files) {
-                            that = $(this);
+                            let that = $(this);
                             sendFile(files[0], that);
                         }
                     },

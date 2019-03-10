@@ -60,6 +60,7 @@ namespace zapread.com
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
+                        //"~/node_modules/dropzone/dist/dropzone.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
                         "~/Scripts/Manage/index.js")
                         .WithLastModifiedToken());
@@ -208,7 +209,6 @@ namespace zapread.com
                       "~/node_modules/jquery.flot/jquery.flot.pie.js",
                       "~/node_modules/jquery.flot/jquery.flot.time.js"));
             /*"~/node_modules/jquery.flot/jquery.flot.spline.js"));*/
-
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = true;// false;
