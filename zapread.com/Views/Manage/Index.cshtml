@@ -12,11 +12,31 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/manage/index")
+@Scripts.Render("~/bundles/manage/index")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+
+        Dropzone.options.dropzoneForm = {
+            paramName: "file", // The name that will be used to transfer the file
+            maxFilesize: 15, // MB
+            acceptedFiles: "image/*",
+            maxFiles: 1,
+            uploadMultiple: false,
+            //addRemoveLinks: true,
+            init: function () {
+                //this.on("sending", function (file, xhr, formData) {
+                //    console.log(formData)
+                //});
+                this.on("addedfile", function () {
+                    //if (this.files[1] !== null) {
+                    //    this.removeFile(this.files[0]);
+                    //}
+                });
+            },
+            dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
+        };
 
         $(document).ready(function () {
             $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
@@ -80,7 +100,6 @@
                 }, 50);
             });
         });
-
     </script>
 }
 
@@ -97,12 +116,6 @@
 
 <div class="modal inmodal" id="ModalProfileImage" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-header">
-            <h5 class="modal-title">Update Profile Image</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Update Profile Image</h5>

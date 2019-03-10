@@ -392,6 +392,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\VoteController.cs" />
     <Compile Include="Database\ZapContext.cs" />
@@ -1603,6 +1604,7 @@
     <Content Include="node_modules\datatables.net-scroller-bs4\css\scroller.bootstrap4.min.css" />
     <Content Include="node_modules\datatables.net-scroller-bs4\js\scroller.bootstrap4.min.js" />
     <Content Include="node_modules\datatables.net\js\jquery.dataTables.min.js" />
+    <Content Include="node_modules\dropzone\dist\dropzone.js" />
     <Content Include="node_modules\dropzone\dist\min\basic.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.js" />
@@ -1805,6 +1807,7 @@
     <Content Include="Views\Admin\Votes.cshtml" />
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
     <Content Include="Views\Post\_Impressions.cshtml" />
+    <Content Include="Views\Test\UploadImage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

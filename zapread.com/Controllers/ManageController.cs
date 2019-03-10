@@ -22,6 +22,7 @@ using System.Security.Claims;
 using System.Globalization;
 using zapread.com.Models.Database;
 using zapread.com.Models.Manage;
+using System.Drawing.Drawing2D;
 
 namespace zapread.com.Controllers
 {
@@ -975,6 +976,7 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<JsonResult> UpdateProfileImage(HttpPostedFileBase file)
         {
             var userId = User.Identity.GetUserId();
@@ -983,37 +985,44 @@ namespace zapread.com.Controllers
                 if (file.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(file.FileName);
-                    MemoryStream ms = new MemoryStream();
-
                     Image img = Image.FromStream(file.InputStream);
 
                     // Images should retain aspect ratio
                     double ar = Convert.ToDouble(img.Width) / Convert.ToDouble(img.Height); // Aspect ratio
                     int max_wh = 512; // desired max width or height
-                    
+                    int newHeight = img.Height;
+                    int newWidth = img.Width;
                     if (img.Height > img.Width)
                     {
-
+                        newHeight = max_wh;
+                        newWidth = Convert.ToInt32(Convert.ToDouble(max_wh) * ar);
                     }
                     else
                     {
-
+                        newWidth = max_wh;
+                        newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar );
                     }
 
-                    Bitmap thumb = ImageExtensions.ResizeImage(img, 1024, 1024);
+                    var bmp = new Bitmap((int)max_wh, (int)max_wh);
+                    var graph = Graphics.FromImage(bmp);
+                    var brush = new SolidBrush(Color.Transparent);
 
-                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    graph.InterpolationMode = InterpolationMode.High;
+                    graph.CompositingQuality = CompositingQuality.HighQuality;
+                    graph.SmoothingMode = SmoothingMode.AntiAlias;
+                    graph.FillRectangle(brush, new RectangleF(0, 0, max_wh, max_wh));
+                    graph.DrawImage(img, ((int)max_wh - newWidth) / 2, ((int)max_wh - newHeight) / 2, newWidth, newHeight);
+                    byte[] data = bmp.ToByteArray(ImageFormat.Png);
 
-                    await EnsureUserExists(userId, db);
+                    //await EnsureUserExists(userId, db);
                     UserImage i = new UserImage() { Image = data};
-                    db.Users.Where(u => u.AppId == userId).First().ProfileImage = i;
+                    db.Users.First(u => u.AppId == userId).ProfileImage = i;
                     await db.SaveChangesAsync();
                 }
-
                 return Json(new { result = "success" });
             }
         }
-
+        
         /// <summary>
         /// Updates the user alias
         /// </summary>
