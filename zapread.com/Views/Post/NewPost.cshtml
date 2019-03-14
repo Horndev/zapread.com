@@ -79,8 +79,8 @@
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
                             <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(0,@Model.Post.Group.GroupId,false);" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(0,@Model.Post.Group.GroupId,false);" type="button">Submit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(0,gid,false);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(0,gid,false);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -127,6 +127,7 @@
 
 <script type="text/javascript">
 
+    var gid = @Model.Post.Group.GroupId;
     var knownGroups = [''];
     var draftsTable = {};
 
