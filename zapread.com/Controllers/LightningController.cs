@@ -368,7 +368,7 @@ namespace zapread.com.Controllers
                     Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request + "\r\n user: " + userId,
                     Email = "",
                     Name = "zapread.com Exception",
-                    Subject = "User withdraw error",
+                    Subject = "User withdraw error 1",
                 });
                 return Json(new { Result = "Error processing request." });
             }
