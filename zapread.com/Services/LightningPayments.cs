@@ -103,7 +103,7 @@ namespace zapread.com.Services
                         Body = " Withdraw from user which doesn't exist.",
                         Email = "",
                         Name = "zapread.com Monitoring",
-                        Subject = "User withdraw error",
+                        Subject = "User withdraw error 2",
                     });
 
                     // Don't reveal information that user doesn't exist
@@ -169,7 +169,7 @@ namespace zapread.com.Services
                         Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr + "\r\n recovered by getpayments: " + pmt != null ? "true" : "false" + "\r\n invoice: " + request + "\r\n user: " + userId,
                         Email = "",
                         Name = "zapread.com Exception",
-                        Subject = "User withdraw error",
+                        Subject = "User withdraw error 3",
                     });
 
                     if (pmt != null)
