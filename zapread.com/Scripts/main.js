@@ -80,45 +80,7 @@ $(document).ready(function () {
 
 var writeComment = function (e) {
     var id = $(e).data("postid");
-    $(".c_input_" + id.toString()).summernote({
-        callbacks: {
-            onImageUpload: function (files) {
-                that = $(this);
-                sendFile(files[0], that);
-            }
-        },
-        focus: false,
-        placeholder: 'Write comment...',
-        disableDragAndDrop: false,
-        toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
-        minHeight: 60,
-        maxHeight: 300,
-        hint: {
-            match: /\B@@(\w*)$/,
-            search: function (keyword, callback) {
-                if (!keyword.length) return callback();
-                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-                $.ajax({
-                    async: true,
-                    url: '/Comment/GetMentions',
-                    type: 'POST',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'json',
-                    data: msg,
-                    error: function () {
-                        callback();
-                    },
-                    success: function (res) {
-                        callback(res.users);
-                    }
-                });
-            },
-            content: function (item) {
-                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-            }
-        }
-    });
-
+    initCommentInput(id);
     $(e).hide();
     $(".note-statusbar").css("display", "none");
     $('#preply_' + id.toString()).slideDown(200);
@@ -126,45 +88,7 @@ var writeComment = function (e) {
 
 var toggleChat = function (id, show) {
     show = typeof show !== 'undefined' ? show : false;
-    $(".c_input_" + id.toString()).summernote({
-        callbacks: {
-            onImageUpload: function (files) {
-                that = $(this);
-                sendFile(files[0], that);
-            }
-        },
-        focus: false,
-        placeholder: 'Write comment...',
-        disableDragAndDrop: false,
-        toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
-        minHeight: 60,
-        maxHeight: 300,
-        hint: {
-            match: /\B@@(\w*)$/,
-            search: function (keyword, callback) {
-                if (!keyword.length) return callback();
-                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-                $.ajax({
-                    async: true,
-                    url: '/Comment/GetMentions',
-                    type: 'POST',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'json',
-                    data: msg,
-                    error: function () {
-                        callback();
-                    },
-                    success: function (res) {
-                        callback(res.users);
-                    }
-                });
-            },
-            content: function (item) {
-                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-            }
-        }
-    });
-
+    initCommentInput(id);
     $(".note-statusbar").css("display", "none");
     if (!show) {
         $('#comments_' + id.toString()).slideToggle(200);
@@ -174,6 +98,47 @@ var toggleChat = function (id, show) {
         $('#comments_' + id.toString()).slideDown(200);
         $('#preply_' + id.toString()).slideDown(200);
     }
+};
+
+var initCommentInput = function (id) {
+    $(".c_input_" + id.toString()).summernote({
+        callbacks: {
+            onImageUpload: function (files) {
+                that = $(this);
+                sendFile(files[0], that);
+            }
+        },
+        focus: false,
+        placeholder: 'Write comment...',
+        disableDragAndDrop: false,
+        toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],//false,
+        minHeight: 60,
+        maxHeight: 300,
+        hint: {
+            match: /\B@@(\w*)$/,
+            search: function (keyword, callback) {
+                if (!keyword.length) return callback();
+                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+                $.ajax({
+                    async: true,
+                    url: '/Comment/GetMentions',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: msg,
+                    error: function () {
+                        callback();
+                    },
+                    success: function (res) {
+                        callback(res.users);
+                    }
+                });
+            },
+            content: function (item) {
+                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+            }
+        }
+    });
 };
 
 var loadMoreComments = function (e) {
