@@ -166,7 +166,7 @@ namespace zapread.com.Services
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr + "\r\n recovered by getpayments: " + pmt != null ? "true" : "false" + "\r\n invoice: " + request + "\r\n user: " + userId,
+                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: " + request + "\r\n user: " + userId,
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "User withdraw error 3",
