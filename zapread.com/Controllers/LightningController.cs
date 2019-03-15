@@ -62,57 +62,54 @@ namespace zapread.com.Controllers
                 var p = await db.LightningTransactions
                     .FirstOrDefaultAsync(t => t.PaymentRequest == invoice);
 
-                // STEP 2: check our lightning node
-                LndRpcClient lndClient = GetLndClient();
-                LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
-
-                if (p != null)
-                {
-                    if (isDeposit && !p.IsDeposit)
-                        return Json(new { success = false, message="invoice is not a deposit invoice"});
-                    if (p.IsSettled)
-                    {
-                        var inv = lndClient.GetInvoice(p.HashStr);
-                        //NotifyClientsInvoicePaid(inv);
-                        return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
-                    }
-                    // Need to go on to check payment
-                }
-                else
-                {
-                    // We don't know this invoice
+                if (p == null)
                     return Json(new { success = false, message = "invoice is not known to this node" });
+
+                if (isDeposit && !p.IsDeposit)
+                    return Json(new { success = false, message = "invoice is not a deposit invoice" });
+                if (p.IsSettled)
+                {
+                    //var inv = lndClient.GetInvoice(p.HashStr);
+                    //NotifyClientsInvoicePaid(inv);
+                    return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
                 }
-
-                // Decode the payment request
-                var decoded = lndClient.DecodePayment(invoice);
-
-                // Get the hash
-                var hash = decoded.payment_hash;
-
-                // GetInvoice expects the hash in base64 encoded format
-                
-                var hash_bytes = h.DecodeData(hash);
-                var hash_b64 = Convert.ToBase64String(hash_bytes);
 
                 if (isDeposit)
                 {
-                    var inv = lndClient.GetInvoice(hash_b64);
+                    Invoice inv = FetchInvoiceFromNode(invoice);
                     if (!inv.settled.HasValue || (inv.settled.HasValue && inv.settled.Value == false))
                     {
-                        return Json(new { success = true, result=false });
+                        return Json(new { success = true, result = false });
                     }
                     if (inv.settled.HasValue && inv.settled.Value)
                     {
                         // TODO: check if invoice listeners are running - start if not running
-
                         // Use the standard receiving logic to send real time notification to clients
                         NotifyClientsInvoicePaid(inv);
-                        return Json(new { success = true, result = true });
+                        return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
                     }
                 }
                 return Json(new { success = true });
             }
+        }
+
+        private static Invoice FetchInvoiceFromNode(string invoice)
+        {
+            LndRpcClient lndClient = GetLndClient();
+            LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
+
+            // Decode the payment request
+            var decoded = lndClient.DecodePayment(invoice);
+
+            // Get the hash
+            var hash = decoded.payment_hash;
+
+            // GetInvoice expects the hash in base64 encoded format
+
+            var hash_bytes = h.DecodeData(hash);
+            var hash_b64 = Convert.ToBase64String(hash_bytes);
+            var inv = lndClient.GetInvoice(hash_b64);
+            return inv;
         }
 
         [HttpGet]
