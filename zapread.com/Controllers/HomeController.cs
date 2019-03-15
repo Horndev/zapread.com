@@ -135,21 +135,7 @@ namespace zapread.com.Controllers
                 seconds = epoch_seconds(date) - 1134028003
                 return round(sign * order + seconds / 45000, 7)*/
 
-            List<string> userLanguages;
-            
-            try
-            {
-                userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
-
-                if (userLanguages.Count() == 0)
-                {
-                    userLanguages.Add("en");
-                }
-            }
-            catch
-            {
-                userLanguages = new List<string>() { "en" };
-            }
+            List<string> userLanguages = GetUserLanguages();
 
             using (var db = new ZapContext())
             {
@@ -182,41 +168,7 @@ namespace zapread.com.Controllers
                             .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                     }
 
-                    DateTime scoreStart = new DateTime(2018, 07, 01);
-
-                    var sposts = await validposts
-                        .Where(p => !p.IsDeleted)
-                        .Where(p => !p.IsDraft)
-                        .Select(p => new
-                        {
-                            p,
-                            s = Math.Abs((double)p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.Score),    // Max (|x|,1)                                                           
-                        })
-                        .Select(p => new
-                        {
-                            p.p,
-                            order = SqlFunctions.Log10(p.s),
-                            sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
-                            dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
-                        })
-                        .Select(p => new
-                        {
-                            p.p,
-                            hot = p.sign * p.order + p.dt / 90000
-                        })
-                        .OrderByDescending(p => p.hot)
-                        .Select(p => p.p)
-                        .Include(p => p.Group)
-                        .Include(p => p.Comments)
-                        .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                        .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                        .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                        .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                        .Include("UserId")
-                        .AsNoTracking()
-                        .Skip(start)
-                        .Take(count)
-                        .ToListAsync();
+                    List<Post> sposts = await QueryPostsByScore(start, count, validposts);
 
                     return sposts;
                 }
@@ -252,7 +204,7 @@ namespace zapread.com.Controllers
                         .Select(p => new
                         {
                             p,
-                            s =  (Math.Abs((double)p.Comments.Count) < 1.0 ? 1.0 : 100000.0 * Math.Abs((double)p.Comments.Count)),    // Max (|x|,1)                                                           
+                            s = (Math.Abs((double)p.Comments.Count) < 1.0 ? 1.0 : 100000.0 * Math.Abs((double)p.Comments.Count)),    // Max (|x|,1)                                                           
                         })
                         .Select(p => new
                         {
@@ -283,7 +235,7 @@ namespace zapread.com.Controllers
                     return sposts;
                 }
                 else //(sort == "New")
-                { 
+                {
                     IQueryable<Post> validposts;
                     if (userId > 0)
                     {
@@ -324,6 +276,67 @@ namespace zapread.com.Controllers
                     return posts;
                 }
             }
+        }
+
+        private static async Task<List<Post>> QueryPostsByScore(int start, int count, IQueryable<Post> validposts)
+        {
+            DateTime scoreStart = new DateTime(2018, 07, 01);
+
+            var sposts = await validposts
+                .Where(p => !p.IsDeleted)
+                .Where(p => !p.IsDraft)
+                .Select(p => new
+                {
+                    p,
+                    s = Math.Abs((double)p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.Score),    // Max (|x|,1)                                                           
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    order = SqlFunctions.Log10(p.s),
+                    sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+                    dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    hot = p.sign * p.order + p.dt / 90000
+                })
+                .OrderByDescending(p => p.hot)
+                .Select(p => p.p)
+                .Include(p => p.Group)
+                .Include(p => p.Comments)
+                .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                .Include(p => p.Comments.Select(cmt => cmt.UserId))
+                .Include("UserId")
+                .AsNoTracking()
+                .Skip(start)
+                .Take(count)
+                .ToListAsync();
+            return sposts;
+        }
+
+        private List<string> GetUserLanguages()
+        {
+            List<string> userLanguages;
+
+            try
+            {
+                userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
+
+                if (userLanguages.Count() == 0)
+                {
+                    userLanguages.Add("en");
+                }
+            }
+            catch
+            {
+                userLanguages = new List<string>() { "en" };
+            }
+
+            return userLanguages;
         }
 
         /// <summary>
