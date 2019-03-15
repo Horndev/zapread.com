@@ -138,7 +138,8 @@ namespace zapread.com
                       "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/site.css")
+                      "~/Content/site.css",
+                      "~/Content/style/roundlinks.css")
                       .WithLastModifiedToken());
 
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(

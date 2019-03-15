@@ -1,0 +1,25 @@
+﻿
+/* Top buttons*/
+
+.zr-top-btn-rounded {
+    border-radius: 50px;
+    background-color: #1ab394;
+    border-color: #1ab394;
+    background: #1ab394;
+    color: #fff;
+    display: inline-block;
+    font-weight: 400;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: center;
+    vertical-align: middle;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.zr-top-btn-rounded:hover {
+    background-color: #18a689;
+    border-color: #18a689;
+    color: #fff;
+}
