@@ -53,17 +53,28 @@ namespace zapread.com.Controllers
             // STEP 1: check the database
             using (ZapContext db = new ZapContext())
             {
+                var userId = User.Identity.GetUserId();
+
+                var u = await db.Users
+                    .Include(usr => usr.Funds)
+                    .FirstOrDefaultAsync(usr => usr.AppId == userId);
+
                 var p = await db.LightningTransactions
                     .FirstOrDefaultAsync(t => t.PaymentRequest == invoice);
+
+                // STEP 2: check our lightning node
+                LndRpcClient lndClient = GetLndClient();
+                LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
 
                 if (p != null)
                 {
                     if (isDeposit && !p.IsDeposit)
-                        return Json(new { success = false, message="invoice is not a deposit invoice" });
-
+                        return Json(new { success = false, message="invoice is not a deposit invoice"});
                     if (p.IsSettled)
                     {
-                        return Json(new { success = true, result = true });
+                        var inv = lndClient.GetInvoice(p.HashStr);
+                        //NotifyClientsInvoicePaid(inv);
+                        return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
                     }
                     // Need to go on to check payment
                 }
@@ -73,9 +84,6 @@ namespace zapread.com.Controllers
                     return Json(new { success = false, message = "invoice is not known to this node" });
                 }
 
-                // STEP 2: check our lightning node
-                LndRpcClient lndClient = GetLndClient();
-
                 // Decode the payment request
                 var decoded = lndClient.DecodePayment(invoice);
 
@@ -83,7 +91,7 @@ namespace zapread.com.Controllers
                 var hash = decoded.payment_hash;
 
                 // GetInvoice expects the hash in base64 encoded format
-                LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
+                
                 var hash_bytes = h.DecodeData(hash);
                 var hash_b64 = Convert.ToBase64String(hash_bytes);
 
