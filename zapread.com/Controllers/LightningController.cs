@@ -69,8 +69,6 @@ namespace zapread.com.Controllers
                     return Json(new { success = false, message = "invoice is not a deposit invoice" });
                 if (p.IsSettled)
                 {
-                    //var inv = lndClient.GetInvoice(p.HashStr);
-                    //NotifyClientsInvoicePaid(inv);
                     return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
                 }
 

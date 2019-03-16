@@ -7,7 +7,11 @@
  *
 */
 
-
+.ui-autocomplete {
+    position: absolute;
+    cursor: default;
+    z-index: 9999 !important;
+}  
 
 /* Social Copy Link styles */
 .jssocials-share-copy .jssocials-share-link {

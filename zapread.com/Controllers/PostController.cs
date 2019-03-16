@@ -573,6 +573,7 @@ namespace zapread.com.Controllers
         public class UpdatePostMessage
         {
             public int PostId { get; set; }
+            public int GroupId { get; set; }
             public string UserId { get; set; }
             public string Content { get; set; }
             public string Title { get; set; }
@@ -594,13 +595,12 @@ namespace zapread.com.Controllers
                     .SingleOrDefaultAsync(u => u.AppId == userId);
                 var post = await db.Posts
                     .Include(ps => ps.UserId)
+                    .Include(ps => ps.Group)
                     .SingleOrDefaultAsync(ps => ps.PostId == p.PostId);
-
                 if (post == null)
                 {
                     return Json(new { result = "error" });
                 }
-
                 if (post.UserId.Id != user.Id)
                 {
                     return Json(new { result = "error", message = "User authentication error." });
@@ -627,6 +627,12 @@ namespace zapread.com.Controllers
                 {
                     // Post was already live - only edit timestamp can be changed.
                     post.TimeStampEdited = DateTime.UtcNow;
+                }
+                if (post.Group.GroupId != p.GroupId)
+                {
+                    // Need to reset score
+                    post.Score = 1;
+                    post.Group = await db.Groups.FirstAsync(g => g.GroupId == p.GroupId);
                 }
 
                 post.IsDraft = p.IsDraft;

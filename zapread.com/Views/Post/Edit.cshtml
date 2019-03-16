@@ -1,13 +1,11 @@
 ﻿@model zapread.com.Models.Database.Post
-
 @{
     ViewBag.Title = "Edit Post";
 }
-
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>New Post</h2>
+        <h2>Edit Post</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
@@ -18,7 +16,6 @@
     <div class="col-lg-2">
     </div>
 </div>
-
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-2">
@@ -38,7 +35,17 @@
                     </div>
                     <div class="wrapper p-md">
                         <form>
-                            <input id="postTitle" type="text" class="form-control" value="@Model.PostTitle" placeholder="Post Title (Optional)">
+                            <div class="form-group">
+                                <label>Post Title</label>
+                                <input id="postTitle" type="text" class="form-control" value="@Model.PostTitle" placeholder="Post Title (Optional)">
+                            </div>
+                            <div id="editGroup" class="form-group" style="display:none;">
+                                <label>Post Group</label>
+                                <input id="postGroup" type="text" class="form-control" value="@Model.Group.GroupName" />
+                            </div>
+                            <div id="changeGroupBtn" class="form-group">
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="changeGroup();">Change Group</a>
+                            </div>
                         </form>
                     </div>
                     <div id="progressUpload" class="progress" style="display:none">
@@ -55,8 +62,8 @@
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
                             <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(@Model.PostId,@Model.Group.GroupId,'@Model.UserId.AppId',true);" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(@Model.PostId,@Model.Group.GroupId,'@Model.UserId.AppId',true);" type="button">Submit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(@Model.PostId,gid,'@Model.UserId.AppId',true);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(@Model.PostId,gid,'@Model.UserId.AppId',true);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -102,6 +109,66 @@
 @Scripts.Render("~/bundles/post/edit")
 
 <script type="text/javascript">
+    var gid = @Model.Group.GroupId;
+    var knownGroups = [''];
+
+    var changeGroup = function () {
+        swal({
+            title: "Changing groups resets the score.",
+            text: "Are you sure you want to move this post?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true
+        }).then(function (willMove) {
+            if (willMove) {
+                $("#postGroup").autocomplete({
+                    autoFocus: true,
+                    source: function (request, response) {
+                        $.ajax({
+                            async: true,
+                            url: "/Group/GetGroups",
+                            type: "POST",
+                            dataType: "json",
+                            data: { prefix: request.term },
+                            success: function (data) {
+                                knownGroups = data;
+                                response($.map(data, function (item) {
+                                    return { label: item.GroupName, value: item.GroupName };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        // if user clicked
+                    },
+                    change: function (event, ui) {
+                        var gn = $("#postGroup").val();
+                        if (typeof knownGroups === 'undefined' || knownGroups.length == 0) {
+                            // variable is undefined
+                            $("#postGroup").addClass('is-invalid');
+                        }
+                        else {
+                            if (knownGroups.findIndex(function (i) { return i.GroupName == gn; }) >= 0) {
+                                $("#postGroup").removeClass('is-invalid');
+                                gid = knownGroups[knownGroups.findIndex(function (i) { return i.GroupName == gn })].GroupId;
+                            }
+                            else {
+                                $("#postGroup").addClass('is-invalid');
+                            }
+                        }
+                    }
+                });
+
+                $('#changeGroupBtn').hide();
+                $('#editGroup').show();
+            } else {
+                console.log("cancelled move");
+            }
+        });
+        
+        return false;
+    };
+
     var draftsTable = {};
     $(document).ready(function () {
         draftsTable = $('#draftsTable').DataTable({
