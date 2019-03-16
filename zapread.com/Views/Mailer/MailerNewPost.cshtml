@@ -8,7 +8,6 @@
     ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
     ViewBag.Message = "New post from a user you are following: " + Model.Post.UserId.Name;
 }
-
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-lg-8">
@@ -44,13 +43,23 @@
                     </div>
                 </div>
                 <div class="social-body">
+                    <div class="col-sm-auto vote-actions">
+                        <div class="vote-actions">
+                            <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId, vote = 1 })" class="@(Model.ViewerUpvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteUp" : "")">
+                                <img src="~/Content/vup.png" style="margin-bottom: 0px;"/>
+                            </a>
+                            <div>@Model.Post.Score.ToAbbrString()</div>
+                            <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId, vote = 0 })" class="@(Model.ViewerDownvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteDown" : "")">
+                                <img src="~/Content/vdn.png" />
+                            </a>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col">
                             <div class="post-quotable post-box" data-postid="@Model.Post.PostId">
                                 <div class="post-content">
                                     @Html.Raw(Model.Post.Content)
                                 </div>
-                                
                             </div>
                             <hr />
                         </div>

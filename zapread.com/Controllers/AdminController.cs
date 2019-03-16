@@ -1,4 +1,5 @@
-﻿using LightningLib.DataEncoders;
+﻿using Hangfire;
+using LightningLib.DataEncoders;
 using LightningLib.lndrpc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -16,6 +17,7 @@ using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -34,6 +36,19 @@ namespace zapread.com.Controllers
         {
             UserManager = userManager;
             RoleManager = roleManager;
+        }
+
+        /// <summary>
+        /// Controller for listing of vote events
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> Votes()
+        {
+            using (var db = new ZapContext())
+            {
+                var votes = await db.SpendingEvents.Take(100).ToListAsync();
+                return View();
+            }
         }
 
         #region Lightning Payments Admin
@@ -370,6 +385,8 @@ namespace zapread.com.Controllers
             }
         }
 
+        #region audit
+
         // GET: Admin/Audit/{username}
         [Route("Admin/Audit/{username}")]
         public ActionResult Audit(string username)
@@ -417,6 +434,7 @@ namespace zapread.com.Controllers
             public string URL { get; set; }
             public string Memo { get; set; }
             public bool Settled { get; set; }
+            public string PaymentHash { get; set; }
         }
 
         [HttpPost, Route("Admin/GetLNTransactions/{username}")]
@@ -445,6 +463,7 @@ namespace zapread.com.Controllers
                     Amount = Convert.ToString(t.Amount),
                     Memo = t.Memo,
                     Settled = t.IsSettled,
+                    PaymentHash = t.HashStr,
                 }).ToList();
 
                 int numrec = user.LNTransactions.Count();
@@ -592,9 +611,19 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Lightning
+
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
+            // Re-register Periodic hangfire monitor
+
+            RecurringJob.AddOrUpdate<LNTransactionMonitor>(
+                x => x.CheckLNTransactions(),
+                Cron.MinuteInterval(5));
+
             using (var db = new ZapContext())
             {
                 var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)
@@ -647,6 +676,10 @@ namespace zapread.com.Controllers
 
             return Json(new { result = "success", macaroon });
         }
+
+        #endregion
+
+        #region Users
 
         [Route("Admin/Users")]
         public async Task<ActionResult> Users()
@@ -763,6 +796,10 @@ namespace zapread.com.Controllers
             public string Balance { get; set; }
             public string Id { get; set; }
         }
+
+        #endregion
+
+        #region Admin Panel
 
         // GET: Admin
         public ActionResult Index()
@@ -921,6 +958,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        #endregion
+
+        #region Admin Bar
+
         public PartialViewResult SiteAdminBarUserInfo(int userId)
         {
             using (var db = new ZapContext())
@@ -1072,6 +1113,7 @@ namespace zapread.com.Controllers
             return Json(new { success = true });
         }
 
+        #endregion
 
         public ApplicationUserManager UserManager
         {

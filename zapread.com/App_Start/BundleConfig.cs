@@ -33,10 +33,65 @@ namespace zapread.com
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-            bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
-                        "~/Scripts/DetailPostPage.js")
+            // Shared view plugins together
+            bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
+                        "~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
+                        "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
+                        "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
+                        "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
+                        "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
+                        "~/node_modules/moment/min/moment-with-locales.min.js"  // Time formatting
+                        ));
+
+            // Shared scripts
+            bundles.Add(new ScriptBundle("~/bundles/shared").Include(
+                        "~/Scripts/main.js",                                    // Custom for all
+                        "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                        "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
+                        "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
+                        "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
+                        "~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
+                        "~/Scripts/Utility/clipboard-element.js",               // For copy to clipboard
+                        "~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
+                        "~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
+                        "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
+                        ).WithLastModifiedToken());
+
+            // Manage/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
+                        "~/node_modules/dropzone/dist/min/dropzone.min.js",
+                        //"~/node_modules/dropzone/dist/dropzone.js",
+                        "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
+                        "~/Scripts/Manage/index.js")
                         .WithLastModifiedToken());
 
+            // Post/NewPost scripts
+            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
+                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
+                        .WithLastModifiedToken());
+
+            bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
+                        "~/Scripts/Realtime/signalr-initialize.js")
+                        .WithLastModifiedToken());
+
+            // chosen scripts
+            bundles.Add(new ScriptBundle("~/plugins/chosen").Include(
+                      "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js"));
+
+            // chosen styles
+            bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
+                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css", new CssRewriteUrlTransform()));
+
+            // dropZone scripts
+            bundles.Add(new ScriptBundle("~/plugins/dropZone").Include(
+                      "~/node_modules/dropzone/dist/min/dropzone.min.js"));
+
+            // dropZone styles
+            bundles.Add(new StyleBundle("~/Content/plugins/dropzone/dropZoneStyles").Include(
+                      "~/node_modules/dropzone/dist/min/basic.min.css",
+                      "~/node_modules/dropzone/dist/min/dropzone.min.css"));
+
+            // Jquery ui
             bundles.Add(new ScriptBundle("~/Content/plugins/css/jquery-ui").Include(
                         "~/node_modules/jquery-ui-dist/jquery-ui.min.css"));
 
@@ -51,8 +106,6 @@ namespace zapread.com
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
-
-            
 
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
@@ -85,20 +138,13 @@ namespace zapread.com
                       "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/site.css")
+                      "~/Content/site.css",
+                      "~/Content/style/roundlinks.css")
                       .WithLastModifiedToken());
 
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
                       .WithLastModifiedToken());
-
-            // Plugins together
-            bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
-                        "~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
-                        "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
-                        "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
-                        "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
-                        "~/node_modules/toastr/build/toastr.min.js"));          // toastr notification 
 
             // Sweet Alert
             bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
@@ -128,15 +174,6 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/style/toastr").Include(
                       "~/node_modules/toastr/build/toastr.min.css"));
 
-            // dropZone styles
-            bundles.Add(new StyleBundle("~/Content/plugins/dropzone/dropZoneStyles").Include(
-                      "~/node_modules/dropzone/dist/min/basic.min.css",
-                      "~/node_modules/dropzone/dist/min/dropzone.min.css"));
-
-            // dropZone 
-            bundles.Add(new ScriptBundle("~/plugins/dropZone").Include(
-                      "~/node_modules/dropzone/dist/min/dropzone.min.js"));
-
             // SlimScroll
             bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(
                       "~/node_modules/jquery-slimscroll/jquery.slimscroll.min.js"));
@@ -165,14 +202,6 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/plugins/selectize").Include(
                       "~/node_modules/selectizebootstrap4/dist/css/selectize.bootstrap4.css"));
 
-            // chosen
-            bundles.Add(new ScriptBundle("~/plugins/chosen").Include(
-                      "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js"));
-
-            // chosen styles
-            bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
-                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css"));
-
             // Flot chart
             bundles.Add(new ScriptBundle("~/plugins/flot").Include(
                       "~/node_modules/jquery.flot/jquery.flot.js",
@@ -181,7 +210,6 @@ namespace zapread.com
                       "~/node_modules/jquery.flot/jquery.flot.pie.js",
                       "~/node_modules/jquery.flot/jquery.flot.time.js"));
             /*"~/node_modules/jquery.flot/jquery.flot.spline.js"));*/
-
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = true;// false;

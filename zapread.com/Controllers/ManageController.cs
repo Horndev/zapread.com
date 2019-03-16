@@ -21,6 +21,8 @@ using System.Security.Principal;
 using System.Security.Claims;
 using System.Globalization;
 using zapread.com.Models.Database;
+using zapread.com.Models.Manage;
+using System.Drawing.Drawing2D;
 
 namespace zapread.com.Controllers
 {
@@ -132,18 +134,42 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                User u;
-                u = await db.Users
-                        .Include(usr => usr.LNTransactions)
-                        .Where(us => us.AppId == userId)
-                        .SingleOrDefaultAsync();
-
-                var pageEarnings = u.EarningEvents
-                    .AsParallel()
+                var pageEarnings = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(us => us.EarningEvents)
                     .OrderByDescending(e => e.TimeStamp)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToList();
+                    .ToListAsync();
+
+
+
+                
+
+                var commentIds = pageEarnings
+                    .Where(e => e.Type == 0 && e.OriginType == 1)
+                    .Select(e => Convert.ToInt64(e.OriginId)).ToList();
+
+                var groupIds = pageEarnings
+                    .Where(e => e.Type == 1)
+                    .Select(e => e.OriginId).ToList();
+
+                var comments = await db.Comments
+                    .Include(c => c.Post)
+                    .Where(c => commentIds.Contains(c.CommentId)).ToListAsync();
+
+                var postIds = pageEarnings
+                    .Where(e => e.Type == 0 && e.OriginType == 0)
+                    .Select(e => e.OriginId).ToList();
+
+                var cids = comments.Where(c => c.Post != null)
+                    .Select(c => c.Post.PostId);
+
+                postIds = postIds.Union(cids).ToList();
+
+                var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync();
+                var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync();
+                
 
                 var values = pageEarnings
                     .AsParallel()
@@ -152,9 +178,39 @@ namespace zapread.com.Controllers
                         Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         Amount = t.Amount.ToString("0.##"),
                         Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                        URL = GetEarningURL(t, commentIds, comments),
+                        Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
                     }).ToList();
 
-                int numrec = u.EarningEvents.Count();
+                //var postEarning = await db.Users
+                //    .Where(us => us.AppId == userId)
+                //    .SelectMany(us => us.EarningEvents)
+                //    .OrderByDescending(e => e.TimeStamp)
+                //    .Skip(dataTableParameters.Start)
+                //    .Take(dataTableParameters.Length)
+                //    .Where(t => t.Type == 0 && t.OriginType == 0)
+                //    .Join(
+                //        inner: db.Posts, 
+                //        outerKeySelector: e => e.OriginId, 
+                //        innerKeySelector: p => p.PostId,
+                //        resultSelector: (e, p) => new { e.TimeStamp, e.Amount, p.PostId, p.PostTitle })
+                //    .ToListAsync();
+
+                //var postValues = postEarning
+                //    .AsParallel()
+                //    .Select(t => new DataItem()
+                //    {
+                //        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                //        Amount = t.Amount.ToString("0.##"),
+                //        Type = "Post",
+                //        URL = Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { id = t.PostId }),
+                //        Memo = t.PostTitle,
+                //    }).ToList();
+
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(us => us.EarningEvents)
+                    .CountAsync();
 
                 var ret = new
                 {
@@ -167,43 +223,101 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult GetSpendingEvents(DataTableParameters dataTableParameters)
+        private string GetEarningURL(EarningEvent t, List<long> commentIds, List<Comment> comments)
+        {
+            if (t.Type == 1)
+            {
+                if (t.OriginId > 0)
+                    return Url.Action(controllerName: "Group", actionName: "GroupDetail", routeValues: new { id = t.OriginId });
+            }
+            else if (t.Type == 0 && t.OriginType == 0)
+            {
+                if (t.OriginId > 0)
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = t.OriginId });
+            }
+            else if (t.Type == 0 && t.OriginType == 1)
+            {
+                var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                if (postId > 0)
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = postId });
+            }
+            return  t.OriginId.ToString();
+        }
+
+        private static string GetEarningMemo(EarningEvent t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
+        {
+            if (t.Type == 1)
+            {
+                if (t.OriginId > 0)
+                    return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
+            }
+            else if (t.Type == 0 && t.OriginType == 0)
+            {
+                string memo = postIds.Contains(t.OriginId) ? posts.FirstOrDefault(p => p.PostId == t.OriginId)?.PostTitle : "";
+                if (memo == null)
+                    memo = "";
+                if (memo.Length > 33)
+                    memo = memo.Substring(0, 30) + "...";
+                return memo;
+            }
+            else if (t.Type == 0 && t.OriginType == 1) // Comment
+            {
+                if (t.OriginId > 0)
+                {
+                    var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                    if (postId != null && postId > 0)
+                    {
+                        string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
+                        if (memo == null)
+                            memo = "";
+                        if (memo.Length > 33)
+                            memo = memo.Substring(0, 30) + "...";
+                        return memo;
+                    }
+                    return postId.ToString();
+                }
+            }
+            return "";
+        }
+
+        public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                User u;
-                u = db.Users
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userId)
+                    .SelectMany(usr => usr.SpendingEvents)
+                    .CountAsync();
+
+                var pageSpendings = await db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.SpendingEvents)
                         .Include(usr => usr.SpendingEvents.Select(s => s.Post))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Group))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment).Select(c => c.Post))
-                        //.Where(usr => usr.Name == "renepickhardt").First(); //Debug issue observed by this user
-                        .Where(us => us.AppId == userId).First();
+                        .Where(us => us.AppId == userId)
+                        .SelectMany(usr => usr.SpendingEvents)
+                        .OrderByDescending(e => e.TimeStamp)
+                        .Skip(dataTableParameters.Start)
+                        .Take(dataTableParameters.Length)
+                        .ToListAsync();
 
-                var pageSpendings = u.SpendingEvents
-                    .OrderByDescending(e => e.TimeStamp)
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
-                    .ToList();
-
-                var values = pageSpendings.Select(t => new DataItem()
-                {
-                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
-                           t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
-                           t.Group != null ? "Group " + t.Group.GroupId.ToString() :
-                           "Other")),
-                    Amount = Convert.ToString(t.Amount),
-                    URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
+                var values = pageSpendings.AsParallel()
+                    .Select(t => new DataItem()
+                    {
+                        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
+                            t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
+                            t.Group != null ? "Group " + t.Group.GroupId.ToString() :
+                            "Other")),
+                        Amount = Convert.ToString(t.Amount),
+                        URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
                             t.Comment != null ? Url.Action("Detail", "Post") + "/" + t.Comment.Post.PostId.ToString() : (
                             t.Group != null ? Url.Action("Index", "Group") :
                             "")),
-                }).ToList();
-
-                int numrec = u.SpendingEvents.Count();
+                    }).ToList();
 
                 var ret = new
                 {
@@ -380,13 +494,13 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected List<Post> GetPosts(int start, int count, int userId = 0)
+        protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                var u = db.Users
+                var u = await db.Users
                         .AsNoTracking()
-                        .Where(us => us.Id == userId).FirstOrDefault();
+                        .Where(us => us.Id == userId).FirstOrDefaultAsync();
 
                 if (u == null)
                 {
@@ -431,10 +545,10 @@ namespace zapread.com.Controllers
                     .Include("UserId")
                     .AsNoTracking().Take(20);
 
-                var activityposts = userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
+                var activityposts = await userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToList();
+                    .ToListAsync();
 
                 return activityposts;
             }
@@ -461,7 +575,7 @@ namespace zapread.com.Controllers
             {
                 string aboutMe = "Nothing to tell.";
                 User u;
-                if (db.Users.Where(us => us.AppId == userId).Count() == 0)
+                if (await db.Users.Where(us => us.AppId == userId).CountAsync() == 0)
                 {
                     // no user entry
                     u = new User()
@@ -491,165 +605,30 @@ namespace zapread.com.Controllers
                     aboutMe = u.AboutMe;
                 }
 
-                try
-                {
-                    User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
-                }
-                catch (Exception)
-                {
-                    //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                }
+                ValidateClaims(u);
 
                 ViewBag.UserName = u.Name;
                 ViewBag.UserId = u.Id;
-
-                var activityposts = GetPosts(0, 10, userId: u.Id);
-
-                // Get record of recent LN transactions
-                var recentTxs = u.LNTransactions
-                    .Where(tx => tx.TimestampSettled != null)
-                    .OrderByDescending(tx => tx.TimestampSettled)
-                    .Take(5);
-
-                var txnView = new List<LNTxViewModel>();
-
-                foreach (var tx in recentTxs)
-                {
-                    txnView.Add(new LNTxViewModel()
-                    {
-                        Timestamp = (DateTime)tx.TimestampSettled,
-                        Type = tx.IsDeposit ? "Deposit" : "Withdrawal",
-                        Value = tx.Amount,
-                    });
-                }
-
-                var recentSpendings = u.SpendingEvents
-                    .OrderByDescending(s => s.TimeStamp)
-                    .Take(5);
-
-                var spendingsView = new List<SpendingsViewModel>();
-
-                foreach (var s in recentSpendings)
-                {
-                    string link = "";
-                    if (s.Post != null)
-                    {
-                        link = "Post " + s.Post.PostId.ToString();
-                    }
-                    else if (s.Comment != null)
-                    {
-                        link = "Comment " + s.Comment.CommentId.ToString();
-                    }
-                    else if (s.Group != null)
-                    {
-                        link = "Group " + s.Group.GroupId.ToString();
-                    }
-
-                    spendingsView.Add(new SpendingsViewModel()
-                    {
-                        TimeStamp = s.TimeStamp.Value,
-                        Value = Convert.ToString(s.Amount),
-                        Link = link,
-                    });
-                }
-
-                var recentEarnings = u.EarningEvents
-                    .OrderByDescending(e => e.TimeStamp)
-                    .Take(5);
-
-                var earningsView = new List<EarningsViewModel>();
-
-                foreach (var e in recentEarnings)
-                {
-                    earningsView.Add(new EarningsViewModel()
-                    {
-                        TimeStamp = e.TimeStamp.Value,
-                        Value = e.Amount.ToString("0.#"),
-                        Type = e.Type == 0 ? (e.OriginType == 0 ? "Post" : "Comment") : e.Type == 1 ? "Group" : e.Type == 2 ? "Community" : "Unknown",
-                        ItemId = 0,
-                    });
-                }
-
-                var gi = new List<GroupInfo>();
-
-                var userGroups = u.Groups.ToList();
-
-                foreach(var g in userGroups)
-                {
-                    gi.Add(new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        Name = g.GroupName,
-                        Icon = "fa-bolt",
-                        Level = 1,
-                        Progress = 36,
-                        NumPosts = g.Posts.Count(),
-                        UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
-                        IsMod = g.Moderators.Contains(u),
-                        IsAdmin = g.Administrators.Contains(u),
-                    });
-                }
-
-                int numUserPosts = db.Posts.Where(p => p.UserId.AppId == userId).Count();
-
-                int numFollowers = db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).Count();
-
-                int numFollowing = u.Following.Count();
-
-                bool isFollowing = false;
-
-                // List of top persons following
-                var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
-
-                var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
 
                 if (u.Settings == null)
                 {
                     u.Settings = new UserSettings();
                 }
 
-                List<PostViewModel> postViews = new List<PostViewModel>();
-
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (u != null && u.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
-                }
-
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                foreach (var p in activityposts)
-                {
-                    postViews.Add(new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
-                        ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                        ViewerIgnoredUsers = viewerIgnoredUsers,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                    });
-                }
-
-                // List of languages known
-                var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
-
-                var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                var languages = languagesEng.Concat(languagesNat).ToList();
+                var activityposts = await GetPosts(0, 10, userId: u.Id);
+                List<LNTxViewModel> txnView = GetRecentTransactions(u);
+                List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
+                List<EarningsViewModel> earningsView = GetRecentEarnings(u);
+                List<GroupInfo> gi = GetUserGroups(u);
+                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync();
+                int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync();
+                int numFollowing = u.Following.Count();
+                bool isFollowing = false;
+                var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                List<int> viewerIgnoredUsers = GetUserIgnored(u);
+                List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers);
+                List<string> languages = GetLanguages();
 
                 var model = new ManageUserViewModel
                 {
@@ -657,8 +636,9 @@ namespace zapread.com.Controllers
                     User = u,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId),
                     Logins = await UserManager.GetLoginsAsync(userId),
-                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),  // This is an extension method which can't be mocked for test
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
                     Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
@@ -676,6 +656,179 @@ namespace zapread.com.Controllers
                 };
 
                 return View(model);
+            }
+        }
+
+        private static List<int> GetUserIgnored(User u)
+        {
+            List<int> viewerIgnoredUsers = new List<int>();
+
+            if (u != null && u.IgnoringUsers != null)
+            {
+                viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
+            }
+
+            return viewerIgnoredUsers;
+        }
+
+        private static async Task<List<PostViewModel>> GetUserActivtiesView(ZapContext db, User u, List<Post> activityposts, List<int> viewerIgnoredUsers)
+        {
+            List<PostViewModel> postViews = new List<PostViewModel>();
+            var groups = await db.Groups
+                    .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+            foreach (var p in activityposts)
+            {
+                postViews.Add(new PostViewModel()
+                {
+                    Post = p,
+                    ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
+                    ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    NumComments = 0,
+                    ViewerIgnoredUsers = viewerIgnoredUsers,
+                    GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                    GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                    GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
+                });
+            }
+
+            return postViews;
+        }
+
+        private static List<LNTxViewModel> GetRecentTransactions(User u)
+        {
+            // Get record of recent LN transactions
+            var recentTxs = u.LNTransactions
+                .Where(tx => tx.TimestampSettled != null)
+                .OrderByDescending(tx => tx.TimestampSettled)
+                .Take(5);
+
+            var txnView = new List<LNTxViewModel>();
+
+            foreach (var tx in recentTxs)
+            {
+                txnView.Add(new LNTxViewModel()
+                {
+                    Timestamp = (DateTime)tx.TimestampSettled,
+                    Type = tx.IsDeposit ? "Deposit" : "Withdrawal",
+                    Value = tx.Amount,
+                });
+            }
+
+            return txnView;
+        }
+
+        private static List<SpendingsViewModel> GetRecentSpending(User u)
+        {
+            var recentSpendings = u.SpendingEvents
+                                .OrderByDescending(s => s.TimeStamp)
+                                .Take(5);
+
+            var spendingsView = new List<SpendingsViewModel>();
+
+            foreach (var s in recentSpendings)
+            {
+                string link = "";
+                if (s.Post != null)
+                {
+                    link = "Post " + s.Post.PostId.ToString();
+                }
+                else if (s.Comment != null)
+                {
+                    link = "Comment " + s.Comment.CommentId.ToString();
+                }
+                else if (s.Group != null)
+                {
+                    link = "Group " + s.Group.GroupId.ToString();
+                }
+
+                spendingsView.Add(new SpendingsViewModel()
+                {
+                    TimeStamp = s.TimeStamp.Value,
+                    Value = Convert.ToString(s.Amount),
+                    Link = link,
+                });
+            }
+
+            return spendingsView;
+        }
+
+        private static List<EarningsViewModel> GetRecentEarnings(User u)
+        {
+            var earningsView = new List<EarningsViewModel>();
+
+            var recentEarnings = u.EarningEvents
+                .OrderByDescending(e => e.TimeStamp)
+                .Take(5);
+
+            foreach (var e in recentEarnings)
+            {
+                earningsView.Add(new EarningsViewModel()
+                {
+                    TimeStamp = e.TimeStamp.Value,
+                    Value = e.Amount.ToString("0.#"),
+                    Type = e.Type == 0 ? (e.OriginType == 0 ? "Post" : "Comment") : e.Type == 1 ? "Group" : e.Type == 2 ? "Community" : "Unknown",
+                    ItemId = 0,
+                });
+            }
+
+            return earningsView;
+        }
+
+        private static List<GroupInfo> GetUserGroups(User u)
+        {
+            var gi = new List<GroupInfo>();
+
+            var userGroups = u.Groups.ToList();
+
+            foreach (var g in userGroups)
+            {
+                gi.Add(new GroupInfo()
+                {
+                    Id = g.GroupId,
+                    Name = g.GroupName,
+                    Icon = "fa-bolt",
+                    Level = 1,
+                    Progress = 36,
+                    NumPosts = g.Posts.Count(),
+                    UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
+                    IsMod = g.Moderators.Contains(u),
+                    IsAdmin = g.Administrators.Contains(u),
+                });
+            }
+
+            return gi;
+        }
+
+        private static List<string> GetLanguages()
+        {
+            // List of languages known
+            var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                .Select(g => g.First())
+                .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
+
+            var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                .Select(g => g.First())
+                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+            var languages = languagesEng.Concat(languagesNat).ToList();
+            return languages;
+        }
+
+        private void ValidateClaims(User u)
+        {
+            try
+            {
+                User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
+            }
+            catch (Exception)
+            {
+                //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
             }
         }
 
@@ -716,7 +869,7 @@ namespace zapread.com.Controllers
                 var uid = User.Identity.GetUserId();
                 var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
 
-                var posts = GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
+                var posts = await GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
 
                 string PostsHTMLString = "";
 
@@ -823,6 +976,7 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<JsonResult> UpdateProfileImage(HttpPostedFileBase file)
         {
             var userId = User.Identity.GetUserId();
@@ -831,26 +985,44 @@ namespace zapread.com.Controllers
                 if (file.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(file.FileName);
-                    MemoryStream ms = new MemoryStream();
-                    //file.InputStream.CopyTo(ms);
-                    //byte[] data = ms.ToArray();
-
                     Image img = Image.FromStream(file.InputStream);
 
-                    Bitmap thumb = ImageExtensions.ResizeImage(img, 200, 200);
+                    // Images should retain aspect ratio
+                    double ar = Convert.ToDouble(img.Width) / Convert.ToDouble(img.Height); // Aspect ratio
+                    int max_wh = 512; // desired max width or height
+                    int newHeight = img.Height;
+                    int newWidth = img.Width;
+                    if (img.Height > img.Width)
+                    {
+                        newHeight = max_wh;
+                        newWidth = Convert.ToInt32(Convert.ToDouble(max_wh) * ar);
+                    }
+                    else
+                    {
+                        newWidth = max_wh;
+                        newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar );
+                    }
 
-                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    var bmp = new Bitmap((int)max_wh, (int)max_wh);
+                    var graph = Graphics.FromImage(bmp);
+                    var brush = new SolidBrush(Color.Transparent);
 
-                    await EnsureUserExists(userId, db);
+                    graph.InterpolationMode = InterpolationMode.High;
+                    graph.CompositingQuality = CompositingQuality.HighQuality;
+                    graph.SmoothingMode = SmoothingMode.AntiAlias;
+                    graph.FillRectangle(brush, new RectangleF(0, 0, max_wh, max_wh));
+                    graph.DrawImage(img, ((int)max_wh - newWidth) / 2, ((int)max_wh - newHeight) / 2, newWidth, newHeight);
+                    byte[] data = bmp.ToByteArray(ImageFormat.Png);
+
+                    //await EnsureUserExists(userId, db);
                     UserImage i = new UserImage() { Image = data};
-                    db.Users.Where(u => u.AppId == userId).First().ProfileImage = i;
+                    db.Users.First(u => u.AppId == userId).ProfileImage = i;
                     await db.SaveChangesAsync();
                 }
-
                 return Json(new { result = "success" });
             }
         }
-
+        
         /// <summary>
         /// Updates the user alias
         /// </summary>
@@ -901,24 +1073,33 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { Result = "Error updating user settings" });
+                return Json(new { success = false, result="error", message = "Error updating user settings" });
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include("Settings")
-                    .Where(u => u.AppId == userId).First();
+                    .FirstOrDefaultAsync(u => u.AppId == userId);
 
                 if (user.Settings == null)
                 {
                     user.Settings = new UserSettings();
                 }
 
-                if (setting == "notifyPost")
+                // These are the possible settings
+                switch (setting)
                 {
-                    user.Settings.NotifyOnOwnPostCommented = value;
+                    case "notifyPost":
+                        user.Settings.NotifyOnOwnPostCommented = value;
+                        break;
+                    case "emailTwoFactor":
+                        await UserManager.SetTwoFactorEnabledAsync(userId, value);
+                        break;
+                    default:
+                        break;
                 }
-                else if (setting == "notifyComment")
+
+                if (setting == "notifyComment")
                 {
                     user.Settings.NotifyOnOwnCommentReplied = value;
                 }
@@ -948,7 +1129,7 @@ namespace zapread.com.Controllers
                 }
                 else if (setting == "alertComment")
                 {
-                    user.Settings.AlertOnOwnPostCommented = value;
+                    user.Settings.AlertOnOwnCommentReplied = value;
                 }
                 else if (setting == "alertNewPostGroup")
                 {
@@ -983,11 +1164,20 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.ViewTranslatedLanguages = value;
                 }
-
+                else if (setting == "showOnline")
+                {
+                    user.Settings.ShowOnline = value;
+                }
+                else if (setting == "showTours")
+                {
+                    user.Settings.ShowTours = value;
+                }
+                
                 await db.SaveChangesAsync();
-                return Json(new { Result = "Success" });
+                return Json(new { success = true, result = "success" });
             }
         }
+
         private async Task EnsureUserExists(string userId, ZapContext db)
         {
             if (db.Users.Where(u => u.AppId == userId).Count() == 0)

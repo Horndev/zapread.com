@@ -75,15 +75,12 @@
                                 <a href="lightning:xxx" id="lightningDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
                             </div>
                             <input type="text" id="lightningDepositInvoiceInput" class="form-control" placeholder="Getting invoice" aria-label="invoice" aria-describedby="basic-addon2">
-                            
                             <div class="input-group-append">
-                                <button class="btn btn-primary" id="lightningDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
+                                <button class="btn btn-primary" type="button" onclick="copyToClipboard(this, 'lightningDepositInvoiceInput');"><span class="fa fa-copy"></span> Copy</button>
                             </div>
-
                             <div class="col-md-2 pull-right">
                                 <!-- Small modal -->
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm"><i class="fa fa-qrcode"></i></button>
-
                                 <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -102,8 +99,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="doLightningTransactionBtn" type="button" class="btn btn-primary">Get Invoice</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="btnCheckLNDeposit" type="button" class="btn btn-info" style="display:none;" onclick="checkInvoicePaid(this);" data-invoice-element="lightningDepositInvoiceInput" data-spin-element="spinCheckPaymentLN">Check Payment <i id="spinCheckPaymentLN" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                <button id="btnPayLNWithdraw" type="button" class="btn btn-primary" style="display:none" onclick="onPayInvoice(this);">Withdraw</button>
+                <button id="doLightningTransactionBtn" type="button" class="btn btn-primary" onclick="onGetInvoice(this);">Get Invoice</button>
+                <button onclick="onCancelDepositWithdraw(this);" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -119,178 +118,5 @@
              });
          });
      });
-
-    var scan = function () {
-
-        //alert('Sorry. Not yet implemented.');
-        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-        scanner.addListener('scan', function (content) {
-            console.log(content);
-            $('#lightningWithdrawInvoiceInput').val(content);
-            $("#preview").hide();
-            scanner.stop();
-        });
-        Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-                scanner.start(cameras[0]);
-            } else {
-                console.error('No cameras found.');
-            }
-        }).catch(function (e) {
-            console.error(e);
-            });
-        $("#preview").show();
-    };
-
-    var LNmode = "deposit";
-
-    var switchWithdraw = function () {
-        $('#doLightningTransactionBtn').html("Pay Invoice");
-        $("#lightningTransactionInvoiceResult").show();
-        $("#lightningDepositQR").hide();
-        $("#lightningDepositInvoice").hide();
-        $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
-        LNmode = "withdraw";
-    };
-
-    var switchDeposit = function () {
-        $('#doLightningTransactionBtn').html("Get Invoice");
-        $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
-        LNmode = "deposit";
-    };
-
-     // Handle Deposit Modal
-     $(function () {
-         $("#doLightningTransactionBtn").click(function () {
-             if (LNmode == "deposit") {
-                 var amount = $("#depositValueAmount").val();
-                 var memo = 'ZapRead.com deposit';
-
-                 var msg = JSON.stringify({
-                     "amount": amount.toString(),
-                     "memo": memo,
-                     "anon": '0',
-                     "use": "userDeposit",
-                     "useId": -1,           // undefined
-                     "useAction": -1        // undefined
-                 });
-
-                 $.ajax({
-                     type: "POST",
-                     url: "/Lightning/GetDepositInvoice/",
-                     data: msg,
-                     contentType: "application/json; charset=utf-8",
-                     dataType: "json",
-                     success: function (response) {
-                         $("#lightningDepositInvoiceInput").val(response.Invoice);
-                         $("#lightningDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-                         $("#lightningDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-
-                         $("#getInvoice").html("Update");    // Change button text from get invoice to update
-
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                         $("#lightningTransactionInvoiceResult").addClass("bg-info");
-                         $("#lightningTransactionInvoiceResult").html("Please pay invoice to complete your deposit.");
-                         $("#lightningTransactionInvoiceResult").show();
-                         $("#lightningDepositQR").show();
-                         $("#lightningDepositInvoice").show();
-                         
-                     },
-                     failure: function (response) {
-                         $("#lightningTransactionInvoiceResult").html("Failed to generate invoice");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                         $("#lightningTransactionInvoiceResult").show();
-                     },
-                     error: function (response) {
-                         $("#lightningTransactionInvoiceResult").html("Error generating invoice");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                         $("#lightningTransactionInvoiceResult").show();
-                     }
-                 });
-             }
-             else {
-                 var invoice = $("#lightningWithdrawInvoiceInput").val();
-                 var msg = '{ request: "' + invoice.toString() + '" }';
-                 $("#doLightningTransactionBtn").attr("disabled", "disabled");
-                 $.ajax({
-                     type: "POST",
-                     url: "/Lightning/SubmitPaymentRequest",
-                     data: msg,
-                     contentType: "application/json; charset=utf-8",
-                     dataType: "json",
-                     success: function (response) {
-                         $("#doLightningTransactionBtn").removeAttr("disabled")
-
-                         if (response.Result == "success") {
-                             $("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                             $("#lightningTransactionInvoiceResult").addClass("bg-success");
-                             $("#lightningTransactionInvoiceResult").show();
-                             $('#withdrawModal').modal('hide');
-
-                             $.get("/Account/GetBalance", function (data, status) {
-                                 //$('#userBalance').html('Balance: ' + data.balance);
-                                 //alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
-                                 $(".userBalanceValue").each(function (i, e) {
-                                     $(e).html(data.balance);
-                                 });
-                             });
-                             $('#depositModal').modal('hide');
-                         }
-                         else {
-                             $("#lightningTransactionInvoiceResult").html(response.Result);
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                             $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                             $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                             $("#lightningTransactionInvoiceResult").show();
-                         }
-                     },
-                     failure: function (response) {
-                         $("#doLightningTransactionBtn").removeAttr("disabled")
-                         $("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                         $("#lightningTransactionInvoiceResult").show();
-                     },
-                     error: function (response) {
-                         $("#doLightningTransactionBtn").removeAttr("disabled")
-                         $("#lightningTransactionInvoiceResult").html("Error receiving invoice");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                         $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                         $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                         $("#lightningTransactionInvoiceResult").show();
-                     }
-                 });
-             }
-         });
-    });
-
-    // Deposit modal copy invoice to clipboard
-    $(function () {
-        $("#lightningDepositInvoiceCopy").click(function () {
-            $("#lightningDepositInvoiceInput").focus();
-            $("#lightningDepositInvoiceInput").select();
-            try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
-                console.log('Copying text command was ' + msg);
-                $("#lightningDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
-            } catch (err) {
-                console.log('Oops, unable to copy');
-            }
-        });
-    });
 </script>
 )

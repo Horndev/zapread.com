@@ -1,0 +1,50 @@
+﻿@{
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <form id="dropzoneForm" action="/Test/UpdateProfileImage/" class="dropzone" method="post">
+
+        </form>
+    </div>
+</body>
+</html>
+
+@section Styles {
+@Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
+}
+
+@section Scripts {
+@Scripts.Render("~/plugins/dropZone")
+
+<script type="text/javascript">
+    Dropzone.options.dropzoneForm = {
+        url: "/Test/UpdateProfileImage/",
+        paramName: "file", // The name that will be used to transfer the file
+        maxFilesize: 15, // MB
+        acceptedFiles: "image/*",
+        maxFiles: 1,
+        uploadMultiple: false,
+        addRemoveLinks: true,
+        init: function () {
+        //    this.on("sending", function (file, xhr, formData) {
+        //        console.log(formData)
+        //    });
+            this.on("addedfile", function () {
+                console.log('added');
+        //        if (this.files[1] !== null) {
+        //            this.removeFile(this.files[0]);
+        //        }
+            });
+        },
+        dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
+    };
+</script>
+}

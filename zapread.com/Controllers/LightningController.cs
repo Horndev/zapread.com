@@ -47,6 +47,69 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<JsonResult> CheckPayment(string invoice, bool isDeposit = true)
+        {
+            // STEP 1: check the database
+            using (ZapContext db = new ZapContext())
+            {
+                var userId = User.Identity.GetUserId();
+
+                var u = await db.Users
+                    .Include(usr => usr.Funds)
+                    .FirstOrDefaultAsync(usr => usr.AppId == userId);
+
+                var p = await db.LightningTransactions
+                    .FirstOrDefaultAsync(t => t.PaymentRequest == invoice);
+
+                if (p == null)
+                    return Json(new { success = false, message = "invoice is not known to this node" });
+
+                if (isDeposit && !p.IsDeposit)
+                    return Json(new { success = false, message = "invoice is not a deposit invoice" });
+                if (p.IsSettled)
+                {
+                    return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
+                }
+
+                if (isDeposit)
+                {
+                    Invoice inv = FetchInvoiceFromNode(invoice);
+                    if (!inv.settled.HasValue || (inv.settled.HasValue && inv.settled.Value == false))
+                    {
+                        return Json(new { success = true, result = false });
+                    }
+                    if (inv.settled.HasValue && inv.settled.Value)
+                    {
+                        // TODO: check if invoice listeners are running - start if not running
+                        // Use the standard receiving logic to send real time notification to clients
+                        NotifyClientsInvoicePaid(inv);
+                        return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
+                    }
+                }
+                return Json(new { success = true });
+            }
+        }
+
+        private static Invoice FetchInvoiceFromNode(string invoice)
+        {
+            LndRpcClient lndClient = GetLndClient();
+            LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
+
+            // Decode the payment request
+            var decoded = lndClient.DecodePayment(invoice);
+
+            // Get the hash
+            var hash = decoded.payment_hash;
+
+            // GetInvoice expects the hash in base64 encoded format
+
+            var hash_bytes = h.DecodeData(hash);
+            var hash_b64 = Convert.ToBase64String(hash_bytes);
+            var inv = lndClient.GetInvoice(hash_b64);
+            return inv;
+        }
+
         [HttpGet]
         [AllowAnonymous]
         [Route("GetInvoiceStatus/{request?}")]
@@ -56,18 +119,6 @@ namespace zapread.com.Controllers
             {
                 var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.PaymentRequest == request);
                 return Json(tx, JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        public ActionResult CheckInvoice(int id)
-        {
-            using (ZapContext db = new ZapContext())
-            {
-                var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.Id == id);
-
-                return Json(tx);
             }
         }
 
@@ -105,19 +156,7 @@ namespace zapread.com.Controllers
                 memo = "Zapread.com";
             }
 
-            LndRpcClient lndClient;
-            using (var db = new ZapContext())
-            {
-                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1)
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
-                lndClient = new LndRpcClient(
-                host: g.LnMainnetHost,
-                macaroonAdmin: g.LnMainnetMacaroonAdmin,
-                macaroonRead: g.LnMainnetMacaroonRead,
-                macaroonInvoice: g.LnMainnetMacaroonInvoice);
-            }
+            LndRpcClient lndClient = GetLndClient();
 
             var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "3600");
 
@@ -190,21 +229,23 @@ namespace zapread.com.Controllers
                 resp.Id = t.Id;
             }
 
-            // If a listener is not already running, this should start
-            // Check if there is one already online.
-            var numListeners = lndTransactionListeners.Count(kvp => kvp.Value.IsLive);
-
-            // If we don't have one running - start it and subscribe
-            if (numListeners < 1)
+            if (true) // debugging
             {
-                var listener = lndClient.GetListener();
-                lndTransactionListeners.TryAdd(listener.ListenerId, listener);           // keep alive while we wait for payment
-                listener.InvoicePaid += NotifyClientsInvoicePaid;                        // handle payment message
-                listener.StreamLost += OnListenerLost;                                   // stream lost
-                var a = new Task(() => listener.Start());                                // listen for payment
-                a.Start();
-            }
+                // If a listener is not already running, this should start
+                // Check if there is one already online.
+                var numListeners = lndTransactionListeners.Count(kvp => kvp.Value.IsLive);
 
+                // If we don't have one running - start it and subscribe
+                if (numListeners < 1)
+                {
+                    var listener = lndClient.GetListener();
+                    lndTransactionListeners.TryAdd(listener.ListenerId, listener);           // keep alive while we wait for payment
+                    listener.InvoicePaid += NotifyClientsInvoicePaid;                        // handle payment message
+                    listener.StreamLost += OnListenerLost;                                   // stream lost
+                    var a = new Task(() => listener.Start());                                // listen for payment
+                    a.Start();
+                }
+            }
             return Json(resp);
         }
 
@@ -222,6 +263,12 @@ namespace zapread.com.Controllers
         {
             // Check if the invoice received was paid.  LND also sends updates 
             // for new invoices to the invoice stream.  We want to listen for settled invoices here.
+            if (!invoice.settled.HasValue)
+            {
+                // Bad invoice
+                // Todo - logging
+                return;
+            }
             if (!invoice.settled.Value)
             {
                 // Optional - add some logic to check invoices on the stream.  These invoices
@@ -307,6 +354,31 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
 
+            LndRpcClient lndClient = GetLndClient();
+
+            string ip = GetClientIpAddress(Request);
+
+            try
+            {
+                var paymentResult = paymentsService.TryWithdrawal(request, userId, ip, lndClient);
+                return Json(paymentResult);
+            }
+            catch (Exception e)
+            {
+                MailingService.Send(new UserEmailModel()
+                {
+                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request + "\r\n user: " + userId,
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "User withdraw error 1",
+                });
+                return Json(new { Result = "Error processing request." });
+            }
+        }
+
+        private static LndRpcClient GetLndClient()
+        {
             LndRpcClient lndClient;
             using (var db = new ZapContext())
             {
@@ -321,24 +393,7 @@ namespace zapread.com.Controllers
                 macaroonInvoice: g.LnMainnetMacaroonInvoice);
             }
 
-            string ip = GetClientIpAddress(Request);
-
-            try
-            {
-                var paymentResult = paymentsService.TryWithdrawal(request, userId, ip, lndClient);
-                return Json(paymentResult);
-            }
-            catch (Exception e)
-            {
-                MailingService.Send(new UserEmailModel() {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request + "\r\n user: " + userId,
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "User withdraw error",
-                });
-                return Json(new { Result = "Error processing request." });
-            }
+            return lndClient;
         }
 
         public static string GetClientIpAddress(HttpRequestBase request)

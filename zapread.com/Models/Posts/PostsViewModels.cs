@@ -56,8 +56,10 @@ namespace zapread.com.Models
     public class PostCommentsViewModel
     {
         public Comment Comment { get; set; }
-        public List<Comment> Comments { get; set; }
-        public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+        public Comment ParentComment { get; set; }
+        public List<Comment> Comments { get; set; } // All comments
+        public List<int> ViewerIgnoredUsers;        // If the user has ignored the user
         public bool StartVisible { get; set; }
+        public int NestLevel { get; set; }          // How far down the comment nesting is
     }
 }

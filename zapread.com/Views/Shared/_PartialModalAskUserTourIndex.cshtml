@@ -44,6 +44,25 @@
         // Instance the tour
         var tour = new Tour({
             name: "index",
+            onEnd: function (tour) {
+                swal("Do you wish to view the tour another time?",{
+                    buttons: {
+                        cancel: "No thanks",
+                        postpone: {
+                            text: "Another time",
+                            value: "postpone",
+                        }
+                    }
+                }).then(function (value) {
+                    switch (value) {
+                        case "postpone":
+                            swal("Ok", "We'll ask you another time.", "success");
+                            break;
+                        default:
+                            dismissTour();
+                    }
+                });
+            },
             steps: [{
                 element: "#goHome",
                 title: "Go Home",
@@ -97,7 +116,47 @@
                 placement: "right",
                 backdrop: true,
                 backdropContainer: '#wrapper'
-                },
+            },
+            {
+                element: "#topBalance",
+                title: "Your balance",
+                content: "<p>This will show your balance in units of Satoshi.</p><p>When logged in, clicking on it will bring up a menu to deposit or withdraw Bitcoin over the Lightning Network.</p>",
+                placement: "bottom",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            }, 
+            {
+                element: "#topFinancial",
+                title: "Financial",
+                content: "<p>Clicking on this Bitcoin symbol will take you to your financial activities summary.</p><p>Here, you can see a history of your Lightning Network transactions, when you've earned Bitcoin, and where you've spent Bitcoin.</p>",
+                placement: "bottom",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            }, 
+            {
+                element: "#topMessages",
+                title: "Messages",
+                content: "<p>Here you can see recent messages from other users, or view a history of messages.</p>",
+                placement: "bottom",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            }, 
+            {
+                element: "#topAlerts",
+                title: "Alerts",
+                content: "<p>Here you can see recent notifications about things you may be interested in such as a post by a user you like, or in a group you like.</p>",
+                placement: "bottom",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            }, 
+            {
+                element: "#topChat",
+                title: "Chat",
+                content: "<p>Clicking here will take you to the private chats you may have with other users of ZapRead.  Content between users is not public like comments on posts.  Here, you can have a discussion with other users in private.</p>",
+                placement: "bottom",
+                backdrop: true,
+                backdropContainer: '#wrapper'
+            }, 
             {
                 element: "#navGroups",
                 title: "The groups",
@@ -141,26 +200,29 @@
 
         $('#btnTourDismiss').click(function () {
             $('#modalTourIndex').modal('hide');
-            leaveurl = "/Home/DismissTour"
-            var data = JSON.stringify({ 'id': 1 });
-            $.ajax({
-                async: true,
-                data: data.toString(),
-                type: 'POST',
-                url: leaveurl,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.result == "success") {
-                        swal("Ok, you will not be asked for a tour next time.", {
-                            icon: "success",
-                        });
-                    }
-                }
-            });
+            dismissTour();
         })
     });
 
+    var dismissTour = function () {
+        leaveurl = "/Home/DismissTour"
+        var data = JSON.stringify({ 'id': 1 });
+        $.ajax({
+            async: true,
+            data: data.toString(),
+            type: 'POST',
+            url: leaveurl,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.result == "success") {
+                    swal("Ok, you will not be asked for a tour next time.", {
+                        icon: "success",
+                    });
+                }
+            }
+        });
+    };
 
 </script>
 )

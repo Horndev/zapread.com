@@ -35,15 +35,15 @@
             </div>
         </div>
         <div id="sortButtons" class="col-lg-8" align="center">
-            <button onclick="window.location.href='/?sort=Score'" class="btn btn-primary btn-rounded" type="button">
+            <a href="/?sort=Score" class="zr-top-btn-rounded" >
                 <i class="fa fa-fire"></i> hot
-            </button>
-            <button onclick="window.location.href='/?sort=New'" class="btn btn-primary btn-rounded" type="button">
+            </a>
+            <a href="/?sort=New" class="zr-top-btn-rounded">
                 <i class="fa fa-certificate"></i> new
-            </button>
-            <button onclick="window.location.href='/?sort=Active'" class="btn btn-primary btn-rounded" type="button">
+            </a>
+            <a href="/?sort=Active" class="zr-top-btn-rounded">
                 <i class="fa fa-comments"></i> active
-            </button>
+            </a>
         </div>
         <div class="col-lg-2"></div>
     </div>
@@ -85,13 +85,14 @@
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
+                    // We mark the first post with identifiers used in the tour
                     p.IsFirstPost = firstPost;
                     @Html.Partial(partialViewName: "_PartialPostRender", model: p)
                     firstPost = false;
                 }
             </div>
             <div class="social-feed-box">
-                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
+                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
             </div>
 
             <div class="social-feed-box">
@@ -105,8 +106,6 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
-
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
@@ -175,6 +174,10 @@
                                     $(item).find(".read-more-button").show();
                                 }
                             });
+                            $(".impression").each(function (ix, e) {
+                                $(e).load($(e).data("url"));
+                                $(e).removeClass("impression");
+                            });
                             $('.postTime').each(function (i, e) {
                                 var time = moment.utc($(e).html()).local().calendar();
                                 var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
@@ -196,6 +199,7 @@
                             $(".pop").popover({
                                 trigger: "manual",
                                 html: true,
+                                sanitize: false,
                                 animation: false
                             })
                             .on("mouseenter", function () {
@@ -235,6 +239,7 @@
                                         $(selectionMarker).popover({
                                             trigger: "hover",
                                             html: true,
+                                            sanitize: false,
                                             animation: false,
                                             title: "Quote",
                                             placement: "top",

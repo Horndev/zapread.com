@@ -436,10 +436,10 @@ namespace zapread.com.Controllers
                             var ea = new EarningEvent()
                             {
                                 Amount = earnedAmount,
-                                OriginType = 0, // 0 = post
+                                OriginType = 0,                     // 0 = post
                                 TimeStamp = DateTime.UtcNow,
-                                Type = 1, // 1 = group
-                                Id = gid, // Indicates the group which generated the payout
+                                Type = 1,                           // 1 = group
+                                OriginId = gid, // Indicates the group which generated the payout
                             };
                             owner.EarningEvents.Add(ea);
                             owner.TotalEarned += earnedAmount;
@@ -577,10 +577,10 @@ namespace zapread.com.Controllers
                         var ea = new EarningEvent()
                         {
                             Amount = earnedAmount,
-                            OriginType = 0, // 0 = post
+                            OriginType = 0,                 // 0 = post
                             TimeStamp = DateTime.UtcNow,
-                            Type = 2,   // 2 = community
-                            Id = 0,     // Indicates the group which generated the payout
+                            Type = 2,                       // 2 = community
+                            OriginId = 0,                   // Indicates the group which generated the payout
                         };
                         owner.EarningEvents.Add(ea);
                         owner.TotalEarned += earnedAmount;

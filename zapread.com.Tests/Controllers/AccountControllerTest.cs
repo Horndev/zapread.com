@@ -24,7 +24,7 @@ namespace zapread.com.Tests.Controllers
             AccountController controller = new AccountController();
 
             // Act
-            PartialViewResult result = controller.Balance() as PartialViewResult;
+            PartialViewResult result = controller.Balance().Result as PartialViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -49,7 +49,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            JsonResult result = controller.GetBalance() as JsonResult;
+            JsonResult result = controller.GetBalance().Result as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);

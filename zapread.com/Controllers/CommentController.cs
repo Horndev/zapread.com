@@ -274,7 +274,7 @@ namespace zapread.com.Controllers
                         await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { Comment = comment, Comments = new List<Comment>() });
+                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { StartVisible=true, Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
 
                 return this.Json(new
                 {
@@ -283,6 +283,109 @@ namespace zapread.com.Controllers
                     success = true,
                     IsReply = c.IsReply,
                     c.CommentId,
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> LoadMoreComments(int postId, int? commentId, int? nestLevel, string rootshown)
+        {
+            using (var db = new ZapContext())
+            {
+                var post = await db.Posts
+                    .Include(p => p.Comments)
+                    .FirstOrDefaultAsync(p => p.PostId == postId);
+
+                if (post == null)
+                {
+                    return HttpNotFound("Post not found");
+                }
+
+                var comment = await db.Comments
+                    .Include(c => c.Post)
+                    .Include(c => c.Post.Comments)
+                    .FirstOrDefaultAsync(c => c.CommentId == commentId);
+
+                if (comment == null && commentId != null)
+                {
+                    return HttpNotFound("Comment not found");
+                }
+
+                var userId = User.Identity.GetUserId();
+
+                var shown = rootshown.Split(';').Select(s => Convert.ToInt64(s)).ToList();
+
+                // these are the comments we will show
+                var commentIds = post.Comments.Where(c => !shown.Contains(c.CommentId))
+                    .Where(c => !c.IsReply)
+                    .OrderByDescending(c => c.Score)
+                    .ThenByDescending(c => c.TimeStamp)
+                    .Select(c => c.CommentId)
+                    .ToList();
+
+                //.Include(p => p.Group)
+                //        .Include(p => p.Comments)
+                //        .Include(p => p.Comments.Select(cmt => cmt.Parent))
+                //        .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                //        .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                //        .Include(p => p.Comments.Select(cmt => cmt.UserId))
+
+                // All the comments related to this post
+                var postComments = await db.Posts
+                    .Include(p => p.Group)
+                    .Include(p => p.Comments)
+                    .Include(p => p.Comments.Select(c => c.Parent))
+                    .Include(p => p.Comments.Select(c => c.VotesUp))
+                    .Include(p => p.Comments.Select(c => c.VotesDown))
+                    .Include(p => p.Comments.Select(c => c.UserId))
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.Comments)
+                    .ToListAsync();
+
+                string CommentHTMLString = "";
+
+                foreach (var cid in commentIds.Take(3)) // Comments in 3's
+                {
+                    var cmt = await db.Comments
+                    .Include(c => c.Post)
+                    .Include(c => c.Post.Comments)
+                    .Include(c => c.Post.Comments.Select(cm => cm.Parent))
+                    .Include(c => c.UserId)
+                    .Include(c => c.VotesUp)
+                    .Include(c => c.VotesDown)
+                    .Include(c => c.Parent)
+                    .Include(c => c.Parent.UserId)
+                    .FirstOrDefaultAsync(c => c.CommentId == cid);
+
+                    if (cmt == null)
+                    {
+                        return Json(new
+                        {
+                            success = true,
+                            more = false,
+                            HTMLString = ""
+                        });
+                    }
+
+                    var vm = new PostCommentsViewModel
+                    {
+                        NestLevel = nestLevel ?? 1,
+                        Comment = cmt,
+                        Comments = postComments,
+                        ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
+                        StartVisible = cmt.Score >= 0,
+                    };
+
+                    CommentHTMLString += RenderPartialViewToString("_PartialCommentRender", vm);
+                    shown.Add(cmt.CommentId);
+                }
+                
+                return Json(new
+                {
+                    success = true,
+                    shown = String.Join(";", shown),
+                    hasMore = commentIds.Count() > 3,
+                    HTMLString = CommentHTMLString
                 });
             }
         }
@@ -502,7 +605,6 @@ namespace zapread.com.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
-
 
         private async Task EnsureUserExists(string userId, ZapContext db)
         {

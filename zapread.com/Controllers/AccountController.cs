@@ -20,6 +20,7 @@ using System.Data.Entity;
 using Microsoft.Owin.Host.SystemWeb;
 using zapread.com.Services;
 using zapread.com.Models.Database;
+using System.Collections.Generic;
 
 namespace zapread.com.Controllers
 {
@@ -38,7 +39,7 @@ namespace zapread.com.Controllers
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -61,6 +62,11 @@ namespace zapread.com.Controllers
             string userId = "?";
             try
             {
+                if (!Request.IsAuthenticated)
+                {
+                    return Json(new { balance = 0 });
+                }
+
                 userId = User.Identity.GetUserId();
 
                 if (userId == null)
@@ -70,10 +76,14 @@ namespace zapread.com.Controllers
 
                 using (var db = new ZapContext())
                 {
-                    await EnsureUserExists(userId, db);
-                    var user = db.Users
+                    var user = await db.Users
                         .Include(usr => usr.Funds)
-                        .FirstOrDefault(u => u.AppId == userId);
+                        .FirstOrDefaultAsync(u => u.AppId == userId);
+
+                    if (user == null)
+                    {
+                        return Json(new { balance = 0 });
+                    }
 
                     return Json(new { balance = Math.Floor(user.Funds.Balance) });
                 }
@@ -114,12 +124,39 @@ namespace zapread.com.Controllers
                     db.Users.Add(u);
                     await db.SaveChangesAsync();
                 }
+                else
+                {
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId);
+                    if (user.Settings == null)
+                    {
+                        user.Settings = new UserSettings()
+                        {
+                            ColorTheme = "light",
+                            NotifyOnPrivateMessage = true,
+                            NotifyOnMentioned = true,
+                            NotifyOnNewPostSubscribedGroup = true,
+                            NotifyOnNewPostSubscribedUser = true,
+                            NotifyOnOwnCommentReplied = true,
+                            NotifyOnOwnPostCommented = true,
+                            NotifyOnReceivedTip = true,
+                        };
+                    }
+                    if (user.Languages == null)
+                    {
+                        user.Languages = "en";
+                    }
+                    if (user.LNTransactions == null)
+                    {
+                        user.LNTransactions = new List<LNTransaction>();
+                    }
+                    await db.SaveChangesAsync();
+                }
             }
         }
 
-        public ActionResult Balance()
+        public async Task<ActionResult> Balance()
         {
-            ViewBag.Balance = GetUserBalance();
+            ViewBag.Balance = await GetUserBalance();
             return PartialView("_PartialBalance");
         }
 
@@ -128,18 +165,18 @@ namespace zapread.com.Controllers
         // Returns the currently logged in user balance
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult GetBalance()
+        public async Task<ActionResult> GetBalance()
         {
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = GetUserBalance();
+                userBalance = await GetUserBalance();
             }
             string balance = userBalance.ToString("0.##");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
-        private double GetUserBalance()
+        private async Task<double> GetUserBalance()
         {
             double balance;
             try
@@ -148,9 +185,10 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var user = db.Users
+                    var user = await db.Users
                         .Include(i => i.Funds)
-                        .AsNoTracking().FirstOrDefault(u => u.AppId == uid);
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
 
                     if (user == null)
                     {
@@ -162,12 +200,12 @@ namespace zapread.com.Controllers
                         if (user.Funds == null)
                         {
                             // Neets to be initialized
-                            var user_modified = db.Users
+                            var user_modified = await db.Users
                                 .Include(i => i.Funds)
-                                .FirstOrDefault(u => u.AppId == uid);
+                                .FirstOrDefaultAsync(u => u.AppId == uid);
 
                             user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            db.SaveChanges();
+                            await db.SaveChangesAsync();
                             user = user_modified;
                         }
                         balance = user.Funds.Balance;
@@ -187,7 +225,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetSpendingSum/{days?}")]
-        public ActionResult GetSpendingSum(string days)
+        public async Task<ActionResult> GetSpendingSum(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -200,18 +238,18 @@ namespace zapread.com.Controllers
             
                 using (var db = new ZapContext())
                 {
-                    var userTxns = db.Users
-                            .Include(i => i.SpendingEvents)
-                            .Where(u => u.AppId == userId)
-                            .SelectMany(u => u.SpendingEvents);
+                    var sum = await db.Users
+                        .Include(i => i.SpendingEvents)
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.SpendingEvents)
+                        .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)
+                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
 
-                    // need to ensure that tx.Amount is not null
-                    var sum = userTxns
-                        .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .Sum(tx => (double?)tx.Amount) ?? 0;
-
-                    totalAmount = userTxns
-                        .Sum(tx => (double?)tx.Amount) ?? 0;
+                    totalAmount = await db.Users
+                        .Include(i => i.SpendingEvents)
+                        .Where(u => u.AppId == userId)
+                        .SelectMany(u => u.SpendingEvents)
+                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
 
                     amount = sum;
                 }
@@ -238,7 +276,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetEarningsSum/{days?}")]
-        public ActionResult GetEarningsSum(string days)
+        public async Task<ActionResult> GetEarningsSum(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -249,18 +287,18 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var userTxns = db.Users
-                            .Include(i => i.EarningEvents)
-                            .Where(u => u.AppId == uid)
-                            .SelectMany(u => u.EarningEvents);
-
-                    var sum = userTxns
+                    var sum = await db.Users
+                        .Include(i => i.EarningEvents)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.EarningEvents)
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .Sum(tx => tx.Amount);
+                        .SumAsync(tx => tx.Amount);
                     
-
-                    totalAmount = userTxns
-                        .Sum(tx => tx.Amount);
+                    totalAmount = await db.Users
+                        .Include(i => i.EarningEvents)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.EarningEvents)
+                        .SumAsync(tx => tx.Amount);
 
                     amount = sum;
                 }
@@ -280,7 +318,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("GetLNFlow/{days?}")]
-        public ActionResult GetLNFlow(string days)
+        public async Task<ActionResult> GetLNFlow(string days)
         {
             double amount = 0.0;
             int numDays = Convert.ToInt32(days);
@@ -290,15 +328,13 @@ namespace zapread.com.Controllers
                 {
                     // Get the logged in user ID
                     var uid = User.Identity.GetUserId();
-                    var userTxns = db.Users
-                            .Include(i => i.LNTransactions)
-                            .Where(u => u.AppId == uid)
-                            .SelectMany(u => u.LNTransactions);
-
-                    var sum = userTxns
+                    var sum = await db.Users
+                        .Include(i => i.LNTransactions)
+                        .Where(u => u.AppId == uid)
+                        .SelectMany(u => u.LNTransactions)
                         .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
                         .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0*tx.Amount })
-                        .Sum(tx => tx.amt);
+                        .SumAsync(tx => tx.amt);
                         
                     amount = sum;
                 }
@@ -373,31 +409,37 @@ namespace zapread.com.Controllers
                 return View(model);
             }
 
+            SignInStatus result;
+
             // Add administrator user impersonation code here (for debug)
-
-            ////string userNameToImpersonate = "THEUSERNAMEHERE";
-
-            ////var userToImpersonate = await UserManager
-            ////    .FindByNameAsync(userNameToImpersonate);
-            ////var identityToImpersonate = await UserManager
-            ////    .CreateIdentityAsync(userToImpersonate,
-            ////        DefaultAuthenticationTypes.ApplicationCookie);
-            ////var authenticationManager = HttpContext.GetOwinContext().Authentication;
-            ////authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            ////authenticationManager.SignIn(new AuthenticationProperties()
-            ////{
-            ////    IsPersistent = false
-            ////}, identityToImpersonate);
-            ////var result = SignInStatus.Success;
-
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(
-                userName: model.UserName,
-                password: model.Password,
-                isPersistent: model.RememberMe,
-                shouldLockout: false);
-
+            string userNameToImpersonate = null;//"USERTOIMPERSONATE";
+            if (userNameToImpersonate != null)
+            {
+                var userToImpersonate = await UserManager
+                .FindByNameAsync(userNameToImpersonate);
+                var identityToImpersonate = await UserManager
+                    .CreateIdentityAsync(userToImpersonate,
+                        DefaultAuthenticationTypes.ApplicationCookie);
+                var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                authenticationManager.SignIn(new AuthenticationProperties()
+                {
+                    IsPersistent = false
+                }, identityToImpersonate);
+                result = SignInStatus.Success;
+                model.UserName = userNameToImpersonate;
+            }
+            else
+            {
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, change to shouldLockout: true
+                result = await SignInManager.PasswordSignInAsync(
+                    userName: model.UserName,
+                    password: model.Password,
+                    isPersistent: model.RememberMe,
+                    shouldLockout: false);
+            }
+            
             switch (result)
             {
                 case SignInStatus.Success:
@@ -439,7 +481,7 @@ namespace zapread.com.Controllers
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe});
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
@@ -496,6 +538,16 @@ namespace zapread.com.Controllers
         public ActionResult Register()
         {
             return View();
+        }
+
+        public async Task<ActionResult> SendEmailConfirmation()
+        {
+            var userId = User.Identity.GetUserId();
+
+            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId, code = code }, protocol: Request.Url.Scheme);
+            await UserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
+            return RedirectToAction(actionName: "Index", controllerName: "Manage", routeValues: null);
         }
 
         //

@@ -7,6 +7,36 @@
  *
 */
 
+.ui-autocomplete {
+    position: absolute;
+    cursor: default;
+    z-index: 9999 !important;
+}  
+
+/* Social Copy Link styles */
+.jssocials-share-copy .jssocials-share-link {
+    background: #0a88ff;
+}
+
+.jssocials-share-copy .jssocials-share-link:hover {
+    background: #006ed6;
+}
+
+.commentCollapsed {
+    width: 100%;
+}
+
+.togglebutton {
+    color: lightgrey;
+}
+
+.switch-spinner {
+    display: none;
+    position: absolute;
+    margin-left: 13px;
+    font-size: 16px;
+}
+
 .blockquote {
     border-left: 5px solid #1ab394;
     padding-left: 5px;
@@ -769,6 +799,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 
 .top-navigation #page-wrapper {
     margin-left: 0;
+    padding-top: 15px;
 }
 
 .top-navigation .navbar-nav .dropdown-menu > .active > a {

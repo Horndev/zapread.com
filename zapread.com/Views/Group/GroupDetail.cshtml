@@ -135,7 +135,7 @@
             @if (Model.HasMorePosts)
         {
                 <div class="social-feed-box" id="showmore">
-                    <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <span id="loadmore" class="loading open-circle" style="display:none"></span></button>
+                    <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                 </div>
             }
             <div class="social-feed-box">
@@ -154,7 +154,6 @@
 
 @section Scripts {
 @Scripts.Render("~/plugins/selectize")
-@Scripts.Render("~/plugins/moment")
 
 <script type="text/javascript">
     var ub = @Model.UserBalance;
@@ -305,12 +304,6 @@
                         });
                         $(this).removeClass("sharing");
                     });
-                    $('.read-more').readMore({
-                        readMoreLinkClass: "read-more__link",
-                            readMoreText: "Read more",
-                            readLessText: "Read less",
-                            readMoreHeight: 800
-                        });
                     $(".c_input").summernote({
                         callbacks: {
                             onImageUpload: function (files) {
@@ -354,6 +347,10 @@
                     $(e).removeClass("c_input");
                 });
                 $(".note-statusbar").css("display", "none");
+                $(".impression").each(function (ix, e) {
+                    $(e).load($(e).data("url"));
+                    $(e).removeClass("impression");
+                });
             });
         }
     };

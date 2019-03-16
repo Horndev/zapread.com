@@ -103,13 +103,17 @@ namespace zapread.com.Services
                         Body = " Withdraw from user which doesn't exist.",
                         Email = "",
                         Name = "zapread.com Monitoring",
-                        Subject = "User withdraw error",
+                        Subject = "User withdraw error 2",
                     });
 
                     // Don't reveal information that user doesn't exist
                     return new { Result = "Error processing request." };
                 }
 
+                // Check all pending withdraw invoices and update balances before proceeding.
+
+
+                // Check if user has sufficient balance
                 if (user.Funds.Balance < Convert.ToDouble(decoded.num_satoshis))
                 {
                     return new { Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.") + ", invoice is for " + decoded.num_satoshis + "." };
@@ -138,6 +142,10 @@ namespace zapread.com.Services
                 //all (should be) ok - make the payment
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
                 {
+                    // Register polling listener
+
+
+                    // Execute payment
                     paymentresult = lndClient.PayInvoice(request);
                 }
                 else
@@ -150,9 +158,37 @@ namespace zapread.com.Services
 
                 if (paymentresult == null)
                 {
-                    t.ErrorMessage = "Error executing payment.";
-                    db.SaveChanges();
-                    return new { Result = "Error executing payment." };
+                    // Something went wrong.  Check if the payment went through
+                    var payments = lndClient.GetPayments();
+
+                    var pmt = payments.payments.Where(p => p.payment_hash == t.HashStr).FirstOrDefault();
+
+                    MailingService.Send(new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: " + request + "\r\n user: " + userId,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "User withdraw error 3",
+                    });
+
+                    if (pmt != null)
+                    {
+                        // the payment went through process withdrawal
+                        paymentresult = new SendPaymentResponse()
+                        {
+                            payment_route = new PaymentRoute()
+                            {
+                                total_fees = "0",
+                            }
+                        };
+                    }
+                    else
+                    {
+                        t.ErrorMessage = "Error executing payment.";
+                        db.SaveChanges();
+                        return new { Result = "Error executing payment." };
+                    }
                 }
 
                 if (paymentresult.error != null && paymentresult.error != "")
@@ -171,13 +207,18 @@ namespace zapread.com.Services
 
                 // should this be done here? Is there an async/sync check that payment was sent successfully?
                 user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
-                db.SaveChanges();
 
-                //update transaction status
+                //update transaction status in DB
                 t.IsSettled = true;
-                t.FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees));
+                try
+                {
+                    t.FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees));
+                }
+                catch
+                {
+                    t.FeePaid_Satoshi = 0;
+                }
 
-                //db.LightningTransactions.Add(t);
                 db.SaveChanges();
                 return new { Result = "success", Fees = 0 };
             }

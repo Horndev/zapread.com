@@ -70,7 +70,7 @@
                         </div>
                     </div>
                     <div class="sticky-top sticky-offset" id="editorToolbar"></div>
-                    <div class="click2edit wrapper p-md" style="min-height: 50;">
+                    <div class="click2edit wrapper p-md" style="min-height: 50px;">
                         @Html.Raw(Model.Post.Content)
                     </div>
                 </div>
@@ -78,9 +78,9 @@
                     <div class="row text-right">
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
-                            <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit()" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save()" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit()" type="button">Submit</button>
+                            <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(0,gid,false);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(0,gid,false);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -121,19 +121,17 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/selectize")
-    @Scripts.Render("~/plugins/moment")
-    @Scripts.Render("~/bundles/datatables")
+@Scripts.Render("~/plugins/selectize")
+@Scripts.Render("~/bundles/datatables")
+@Scripts.Render("~/bundles/post/edit")
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-    var knownGroups = [''];
     var gid = @Model.Post.Group.GroupId;
+    var knownGroups = [''];
     var draftsTable = {};
-    var postId = 0;
 
     $(document).ready(function () {
-        
         draftsTable = $('#draftsTable').DataTable({
             "searching": true,
             //"bInfo": false,
@@ -233,160 +231,5 @@
             focus: true
         });
     });
-
-    var loadpost = function (postId) {
-        swal({
-            title: "Are you sure?",
-            text: "Any unsaved changes in the current post will be lost.",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true
-        }).then((willDelete) => {
-            if (willDelete) {
-                var form = document.createElement('form');
-                document.body.appendChild(form);
-                form.method = 'post';
-                form.action = "/Post/Edit";
-                var data = { 'PostId': postId };
-                for (var name in data) {
-                    var input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = name;
-                    input.value = data[name];
-                    form.appendChild(input);
-                }
-                form.submit();
-            } else {
-                console.log("cancelled load");
-            }
-        });
-    };
-
-    var del = function (postId) {
-        swal({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this draft!",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true
-            }).then((willDelete) => {
-                if (willDelete) {
-                    $.post("@Url.Action("DeletePost",
-                        "Post")",
-                        { "PostId": postId },
-                        function (data) {
-                            if (data.Success) {
-                                swal("Deleted! Your draft has been deleted.", {
-                                    icon: "success",
-                                });
-                                draftsTable.ajax.reload(null, false);
-                            }
-                            else {
-                                swal("Error", "Error deleting draft.", "error");
-                            }
-                        }
-                    );
-                } else {
-                    console.log("cancelled delete");
-                }
-            });
-    };
-
-    var edit = function () {
-        $('.click2edit').summernote({
-            callbacks: {
-                onImageUpload: function (files) {
-                    that = $(this);
-                    sendFile(files[0], that);
-                }
-            },
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
-                ['fontname', ['fontname']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen']]
-            ],
-            focus: true
-        });
-    };
-
-    var submit = function () {
-        $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-        $('#submit').prop('disabled', true);
-        $('#save').prop('disabled', true);
-        var aHTML = $('.click2edit').summernote('code');
-        var postTitle = $('#postTitle').val();
-        var language = $('#languageSelect').val();
-        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': false, 'Language': language });
-        
-            
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "/Post/SubmitNewPost",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                $('#submit').prop('disabled', false);
-                var newPostUrl = "@Url.Action("Detail", "Post")";
-                newPostUrl = newPostUrl + '/' + response.postId;
-                window.location.replace(newPostUrl);
-
-            },
-            failure: function (response) {
-                $('#submit').prop('disabled', false);
-                $('#save').prop('disabled', false);
-                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            },
-            error: function (response) {
-                $('#submit').prop('disabled', false);
-                $('#save').prop('disabled', false);
-                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            }
-        });
-        $('.click2edit').summernote('destroy');
-    };
-
-    var save = function () {
-        $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-        $('#submit').prop('disabled', true);
-        $('#save').prop('disabled', true);
-        var aHTML = $('.click2edit').summernote('code');
-        var postTitle = $('#postTitle').val();
-        var language = $('#languageSelect').val();
-        var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': gid, 'Title': postTitle, 'IsDraft': true, 'Language': language });
-
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "/Post/SubmitNewPost",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                $('#submit').prop('disabled', false);
-                $('#save').prop('disabled', false);
-                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-                draftsTable.ajax.reload(null, false);
-            },
-            failure: function (response) {
-                $('#submit').prop('disabled', false);
-                $('#save').prop('disabled', false);
-                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            },
-            error: function (response) {
-                $('#submit').prop('disabled', false);
-                $('#save').prop('disabled', false);
-                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            }
-        });
-
-        $('.click2edit').summernote('destroy');
-    };
-    </script>
+</script>
 }

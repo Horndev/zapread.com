@@ -39,8 +39,6 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
-
     <script type="text/javascript">
         var ub = 100;//
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
@@ -83,7 +81,7 @@
                     match: /\B@@(\w*)$/,
                     search: function (keyword, callback) {
                         if (!keyword.length) return callback();
-                        var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                        var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                         $.ajax({
                             async: true,
                             url: '/Comment/GetMentions',
@@ -100,8 +98,6 @@
                         });
                     },
                     content: function (item) {
-                        //return '@@' + item;
-                        //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
                         return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
                     }
                 }
@@ -110,6 +106,15 @@
             $(".c_input_" + "@Model.Post.PostId").each(function (i, e) {
                 $(e).removeClass(".c_input_" + "@Model.Post.PostId");
             });
+
+            @if(ViewBag.showVote != null && ViewBag.showVote)
+            {
+                <text>
+                document.addEventListener("voteReady", function (e) {
+                    vote(@Model.Post.PostId, @ViewBag.vote, 1, 100);
+                });
+                </text>
+            }
         });
     </script>
 }

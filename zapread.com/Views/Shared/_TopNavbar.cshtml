@@ -42,23 +42,26 @@
             {
                 <ul class="nav navbar-nav" style="margin-left: 10px;">
                     <li class="nav-item">
-                        <a href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
+                        <a id="topFinancial" href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
                             <i class="fa fa-bitcoin"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;">
+                        <a id="topBalance" href="#" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;">
                             <div class="partialContents" data-url="/Account/Balance" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></div>
                         </a>
                     </li>
                 </ul>
                 <ul class="nav navbar-top-links">
                     <li class="dropdown">
-                        <a class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
+                        <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">-</span>
                         </a>
                         <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
+                                <span class="pull-right">
+                                    <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(0,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
+                                </span>
                                 <div class="text-center link-block">
                                     <a href="@Url.Action("All","Messages")">
                                         <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
@@ -73,17 +76,20 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
+                        <a id="topAlerts" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-bell" data-toggle="tooltip" data-placement="bottom" title="Alerts"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">-</span>
                         </a>
                         <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
+                                <span class="pull-right">
+                                    <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(1,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
+                                </span>
                                 <div class="text-center link-block">
                                     <a href="@Url.Action("Alerts","Messages")">
                                         <i class="fa fa-bell"></i> <strong>See All Alerts</strong>
-
                                     </a>
                                 </div>
+
                             </li>
                             <li class="divider"><hr /></li>
                             @if (true)
@@ -93,7 +99,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="padding-top: 15px;padding-bottom: 0px">
+                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="padding-top: 15px;padding-bottom: 0px">
                             <i class="fa fa-comments"></i>
                         </a>
                     </li>
@@ -116,6 +122,53 @@
             }
             else
             {
+                <ul class="nav navbar-nav" style="margin-left: 10px;">
+                    <li class="nav-item">
+                        <a id="topFinancial" href="@Url.Action("Login", "Account")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
+                            <i class="fa fa-bitcoin"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="topBalance" href="@Url.Action("Login", "Account")" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;">
+                            <div data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw">0</div>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-top-links">
+                    <li class="dropdown">
+                        <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
+                            <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                            <li>
+                                <div class="text-center link-block">
+                                    <a href="@Url.Action("Login","Account")">
+                                        <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a id="topAlerts" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
+                            <i class="fa fa-bell" data-toggle="tooltip" data-placement="bottom" title="Alerts"></i> 
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                            <li>
+                                <div class="text-center link-block">
+                                    <a href="@Url.Action("Login","Account")">
+                                        <i class="fa fa-bell"></i> <strong>See All Alerts</strong>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a id="topChat" href="@Url.Action("Login", "Account")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="padding-top: 15px;padding-bottom: 0px">
+                            <i class="fa fa-comments"></i>
+                        </a>
+                    </li>
+                </ul>
                 <ul class="nav navbar-nav">
                     <li id="navRegister" class="nav-item">
                         <a href="@Url.Action("Register", "Account")" class="nav-link" style="white-space:nowrap">

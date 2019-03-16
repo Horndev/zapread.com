@@ -14,6 +14,7 @@ using HtmlAgilityPack;
 using zapread.com.Helpers;
 using System.Globalization;
 using zapread.com.Models.Database;
+using Hangfire;
 
 namespace zapread.com.Controllers
 {
@@ -104,6 +105,23 @@ namespace zapread.com.Controllers
                     data = values
                 };
                 return Json(ret);
+            }
+        }
+
+        [HttpGet, Route("Post/Impressions/{id}")]
+        public async Task<PartialViewResult> Impressions(int? id)
+        {
+            using (var db = new ZapContext())
+            {
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == id);
+                if (post != null)
+                {
+                    post.Impressions += 1;
+                    ViewBag.PostImpressions = post.Impressions;
+                    await db.SaveChangesAsync();
+                }
+                return PartialView("_Impressions");
             }
         }
 
@@ -249,9 +267,16 @@ namespace zapread.com.Controllers
         public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
         {
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                return Json(new { result = "failure", success = false, message = "Error finding user account." });
+            }
+
             using (var db = new ZapContext())
             {
-                var user = db.Users.Where(u => u.AppId == userId).First();
+                var user = await db.Users.Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync();
 
                 // Cleanup post HTML
                 HtmlDocument postDocument = new HtmlDocument();
@@ -318,15 +343,16 @@ namespace zapread.com.Controllers
                     db.Posts.Add(post);
                     await db.SaveChangesAsync();
                 }
-                
-                if (p.IsDraft)
+
+                bool quiet = false;  // Used when debugging
+
+                if (p.IsDraft || quiet)
                 {
                     // Don't send any alerts
                     return Json(new { result = "success", postId = post.PostId });
                 }
 
                 // Send alerts to users subscribed to group
-
                 var subusers = db.Users
                     .Include("Alerts")
                     .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
@@ -344,16 +370,19 @@ namespace zapread.com.Controllers
                         To = u,
                         PostLink = post,
                     };
-
                     u.Alerts.Add(alert);
                 }
 
                 // Send alerts to users subscribed to users
-
                 var followUsers = db.Users
                     .Include("Alerts")
                     .Include("Settings")
                     .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
+
+                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                string subject = "New post by user you are following: " + user.Name;
+                string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject);
 
                 foreach (var u in followUsers)
                 {
@@ -379,37 +408,18 @@ namespace zapread.com.Controllers
                     if (u.Settings.NotifyOnNewPostSubscribedUser)
                     {
                         string followerEmail = UserManager.FindById(u.AppId).Email;
-                        string subject = "New post by user you are following: " + user.Name;
 
-                        var mailer = DependencyResolver.Current.GetService<MailerController>();
-                        mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                        await mailer.SendNewPost(post.PostId, followerEmail, subject);
-
-                        //// send email
-                        //var doc = new HtmlDocument();
-                        //doc.LoadHtml(post.Content);
-                        //var baseUri = new Uri("https://www.zapread.com/");
-                        //var imgs = doc.DocumentNode.SelectNodes("//img/@src");
-                        //if (imgs != null)
-                        //{
-                        //    foreach (var item in imgs)
-                        //    {
-                        //        // TODO: check if external url
-                        //        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                        //    }
-                        //}
-                        //string postContent = doc.DocumentNode.OuterHtml;
-
-                        //MailingService.Send(user: "Notify",
-                        //    message: new UserEmailModel()
-                        //    {
-                        //        Subject = subject,
-                        //        Body = "<a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>"+ post.PostTitle + "</a><br/><br/>" + postContent + "<br/><br/>" + "<a href='https://www.zapread.com'>zapread.com</a><br/><br/>Log in and go to your user settings to unsubscribe from these emails.", 
-                        //        Destination = followerEmail,
-                        //        Email = "",
-                        //        Name = "ZapRead.com Notify"
-                        //    });
+                        // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
+                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                            new UserEmailModel()
+                            {
+                                Destination = followerEmail,
+                                Body = emailBody,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = subject,
+                            }, "Notify"));
+                        //await mailer.SendNewPost(post.PostId, followerEmail, subject);
                     }
                 }
 
@@ -460,7 +470,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users.Where(u => u.AppId == userId).First();
-                var post = db.Posts.AsNoTracking().Include(p => p.UserId).FirstOrDefault(p => p.PostId == i.PostId);
+                var post = db.Posts.Include(p => p.UserId).Include(p => p.Group).FirstOrDefault(p => p.PostId == i.PostId);
                 if (post == null)
                 {
                     return RedirectToAction("Index", "Home");
@@ -469,9 +479,15 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="PostId"></param>
+        /// <param name="vote">0 = downvote, 1 = upvote</param>
+        /// <returns></returns>
         [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int PostId)
+        public async Task<ActionResult> Detail(int PostId, int? vote)
         {
             using (var db = new ZapContext())
             {
@@ -504,39 +520,49 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == PostId);
 
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (user != null && user.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
-                }
-
                 if (pst == null)
                 {
                     return RedirectToAction("PostNotFound");
                 }
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                PostViewModel vm = new PostViewModel()
+                if (vote.HasValue)
                 {
-                    Post = pst,
-                    ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
-                    ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                    ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                    ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
-                    NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
-                    ViewerIgnoredUsers = viewerIgnoredUsers,
-                    GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                    GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                    GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
-                };
+                    ViewBag.showVote = true;
+                    ViewBag.vote = vote.Value;
+                }
 
-                return View(vm);
+                return View(await GeneratePostViewModel(db, user, pst));
             }
+        }
+
+        private static async Task<PostViewModel> GeneratePostViewModel(ZapContext db, User user, Post pst)
+        {
+            List<int> viewerIgnoredUsers = new List<int>();
+
+            if (user != null && user.IgnoringUsers != null)
+            {
+                viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+            }
+
+            var groups = await db.Groups
+                    .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+            PostViewModel vm = new PostViewModel()
+            {
+                Post = pst,
+                ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
+                ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
+                ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
+                NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
+                ViewerIgnoredUsers = viewerIgnoredUsers,
+                GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
+                GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
+                GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
+            };
+            return vm;
         }
 
         public ActionResult PostNotFound()
@@ -547,6 +573,7 @@ namespace zapread.com.Controllers
         public class UpdatePostMessage
         {
             public int PostId { get; set; }
+            public int GroupId { get; set; }
             public string UserId { get; set; }
             public string Content { get; set; }
             public string Title { get; set; }
@@ -568,13 +595,12 @@ namespace zapread.com.Controllers
                     .SingleOrDefaultAsync(u => u.AppId == userId);
                 var post = await db.Posts
                     .Include(ps => ps.UserId)
+                    .Include(ps => ps.Group)
                     .SingleOrDefaultAsync(ps => ps.PostId == p.PostId);
-
                 if (post == null)
                 {
                     return Json(new { result = "error" });
                 }
-
                 if (post.UserId.Id != user.Id)
                 {
                     return Json(new { result = "error", message = "User authentication error." });
@@ -601,6 +627,12 @@ namespace zapread.com.Controllers
                 {
                     // Post was already live - only edit timestamp can be changed.
                     post.TimeStampEdited = DateTime.UtcNow;
+                }
+                if (post.Group.GroupId != p.GroupId)
+                {
+                    // Need to reset score
+                    post.Score = 1;
+                    post.Group = await db.Groups.FirstAsync(g => g.GroupId == p.GroupId);
                 }
 
                 post.IsDraft = p.IsDraft;

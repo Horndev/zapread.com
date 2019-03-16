@@ -285,7 +285,6 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/moment")
     @Scripts.Render("~/bundles/datatables")
 
     <script type="text/javascript">
@@ -352,7 +351,16 @@
                 },
                 "columns": [
                     { "data": "Time", "orderable": true },
-                    { "data": "Type", "orderable": false },
+                    {
+                        "data": null,
+                        "orderable": false,
+                        "mRender": function (data, type, row) {
+                            if (data.Memo != "") {
+                                return "<a href='" + data.URL + "'>" + data.Type + " (" + data.Memo + ")" + "</a>";
+                            }
+                            return data.Type
+                        }
+                    },
                     { "data": "Amount", "orderable": false },
                 ],
             });
