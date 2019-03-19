@@ -60,9 +60,13 @@ namespace zapread.com
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
-                        //"~/node_modules/dropzone/dist/dropzone.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
                         "~/Scripts/Manage/index.js")
+                        .WithLastModifiedToken());
+
+            // Group/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
+                        "~/Scripts/Groups/index.js")
                         .WithLastModifiedToken());
 
             // Post/NewPost scripts
