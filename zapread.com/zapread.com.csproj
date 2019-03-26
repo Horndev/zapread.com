@@ -1809,6 +1809,7 @@
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
     <Content Include="Views\Post\_Impressions.cshtml" />
     <Content Include="Views\Test\UploadImage.cshtml" />
+    <Content Include="Views\User\_PartialUserHover.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

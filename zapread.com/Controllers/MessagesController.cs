@@ -39,6 +39,11 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         public async Task<ActionResult> Chats()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Messages/Chats" });
+            }
+
             return View();
         }
 
