@@ -22,7 +22,7 @@ namespace zapread.com.Controllers
     {
         // GET: Group
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int? p = 1)
         {
             using (var db = new ZapContext())
             {
