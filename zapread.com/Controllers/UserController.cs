@@ -109,6 +109,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        public async Task<JsonResult> Hover(int userId)
+        {
+            return Json(new { });
+        }
+
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
@@ -533,6 +538,26 @@ namespace zapread.com.Controllers
              */
             
             return PartialView();
+        }
+
+        // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        protected string RenderViewToString(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.RouteData.GetRequiredString("action");
+
+            ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult =
+                    ViewEngines.Engines.FindView(ControllerContext, "~/Views/User/" + viewName + ".cshtml", null);
+                ViewContext viewContext = new ViewContext
+                (ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
+            }
         }
     }
 }

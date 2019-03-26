@@ -1674,6 +1674,7 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\Groups\index.js" />
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
@@ -1809,6 +1810,7 @@
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
     <Content Include="Views\Post\_Impressions.cshtml" />
     <Content Include="Views\Test\UploadImage.cshtml" />
+    <Content Include="Views\User\_PartialUserHover.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

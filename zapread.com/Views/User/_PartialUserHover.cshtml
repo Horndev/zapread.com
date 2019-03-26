@@ -1,0 +1,18 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.Database.User
+
+<span class='btn btn-link btn-sm' data-toggle='tooltip' data-placement='bottom' title='Reputation'>
+    @Model.Reputation.ToAbbrString() <i class='fa fa-star'></i>
+</span>
+<a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'>
+    <i class='fa fa-envelope'></i>
+</a>&nbsp;
+<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(@Model.Id,1);'>
+    <i class='fa fa-user-plus'></i>
+</a>
+<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert("Not yet implemented.");'>
+    <i class='fa fa-bolt'></i>
+</a>
+<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert("Not yet implemented.  Please go to user page to ignore.");'>
+    <i class='fa fa-minus-circle'></i>
+</a>
