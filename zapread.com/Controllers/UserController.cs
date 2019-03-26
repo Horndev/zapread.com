@@ -109,10 +109,8 @@ namespace zapread.com.Controllers
             }
         }
 
-
         public async Task<JsonResult> Hover(int userId)
         {
-
             return Json(new { });
         }
 
