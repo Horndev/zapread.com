@@ -143,6 +143,7 @@ namespace zapread.com
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css",
+                      "~/Content/style/hover.css",
                       "~/Content/style/roundlinks.css")
                       .WithLastModifiedToken());
 

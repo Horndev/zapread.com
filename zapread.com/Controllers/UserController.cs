@@ -109,9 +109,18 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Hover/")]
         public async Task<JsonResult> Hover(int userId)
         {
-            return Json(new { });
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .FirstOrDefault(u => u.Id == userId);
+
+                string HTMLString = RenderPartialViewToString("_PartialUserHover", model: user);
+                return Json(new { success = true, HTMLString });
+            }
         }
 
         // GET: User

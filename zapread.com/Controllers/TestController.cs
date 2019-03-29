@@ -22,6 +22,12 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        public async Task<ViewResult> UserHover()
+        {
+
+            return View();
+        }
+
         public async Task<JsonResult> UpdateProfileImage(HttpPostedFileBase file)
         {
             if (file.ContentLength > 0)
