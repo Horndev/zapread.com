@@ -111,12 +111,24 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [Route("Hover/")]
-        public async Task<JsonResult> Hover(int userId)
+        public async Task<JsonResult> Hover(int userId, string username)
         {
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .FirstOrDefault(u => u.Id == userId);
+                User user;
+                if (userId == -1)
+                {
+                    user = db.Users.FirstOrDefault(u => u.Name == username);
+                }
+                else
+                {
+                    user = db.Users.FirstOrDefault(u => u.Id == userId);
+                }
+
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
 
                 string HTMLString = RenderPartialViewToString("_PartialUserHover", model: user);
                 return Json(new { success = true, HTMLString });

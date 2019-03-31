@@ -8,22 +8,13 @@
 <div class="row">
     <div class="col text-center">
         <div>
-            @*<a href="#" class="zr-user" data-container="body" data-toggle="popover" data-userid="1" onmouseover="loadhover(this);">Zelgada</a>*@
-            <a class="zr-user" 
+            <a class="zr-user"
                onmouseover="loadhover(this);"
                data-userid="1"
-               data-user="@Url.Encode("Zelgada")" 
-               data-container="body" 
-               @*data-toggle="popover"*@ 
-               data-placement="top"
-               data-content="<span>!</span>"@*<span class='btn btn-link btn-sm' data-toggle='tooltip' data-placement='bottom' title='Reputation'>1 <i class='fa fa-star'></i></span><a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = 1 })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'><i class='fa fa-envelope'></i> </a>&nbsp;<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(1,1);'><i class='fa fa-user-plus'></i></a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert(&quot;Not yet implemented.&quot;);'><i class='fa fa-bolt'></i> </a><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert(&quot;Not yet implemented.  Please go to user page to ignore.&quot;);'><i class='fa fa-minus-circle'></i> </a>"*@
-               data-original-title="" 
-               title=""
                href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = "Z" })">
                 Zelgada
             </a>
         </div>
-        
     </div>
 </div>
 <div class="row">
@@ -31,101 +22,38 @@
         Other text<br /><br /><br /><br /><br />
     </div>
 </div>
-
-
-
+<div class="row">
+    <div class="col text-center">
+        <div>
+            <span class="zr-user"
+               onmouseover="loadhover(this);"
+               data-userid="1">
+                Zelgada
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <br />
+        Other text<br /><br /><br /><br /><br />
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <div>
+            <span class="zr-user badge badge-info userhint" onmouseover="loadhover(this);">
+                @@Zelgada
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <br />
+        No Userid<br /><br /><br /><br /><br />
+    </div>
+</div>
 @section Scripts {
-<script type="text/javascript">
-    // http://jsfiddle.net/9RxLM/
-    var loadhover = function (e) {
-        $(e).removeAttr('onmouseover')
-
-        var msg = JSON.stringify({
-            'userId': $(e).data('userid')
-        });
-        console.log(msg);
-        
-        $.ajax({
-            type: "POST",
-            url: "/User/Hover",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    console.log(response.HTMLString);
-                    $(e).attr("data-content", response.HTMLString);
-
-                    $(".zr-user").popover({
-                        trigger: "manual",
-                        html: true,
-                        sanitize: false,
-                        animation: false,
-                    })
-                        .on("mouseenter", function () {
-                            var _this = this;
-                            $(this).popover("show");
-                            $(".popover").addClass("tooltip-hover");
-                            $(".popover").on("mouseleave", function () {
-                                $(_this).popover('hide');
-                            });
-                        })
-                        .on("mouseleave", function () {
-                            var _this = this;
-                            setTimeout(function () {
-                                if (!$(".popover:hover").length) {
-                                    $(_this).popover("hide");
-                                }
-                            }, 300);
-                        });
-                    $(".zr-user").popover("show");
-
-                    $(".zr-user").each(function () {
-                        $(this).removeClass("zr-user");
-                    });
-
-                }
-                else {
-                    alert(response.Message);
-                }
-            },
-            failure: function (response) {
-                console.log('load more failure');
-            },
-            error: function (response) {
-                console.log('load more error');
-            }
-        });
-
-
-    };
-
-    var hover = function (e) {
-        
-    };
-
-    //$(".zr-user").popover({
-    //    trigger: "manual",
-    //    html: true,
-    //    sanitize: false,
-    //    animation: false
-    //})
-    //    .on("mouseenter", function () {
-    //        var _this = this;
-    //        $(this).popover("show");
-    //        $('[data-toggle="tooltip"]').tooltip()
-    //        $(".popover").addClass("tooltip-hover");
-    //        $(".popover").on("mouseleave", function () {
-    //            $(_this).popover('hide');
-    //        });
-    //    })
-    //    .on("mouseleave", function () {
-    //        var _this = this;
-    //        setTimeout(function () {
-    //            if (!$(".popover:hover").length) {
-    //                $(_this).popover("hide");
-    //            }
-    //        }, 300);
-    //    });
-</script>
+    @Scripts.Render("~/bundles/users")
 }
