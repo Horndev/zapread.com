@@ -46,6 +46,7 @@ namespace zapread.com
             // Shared scripts
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         "~/Scripts/main.js",                                    // Custom for all
+                        "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
@@ -67,6 +68,11 @@ namespace zapread.com
             // Group/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
                         "~/Scripts/Groups/index.js")
+                        .WithLastModifiedToken());
+
+            // User scripts
+            bundles.Add(new ScriptBundle("~/bundles/users").Include(
+                        "~/Scripts/Users/hover.js")
                         .WithLastModifiedToken());
 
             // Post/NewPost scripts
@@ -143,6 +149,7 @@ namespace zapread.com
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css",
+                      "~/Content/style/hover.css",
                       "~/Content/style/roundlinks.css")
                       .WithLastModifiedToken());
 

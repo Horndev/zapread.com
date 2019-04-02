@@ -32,7 +32,7 @@ $(document).ready(function () {
     .on("mouseenter", function () {
         var _this = this;
         $(this).popover("show");
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip();
         $(".popover").addClass("tooltip-hover");
         $(".popover").on("mouseleave", function () {
             $(_this).popover('hide');
@@ -76,7 +76,6 @@ $(document).ready(function () {
     });
 
 }); // End document ready
-
 
 var writeComment = function (e) {
     var id = $(e).data("postid");

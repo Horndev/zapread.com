@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -109,9 +110,45 @@ namespace zapread.com.Controllers
             }
         }
 
-        public async Task<JsonResult> Hover(int userId)
+        [HttpPost]
+        [Route("Hover/")]
+        public async Task<JsonResult> Hover(int userId, string username)
         {
-            return Json(new { });
+            using (var db = new ZapContext())
+            {
+                User user;
+                if (userId == -1)
+                {
+                    string usernameClean = CleanUsername(username);
+                    user = db.Users.FirstOrDefault(u => u.Name == usernameClean);
+                }
+                else
+                {
+                    user = db.Users.FirstOrDefault(u => u.Id == userId);
+                }
+
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
+
+                string HTMLString = RenderPartialViewToString("_PartialUserHover", model: user);
+                return Json(new { success = true, HTMLString });
+            }
+        }
+
+        private static string CleanUsername(string username)
+        {
+            string usernameCleaned = username;
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(username);
+
+            // Need to remove any html tags
+
+            usernameCleaned = doc.DocumentNode.InnerText.Replace("@", "");
+
+            return usernameCleaned.Trim();
         }
 
         // GET: User
