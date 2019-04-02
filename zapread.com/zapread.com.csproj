@@ -1707,6 +1707,7 @@
     <Content Include="Scripts\summernote\dist\summernote.css" />
     <Content Include="Scripts\Users\hover.js" />
     <Content Include="Scripts\Utility\clipboard-element.js" />
+    <Content Include="Scripts\Utility\zr-loadmore.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

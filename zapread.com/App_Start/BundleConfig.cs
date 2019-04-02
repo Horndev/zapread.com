@@ -46,6 +46,7 @@ namespace zapread.com
             // Shared scripts
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         "~/Scripts/main.js",                                    // Custom for all
+                        "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)

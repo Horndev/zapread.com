@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -118,7 +119,8 @@ namespace zapread.com.Controllers
                 User user;
                 if (userId == -1)
                 {
-                    user = db.Users.FirstOrDefault(u => u.Name == username);
+                    string usernameClean = CleanUsername(username);
+                    user = db.Users.FirstOrDefault(u => u.Name == usernameClean);
                 }
                 else
                 {
@@ -133,6 +135,20 @@ namespace zapread.com.Controllers
                 string HTMLString = RenderPartialViewToString("_PartialUserHover", model: user);
                 return Json(new { success = true, HTMLString });
             }
+        }
+
+        private static string CleanUsername(string username)
+        {
+            string usernameCleaned = username;
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(username);
+
+            // Need to remove any html tags
+
+            usernameCleaned = doc.DocumentNode.InnerText.Replace("@", "");
+
+            return usernameCleaned.Trim();
         }
 
         // GET: User

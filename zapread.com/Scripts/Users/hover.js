@@ -1,6 +1,14 @@
 ﻿/* Username hover
 */
 
+$(document).ready(function () {
+    $('.userhint').each(function () {
+        $(this).mouseover(function () {
+            loadhover(this);
+        });
+    });
+});
+
 var loadhover = function (e) {
     $(e).removeAttr('onmouseover');
     var userid = $(e).data('userid');

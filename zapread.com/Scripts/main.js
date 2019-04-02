@@ -77,7 +77,6 @@ $(document).ready(function () {
 
 }); // End document ready
 
-
 var writeComment = function (e) {
     var id = $(e).data("postid");
     initCommentInput(id);
