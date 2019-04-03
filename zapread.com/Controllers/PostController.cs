@@ -263,6 +263,21 @@ namespace zapread.com.Controllers
             }
         }
 
+        private static string SanitizePostXSS(string postText)
+        {
+            var sanitizer = new Ganss.XSS.HtmlSanitizer();
+            sanitizer.AllowedTags.Remove("button");
+            sanitizer.AllowedTags.Add("iframe");
+            sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Add("frameborder");
+            sanitizer.AllowedAttributes.Add("allowfullscreen");
+            sanitizer.AllowedAttributes.Add("seamless");
+            sanitizer.AllowedAttributes.Remove("id");
+
+            var sanitizedComment = sanitizer.Sanitize(postText);
+            return sanitizedComment;
+        }
+
         [HttpPost]
         public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
         {
@@ -293,7 +308,7 @@ namespace zapread.com.Controllers
                         }
                     }
                 }
-                string contentStr = postDocument.DocumentNode.OuterHtml;
+                string contentStr = SanitizePostXSS(postDocument.DocumentNode.OuterHtml);
 
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
 
