@@ -392,12 +392,16 @@ namespace zapread.com.Controllers
 
         private static Comment CreateComment(NewComment c, User user, Post post, Comment parent)
         {
+            // Sanitize for XSS
+            string commentText = c.CommentContent;
+            string sanitizedComment = SanitizeCommentXSS(commentText);
+
             return new Comment()
             {
                 Parent = parent,
                 IsReply = c.IsReply,
                 UserId = user,
-                Text = c.CommentContent,
+                Text = sanitizedComment,
                 TimeStamp = DateTime.UtcNow,
                 Post = post,
                 Score = 0,
@@ -406,6 +410,21 @@ namespace zapread.com.Controllers
                 VotesDown = new List<User>(),
                 IsDeleted = c.IsDeleted,
             };
+        }
+
+        private static string SanitizeCommentXSS(string commentText)
+        {
+            var sanitizer = new Ganss.XSS.HtmlSanitizer(
+                allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-right", "width" },
+                allowedCssClasses: new[] { "badge", "badge-info", "userhint", "blockquote", "img-fluid" });
+
+            sanitizer.AllowedTags.Remove("button");
+
+            sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Remove("id");
+            
+            var sanitizedComment = sanitizer.Sanitize(commentText);
+            return sanitizedComment;
         }
 
         private async Task NotifyUserMentioned(ZapContext db, User user, Post post, Comment comment, HtmlNode s)
