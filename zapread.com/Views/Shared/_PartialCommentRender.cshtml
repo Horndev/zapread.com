@@ -127,9 +127,12 @@
                             else
                             {
                                 <div>@Html.Raw(Model.Comment.Text)</div><br />
-                                <div class="" style="position: absolute; bottom: 0px;left: 0px;">
-                                    <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
-                                </div>
+                                if (Request.IsAuthenticated)
+                                {
+                                    <div class="" style="position: absolute; bottom: 0px;left: 0px;">
+                                        <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                                    </div>
+                                }
                             }
                         }
                         <div class="row">
