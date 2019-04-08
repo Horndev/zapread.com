@@ -66,6 +66,143 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost, Route("Group/GetGroupsTable")]
+        public async Task<ActionResult> GetGroupsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                var sorts = dataTableParameters.Order;
+                var search = dataTableParameters.Search;
+
+                //var searchstr = searchstr.Resplace("\"", "");
+                //var matched = db.Groups.Where(g => g.GroupName.Contains(searchstr) || g.Tags.Contains(searchstr)).AsNoTracking().Take(30).ToList();
+
+                User user = await GetCurrentUser(db);
+                ValidateClaims(user);
+                int userid = user != null ? user.Id : 0;
+
+                // Build query
+                var groupsQ = db.Groups
+                    .Select(g => new
+                    {
+                        numPosts = g.Posts.Count(),
+                        numMembers = g.Members.Count(),
+                        IsMember = g.Members.Select(m => m.Id).Contains(userid),
+                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
+                        g,
+                    }).AsNoTracking();
+
+                if (search.Value != null)
+                {
+                    groupsQ = groupsQ.Where(g => g.g.GroupName.Contains(search.Value) || g.g.Tags.Contains(search.Value));
+                }
+
+                groupsQ = groupsQ.OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute);
+
+                var groups = await groupsQ
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length).ToListAsync();
+
+
+                var values = groups.Select(g => new GroupInfo()
+                {
+                    Id = g.g.GroupId,
+                    CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
+                    Name = g.g.GroupName,
+                    NumMembers = g.numMembers,
+                    NumPosts = g.numPosts,
+                    Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
+                    Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
+                    Level = g.g.Tier,
+                    Progress = GetGroupProgress(g.g),
+                    IsMember = g.IsMember,
+                    IsLoggedIn = user != null,
+                    IsMod = g.IsModerator,
+                    IsAdmin = g.IsAdmin,
+                }).ToList();
+
+                //// Build our query
+                //var pageUsersQS = db.Users
+                //    .Include("Funds")
+                //    .Include("Posts")
+                //    .Include("Comments");
+                //IOrderedQueryable<User> pageUsersQ = null;// pageUsersQS.OrderByDescending(q => q.Id);
+
+                //foreach (var s in sorts)
+                //{
+                //    if (s.Dir == "asc")
+                //    {
+                //        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                //            pageUsersQ = pageUsersQS.OrderBy(q => q.DateJoined);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                //            pageUsersQ = pageUsersQS.OrderBy(q => q.DateLastActivity);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Posts.Count);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Comments.Count);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Funds == null ? 0 : q.Funds.Balance);
+                //    }
+                //    else
+                //    {
+                //        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
+                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateJoined);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
+                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateLastActivity);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
+                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Posts.Count);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
+                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Comments.Count);
+                //        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
+                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Funds == null ? 0 : q.Funds.Balance);
+                //    }
+                //}
+
+                //if (pageUsersQ == null)
+                //{
+                //    pageUsersQ = pageUsersQS.OrderByDescending(q => q.Id);
+                //}
+
+                //var pageUsers = await pageUsersQ
+                //    .Skip(dataTableParameters.Start)
+                //    .Take(dataTableParameters.Length)
+                //    .ToListAsync();
+
+                //var values = pageUsers.AsParallel()
+                //    .Select(u => new GroupInfo()
+                //    {
+                //        UserName = u.Name,
+                //        DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
+                //        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
+                //        NumPosts = u.Posts.Count.ToString(),
+                //        NumComments = u.Comments.Count.ToString(),
+                //        Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
+                //        Id = u.AppId,
+                //    }).ToList();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = await db.Groups.CountAsync(),
+                    recordsFiltered = await groupsQ.CountAsync(),
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        public class GroupDataItem
+        {
+            public string Icon { get; set; }
+            public string Name { get; set; }
+            public string Tags { get; set; }
+            public string Progress { get; set; }
+            public string Tier { get; set; }
+            public string Members { get; set; }
+            public string Posts { get; set; }
+        }
+
         private void ValidateClaims(User user)
         {
             if (user != null)
