@@ -7,6 +7,16 @@
  *
 */
 
+.dataTables_filter {
+    display: inline-block;
+    text-align: center;
+}
+
+.dataTables_paginate {
+    display: inline-block;
+    text-align: center;
+}
+
 .ui-autocomplete {
     position: absolute;
     cursor: default;
