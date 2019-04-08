@@ -216,41 +216,43 @@
     }
         <div id=@("comments_" + @Model.Post.PostId.ToString()) @*@if (Model.NumComments < 1) { <text> style="display: none" </text> }*@>
             @if (Model.Post.Comments != null)
-            {
-                var numshown = 0;
-                bool showmore = false;
-                List<long> rootshown = new List<long>();
-                foreach (var comment in Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                 {
-                    var vm = new PostCommentsViewModel
+                    var numshown = 0;
+                    bool showmore = false;
+                    List<long> rootshown = new List<long>();
+                    var comments = Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
+                    var numComments = comments.Count();
+                    foreach (var comment in comments)
                     {
-                        NestLevel = 1, // Root level comment
-                        Comment = comment,
-                        Comments = Model.Post.Comments.ToList(),
-                        ViewerIgnoredUsers = Model.ViewerIgnoredUsers
-                    };
+                        var vm = new PostCommentsViewModel
+                        {
+                            NestLevel = 1, // Root level comment
+                            Comment = comment,
+                            Comments = Model.Post.Comments.ToList(),
+                            ViewerIgnoredUsers = Model.ViewerIgnoredUsers
+                        };
 
-                    // Have the top 3 root comments start visible
-                    if (numshown < 3 && comment.Score >= 0)
-                    {
-                        numshown += 1;
-                        vm.StartVisible = true;
-                        @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
-                        rootshown.Add(comment.CommentId);
+                        // Have the top 3 root comments start visible
+                        if (numshown < 3 && comment.Score >= 0)
+                        {
+                            numshown += 1;
+                            vm.StartVisible = true;
+                            @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
+                            rootshown.Add(comment.CommentId);
+                        }
+                        else if (numshown < 3)
+                        {
+                            numshown += 1;
+                            vm.StartVisible = false;
+                            @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
+                        }
+                        if (numshown >= 3 && numComments > 3)
+                        {
+                            showmore = true;
+                        }
                     }
-                    else if (numshown < 3)
+                    if (showmore)
                     {
-                        numshown += 1;
-                        vm.StartVisible = false;
-                        @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
-                    }
-                    if (numshown >= 3)
-                    {
-                        showmore = true;
-                    }
-                }
-                if (showmore)
-                {
                     <div class="insertComments" id="mc_@Model.Post.PostId"></div> @*new comments appear below this div*@ 
                     <text><div onclick="loadMoreComments(this);" data-postid="@Model.Post.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div></text>
                 }

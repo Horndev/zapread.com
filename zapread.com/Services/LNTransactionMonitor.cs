@@ -39,7 +39,7 @@ namespace zapread.com.Services
                     if (i.HashStr != null)
                     {
                         var inv = lndClient.GetInvoice(rhash: i.HashStr);
-                        if (inv.settled != null && inv.settled == true)
+                        if (inv != null && inv.settled != null && inv.settled == true)
                         {
                             // Paid but not applied in DB
                             var use = i.UsedFor;
@@ -103,7 +103,7 @@ namespace zapread.com.Services
                                 }
                             }
                         }
-                        else
+                        else if (inv != null)
                         {
                             // Not settled - check expiry
                             var t1 = Convert.ToInt64(inv.creation_date);
