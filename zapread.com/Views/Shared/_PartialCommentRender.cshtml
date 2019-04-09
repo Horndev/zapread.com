@@ -105,7 +105,7 @@
                     }
                     <small>
                         -@if (Model.Comment.IsReply)
-                        {<text> replied to <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentComment.UserId.Name.Trim() })">@@@Model.ParentComment.UserId.Name</a> </text> }
+                        {<text> replied to <a class="userhint" data-userid="@Model.ParentComment.UserId.Id" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentComment.UserId.Name.Trim() })">@@@Model.ParentComment.UserId.Name</a> </text> }
                     else
                     { <text> commented </text>}
                     </small><small class="postTime text-muted">@Model.Comment.TimeStamp.Value.ToString("o")</small>
@@ -114,7 +114,6 @@
                         <span class="text-muted" style="display:inline"> edited </span>
                         <small class="postTime text-muted" style="display: none">@Model.Comment.TimeStampEdited.Value.ToString("o")</small>
                     }
-
                         <div class="row">
                             <div class="comment-quotable" id="commentText_@Model.Comment.CommentId" style="position: relative;" data-commentid="@Model.Comment.CommentId">
                                 @if (isIgnoredUser)
