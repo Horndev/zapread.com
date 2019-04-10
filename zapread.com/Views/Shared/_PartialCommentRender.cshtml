@@ -131,13 +131,13 @@
                                         <div>@Html.Raw(Model.Comment.Text)</div>
                                     }
                                 }
-                                @if (Request.IsAuthenticated)
-                                {
-                                    <div>
-                                        <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
-                                    </div>
-                                }
                             </div>
+                            @if (Request.IsAuthenticated)
+                            {
+                                <div>
+                                    <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                                </div>
+                            }
                         </div>
                 </div>
                 <div id="c_reply_@Model.Comment.CommentId" style="display: none">
