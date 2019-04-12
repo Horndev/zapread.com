@@ -138,9 +138,11 @@ namespace zapread.com.Controllers
                     user.SpendingEvents.Add(spendingEvent);
                 }
 
-                if (v.d == 1)
+                long authorRep = post.UserId.Reputation;
+                long userRep = 0;
+                
+                if (v.d == 1) // Voted up
                 {
-                    // Voted up
                     if (user != null && post.VotesUp.Contains(user))
                     {
                         // Already voted - remove upvote?
@@ -153,9 +155,11 @@ namespace zapread.com.Controllers
                     {
                         post.VotesUp.Add(user);
                         user.PostVotesUp.Add(post);
+                        userRep = user.Reputation;
                     }
 
-                    post.Score += v.a;
+                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, authorRep, userRep);
+                    post.Score += Convert.ToInt32(adj);// v.a;
 
                     // Record and assign earnings
                     // Related to post owner
@@ -257,11 +261,13 @@ namespace zapread.com.Controllers
                     {
                         post.VotesDown.Add(user);
                         user.PostVotesDown.Add(post);
+                        userRep = user.Reputation;
                     }
                     //post.VotesUp.Remove(user);
                     //user.PostVotesUp.Remove(post);
+                    var adj = ReputationService.GetReputationAdjustedAmount(-1*v.a, authorRep, userRep);
 
-                    post.Score = post.Score - v.a;// post.VotesUp.Count() - post.VotesDown.Count();
+                    post.Score += Convert.ToInt32(adj);// v.a;// post.VotesUp.Count() - post.VotesDown.Count();
 
                     // Record and assign earnings
                     // Related to post owner
@@ -396,6 +402,9 @@ namespace zapread.com.Controllers
                     user.SpendingEvents.Add(spendingEvent);
                 }
 
+                long authorRep = comment.UserId.Reputation;
+                long userRep = 0;
+
                 if (v.d == 1)
                 {
                     if (comment.VotesUp.Contains(user))
@@ -406,9 +415,12 @@ namespace zapread.com.Controllers
                     {
                         comment.VotesUp.Add(user);
                         user.CommentVotesUp.Add(comment);
+                        userRep = user.Reputation;
                     }
 
-                    comment.Score += v.a;
+                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, authorRep, userRep);
+
+                    comment.Score += Convert.ToInt32(adj);// v.a;
                     comment.TotalEarned += 0.6 * v.a;
 
                     var ea = new Models.EarningEvent()
@@ -500,8 +512,11 @@ namespace zapread.com.Controllers
                     {
                         comment.VotesDown.Add(user);
                         user.CommentVotesDown.Add(comment);
+                        userRep = user.Reputation;
                     }
-                    comment.Score -= v.a;
+
+                    var adj = ReputationService.GetReputationAdjustedAmount(-1*v.a, authorRep, userRep);
+                    comment.Score += Convert.ToInt32(adj);// v.a;
 
                     // Record and assign earnings
                     // Related to post owner
