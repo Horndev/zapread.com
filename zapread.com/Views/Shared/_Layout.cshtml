@@ -69,7 +69,7 @@
     @Scripts.Render("~/bundles/users")
 
     <script type="text/javascript">
-        var toggleChat;
+        var toggleChat; // global function for quotable.  TODO: fix
 
         $(document).ready(function () {
             // Only if logged in
@@ -81,12 +81,7 @@
 
                 var urlm = $("#unreadMessages").data("url");
                 $("#unreadMessages").load(urlm);
-                </text>
-            }
 
-            @if (Request.IsAuthenticated)
-            {
-                <text>
                 $.get("/Account/GetBalance", function(data, status) {
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);

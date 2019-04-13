@@ -10,10 +10,11 @@ namespace zapread.com.Services
         public static double GetReputationAdjustedAmount(Int64 amount, Int64 targetRep, Int64 actorRep)
         {
             var vs = 1;
+            //var voteup = 1;
             var n = actorRep - targetRep;
             if (amount < 0)
             {
-            //    vs = -1;
+            //    voteup = -1;
             //    n = -1 * n;
             }
             var s = 100000; // scale up
