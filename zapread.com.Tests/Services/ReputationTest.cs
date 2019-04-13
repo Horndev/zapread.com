@@ -28,6 +28,11 @@ namespace zapread.com.Tests.Services
             adj = ReputationService.GetReputationAdjustedAmount(vote, authorRep, userRep);
             newScore = InitialScore + adj;
             Assert.IsTrue(newScore < InitialScore);
+
+            adj = ReputationService.GetReputationAdjustedAmount(1000, 0, 5000);
+            adj = ReputationService.GetReputationAdjustedAmount(-1000, 0, 5000);
+
+
         }
 
         [TestMethod]
