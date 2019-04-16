@@ -131,6 +131,7 @@ namespace zapread.com.Controllers
                     .Select(u => new ChatsDataItem()
                     {
                         From = u.other,
+                        IsRead = u.m.IsRead ? "Read" : "Unread",
                         LastMessage = u.m.TimeStamp.HasValue ? u.m.TimeStamp.Value.ToString("o") : "?",
                         FromID = u.otherid,
                         Status = u.toid == userId ? "Waiting" : "Replied",
@@ -152,6 +153,7 @@ namespace zapread.com.Controllers
         public class ChatsDataItem
         {
             public string Status { get; set; }
+            public string IsRead { get; set; }
             public string Type { get; set; }
             public string From { get; set; }
             public string FromID { get; set; }
