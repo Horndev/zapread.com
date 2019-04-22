@@ -426,6 +426,12 @@ namespace zapread.com.Controllers
                     .Where(m => !m.IsDeleted)
                     .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
 
+                foreach (var rm in receivedMessages.Where(m => m.IsRead == false))
+                {
+                    rm.IsRead = true;
+                }
+                await db.SaveChangesAsync();
+
                 var sentMessages = otheruser.Messages
                     .Where(m => m.From != null && m.From.Id == thisUserId)
                     .Where(m => !m.IsDeleted)
@@ -779,7 +785,7 @@ namespace zapread.com.Controllers
                         From = sender,
                         To = receiver,
                         IsDeleted = false,
-                        IsRead = (isChat != null && isChat.Value) ? true : false,
+                        IsRead = false,//(isChat != null && isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
