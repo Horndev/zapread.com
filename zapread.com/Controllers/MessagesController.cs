@@ -131,6 +131,7 @@ namespace zapread.com.Controllers
                     .Select(u => new ChatsDataItem()
                     {
                         From = u.other,
+                        IsRead = u.m.IsRead ? "Read" : "Unread",
                         LastMessage = u.m.TimeStamp.HasValue ? u.m.TimeStamp.Value.ToString("o") : "?",
                         FromID = u.otherid,
                         Status = u.toid == userId ? "Waiting" : "Replied",
@@ -152,6 +153,7 @@ namespace zapread.com.Controllers
         public class ChatsDataItem
         {
             public string Status { get; set; }
+            public string IsRead { get; set; }
             public string Type { get; set; }
             public string From { get; set; }
             public string FromID { get; set; }
@@ -423,6 +425,12 @@ namespace zapread.com.Controllers
                     .Where(m => m.From != null && m.From.Id == otherUserId)
                     .Where(m => !m.IsDeleted)
                     .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
+
+                foreach (var rm in receivedMessages.Where(m => m.IsRead == false))
+                {
+                    rm.IsRead = true;
+                }
+                await db.SaveChangesAsync();
 
                 var sentMessages = otheruser.Messages
                     .Where(m => m.From != null && m.From.Id == thisUserId)
@@ -701,6 +709,34 @@ namespace zapread.com.Controllers
             return Json(new { Result = "Failure" });
         }
 
+        /// <summary>
+        /// Checks if the user has any unread chats
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<JsonResult> CheckUnreadChats()
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return Json(new { Unread = 0, success = true });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var unreadChats = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => m.From != null)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage)
+                    .Where(m => m.IsRead == false)
+                    .CountAsync();
+
+                return Json(new { Unread = unreadChats, success = true });
+            }
+        }
+
         public async Task<JsonResult> DeleteMessage(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -777,7 +813,7 @@ namespace zapread.com.Controllers
                         From = sender,
                         To = receiver,
                         IsDeleted = false,
-                        IsRead = (isChat != null && isChat.Value) ? true : false,
+                        IsRead = false,//(isChat != null && isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };

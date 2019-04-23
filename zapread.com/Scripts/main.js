@@ -10,6 +10,30 @@ $(document).ready(function () {
         shareIn: "self"
     };
 
+    $.ajax({
+        type: "POST",
+        url: "/Messages/CheckUnreadChats",
+        data: "",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                if (response.Unread > 0) {
+                    $("#topChat").css("color", "red");
+                }
+            }
+            else {
+                alert(response.Message);
+            }
+        },
+        failure: function (response) {
+            console.log('load more failure');
+        },
+        error: function (response) {
+            console.log('load more error');
+        }
+    });
+
     $(".sharing").each(function () {
         $(this).jsSocials({
             url: $(this).data('url'),
