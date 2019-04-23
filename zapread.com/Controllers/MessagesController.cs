@@ -709,6 +709,34 @@ namespace zapread.com.Controllers
             return Json(new { Result = "Failure" });
         }
 
+        /// <summary>
+        /// Checks if the user has any unread chats
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<JsonResult> CheckUnreadChats()
+        {
+            var userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                return Json(new { Unread = 0, success = true });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var unreadChats = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => m.From != null)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage)
+                    .Where(m => m.IsRead == false)
+                    .CountAsync();
+
+                return Json(new { Unread = unreadChats, success = true });
+            }
+        }
+
         public async Task<JsonResult> DeleteMessage(int id)
         {
             var userId = User.Identity.GetUserId();
