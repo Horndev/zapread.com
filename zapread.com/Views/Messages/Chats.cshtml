@@ -28,6 +28,7 @@
                         <tr>
                             <th>From</th>
                             <th>Status</th>
+                            <th>Conversation</th>
                             <th>LastMessage</th>
                             <th>Action</th>
                         </tr>
@@ -101,6 +102,20 @@
                 {
                     "data": null,
                     "name": 'Status',
+                    "orderable": true,
+                    "mRender": function (data, type, row) {
+                        if (data.IsRead === "Read") {
+                            return "<span class='badge badge-primary' >" + data.IsRead + "</span>"
+                        }
+                        if (data.IsRead === "Unread") {
+                            return "<span class='badge badge-warning' >" + data.IsRead + "</span>"
+                        }
+                        return data.Status;
+                    }
+                },
+                {
+                    "data": null,
+                    "name": 'Conversation',
                     "orderable": true,
                     "mRender": function (data, type, row) {
                         if (data.Status === "Replied") {

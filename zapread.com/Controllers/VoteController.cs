@@ -158,7 +158,7 @@ namespace zapread.com.Controllers
                         userRep = user.Reputation;
                     }
 
-                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, authorRep, userRep);
+                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, 0, userRep);
                     post.Score += Convert.ToInt32(adj);// v.a;
 
                     // Record and assign earnings
@@ -418,7 +418,7 @@ namespace zapread.com.Controllers
                         userRep = user.Reputation;
                     }
 
-                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, authorRep, userRep);
+                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, 0, userRep);
 
                     comment.Score += Convert.ToInt32(adj);// v.a;
                     comment.TotalEarned += 0.6 * v.a;

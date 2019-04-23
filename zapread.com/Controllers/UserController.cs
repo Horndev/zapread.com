@@ -14,6 +14,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.GroupView;
+using zapread.com.Models.UserViews;
 
 namespace zapread.com.Controllers
 {
@@ -117,6 +118,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 User user;
+                User loggedInUser = null;
                 if (userId == -1)
                 {
                     string usernameClean = CleanUsername(username);
@@ -132,7 +134,24 @@ namespace zapread.com.Controllers
                     return Json(new { success = false, message = "User not found." });
                 }
 
-                string HTMLString = RenderPartialViewToString("_PartialUserHover", model: user);
+                if (User.Identity.IsAuthenticated)
+                {
+                    var uid = User.Identity.GetUserId();
+                    loggedInUser = await db.Users
+                        .Include(usr => usr.Following)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
+                }
+
+                bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
+
+                UserHoverViewModel vm = new UserHoverViewModel()
+                {
+                    User = user,
+                    IsFollowing = isFollowing,
+                    IsIgnored = false,
+                };
+                string HTMLString = RenderPartialViewToString("_PartialUserHover", model: vm);
                 return Json(new { success = true, HTMLString });
             }
         }
