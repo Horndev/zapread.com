@@ -151,7 +151,7 @@ var loadmore = function () {
                             });
                         },
                         content: function (item) {
-                            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                            return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
                         }
                     }
                 });

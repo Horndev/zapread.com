@@ -382,9 +382,7 @@ var editComment = function (id) {
                     });
                 },
                 content: function (item) {
-                    //return '@@' + item;
-                    //return $('<span />').addClass('badge').addClass('userhint').html('@@' + item)[0];
-                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                    return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
                 }
             }
         });
