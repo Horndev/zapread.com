@@ -85,7 +85,7 @@ var commentQuoteComment = function (id, mention) {
             minHeight: 60,
             maxHeight: 300,
             hint: {
-                match: /\B@@(\w*)$/,
+                match: /\B@(\w*)$/,
                 search: function (keyword, callback) {
                     if (!keyword.length) return callback();
                     var msg = JSON.stringify({ 'searchstr': keyword.toString() });

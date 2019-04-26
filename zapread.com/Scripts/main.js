@@ -103,10 +103,12 @@ $(document).ready(function () {
 
 var writeComment = function (e) {
     var id = $(e).data("postid");
+    console.log('writeComment id: ' + id.toString());
     initCommentInput(id);
     $(e).hide();
     $(".note-statusbar").css("display", "none");
     $('#preply_' + id.toString()).slideDown(200);
+    return false;
 };
 
 var toggleChat = function (id, show) {
@@ -124,6 +126,7 @@ var toggleChat = function (id, show) {
 };
 
 var initCommentInput = function (id) {
+    console.log('Init summernote: ' + id.toString());
     $(".c_input_" + id.toString()).summernote({
         callbacks: {
             onImageUpload: function (files) {
@@ -138,8 +141,9 @@ var initCommentInput = function (id) {
         minHeight: 60,
         maxHeight: 300,
         hint: {
-            match: /\B@@(\w*)$/,
+            match: /\B@(\w*)$/,
             search: function (keyword, callback) {
+                console.log(keyword);
                 if (!keyword.length) return callback();
                 var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                 $.ajax({
@@ -162,6 +166,7 @@ var initCommentInput = function (id) {
             }
         }
     });
+    return false;
 };
 
 var loadMoreComments = function (e) {
@@ -211,10 +216,10 @@ var replyComment = function (id) {
             minHeight: 60,
             maxHeight: 300,
             hint: {
-                match: /\B@@(\w*)$/,
+                match: /\B@(\w*)$/,
                 search: function (keyword, callback) {
                     if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                    var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                     $.ajax({
                         async: true,
                         url: '/Comment/GetMentions',
