@@ -162,7 +162,7 @@ var initCommentInput = function (id) {
                 });
             },
             content: function (item) {
-                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
             }
         }
     });
@@ -236,7 +236,7 @@ var replyComment = function (id) {
                     });
                 },
                 content: function (item) {
-                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                    return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
                 }
             }
         });
