@@ -228,7 +228,31 @@
                 ['insert', ['link', 'picture', 'videoAttributes' ]],
                 ['view', ['fullscreen', 'codeview']]
             ],
-            focus: true
+            focus: true,
+            hint: {
+                match: /\B@@(\w*)$/,
+                search: function (keyword, callback) {
+                    if (!keyword.length) return callback();
+                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                    $.ajax({
+                        async: true,
+                        url: '/Comment/GetMentions',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: msg,
+                        error: function () {
+                            callback();
+                        },
+                        success: function (res) {
+                            callback(res.users);
+                        }
+                    });
+                },
+                content: function (item) {
+                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
+                }
+            }
         });
     });
 </script>
