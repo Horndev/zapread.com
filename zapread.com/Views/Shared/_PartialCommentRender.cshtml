@@ -28,9 +28,12 @@
                             <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')" ;><i class="fa fa-eye"></i> Show Comment</button>
                         </li>
                     }
-                    <li>
-                        <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
-                    </li>
+                    @if (!Model.Comment.IsDeleted)
+                    {
+                        <li>
+                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
+                        </li>
+                    }
                     @if (User.Identity.Name == Model.Comment.UserId.Name)
                     {
                         <li>
@@ -135,7 +138,7 @@
 
                     </div>
                 </div>
-                @if (Request.IsAuthenticated) // Show the response div
+                @if (Request.IsAuthenticated && !Model.Comment.IsDeleted) // Show the response div
                 {
                     <div style="position: relative;margin-left: 8px;top: -25px;height: 0px;">
                         <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>

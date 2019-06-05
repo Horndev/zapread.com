@@ -556,7 +556,7 @@ namespace zapread.com.Controllers
                 if (SetOrUpdateUserTourCookie(defaultValue: "show") != "hide")
                 {
                     // User has not dismissed tour request
-                    ViewBag.ShowTourModal = true;
+                    ViewBag.ShowTourModal = false;// Temporary disable. true;
                 }
             }
             catch
