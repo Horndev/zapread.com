@@ -28,9 +28,12 @@
                             <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')" ;><i class="fa fa-eye"></i> Show Comment</button>
                         </li>
                     }
-                    <li>
-                        <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
-                    </li>
+                    @if (!Model.Comment.IsDeleted)
+                    {
+                        <li>
+                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.Comment.CommentId);"><i class="fa fa-reply"></i> Reply</button>
+                        </li>
+                    }
                     @if (User.Identity.Name == Model.Comment.UserId.Name)
                     {
                         <li>
@@ -91,7 +94,7 @@
                 @if (!isIgnoredUser && !Model.Comment.IsDeleted)
                 {
                     <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name.Trim() })">
-                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" style="margin-bottom: 10px;"/>
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" style="margin-bottom: 10px;" />
                     </a>
                 }
                 <div class="media-body" style="display:inline;">
@@ -114,32 +117,33 @@
                         <span class="text-muted" style="display:inline"> edited </span>
                         <small class="postTime text-muted" style="display: none">@Model.Comment.TimeStampEdited.Value.ToString("o")</small>
                     }
-                        <div class="row">
-                            <div class="comment-quotable" id="commentText_@Model.Comment.CommentId" style="position: relative;" data-commentid="@Model.Comment.CommentId">
-                                @if (isIgnoredUser)
+                    <div class="row">
+                        <div class="comment-quotable" id="commentText_@Model.Comment.CommentId" style="position: relative;" data-commentid="@Model.Comment.CommentId">
+                            @if (isIgnoredUser)
+                            {
+                                <span><br /></span>
+                            }
+                            else
+                            {
+                                if (Model.Comment.IsDeleted)
                                 {
-                                    <span><br /></span>
+                                    <div>deleted</div><br />
                                 }
                                 else
                                 {
-                                    if (Model.Comment.IsDeleted)
-                                    {
-                                        <div>deleted</div><br />
-                                    }
-                                    else
-                                    {
-                                        <div>@Html.Raw(Model.Comment.Text)</div>
-                                    }
+                                    <div>@Html.Raw(Model.Comment.Text)</div>
                                 }
-                            </div>
-                            @if (Request.IsAuthenticated)
-                            {
-                                <div>
-                                    <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
-                                </div>
                             }
                         </div>
+
+                    </div>
                 </div>
+                @if (Request.IsAuthenticated && !Model.Comment.IsDeleted) // Show the response div
+                {
+                    <div style="position: relative;margin-left: 8px;top: -25px;height: 0px;">
+                        <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                    </div>
+                }
                 <div id="c_reply_@Model.Comment.CommentId" style="display: none">
                 </div>
                 <div id=@("rcomments_" + @Model.Comment.CommentId.ToString())>
