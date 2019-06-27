@@ -15,6 +15,7 @@ using zapread.com.Helpers;
 using System.Globalization;
 using zapread.com.Models.Database;
 using Hangfire;
+using System.Text;
 
 namespace zapread.com.Controllers
 {
@@ -265,9 +266,14 @@ namespace zapread.com.Controllers
 
         private static string SanitizePostXSS(string postText)
         {
+            // Fix for nasty inject with odd brackets
+            byte[] bytes = Encoding.Default.GetBytes(postText);
+            postText = Encoding.UTF8.GetString(bytes);
+
             var sanitizer = new Ganss.XSS.HtmlSanitizer();
             sanitizer.AllowedTags.Remove("button");
             sanitizer.AllowedTags.Add("iframe");
+            sanitizer.AllowedTags.Remove("script");
             sanitizer.AllowedAttributes.Add("class");
             sanitizer.AllowedAttributes.Add("frameborder");
             sanitizer.AllowedAttributes.Add("allowfullscreen");
