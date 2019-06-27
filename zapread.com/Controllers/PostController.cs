@@ -232,7 +232,7 @@ namespace zapread.com.Controllers
 
                 var vm = new NewPostViewModel()
                 {
-                    Post = post,
+                     Post = post,
                     Languages = languages,
                 };
 
@@ -279,6 +279,8 @@ namespace zapread.com.Controllers
             sanitizer.AllowedAttributes.Add("allowfullscreen");
             sanitizer.AllowedAttributes.Add("seamless");
             sanitizer.AllowedAttributes.Remove("id");
+            sanitizer.AllowedAttributes.Remove("onload");
+            sanitizer.AllowedAttributes.Remove("onmousemove");
 
             var sanitizedComment = sanitizer.Sanitize(postText);
             return sanitizedComment;
@@ -627,7 +629,8 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", message = "User authentication error." });
                 }
 
-                var contentStr = p.Content;
+                //var contentStr = ;
+                string contentStr = SanitizePostXSS(p.Content);
                 post.Content = contentStr;
                 post.PostTitle = p.Title;
 
