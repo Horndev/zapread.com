@@ -14,6 +14,7 @@ using zapread.com.Services;
 using System.Data.Entity;
 using HtmlAgilityPack;
 using zapread.com.Models.Database;
+using System.Text;
 
 namespace zapread.com.Controllers
 {
@@ -127,7 +128,7 @@ namespace zapread.com.Controllers
                 {
                     return Json(new { Success = false, message = "User does not have rights to edit comment." });
                 }
-                comment.Text = c.CommentContent;
+                comment.Text = SanitizeCommentXSS(c.CommentContent);
                 comment.TimeStampEdited = DateTime.UtcNow;
                 db.SaveChanges();
             }
@@ -139,6 +140,7 @@ namespace zapread.com.Controllers
                 Success = true,
             });
         }
+
 
         /// <summary>
         /// Add a comment
@@ -414,6 +416,10 @@ namespace zapread.com.Controllers
 
         private static string SanitizeCommentXSS(string commentText)
         {
+            // Fix for nasty inject with odd brackets
+            byte[] bytes = Encoding.Unicode.GetBytes(commentText);
+            commentText = Encoding.Unicode.GetString(bytes);
+
             var sanitizer = new Ganss.XSS.HtmlSanitizer(
                 allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-right", "width" },
                 allowedCssClasses: new[] { "badge", "badge-info", "userhint", "blockquote", "img-fluid" });

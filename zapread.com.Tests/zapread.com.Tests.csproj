@@ -222,6 +222,8 @@
     <Compile Include="Services\TranslationTest.cs" />
     <Compile Include="Services\RoboHashTest.cs" />
     <Compile Include="Services\ReputationTest.cs" />
+    <Compile Include="Services\TransactionMonitorTest.cs" />
+    <Compile Include="Services\SanitizationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

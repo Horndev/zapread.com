@@ -264,11 +264,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static string SanitizePostXSS(string postText)
+        public static string SanitizePostXSS(string postText)
         {
             // Fix for nasty inject with odd brackets
-            byte[] bytes = Encoding.Default.GetBytes(postText);
-            postText = Encoding.UTF8.GetString(bytes);
+            byte[] bytes = Encoding.Unicode.GetBytes(postText);
+            postText = Encoding.Unicode.GetString(bytes);
 
             var sanitizer = new Ganss.XSS.HtmlSanitizer();
             sanitizer.AllowedTags.Remove("button");
