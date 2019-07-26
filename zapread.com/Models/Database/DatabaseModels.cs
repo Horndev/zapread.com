@@ -27,6 +27,7 @@ namespace zapread.com.Models
         public int Id { get; set; }
         public double TotalEarned { get; set; }
         public double Balance { get; set; }
+        public double LimboBalance { get; set; }    // These are funds the user may have as pending withdraw or deposit.  Not spendable.
     }
 
     public class UserImage
