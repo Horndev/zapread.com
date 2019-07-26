@@ -1,4 +1,5 @@
 ﻿using LightningLib.lndrpc;
+using LightningLib.lndrpc.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -137,9 +138,63 @@ namespace zapread.com.Services
                     .Include(t => t.User)
                     .Include(t => t.User.Funds);
 
+                var payments = lndClient.GetPayments();
+
+                var numup = unpaidWithdraws.Count();
                 foreach (var i in unpaidWithdraws)
                 {
+                    var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
 
+                    if (pmt != null)
+                    {
+                        // Paid?
+                        ;
+                        if (i.ErrorMessage == "Error: invoice is already paid")
+                        {
+                            // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
+                            i.IsIgnored = true;
+                        }
+                        else if (i.ErrorMessage == "Error executing payment.")
+                        {
+                            // Didn't get paid!
+                            i.IsIgnored = true;
+                        }
+                        else if (i.ErrorMessage == "Error: payment is in transition")
+                        {
+                            // Double spend attempt stopped.  No loss of funds
+                            i.IsIgnored = true;
+                        }
+                        else
+                        {
+                            // Payment may have gone through without recording in DB.
+                            ;
+                        }
+                    }
+                    else
+                    {
+                        // Consider as not paid (for now) if not in DB - probably an error
+                        if (i.ErrorMessage == "Error: invoice is already paid")
+                        {
+                            // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
+                            i.IsIgnored = true;
+                        }
+                        else
+                        {
+                            var inv = lndClient.DecodePayment(i.PaymentRequest);
+                            var t1 = i.TimestampCreated.Value;
+                            var tNow = DateTime.UtcNow;// DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                            var tExpire = t1.AddSeconds(Convert.ToInt64(inv.expiry) + 10000); //Add a buffer time
+                            if (tNow > tExpire)
+                            {
+                                // Expired - let's stop checking this invoice
+                                i.IsIgnored = true;
+                            }
+                            else
+                            {
+                                ; // keep waiting
+                            }
+                        }
+                    }
                 }
 
                 db.SaveChanges();

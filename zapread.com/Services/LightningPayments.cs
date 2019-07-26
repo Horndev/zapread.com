@@ -163,6 +163,15 @@ namespace zapread.com.Services
 
                     var pmt = payments.payments.Where(p => p.payment_hash == t.HashStr).FirstOrDefault();
 
+                    if (pmt != null)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
@@ -185,6 +194,8 @@ namespace zapread.com.Services
                     }
                     else
                     {
+
+
                         t.ErrorMessage = "Error executing payment.";
                         db.SaveChanges();
                         return new { Result = "Error executing payment." };
