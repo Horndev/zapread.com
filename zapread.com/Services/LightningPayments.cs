@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using zapread.com.Models;
 using zapread.com.Database;
+using LightningLib.lndrpc.Exceptions;
 
 namespace zapread.com.Services
 {
@@ -137,16 +138,33 @@ namespace zapread.com.Services
                 db.LightningTransactions.Add(t);
                 db.SaveChanges();
 
-                SendPaymentResponse paymentresult;
+                SendPaymentResponse paymentresult = null;
 
                 //all (should be) ok - make the payment
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
                 {
-                    // Register polling listener
-
+                    // Register polling listener (TODO)
 
                     // Execute payment
-                    paymentresult = lndClient.PayInvoice(request);
+                    try
+                    {
+                        paymentresult = lndClient.PayInvoice(request);
+                    }
+                    catch (RestException e)
+                    {
+                        MailingService.Send(new UserEmailModel()
+                        {
+                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                            Body = " Withdraw error: PayInvoice threw an exception. \r\n hash: " + t.HashStr + "\r\n Content: " + e.Content + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request + "\r\n user: " + userId + "\r\n username: " + user.Name,
+                            Email = "",
+                            Name = "zapread.com Exception",
+                            Subject = "User withdraw error 4",
+                        });
+
+                        t.ErrorMessage = "Error executing payment.";
+                        db.SaveChanges();
+                        return new { Result = "Error executing payment." };
+                    }
                 }
                 else
                 {
@@ -194,8 +212,6 @@ namespace zapread.com.Services
                     }
                     else
                     {
-
-
                         t.ErrorMessage = "Error executing payment.";
                         db.SaveChanges();
                         return new { Result = "Error executing payment." };

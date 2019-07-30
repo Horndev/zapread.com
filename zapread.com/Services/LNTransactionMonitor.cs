@@ -164,6 +164,10 @@ namespace zapread.com.Services
                             // Double spend attempt stopped.  No loss of funds
                             i.IsIgnored = true;
                         }
+                        else if (i.ErrorMessage == "Error: FinalExpiryTooSoon")
+                        {
+                            i.IsIgnored = true;
+                        }
                         else
                         {
                             // Payment may have gone through without recording in DB.
