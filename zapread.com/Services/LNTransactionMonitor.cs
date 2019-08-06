@@ -138,69 +138,127 @@ namespace zapread.com.Services
                     .Include(t => t.User)
                     .Include(t => t.User.Funds);
 
-                var payments = lndClient.GetPayments();
-
                 var numup = unpaidWithdraws.Count();
-                foreach (var i in unpaidWithdraws)
-                {
-                    var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
 
-                    if (pmt != null)
+                if (numup > 0)
+                {
+                    // Check the unpaid withdraws
+                    var payments = lndClient.GetPayments();
+                    foreach (var i in unpaidWithdraws)
                     {
-                        // Paid?
-                        ;
-                        if (i.ErrorMessage == "Error: invoice is already paid")
+                        var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
+
+                        if (pmt != null)
                         {
-                            // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
-                            i.IsIgnored = true;
-                        }
-                        else if (i.ErrorMessage == "Error executing payment.")
-                        {
-                            // Didn't get paid!
-                            i.IsIgnored = true;
-                        }
-                        else if (i.ErrorMessage == "Error: payment is in transition")
-                        {
-                            // Double spend attempt stopped.  No loss of funds
-                            i.IsIgnored = true;
-                        }
-                        else if (i.ErrorMessage == "Error: FinalExpiryTooSoon")
-                        {
-                            i.IsIgnored = true;
-                        }
-                        else
-                        {
-                            // Payment may have gone through without recording in DB.
+                            // Paid?
                             ;
-                        }
-                    }
-                    else
-                    {
-                        // Consider as not paid (for now) if not in DB - probably an error
-                        if (i.ErrorMessage == "Error: invoice is already paid")
-                        {
-                            // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
-                            i.IsIgnored = true;
+                            if (i.ErrorMessage == "Error: invoice is already paid")
+                            {
+                                // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
+                                i.IsIgnored = true;
+                            }
+                            else if (i.ErrorMessage == "Error executing payment.")
+                            {
+                                // Didn't get paid!
+                                //i.IsIgnored = true;
+                                ;
+                            }
+                            else if (i.ErrorMessage == "Error: payment is in transition")
+                            {
+                                // Double spend attempt stopped.  No loss of funds
+                                i.IsIgnored = true;
+                            }
+                            else if (i.ErrorMessage == "Error: FinalExpiryTooSoon")
+                            {
+                                i.IsIgnored = true;
+                            }
+                            else if (i.ErrorMessage == "Error validating payment.")
+                            {
+                                // Payment has come through
+                                double amount = Convert.ToDouble(i.Amount);
+
+                                // No longer in limbo
+                                i.User.Funds.LimboBalance -= amount;
+                                if (i.User.Funds.LimboBalance < 0)
+                                {
+                                    // Should not happen!
+                                    i.User.Funds.LimboBalance = 0;
+                                }
+                                i.IsIgnored = true;
+
+                                MailingService.Send(new UserEmailModel()
+                                {
+                                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                                    Body = "Withdraw Invoice completed limbo (payment was found)."
+                                                + "\r\n invoice: " + i.PaymentRequest
+                                                + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
+                                                + "\r\n amount: " + Convert.ToString(i.Amount)
+                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage,
+                                    Email = "",
+                                    Name = "zapread.com Monitoring",
+                                    Subject = "User withdraw limbo complete",
+                                });
+                            }
+                            else
+                            {
+                                // Payment may have gone through without recording in DB.
+                                ;
+                                if (i.ErrorMessage != null)
+                                {
+                                    i.IsError = true;
+                                }
+                                i.IsSettled = true;
+                            }
                         }
                         else
                         {
-                            var inv = lndClient.DecodePayment(i.PaymentRequest);
-                            var t1 = i.TimestampCreated.Value;
-                            var tNow = DateTime.UtcNow;// DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                            var tExpire = t1.AddSeconds(Convert.ToInt64(inv.expiry) + 10000); //Add a buffer time
-                            if (tNow > tExpire)
+                            // Consider as not paid (for now) if not in DB - probably an error
+                            if (i.ErrorMessage == "Error: invoice is already paid")
                             {
-                                // Expired - let's stop checking this invoice
+                                // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
                                 i.IsIgnored = true;
                             }
                             else
                             {
-                                ; // keep waiting
+                                var inv = lndClient.DecodePayment(i.PaymentRequest);
+                                var t1 = i.TimestampCreated.Value;
+                                var tNow = DateTime.UtcNow;// DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                                var tExpire = t1.AddSeconds(Convert.ToInt64(inv.expiry) + 10000); //Add a buffer time
+                                if (tNow > tExpire)
+                                {
+                                    // Expired - let's stop checking this invoice
+                                    i.IsIgnored = true;
+                                    if (i.ErrorMessage == "Error validating payment.")
+                                    {
+                                        // The payment can't go through any longer.
+                                        double amount = Convert.ToDouble(i.Amount);
+                                        i.User.Funds.LimboBalance -= amount;
+                                        i.User.Funds.Balance += amount;
+
+                                        MailingService.Send(new UserEmailModel()
+                                        {
+                                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                                            Body = "Withdraw Invoice expired (payment not found). Funds released to user."
+                                                + "\r\n invoice: " + i.PaymentRequest
+                                                + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
+                                                + "\r\n amount: " + Convert.ToString(i.Amount)
+                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage,
+                                            Email = "",
+                                            Name = "zapread.com Monitoring",
+                                            Subject = "User withdraw limbo expired",
+                                        });
+
+                                        // TODO: send user email notification update of result.
+                                    }
+                                }
+                                else
+                                {
+                                    ; // keep waiting
+                                }
                             }
                         }
                     }
                 }
-
                 db.SaveChanges();
             }
         }

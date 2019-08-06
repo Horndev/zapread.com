@@ -16,6 +16,7 @@ using System.Threading;
 using zapread.com.Services;
 using System.Net;
 using zapread.com.Models.Database;
+using LightningLib.lndrpc.Exceptions;
 
 namespace zapread.com.Controllers
 {
@@ -354,14 +355,33 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
 
+            // Get interface to LND
             LndRpcClient lndClient = GetLndClient();
 
+            // This is used for DoS or other attack detection
             string ip = GetClientIpAddress(Request);
 
             try
             {
+                // Submit Payment Request
                 var paymentResult = paymentsService.TryWithdrawal(request, userId, ip, lndClient);
                 return Json(paymentResult);
+            }
+            catch (RestException e)
+            {
+                // The request to LND threw an exception
+                MailingService.Send(new UserEmailModel()
+                {
+                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request 
+                        + "\r\n user: " + userId
+                        + "\r\n error Content: " + e.Content
+                        + "\r\n HTTP Status: " + e.StatusDescription,
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "User withdraw error 1",
+                });
+                return Json(new { Result = "Error processing request." });
             }
             catch (Exception e)
             {
