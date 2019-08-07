@@ -156,10 +156,12 @@ namespace zapread.com.Services
                         MailingService.Send(new UserEmailModel()
                         {
                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                            Body = " Withdraw error: PayInvoice threw an exception. \r\n hash: " + t.HashStr 
-                            + "\r\n Content: " + e.Content + "\r\n HTTPStatus: " 
-                            + e.StatusDescription + "\r\n invoice: " + request 
-                            + "\r\n user: " + userId + "\r\n username: " + user.Name,
+                            Body = " Withdraw error: PayInvoice threw an exception. "
+                                + "\r\n message: " + e.Message
+                                + "\r\n hash: " + t.HashStr 
+                                + "\r\n Content: " + e.Content 
+                                + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request 
+                                + "\r\n user: " + userId + "\r\n username: " + user.Name,
                             Email = "",
                             Name = "zapread.com Exception",
                             Subject = "User withdraw error 4",
