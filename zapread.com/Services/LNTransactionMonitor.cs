@@ -212,11 +212,34 @@ namespace zapread.com.Services
                         }
                         else
                         {
+                            double amount = Convert.ToDouble(i.Amount);
                             // Consider as not paid (for now) if not in DB - probably an error
                             if (i.ErrorMessage == "Error: invoice is already paid")
                             {
                                 // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
                                 i.IsIgnored = true;
+                            }
+                            if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice")
+                            {
+                                i.IsIgnored = true;
+                                if (i.User.Funds.LimboBalance - amount < 0)
+                                {
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                    i.User.Funds.Balance += i.User.Funds.LimboBalance;
+                                    i.User.Funds.LimboBalance = 0;
+                                }
+                                else
+                                {
+                                    i.User.Funds.LimboBalance -= amount;
+                                    i.User.Funds.Balance += amount;
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                }
                             }
                             else
                             {
@@ -231,10 +254,22 @@ namespace zapread.com.Services
                                     if (i.ErrorMessage == "Error validating payment.")
                                     {
                                         // The payment can't go through any longer.
-                                        double amount = Convert.ToDouble(i.Amount);
-                                        i.User.Funds.LimboBalance -= amount;
-                                        i.User.Funds.Balance += amount;
-
+                                        if (i.User.Funds.LimboBalance - amount < 0)
+                                        {
+                                            //shouldn't happen!
+                                            if (i.User.Funds.LimboBalance < 0)
+                                            {
+                                                i.User.Funds.LimboBalance = 0;
+                                            }
+                                            i.User.Funds.Balance += i.User.Funds.LimboBalance;
+                                            i.User.Funds.LimboBalance = 0;
+                                        }
+                                        else
+                                        {
+                                            i.User.Funds.LimboBalance -= amount;
+                                            i.User.Funds.Balance += amount;
+                                        }
+                                        
                                         MailingService.Send(new UserEmailModel()
                                         {
                                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
