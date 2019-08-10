@@ -6907,6 +6907,16 @@ table.shoping-cart-table {
     /*border: 1px solid #e7eaec;*/
     background: #fff;
     margin-bottom: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: #1ab394;
+}
+
+.social-feed-box-nb {
+    /*padding: 15px;*/
+    /*border: 1px solid #e7eaec;*/
+    background: #fff;
+    margin-bottom: 15px;
 }
 
 .article .social-feed-box {
@@ -6956,9 +6966,10 @@ table.shoping-cart-table {
     }
 
 .social-footer {
-    border-top: 1px solid #e7eaec;
+    border-top: 2px solid #999;
     padding: 10px 15px;
     background: #f9f9f9;
+    border-radius: 10px;
 }
 .social-footer-reply {
     border-top: 1px solid #e7eaec;
