@@ -119,10 +119,10 @@
             </div>
         </div>
         <div class="col-lg-8">
-            <div class="social-feed-box">
+            <div class="social-feed-box-nb">
                 <span></span>
             </div>
-            <div class="social-feed-box">
+            <div class="social-feed-box-nb">
                 <button onclick="location.href='@Url.Action("NewPost", "Post", new { group = Model.Group.GroupId})'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
             </div>
             <div id="posts">
@@ -134,14 +134,14 @@
 
             @if (Model.HasMorePosts)
         {
-                <div class="social-feed-box" id="showmore">
+                <div class="social-feed-box-nb" id="showmore">
                     <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                 </div>
             }
-            <div class="social-feed-box">
+            <div class="social-feed-box-nb">
                 <span></span>
             </div>
-            <div class="social-feed-box" style="margin-bottom:50px;">
+            <div class="social-feed-box-nb" style="margin-bottom:50px;">
                 <span></span>
             </div>
         </div>
