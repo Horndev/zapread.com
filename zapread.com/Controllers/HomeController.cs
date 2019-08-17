@@ -402,7 +402,7 @@ namespace zapread.com.Controllers
         /// <param name="p">page</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Index(string sort, string l, int? g, int? f, int? p)
+        public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             //PaymentPoller.Subscribe();
             //LNTransactionMonitor a = new LNTransactionMonitor();
