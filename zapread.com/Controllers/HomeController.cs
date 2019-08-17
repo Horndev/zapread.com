@@ -439,7 +439,7 @@ namespace zapread.com.Controllers
 
                     if (user != null)
                     {
-                        await ValidateClaims(user); // Checks user security claims
+                        ValidateClaims(user); // Checks user security claims
                     }
 
                     PostsViewModel vm = new PostsViewModel()
@@ -537,19 +537,15 @@ namespace zapread.com.Controllers
             return gi;
         }
 
-        private Task ValidateClaims(User user)
+        private void ValidateClaims(User user)
         {
             try
             {
-                return Task.Run(() =>
-                {
-                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                });
+                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
             }
             catch (Exception)
             {
                 //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                return Task.Run(() => { });
             }
         }
 
