@@ -118,7 +118,7 @@ namespace zapread.com.Controllers
 
         protected async Task<List<Post>> GetPosts(int start, int count, string sort = "Score", int userId = 0)
         {
-            //Reddit algorithm
+            //Modified reddit-like algorithm
             /*epoch = datetime(1970, 1, 1)
 
             def epoch_seconds(date):
@@ -255,7 +255,13 @@ namespace zapread.com.Controllers
                 .Select(p => new
                 {
                     p,
-                    s = Math.Abs((double)p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.Score),    // Max (|x|,1)                                                           
+                    // Includes the sum of absolute value of comment scores
+                    c = p.Comments.Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score))
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    s = 0.5*p.c + (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
                 })
                 .Select(p => new
                 {
@@ -393,11 +399,14 @@ namespace zapread.com.Controllers
         /// <param name="l"></param>
         /// <param name="g">include subscribed groups null = yes</param>
         /// <param name="f">include subscribed followers null = yes</param>
+        /// <param name="p">page</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
+        public async Task<ActionResult> Index(string sort, string l, int? g, int? f, int? p)
         {
             //PaymentPoller.Subscribe();
+            //LNTransactionMonitor a = new LNTransactionMonitor();
+            //a.CheckLNTransactions();
 
             try
             {
@@ -422,8 +431,17 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     User user = await GetCurrentUser(db);
-                    var posts = await GetPosts(0, 10, sort ?? "Score", user != null ? user.Id : 0);
-                    ValidateClaims(user);
+                    var posts = await GetPosts(
+                        start: 0, 
+                        count: 10, 
+                        sort: sort ?? "Score", 
+                        userId: user != null ? user.Id : 0);
+
+                    if (user != null)
+                    {
+                        await ValidateClaims(user); // Checks user security claims
+                    }
+
                     PostsViewModel vm = new PostsViewModel()
                     {
                         Posts = await GeneratePostViewModels(user, posts, db),
@@ -458,6 +476,7 @@ namespace zapread.com.Controllers
             var groupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc);
             var groupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc);
             var groupLevels = groups.ToDictionary(i => i.GroupId, i => i.l);
+
             List<PostViewModel> postViews = posts
                 .Select(p => new PostViewModel()
                 {
@@ -518,15 +537,19 @@ namespace zapread.com.Controllers
             return gi;
         }
 
-        private void ValidateClaims(User user)
+        private Task ValidateClaims(User user)
         {
             try
             {
-                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                return Task.Run(() =>
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                });
             }
             catch (Exception)
             {
                 //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+                return Task.Run(() => { });
             }
         }
 

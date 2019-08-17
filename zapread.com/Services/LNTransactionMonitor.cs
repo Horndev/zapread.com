@@ -20,6 +20,11 @@ namespace zapread.com.Services
                     .AsNoTracking()
                     .FirstOrDefault();
 
+                if (website == null)
+                {
+                    throw new Exception("Unable to load website settings.");
+                }
+
                 LndRpcClient lndClient = new LndRpcClient(
                     host: website.LnMainnetHost,
                     macaroonAdmin: website.LnMainnetMacaroonAdmin,
@@ -282,7 +287,6 @@ namespace zapread.com.Services
                                             Name = "zapread.com Monitoring",
                                             Subject = "User withdraw limbo expired",
                                         });
-
                                         // TODO: send user email notification update of result.
                                     }
                                 }
