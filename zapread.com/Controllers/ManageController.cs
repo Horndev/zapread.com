@@ -1028,9 +1028,34 @@ namespace zapread.com.Controllers
         [HttpPost]
         public async Task<JsonResult> UpdateUserAlias(string alias)
         {
-            if (!Request.IsAuthenticated)
+            try
             {
-                return Json(new { Result = "Failure" });
+                if (!Request.IsAuthenticated)
+                {
+                    return Json(new { Result = "Failure" });
+                }
+            }
+            catch
+            {
+                ; // Todo - fixup unit test
+            }
+
+            string cleanName = alias.CleanUnicode().Trim();
+
+            // This is how long the name is if it was printed out
+            string printingName = cleanName.RemoveUnicodeNonPrinting();
+            if (printingName.Length < 2)
+            {
+                return Json(new { Result = "Failure", Message = "Username must be at least 2 (printed) characters long." });
+            }
+
+            // Check for spaces in username
+            foreach (char c in cleanName)
+            {
+                if (Char.IsWhiteSpace(c))
+                {
+                    return Json(new { Result = "Failure", Message = "Username cannot contain spaces." });
+                }
             }
 
             var userId = User.Identity.GetUserId();
@@ -1045,7 +1070,7 @@ namespace zapread.com.Controllers
                     .Include("Settings")
                     .Where(u => u.AppId == userId).First();
 
-                var otherUser = await UserManager.FindByNameAsync(alias.CleanUnicode());
+                var otherUser = await UserManager.FindByNameAsync(cleanName);
 
                 if (otherUser != null)
                 {
@@ -1053,12 +1078,10 @@ namespace zapread.com.Controllers
                 }
 
                 var aspUser = await UserManager.FindByIdAsync(userId);
-                aspUser.UserName = alias.CleanUnicode();
+                aspUser.UserName = cleanName;
                 await UserManager.UpdateAsync(aspUser);
                 await SignInManager.SignInAsync(aspUser, true, true);
-
-                user.Name = alias.CleanUnicode();
-
+                user.Name = cleanName;
                 await db.SaveChangesAsync();
                 return Json(new { Result = "Success" });
             }

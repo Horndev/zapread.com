@@ -28,5 +28,27 @@ namespace zapread.com.Helpers
 
             return cleanName;
         }
+
+        public static String RemoveUnicodeNonPrinting(this string dirty)
+        {
+            string normName = dirty.Normalize(System.Text.NormalizationForm.FormC);
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in normName)
+            {
+                var uc = char.GetUnicodeCategory(c);
+                if (uc != System.Globalization.UnicodeCategory.Format &&
+                    uc != System.Globalization.UnicodeCategory.Control &&
+                    uc != System.Globalization.UnicodeCategory.SpaceSeparator)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            var cleanName = sb.ToString();
+
+            return cleanName;
+        }
     }
 }
