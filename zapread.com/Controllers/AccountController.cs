@@ -168,6 +168,69 @@ namespace zapread.com.Controllers
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
+        //
+        // GET: /Account/GetLimboBalance
+        // Returns the currently logged in user balance
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetLimboBalance()
+        {
+            double userBalance = 0.0;
+            if (Request.IsAuthenticated)
+            {
+                userBalance = await GetUserLimboBalance();
+            }
+            string balance = userBalance.ToString("0.##");
+            return Json(new { balance }, JsonRequestBehavior.AllowGet);
+        }
+
+        private async Task<double> GetUserLimboBalance()
+        {
+            double balance;
+            try
+            {
+                using (var db = new ZapContext())
+                {
+                    // Get the logged in user ID
+                    var uid = User.Identity.GetUserId();
+                    var user = await db.Users
+                        .Include(i => i.Funds)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.AppId == uid);
+
+                    if (user == null)
+                    {
+                        // User not found in database, or not logged in
+                        balance = 0.0;
+                    }
+                    else
+                    {
+                        if (user.Funds == null)
+                        {
+                            // Neets to be initialized
+                            var user_modified = await db.Users
+                                .Include(i => i.Funds)
+                                .FirstOrDefaultAsync(u => u.AppId == uid);
+
+                            user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
+                            await db.SaveChangesAsync();
+                            user = user_modified;
+                        }
+                        balance = user.Funds.LimboBalance;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // todo: add some error logging
+
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                balance = 0.0;
+            }
+
+            return Math.Floor(balance);
+        }
+
         private async Task<double> GetUserBalance()
         {
             double balance;

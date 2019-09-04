@@ -24,7 +24,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// This is the interface to a singleton payments service which is injected for IOC.
         /// </summary>
-        public ILightningPayments paymentsService { get; private set; }
+        public ILightningPayments PaymentsService { get; private set; }
 
         /// <summary>
         /// Constructor with dependency injection for IOC and controller singleton control.
@@ -32,13 +32,10 @@ namespace zapread.com.Controllers
         /// <param name="paymentsService"></param>
         public LightningController(ILightningPayments paymentsService)
         {
-            this.paymentsService = paymentsService;
+            this.PaymentsService = paymentsService;
         }
 
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
-
-        //Used for rate limiting double withdraws
-        static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
 
         // GET: Lightning
         public ActionResult Index()
@@ -362,7 +359,7 @@ namespace zapread.com.Controllers
             try
             {
                 // Submit Payment Request
-                var paymentResult = paymentsService.TryWithdrawal(request, userId, ip, lndClient);
+                var paymentResult = PaymentsService.TryWithdrawal(request, userId, ip, lndClient);
                 return Json(paymentResult);
             }
             catch (RestException e)
