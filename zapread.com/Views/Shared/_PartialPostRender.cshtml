@@ -105,7 +105,7 @@
         @if (!Model.ViewerIgnoredUser)
         {
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
-                <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
+                <img class="img-circle userhint" data-userid="@Model.Post.UserId.Id" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
             </a>
         }
             <div class="media-body">
