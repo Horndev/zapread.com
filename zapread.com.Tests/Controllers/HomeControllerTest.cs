@@ -1,19 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Microsoft.AspNet.Identity;
-using Microsoft.Owin.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using zapread.com;
 using zapread.com.Controllers;
 using zapread.com.Models;
 

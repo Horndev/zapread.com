@@ -1,9 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Google.Cloud.Translation.V2;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Translate.v2;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace zapread.com.Tests.Services
 {
@@ -16,7 +11,7 @@ namespace zapread.com.Tests.Services
             //Assert.Inconclusive();
             //var c = new BaseClientService.Initializer ()
             //{
-                
+
             //    ApplicationName = "ZapRead",
             //    ApiKey = "",  // IP Restricted, API restricted
             //};

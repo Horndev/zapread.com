@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddLNConfig : DbMigration
     {
         public override void Up()
@@ -13,7 +12,7 @@ namespace zapread.com.Migrations
             AddColumn("dbo.ZapReadGlobals", "LnMainnetMacaroonRead", c => c.String());
             AddColumn("dbo.ZapReadGlobals", "LnMainnetMacaroonAdmin", c => c.String());
         }
-        
+
         public override void Down()
         {
             DropColumn("dbo.ZapReadGlobals", "LnMainnetMacaroonAdmin");

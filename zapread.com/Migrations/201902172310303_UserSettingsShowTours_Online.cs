@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class UserSettingsShowTours_Online : DbMigration
     {
         public override void Up()
@@ -10,7 +9,7 @@ namespace zapread.com.Migrations
             AddColumn("dbo.UserSettings", "ShowTours", c => c.Boolean(nullable: false));
             AddColumn("dbo.UserSettings", "ShowOnline", c => c.Boolean(nullable: false));
         }
-        
+
         public override void Down()
         {
             DropColumn("dbo.UserSettings", "ShowOnline");

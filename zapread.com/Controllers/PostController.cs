@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
-using zapread.com.Models;
-using System.Data.Entity;
-using Microsoft.AspNet.Identity.Owin;
-using zapread.com.Services;
-using HtmlAgilityPack;
 using zapread.com.Helpers;
-using System.Globalization;
+using zapread.com.Models;
 using zapread.com.Models.Database;
-using Hangfire;
-using System.Text;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -180,7 +180,7 @@ namespace zapread.com.Controllers
                     var alert = new UserAlert()
                     {
                         TimeStamp = DateTime.Now,
-                        Title = (post.IsNSFW ? "Your post has been marked NSFW : " : "Your post is no longer marked NSFW : "  ) + post.PostTitle,
+                        Title = (post.IsNSFW ? "Your post has been marked NSFW : " : "Your post is no longer marked NSFW : ") + post.PostTitle,
                         Content = "A moderator has changed the Not Safe For Work status of your post.",
                         IsDeleted = false,
                         IsRead = false,
@@ -232,7 +232,7 @@ namespace zapread.com.Controllers
 
                 var vm = new NewPostViewModel()
                 {
-                     Post = post,
+                    Post = post,
                     Languages = languages,
                 };
 
@@ -471,7 +471,7 @@ namespace zapread.com.Controllers
                         return RedirectToAction("Index", "Home");
                     }
                 }
-                
+
                 post.IsDeleted = true;
                 await db.SaveChangesAsync();
 

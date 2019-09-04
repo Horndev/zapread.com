@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Web;
-using zapread.com.Models;
 using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using zapread.com.Models;
 
 namespace zapread.com.Services
 {
@@ -88,13 +85,13 @@ namespace zapread.com.Services
             return true;
         }
 
-        public static bool Send(UserEmailModel message, string user= "Accounts")
+        public static bool Send(UserEmailModel message, string user = "Accounts")
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
             var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
-            var emailuser = System.Configuration.ConfigurationManager.AppSettings[user+"EmailUser"];
-            var emailpass = System.Configuration.ConfigurationManager.AppSettings[user+"EmailPass"];
+            var emailuser = System.Configuration.ConfigurationManager.AppSettings[user + "EmailUser"];
+            var emailpass = System.Configuration.ConfigurationManager.AppSettings[user + "EmailPass"];
 
             var mmessage = new MailMessage();
             mmessage.To.Add(new MailAddress(message.Destination));

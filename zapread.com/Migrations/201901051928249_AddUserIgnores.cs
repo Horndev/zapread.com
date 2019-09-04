@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddUserIgnores : DbMigration
     {
         public override void Up()
@@ -10,16 +9,16 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.UserIgnoreUser",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                })
                 .PrimaryKey(t => t.Id);
-            
+
             AddColumn("dbo.User", "UserIgnores_Id", c => c.Int());
             CreateIndex("dbo.User", "UserIgnores_Id");
             AddForeignKey("dbo.User", "UserIgnores_Id", "dbo.UserIgnoreUser", "Id");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.User", "UserIgnores_Id", "dbo.UserIgnoreUser");

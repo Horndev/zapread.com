@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class InitialVersion : DbMigration
     {
         public override void Up()
@@ -10,32 +9,32 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.Comment",
                 c => new
-                    {
-                        CommentId = c.Long(nullable: false, identity: true),
-                        Text = c.String(),
-                        UserId_Id = c.Int(),
-                        Post_PostId = c.Int(),
-                    })
+                {
+                    CommentId = c.Long(nullable: false, identity: true),
+                    Text = c.String(),
+                    UserId_Id = c.Int(),
+                    Post_PostId = c.Int(),
+                })
                 .PrimaryKey(t => t.CommentId)
                 .ForeignKey("dbo.User", t => t.UserId_Id)
                 .ForeignKey("dbo.Post", t => t.Post_PostId)
                 .Index(t => t.UserId_Id)
                 .Index(t => t.Post_PostId);
-            
+
             CreateTable(
                 "dbo.User",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(nullable: false, maxLength: 100),
-                        AppId = c.String(nullable: false),
-                        Comment_CommentId = c.Long(),
-                        Comment_CommentId1 = c.Long(),
-                        Group_GroupId = c.Int(),
-                        Group_GroupId1 = c.Int(),
-                        Post_PostId = c.Int(),
-                        Post_PostId1 = c.Int(),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    Name = c.String(nullable: false, maxLength: 100),
+                    AppId = c.String(nullable: false),
+                    Comment_CommentId = c.Long(),
+                    Comment_CommentId1 = c.Long(),
+                    Group_GroupId = c.Int(),
+                    Group_GroupId1 = c.Int(),
+                    Post_PostId = c.Int(),
+                    Post_PostId1 = c.Int(),
+                })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Comment", t => t.Comment_CommentId)
                 .ForeignKey("dbo.Comment", t => t.Comment_CommentId1)
@@ -49,38 +48,38 @@ namespace zapread.com.Migrations
                 .Index(t => t.Group_GroupId1)
                 .Index(t => t.Post_PostId)
                 .Index(t => t.Post_PostId1);
-            
+
             CreateTable(
                 "dbo.Group",
                 c => new
-                    {
-                        GroupId = c.Int(nullable: false, identity: true),
-                        GroupName = c.String(),
-                    })
+                {
+                    GroupId = c.Int(nullable: false, identity: true),
+                    GroupName = c.String(),
+                })
                 .PrimaryKey(t => t.GroupId);
-            
+
             CreateTable(
                 "dbo.Post",
                 c => new
-                    {
-                        PostId = c.Int(nullable: false, identity: true),
-                        Score = c.Int(nullable: false),
-                        PostTitle = c.String(),
-                        TimeStamp = c.DateTime(),
-                        Content = c.String(),
-                        IsDeleted = c.Boolean(nullable: false),
-                        Earned = c.Double(nullable: false),
-                        Group_GroupId = c.Int(),
-                        UserId_Id = c.Int(),
-                    })
+                {
+                    PostId = c.Int(nullable: false, identity: true),
+                    Score = c.Int(nullable: false),
+                    PostTitle = c.String(),
+                    TimeStamp = c.DateTime(),
+                    Content = c.String(),
+                    IsDeleted = c.Boolean(nullable: false),
+                    Earned = c.Double(nullable: false),
+                    Group_GroupId = c.Int(),
+                    UserId_Id = c.Int(),
+                })
                 .PrimaryKey(t => t.PostId)
                 .ForeignKey("dbo.Group", t => t.Group_GroupId)
                 .ForeignKey("dbo.User", t => t.UserId_Id)
                 .Index(t => t.Group_GroupId)
                 .Index(t => t.UserId_Id);
-            
+
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.User", "Post_PostId1", "dbo.Post");

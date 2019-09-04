@@ -1,28 +1,24 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using zapread.com.Models;
 using zapread.com.Database;
-using System.IO;
-using System.Drawing.Imaging;
 using zapread.com.Helpers;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Net;
-using zapread.com.Services;
-using Microsoft.Owin;
-using System.Security.Principal;
-using System.Security.Claims;
-using System.Globalization;
+using zapread.com.Models;
 using zapread.com.Models.Database;
-using zapread.com.Models.Manage;
-using System.Drawing.Drawing2D;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -109,7 +105,8 @@ namespace zapread.com.Controllers
                     .ToList();
 
                 var values = pageTxns.AsParallel()
-                    .Select(t => new DataItem() {
+                    .Select(t => new DataItem()
+                    {
                         Time = t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         Type = t.IsDeposit ? "Deposit" : "Withdrawal",
                         Amount = Convert.ToString(t.Amount),
@@ -144,7 +141,7 @@ namespace zapread.com.Controllers
 
 
 
-                
+
 
                 var commentIds = pageEarnings
                     .Where(e => e.Type == 0 && e.OriginType == 1)
@@ -169,7 +166,7 @@ namespace zapread.com.Controllers
 
                 var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync();
                 var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync();
-                
+
 
                 var values = pageEarnings
                     .AsParallel()
@@ -241,7 +238,7 @@ namespace zapread.com.Controllers
                 if (postId > 0)
                     return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = postId });
             }
-            return  t.OriginId.ToString();
+            return t.OriginId.ToString();
         }
 
         private static string GetEarningMemo(EarningEvent t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
@@ -375,7 +372,7 @@ namespace zapread.com.Controllers
 
                     var ea = new EarningEvent()
                     {
-                        Amount =amount.Value,
+                        Amount = amount.Value,
                         OriginType = 2,
                         TimeStamp = DateTime.UtcNow,
                         Type = 0,
@@ -438,7 +435,7 @@ namespace zapread.com.Controllers
                             Subject = "Send NotifyOnReceivedTip error.",
                         });
                     }
-                    
+
                     return Json(new { Result = "Success" });
                 }
                 else
@@ -838,7 +835,7 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { result="error", success = false, message = "User not found" });
+                return Json(new { result = "error", success = false, message = "User not found" });
             }
             using (var db = new ZapContext())
             {
@@ -1000,7 +997,7 @@ namespace zapread.com.Controllers
                     else
                     {
                         newWidth = max_wh;
-                        newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar );
+                        newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar);
                     }
 
                     var bmp = new Bitmap((int)max_wh, (int)max_wh);
@@ -1015,14 +1012,14 @@ namespace zapread.com.Controllers
                     byte[] data = bmp.ToByteArray(ImageFormat.Png);
 
                     //await EnsureUserExists(userId, db);
-                    UserImage i = new UserImage() { Image = data};
+                    UserImage i = new UserImage() { Image = data };
                     db.Users.First(u => u.AppId == userId).ProfileImage = i;
                     await db.SaveChangesAsync();
                 }
                 return Json(new { result = "success" });
             }
         }
-        
+
         /// <summary>
         /// Updates the user alias
         /// </summary>
@@ -1073,7 +1070,7 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { success = false, result="error", message = "Error updating user settings" });
+                return Json(new { success = false, result = "error", message = "Error updating user settings" });
             }
             using (var db = new ZapContext())
             {
@@ -1172,7 +1169,7 @@ namespace zapread.com.Controllers
                 {
                     user.Settings.ShowTours = value;
                 }
-                
+
                 await db.SaveChangesAsync();
                 return Json(new { success = true, result = "success" });
             }
@@ -1392,7 +1389,7 @@ namespace zapread.com.Controllers
             });
         }
 
-        
+
 
         //
         // POST: /Manage/LinkLogin
@@ -1428,7 +1425,7 @@ namespace zapread.com.Controllers
             base.Dispose(disposing);
         }
 
-#region Helpers
+        #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
@@ -1480,6 +1477,6 @@ namespace zapread.com.Controllers
             Error
         }
 
-#endregion
+        #endregion
     }
 }

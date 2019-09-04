@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class GroupAdmin : DbMigration
     {
         public override void Up()
@@ -14,7 +13,7 @@ namespace zapread.com.Migrations
             AddForeignKey("dbo.User", "Group_GroupId", "dbo.Group", "GroupId");
             AddForeignKey("dbo.User", "Group_GroupId1", "dbo.Group", "GroupId");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.User", "Group_GroupId1", "dbo.Group");

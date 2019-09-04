@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class addAlertsForAllNotify : DbMigration
     {
         public override void Up()
@@ -14,7 +13,7 @@ namespace zapread.com.Migrations
             AddColumn("dbo.UserSettings", "AlertOnPrivateMessage", c => c.Boolean(nullable: false));
             AddColumn("dbo.UserSettings", "AlertOnMentioned", c => c.Boolean(nullable: false));
         }
-        
+
         public override void Down()
         {
             DropColumn("dbo.UserSettings", "AlertOnMentioned");

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RoboHash.Net;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RoboHash.Net;
-using System.Drawing.Imaging;
-using System.Drawing;
 using zapread.com.Helpers;
 
 namespace zapread.com.Tests.Services
@@ -25,10 +24,10 @@ namespace zapread.com.Tests.Services
 
             var r = RoboHash.Net.RoboHash.Create(userId);
             using (var image = r.Render(
-                set: null, 
+                set: null,
                 backgroundSet: RoboConsts.Any,
-                color: null, 
-                width: 400, 
+                color: null,
+                width: 400,
                 height: 400))
             {
                 var name = userId + ".bg.png";

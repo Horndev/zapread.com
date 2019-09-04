@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
+using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 using zapread.com.Database;
 
 namespace zapread.com.Hubs

@@ -1,8 +1,4 @@
 ﻿using Microsoft.AspNet.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using zapread.com.Hubs;
 
 namespace zapread.com.Services
@@ -21,7 +17,7 @@ namespace zapread.com.Services
         public static void SendPrivateMessage(string content, string userId, string reason, string clickUrl)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
-            context.Clients.Group(groupName: userId).SendUserMessage(new { message=content, reason, hasReason = reason != null, clickUrl });
+            context.Clients.Group(groupName: userId).SendUserMessage(new { message = content, reason, hasReason = reason != null, clickUrl });
         }
 
         public static void SendPrivateChat(string HTMLString, string userId, string reason, string clickUrl)

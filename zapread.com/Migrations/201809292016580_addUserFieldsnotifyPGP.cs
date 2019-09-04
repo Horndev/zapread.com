@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class addUserFieldsnotifyPGP : DbMigration
     {
         public override void Up()
@@ -11,7 +10,7 @@ namespace zapread.com.Migrations
             AddColumn("dbo.UserSettings", "NotifyOnReceivedTip", c => c.Boolean(nullable: false));
             AddColumn("dbo.UserSettings", "NotifyOnPrivateMessage", c => c.Boolean(nullable: false));
         }
-        
+
         public override void Down()
         {
             DropColumn("dbo.UserSettings", "NotifyOnPrivateMessage");

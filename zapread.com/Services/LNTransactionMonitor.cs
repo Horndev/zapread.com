@@ -1,10 +1,7 @@
 ﻿using LightningLib.lndrpc;
-using LightningLib.lndrpc.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using zapread.com.Database;
 using zapread.com.Models;
 
@@ -274,7 +271,7 @@ namespace zapread.com.Services
                                             i.User.Funds.LimboBalance -= amount;
                                             i.User.Funds.Balance += amount;
                                         }
-                                        
+
                                         MailingService.Send(new UserEmailModel()
                                         {
                                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],

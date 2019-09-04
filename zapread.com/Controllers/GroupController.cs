@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using zapread.com.Database;
-using zapread.com.Models;
-using System.Data.Entity;
-using System.Threading.Tasks;
-using System.IO;
 using zapread.com.Helpers;
-using System.Text;
-using System.Globalization;
-using zapread.com.Models.Database;
-using System.Data.Entity.SqlServer;
+using zapread.com.Models;
 using zapread.com.Models.Admin;
+using zapread.com.Models.Database;
 
 namespace zapread.com.Controllers
 {
@@ -255,7 +253,7 @@ namespace zapread.com.Controllers
                         LastSeen = m.DateLastActivity,
                     });
                 }
-                
+
                 GroupMembersViewModel vm = new GroupMembersViewModel()
                 {
                     GroupId = group.GroupId,
@@ -466,7 +464,7 @@ namespace zapread.com.Controllers
                 foreach (var gid in gids)
                 {
                     payoutUserAmount.Clear();
-                    
+
                     var g = db.Groups.FirstOrDefault(grp => grp.GroupId == gid);
                     toDistribute = Math.Floor(g.TotalEarnedToDistribute);
                     numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
@@ -594,7 +592,7 @@ namespace zapread.com.Controllers
 
                 // Do community payouts
                 payoutUserAmount.Clear();
-                
+
                 var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
                 toDistribute = Math.Floor(website.CommunityEarnedToDistribute);
 
@@ -747,7 +745,7 @@ namespace zapread.com.Controllers
             }
             if (g.Tier == 1)
             {
-                return Convert.ToInt32(100.0 * (e-1000.0) / 10000.0);
+                return Convert.ToInt32(100.0 * (e - 1000.0) / 10000.0);
             }
             if (g.Tier == 2)
             {
@@ -840,7 +838,8 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GroupDetail(int id)
         {
             var userId = User.Identity.GetUserId();
-            GroupViewModel vm = new GroupViewModel() {
+            GroupViewModel vm = new GroupViewModel()
+            {
                 HasMorePosts = true,
             };
 
@@ -1143,7 +1142,7 @@ namespace zapread.com.Controllers
                         u.GroupModeration.Remove(g);
                     }
                 }
-                
+
                 db.SaveChanges();
             }
             return Json(new { success = true });
@@ -1246,7 +1245,7 @@ namespace zapread.com.Controllers
                 var matched = db.Groups.Where(g => g.GroupName == gn).FirstOrDefault();
                 if (matched != null)
                 {
-                    return Json(new { exists =  true}, JsonRequestBehavior.AllowGet);
+                    return Json(new { exists = true }, JsonRequestBehavior.AllowGet);
                 }
                 return Json(new { exists = false }, JsonRequestBehavior.AllowGet);
             }
@@ -1380,7 +1379,7 @@ namespace zapread.com.Controllers
                     CreationDate = DateTime.UtcNow,
                     DefaultLanguage = m.Language,
                 };
-                
+
                 var u = db.Users.Where(us => us.AppId == userId).First();
 
                 g.Members.Add(u);
@@ -1390,7 +1389,7 @@ namespace zapread.com.Controllers
                 db.Groups.Add(g);
                 db.SaveChanges();
 
-                return RedirectToAction( actionName:"GroupDetail", routeValues: new { id = g.GroupId });
+                return RedirectToAction(actionName: "GroupDetail", routeValues: new { id = g.GroupId });
             }
         }
 
@@ -1529,7 +1528,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult CreateNewGroup(NewGroupViewModel m)
         {
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

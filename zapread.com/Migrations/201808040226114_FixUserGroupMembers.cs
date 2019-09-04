@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class FixUserGroupMembers : DbMigration
     {
         public override void Up()
@@ -17,19 +16,19 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.UserGroup",
                 c => new
-                    {
-                        User_Id = c.Int(nullable: false),
-                        Group_GroupId = c.Int(nullable: false),
-                    })
+                {
+                    User_Id = c.Int(nullable: false),
+                    Group_GroupId = c.Int(nullable: false),
+                })
                 .PrimaryKey(t => new { t.User_Id, t.Group_GroupId })
                 .ForeignKey("dbo.User", t => t.User_Id, cascadeDelete: true)
                 .ForeignKey("dbo.Group", t => t.Group_GroupId, cascadeDelete: true)
                 .Index(t => t.User_Id)
                 .Index(t => t.Group_GroupId);
-            
+
             DropColumn("dbo.Group", "User_Id");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.Group", "User_Id", c => c.Int());

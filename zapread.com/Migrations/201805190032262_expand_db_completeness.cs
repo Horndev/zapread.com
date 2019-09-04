@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class expand_db_completeness : DbMigration
     {
         public override void Up()
@@ -10,13 +9,13 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.UserFunds",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        TotalEarned = c.Double(nullable: false),
-                        Balance = c.Double(nullable: false),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    TotalEarned = c.Double(nullable: false),
+                    Balance = c.Double(nullable: false),
+                })
                 .PrimaryKey(t => t.Id);
-            
+
             AddColumn("dbo.Comment", "TimeStamp", c => c.DateTime());
             AddColumn("dbo.User", "DateJoined", c => c.DateTime());
             AddColumn("dbo.User", "Funds_Id", c => c.Int());
@@ -27,7 +26,7 @@ namespace zapread.com.Migrations
             AddForeignKey("dbo.User", "Funds_Id", "dbo.UserFunds", "Id");
             AddForeignKey("dbo.UserImage", "Post_PostId", "dbo.Post", "PostId");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.UserImage", "Post_PostId", "dbo.Post");

@@ -1,28 +1,21 @@
-﻿using HtmlAgilityPack;
-using Jdenticon;
-using Jdenticon.Rendering;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
+﻿using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
-using System.Data.Entity;
-using zapread.com.Services;
-using System.Globalization;
-using LightningLib.lndrpc;
 using zapread.com.Models.Database;
-using System.Text;
-using System.Data.Entity.SqlServer;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -443,7 +436,7 @@ namespace zapread.com.Controllers
         /// <param name="f">include subscribed followers null = yes</param>
         /// <param name="p">page</param>
         /// <returns></returns>
-        [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             //PaymentPoller.Subscribe();
@@ -474,9 +467,9 @@ namespace zapread.com.Controllers
                 {
                     User user = await GetCurrentUser(db);
                     var posts = await GetPosts(
-                        start: 0, 
-                        count: 10, 
-                        sort: sort ?? "Score", 
+                        start: 0,
+                        count: 10,
+                        sort: sort ?? "Score",
                         userId: user != null ? user.Id : 0);
 
                     if (user != null)
@@ -655,7 +648,7 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            
+
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();

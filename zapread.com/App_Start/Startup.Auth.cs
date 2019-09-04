@@ -1,15 +1,13 @@
-﻿using System;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
-using zapread.com.Models;
-using Owin.Security.Providers.Reddit;
 using Owin.Security.Providers.GitHub;
-using Microsoft.Owin.Security.Twitter;
-using Microsoft.Owin.Security;
+using Owin.Security.Providers.Reddit;
+using System;
+using zapread.com.Models;
 
 namespace zapread.com
 {
@@ -40,7 +38,7 @@ namespace zapread.com
                         validateInterval: TimeSpan.FromMinutes(30),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
-            });            
+            });
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.

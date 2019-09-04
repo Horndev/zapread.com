@@ -1,26 +1,18 @@
-﻿using System;
-using System.Globalization;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using zapread.com.Models;
-using zapread.com.Helpers;
-using Jdenticon;
-using Jdenticon.Rendering;
-using System.IO;
 using zapread.com.Database;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Data.Entity;
-using Microsoft.Owin.Host.SystemWeb;
-using zapread.com.Services;
+using zapread.com.Models;
 using zapread.com.Models.Database;
-using System.Collections.Generic;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -45,14 +37,14 @@ namespace zapread.com.Controllers
             SignInManager = signInManager;
         }
 
-        public AccountController( 
-            ApplicationUserManager userManager, 
-            ApplicationSignInManager signInManager, 
-            ApplicationRoleManager roleManager) 
-        { 
-            this.RoleManager = roleManager; 
-            this.SignInManager = signInManager; 
-            this.UserManager = userManager; 
+        public AccountController(
+            ApplicationUserManager userManager,
+            ApplicationSignInManager signInManager,
+            ApplicationRoleManager roleManager)
+        {
+            this.RoleManager = roleManager;
+            this.SignInManager = signInManager;
+            this.UserManager = userManager;
         }
 
         /* Monetary aspects */
@@ -235,7 +227,7 @@ namespace zapread.com.Controllers
             {
                 // Get the logged in user ID
                 userId = User.Identity.GetUserId();
-            
+
                 using (var db = new ZapContext())
                 {
                     var sum = await db.Users
@@ -293,7 +285,7 @@ namespace zapread.com.Controllers
                         .SelectMany(u => u.EarningEvents)
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
                         .SumAsync(tx => tx.Amount);
-                    
+
                     totalAmount = await db.Users
                         .Include(i => i.EarningEvents)
                         .Where(u => u.AppId == uid)
@@ -333,9 +325,9 @@ namespace zapread.com.Controllers
                         .Where(u => u.AppId == uid)
                         .SelectMany(u => u.LNTransactions)
                         .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
-                        .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0*tx.Amount })
+                        .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount })
                         .SumAsync(tx => tx.amt);
-                        
+
                     amount = sum;
                 }
             }
@@ -358,9 +350,9 @@ namespace zapread.com.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -439,7 +431,7 @@ namespace zapread.com.Controllers
                     isPersistent: model.RememberMe,
                     shouldLockout: false);
             }
-            
+
             switch (result)
             {
                 case SignInStatus.Success:
@@ -470,18 +462,18 @@ namespace zapread.com.Controllers
                                     IsPersistent = model.RememberMe
                                 }, identity);
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 // Need to better handle this
                             }
                         }
                         return RedirectToLocal(returnUrl);
                     }
-                    
+
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe});
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
@@ -518,7 +510,7 @@ namespace zapread.com.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -563,13 +555,13 @@ namespace zapread.com.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">"+ callbackUrl + "</a>");
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
 
                     // Initialize ZapRead user with default parameters
                     var userId = await UserManager.FindByNameAsync(model.UserName);
@@ -627,10 +619,10 @@ namespace zapread.com.Controllers
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
                 string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 await UserManager.SendEmailAsync(
-                    userId: user.Id, 
-                    subject: "Reset Password", 
+                    userId: user.Id,
+                    subject: "Reset Password",
                     body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl);
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }

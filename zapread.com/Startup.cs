@@ -1,10 +1,6 @@
-﻿using Microsoft.Owin;
+﻿using Hangfire;
+using Microsoft.Owin;
 using Owin;
-using zapread.com.Database;
-using System.Linq;
-using System.Collections.Generic;
-using zapread.com.Models;
-using Hangfire;
 using System.Web;
 
 [assembly: OwinStartupAttribute(typeof(zapread.com.Startup))]

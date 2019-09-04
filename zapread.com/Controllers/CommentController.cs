@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
-using zapread.com.Services;
-using System.Data.Entity;
-using HtmlAgilityPack;
 using zapread.com.Models.Database;
-using System.Text;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -90,7 +90,7 @@ namespace zapread.com.Controllers
         {
             var userId = User.Identity.GetUserId();
 
-            using(var db = new ZapContext())
+            using (var db = new ZapContext())
             {
                 Comment comment = db.Comments.FirstOrDefault(cmt => cmt.CommentId == Id);
                 if (comment == null)
@@ -112,7 +112,7 @@ namespace zapread.com.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new{ Success = false });
+                return Json(new { Success = false });
             }
 
             var userId = User.Identity.GetUserId();
@@ -224,7 +224,7 @@ namespace zapread.com.Controllers
                         commentOwner.Settings = new UserSettings();
                     }
                 }
-                
+
                 if (!c.IsReply)
                 {
                     post.Comments.Add(comment);
@@ -235,7 +235,7 @@ namespace zapread.com.Controllers
                     db.Comments.Add(comment);
                     await db.SaveChangesAsync();
                 }
-                    
+
                 // Find user mentions
                 try
                 {
@@ -276,7 +276,7 @@ namespace zapread.com.Controllers
                         await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { StartVisible=true, Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
+                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { StartVisible = true, Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
 
                 return this.Json(new
                 {
@@ -381,7 +381,7 @@ namespace zapread.com.Controllers
                     CommentHTMLString += RenderPartialViewToString("_PartialCommentRender", vm);
                     shown.Add(cmt.CommentId);
                 }
-                
+
                 return Json(new
                 {
                     success = true,
@@ -428,7 +428,7 @@ namespace zapread.com.Controllers
 
             sanitizer.AllowedAttributes.Add("class");
             sanitizer.AllowedAttributes.Remove("id");
-            
+
             var sanitizedComment = sanitizer.Sanitize(commentText);
             return sanitizedComment;
         }

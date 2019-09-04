@@ -1,21 +1,16 @@
 ﻿using LightningLib.lndrpc;
-using Microsoft.AspNet.SignalR;
+using LightningLib.lndrpc.Exceptions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web.Mvc;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using zapread.com.Models;
 using zapread.com.Database;
-using LightningLib.lndrpc.Exceptions;
+using zapread.com.Models;
 
 namespace zapread.com.Services
 {
-    
+
     public class LightningPayments : ILightningPayments
     {
         /// <summary>
@@ -158,9 +153,9 @@ namespace zapread.com.Services
                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                             Body = " Withdraw error: PayInvoice threw an exception. "
                                 + "\r\n message: " + e.Message
-                                + "\r\n hash: " + t.HashStr 
-                                + "\r\n Content: " + e.Content 
-                                + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request 
+                                + "\r\n hash: " + t.HashStr
+                                + "\r\n Content: " + e.Content
+                                + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request
                                 + "\r\n user: " + userId + "\r\n username: " + user.Name,
                             Email = "",
                             Name = "zapread.com Exception",
@@ -190,8 +185,8 @@ namespace zapread.com.Services
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr 
-                            + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: " 
+                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr
+                            + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: "
                             + request + "\r\n user: " + userId,
                         Email = "",
                         Name = "zapread.com Exception",
@@ -215,7 +210,7 @@ namespace zapread.com.Services
                         // Not recovered - it will be cued for checkup later.  This could be caused by LND being "laggy"
                         // Reserve the user funds to prevent another withdraw
                         user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis);
-                        user.Funds.Balance      -= Convert.ToDouble(decoded.num_satoshis);
+                        user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
 
                         t.ErrorMessage = "Error validating payment.";
                         db.SaveChanges();
@@ -229,7 +224,7 @@ namespace zapread.com.Services
                     db.SaveChanges();
                     return new { Result = "Error: " + paymentresult.error };
                 }
-                
+
                 if (paymentresult.payment_error != null)
                 {
                     t.ErrorMessage = "Error: " + paymentresult.payment_error;
