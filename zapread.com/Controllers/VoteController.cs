@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNet.Identity;
 using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
-using System.Data.Entity;
-using zapread.com.Models;
 using zapread.com.Helpers;
-using zapread.com.Services;
+using zapread.com.Models;
 using zapread.com.Models.Database;
-using Hangfire;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -88,7 +85,7 @@ namespace zapread.com.Controllers
                 }
 
                 if (userId == null)// Anonymous vote
-                { 
+                {
                     // Check if vote tx has been claimed
                     if (v.tx != -1337) //debugging secret
                     {
@@ -126,9 +123,9 @@ namespace zapread.com.Controllers
 
                 var spendingEvent = new SpendingEvent()
                 {
-                   Amount = v.a,
-                   Post = post,
-                   TimeStamp = DateTime.UtcNow,
+                    Amount = v.a,
+                    Post = post,
+                    TimeStamp = DateTime.UtcNow,
                 };
 
                 double userBalance = 0.0;
@@ -140,7 +137,7 @@ namespace zapread.com.Controllers
 
                 long authorRep = post.UserId.Reputation;
                 long userRep = 0;
-                
+
                 if (v.d == 1) // Voted up
                 {
                     if (user != null && post.VotesUp.Contains(user))
@@ -163,7 +160,7 @@ namespace zapread.com.Controllers
 
                     // Record and assign earnings
                     // Related to post owner
-                    post.TotalEarned += 0.6*v.a;
+                    post.TotalEarned += 0.6 * v.a;
 
                     var ea = new EarningEvent()
                     {
@@ -194,7 +191,7 @@ namespace zapread.com.Controllers
 
                         owner.EarningEvents.Add(ea);
                         owner.TotalEarned += 0.6 * v.a;
-                        
+
                         if (owner.Funds == null)
                         {
                             owner.Funds = new UserFunds() { Balance = 0.6 * v.a, TotalEarned = 0.6 * v.a };
@@ -265,7 +262,7 @@ namespace zapread.com.Controllers
                     }
                     //post.VotesUp.Remove(user);
                     //user.PostVotesUp.Remove(post);
-                    var adj = ReputationService.GetReputationAdjustedAmount(-1*v.a, authorRep, userRep);
+                    var adj = ReputationService.GetReputationAdjustedAmount(-1 * v.a, authorRep, userRep);
 
                     post.Score += Convert.ToInt32(adj);// v.a;// post.VotesUp.Count() - post.VotesDown.Count();
 
@@ -515,7 +512,7 @@ namespace zapread.com.Controllers
                         userRep = user.Reputation;
                     }
 
-                    var adj = ReputationService.GetReputationAdjustedAmount(-1*v.a, authorRep, userRep);
+                    var adj = ReputationService.GetReputationAdjustedAmount(-1 * v.a, authorRep, userRep);
                     comment.Score += Convert.ToInt32(adj);// v.a;
 
                     // Record and assign earnings

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace zapread.com.Models.Manage
+﻿namespace zapread.com.Models.Manage
 {
     public class ManageSettingViewModel
     {

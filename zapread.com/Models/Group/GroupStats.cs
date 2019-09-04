@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace zapread.com.Models.GroupView
+﻿namespace zapread.com.Models.GroupView
 {
     public class GroupStats
     {

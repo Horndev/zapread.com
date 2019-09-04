@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using zapread.com.Models.Database;
-using zapread.com.Models.Manage;
 
 namespace zapread.com.Models
 {
@@ -49,7 +48,7 @@ namespace zapread.com.Models
         public bool EmailConfirmed { get; set; }
         public bool BrowserRemembered { get; set; }
         public FinancialViewModel Financial { get; set; }
-        
+
         public IList<string> Languages { get; set; }
         public IList<string> KnownLanguages { get; set; }
 
@@ -82,7 +81,7 @@ namespace zapread.com.Models
 
     public class EarningsViewModel
     {
-        public DateTime TimeStamp {get; set; }
+        public DateTime TimeStamp { get; set; }
         public string Type { get; set; }
         public string Value { get; set; }
         public int ItemId { get; set; }

@@ -1,28 +1,21 @@
-﻿using HtmlAgilityPack;
-using Jdenticon;
-using Jdenticon.Rendering;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
+﻿using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
-using System.Data.Entity;
-using zapread.com.Services;
-using System.Globalization;
-using LightningLib.lndrpc;
 using zapread.com.Models.Database;
-using System.Text;
-using System.Data.Entity.SqlServer;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -249,6 +242,42 @@ namespace zapread.com.Controllers
         {
             DateTime scoreStart = new DateTime(2018, 07, 01);
 
+            //var sposts_debug = validposts
+            //    .Where(p => !p.IsDeleted)
+            //    .Where(p => !p.IsDraft)
+            //    .Select(p => new
+            //    {
+            //        p,
+            //        // Includes the sum of absolute value of comment scores
+            //        cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 0.0 : Math.Abs((double)c.Score)) : 1.0
+            //    })
+            //    .Select(p => new
+            //    {
+            //        p.p,
+            //        p.cScore,
+            //        s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
+            //    })
+            //    .Select(p => new
+            //    {
+            //        p.p,
+            //        order1 = SqlFunctions.Log10(p.s),
+            //        order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore),     // Comment scores
+            //        sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+            //        dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
+            //    })
+            //    .Select(p => new
+            //    {
+            //        p.order1,
+            //        p.order2,
+            //        p.sign,
+            //        p.dt,
+            //        hot = p.sign * (p.order1 + p.order2) + p.dt / 90000,
+            //        p.p.Score,
+            //        cScores= p.p.Comments.Count() > 0 ? p.p.Comments.Sum(c => c.Score) : -1,
+            //        p.p
+            //    }).OrderByDescending(p => p.hot).ToList();
+
+            //;
             var sposts = await validposts
                 .Where(p => !p.IsDeleted)
                 .Where(p => !p.IsDraft)
@@ -256,24 +285,30 @@ namespace zapread.com.Controllers
                 {
                     p,
                     // Includes the sum of absolute value of comment scores
-                    c = p.Comments.Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score))
+                    cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
                 })
                 .Select(p => new
                 {
                     p.p,
-                    s = 0.5*p.c + (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
+                    p.cScore,
+                    s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
                 })
                 .Select(p => new
                 {
                     p.p,
-                    order = SqlFunctions.Log10(p.s),
+                    order1 = SqlFunctions.Log10(p.s),
+                    order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore),     // Comment scores
                     sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
                     dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
                 })
                 .Select(p => new
                 {
                     p.p,
-                    hot = p.sign * p.order + p.dt / 90000
+                    p.order1,
+                    p.order2,
+                    p.sign,
+                    p.dt,
+                    hot = p.sign * (p.order1 + p.order2) + p.dt / 90000
                 })
                 .OrderByDescending(p => p.hot)
                 .Select(p => p.p)
@@ -401,7 +436,7 @@ namespace zapread.com.Controllers
         /// <param name="f">include subscribed followers null = yes</param>
         /// <param name="p">page</param>
         /// <returns></returns>
-        [OutputCache(Duration = 600, VaryByParam = "*", Location=System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             //PaymentPoller.Subscribe();
@@ -432,9 +467,9 @@ namespace zapread.com.Controllers
                 {
                     User user = await GetCurrentUser(db);
                     var posts = await GetPosts(
-                        start: 0, 
-                        count: 10, 
-                        sort: sort ?? "Score", 
+                        start: 0,
+                        count: 10,
+                        sort: sort ?? "Score",
                         userId: user != null ? user.Id : 0);
 
                     if (user != null)
@@ -613,7 +648,7 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            
+
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();

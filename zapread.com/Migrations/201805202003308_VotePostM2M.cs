@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class VotePostM2M : DbMigration
     {
         public override void Up()
@@ -14,7 +13,7 @@ namespace zapread.com.Migrations
             AddForeignKey("dbo.Post", "User_Id", "dbo.User", "Id");
             AddForeignKey("dbo.Post", "User_Id1", "dbo.User", "Id");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.Post", "User_Id1", "dbo.User");

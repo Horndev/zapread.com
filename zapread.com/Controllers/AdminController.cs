@@ -21,7 +21,7 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
-    [Authorize(Roles = "Administrator", Users ="Zelgada")]
+    [Authorize(Roles = "Administrator", Users = "Zelgada")]
     public class AdminController : Controller
     {
         private ApplicationUserManager _userManager;
@@ -87,7 +87,7 @@ namespace zapread.com.Controllers
 
                 var numinv = unpaidInvoices.Count();
 
-                foreach(var i in unpaidInvoices)
+                foreach (var i in unpaidInvoices)
                 {
                     if (i.HashStr != null)
                     {
@@ -182,7 +182,7 @@ namespace zapread.com.Controllers
 
                 db.SaveChanges();
             }
-            return Json(new { result="success" }, JsonRequestBehavior.AllowGet);
+            return Json(new { result = "success" }, JsonRequestBehavior.AllowGet);
         }
 
         #endregion
@@ -190,7 +190,7 @@ namespace zapread.com.Controllers
         #region Icons
         public ActionResult Icons()
         {
-           return View();
+            return View();
         }
 
         public class DataItem
@@ -393,7 +393,7 @@ namespace zapread.com.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Audit/"+username });
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Audit/" + username });
             }
 
             if (username == null)
@@ -636,7 +636,7 @@ namespace zapread.com.Controllers
                     LnPubkey = g.LnPubkey,
                     LnMainnetMacaroonAdmin = g.LnMainnetMacaroonAdmin,
                     LnMainnetMacaroonInvoice = g.LnMainnetMacaroonInvoice,
-                    LnMainnetMacaroonRead = g.LnMainnetMacaroonRead, 
+                    LnMainnetMacaroonRead = g.LnMainnetMacaroonRead,
                 };
 
                 return View(vm);
@@ -818,7 +818,7 @@ namespace zapread.com.Controllers
                     .FirstOrDefault();
 
                 var gd = db.Groups.Sum(g => g.TotalEarnedToDistribute);
-                var LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount))/100000000.0;
+                var LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
                 var LNwth = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
                 var LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
 
@@ -832,13 +832,13 @@ namespace zapread.com.Controllers
 
                 var groupedStats = GroupPostsByDate(allPosts, group, startDate);
 
-                DateTime epochUTC = new DateTime(1970, 1, 1, 0,0,0, kind: DateTimeKind.Utc);
+                DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
                 var stats = groupedStats.Select(x => new
-                    {
-                        x.Key,
-                        Count = x.Count()
-                    })
+                {
+                    x.Key,
+                    Count = x.Count()
+                })
                     .ToList()
                     .Select(x => new Stat
                     {
@@ -862,7 +862,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        private IQueryable<IGrouping<int?, Post>> GroupPostsByDate(IQueryable<Post> products, DateGroupType group, DateTime startDate) 
+        private IQueryable<IGrouping<int?, Post>> GroupPostsByDate(IQueryable<Post> products, DateGroupType group, DateTime startDate)
         {
             switch (group)
             {
@@ -1049,14 +1049,14 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod, bool isMember )
+        public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod, bool isMember)
         {
             using (var db = new ZapContext())
             {
                 var u = db.Users.Where(usr => usr.Name == user).FirstOrDefault();
                 if (u == null)
                 {
-                    return Json(new { success = false, message = "User not found"});
+                    return Json(new { success = false, message = "User not found" });
                 }
 
                 var g = db.Groups.Where(grp => grp.GroupName == group).FirstOrDefault();
@@ -1082,7 +1082,7 @@ namespace zapread.com.Controllers
                             g.Administrators.Remove(u);
                             u.GroupAdministration.Remove(g);
                         }
-                        
+
                     }
                 }
                 if (isMod)

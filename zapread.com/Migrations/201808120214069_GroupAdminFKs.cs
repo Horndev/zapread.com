@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class GroupAdminFKs : DbMigration
     {
         public override void Up()
@@ -15,33 +14,33 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.GroupUser",
                 c => new
-                    {
-                        Group_GroupId = c.Int(nullable: false),
-                        User_Id = c.Int(nullable: false),
-                    })
+                {
+                    Group_GroupId = c.Int(nullable: false),
+                    User_Id = c.Int(nullable: false),
+                })
                 .PrimaryKey(t => new { t.Group_GroupId, t.User_Id })
                 .ForeignKey("dbo.Group", t => t.Group_GroupId, cascadeDelete: true)
                 .ForeignKey("dbo.User", t => t.User_Id, cascadeDelete: true)
                 .Index(t => t.Group_GroupId)
                 .Index(t => t.User_Id);
-            
+
             CreateTable(
                 "dbo.GroupUser2",
                 c => new
-                    {
-                        Group_GroupId = c.Int(nullable: false),
-                        User_Id = c.Int(nullable: false),
-                    })
+                {
+                    Group_GroupId = c.Int(nullable: false),
+                    User_Id = c.Int(nullable: false),
+                })
                 .PrimaryKey(t => new { t.Group_GroupId, t.User_Id })
                 .ForeignKey("dbo.Group", t => t.Group_GroupId, cascadeDelete: true)
                 .ForeignKey("dbo.User", t => t.User_Id, cascadeDelete: true)
                 .Index(t => t.Group_GroupId)
                 .Index(t => t.User_Id);
-            
+
             DropColumn("dbo.User", "Group_GroupId");
             DropColumn("dbo.User", "Group_GroupId1");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.User", "Group_GroupId1", c => c.Int());

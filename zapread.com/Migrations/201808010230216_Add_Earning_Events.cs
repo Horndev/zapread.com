@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class Add_Earning_Events : DbMigration
     {
         public override void Up()
@@ -10,16 +9,16 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.EarningEvent",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Type = c.Int(nullable: false),
-                        OriginType = c.Int(nullable: false),
-                        Amount = c.Double(nullable: false),
-                        TimeStamp = c.DateTime(),
-                        User_Id = c.Int(),
-                        Post_PostId = c.Int(),
-                        Comment_CommentId = c.Long(),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    Type = c.Int(nullable: false),
+                    OriginType = c.Int(nullable: false),
+                    Amount = c.Double(nullable: false),
+                    TimeStamp = c.DateTime(),
+                    User_Id = c.Int(),
+                    Post_PostId = c.Int(),
+                    Comment_CommentId = c.Long(),
+                })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.User", t => t.User_Id)
                 .ForeignKey("dbo.Post", t => t.Post_PostId)
@@ -27,13 +26,13 @@ namespace zapread.com.Migrations
                 .Index(t => t.User_Id)
                 .Index(t => t.Post_PostId)
                 .Index(t => t.Comment_CommentId);
-            
+
             AddColumn("dbo.Comment", "TotalEarned", c => c.Double(nullable: false));
             AddColumn("dbo.User", "TotalEarned", c => c.Double(nullable: false));
             AddColumn("dbo.Post", "TotalEarned", c => c.Double(nullable: false));
             DropColumn("dbo.Post", "Earned");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.Post", "Earned", c => c.Double(nullable: false));

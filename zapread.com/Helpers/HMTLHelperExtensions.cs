@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Mvc.Html;
 using System.Web.WebPages;
 
 namespace zapread.com
@@ -13,7 +10,7 @@ namespace zapread.com
         public static string IsSelected(this HtmlHelper html, string controller = null, string action = null, string cssClass = null)
         {
 
-            if (String.IsNullOrEmpty(cssClass)) 
+            if (String.IsNullOrEmpty(cssClass))
                 cssClass = "active";
 
             string currentAction = (string)html.ViewContext.RouteData.Values["action"];

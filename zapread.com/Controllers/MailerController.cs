@@ -1,17 +1,15 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Web;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
-using zapread.com.Services;
-using System.Data.Entity;
-using HtmlAgilityPack;
 using zapread.com.Models.Database;
-using System.Threading.Tasks;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -39,7 +37,7 @@ namespace zapread.com.Controllers
                     .FirstOrDefault(p => p.PostId == id);
 
                 List<int> viewerIgnoredUsers = new List<int>();
-                
+
                 if (pst == null)
                 {
                     return RedirectToAction("PostNotFound");
@@ -267,7 +265,7 @@ namespace zapread.com.Controllers
             using (StringWriter sw = new StringWriter())
             {
                 ViewEngineResult viewResult =
-                    ViewEngines.Engines.FindView(ControllerContext, "~/Views/Mailer/"+viewName+".cshtml", null);
+                    ViewEngines.Engines.FindView(ControllerContext, "~/Views/Mailer/" + viewName + ".cshtml", null);
                 ViewContext viewContext = new ViewContext
                 (ControllerContext, viewResult.View, ViewData, TempData, sw);
                 viewResult.View.Render(viewContext, sw);

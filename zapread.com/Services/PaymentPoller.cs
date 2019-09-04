@@ -1,9 +1,7 @@
 ﻿using LightningLib.lndrpc;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using zapread.com.Database;
 
 namespace zapread.com.Services
@@ -85,12 +83,12 @@ namespace zapread.com.Services
                                 ; // Do something
                                 i.IsSettled = true;
                                 i.FeePaid_Satoshi = pmt.fee != null ? Convert.ToInt64(pmt.fee) : 0;
-                                
+
                                 // Should probably update user balance too
 
                             }
                         }
-                        else if (i.TimestampCreated.HasValue )
+                        else if (i.TimestampCreated.HasValue)
                         {
                             // Check if expired
                             if (DateTime.UtcNow - i.TimestampCreated > TimeSpan.FromDays(1))

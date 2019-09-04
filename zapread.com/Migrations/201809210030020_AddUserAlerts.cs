@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddUserAlerts : DbMigration
     {
         public override void Up()
@@ -10,17 +9,17 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.UserAlert",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Title = c.String(),
-                        Content = c.String(),
-                        TimeStamp = c.DateTime(),
-                        IsRead = c.Boolean(nullable: false),
-                        IsDeleted = c.Boolean(nullable: false),
-                        CommentLink_CommentId = c.Long(),
-                        PostLink_PostId = c.Int(),
-                        To_Id = c.Int(),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    Title = c.String(),
+                    Content = c.String(),
+                    TimeStamp = c.DateTime(),
+                    IsRead = c.Boolean(nullable: false),
+                    IsDeleted = c.Boolean(nullable: false),
+                    CommentLink_CommentId = c.Long(),
+                    PostLink_PostId = c.Int(),
+                    To_Id = c.Int(),
+                })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Comment", t => t.CommentLink_CommentId)
                 .ForeignKey("dbo.Post", t => t.PostLink_PostId)
@@ -28,10 +27,10 @@ namespace zapread.com.Migrations
                 .Index(t => t.CommentLink_CommentId)
                 .Index(t => t.PostLink_PostId)
                 .Index(t => t.To_Id);
-            
+
             AddColumn("dbo.UserMessage", "Title", c => c.String());
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.UserAlert", "To_Id", "dbo.User");

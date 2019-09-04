@@ -1,21 +1,16 @@
 ﻿using LightningLib.lndrpc;
-using Microsoft.AspNet.SignalR;
+using LightningLib.lndrpc.Exceptions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web.Mvc;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using zapread.com.Models;
 using zapread.com.Database;
-using LightningLib.lndrpc.Exceptions;
+using zapread.com.Models;
 
 namespace zapread.com.Services
 {
-    
+
     public class LightningPayments : ILightningPayments
     {
         /// <summary>
@@ -120,29 +115,34 @@ namespace zapread.com.Services
                     return new { Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.") + ", invoice is for " + decoded.num_satoshis + "." };
                 }
 
-                //insert transaction as pending
-                LNTransaction t = new LNTransaction()
-                {
-                    IsSettled = false,
-                    Memo = decoded.description ?? "Withdraw",
-                    HashStr = decoded.payment_hash,
-                    Amount = Convert.ToInt64(decoded.num_satoshis),
-                    IsDeposit = false,
-                    TimestampSettled = DateTime.UtcNow,
-                    TimestampCreated = DateTime.UtcNow, //can't know
-                    PaymentRequest = request,
-                    FeePaid_Satoshi = 0,
-                    NodePubKey = decoded.destination,
-                    User = user,
-                };
-                db.LightningTransactions.Add(t);
-                db.SaveChanges();
-
                 SendPaymentResponse paymentresult = null;
+                LNTransaction t = null;
 
                 //all (should be) ok - make the payment
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
                 {
+                    // Mark funds for withdraw as "in limbo"
+                    user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis);
+                    user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
+
+                    //insert transaction as pending
+                    t = new LNTransaction()
+                    {
+                        IsSettled = false,
+                        Memo = decoded.description ?? "Withdraw",
+                        HashStr = decoded.payment_hash,
+                        Amount = Convert.ToInt64(decoded.num_satoshis),
+                        IsDeposit = false,
+                        TimestampSettled = DateTime.UtcNow,
+                        TimestampCreated = DateTime.UtcNow, //can't know
+                        PaymentRequest = request,
+                        FeePaid_Satoshi = 0,
+                        NodePubKey = decoded.destination,
+                        User = user,
+                    };
+                    db.LightningTransactions.Add(t);
+                    db.SaveChanges();  // Synchronous to ensure balance is locked.
+
                     // Register polling listener (TODO)
 
                     // Execute payment
@@ -158,9 +158,9 @@ namespace zapread.com.Services
                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                             Body = " Withdraw error: PayInvoice threw an exception. "
                                 + "\r\n message: " + e.Message
-                                + "\r\n hash: " + t.HashStr 
-                                + "\r\n Content: " + e.Content 
-                                + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request 
+                                + "\r\n hash: " + t.HashStr
+                                + "\r\n Content: " + e.Content
+                                + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request
                                 + "\r\n user: " + userId + "\r\n username: " + user.Name,
                             Email = "",
                             Name = "zapread.com Exception",
@@ -178,8 +178,7 @@ namespace zapread.com.Services
                     return new { Result = "Please click only once.  Payment already in processing." };
                 }
 
-                WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
-
+                // If we are at this point, we are now checking the status of the payment.
                 if (paymentresult == null)
                 {
                     // Something went wrong.  Check if the payment went through
@@ -190,8 +189,8 @@ namespace zapread.com.Services
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr 
-                            + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: " 
+                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr
+                            + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: "
                             + request + "\r\n user: " + userId,
                         Email = "",
                         Name = "zapread.com Exception",
@@ -214,8 +213,8 @@ namespace zapread.com.Services
                     {
                         // Not recovered - it will be cued for checkup later.  This could be caused by LND being "laggy"
                         // Reserve the user funds to prevent another withdraw
-                        user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis);
-                        user.Funds.Balance      -= Convert.ToDouble(decoded.num_satoshis);
+                        //user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis);
+                        //user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
 
                         t.ErrorMessage = "Error validating payment.";
                         db.SaveChanges();
@@ -229,7 +228,7 @@ namespace zapread.com.Services
                     db.SaveChanges();
                     return new { Result = "Error: " + paymentresult.error };
                 }
-                
+
                 if (paymentresult.payment_error != null)
                 {
                     t.ErrorMessage = "Error: " + paymentresult.payment_error;
@@ -237,8 +236,16 @@ namespace zapread.com.Services
                     return new { Result = "Error: " + paymentresult.payment_error };
                 }
 
+                // Unblock this request since it was successful
+                WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
+
                 // should this be done here? Is there an async/sync check that payment was sent successfully?
-                user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
+                
+                // We have already subtracted the balance from the user account, since the payment was
+                // successful, we leave it subtracted from the account and we remove the balance from limbo.
+                
+                //user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
+                user.Funds.LimboBalance -= Convert.ToDouble(decoded.num_satoshis);
 
                 //update transaction status in DB
                 t.IsSettled = true;

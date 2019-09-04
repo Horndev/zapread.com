@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Models
@@ -113,5 +110,5 @@ namespace zapread.com.Models
         /// </summary>
         public bool IsError { get; set; }
     }
-    
+
 }

@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNet.Identity;
 using QRCoder;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
@@ -61,7 +59,7 @@ namespace zapread.com.Controllers
         }
 
         // GET: Img
-        [OutputCache(Duration = 60*60*24, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 60 * 60 * 24, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult QR(string qr)
         {
             if (qr is null || qr == "")

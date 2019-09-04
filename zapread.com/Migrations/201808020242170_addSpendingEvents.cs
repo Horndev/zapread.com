@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class addSpendingEvents : DbMigration
     {
         public override void Up()
@@ -10,15 +9,15 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.SpendingEvent",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        TimeStamp = c.DateTime(),
-                        Amount = c.Double(nullable: false),
-                        Comment_CommentId = c.Long(),
-                        Group_GroupId = c.Int(),
-                        Post_PostId = c.Int(),
-                        User_Id = c.Int(),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    TimeStamp = c.DateTime(),
+                    Amount = c.Double(nullable: false),
+                    Comment_CommentId = c.Long(),
+                    Group_GroupId = c.Int(),
+                    Post_PostId = c.Int(),
+                    User_Id = c.Int(),
+                })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Comment", t => t.Comment_CommentId)
                 .ForeignKey("dbo.Group", t => t.Group_GroupId)
@@ -28,9 +27,9 @@ namespace zapread.com.Migrations
                 .Index(t => t.Group_GroupId)
                 .Index(t => t.Post_PostId)
                 .Index(t => t.User_Id);
-            
+
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.SpendingEvent", "User_Id", "dbo.User");

@@ -1,22 +1,20 @@
 ﻿using LightningLib.lndrpc;
+using LightningLib.lndrpc.Exceptions;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Hubs;
 using zapread.com.Models;
-using System.Data.Entity;
-using Microsoft.AspNet.Identity;
-using System.Threading;
-using zapread.com.Services;
-using System.Net;
 using zapread.com.Models.Database;
-using LightningLib.lndrpc.Exceptions;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -26,7 +24,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// This is the interface to a singleton payments service which is injected for IOC.
         /// </summary>
-        public ILightningPayments paymentsService { get; private set; }
+        public ILightningPayments PaymentsService { get; private set; }
 
         /// <summary>
         /// Constructor with dependency injection for IOC and controller singleton control.
@@ -34,13 +32,10 @@ namespace zapread.com.Controllers
         /// <param name="paymentsService"></param>
         public LightningController(ILightningPayments paymentsService)
         {
-            this.paymentsService = paymentsService;
+            this.PaymentsService = paymentsService;
         }
 
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
-
-        //Used for rate limiting double withdraws
-        static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
 
         // GET: Lightning
         public ActionResult Index()
@@ -287,7 +282,7 @@ namespace zapread.com.Controllers
                     .Include(tr => tr.User)
                     .Where(tr => tr.PaymentRequest == invoice.payment_request)
                     .ToList();
-                
+
                 DateTime settletime = DateTime.UtcNow;
                 LNTransaction t;
                 if (tx.Count > 0)
@@ -364,7 +359,7 @@ namespace zapread.com.Controllers
             try
             {
                 // Submit Payment Request
-                var paymentResult = paymentsService.TryWithdrawal(request, userId, ip, lndClient);
+                var paymentResult = PaymentsService.TryWithdrawal(request, userId, ip, lndClient);
                 return Json(paymentResult);
             }
             catch (RestException e)
@@ -373,7 +368,7 @@ namespace zapread.com.Controllers
                 MailingService.Send(new UserEmailModel()
                 {
                     Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request 
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + request
                         + "\r\n user: " + userId
                         + "\r\n error Content: " + e.Content
                         + "\r\n HTTP Status: " + e.StatusDescription,

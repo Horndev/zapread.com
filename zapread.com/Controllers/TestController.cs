@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -37,7 +34,7 @@ namespace zapread.com.Controllers
 
                 Image img = Image.FromStream(file.InputStream);
 
-                
+
             }
             return Json(new { });
         }

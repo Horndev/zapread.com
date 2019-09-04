@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="col-5 text-right">
                                         <span> Balance </span>
-                                        <h2 class="font-bold"><span class="userBalanceValue" id="userVoteBalance">0</span> </h2>
+                                        <h2 class="font-bold"><span class="userBalanceValue" id="userVoteBalance">...</span> (<span title="Limbo Balance" class="userBalanceLimboValue">...</span>) </h2>
                                         <small class="text-muted">Satoshi</small>
                                     </div>
                                     <div class="col-2">
@@ -392,6 +392,12 @@
                     },
                     { "data": "Amount", "orderable": false },
                 ],
+            });
+
+            $.get("/Account/GetLimboBalance", function(data, status) {
+                $(".userBalanceLimboValue").each(function (i, e) {
+                    $(e).html(data.balance);
+                });
             });
 
             // Collapse ibox function

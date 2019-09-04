@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,9 +13,6 @@ using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
-using System.Data.Entity;
-using System.Data.Entity.SqlServer;
-using Hangfire;
 
 namespace zapread.com.Controllers
 {
@@ -229,7 +228,7 @@ namespace zapread.com.Controllers
                         Message = u.Content,
                         Status = u.IsRead ? "Read" : "Unread",
                         Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
-                        Anchor = u.CommentLink !=null ? u.CommentLink.CommentId.ToString() : "",
+                        Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
                     }).ToList();
 
                 int numrec = await pageUserMessagesQ.CountAsync();
@@ -254,7 +253,7 @@ namespace zapread.com.Controllers
             public string Date { get; set; }
             public string Link { get; set; }
             public string Anchor { get; set; }
-            public string Message { get; set; } 
+            public string Message { get; set; }
         }
 
         /// <summary>
@@ -598,7 +597,7 @@ namespace zapread.com.Controllers
                     if (id == -1)
                     {
                         // dismissed all
-                        foreach(var a in user.Alerts.Where(m => !m.IsDeleted && !m.IsRead))
+                        foreach (var a in user.Alerts.Where(m => !m.IsDeleted && !m.IsRead))
                         {
                             a.IsRead = true;
                         }
@@ -808,7 +807,7 @@ namespace zapread.com.Controllers
 
                     var msg = new UserMessage()
                     {
-                        IsPrivateMessage = true, 
+                        IsPrivateMessage = true,
                         Content = content,
                         From = sender,
                         To = receiver,
@@ -836,7 +835,7 @@ namespace zapread.com.Controllers
 
                     // Send stream update
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
-                    
+
                     // Send stream update popup
                     NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
@@ -845,7 +844,7 @@ namespace zapread.com.Controllers
                     if (isChat == null || (isChat != null && !isChat.Value))
                     {
                         // Send email
-                        if (receiver.Settings!= null && receiver.Settings.NotifyOnPrivateMessage)
+                        if (receiver.Settings != null && receiver.Settings.NotifyOnPrivateMessage)
                         {
                             string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
                             string subject = "New private message";

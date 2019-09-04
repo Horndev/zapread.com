@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace zapread.com.Services
 {
@@ -14,8 +11,8 @@ namespace zapread.com.Services
             var n = actorRep - targetRep;
             if (amount < 0)
             {
-            //    voteup = -1;
-            //    n = -1 * n;
+                //    voteup = -1;
+                //    n = -1 * n;
             }
             var s = 100000; // scale up
             var sign = 1;

@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddEarningsCommunityWebsite : DbMigration
     {
         public override void Up()
@@ -10,18 +9,18 @@ namespace zapread.com.Migrations
             CreateTable(
                 "dbo.ZapReadGlobals",
                 c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        ZapReadEarnedBalance = c.Double(nullable: false),
-                        ZapReadTotalEarned = c.Double(nullable: false),
-                        ZapReadTotalWithdrawn = c.Double(nullable: false),
-                        CommunityEarnedToDistribute = c.Double(nullable: false),
-                        TotalEarnedCommunity = c.Double(nullable: false),
-                        TotalDepositedCommunity = c.Double(nullable: false),
-                        TotalWithdrawnCommunity = c.Double(nullable: false),
-                    })
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    ZapReadEarnedBalance = c.Double(nullable: false),
+                    ZapReadTotalEarned = c.Double(nullable: false),
+                    ZapReadTotalWithdrawn = c.Double(nullable: false),
+                    CommunityEarnedToDistribute = c.Double(nullable: false),
+                    TotalEarnedCommunity = c.Double(nullable: false),
+                    TotalDepositedCommunity = c.Double(nullable: false),
+                    TotalWithdrawnCommunity = c.Double(nullable: false),
+                })
                 .PrimaryKey(t => t.Id);
-            
+
             AddColumn("dbo.EarningEvent", "Group_GroupId", c => c.Int());
             AddColumn("dbo.Group", "TotalEarnedToDistribute", c => c.Double(nullable: false));
             AddColumn("dbo.Group", "TotalEarned", c => c.Double(nullable: false));
@@ -32,7 +31,7 @@ namespace zapread.com.Migrations
             AddForeignKey("dbo.LNTransaction", "ZapReadGlobals_Id", "dbo.ZapReadGlobals", "Id");
             DropColumn("dbo.Group", "Earned");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.Group", "Earned", c => c.Double(nullable: false));

@@ -1,8 +1,7 @@
 namespace zapread.com.Migrations
 {
-    using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddCommentReplies : DbMigration
     {
         public override void Up()
@@ -11,7 +10,7 @@ namespace zapread.com.Migrations
             CreateIndex("dbo.Comment", "Parent_CommentId");
             AddForeignKey("dbo.Comment", "Parent_CommentId", "dbo.Comment", "CommentId");
         }
-        
+
         public override void Down()
         {
             DropForeignKey("dbo.Comment", "Parent_CommentId", "dbo.Comment");

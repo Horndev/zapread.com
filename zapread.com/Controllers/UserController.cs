@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
@@ -279,13 +278,13 @@ namespace zapread.com.Controllers
                     NumPosts = numUserPosts,
                     NumFollowers = numFollowers,
                     NumFollowing = numFollowing,
-                    IsFollowing = isFollowing, 
+                    IsFollowing = isFollowing,
                     IsIgnoring = isIgnoring,
                     User = user,
                     ActivityPosts = postViews,
                     TopFollowers = topFollowers,
                     TopFollowing = topFollowing,
-                    UserBalance = userFunds, 
+                    UserBalance = userFunds,
                 };
 
                 ViewBag.Username = username;
@@ -408,12 +407,12 @@ namespace zapread.com.Controllers
                         user.Followers.Add(loggedInUser);
                     }
                 }
-                
+
                 db.SaveChanges();
                 return Json(new { Result = "Success" });
             }
 
-            
+
         }
 
         /// <summary>
@@ -472,8 +471,8 @@ namespace zapread.com.Controllers
 
                 db.SaveChanges();
             }
-            
-            return RedirectToAction("Index", "User", new { username=username});
+
+            return RedirectToAction("Index", "User", new { username = username });
         }
 
         [Route("Unfollow/{username?}")]
@@ -592,7 +591,7 @@ namespace zapread.com.Controllers
              * [ ] Downvotes (default no)
              * [ ] Following Users
              */
-            
+
             return PartialView();
         }
 
