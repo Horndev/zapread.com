@@ -24,15 +24,8 @@
             acceptedFiles: "image/*",
             maxFiles: 1,
             uploadMultiple: false,
-            //addRemoveLinks: true,
             init: function () {
-                //this.on("sending", function (file, xhr, formData) {
-                //    console.log(formData)
-                //});
                 this.on("addedfile", function () {
-                    //if (this.files[1] !== null) {
-                    //    this.removeFile(this.files[0]);
-                    //}
                 });
             },
             dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
@@ -44,7 +37,6 @@
                 var values = $('#languagesSelect').val();
                 console.log(selectedValue);
                 
-
                 var userlangs = values.join(',');
                 console.log(userlangs);
 
