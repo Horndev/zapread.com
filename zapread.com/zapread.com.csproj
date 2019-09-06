@@ -235,8 +235,8 @@
     <Reference Include="PreMailer.Net, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.0.1\lib\net45\PreMailer.Net.dll</HintPath>
     </Reference>
-    <Reference Include="QRCoder, Version=1.3.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QRCoder.1.3.5\lib\net40\QRCoder.dll</HintPath>
+    <Reference Include="QRCoder, Version=1.3.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QRCoder.1.3.6\lib\net40\QRCoder.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp, Version=106.5.4.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.106.5.4\lib\net452\RestSharp.dll</HintPath>
