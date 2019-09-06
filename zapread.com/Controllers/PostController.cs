@@ -53,6 +53,7 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
         }
 
+        // This is a data structure to return the list of draft posts to view in a client-side table
         public class DataItem
         {
             public string Time { get; set; }
@@ -90,7 +91,6 @@ namespace zapread.com.Controllers
                     GroupId = Convert.ToString(t.Group.GroupId),
                     PostId = Convert.ToString(t.PostId),
                 }).ToList();
-
 
                 int numrec = db.Posts
                     .Where(p => p.UserId.Id == u.Id)
@@ -340,10 +340,19 @@ namespace zapread.com.Controllers
                     {
                         post.TimeStampEdited = DateTime.UtcNow;
                     }
-                    post.IsDraft = p.IsDraft;
-                    await db.SaveChangesAsync();
 
-                    return Json(new { result = "success", postId = post.PostId });
+                    if (post.IsDraft && !p.IsDraft) // Post was a draft, now published
+                    {
+                        post.IsDraft = p.IsDraft;
+                        await db.SaveChangesAsync();
+                        // We don't return yet - so notifications can be fired off.
+                    }
+                    else
+                    {
+                        post.IsDraft = p.IsDraft;
+                        await db.SaveChangesAsync();
+                        return Json(new { result = "success", postId = post.PostId });
+                    }
                 }
                 else
                 {
@@ -369,87 +378,95 @@ namespace zapread.com.Controllers
 
                 bool quiet = false;  // Used when debugging
 
-                if (p.IsDraft || quiet)
+                if (p.IsDraft || quiet) // Don't send any alerts
                 {
-                    // Don't send any alerts
                     return Json(new { result = "success", postId = post.PostId });
                 }
 
                 // Send alerts to users subscribed to group
-                var subusers = db.Users
-                    .Include("Alerts")
-                    .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
-
-                foreach (var u in subusers)
-                {
-                    // Add Alert
-                    var alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "New post in subscribed group <a href='" + Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = postGroup.GroupId }) + "'>" + postGroup.GroupName + "</a>",
-                        Content = "",// "<a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = u,
-                        PostLink = post,
-                    };
-                    u.Alerts.Add(alert);
-                }
+                await AlertGroupNewPost(db, postGroup, post);
 
                 // Send alerts to users subscribed to users
-                var followUsers = db.Users
-                    .Include("Alerts")
-                    .Include("Settings")
-                    .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
-
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-                string subject = "New post by user you are following: " + user.Name;
-                string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject);
-
-                foreach (var u in followUsers)
-                {
-                    // Add Alert
-                    var alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "New post by user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
-                        Content = "",//post.PostTitle,
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = u,
-                        PostLink = post,
-                    };
-
-                    u.Alerts.Add(alert);
-
-                    if (u.Settings == null)
-                    {
-                        u.Settings = new UserSettings();
-                    }
-
-                    if (u.Settings.NotifyOnNewPostSubscribedUser)
-                    {
-                        string followerEmail = UserManager.FindById(u.AppId).Email;
-
-                        // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
-                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                            new UserEmailModel()
-                            {
-                                Destination = followerEmail,
-                                Body = emailBody,
-                                Email = "",
-                                Name = "zapread.com",
-                                Subject = subject,
-                            }, "Notify"));
-                        //await mailer.SendNewPost(post.PostId, followerEmail, subject);
-                    }
-                }
-
-                await db.SaveChangesAsync();
+                await AlertUsersNewPost(db, user, post, mailer);
 
                 return Json(new { result = "success", postId = post.PostId });
             }
+        }
+
+        private async Task AlertUsersNewPost(ZapContext db, User user, Post post, MailerController mailer)
+        {
+            var followUsers = db.Users
+                .Include("Alerts")
+                .Include("Settings")
+                .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
+
+            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+            string subject = "New post by user you are following: " + user.Name;
+            string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject);
+
+            foreach (var u in followUsers)
+            {
+                // Add Alert
+                var alert = new UserAlert()
+                {
+                    TimeStamp = DateTime.Now,
+                    Title = "New post by user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
+                    Content = "",//post.PostTitle,
+                    IsDeleted = false,
+                    IsRead = false,
+                    To = u,
+                    PostLink = post,
+                };
+
+                u.Alerts.Add(alert);
+
+                if (u.Settings == null)
+                {
+                    u.Settings = new UserSettings();
+                }
+
+                if (u.Settings.NotifyOnNewPostSubscribedUser)
+                {
+                    string followerEmail = UserManager.FindById(u.AppId).Email;
+
+                    // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
+                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                        new UserEmailModel()
+                        {
+                            Destination = followerEmail,
+                            Body = emailBody,
+                            Email = "",
+                            Name = "zapread.com",
+                            Subject = subject,
+                        }, "Notify"));
+                }
+            }
+            await db.SaveChangesAsync();
+        }
+
+        private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)
+        {
+            var subusers = db.Users
+                                .Include("Alerts")
+                                .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
+
+            foreach (var u in subusers)
+            {
+                // Add Alert
+                var alert = new UserAlert()
+                {
+                    TimeStamp = DateTime.Now,
+                    Title = "New post in subscribed group <a href='" + Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = postGroup.GroupId }) + "'>" + postGroup.GroupName + "</a>",
+                    Content = "",// "<a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
+                    IsDeleted = false,
+                    IsRead = false,
+                    To = u,
+                    PostLink = post,
+                };
+                u.Alerts.Add(alert);
+            }
+            await db.SaveChangesAsync();
         }
 
         public class DeletePostMsg
@@ -629,7 +646,6 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", message = "User authentication error." });
                 }
 
-                //var contentStr = ;
                 string contentStr = SanitizePostXSS(p.Content);
                 post.Content = contentStr;
                 post.PostTitle = p.Title;
@@ -645,6 +661,14 @@ namespace zapread.com.Controllers
                     {
                         // Post was draft - now live
                         post.TimeStamp = DateTime.UtcNow;
+
+                        // Send alerts to users subscribed to group
+                        var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
+                        await AlertGroupNewPost(db, postGroup, post);
+
+                        // Send alerts to users subscribed to users
+                        var mailer = DependencyResolver.Current.GetService<MailerController>();
+                        await AlertUsersNewPost(db, user, post, mailer);
                     }
                 }
                 else
