@@ -67,7 +67,7 @@
       <HintPath>..\packages\HtmlAgilityPack.1.8.2\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="HtmlSanitizer, Version=4.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlSanitizer.4.0.210\lib\net45\HtmlSanitizer.dll</HintPath>
+      <HintPath>..\packages\HtmlSanitizer.4.0.217\lib\net45\HtmlSanitizer.dll</HintPath>
     </Reference>
     <Reference Include="Jdenticon, Version=2.1.0.0, Culture=neutral, PublicKeyToken=3fcf9f6e3475a4f8, processorArchitecture=MSIL">
       <HintPath>..\packages\Jdenticon-net.2.1.0\lib\net45\Jdenticon.dll</HintPath>
