@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using System;
@@ -22,7 +23,6 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
-
     [Authorize]
     public class ManageController : Controller
     {
@@ -1032,7 +1032,7 @@ namespace zapread.com.Controllers
             {
                 if (!Request.IsAuthenticated)
                 {
-                    return Json(new { Result = "Failure" });
+                    return Json(new { success = false, result = "Failure", message = "You do not have the required privilages to do this." });
                 }
             }
             catch
@@ -1046,7 +1046,7 @@ namespace zapread.com.Controllers
             string printingName = cleanName.RemoveUnicodeNonPrinting();
             if (printingName.Length < 2)
             {
-                return Json(new { Result = "Failure", Message = "Username must be at least 2 (printed) characters long." });
+                return Json(new { success = false, result = "Failure", message = "Username must be at least 2 (printed) characters long." });
             }
 
             // Check for spaces in username
@@ -1054,15 +1054,17 @@ namespace zapread.com.Controllers
             {
                 if (Char.IsWhiteSpace(c))
                 {
-                    return Json(new { Result = "Failure", Message = "Username cannot contain spaces." });
+                    return Json(new { success = false, result = "Failure", message = "Username cannot contain spaces." });
                 }
             }
 
             var userId = User.Identity.GetUserId();
             if (userId == null)
             {
-                return Json(new { Result = "Failure", Message = "Error updating user settings." });
+                return Json(new { success = false, result = "Failure", message = "Error updating user settings." });
             }
+
+            string oldName = "";
 
             using (var db = new ZapContext())
             {
@@ -1074,17 +1076,48 @@ namespace zapread.com.Controllers
 
                 if (otherUser != null)
                 {
-                    return Json(new { Result = "Failure", Message = "Username already taken." });
+                    return Json(new { success = false, result = "Failure", message = "Username already taken." });
                 }
 
                 var aspUser = await UserManager.FindByIdAsync(userId);
+                oldName = aspUser.UserName;
                 aspUser.UserName = cleanName;
                 await UserManager.UpdateAsync(aspUser);
                 await SignInManager.SignInAsync(aspUser, true, true);
                 user.Name = cleanName;
                 await db.SaveChangesAsync();
-                return Json(new { Result = "Success" });
+
+                // Send a security notification to user
+                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                await sendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
+
+                return Json(new { success = true, result = "Success" });
             }
+        }
+
+        private async Task sendUpdateUserAliasEmailNotification(string cleanName, string oldName, User user, ApplicationUser aspUser, MailerController mailer)
+        {
+            // Sets the mailer controller context for views to be rendered.
+            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+            string subject = "Your Zapread Username has been updated";
+            string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
+                id: user.Id,
+                userName: cleanName,
+                oldUserName: oldName);
+
+            string userEmail = aspUser.Email;
+
+            // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
+            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                new UserEmailModel()
+                {
+                    Destination = userEmail,
+                    Body = emailBody,
+                    Email = "",
+                    Name = "zapread.com",
+                    Subject = subject,
+                }, "Notify"));
         }
 
         [HttpPost]

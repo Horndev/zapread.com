@@ -43,21 +43,19 @@
             data: dataString,
             dataType: "json",
             contentType: contentType,
-            success: function (result) {
-                if (result.Result === "Success") {
+            success: function (response) {
+                if (response.success) {
                     $('#userAliasModal').modal('hide');
                     alert('Update successful.  It may take a few minutes for the change to propagate.');
                 }
                 else {
-                    alert(result.Message);
+                    alert(result.message);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("fail");
             }
         });
-
     }
-
 </script>
-        )
+)
