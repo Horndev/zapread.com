@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Manage;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -122,6 +123,37 @@ namespace zapread.com.Controllers
                 await SendMailAsync(HTMLString, email, subject);
             }
             return true;
+        }
+
+        /// <summary>
+        /// Generates the HTML to be mailed out
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userName"></param>
+        /// <param name="oldUserName"></param>
+        /// <returns></returns>
+        public async Task<string> GenerateUpdatedUserAliasEmailBod(int id, string userName, string oldUserName)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = await db.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(usr => usr.Id == id);
+
+                UpdatedUserAliasView vm = new UpdatedUserAliasView()
+                {
+                    OldUserName = oldUserName,
+                    NewUserName = userName,
+                    User = u
+                };
+
+                ViewBag.Message = "User Alias Updated";
+                string HTMLString = RenderViewToString("MailerUpdatedUserAlias", vm);
+
+                string msgHTML = CleanMail(HTMLString, subject: "");
+
+                return msgHTML;
+            }
         }
 
         /// <summary>

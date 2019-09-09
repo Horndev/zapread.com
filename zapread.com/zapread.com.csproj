@@ -695,6 +695,7 @@
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
+    <Compile Include="Models\Manage\UpdatedUserAliasView.cs" />
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
@@ -1825,6 +1826,7 @@
     <Content Include="Views\Test\UploadImage.cshtml" />
     <Content Include="Views\User\_PartialUserHover.cshtml" />
     <Content Include="Views\Test\UserHover.cshtml" />
+    <Content Include="Views\Mailer\MailerUpdatedUserAlias.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

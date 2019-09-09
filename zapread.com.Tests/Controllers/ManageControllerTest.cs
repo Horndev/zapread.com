@@ -90,7 +90,7 @@ namespace zapread.com.Tests.Controllers
             Assert.IsNotNull(result);
             IDictionary<string, object> data = new RouteValueDictionary(result.Data);
 
-            Assert.IsTrue(condition: (string) data["Result"] == "Failure");
+            Assert.IsTrue(condition: (string) data["result"] == "Failure");
 
             // Act
             result = controller.UpdateUserAlias(Uri.UnescapeDataString("%E2%80%8F")).Result as JsonResult;
@@ -99,7 +99,7 @@ namespace zapread.com.Tests.Controllers
             Assert.IsNotNull(result);
             data = new RouteValueDictionary(result.Data);
 
-            Assert.IsTrue(condition: (string)data["Result"] == "Failure");
+            Assert.IsTrue(condition: (string)data["result"] == "Failure");
         }
 
         [TestMethod]
