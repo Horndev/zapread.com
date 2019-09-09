@@ -7,7 +7,7 @@
 
 Website for zapread.com
 
-Current version is: 0.2-beta.  You can track progress to the next version on the [projects page](https://github.com/Horndev/zapread.com/projects).
+Current version is: 0.3-beta.  You can track progress to the next version on the [projects page](https://github.com/Horndev/zapread.com/projects).
 
 ## ZapRead.com Mission
 
