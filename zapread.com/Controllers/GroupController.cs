@@ -228,8 +228,15 @@ namespace zapread.com.Controllers
         // GET: Group/Members/1
         public async Task<ActionResult> Members(int id)
         {
+            var userId = User.Identity.GetUserId();
+
             using (var db = new ZapContext())
             {
+                var user = await db.Users
+                    .Include(u => u.Settings)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == userId);
+
                 var group = await db.Groups
                     .Include(g => g.Members)
                     .Include(g => g.Moderators)
@@ -239,16 +246,22 @@ namespace zapread.com.Controllers
 
                 List<GroupMemberViewModel> groupMembers = new List<GroupMemberViewModel>();
 
+                // Verify calling user is a group admin
+                var isGroupAdmin = user == null ? false: group.Administrators.Select(m => m.Id).Contains(user.Id);
+
                 foreach (var m in group.Members)
                 {
                     groupMembers.Add(new GroupMemberViewModel()
                     {
+                        ViewerIsGroupAdministrator = isGroupAdmin,
                         UserName = m.Name,
+                        UserId = m.Id,
+                        GroupId = group.GroupId, // Should move to a separate view maybe
                         AboutMe = m.AboutMe,
                         AppId = m.AppId,
                         IsModerator = group.Moderators.Select(u => u.Id).Contains(m.Id),
                         IsGroupAdministrator = group.Administrators.Select(u => u.Id).Contains(m.Id),
-                        IsSiteAdministrator = m.Name == "Zelgada",
+                        IsSiteAdministrator = m.Name == "Zelgada", // Hardcoded for now.  Need to make DB flag in future.
                         IsOnline = m.IsOnline,
                         LastSeen = m.DateLastActivity,
                     });
@@ -265,6 +278,158 @@ namespace zapread.com.Controllers
 
                 return View(vm);
             }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateUserMakeAdmin(int id, int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Id == id).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var g = db.Groups.Where(grp => grp.GroupId == groupId).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false, message = "Group not found" });
+                }
+
+                // Verify calling user is a group admin or site admin
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                // TODO also check if user is a site admin
+                if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false, message = "You do not have administration privilages for this group." });
+                }
+
+                g.Administrators.Add(u);
+                u.GroupAdministration.Add(g);
+
+                await db.SaveChangesAsync();
+            }
+            return Json(new { success = true, result = "success" });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateUserRevokeAdmin(int id, int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Id == id).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var g = db.Groups.Where(grp => grp.GroupId == groupId).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false, message = "Group not found" });
+                }
+
+                // Verify calling user is a group admin or site admin
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                // TODO also check if user is a site admin
+                if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false, message = "You do not have administration privilages for this group." });
+                }
+
+                g.Administrators.Remove(u);
+                u.GroupAdministration.Remove(g);
+
+                await db.SaveChangesAsync();
+            }
+            return Json(new { success = true, result = "success" });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateUserMakeMod(int id, int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Id == id).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var g = db.Groups.Where(grp => grp.GroupId == groupId).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false, message = "Group not found" });
+                }
+
+                // Verify calling user is a group admin or site admin
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                // TODO also check if user is a site admin
+                if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false, message = "You do not have administration privilages for this group." });
+                }
+
+                g.Moderators.Add(u);
+                u.GroupModeration.Add(g);
+
+                await db.SaveChangesAsync();
+            }
+            return Json(new { success = true, result = "success" });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateUserRevokeMod(int id, int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                var u = db.Users.Where(usr => usr.Id == id).FirstOrDefault();
+                if (u == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var g = db.Groups.Where(grp => grp.GroupId == groupId).FirstOrDefault();
+                if (g == null)
+                {
+                    return Json(new { success = false, message = "Group not found" });
+                }
+
+                // Verify calling user is a group admin or site admin
+                var userId = User.Identity.GetUserId();
+
+                var callingUser = db.Users
+                    .AsNoTracking()
+                    .FirstOrDefault(usr => usr.AppId == userId);
+
+                // TODO also check if user is a site admin
+                if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
+                {
+                    return Json(new { success = false, message = "You do not have administration privilages for this group." });
+                }
+
+                g.Moderators.Remove(u);
+                u.GroupModeration.Remove(g);
+
+                await db.SaveChangesAsync();
+            }
+            return Json(new { success = true, result = "success" });
         }
 
         [HttpPost]
