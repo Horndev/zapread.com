@@ -1089,31 +1089,35 @@ namespace zapread.com.Controllers
 
                 // Send a security notification to user
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
-
-                // Sets the mailer controller context for views to be rendered.
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                string subject = "Your Zapread Username has been updated";
-                string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
-                    id: user.Id, 
-                    userName: cleanName,
-                    oldUserName: oldName);
-
-                string userEmail = aspUser.Email;
-
-                // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
-                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                    new UserEmailModel()
-                    {
-                        Destination = userEmail,
-                        Body = emailBody,
-                        Email = "",
-                        Name = "zapread.com",
-                        Subject = subject,
-                    }, "Notify"));
+                await sendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
 
                 return Json(new { success = true, result = "Success" });
             }
+        }
+
+        private async Task sendUpdateUserAliasEmailNotification(string cleanName, string oldName, User user, ApplicationUser aspUser, MailerController mailer)
+        {
+            // Sets the mailer controller context for views to be rendered.
+            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+            string subject = "Your Zapread Username has been updated";
+            string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
+                id: user.Id,
+                userName: cleanName,
+                oldUserName: oldName);
+
+            string userEmail = aspUser.Email;
+
+            // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
+            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                new UserEmailModel()
+                {
+                    Destination = userEmail,
+                    Body = emailBody,
+                    Email = "",
+                    Name = "zapread.com",
+                    Subject = subject,
+                }, "Notify"));
         }
 
         [HttpPost]
