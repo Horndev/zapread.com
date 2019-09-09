@@ -182,8 +182,7 @@
         })
         .then(desc => {
             if (!desc) throw null;
-            $.post("@Url.Action("ChangeShortDesc",
-                "Group")",
+            $.post("@Url.Action("ChangeShortDesc", "Group")",
                 { "groupId": groupId, "newDesc": desc },
                 function (data) {
                     if (data.success) {

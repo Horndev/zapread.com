@@ -1685,6 +1685,7 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\index.js" />
+    <Content Include="Scripts\Groups\members.js" />
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />

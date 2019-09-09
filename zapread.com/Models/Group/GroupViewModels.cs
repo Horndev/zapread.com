@@ -74,12 +74,18 @@ namespace zapread.com.Models
     /// </summary>
     public class GroupMemberViewModel
     {
+        public bool ViewerIsGroupAdministrator { get; set; }
+
         public string UserName { get; set; }
 
         /// <summary>
         /// For thumbnail
         /// </summary>
         public string AppId { get; set; }
+
+        public int UserId { get; set; }
+
+        public int GroupId { get; set; }
 
         public string AboutMe { get; set; }
 

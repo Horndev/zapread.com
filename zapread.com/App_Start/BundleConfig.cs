@@ -69,6 +69,11 @@ namespace zapread.com
                         "~/Scripts/Groups/index.js")
                         .WithLastModifiedToken());
 
+            // Group/Members scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
+                        "~/Scripts/Groups/members.js")
+                        .WithLastModifiedToken());
+
             // User scripts
             bundles.Add(new ScriptBundle("~/bundles/users").Include(
                         "~/Scripts/Users/hover.js")
