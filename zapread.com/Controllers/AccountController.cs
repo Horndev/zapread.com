@@ -146,6 +146,7 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Authorize]
         public async Task<ActionResult> Balance()
         {
             ViewBag.Balance = await GetUserBalance();
