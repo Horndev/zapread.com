@@ -172,14 +172,13 @@
             data: dataString,
             dataType: "json",
             contentType: contentType,
-            success: function (result) {
-                if (result.Result === "Success") {
+            success: function (response) {
+                if (response.success) {
                     $(".m_input").summernote('reset');
-
                     $.ajax({
                         type: "POST",
                         url: "/Messages/GetMessage",
-                        data: JSON.stringify({ 'id': result.Id, 'userId':@Model.ThisUser.Id }),
+                        data: JSON.stringify({ 'id': response.id, 'userId':@Model.ThisUser.Id }),
                         dataType: "json",
                         contentType: contentType,
                         success: function (result) {
@@ -202,7 +201,7 @@
                 }
                 else {
                     $('#chatReply').removeClass('sk-loading');
-                    alert('Error sending message');
+                    alert(response.message);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {

@@ -89,12 +89,12 @@
             data: dataString,
             dataType: "json",
             contentType: contentType,
-            success: function (result) {
-                if (result.Result === "Success") {
+            success: function (response) {
+                if (response.success) {
                     $('#messageComposeModal').modal('hide');
                 }
                 else {
-                    alert('Error sending message');
+                    alert(response.message);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {

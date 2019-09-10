@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
@@ -802,13 +803,16 @@ namespace zapread.com.Controllers
 
                     if (sender == null || receiver == null)
                     {
-                        return Json(new { Result = "Failure" });
+                        return Json(new { success = false, result = "Failure", message = "User not found." });
                     }
+
+                    // Sanitize the message to prevent XSS attacks.
+                    var cleanContent = content.SanitizeXSS();
 
                     var msg = new UserMessage()
                     {
                         IsPrivateMessage = true,
-                        Content = content,
+                        Content = cleanContent,
                         From = sender,
                         To = receiver,
                         IsDeleted = false,
@@ -837,7 +841,7 @@ namespace zapread.com.Controllers
                     NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     // Send stream update popup
-                    NotificationService.SendPrivateMessage(content, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
+                    NotificationService.SendPrivateMessage(cleanContent, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     // email if not in chat
                     isChat = false;
@@ -849,7 +853,7 @@ namespace zapread.com.Controllers
                             string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
                             string subject = "New private message";
                             string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>"
-                                        + sender.Name + "</a><br/> " + content
+                                        + sender.Name + "</a><br/> " + cleanContent
                                         + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
                                         + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
 
@@ -860,10 +864,10 @@ namespace zapread.com.Controllers
                                 "Notify"));
                         }
                     }
-                    return Json(new { Result = "Success", Id = msg.Id });
+                    return Json(new { success = true, result = "Success", id = msg.Id });
                 }
             }
-            return Json(new { Result = "Failure" });
+            return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
         [HttpPost]
