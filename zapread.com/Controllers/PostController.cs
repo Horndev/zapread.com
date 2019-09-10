@@ -264,28 +264,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        public static string SanitizePostXSS(string postText)
-        {
-            // Fix for nasty inject with odd brackets
-            byte[] bytes = Encoding.Unicode.GetBytes(postText);
-            postText = Encoding.Unicode.GetString(bytes);
-
-            var sanitizer = new Ganss.XSS.HtmlSanitizer();
-            sanitizer.AllowedTags.Remove("button");
-            sanitizer.AllowedTags.Add("iframe");
-            sanitizer.AllowedTags.Remove("script");
-            sanitizer.AllowedAttributes.Add("class");
-            sanitizer.AllowedAttributes.Add("frameborder");
-            sanitizer.AllowedAttributes.Add("allowfullscreen");
-            sanitizer.AllowedAttributes.Add("seamless");
-            sanitizer.AllowedAttributes.Remove("id");
-            sanitizer.AllowedAttributes.Remove("onload");
-            sanitizer.AllowedAttributes.Remove("onmousemove");
-
-            var sanitizedComment = sanitizer.Sanitize(postText);
-            return sanitizedComment;
-        }
-
         [HttpPost]
         public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
         {
@@ -316,7 +294,7 @@ namespace zapread.com.Controllers
                         }
                     }
                 }
-                string contentStr = SanitizePostXSS(postDocument.DocumentNode.OuterHtml);
+                string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
 
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
 
@@ -448,8 +426,8 @@ namespace zapread.com.Controllers
         private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)
         {
             var subusers = db.Users
-                                .Include("Alerts")
-                                .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
+                .Include("Alerts")
+                .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
 
             foreach (var u in subusers)
             {
@@ -646,7 +624,7 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", message = "User authentication error." });
                 }
 
-                string contentStr = SanitizePostXSS(p.Content);
+                string contentStr = p.Content.SanitizeXSS();
                 post.Content = contentStr;
                 post.PostTitle = p.Title;
 

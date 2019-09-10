@@ -6,6 +6,31 @@ namespace zapread.com.Helpers
     public static class StringHelpers
     {
         /// <summary>
+        /// Cleans the string of any illegal scripts and html elements
+        /// </summary>
+        /// <param name="dirty"></param>
+        /// <returns></returns>
+        public static String SanitizeXSS(this string dirty)
+        {
+            // Fix for nasty inject with odd brackets
+            byte[] bytes = Encoding.Unicode.GetBytes(dirty);
+            dirty = Encoding.Unicode.GetString(bytes);
+            var sanitizer = new Ganss.XSS.HtmlSanitizer();
+            sanitizer.AllowedTags.Remove("button");
+            sanitizer.AllowedTags.Add("iframe");
+            sanitizer.AllowedTags.Remove("script");
+            sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Add("frameborder");
+            sanitizer.AllowedAttributes.Add("allowfullscreen");
+            sanitizer.AllowedAttributes.Add("seamless");
+            sanitizer.AllowedAttributes.Remove("id");
+            sanitizer.AllowedAttributes.Remove("onload");
+            sanitizer.AllowedAttributes.Remove("onmousemove");
+            var sanitizedComment = sanitizer.Sanitize(dirty);
+            return sanitizedComment;
+        }
+
+        /// <summary>
         /// This function cleans extreme unicode diacritics used in Zalgo text.
         /// </summary>
         /// <param name="dirty"></param>
