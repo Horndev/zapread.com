@@ -475,6 +475,7 @@ namespace zapread.com.Controllers
 
         public async Task<PartialViewResult> UnreadMessages()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             var userId = User.Identity.GetUserId();
             var vm = new UnreadModel();
             if (userId != null)
@@ -555,6 +556,7 @@ namespace zapread.com.Controllers
 
         public async Task<PartialViewResult> UnreadAlerts()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             string userId = null;
             if (User != null)
             {

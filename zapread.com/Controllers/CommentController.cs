@@ -67,6 +67,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<PartialViewResult> GetInputBox(int id)
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             using (var db = new ZapContext())
             {
                 Comment comment = await db.Comments
