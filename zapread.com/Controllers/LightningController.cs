@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Database;
@@ -210,7 +211,7 @@ namespace zapread.com.Controllers
                     User = user,
                     IsSettled = false,
                     IsSpent = false,
-                    Memo = memo,
+                    Memo = memo.SanitizeXSS(),
                     Amount = Convert.ToInt64(amount),
                     HashStr = inv.r_hash,
                     IsDeposit = true,
@@ -300,7 +301,7 @@ namespace zapread.com.Controllers
                     t = new LNTransaction()
                     {
                         IsSettled = invoice.settled.Value,
-                        Memo = invoice.memo,
+                        Memo = invoice.memo.SanitizeXSS(),
                         Amount = Convert.ToInt64(invoice.value),
                         HashStr = invoice.r_hash,
                         IsDeposit = true,

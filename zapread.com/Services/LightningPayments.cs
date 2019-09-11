@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 
 namespace zapread.com.Services
@@ -129,7 +130,7 @@ namespace zapread.com.Services
                     t = new LNTransaction()
                     {
                         IsSettled = false,
-                        Memo = decoded.description ?? "Withdraw",
+                        Memo = (decoded.description ?? "Withdraw").SanitizeXSS(),
                         HashStr = decoded.payment_hash,
                         Amount = Convert.ToInt64(decoded.num_satoshis),
                         IsDeposit = false,
