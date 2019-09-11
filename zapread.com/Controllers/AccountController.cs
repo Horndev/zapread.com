@@ -51,6 +51,7 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public async Task<JsonResult> UserBalance()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             string userId = "?";
             try
             {
@@ -145,9 +146,10 @@ namespace zapread.com.Controllers
                 }
             }
         }
-
+        
         public async Task<ActionResult> Balance()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             ViewBag.Balance = await GetUserBalance();
             return PartialView("_PartialBalance");
         }
@@ -165,6 +167,8 @@ namespace zapread.com.Controllers
                 userBalance = await GetUserBalance();
             }
             string balance = userBalance.ToString("0.##");
+
+            Response.AddHeader("X-Frame-Options", "DENY");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 

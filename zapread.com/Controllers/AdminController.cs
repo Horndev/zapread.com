@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.Storage;
 using LightningLib.DataEncoders;
 using LightningLib.lndrpc;
 using Microsoft.AspNet.Identity;
@@ -795,6 +796,31 @@ namespace zapread.com.Controllers
             public string NumComments { get; set; }
             public string Balance { get; set; }
             public string Id { get; set; }
+        }
+
+        #endregion
+
+        #region CRON
+
+        public ActionResult Jobs()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Jobs/" });
+            }
+
+            var vm = new AdminJobsViewModel();
+
+            //RecurringJob.
+            var manager = new RecurringJobManager();
+
+            var jobs = JobStorage.Current.GetMonitoringApi();
+
+            var recurringJobs = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs();
+
+            vm.RecurringJobs = recurringJobs;
+
+            return View(vm);
         }
 
         #endregion

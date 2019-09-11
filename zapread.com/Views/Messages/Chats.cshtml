@@ -96,7 +96,7 @@
                     "name": 'From',
                     "orderable": true,
                     "mRender": function (data, type, row) {
-                        return "<div style='display:inline-block;white-space: nowrap;'><img class='img-circle' src='/Home/UserImage/?UserID=" + encodeURIComponent(data.FromID) + "&size=30'/><a target='_blank' href='/user/" + encodeURIComponent(data.From) + "''> " + data.From + "</a></div>";
+                        return "<div style='display:inline-block;white-space: nowrap;'><img class='img-circle' src='/Home/UserImage/?UserID=" + encodeURIComponent(data.FromID) + "&size=30'/><a target='_blank' href='/user/" + encodeURIComponent(data.From) + "/''> " + data.From + "</a></div>";
                     }
                 },
                 {
@@ -133,7 +133,7 @@
                     "name": 'Action',
                     "orderable": false,
                     "mRender": function (data, type, row) {
-                        return "<a href='/Messages/Chat/" + encodeURIComponent(data.From) + "' class='btn btn-primary btn-outline'>Go to Chat</a>";
+                        return "<a href='/Messages/Chat/" + encodeURIComponent(data.From) + "/' class='btn btn-primary btn-outline'>Go to Chat</a>";
                     }
                 },
             ],

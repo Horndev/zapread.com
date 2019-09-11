@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Database;
@@ -130,6 +131,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use, int? useId, int? useAction)
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             bool isAnon = !(anon == null || anon != "1");
             if (!isAnon && !User.Identity.IsAuthenticated)
             {
@@ -154,7 +156,7 @@ namespace zapread.com.Controllers
 
             LndRpcClient lndClient = GetLndClient();
 
-            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "3600");
+            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo.SanitizeXSS(), expiry: "3600");
 
             LnRequestInvoiceResponse resp = new LnRequestInvoiceResponse()
             {
@@ -210,7 +212,7 @@ namespace zapread.com.Controllers
                     User = user,
                     IsSettled = false,
                     IsSpent = false,
-                    Memo = memo,
+                    Memo = memo.SanitizeXSS(),
                     Amount = Convert.ToInt64(amount),
                     HashStr = inv.r_hash,
                     IsDeposit = true,
@@ -300,7 +302,7 @@ namespace zapread.com.Controllers
                     t = new LNTransaction()
                     {
                         IsSettled = invoice.settled.Value,
-                        Memo = invoice.memo,
+                        Memo = invoice.memo.SanitizeXSS(),
                         Amount = Convert.ToInt64(invoice.value),
                         HashStr = invoice.r_hash,
                         IsDeposit = true,

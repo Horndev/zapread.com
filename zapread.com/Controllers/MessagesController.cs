@@ -475,6 +475,7 @@ namespace zapread.com.Controllers
 
         public async Task<PartialViewResult> UnreadMessages()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             var userId = User.Identity.GetUserId();
             var vm = new UnreadModel();
             if (userId != null)
@@ -555,6 +556,7 @@ namespace zapread.com.Controllers
 
         public async Task<PartialViewResult> UnreadAlerts()
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             string userId = null;
             if (User != null)
             {
@@ -818,7 +820,7 @@ namespace zapread.com.Controllers
                         IsDeleted = false,
                         IsRead = false,//(isChat != null && isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
-                        Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>" + sender.Name + "</a>",//" + sender.Name,
+                        Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol: Request.Url.Scheme) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
 
                     receiver.Messages.Add(msg);
