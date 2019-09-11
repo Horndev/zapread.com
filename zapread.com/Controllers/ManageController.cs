@@ -330,6 +330,12 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
         {
+            if (amount == null || amount.Value < 1)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { Result = "Failure", Message = "Invalid amount" });
+            }
+            
             using (var db = new ZapContext())
             {
                 var receiver = await db.Users
