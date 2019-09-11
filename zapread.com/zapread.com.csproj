@@ -676,6 +676,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
+    <Compile Include="Models\Admin\AdminJobsViewModel.cs" />
     <Compile Include="Models\Admin\AdminLightningViewModel.cs" />
     <Compile Include="Models\Admin\AdminUsersViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModel.cs" />
@@ -1827,6 +1828,7 @@
     <Content Include="Views\User\_PartialUserHover.cshtml" />
     <Content Include="Views\Test\UserHover.cshtml" />
     <Content Include="Views\Mailer\MailerUpdatedUserAlias.cshtml" />
+    <Content Include="Views\Admin\Jobs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
