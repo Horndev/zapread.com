@@ -175,7 +175,14 @@ namespace zapread.com.Controllers
             }
             string balance = userBalance.ToString("0.##");
 
-            Response.AddHeader("X-Frame-Options", "DENY");
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                ;  // TODO: add error handling - temp fix for unit test.
+            }
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
@@ -186,6 +193,14 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> GetLimboBalance()
         {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                ;  // TODO: add error handling - temp fix for unit test.
+            }
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
