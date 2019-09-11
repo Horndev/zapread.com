@@ -131,6 +131,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         public ActionResult GetDepositInvoice(string amount, string memo, string anon, string use, int? useId, int? useAction)
         {
+            Response.AddHeader("X-Frame-Options", "DENY");
             bool isAnon = !(anon == null || anon != "1");
             if (!isAnon && !User.Identity.IsAuthenticated)
             {
@@ -155,7 +156,7 @@ namespace zapread.com.Controllers
 
             LndRpcClient lndClient = GetLndClient();
 
-            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo, expiry: "3600");
+            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo: memo.SanitizeXSS(), expiry: "3600");
 
             LnRequestInvoiceResponse resp = new LnRequestInvoiceResponse()
             {
