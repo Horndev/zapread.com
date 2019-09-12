@@ -12,7 +12,7 @@
 }
 
 @section Scripts {
-@Scripts.Render("~/bundles/manage/index")
+    @Scripts.Render("~/bundles/manage/index")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
@@ -36,7 +36,7 @@
                 var selectedValue = params.selected;
                 var values = $('#languagesSelect').val();
                 console.log(selectedValue);
-                
+
                 var userlangs = values.join(',');
                 console.log(userlangs);
 
@@ -99,6 +99,10 @@
 
 @Html.Partial(partialViewName: "_PartialModalUpdateUserAlias")         @*This is the code for the modal dialog box to vote*@
 
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
 
 <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
@@ -601,27 +605,27 @@
 
 
 @*<p class="text-success">@ViewBag.StatusMessage</p>
-<div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>Password:</dt>
-        <dd>
-            [
-            @if (Model.HasPassword)
-            {
-                @Html.ActionLink("Change your password", "ChangePassword")
-            }
-            else
-            {
-                @Html.ActionLink("Create", "SetPassword")
-            }
-            ]
-        </dd>
-        <dt>External Logins:</dt>
-        <dd>
-            @Model.Logins.Count [
-            @Html.ActionLink("Manage", "ManageLogins") ]
-        </dd>
-    </dl>
-</div>*@
+    <div>
+        <h4>Change your account settings</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>Password:</dt>
+            <dd>
+                [
+                @if (Model.HasPassword)
+                {
+                    @Html.ActionLink("Change your password", "ChangePassword")
+                }
+                else
+                {
+                    @Html.ActionLink("Create", "SetPassword")
+                }
+                ]
+            </dd>
+            <dt>External Logins:</dt>
+            <dd>
+                @Model.Logins.Count [
+                @Html.ActionLink("Manage", "ManageLogins") ]
+            </dd>
+        </dl>
+    </div>*@

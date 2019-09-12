@@ -409,6 +409,7 @@
     <Compile Include="Helpers\NumberHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
     <Compile Include="Helpers\URLHelperExtensions.cs" />
+    <Compile Include="Helpers\ValidateJsonAntiForgeryToken.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.Designer.cs">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>

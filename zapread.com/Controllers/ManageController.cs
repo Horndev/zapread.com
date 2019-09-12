@@ -971,7 +971,7 @@ namespace zapread.com.Controllers
             {
                 await EnsureUserExists(userId, db);
 
-                db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe.CleanUnicode();
+                db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe.CleanUnicode().SanitizeXSS();
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
             }
@@ -1032,6 +1032,7 @@ namespace zapread.com.Controllers
         /// <param name="alias"></param>
         /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> UpdateUserAlias(string alias)
         {
             try
@@ -1046,7 +1047,7 @@ namespace zapread.com.Controllers
                 ; // Todo - fixup unit test
             }
 
-            string cleanName = alias.CleanUnicode().Trim();
+            string cleanName = alias.CleanUnicode().Trim().SanitizeXSS();
 
             // This is how long the name is if it was printed out
             string printingName = cleanName.RemoveUnicodeNonPrinting();

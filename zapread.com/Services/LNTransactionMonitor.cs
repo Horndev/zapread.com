@@ -146,6 +146,14 @@ namespace zapread.com.Services
                 {
                     // Check the unpaid withdraws
                     var payments = lndClient.GetPayments();
+
+                    var pmts = LndRpcClient.LndApiGetStr("lightning.zapread.com", 
+                        "/v1/payments", 
+                        urlParameters: new System.Collections.Generic.Dictionary<string, string>()
+                        {
+                            { "include_incomplete", "true"}
+                        }, 
+                        adminMacaroon: website.LnMainnetMacaroonAdmin);
                     foreach (var i in unpaidWithdraws)
                     {
                         var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();

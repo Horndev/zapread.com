@@ -33,8 +33,16 @@
         var dataval = '';
         var dataString = '';
         var messageElement = '#userAliasInput';
+
+        var form = $('#__AjaxAntiForgeryForm');
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+
         dataval = $(messageElement).val();
-        dataString = JSON.stringify({ alias: dataval });
+        var headers = {};
+        headers['__RequestVerificationToken'] = token;
+        dataString = JSON.stringify({
+            alias: dataval
+        });
         console.log(dataString);
         $.ajax({
             async: true,
@@ -43,13 +51,14 @@
             data: dataString,
             dataType: "json",
             contentType: contentType,
+            headers: headers,
             success: function (response) {
                 if (response.success) {
                     $('#userAliasModal').modal('hide');
                     alert('Update successful.  It may take a few minutes for the change to propagate.');
                 }
                 else {
-                    alert(result.message);
+                    alert(response.message);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
