@@ -10,6 +10,7 @@ using IAuthorizationFilter = System.Web.Mvc.IAuthorizationFilter;
 
 namespace zapread.com.Helpers
 {
+    // see https://stackoverflow.com/questions/14473597/include-antiforgerytoken-in-ajax-post-asp-net-mvc
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ValidateJsonAntiForgeryTokenAttribute : FilterAttribute, IAuthorizationFilter
     {

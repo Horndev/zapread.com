@@ -802,12 +802,57 @@ namespace zapread.com.Controllers
 
         #region CRON
 
+        [HttpPost, Route("Admin/Jobs/Run")]
+        public ActionResult RunJob(string jobid)
+        {
+            if (jobid == null)
+            {
+                return Json(new { success = false });
+            }
+
+            if (jobid == "CommunityPayout")
+            {
+                RecurringJob.Trigger("PayoutsService.CommunityPayout");
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+
+        [HttpPost, Route("Admin/Jobs/Install")]
+        public ActionResult InstallJob(string jobid)
+        {
+            if (jobid == null)
+            {
+                return Json(new { success = false });
+            }
+                
+            if (jobid == "CommunityPayout")
+            {
+                RecurringJob.AddOrUpdate<PayoutsService>(
+                    x => x.CommunityPayout(),
+                    Cron.Daily(0, 0));
+                return Json(new { success = true });
+            }
+            
+            return Json(new { success = false });
+        }
+
         public ActionResult Jobs()
         {
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Jobs/" });
             }
+
+            // Re-register Periodic hangfire monitor
+            //RecurringJob.AddOrUpdate<LNTransactionMonitor>(
+            //    x => x.CheckLNTransactions(),
+            //    Cron.MinuteInterval(5));
+            
+            //RecurringJob.AddOrUpdate<PayoutsService>(
+            //    x => x.GroupsPayout(),
+            //    Cron.Daily(0, 0));
 
             var vm = new AdminJobsViewModel();
 
