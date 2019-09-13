@@ -120,6 +120,19 @@ namespace zapread.com.Services
             return true;
         }
 
+        public static bool SendErrorNotification(string title, string message)
+        {
+            // Send error
+            return Send(new UserEmailModel()
+            {
+                Body = message,
+                Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                Email = "",
+                Name = "zapread.com Exception",
+                Subject = title,
+            });
+        }
+
         public static async Task<bool> SendAsync(UserEmailModel message, string user = "Accounts")
         {
             // Plug in your email service here to send an email.

@@ -1056,6 +1056,11 @@ namespace zapread.com.Controllers
                 return Json(new { success = false, result = "Failure", message = "Username must be at least 2 (printed) characters long." });
             }
 
+            if (printingName.Contains("/") || printingName.Contains(@"\"))
+            {
+                return Json(new { success = false, result = "Failure", message = @"The '/' or '\' characters are not permitted." });
+            }
+
             // Check for spaces in username
             foreach (char c in cleanName)
             {

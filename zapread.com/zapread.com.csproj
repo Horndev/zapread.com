@@ -715,6 +715,7 @@
     <Compile Include="Services\MailingService.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\PaymentPoller.cs" />
+    <Compile Include="Services\PayoutsService.cs" />
     <Compile Include="Services\ReputationService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -1685,6 +1686,7 @@
     <Content Include="Content\font-awesome\fonts\FontAwesome.otf" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\index.js" />
