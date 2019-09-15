@@ -25,19 +25,6 @@ namespace zapread.com.Controllers
             public int tx { get; set; }
         }
 
-        private static void Doit()
-        {
-            MailingService.Send(user: "Notify",
-                message: new UserEmailModel()
-                {
-                    Subject = "Async message from Hangfire",
-                    Body = "Testing Hangfire",
-                    Destination = "steven.horn.mail@gmail.com",
-                    Email = "",
-                    Name = "ZapRead.com Notify"
-                });
-        }
-
         /// <summary>
         /// User voting on a post
         /// </summary>
@@ -48,12 +35,12 @@ namespace zapread.com.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { result = "error", message = "Invalid" });
+                return Json(new { success = false, result = "error", message = "Invalid" });
             }
 
             if (v.a < 1)
             {
-                return Json(new { result = "error", message = "Invalid" });
+                return Json(new { success = false, result = "error", message = "Invalid" });
             }
 
             var userId = User.Identity.GetUserId();
@@ -81,7 +68,7 @@ namespace zapread.com.Controllers
 
                 if (post == null)
                 {
-                    return Json(new { result = "error", message = "Invalid Post" });
+                    return Json(new { success = false, result = "error", message = "Invalid Post" });
                 }
 
                 if (userId == null)// Anonymous vote
@@ -93,7 +80,7 @@ namespace zapread.com.Controllers
 
                         if (vtx == null || vtx.IsSpent == true)
                         {
-                            return Json(new { result = "error", message = "No transaction to vote with" });
+                            return Json(new { success = false, result = "error", message = "No transaction to vote with" });
                         }
 
                         vtx.IsSpent = true;
@@ -110,12 +97,12 @@ namespace zapread.com.Controllers
 
                     if (user == null)
                     {
-                        return Json(new { result = "error", message = "Invalid User" });
+                        return Json(new { success = false, result = "error", message = "Invalid User" });
                     }
 
                     if (user.Funds.Balance < v.a)
                     {
-                        return Json(new { result = "error", message = "Insufficient Funds." });
+                        return Json(new { success = false, result = "error", message = "Insufficient Funds." });
                     }
 
                     user.Funds.Balance -= v.a;
@@ -237,12 +224,12 @@ namespace zapread.com.Controllers
                     }
                     catch (Exception)
                     {
-                        return Json(new { result = "error", message = "Error" });
+                        return Json(new { success=false, result = "error", message = "Error" });
                     }
 
                     NotificationService.SendIncomeNotification(0.6 * v.a, owner.AppId, "Post upvote", Url.Action("Detail", "Post", new { post.PostId }));
 
-                    return Json(new { result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
+                    return Json(new { success=true, result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
                 else
                 {
@@ -304,7 +291,7 @@ namespace zapread.com.Controllers
                     }
 
                     await db.SaveChangesAsync();
-                    return Json(new { result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
+                    return Json(new { success=true, result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
             }
         }

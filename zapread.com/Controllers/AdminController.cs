@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
@@ -803,6 +804,7 @@ namespace zapread.com.Controllers
         #region CRON
 
         [HttpPost, Route("Admin/Jobs/Run")]
+        [ValidateJsonAntiForgeryToken]
         public ActionResult RunJob(string jobid)
         {
             if (jobid == null)
@@ -816,10 +818,17 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.Trigger("PayoutsService.GroupsPayout");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
         [HttpPost, Route("Admin/Jobs/Install")]
+        [ValidateJsonAntiForgeryToken]
         public ActionResult InstallJob(string jobid)
         {
             if (jobid == null)
@@ -834,7 +843,39 @@ namespace zapread.com.Controllers
                     Cron.Daily(0, 0));
                 return Json(new { success = true });
             }
-            
+
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.AddOrUpdate<PayoutsService>(
+                    x => x.GroupsPayout(),
+                    Cron.Daily(0, 0));
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+
+        [HttpPost, Route("Admin/Jobs/Remove")]
+        [ValidateJsonAntiForgeryToken]
+        public ActionResult RemoveJob(string jobid)
+        {
+            if (jobid == null)
+            {
+                return Json(new { success = false });
+            }
+
+            if (jobid == "CommunityPayout")
+            {
+                RecurringJob.RemoveIfExists("PayoutsService.CommunityPayout");
+                return Json(new { success = true });
+            }
+
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.RemoveIfExists("PayoutsService.GroupsPayout");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
@@ -1082,6 +1123,7 @@ namespace zapread.com.Controllers
 
         // Query the DB for all users starting with the prefix
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult GetUsers(string prefix)
         {
             using (var db = new ZapContext())
@@ -1120,6 +1162,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod, bool isMember)
         {
             using (var db = new ZapContext())

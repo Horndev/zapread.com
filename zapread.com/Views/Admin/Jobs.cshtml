@@ -57,7 +57,7 @@
                         <text><br /></text>
                     }
                     <h3>Community Payout</h3>
-                    @if(Model.RecurringJobs.Select(j => j.Id).Contains("PayoutsService.CommunityPayout"))
+                    @if (Model.RecurringJobs.Select(j => j.Id).Contains("PayoutsService.CommunityPayout"))
                     {
                         <span>Installed </span>
                     }
@@ -67,98 +67,161 @@
                     }
 
                     <button id="btnCPI" class="btn btn-primary btn-sm" onclick="setupJob('CommunityPayout')" type="button">(Re)Install</button>
-                    
+
                     <button id="btnCPF" class="btn btn-primary btn-sm" onclick="runJob('CommunityPayout')" type="button">Trigger Now</button>
+
+                    <h3>Groups Payout</h3>
+
+                    @if (Model.RecurringJobs.Select(j => j.Id).Contains("PayoutsService.GroupsPayout"))
+                    {
+                        <span>Installed </span>
+                    }
+                    else
+                    {
+                        <span>Not Installed</span>
+                    }
+
+                    <button id="btnGPI" class="btn btn-primary btn-sm" onclick="setupJob('GroupsPayout')" type="button">(Re)Install</button>
+
+                    <button id="btnGPF" class="btn btn-primary btn-sm" onclick="runJob('GroupsPayout')" type="button">Trigger Now</button>
+
+
                 </div>
             </div>
             @*<div class="ibox-footer">
-                <div class="row text-right">
-                    <div class="col-sm-8"></div>
-                    <div class="col-sm-4 text-right">
-                        <button id="save" class="btn btn-primary btn-sm" onclick="save()" type="button">Save</button>
+                    <div class="row text-right">
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-4 text-right">
+                            <button id="save" class="btn btn-primary btn-sm" onclick="save()" type="button">Save</button>
+                        </div>
                     </div>
-                </div>
-            </div>*@
+                </div>*@
         </div>
     </div>
 </div>
 
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
 @section Scripts {
-<script type="text/javascript">
-    // Setup a job
-    var setupJob = function (j) {
-        var msg = JSON.stringify({
-            jobid: j
-        });
+    <script type="text/javascript">
+        // Setup a job
+        var setupJob = function (j) {
+            var msg = JSON.stringify({
+                jobid: j
+            });
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var headers = {};
+            headers['__RequestVerificationToken'] = token;
 
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "/Admin/Jobs/Install/",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    alert("Successfully started " + j);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Admin/Jobs/Install/",
+                data: msg,
+                headers: headers,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        alert("Successfully started " + j);
+                    }
+                },
+                failure: function (response) {
+                    alert("Failure.");
+                },
+                error: function (response) {
+                    alert("Error.");
                 }
-            },
-            failure: function (response) {
-                alert("Failure.");
-            },
-            error: function (response) {
-                alert("Error.");
-            }
-        });
-    };
+            });
+        };
 
-    var runJob = function (j) {
-        var msg = JSON.stringify({
-            jobid: j
-        });
+        var removeJob = function (j) {
+            var msg = JSON.stringify({
+                jobid: j
+            });
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var headers = {};
+            headers['__RequestVerificationToken'] = token;
 
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "/Admin/Jobs/Run/",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    alert("Successfully triggered " + j);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Admin/Jobs/Remove/",
+                data: msg,
+                headers: headers,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        alert("Successfully removed " + j);
+                    }
+                },
+                failure: function (response) {
+                    alert("Failure.");
+                },
+                error: function (response) {
+                    alert("Error.");
                 }
-            },
-            failure: function (response) {
-                alert("Failure.");
-            },
-            error: function (response) {
-                alert("Error.");
-            }
-        });
-    };
+            });
+        };
 
-    $(document).ready(function () {
+        var runJob = function (j) {
+            var msg = JSON.stringify({
+                jobid: j
+            });
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+            var headers = {};
+            headers['__RequestVerificationToken'] = token;
 
-        // Close ibox function
-        $('.close-link').on('click', function () {
-            var content = $(this).closest('div.ibox');
-            content.remove();
-        });
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Admin/Jobs/Run/",
+                data: msg,
+                headers: headers,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        alert("Successfully triggered " + j);
+                    }
+                },
+                failure: function (response) {
+                    alert("Failure.");
+                },
+                error: function (response) {
+                    alert("Error.");
+                }
+            });
+        };
 
-        // Collapse ibox function
-        $('.collapse-link').on('click', function () {
-            var ibox = $(this).closest('div.ibox');
-            var button = $(this).find('i');
-            var content = ibox.children('.ibox-content');
-            content.slideToggle(200);
-            button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
-            ibox.toggleClass('').toggleClass('border-bottom');
-            setTimeout(function () {
-                ibox.resize();
-                ibox.find('[id^=map-]').resize();
-            }, 50);
+        $(document).ready(function () {
+
+            // Close ibox function
+            $('.close-link').on('click', function () {
+                var content = $(this).closest('div.ibox');
+                content.remove();
+            });
+
+            // Collapse ibox function
+            $('.collapse-link').on('click', function () {
+                var ibox = $(this).closest('div.ibox');
+                var button = $(this).find('i');
+                var content = ibox.children('.ibox-content');
+                content.slideToggle(200);
+                button.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+                ibox.toggleClass('').toggleClass('border-bottom');
+                setTimeout(function () {
+                    ibox.resize();
+                    ibox.find('[id^=map-]').resize();
+                }, 50);
+            });
         });
-    });
-</script>
+    </script>
 }
