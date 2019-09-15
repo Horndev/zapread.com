@@ -19,7 +19,6 @@ namespace zapread.com.Services
             using (var db = new ZapContext())
             {
                 var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
-                    .AsNoTracking()
                     .FirstOrDefault();
 
                 if (website == null)
