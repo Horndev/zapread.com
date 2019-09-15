@@ -1177,6 +1177,7 @@ namespace zapread.com.Controllers
         // Query the DB for users which are a member of the group starting with the prefix
         // This method can only be called by a group admin
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult GetUsers(string group, string prefix)
         {
             using (var db = new ZapContext())

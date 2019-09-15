@@ -67,36 +67,42 @@
 
     $(document).ready(function () {
         $("#GroupUser").autocomplete({
-                autoFocus: true,
-                source: function (request, response) {
-                    $.ajax({
-                        async: true,
-                        url: "/Group/GetUsers",
-                        type: "POST",
-                        dataType: "json",
-                        data: { group: "@Model.GroupName", prefix: request.term },
-                        success: function (data) {
-                            response($.map(data, function (item) {
-                                return { label: item, value: item };
-                            }))
-                        }
-                    })
-                },
-                change: function (event, ui) {
-                    $.ajax({
-                        async: true,
-                        url: "/Group/GetUserGroupRoles",
-                        type: "POST",
-                        dataType: "json",
-                        data: { group: "@Model.GroupName", user: $("#GroupUser").val() },
-                        success: function (data) {
-                            //$('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
-                            $('#GroupAdminUserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
-                            $('#GroupAdminUserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
-                        }
-                    })
-                }
-            });
+            autoFocus: true,
+            source: function (request, response) {
+                // Get our AntiForgeryToken
+                var form = $('#__AjaxAntiForgeryForm');
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+                var headers = {};
+                headers['__RequestVerificationToken'] = token;
+                $.ajax({
+                    async: true,
+                    url: "/Group/GetUsers",
+                    type: "POST",
+                    dataType: "json",
+                    headers: headers,
+                    data: { group: "@Model.GroupName", prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item };
+                        }))
+                    }
+                })
+            },
+            change: function (event, ui) {
+                $.ajax({
+                    async: true,
+                    url: "/Group/GetUserGroupRoles",
+                    type: "POST",
+                    dataType: "json",
+                    data: { group: "@Model.GroupName", user: $("#GroupUser").val() },
+                    success: function (data) {
+                        //$('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
+                        $('#GroupAdminUserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
+                        $('#GroupAdminUserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
+                    }
+                })
+            }
+        });
     });
 </script>
 )

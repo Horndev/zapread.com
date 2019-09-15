@@ -1083,6 +1083,7 @@ namespace zapread.com.Controllers
 
         // Query the DB for all users starting with the prefix
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult GetUsers(string prefix)
         {
             using (var db = new ZapContext())
