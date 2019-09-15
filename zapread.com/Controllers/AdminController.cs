@@ -804,6 +804,7 @@ namespace zapread.com.Controllers
         #region CRON
 
         [HttpPost, Route("Admin/Jobs/Run")]
+        [ValidateJsonAntiForgeryToken]
         public ActionResult RunJob(string jobid)
         {
             if (jobid == null)
@@ -817,10 +818,17 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.Trigger("PayoutsService.GroupsPayout");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
         [HttpPost, Route("Admin/Jobs/Install")]
+        [ValidateJsonAntiForgeryToken]
         public ActionResult InstallJob(string jobid)
         {
             if (jobid == null)
@@ -835,7 +843,39 @@ namespace zapread.com.Controllers
                     Cron.Daily(0, 0));
                 return Json(new { success = true });
             }
-            
+
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.AddOrUpdate<PayoutsService>(
+                    x => x.GroupsPayout(),
+                    Cron.Daily(0, 0));
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+
+        [HttpPost, Route("Admin/Jobs/Remove")]
+        [ValidateJsonAntiForgeryToken]
+        public ActionResult RemoveJob(string jobid)
+        {
+            if (jobid == null)
+            {
+                return Json(new { success = false });
+            }
+
+            if (jobid == "CommunityPayout")
+            {
+                RecurringJob.RemoveIfExists("PayoutsService.CommunityPayout");
+                return Json(new { success = true });
+            }
+
+            if (jobid == "GroupsPayout")
+            {
+                RecurringJob.RemoveIfExists("PayoutsService.GroupsPayout");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 

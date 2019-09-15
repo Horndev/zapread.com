@@ -36,10 +36,11 @@
 
         var form = $('#__AjaxAntiForgeryForm');
         var token = $('input[name="__RequestVerificationToken"]', form).val();
-
-        dataval = $(messageElement).val();
         var headers = {};
         headers['__RequestVerificationToken'] = token;
+
+        dataval = $(messageElement).val();
+        
         dataString = JSON.stringify({
             alias: dataval
         });
