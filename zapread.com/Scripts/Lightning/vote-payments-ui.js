@@ -190,7 +190,7 @@ var doVote = function (id, d, t, amount, tx) {
                     $(did + id.toString()).removeClass("text-muted");
                     $(uid + id.toString()).addClass("text-muted");
                 }
-                val = response.scoreStr; //Number(response.score);
+                val = response.scoreStr;
                 $(sid + id.toString()).html(val.toString());
                 $('#voteModal').modal('hide');
 

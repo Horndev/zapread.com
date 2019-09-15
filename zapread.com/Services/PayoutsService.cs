@@ -64,7 +64,7 @@ namespace zapread.com.Services
 
                     List<Post> postsToDistribute;
 
-                    if (numPostsNew < numDistributions* newFrac)
+                    if (numPostsNew < numDistributions * newFrac)
                     {
                         // Too few posts, so each post is selected
                         postsToDistribute = sitePostsRecent;
@@ -73,7 +73,7 @@ namespace zapread.com.Services
                     {
                         // Need to Randomly choose posts to distribute to
                         Random rnd = new Random();
-                        postsToDistribute = sitePostsRecent.OrderBy(ps => rnd.Next()).Take((int)Math.Floor(numDistributions*newFrac)).ToList();
+                        postsToDistribute = sitePostsRecent.OrderBy(ps => rnd.Next()).Take((int)Math.Floor(numDistributions * newFrac)).ToList();
                     }
 
                     double totalScores = 1.0 * postsToDistribute.Select(p => p.Score).Sum();
@@ -100,7 +100,7 @@ namespace zapread.com.Services
                         }
                     }
 
-                    if (numPostsOld < numDistributions* oldFrac)
+                    if (numPostsOld < numDistributions * oldFrac)
                     {
                         // Too few posts, so each post is selected
                         postsToDistribute = sitePostsOld;
@@ -109,7 +109,7 @@ namespace zapread.com.Services
                     {
                         // Need to Randomly choose posts to distribute to
                         Random rnd = new Random();
-                        postsToDistribute = sitePostsOld.OrderBy(ps => rnd.Next()).Take((int)(numDistributions*oldFrac)).ToList();
+                        postsToDistribute = sitePostsOld.OrderBy(ps => rnd.Next()).Take((int)(numDistributions * oldFrac)).ToList();
                     }
 
                     totalScores = 1.0 * postsToDistribute.Select(p => p.Score).Sum();
@@ -134,33 +134,38 @@ namespace zapread.com.Services
                     }
 
                     // apply distribution to DB
-                    var distributed = 0.0;
-                    foreach (var uid in payoutUserAmount.Keys)
-                    {
-                        // This is where payouts should be made for each user link to group
-                        var owner = db.Users.FirstOrDefault(u => u.Id == uid);
-                        double earnedAmount = payoutUserAmount[uid];
-                        var ea = new EarningEvent()
-                        {
-                            Amount = earnedAmount,
-                            OriginType = 0,                 // 0 = post
-                            TimeStamp = DateTime.UtcNow,
-                            Type = 2,                       // 2 = community
-                            OriginId = 0,                   // Indicates the group which generated the payout
-                        };
-                        owner.EarningEvents.Add(ea);
-                        owner.TotalEarned += earnedAmount;
-                        owner.Funds.Balance += earnedAmount;
-                        distributed += earnedAmount;
-                    }
-
-                    //record distribution
-                    website.CommunityEarnedToDistribute -= distributed;
-                    website.TotalEarnedCommunity += distributed;
+                    DistributeCommunityFunds(db, website, payoutUserAmount);
 
                     db.SaveChanges();
                 }
             }
+        }
+
+        private static void DistributeCommunityFunds(ZapContext db, ZapReadGlobals website, Dictionary<int, double> payoutUserAmount)
+        {
+            var distributed = 0.0;
+            foreach (var uid in payoutUserAmount.Keys)
+            {
+                // This is where payouts should be made for each user link to group
+                var owner = db.Users.FirstOrDefault(u => u.Id == uid);
+                double earnedAmount = payoutUserAmount[uid];
+                var ea = new EarningEvent()
+                {
+                    Amount = earnedAmount,
+                    OriginType = 0,                 // 0 = post
+                    TimeStamp = DateTime.UtcNow,
+                    Type = 2,                       // 2 = community
+                    OriginId = 0,                   // Indicates the group which generated the payout
+                };
+                owner.EarningEvents.Add(ea);
+                owner.TotalEarned += earnedAmount;
+                owner.Funds.Balance += earnedAmount;
+                distributed += earnedAmount;
+            }
+
+            //record distribution
+            website.CommunityEarnedToDistribute -= distributed;
+            website.TotalEarnedCommunity += distributed;
         }
 
         public void GroupsPayout()
