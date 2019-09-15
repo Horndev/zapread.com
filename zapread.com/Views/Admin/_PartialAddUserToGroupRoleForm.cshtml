@@ -44,6 +44,13 @@
         var uname = $("#User").val();
         var gname = "@Model.GroupName";
         var isAdmin = $('#UserGroupAdministrator').is(":checked");
+
+        // Get our AntiForgeryToken
+        var form = $('#__AjaxAntiForgeryForm');
+        var token = $('input[name="__RequestVerificationToken"]', form).val();
+        var headers = {};
+        headers['__RequestVerificationToken'] = token;
+
         var data = { group: gname, user: uname, isAdmin: $('#UserGroupAdministator').is(":checked"), isMod: $('#UserGroupModerator').is(":checked"), isMember: $('#UserGroupMember').is(":checked") };
         $.ajax({
             async: true,
@@ -51,6 +58,7 @@
             type: "POST",
             dataType: "json",
             data: data,
+            headers: headers, // Add token to request header
             success: function (data) {
                 if (data.success) {
                     alert('Update successful.');

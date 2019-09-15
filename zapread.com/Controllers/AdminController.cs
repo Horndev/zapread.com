@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
@@ -1120,6 +1121,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod, bool isMember)
         {
             using (var db = new ZapContext())

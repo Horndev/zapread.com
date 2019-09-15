@@ -1113,6 +1113,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod)
         {
             using (var db = new ZapContext())
