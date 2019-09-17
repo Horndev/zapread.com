@@ -42,6 +42,14 @@ var onVote = function (e) {
             doTip(userVote.id, userVote.amount, null);
         }
         else {
+            /* Set chevron spinning */
+            //console.log('doVote');
+            //console.log(userVote);
+            var icon = $(userVote.o).find('i');
+            icon.removeClass('fa-chevron-up');
+            icon.addClass('fa-circle-o-notch');
+            icon.addClass('fa-spin');
+            icon.css('color', 'darkcyan');
             doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
         }
     }
@@ -102,50 +110,48 @@ var onCancelVote = function (e) {
 
 // User pressed vote button
 // - Use modal dialog to set amount and handle LN transactions if needed
-var vote = function (id, d, t, b) {
+var vote = function (id, d, t, b, o) {
     // id : the identifier for the item being voted on
     // d  : the direction of the vote
     // t  : the type of item voted on.  (2 = comment)
+    // o  : the object calling vote
     isTip = false;
     var userBalance = 0;
     var voteCost = parseInt($('#voteValueAmount').val());
+    
+    /* Configure vote parameters */
+    userVote.b = ub;
+    userVote.id = id;
+    userVote.d = d;
+    userVote.t = t;
+    userVote.b = ub;
+    userVote.o = o;     /* Track the calling object */
+    userVote.amount = voteCost;
+
+    /* Prepare vote modal without an invoice, and show it.*/
     $('#voteModalTitle').html("Vote");
+    $('#userVoteBalance').html("...");
+    $("#voteDepositInvoiceFooter").removeClass("bg-success");
+    $("#voteDepositInvoiceFooter").removeClass("bg-error");
+    $("#voteDepositInvoiceFooter").addClass("bg-info");
+    $("#voteOkButton").html('Vote');
+    $('#voteDepositInvoiceFooter').html("Click vote to confirm.");
+    $("#voteDepositQR").hide();
+    $("#voteDepositInvoice").hide();
+    $('#voteModal').modal('show');
 
     $.get("/Account/GetBalance", function (data, status) {
         $('#userVoteBalance').html(data.balance);
         userBalance = parseFloat(data.balance);
-        userVote.b = ub;
         $(".userBalanceValue").each(function (i, e) {
             $(e).html(data.balance);
         });
 
-        /* Configure vote parameters */
-        userVote.id = id;
-        userVote.d = d;
-        userVote.t = t;
-        userVote.b = ub;
-        userVote.amount = voteCost;
-
         /* This is done here prior to showing */
         if (userVote.amount > userBalance) {
             $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-error");
-            $("#voteDepositInvoiceFooter").addClass("bg-info");
             $("#voteOkButton").html('Get Invoice');
         }
-        else {
-            $('#voteDepositInvoiceFooter').html("Click vote to confirm.");
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-error");
-            $("#voteDepositInvoiceFooter").addClass("bg-info");
-            $("#voteOkButton").html('Vote');
-        }
-
-        /* Prepare vote modal without an invoice, and show it.*/
-        $("#voteDepositQR").hide();
-        $("#voteDepositInvoice").hide();
-        $('#voteModal').modal('show');
     });
 };
 
@@ -168,6 +174,8 @@ var doVote = function (id, d, t, amount, tx) {
         sid = '#sVotec_';
     }
 
+    $('#voteModal').modal('hide');
+
     // Do vote
     $.ajax({
         data: data.toString(),
@@ -177,6 +185,11 @@ var doVote = function (id, d, t, amount, tx) {
         dataType: "json",
         success: function (response) {
             if (response.result === "success") {
+                var icon = $(userVote.o).find('i');
+                icon.removeClass('fa-circle-o-notch');
+                icon.removeClass('fa-spin');
+                icon.addClass('fa-chevron-up');
+                icon.css('color', '');
                 del = Number(response.delta);
                 if (del === 1) {
                     $(uid + id.toString()).removeClass("text-muted");
@@ -192,7 +205,6 @@ var doVote = function (id, d, t, amount, tx) {
                 }
                 val = response.scoreStr;
                 $(sid + id.toString()).html(val.toString());
-                $('#voteModal').modal('hide');
 
                 // Update user balance displays
                 $.get("/Account/GetBalance", function (data, status) {
@@ -202,6 +214,7 @@ var doVote = function (id, d, t, amount, tx) {
                 });
             }
             else {
+                $('#voteModal').modal('show');
                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
                 $("#voteDepositInvoiceFooter").removeClass("bg-info");
                 $("#voteDepositInvoiceFooter").addClass("bg-error");
