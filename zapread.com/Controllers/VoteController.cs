@@ -74,18 +74,15 @@ namespace zapread.com.Controllers
                 if (userId == null)// Anonymous vote
                 {
                     // Check if vote tx has been claimed
-                    if (v.tx != -1337) //debugging secret
+                    var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
+
+                    if (vtx == null || vtx.IsSpent == true)
                     {
-                        var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
-
-                        if (vtx == null || vtx.IsSpent == true)
-                        {
-                            return Json(new { success = false, result = "error", message = "No transaction to vote with" });
-                        }
-
-                        vtx.IsSpent = true;
-                        await db.SaveChangesAsync();
+                        return Json(new { success = false, result = "error", message = "No transaction to vote with" });
                     }
+
+                    vtx.IsSpent = true;
+                    await db.SaveChangesAsync();
                 }
                 else
                 {
@@ -339,18 +336,15 @@ namespace zapread.com.Controllers
                 if (userId == null) // Anonymous vote
                 {
                     // Check if vote tx has been claimed
-                    if (v.tx != -1337) //debugging secret
+                    var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
+
+                    if (vtx == null || vtx.IsSpent == true)
                     {
-                        var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
-
-                        if (vtx == null || vtx.IsSpent == true)
-                        {
-                            return Json(new { result = "error", message = "No transaction to vote with" });
-                        }
-
-                        vtx.IsSpent = true;
-                        await db.SaveChangesAsync();
+                        return Json(new { result = "error", message = "No transaction to vote with" });
                     }
+
+                    vtx.IsSpent = true;
+                    await db.SaveChangesAsync();
                 }
                 else
                 {
