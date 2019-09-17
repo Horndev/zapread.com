@@ -42,6 +42,14 @@ var onVote = function (e) {
             doTip(userVote.id, userVote.amount, null);
         }
         else {
+            /* Set chevron spinning */
+            //console.log('doVote');
+            //console.log(userVote);
+            var icon = $(userVote.o).find('i');
+            icon.removeClass('fa-chevron-up');
+            icon.addClass('fa-circle-o-notch');
+            icon.addClass('fa-spin');
+            icon.css('color', 'darkcyan');
             doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
         }
     }
@@ -166,6 +174,8 @@ var doVote = function (id, d, t, amount, tx) {
         sid = '#sVotec_';
     }
 
+    $('#voteModal').modal('hide');
+
     // Do vote
     $.ajax({
         data: data.toString(),
@@ -175,6 +185,11 @@ var doVote = function (id, d, t, amount, tx) {
         dataType: "json",
         success: function (response) {
             if (response.result === "success") {
+                var icon = $(userVote.o).find('i');
+                icon.removeClass('fa-circle-o-notch');
+                icon.removeClass('fa-spin');
+                icon.addClass('fa-chevron-up');
+                icon.css('color', '');
                 del = Number(response.delta);
                 if (del === 1) {
                     $(uid + id.toString()).removeClass("text-muted");
@@ -190,7 +205,6 @@ var doVote = function (id, d, t, amount, tx) {
                 }
                 val = response.scoreStr;
                 $(sid + id.toString()).html(val.toString());
-                $('#voteModal').modal('hide');
 
                 // Update user balance displays
                 $.get("/Account/GetBalance", function (data, status) {
@@ -200,6 +214,7 @@ var doVote = function (id, d, t, amount, tx) {
                 });
             }
             else {
+                $('#voteModal').modal('show');
                 $("#voteDepositInvoiceFooter").removeClass("bg-success");
                 $("#voteDepositInvoiceFooter").removeClass("bg-info");
                 $("#voteDepositInvoiceFooter").addClass("bg-error");
