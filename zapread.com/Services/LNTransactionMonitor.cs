@@ -201,7 +201,7 @@ namespace zapread.com.Services
                                 }
                                 i.IsIgnored = true;
                                 i.IsSettled = true;
-
+                                i.IsLimbo = false;
                                 Services.MailingService.SendErrorNotification(
                                             title: "User withdraw limbo complete (settled)",
                                             message: "Withdraw Invoice completed limbo (payment was found)."
@@ -241,6 +241,7 @@ namespace zapread.com.Services
                             else if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice")
                             {
                                 i.IsIgnored = true;
+                                
                                 if (i.User.Funds.LimboBalance - amount < 0)
                                 {
                                     if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
@@ -259,6 +260,7 @@ namespace zapread.com.Services
                                         i.User.Funds.LimboBalance = 0;
                                     }
                                 }
+                                i.IsLimbo = false;
                                 Services.MailingService.SendErrorNotification(
                                             title: "Tx marked as ignored (not settled - funds returned)",
                                             message: "tx.id: " + Convert.ToString(i.Id)
@@ -292,7 +294,7 @@ namespace zapread.com.Services
                                             i.User.Funds.LimboBalance -= amount;
                                             i.User.Funds.Balance += amount;
                                         }
-
+                                        i.IsLimbo = false;
                                         Services.MailingService.SendErrorNotification(
                                             title: "User withdraw limbo expired (not settled - limbo returned)",
                                             message: "Withdraw Invoice expired (payment not found). Funds released to user."

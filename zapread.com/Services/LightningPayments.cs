@@ -140,6 +140,7 @@ namespace zapread.com.Services
                         FeePaid_Satoshi = 0,
                         NodePubKey = decoded.destination,
                         User = user,
+                        IsLimbo = true,
                     };
                     db.LightningTransactions.Add(t);
                     db.SaveChanges();  // Synchronous to ensure balance is locked.
@@ -250,6 +251,8 @@ namespace zapread.com.Services
 
                 //update transaction status in DB
                 t.IsSettled = true;
+                t.IsLimbo = false;
+
                 try
                 {
                     t.FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees));
