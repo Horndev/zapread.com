@@ -31,6 +31,7 @@ namespace zapread.com.Controllers
         /// <param name="v"></param>
         /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Post(Vote v)
         {
             if (!ModelState.IsValid)

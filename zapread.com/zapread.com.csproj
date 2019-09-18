@@ -1646,8 +1646,9 @@
     <Content Include="node_modules\jssocials\dist\jssocials.min.js" />
     <Content Include="node_modules\moment\min\moment-with-locales.min.js" />
     <Content Include="node_modules\popper.js\dist\umd\popper.min.js" />
-    <Content Include="node_modules\selectizebootstrap4\dist\css\selectize.bootstrap4.css" />
-    <Content Include="node_modules\selectizebootstrap4\dist\js\selectize\standalone\selectize.min.js" />
+    <Content Include="node_modules\selectize-bootstrap4-theme\dist\css\selectize.bootstrap4.css" />
+    <Content Include="node_modules\selectize\dist\css\selectize.css" />
+    <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
     <Content Include="node_modules\summernote\dist\summernote-bs4.css" />
     <Content Include="node_modules\summernote\dist\summernote-bs4.js" />
     <Content Include="node_modules\summernote\dist\summernote-bs4.min.js" />
@@ -1833,7 +1834,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="node_modules\selectize\dist\js\" />
     <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
