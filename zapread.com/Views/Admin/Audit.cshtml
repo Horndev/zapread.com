@@ -27,7 +27,7 @@
 
 <div class="wrapper wrapper-content">
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Lightning Network Transactions</h5>
@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="col-5 text-right">
                                         <span> Balance </span>
-                                        <h2 class="font-bold"><span id="userAuditBalance">0</span> </h2>
+                                        <h2 class="font-bold"><span id="userAuditBalance">...</span> (<span title="Limbo Balance" id="userAuditBalanceLimboValue">...</span>)</h2>
                                         <small class="text-muted">Satoshi</small>
                                     </div>
                                     <div class="col-2">
@@ -103,6 +103,8 @@
                                 <th>Amount</th>
                                 <th>Memo</th>
                                 <th>Settled</th>
+                                <th>Hash</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -110,7 +112,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Earning Summary</h5>
@@ -183,7 +187,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Spending Summary</h5>
@@ -296,6 +302,10 @@
                 $("#userAuditBalance").html(data.value);
             });
 
+            $.get("/Admin/UserLimboBalance/@Model.Username", function (data, status) {
+                $("#userAuditBalanceLimboValue").html(data.value);
+            });
+
             $.get("/Admin/GetLNFlow/@Model.Username/7", function (data, status) {
                 $("#lightningFlowBalance").html(data.value);
             });
@@ -339,7 +349,15 @@
                         "mRender": function (data, type, row) {
                             return "<span title='" + data.PaymentHash +"'>" + data.Settled.toString() + "</span>";
                         }
+                    },
+                    { "data": "PaymentHash", "orderable": false },
+                    { "data": null,
+                    "name": 'Action',
+                    "orderable": false,
+                    "mRender": function (data, type, row) {
+                        return "<a href='/Admin/Audit/Transaction/" + data.id + "/' class='btn btn-primary btn-outline'>Check</a>";
                     }
+                },
                 ],
             });
 

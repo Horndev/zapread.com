@@ -370,6 +370,7 @@ namespace zapread.com.Controllers
             {
                 return Json(new { value = 0 }, JsonRequestBehavior.AllowGet);
             }
+
             using (var db = new ZapContext())
             {
 
@@ -387,7 +388,74 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Admin/UserLimboBalance/{username}")]
+        public async Task<JsonResult> UserLimboBalance(string username)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new { value = 0 }, JsonRequestBehavior.AllowGet);
+            }
+
+            using (var db = new ZapContext())
+            {
+
+                var user = await db.Users.Where(u => u.Name.Trim() == username.Trim())
+                    .Include(usr => usr.Funds)
+                    .AsNoTracking().SingleOrDefaultAsync();
+
+                if (user == null)
+                {
+                    // User doesn't exist.
+                    return Json(new { value = 0 }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { value = Math.Floor(user.Funds.LimboBalance) }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #region audit
+
+        [Route("Admin/Audit/Transaction/{id}")]
+        public ActionResult AuditTransaction(int id)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = "/" });
+            }
+
+            
+
+            using (var db = new ZapContext())
+            {
+                var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                if (website == null)
+                {
+                    throw new Exception("Unable to load website settings.");
+                }
+
+                LndRpcClient lndClient = new LndRpcClient(
+                    host: website.LnMainnetHost,
+                    macaroonAdmin: website.LnMainnetMacaroonAdmin,
+                    macaroonRead: website.LnMainnetMacaroonRead,
+                    macaroonInvoice: website.LnMainnetMacaroonInvoice);
+
+                var payments = lndClient.GetPayments();
+
+                var t = db.LightningTransactions
+                    .Include(tr => tr.User)
+                    .Include(tr => tr.User.Funds)
+                    .FirstOrDefault(tr => tr.Id == id);
+
+                var decoded = lndClient.DecodePayment(t.PaymentRequest);
+
+                var pmt = payments.payments.Where(p => p.payment_hash == t.HashStr).FirstOrDefault();
+
+                return Json(new { });
+            }
+        }
 
         // GET: Admin/Audit/{username}
         [Route("Admin/Audit/{username}")]
@@ -405,7 +473,6 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-
                 var user = db.Users.Where(u => u.Name.Trim() == username.Trim())
                     .Include(usr => usr.Funds)
                     .AsNoTracking().FirstOrDefault();
@@ -422,7 +489,6 @@ namespace zapread.com.Controllers
                     Username = username,
                 };
 
-
                 return View(vm);
             }
         }
@@ -437,6 +503,7 @@ namespace zapread.com.Controllers
             public string Memo { get; set; }
             public bool Settled { get; set; }
             public string PaymentHash { get; set; }
+            public int id { get; set; }
         }
 
         [HttpPost, Route("Admin/GetLNTransactions/{username}")]
@@ -466,6 +533,7 @@ namespace zapread.com.Controllers
                     Memo = t.Memo,
                     Settled = t.IsSettled,
                     PaymentHash = t.HashStr,
+                    id = t.Id,
                 }).ToList();
 
                 int numrec = user.LNTransactions.Count();
