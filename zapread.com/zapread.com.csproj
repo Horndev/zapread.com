@@ -674,6 +674,10 @@
     <Compile Include="Migrations\201907260117450_AddLimboBalance.Designer.cs">
       <DependentUpon>201907260117450_AddLimboBalance.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201909180022182_paymentLimboFlag.cs" />
+    <Compile Include="Migrations\201909180022182_paymentLimboFlag.Designer.cs">
+      <DependentUpon>201909180022182_paymentLimboFlag.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -2045,6 +2049,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201907260117450_AddLimboBalance.resx">
       <DependentUpon>201907260117450_AddLimboBalance.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909180022182_paymentLimboFlag.resx">
+      <DependentUpon>201909180022182_paymentLimboFlag.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

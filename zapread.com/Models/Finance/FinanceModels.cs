@@ -101,6 +101,11 @@ namespace zapread.com.Models
         public bool IsSpent { get; set; }
 
         /// <summary>
+        /// If the invoice was applied in use
+        /// </summary>
+        public bool IsLimbo { get; set; }
+
+        /// <summary>
         /// Record error messages
         /// </summary>
         public string ErrorMessage { get; set; }

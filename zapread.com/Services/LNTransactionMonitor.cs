@@ -147,13 +147,13 @@ namespace zapread.com.Services
                     // Check the unpaid withdraws
                     var payments = lndClient.GetPayments();
 
-                    var pmts = LndRpcClient.LndApiGetStr("lightning.zapread.com", 
-                        "/v1/payments", 
-                        urlParameters: new System.Collections.Generic.Dictionary<string, string>()
-                        {
-                            { "include_incomplete", "true"}
-                        }, 
-                        adminMacaroon: website.LnMainnetMacaroonAdmin);
+                    //var pmts = LndRpcClient.LndApiGetStr("lightning.zapread.com", 
+                    //    "/v1/payments", 
+                    //    urlParameters: new System.Collections.Generic.Dictionary<string, string>()
+                    //    {
+                    //        { "include_incomplete", "true"}
+                    //    }, 
+                    //    adminMacaroon: website.LnMainnetMacaroonAdmin);
                     foreach (var i in unpaidWithdraws)
                     {
                         var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
@@ -161,28 +161,33 @@ namespace zapread.com.Services
                         if (pmt != null)
                         {
                             // Paid?
-                            ;
                             if (i.ErrorMessage == "Error: invoice is already paid")
                             {
                                 // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
                                 i.IsIgnored = true;
-                            }
-                            else if (i.ErrorMessage == "Error executing payment.")
-                            {
-                                // Didn't get paid!
-                                //i.IsIgnored = true;
-                                ;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored",
+                                            message: "tx.id: "+Convert.ToString(i.Id) 
+                                            + " Reason 1");
                             }
                             else if (i.ErrorMessage == "Error: payment is in transition")
                             {
                                 // Double spend attempt stopped.  No loss of funds
                                 i.IsIgnored = true;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 2");
                             }
                             else if (i.ErrorMessage == "Error: FinalExpiryTooSoon")
                             {
                                 i.IsIgnored = true;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 3");
                             }
-                            else if (i.ErrorMessage == "Error validating payment.")
+                            else if (i.ErrorMessage == "Error validating payment." || i.ErrorMessage == "Error executing payment.")
                             {
                                 // Payment has come through
                                 double amount = Convert.ToDouble(i.Amount);
@@ -195,19 +200,15 @@ namespace zapread.com.Services
                                     i.User.Funds.LimboBalance = 0;
                                 }
                                 i.IsIgnored = true;
+                                i.IsSettled = true;
 
-                                MailingService.Send(new UserEmailModel()
-                                {
-                                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                                    Body = "Withdraw Invoice completed limbo (payment was found)."
+                                Services.MailingService.SendErrorNotification(
+                                            title: "User withdraw limbo complete (settled)",
+                                            message: "Withdraw Invoice completed limbo (payment was found)."
                                                 + "\r\n invoice: " + i.PaymentRequest
                                                 + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
                                                 + "\r\n amount: " + Convert.ToString(i.Amount)
-                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage,
-                                    Email = "",
-                                    Name = "zapread.com Monitoring",
-                                    Subject = "User withdraw limbo complete",
-                                });
+                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage);
                             }
                             else
                             {
@@ -218,6 +219,10 @@ namespace zapread.com.Services
                                     i.IsError = true;
                                 }
                                 i.IsSettled = true;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 4");
                             }
                         }
                         else
@@ -228,8 +233,12 @@ namespace zapread.com.Services
                             {
                                 // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
                                 i.IsIgnored = true;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 5");
                             }
-                            if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice")
+                            else if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice")
                             {
                                 i.IsIgnored = true;
                                 if (i.User.Funds.LimboBalance - amount < 0)
@@ -250,6 +259,10 @@ namespace zapread.com.Services
                                         i.User.Funds.LimboBalance = 0;
                                     }
                                 }
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored (not settled - funds returned)",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 6");
                             }
                             else
                             {
@@ -280,18 +293,14 @@ namespace zapread.com.Services
                                             i.User.Funds.Balance += amount;
                                         }
 
-                                        MailingService.Send(new UserEmailModel()
-                                        {
-                                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                                            Body = "Withdraw Invoice expired (payment not found). Funds released to user."
+                                        Services.MailingService.SendErrorNotification(
+                                            title: "User withdraw limbo expired (not settled - limbo returned)",
+                                            message: "Withdraw Invoice expired (payment not found). Funds released to user."
                                                 + "\r\n invoice: " + i.PaymentRequest
                                                 + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
                                                 + "\r\n amount: " + Convert.ToString(i.Amount)
-                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage,
-                                            Email = "",
-                                            Name = "zapread.com Monitoring",
-                                            Subject = "User withdraw limbo expired",
-                                        });
+                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage);
+                                        
                                         // TODO: send user email notification update of result.
                                     }
                                 }
