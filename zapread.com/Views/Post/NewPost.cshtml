@@ -115,17 +115,22 @@
     </div>
 </div>
 
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
 @section Styles {
     @Styles.Render("~/plugins/summernoteStyles")
     @Styles.Render("~/bundles/css/datatables")
 }
 
 @section Scripts {
-@Scripts.Render("~/plugins/selectize")
-@Scripts.Render("~/bundles/datatables")
-@Scripts.Render("~/bundles/post/edit")
+    @Scripts.Render("~/plugins/selectize")
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/post/edit")
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
     var gid = @Model.Post.Group.GroupId;
     var knownGroups = [''];
@@ -255,5 +260,5 @@
             }
         });
     });
-</script>
+    </script>
 }

@@ -27,7 +27,7 @@
                     <p>Sorry, the post you were looking for was not found.</p>
                 </div>
             </div>
-            
+
             <div class="social-feed-box-nb">
                 <span></span>
             </div>
@@ -37,3 +37,8 @@
         </div>
     </div>
 </div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
