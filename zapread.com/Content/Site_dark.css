@@ -39,7 +39,7 @@
 
 .cse .gsc-control-cse,
 .gsc-control-cse {
-    padding: 0em !important;
+    padding: 0 !important;
     width: auto;
 }
 
@@ -119,7 +119,7 @@
 
 /* Image hover */
 .cuadro_intro_hover {
-    padding: 0px;
+    padding: 0;
     position: relative;
     overflow: hidden;
     /*height: 200px;*/
@@ -163,7 +163,7 @@
         position: absolute;
         height: 300px;
         text-align: center;
-        top: 0px;
+        top: 0;
         width: 100%;
     }
 
@@ -291,7 +291,7 @@ h5 {
 }
 
 .navbar-top-links li a {
-    padding: 20px 0px;
+    padding: 20px 0;
     min-height: 50px;
 }
 
@@ -900,7 +900,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 }
 
 .top-navigation .wrapper.wrapper-content {
-    padding: 0px;
+    padding: 0;
 }
 
 .top-navigation.body-small .wrapper.wrapper-content,
@@ -6216,8 +6216,8 @@ ul.notes li {
     border: 0.6em solid transparent;
     border-right: 0.6em solid #f1f1f1;
     border-bottom: 0.6em solid #f1f1f1;
-    right: 0em;
-    bottom: 0em;
+    right: 0;
+    bottom: 0;
 }
 
 a.compose-mail {
@@ -6975,7 +6975,7 @@ table.shoping-cart-table {
     padding: 10px 15px;
     background: #2b2b2b;
     border-left: 2px dashed #e7eaec;
-    padding-right: 0px;
+    padding-right: 0;
 }
     .social-footer-reply .social-comment img {
         width: 32px;
@@ -9946,7 +9946,7 @@ body.md-skin {
 }
 
 .md-skin .navbar-top-links li a {
-    padding: 20px 0px;
+    padding: 20px 0;
     min-height: 50px;
 }
 
