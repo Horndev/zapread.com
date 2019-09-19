@@ -176,11 +176,17 @@ var doVote = function (id, d, t, amount, tx) {
 
     $('#voteModal').modal('hide');
 
+    var form = $('#__AjaxAntiForgeryFormVote');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
     // Do vote
     $.ajax({
         data: data.toString(),
         type: 'POST',
         url: voteurl,
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {

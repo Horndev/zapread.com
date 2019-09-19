@@ -211,11 +211,14 @@ namespace zapread.com
 
             // selectize 
             bundles.Add(new ScriptBundle("~/plugins/selectize").Include(
-                      "~/node_modules/selectizebootstrap4/dist/js/selectize/standalone/selectize.min.js"));
+                      "~/node_modules/selectize/dist/js/standalone/selectize.min.js")
+                      .WithLastModifiedToken());
 
             // selectize 
             bundles.Add(new StyleBundle("~/Content/plugins/selectize").Include(
-                      "~/node_modules/selectizebootstrap4/dist/css/selectize.bootstrap4.css"));
+                      "~/node_modules/selectize/dist/css/selectize.css",
+                      "~/node_modules/selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css")
+                      .WithLastModifiedToken());
 
             // Flot chart
             bundles.Add(new ScriptBundle("~/plugins/flot").Include(
