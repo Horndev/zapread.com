@@ -295,6 +295,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Comment(Vote v)
         {
             if (!ModelState.IsValid)

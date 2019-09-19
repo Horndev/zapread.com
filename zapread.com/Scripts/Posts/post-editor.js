@@ -67,6 +67,12 @@ var submit = function (postId, groupId, userId, isUpdate) {
     if (isUpdate) {
         url = "/Post/Update";
     }
+
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
     $.ajax({
         async: true,
         type: "POST",
@@ -74,6 +80,7 @@ var submit = function (postId, groupId, userId, isUpdate) {
         data: msg,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
+        headers: headers,
         success: function (response) {
             $('#submit').prop('disabled', false);
             var newPostUrl = "/Post/Detail";
@@ -103,11 +110,17 @@ var save = function (postId, groupId, userId, isUpdate) {
     var language = $('#languageSelect').val();
     var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': groupId, 'UserId': userId, 'Title': postTitle, 'IsDraft': true, 'Language': language });
 
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
     $.ajax({
         async: true,
         type: "POST",
         url: "/Post/SubmitNewPost/",
         data: msg,
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {

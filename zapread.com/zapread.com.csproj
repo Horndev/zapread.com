@@ -672,6 +672,10 @@
     <Compile Include="Migrations\201909180022182_paymentLimboFlag.Designer.cs">
       <DependentUpon>201909180022182_paymentLimboFlag.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201909190116522_Achievements.cs" />
+    <Compile Include="Migrations\201909190116522_Achievements.Designer.cs">
+      <DependentUpon>201909190116522_Achievements.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -685,6 +689,7 @@
     <Compile Include="Models\Database\Group.cs" />
     <Compile Include="Models\Database\Post.cs" />
     <Compile Include="Models\Database\User.cs" />
+    <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
     <Compile Include="Models\Database\UserMessage.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
@@ -2046,6 +2051,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201909180022182_paymentLimboFlag.resx">
       <DependentUpon>201909180022182_paymentLimboFlag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909190116522_Achievements.resx">
+      <DependentUpon>201909190116522_Achievements.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

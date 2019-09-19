@@ -87,6 +87,9 @@ namespace zapread.com.Models.Database
         [InverseProperty("To")]
         public virtual ICollection<UserAlert> Alerts { get; set; }
 
+        [InverseProperty("AchievedBy")]
+        public virtual ICollection<UserAchievement> Achievements { get; set; }
+
         public static implicit operator User(string v)
         {
             throw new NotImplementedException();

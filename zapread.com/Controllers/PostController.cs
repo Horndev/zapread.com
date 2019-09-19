@@ -265,6 +265,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
         {
             var userId = User.Identity.GetUserId();
