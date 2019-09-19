@@ -35,7 +35,7 @@ namespace zapread.com.Services
 
         public LightningPayments()
         {
-
+            // Empty constructor
         }
 
         public bool IsNodeBanned(string node, out string message)

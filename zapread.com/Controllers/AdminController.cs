@@ -31,7 +31,7 @@ namespace zapread.com.Controllers
 
         public AdminController()
         {
-
+            // Empty constructor
         }
 
         public AdminController(ApplicationUserManager userManager, ApplicationRoleManager roleManager)
@@ -133,15 +133,15 @@ namespace zapread.com.Controllers
                                 }
                                 else if (use == TransactionUse.Tip)
                                 {
-
+                                    // TODO
                                 }
                                 else if (use == TransactionUse.VotePost)
                                 {
-
+                                    // TODO
                                 }
                                 else if (use == TransactionUse.VoteComment)
                                 {
-
+                                    // TODO
                                 }
                             }
                             else
@@ -158,23 +158,18 @@ namespace zapread.com.Controllers
                             // Still waiting.
                             // nothing to do
                             // check if invoice is expired - ignore if it is.
-
-
                             i.IsIgnored = false;
                         }
                         else
                         {
                             // Check if expired
-
                             var start = Convert.ToInt64(inv.creation_date);
                             var end = start + Convert.ToInt64(inv.expiry);
-
                         }
                     }
                     else
                     {
                         // Darn, the hashstring wasn't recorded for some reason.  Can't look up the invoice in LND.
-
                         // Hide this transaction from appearing next time.
                         //i.IsSettled = true;
                         //i.TimestampSettled = DateTime.UtcNow;
@@ -1274,7 +1269,6 @@ namespace zapread.com.Controllers
                             g.Administrators.Remove(u);
                             u.GroupAdministration.Remove(g);
                         }
-
                     }
                 }
                 if (isMod)
