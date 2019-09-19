@@ -269,6 +269,16 @@ namespace zapread.com.Controllers
         }
         #endregion
 
+        #region Achievements
+
+        public ActionResult Achievements()
+        {
+            var vm = new AdminAchievementsViewModel();
+            return View(vm);
+        }
+
+        #endregion
+
         /// <summary>
         /// 
         /// </summary>
