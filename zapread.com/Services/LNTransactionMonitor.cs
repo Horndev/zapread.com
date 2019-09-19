@@ -67,7 +67,7 @@ namespace zapread.com.Services
                             }
                             else if (use == TransactionUse.VoteComment)
                             {
-                                ;
+                                // Not handled yet
                             }
                             else if (use == TransactionUse.UserDeposit)
                             {
@@ -86,7 +86,6 @@ namespace zapread.com.Services
                                     user.Funds.Balance += i.Amount;
                                     i.IsSettled = true;
                                     i.TimestampSettled = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(inv.settle_date)).UtcDateTime;
-
                                 }
                             }
                             else if (use == TransactionUse.Undefined)

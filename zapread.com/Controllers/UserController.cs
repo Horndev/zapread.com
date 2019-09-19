@@ -25,7 +25,7 @@ namespace zapread.com.Controllers
 
         public UserController()
         {
-
+            // Empty constructor
         }
 
         public UserController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
@@ -411,8 +411,6 @@ namespace zapread.com.Controllers
                 db.SaveChanges();
                 return Json(new { Result = "Success" });
             }
-
-
         }
 
         /// <summary>

@@ -1,0 +1,47 @@
+﻿@model zapread.com.Models.Admin.AdminAchievementsViewModel
+
+@{
+    ViewBag.Title = "Admin - Achievements";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Administration</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Admin</a></li>
+            <li class="breadcrumb-item active">Achievements</li>
+        </ol>
+        <small>Website administration page.</small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="ibox float-e-margins">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-1">
+        </div>
+        <div class="col-lg-10">
+            <div class="ibox-content no-padding">
+                <div class="wrapper p-md">
+                    <h3>Achievements</h3>
+
+                    TODO
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
