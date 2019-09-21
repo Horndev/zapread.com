@@ -85,6 +85,19 @@
 
                     <button id="btnGPF" class="btn btn-primary btn-sm" onclick="runJob('GroupsPayout')" type="button">Trigger Now</button>
 
+                    <h3>Achievements</h3>
+                    @if (Model.RecurringJobs.Select(j => j.Id).Contains("AchievementsService.CheckAchievements"))
+                    {
+                        <span>Installed </span>
+                    }
+                    else
+                    {
+                        <span>Not Installed</span>
+                    }
+
+                    <button id="btnAI" class="btn btn-primary btn-sm" onclick="setupJob('CheckAchievements')" type="button">(Re)Install</button>
+
+                    <button id="btnAF" class="btn btn-primary btn-sm" onclick="runJob('CheckAchievements')" type="button">Trigger Now</button>
 
                 </div>
             </div>

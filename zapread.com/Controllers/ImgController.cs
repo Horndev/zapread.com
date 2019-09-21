@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNet.Identity;
 using QRCoder;
 using System;
+using System.Data.Entity;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
@@ -36,6 +38,36 @@ namespace zapread.com.Controllers
                 }
             }
             return "";
+        }
+
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        public async Task<ActionResult> AchievementImage(string id)
+        {
+            // Check for image in DB
+            using (var db = new ZapContext())
+            {
+                int imgid = Convert.ToInt32(id);
+                int size = 20;
+                var i = await db.Achievements
+                    .FirstOrDefaultAsync(a => a.Id == imgid);
+
+                if (i.Image != null)
+                {
+                    Image png = Image.FromStream(new MemoryStream(i.Image));
+                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
+                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    return File(data, "image/png");
+                }
+                else
+                {
+                    i = await db.Achievements
+                        .FirstOrDefaultAsync(a => a.Id == 1);
+                    Image png = Image.FromStream(new MemoryStream(i.Image));
+                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
+                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                    return File(data, "image/png");
+                }
+            }
         }
 
         // GET: Img
