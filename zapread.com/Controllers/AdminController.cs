@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -270,6 +273,152 @@ namespace zapread.com.Controllers
         {
             var vm = new AdminAchievementsViewModel();
             return View(vm);
+        }
+
+        public ActionResult GetAchievements(DataTableParameters dataTableParameters)
+        {
+            using (var db = new ZapContext())
+            {
+                var icons = db.Achievements
+                    .OrderByDescending(i => i.Id)
+                    .Skip(dataTableParameters.Start).Take(dataTableParameters.Length);
+                    //.ToList();
+
+                var values = icons.Select(i => new 
+                {
+                    i.Id,
+                    i.Name,
+                    i.Description,
+                    i.Value,
+                }).ToList();
+
+                int numrec = db.Achievements.Count();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values
+                };
+                return Json(ret);
+            }
+        }
+
+        //AdminUploadAchievementImage
+
+        [HttpPost, Route("Admin/Achievements/Upload")]
+        public JsonResult AdminUploadAchievementImage(HttpPostedFileBase file, string id)
+        {
+            if (file.ContentLength > 0)
+            {
+                //string _FileName = Path.GetFileName(file.FileName);
+                Image img = Image.FromStream(file.InputStream);
+
+                // Images should retain aspect ratio
+                double ar = Convert.ToDouble(img.Width) / Convert.ToDouble(img.Height); // Aspect ratio
+                int max_wh = 20; // desired max width or height
+                int newHeight = img.Height;
+                int newWidth = img.Width;
+                if (img.Height > img.Width)
+                {
+                    newHeight = max_wh;
+                    newWidth = Convert.ToInt32(Convert.ToDouble(max_wh) * ar);
+                }
+                else
+                {
+                    newWidth = max_wh;
+                    newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar);
+                }
+
+                var bmp = new Bitmap((int)max_wh, (int)max_wh);
+                var graph = Graphics.FromImage(bmp);
+                var brush = new SolidBrush(Color.Transparent);
+
+                graph.InterpolationMode = InterpolationMode.High;
+                graph.CompositingQuality = CompositingQuality.HighQuality;
+                graph.SmoothingMode = SmoothingMode.AntiAlias;
+                graph.FillRectangle(brush, new RectangleF(0, 0, max_wh, max_wh));
+                graph.DrawImage(img, ((int)max_wh - newWidth) / 2, ((int)max_wh - newHeight) / 2, newWidth, newHeight);
+                byte[] data = bmp.ToByteArray(ImageFormat.Png);
+
+                using (var db = new ZapContext())
+                {
+                    if (Convert.ToInt32(id) == -1)
+                    {
+                        // new Achievement
+                        Achievement a = new Achievement()
+                        {
+                            Image = data
+                        };
+                        db.Achievements.Add(a);
+                        db.SaveChanges();
+                        return Json(new { success = true, result = "success", a.Id });
+                    }
+                    else
+                    {
+                        var aid = Convert.ToInt32(id);
+                        var a = db.Achievements.FirstOrDefault(ac => ac.Id == aid);
+                        if (a == null)
+                        {
+                            return Json(new { success = false, message = "Id does not exist." });
+                        }
+                        a.Image = data;
+                        db.SaveChanges();
+                        return Json(new { success = true, result = "success", a.Id });
+                    }
+                }
+            }
+            return Json(new { success=true, result = "success" });
+        }
+
+        [HttpPost, Route("Admin/AddAchievement")]
+        public async Task<ActionResult> AddAchievement(int id, string name, string description, int value)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.Achievements
+                    .FirstOrDefaultAsync(ac => ac.Id == id);
+
+                if (a == null)
+                {
+                    a = new Achievement()
+                    {
+                        Name = name,
+                        Description = description,
+                        Value = value
+                    };
+                    db.Achievements.Add(a);
+                }
+                else
+                {
+                    a.Name = name;
+                    a.Description = description;
+                    a.Value = value;
+                }
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+        }
+
+        public async Task<ActionResult> DeleteAchievement(int id)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.Achievements
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    Json(new { success = false });
+                }
+
+                db.Achievements.Remove(a);
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
         }
 
         #endregion
@@ -897,6 +1046,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "CheckAchievements")
+            {
+                RecurringJob.Trigger("AchievementsService.CheckAchievements");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
@@ -925,6 +1080,14 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "CheckAchievements")
+            {
+                RecurringJob.AddOrUpdate<AchievementsService>(
+                    x => x.CheckAchievements(),
+                    Cron.Hourly(0));
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
@@ -946,6 +1109,12 @@ namespace zapread.com.Controllers
             if (jobid == "GroupsPayout")
             {
                 RecurringJob.RemoveIfExists("PayoutsService.GroupsPayout");
+                return Json(new { success = true });
+            }
+
+            if (jobid == "CheckAchievements")
+            {
+                RecurringJob.RemoveIfExists("AchievementsService.CheckAchievements");
                 return Json(new { success = true });
             }
 
