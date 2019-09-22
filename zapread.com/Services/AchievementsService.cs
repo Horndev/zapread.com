@@ -32,17 +32,31 @@ namespace zapread.com.Services
 
                     var newUsers = a.GetNewUsers(db, dba);
 
+                    var c = newUsers.Count();
+
+                    // We need to use a dictionary to save the results before applying to db since the next
+                    // foreach will be an open DB connection (can't query and apply at same time).
+                    Dictionary<User, UserAchievement> uas = new Dictionary<User, UserAchievement>();
                     foreach (var u in newUsers)
                     {
+                        var usr = u.Name;
                         var ua = new UserAchievement()
                         {
                             AchievedBy = u,
                             Achievement = dba,
                             DateAchieved = DateTime.UtcNow,
                         };
+                        uas.Add(u, ua);
                     }
+
+                    // Apply db updates to users
+                    foreach(var ukvp in uas)
+                    {
+                        ukvp.Key.Achievements.Add(ukvp.Value);
+                    }
+                    
+                    db.SaveChanges();
                 }
-                db.SaveChanges();
             }
         }
     }
