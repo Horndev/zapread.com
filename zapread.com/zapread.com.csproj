@@ -708,6 +708,7 @@
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
     <Compile Include="Models\User\UserLinkViewModel.cs" />
     <Compile Include="Models\User\UserViewModels.cs" />
