@@ -597,14 +597,17 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    u = db.Users
+                    u = await db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
+                        .Include(usr => usr.Achievements)
+                        .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
                         .AsNoTracking()
-                        .Where(us => us.AppId == userId).First();
+                        .Where(us => us.AppId == userId)
+                        .FirstAsync();
                     aboutMe = u.AboutMe;
                 }
 
@@ -633,6 +636,19 @@ namespace zapread.com.Controllers
                 List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers);
                 List<string> languages = GetLanguages();
 
+                var uavm = new UserAchievementsViewModel();
+                uavm.Achievements = new List<UserAchievementViewModel>();
+
+                foreach (var ach in u.Achievements)
+                {
+                    uavm.Achievements.Add(new UserAchievementViewModel()
+                    {
+                        Id = ach.Id,
+                        ImageId = ach.Achievement.Id,
+                        Name = ach.Achievement.Name + " on " + ach.DateAchieved.Value.ToShortDateString()
+                    });
+                }
+
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
@@ -653,6 +669,7 @@ namespace zapread.com.Controllers
                     TopFollowing = topFollowing,
                     TopFollowers = topFollowers,
                     UserBalance = u.Funds.Balance,
+                    AchievementsViewModel = uavm,
                     Settings = u.Settings,
                     Languages = u.Languages == null ? new List<string>() : u.Languages.Split(',').ToList(),
                     KnownLanguages = languages,

@@ -12,7 +12,8 @@ namespace zapread.com.Services
     {
         public static List<IAchievementCriteria> Achievements = new List<IAchievementCriteria>()
         {
-            new FirstPost()
+            new FirstPost(),
+            new FirstFollowing(),
         };
 
         public void CheckAchievements()
@@ -32,18 +33,47 @@ namespace zapread.com.Services
 
                     var newUsers = a.GetNewUsers(db, dba);
 
+                    var c = newUsers.Count();
+
+                    // We need to use a dictionary to save the results before applying to db since the next
+                    // foreach will be an open DB connection (can't query and apply at same time).
+                    Dictionary<User, UserAchievement> uas = new Dictionary<User, UserAchievement>();
                     foreach (var u in newUsers)
                     {
+                        var usr = u.Name;
                         var ua = new UserAchievement()
                         {
                             AchievedBy = u,
                             Achievement = dba,
                             DateAchieved = DateTime.UtcNow,
                         };
+                        uas.Add(u, ua);
                     }
+
+                    // Apply db updates to users
+                    foreach(var ukvp in uas)
+                    {
+                        ukvp.Key.Achievements.Add(ukvp.Value);
+                    }
+                    
+                    db.SaveChanges();
                 }
-                db.SaveChanges();
             }
+        }
+    }
+
+    public class FirstFollowing : IAchievementCriteria
+    {
+        public string Name { get => "First Following"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Following.Count() > 0);
+
+            return newUsersAchieved;
         }
     }
 

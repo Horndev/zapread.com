@@ -304,9 +304,18 @@ namespace zapread.com.Controllers
                 if (p.PostId > 0)
                 {
                     // Updated post
-                    post = db.Posts.Where(pst => pst.PostId == p.PostId).FirstOrDefault();
+                    post = db.Posts
+                        .Include(pst => pst.UserId)
+                        .Where(pst => pst.PostId == p.PostId).FirstOrDefault();
 
-                    post.PostTitle = p.Title;
+                    // Ensure user owns this post
+                    if (post.UserId.Id != user.Id)
+                    {
+                        // Editing another user's post.
+                        return Json(new { result = "failure", success = false, message = "User mismatch" });
+                    }
+
+                    post.PostTitle = p.Title.CleanUnicode().SanitizeXSS();
                     post.Group = postGroup;
                     post.Content = contentStr;
                     post.Language = p.Language ?? post.Language;
@@ -346,7 +355,7 @@ namespace zapread.com.Controllers
                         Group = postGroup,
                         TimeStamp = DateTime.UtcNow,
                         VotesUp = new List<User>() { user },
-                        PostTitle = p.Title,
+                        PostTitle = p.Title.CleanUnicode().SanitizeXSS(),
                         IsDraft = p.IsDraft,
                         Language = p.Language,
                     };

@@ -48,10 +48,9 @@ namespace zapread.com.Models
         public bool EmailConfirmed { get; set; }
         public bool BrowserRemembered { get; set; }
         public FinancialViewModel Financial { get; set; }
-
+        public UserAchievementsViewModel AchievementsViewModel { get; set; }
         public IList<string> Languages { get; set; }
         public IList<string> KnownLanguages { get; set; }
-
         public UserSettings Settings { get; set; }
     }
 
