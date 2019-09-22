@@ -217,6 +217,16 @@
                         <p>
                             @Model.AboutMe.AboutMe
                         </p>
+                        @*Achievements*@
+                        <div class="row m-t-lg">
+                            <div class="col-md-12">
+                                <h5>Achievements</h5>
+                                @foreach (var a in Model.AchievementsViewModel.Achievements)
+                                {
+                                    <img src="/Img/AchievementImage/@a.ImageId/" title="@a.Name" />
+                                }
+                            </div>
+                        </div>
                         <div class="row m-t-lg">
                             <div class="col-md-4">
 

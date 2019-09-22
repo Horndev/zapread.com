@@ -202,6 +202,8 @@ namespace zapread.com.Controllers
                 var user = db.Users.Where(u => u.Name == username)
                     .Include(u => u.Following)
                     .Include(usr => usr.Groups)
+                    .Include(usr => usr.Achievements)
+                    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
                     .AsNoTracking().FirstOrDefault();
 
                 if (user == null)
@@ -268,6 +270,21 @@ namespace zapread.com.Controllers
                     });
                 }
 
+                var uavm = new UserAchievementsViewModel
+                {
+                    Achievements = new List<UserAchievementViewModel>()
+                };
+
+                foreach (var ach in user.Achievements)
+                {
+                    uavm.Achievements.Add(new UserAchievementViewModel()
+                    {
+                        Id = ach.Id,
+                        ImageId = ach.Achievement.Id,
+                        Name = ach.Achievement.Name + " on " + ach.DateAchieved.Value.ToShortDateString()
+                    });
+                }
+
                 var vm = new UserViewModel()
                 {
                     AboutMe = new AboutMeViewModel()
@@ -285,6 +302,7 @@ namespace zapread.com.Controllers
                     TopFollowers = topFollowers,
                     TopFollowing = topFollowing,
                     UserBalance = userFunds,
+                    AchievementsViewModel = uavm,
                 };
 
                 ViewBag.Username = username;

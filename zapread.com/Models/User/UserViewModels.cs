@@ -25,5 +25,7 @@ namespace zapread.com.Models
         public double UserBalance { get; set; }
 
         public ManageUserGroupsViewModel UserGroups { get; set; }
+
+        public UserAchievementsViewModel AchievementsViewModel { get; set; }
     }
 }
