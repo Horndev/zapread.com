@@ -1,0 +1,43 @@
+﻿<?xml version="1.0"?>
+<appSettings>
+  <add key="webpages:Version" value="3.0.0.0" />
+  <add key="webpages:Enabled" value="false" />
+  <add key="ClientValidationEnabled" value="true" />
+  <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+  <add key="ExceptionReportEmail" value="fake@email.com"/>
+  
+  <!--i18n-->
+  <add key="i18n.DirectoriesToScan" value=".." />
+  <!-- Rel to web.config file -->
+  <add key="i18n.WhiteList" value="*.cs;*.cshtml;*.sitemap" />
+  <add key="i18n.BlackList" value=".\js\kendo;.\js\angular;.\*\dist" />
+  <!--end i18n-->
+  
+  <add key="OAuth_Google_ClientId" value="[INSERT]"/>
+  <add key="OAuth_Google_Secret" value="[INSERT]"/>
+  <add key="OAuth_Reddit_ClientId" value="[INSERT]"/>
+  <add key="OAuth_Reddit_Secret" value="[INSERT]"/>
+  <add key="OAuth_Github_ClientId" value="[INSERT]"/>
+  <add key="OAuth_Github_Secret" value="[INSERT]"/>
+  <add key="OAuth_Twitter_Key" value="[INSERT]"/>
+  <add key="OAuth_Twitter_Secret" value="[INSERT]"/>
+  
+  <!-- Lightning -->
+  <add key="LnUseTestnet" value="false"/> 
+  <add key="LnMainnetHost" value="127.0.0.1"/>
+  <add key="LnTestnetHost" value="127.0.0.1"/>
+  <add key="LnPubkey" value="[INSERT]"/>
+  
+  <!--Email -->
+  <add key="EmailSMTPHost" value ="127.0.0.1"/>
+  <add key="EmailSMTPPort" value ="1234"/>
+  <add key="EmailSMTPUseSSL" value ="1"/>
+  <add key="EmailUser" value ="[INSERT HERE]"/>
+  <add key="EmailPass" value ="[INSERT HERE]"/>
+
+  <add key="AccountsEmailUser" value ="[INSERT HERE]"/>
+  <add key="AccountsEmailPass" value ="[INSERT HERE]"/>
+
+  <add key="NotifyEmailUser" value ="[INSERT HERE]"/>
+  <add key="NotifyEmailPass" value ="[INSERT HERE]"/>
+</appSettings>
