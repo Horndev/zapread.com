@@ -1,11 +1,9 @@
 ﻿/* Achievements hover
  */
 
-$(document).ready(function () {
-    $('.ach-hover').each(function () {
-        $(this).mouseover(function () {
-            loadachhover(this);
-        });
+$('.ach-hover').each(function () {
+    $(this).mouseover(function () {
+        loadachhover(this);
     });
 });
 
