@@ -111,6 +111,36 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [Route("Achievement/Hover/")]
+        public async Task<JsonResult> AchievementHover(int id)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.UserAchievements
+                    .Include(i => i.Achievement)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    return Json(new { success = false, message = "Achievement not found." });
+                }
+
+                var vm = new UserAchievementViewModel()
+                {
+                    Id = a.Id,
+                    ImageId = a.Achievement.Id,
+                    Name = a.Achievement.Name,
+                    DateAchieved = a.DateAchieved.Value,
+                    Description = a.Achievement.Description,
+                };
+
+                string HTMLString = RenderPartialViewToString("_PartialUserAchievement", model: vm);
+                return Json(new { success = true, HTMLString });
+               
+            }
+        }
+
+        [HttpPost]
         [Route("Hover/")]
         public async Task<JsonResult> Hover(int userId, string username)
         {
@@ -281,7 +311,7 @@ namespace zapread.com.Controllers
                     {
                         Id = ach.Id,
                         ImageId = ach.Achievement.Id,
-                        Name = ach.Achievement.Name + " on " + ach.DateAchieved.Value.ToShortDateString()
+                        Name = ach.Achievement.Name,
                     });
                 }
 
