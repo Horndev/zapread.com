@@ -354,6 +354,44 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost, Route("Admin/Achievements/Grant")]
+        public async Task<JsonResult> AdminGrantAchievement(int id, string username)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.Achievements
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    return Json(new { success = false, message = "Achievement not found." });
+                }
+
+                var user = await db.Users
+                    .Include(u => u.Achievements)
+                    .FirstOrDefaultAsync(i => i.Name == username);
+
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
+
+                var ua = new UserAchievement()
+                {
+                    AchievedBy = user,
+                    Achievement = a,
+                    DateAchieved = DateTime.UtcNow,
+                };
+
+                user.Achievements.Add(ua);
+
+                //a.Name = name;
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+        }
+
         [HttpPost, Route("Admin/Achievements/Upload")]
         public JsonResult AdminUploadAchievementImage(HttpPostedFileBase file, string id)
         {

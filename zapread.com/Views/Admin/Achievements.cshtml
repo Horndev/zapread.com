@@ -301,6 +301,48 @@
             return false;
         };
 
+        var grantAchievement = function (id) {
+            swal({
+                text: 'Enter user name',
+                content: {
+                    element: 'input',
+                    attributes: {
+                        defaultValue: '',
+                    }
+                },
+                buttons: {
+                    cancel: true,
+                    confirm: "Ok",
+                    closeModal: false,
+                },
+            })
+            .then(name => {
+                if (!name) throw null;
+                $.post("@Url.Action("AdminGrantAchievement", "Admin")",
+                { "id": id, "username": name },
+                function (data) {
+                    if (data.success) {
+                        achievementstable.ajax.reload();
+                        swal("Achievement has been granted!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error granting: " + data.message, "error");
+                    }
+                });
+            })
+            .catch(err => {
+                if (err) {
+                    swal("Error", "Error granting.", "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+            return false;
+        };
+
         var achievementstable = {};
         $(document).ready(function () {
             achievementstable = $('#achievementsTable').DataTable({
@@ -359,7 +401,9 @@
                         "orderable": false,
                         "mRender": function (data, type, row) {
                             //alert(JSON.stringify(data));
-                            return "<a href='javascript:void(0);' onclick='delAchievement("+data.Id+")'><i class='fa fa-trash fa-2x text-danger'></i></a>";
+                            return "<a href='javascript:void(0);' onclick='delAchievement(" + data.Id + ")'><i class='fa fa-trash fa-2x text-danger'></i></a>"
+                                + "&nbsp;&nbsp;"
+                                + "<a href='javascript:void(0);' onclick='grantAchievement(" + data.Id + ")'><i class='fa fa-user-plus fa-2x text-info'></i></a>";
                         }
                     }
                 ]
