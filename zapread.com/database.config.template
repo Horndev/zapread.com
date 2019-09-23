@@ -1,0 +1,4 @@
+﻿<?xml version="1.0"?>
+<connectionStrings>
+  <add name="ZapreadAzure" connectionString="Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=zapread;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\zapread.mdf" providerName="System.Data.SqlClient" />
+</connectionStrings>
