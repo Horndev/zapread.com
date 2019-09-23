@@ -107,6 +107,7 @@
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Value</th>
+                                <th>Awarded</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -216,9 +217,134 @@
             return false;
         };
 
+        var editAchDescription = function (id) {
+            swal({
+                text: 'Enter new description',
+                content: {
+                    element: 'input',
+                    attributes: {
+                        defaultValue: $('#acd_' + id).html(),
+                    }
+                },
+                buttons: {
+                    cancel: true,
+                    confirm: "Ok",
+                    closeModal: false,
+                },
+            })
+            .then(description => {
+                if (!description) throw null;
+                $.post("@Url.Action("AdminUpdateAchievementDescription", "Admin")",
+                { "id": id, "description": description },
+                function (data) {
+                    if (data.success) {
+                        achievementstable.ajax.reload();
+                        swal("Description has been updated!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error updating description: " + data.message, "error");
+                    }
+                });
+            })
+            .catch(err => {
+                if (err) {
+                    swal("Error", "Error updating description.", "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+            return false;
+        };
+
+        var editAchName = function (id) {
+            swal({
+                text: 'Enter new name',
+                content: {
+                    element: 'input',
+                    attributes: {
+                        defaultValue: $('#acn_' + id).html(),
+                    }
+                },
+                buttons: {
+                    cancel: true,
+                    confirm: "Ok",
+                    closeModal: false,
+                },
+            })
+            .then(name => {
+                if (!name) throw null;
+                $.post("@Url.Action("AdminUpdateAchievementName", "Admin")",
+                { "id": id, "name": name },
+                function (data) {
+                    if (data.success) {
+                        achievementstable.ajax.reload();
+                        swal("Name has been updated!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error updating name: " + data.message, "error");
+                    }
+                });
+            })
+            .catch(err => {
+                if (err) {
+                    swal("Error", "Error updating name.", "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+            return false;
+        };
+
+        var grantAchievement = function (id) {
+            swal({
+                text: 'Enter user name',
+                content: {
+                    element: 'input',
+                    attributes: {
+                        defaultValue: '',
+                    }
+                },
+                buttons: {
+                    cancel: true,
+                    confirm: "Ok",
+                    closeModal: false,
+                },
+            })
+            .then(name => {
+                if (!name) throw null;
+                $.post("@Url.Action("AdminGrantAchievement", "Admin")",
+                { "id": id, "username": name },
+                function (data) {
+                    if (data.success) {
+                        achievementstable.ajax.reload();
+                        swal("Achievement has been granted!", {
+                            icon: "success",
+                        });
+                    }
+                    else {
+                        swal("Error", "Error granting: " + data.message, "error");
+                    }
+                });
+            })
+            .catch(err => {
+                if (err) {
+                    swal("Error", "Error granting.", "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+            return false;
+        };
+
         var achievementstable = {};
         $(document).ready(function () {
-
             achievementstable = $('#achievementsTable').DataTable({
                 "searching": false,
                 "lengthChange": false,
@@ -236,30 +362,48 @@
                 },
                 "columns": [
                     {
-                        "data": "Id",
+                        //"data": "Id",
+                        "data": null,
                         "orderable": true,
                         "mRender": function (data, type, row) {
-                            return data + ": <img src='/Img/AchievementImage/" + data + "/'>";
+                            return "<a href='javascript:void(0);' onclick='editAchImage(" + data.Id + ")'><i class='fa fa-edit fa-2x text-info'></i></a>"
+                            + data.Id + ": <img src='/Img/AchievementImage/" + data.Id + "/'>";
                         }
                     },
                     {
-                        "data": "Name",
-                        "orderable": true
+                        //"data": "Name",
+                        "data": null,
+                        "orderable": true,
+                        "mRender": function (data, type, row) {
+                            return "<a href='javascript:void(0);' onclick='editAchName(" + data.Id + ")'><i class='fa fa-edit fa-2x text-warning'></i></a>"
+                                + "<span id='acn_" + data.Id + "'>" + data.Name + "</span>";
+                        }
                     },
                     {
-                        "data": "Description",
-                        "orderable": false
-                    },
-                    {
-                        "data": "Value",
-                        "orderable": true
-                    },
-                    {
+                        //"data": "Description",
                         "data": null,
                         "orderable": false,
                         "mRender": function (data, type, row) {
+                            return "<a href='javascript:void(0);' onclick='editAchDescription(" + data.Id + ")'><i class='fa fa-edit fa-2x text-info'></i></a>"
+                                + "<span id='acd_" + data.Id + "'>" + data.Description + "</span>";
+                        }
+                    },
+                    {
+                        "data": "Value",
+                        "orderable": false
+                    },
+                    {
+                        "data": "Awarded",
+                        "orderable": false
+                    },
+                    {
+                        "data": null, // Actions
+                        "orderable": false,
+                        "mRender": function (data, type, row) {
                             //alert(JSON.stringify(data));
-                            return "<a href='javascript:void(0);' onclick='delAchievement("+data.Id+")'><i class='fa fa-trash fa-2x text-danger'></i></a>";
+                            return "<a href='javascript:void(0);' onclick='delAchievement(" + data.Id + ")'><i class='fa fa-trash fa-2x text-danger'></i></a>"
+                                + "&nbsp;&nbsp;"
+                                + "<a href='javascript:void(0);' onclick='grantAchievement(" + data.Id + ")'><i class='fa fa-user-plus fa-2x text-info'></i></a>";
                         }
                     }
                 ]
@@ -285,7 +429,6 @@
                 content.remove();
             });
         });
-
-                
+ 
     </script>
 }

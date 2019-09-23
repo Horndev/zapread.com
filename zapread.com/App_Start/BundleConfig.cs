@@ -61,7 +61,8 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
-                        "~/Scripts/Manage/index.js")
+                        "~/Scripts/Manage/index.js",
+                        "~/Scripts/Achievements/achievementhover.js")
                         .WithLastModifiedToken());
 
             // Group/Index scripts
@@ -77,6 +78,11 @@ namespace zapread.com
             // User scripts
             bundles.Add(new ScriptBundle("~/bundles/users").Include(
                         "~/Scripts/Users/hover.js")
+                        .WithLastModifiedToken());
+
+            // Achievement scripts
+            bundles.Add(new ScriptBundle("~/bundles/achievements").Include(
+                        "~/Scripts/Achievements/achievementhover.js")
                         .WithLastModifiedToken());
 
             // Post/NewPost scripts

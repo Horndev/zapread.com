@@ -1,0 +1,16 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.UserAchievementViewModel
+
+<div class="row">
+    <div class="col">
+        <img class="img-circle" src="@Url.Action("AchievementImage", "Img", new { id = Model.ImageId })" />
+        <span style="display:inline"><strong>@Model.Name</strong></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @Model.Description
+        <h5>Achieved On</h5>
+        @Model.DateAchieved.ToLongDateString()
+    </div>
+</div>

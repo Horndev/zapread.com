@@ -1,5 +1,12 @@
-﻿
-// When user clicks to make the selected user an administrator
+﻿/* 
+ */
+
+/**
+ * @description When user clicks to make the selected user an administrator
+ * @param {any} uid User Id
+ * @param {any} gid Group Id
+ * @param {int} grant 1 grants admin, revokes otherwise
+ */
 var toggleGroupAdmin = function (uid,gid,grant) {
     swal({
         title: "Are you sure?",

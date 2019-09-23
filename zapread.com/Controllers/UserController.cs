@@ -111,6 +111,36 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [Route("Achievement/Hover/")]
+        public async Task<JsonResult> AchievementHover(int id)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.UserAchievements
+                    .Include(i => i.Achievement)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    return Json(new { success = false, message = "Achievement not found." });
+                }
+
+                var vm = new UserAchievementViewModel()
+                {
+                    Id = a.Id,
+                    ImageId = a.Achievement.Id,
+                    Name = a.Achievement.Name,
+                    DateAchieved = a.DateAchieved.Value,
+                    Description = a.Achievement.Description,
+                };
+
+                string HTMLString = RenderPartialViewToString("_PartialUserAchievement", model: vm);
+                return Json(new { success = true, HTMLString });
+               
+            }
+        }
+
+        [HttpPost]
         [Route("Hover/")]
         public async Task<JsonResult> Hover(int userId, string username)
         {
@@ -167,6 +197,49 @@ namespace zapread.com.Controllers
             usernameCleaned = doc.DocumentNode.InnerText.Replace("@", "");
 
             return usernameCleaned.Trim();
+        }
+
+        [Route("{username?}/Achievements")]
+        public async Task<ActionResult> Achievements(string username)
+        {
+            if (username == null)
+            {
+                return RedirectToAction(actionName: "Index", controllerName: "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.Achievements)
+                    .Include(u => u.Achievements.Select(a => a.Achievement))
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(i => i.Name == username);
+
+                if (user == null)
+                {
+                    return RedirectToAction(actionName: "Index", controllerName: "Home");
+                }
+
+                var vm = new UserAchievementsViewModel()
+                {
+                    Achievements = new List<UserAchievementViewModel>(),
+                    Username = username,
+                };
+
+                foreach (var ach in user.Achievements)
+                {
+                    vm.Achievements.Add(new UserAchievementViewModel()
+                    {
+                        Id = ach.Id,
+                        ImageId = ach.Achievement.Id,
+                        Name = ach.Achievement.Name,
+                        Description = ach.Achievement.Description,
+                        DateAchieved = ach.DateAchieved.Value,
+                    });
+                }
+
+                return View(vm);
+            }
         }
 
         // GET: User
@@ -281,7 +354,7 @@ namespace zapread.com.Controllers
                     {
                         Id = ach.Id,
                         ImageId = ach.Achievement.Id,
-                        Name = ach.Achievement.Name + " on " + ach.DateAchieved.Value.ToShortDateString()
+                        Name = ach.Achievement.Name,
                     });
                 }
 

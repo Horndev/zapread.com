@@ -24,6 +24,7 @@ namespace zapread.com.Database
         public DbSet<ZapIcon> Icons { get; set; }
         public DbSet<UserMessage> Messages { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<PendingPostVote> PendingPostVotes { get; set; }
         public DbSet<PendingCommentVote> PendingCommentVotes { get; set; }
 

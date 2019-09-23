@@ -18,6 +18,10 @@ namespace zapread.com.Models.Database
 
         // An intrinsic assigned value to the achievement
         public int Value { get; set; }
+
+        // Navigation property
+        [InverseProperty("Achievement")]
+        public virtual ICollection<UserAchievement> Awarded { get; set; }
     }
 
     public class UserAchievement
@@ -27,6 +31,7 @@ namespace zapread.com.Models.Database
         [InverseProperty("Achievements")]
         public User AchievedBy { get; set; }
 
+        [InverseProperty("Awarded")]
         public Achievement Achievement { get; set; }
 
         public DateTime? DateAchieved { get; set; }
