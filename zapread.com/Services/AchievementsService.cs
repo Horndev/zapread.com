@@ -14,6 +14,7 @@ namespace zapread.com.Services
         {
             new FirstPost(),
             new FirstFollowing(),
+            new FirstFollowed(),
         };
 
         public void CheckAchievements()
@@ -59,6 +60,21 @@ namespace zapread.com.Services
                     db.SaveChanges();
                 }
             }
+        }
+    }
+
+    public class FirstFollowed : IAchievementCriteria
+    {
+        public string Name { get => "First Followed"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Followers.Count() > 0);
+
+            return newUsersAchieved;
         }
     }
 
