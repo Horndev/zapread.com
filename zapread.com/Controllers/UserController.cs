@@ -199,6 +199,49 @@ namespace zapread.com.Controllers
             return usernameCleaned.Trim();
         }
 
+        [Route("{username?}/Achievements")]
+        public async Task<ActionResult> Achievements(string username)
+        {
+            if (username == null)
+            {
+                return RedirectToAction(actionName: "Index", controllerName: "Home");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.Achievements)
+                    .Include(u => u.Achievements.Select(a => a.Achievement))
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(i => i.Name == username);
+
+                if (user == null)
+                {
+                    return RedirectToAction(actionName: "Index", controllerName: "Home");
+                }
+
+                var vm = new UserAchievementsViewModel()
+                {
+                    Achievements = new List<UserAchievementViewModel>(),
+                    Username = username,
+                };
+
+                foreach (var ach in user.Achievements)
+                {
+                    vm.Achievements.Add(new UserAchievementViewModel()
+                    {
+                        Id = ach.Id,
+                        ImageId = ach.Achievement.Id,
+                        Name = ach.Achievement.Name,
+                        Description = ach.Achievement.Description,
+                        DateAchieved = ach.DateAchieved.Value,
+                    });
+                }
+
+                return View(vm);
+            }
+        }
+
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]

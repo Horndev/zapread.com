@@ -1,0 +1,37 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.UserAchievementViewModel
+
+@*<div class="row">
+    <div class="col">
+        <img class="img-circle" src="@Url.Action("AchievementImage", "Img", new { id = Model.ImageId })" />
+        <span style="display:inline"><strong>@Model.Name</strong></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @Model.Description
+        <h5>Achieved On</h5>
+        @Model.DateAchieved.ToLongDateString()
+    </div>
+</div>*@
+
+<div class="col-lg-4">
+    <div class="contact-box">
+        <div class="col-sm-4">
+            <div class="text-center">
+                <img class="img-circle" src="@Url.Action("AchievementImage", "Img", new { id = Model.ImageId })" />
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <h3>
+                <span style="display:inline"><strong>@Model.Name</strong>
+            </h3>
+            </span>
+            <p>@Model.Description</p>
+            <h5>Achieved On</h5>
+            @Model.DateAchieved.ToLongDateString()
+        </div>
+
+        <div class="clearfix"></div>
+    </div>
+</div>

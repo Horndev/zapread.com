@@ -7,6 +7,7 @@ namespace zapread.com.Models
 {
     public class UserAchievementsViewModel
     {
+        public string Username { get; set; }
         public List<UserAchievementViewModel> Achievements { get; set; }
     }
 

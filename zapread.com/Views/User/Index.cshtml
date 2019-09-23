@@ -220,7 +220,7 @@
                         @*Achievements*@
                         <div class="row m-t-lg">
                             <div class="col-md-12">
-                                <h5>Achievements</h5>
+                                <h5><a href="@Url.Action("Achievements","User", new { username = Model.User.Name })">Achievements</a></h5>
                                 @foreach (var a in Model.AchievementsViewModel.Achievements)
                                 {
                                     <img class="ach-hover" data-achid="@a.Id" src="/Img/AchievementImage/@a.ImageId/" title="@a.Name" />

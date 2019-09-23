@@ -1,0 +1,36 @@
+﻿@model zapread.com.Models.UserAchievementsViewModel
+
+@{
+    ViewBag.Title = Model.Username + " - Achievements";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Achievements</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/">@Model.Username</a></li>
+            <li class="breadcrumb-item active">Achievements</li>
+        </ol>
+        <small></small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-1">
+    </div>
+    <div class="col-lg-10">
+        <br />
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                @foreach (var a in Model.Achievements)
+                {
+                    @Html.Partial(partialViewName: "_PartialUserAchievementBoxed", model: a)
+                }
+            </div>
+        </div>
+    </div>
+</div>
