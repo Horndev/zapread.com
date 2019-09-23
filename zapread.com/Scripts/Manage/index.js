@@ -69,8 +69,6 @@ var join = function (id) {
     return false; // Prevent jump to top of page
 };
 
-
-
 var BlockNumber = 10;  //Infinite Scroll starts from second block
 var NoMoreData = false;
 var inProgress = false;

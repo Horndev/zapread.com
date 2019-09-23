@@ -280,6 +280,14 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var icons = db.Achievements
+                    .Select(a => new
+                    {
+                        a.Id,
+                        a.Name,
+                        a.Description,
+                        a.Value,
+                        Awarded = a.Awarded.Count(),
+                    })
                     .OrderByDescending(i => i.Id)
                     .Skip(dataTableParameters.Start).Take(dataTableParameters.Length);
                     //.ToList();
@@ -290,6 +298,7 @@ namespace zapread.com.Controllers
                     i.Name,
                     i.Description,
                     i.Value,
+                    i.Awarded,
                 }).ToList();
 
                 int numrec = db.Achievements.Count();
@@ -305,7 +314,45 @@ namespace zapread.com.Controllers
             }
         }
 
-        //AdminUploadAchievementImage
+        [HttpPost, Route("Admin/Achievements/Description/Update")]
+        public async Task<JsonResult> AdminUpdateAchievementDescription(int id, string description)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.Achievements
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    return Json(new { success = false, message = "Achievement not found." });
+                }
+
+                a.Description = description;
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+        }
+
+        [HttpPost, Route("Admin/Achievements/Name/Update")]
+        public async Task<JsonResult> AdminUpdateAchievementName(int id, string name)
+        {
+            using (var db = new ZapContext())
+            {
+                var a = await db.Achievements
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (a == null)
+                {
+                    return Json(new { success = false, message = "Achievement not found." });
+                }
+
+                a.Name = name;
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+        }
 
         [HttpPost, Route("Admin/Achievements/Upload")]
         public JsonResult AdminUploadAchievementImage(HttpPostedFileBase file, string id)

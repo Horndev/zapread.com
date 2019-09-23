@@ -1,4 +1,6 @@
-﻿
+﻿/* 
+ */
+
 var go = function () {
     var gid = $('#groupSearch').val();
     var url = '/Group/GroupDetail';
