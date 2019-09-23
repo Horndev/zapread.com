@@ -77,54 +77,14 @@ Users with high reputation need to spend less to move the post score, while user
 
 At this time, development is only confirmed working with Microsoft Windows (sorry).  It would be nice to port to .NET core, which can then run on any OS.  The reason it has not been ported yet is that .NET core was initially missing some basic Entity Framework features, but that has been resolved in newer releases.  The instructions here describe how to start development using a windows OS.
 
-1.  Download Visual Studio Community 2017 (free).  https://visualstudio.microsoft.com/
+1.  Download Visual Studio Community 2017 or 2019 (free).  https://visualstudio.microsoft.com/
 1.  Clone the repository and all submodules
-1.  Set up the AppSettings.config file (sensitive data not tracked in repository)
-1.  Set up the database.config file (sensitive database connection data)
-1.  Compile and deploy
-
-## AppSettings.config
-
-The AppSettings.config file should contain the following keys:
-
-```
-<?xml version="1.0"?>
-<appSettings>
-  <add key="webpages:Version" value="3.0.0.0" />
-  <add key="webpages:Enabled" value="false" />
-  <add key="ClientValidationEnabled" value="true" />
-  <add key="UnobtrusiveJavaScriptEnabled" value="true" />
-
-  <add key="OAuth_Google_ClientId" value="[INSERT HERE]"/>
-  <add key="OAuth_Google_Secret" value="[INSERT HERE]"/>
-
-  <add key="OAuth_Reddit_ClientId" value="[INSERT HERE]"/>
-  <add key="OAuth_Reddit_Secret" value="[INSERT HERE]"/>
-  
-  <!-- Lightning LND backend only -->
-  <add key="LnUseTestnet" value="false"/> 
-  
-  <add key="LnMainnetHost" value="[INSERT HERE]"/>
-  <add key="LnTestnetHost" value="127.0.0.1"/>
-  <add key="LnPubkey" value="[INSERT HERE]"/>
-
-  <add key="LnTestnetMacaroonInvoice" value="[INSERT HERE]"/>
-  <add key="LnTestnetMacaroonRead" value="[INSERT HERE]"/>
-  <add key="LnTestnetMacaroonAdmin" value="[INSERT HERE]"/>
-  <add key="LnMainnetMacaroonInvoice" value="[INSERT HERE]"/>
-  <add key="LnMainnetMacaroonRead" value="[INSERT HERE]"/>
-  <add key="LnMainnetMacaroonAdmin" value="[INSERT HERE]"/>
-
-</appSettings>
-```
-
-## database.config
-
-Two SQL connection strings are required:
-
-DefaultConnection: stores the user identity and log-in information
-
-Zapread: stores the website content (accounts, posts, images, etc.)
+1.  Set up the AppSettings.config file (copy AppSettings.config.template to AppSettings.config)
+1.  Set up the database.config file (copy database.config.template to database.config)
+1.  Open zapread.com.sln with Visual Studio
+1.  In the Package Manager Console, run `Update-Package Microsoft.CodeDom.Providers.DotNetCompilerPlatform -r` to set up compiler
+1.  Run zapread.com (e.g. press F5)
+1.  Go to /Home/Install/ to bootstrap database
 
 # Contribution
 

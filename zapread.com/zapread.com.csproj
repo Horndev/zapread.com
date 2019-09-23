@@ -726,6 +726,10 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\zapread.mdf" />
+    <Content Include="App_Data\zapread_log.ldf">
+      <DependentUpon>zapread.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap-social.css" />
     <Content Include="Content\bootstrap-tour.min.css" />
     <Content Include="Content\FFFFFF-0.png" />
@@ -1846,7 +1850,6 @@
     <Content Include="Views\User\_PartialUserAchievementBoxed.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />

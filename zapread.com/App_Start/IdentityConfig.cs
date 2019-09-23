@@ -22,25 +22,32 @@ namespace zapread.com
             var emailuser = System.Configuration.ConfigurationManager.AppSettings["AccountsEmailUser"];
             var emailpass = System.Configuration.ConfigurationManager.AppSettings["AccountsEmailPass"];
 
-            var mmessage = new MailMessage();
-            mmessage.To.Add(new MailAddress(message.Destination));
-            mmessage.From = new MailAddress(emailuser);  // replace with valid value
-            mmessage.Subject = message.Subject;
-            mmessage.Body = message.Body;
-            mmessage.IsBodyHtml = true;
-
-            using (var smtp = new SmtpClient())
+            if (emailuser == "[INSERT HERE]")
             {
-                var credential = new NetworkCredential
+                // Local debug
+            }
+            else
+            {
+                var mmessage = new MailMessage();
+                mmessage.To.Add(new MailAddress(message.Destination));
+                mmessage.From = new MailAddress(emailuser);  // replace with valid value
+                mmessage.Subject = message.Subject;
+                mmessage.Body = message.Body;
+                mmessage.IsBodyHtml = true;
+
+                using (var smtp = new SmtpClient())
                 {
-                    UserName = emailuser,
-                    Password = emailpass
-                };
-                smtp.Credentials = credential;
-                smtp.Host = emailhost;
-                smtp.Port = emailport;
-                smtp.EnableSsl = false;
-                smtp.Send(mmessage);
+                    var credential = new NetworkCredential
+                    {
+                        UserName = emailuser,
+                        Password = emailpass
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = emailhost;
+                    smtp.Port = emailport;
+                    smtp.EnableSsl = false;
+                    smtp.Send(mmessage);
+                }
             }
             return Task.FromResult(0);
         }

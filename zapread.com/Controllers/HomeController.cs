@@ -375,9 +375,32 @@ namespace zapread.com.Controllers
                         ZapReadTotalWithdrawn = 0.0,
                         LNWithdraws = new List<LNTransaction>(),
                     });
+
+                    
                     db.SaveChanges();
                 }
-                return Json(new { result = "success" });
+
+                var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
+                if (communityGroup == null)
+                {
+                    //Create community group
+                    db.Groups.Add(new Group()
+                    {
+                        GroupId = 1,
+                        GroupName = "Community",
+                        CreationDate = DateTime.UtcNow,
+                        DefaultLanguage = "en",
+                        Icon = "star",
+                        Tier = 0,
+                        Tags = "random",
+                        ShortDescription = "A catch-all group for ZapRead denziens",
+                        TotalEarnedToDistribute = 0,
+                        TotalEarned = 0,
+                    });
+                    db.SaveChanges();
+                }
+                
+                return Json(new { result = "success" }, JsonRequestBehavior.AllowGet);
             }
         }
 
