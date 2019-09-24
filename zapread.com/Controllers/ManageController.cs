@@ -577,27 +577,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 string aboutMe = "Nothing to tell.";
-                User u;
-                if (await db.Users.Where(us => us.AppId == userId).CountAsync() == 0)
-                {
-                    // no user entry
-                    u = new User()
-                    {
-                        AboutMe = "Nothing to tell.",
-                        AppId = userId,
-                        Name = UserManager.FindById(userId).UserName,
-                        ProfileImage = new UserImage(),
-                        ThumbImage = new UserImage(),
-                        Funds = new UserFunds(),
-                        Settings = new UserSettings(),
-                        DateJoined = DateTime.UtcNow,
-                    };
-                    db.Users.Add(u);
-                    await db.SaveChangesAsync();
-                }
-                else
-                {
-                    u = await db.Users
+                User u = await db.Users
                         .Include(usr => usr.LNTransactions)
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.IgnoringUsers)
@@ -608,8 +588,8 @@ namespace zapread.com.Controllers
                         .AsNoTracking()
                         .Where(us => us.AppId == userId)
                         .FirstAsync();
-                    aboutMe = u.AboutMe;
-                }
+
+                aboutMe = u.AboutMe;
 
                 ValidateClaims(u);
 

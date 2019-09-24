@@ -263,7 +263,7 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync(u => u.AppId == userId);
+                        .FirstOrDefaultAsync(u => u.AppId == userId);
 
                     if (loggedInUser != null && loggedInUser.Name == username)
                     {
@@ -272,12 +272,13 @@ namespace zapread.com.Controllers
                     userFunds = loggedInUser.Funds.Balance;
                 }
 
-                var user = db.Users.Where(u => u.Name == username)
+                var user = await db.Users.Where(u => u.Name == username)
                     .Include(u => u.Following)
                     .Include(usr => usr.Groups)
                     .Include(usr => usr.Achievements)
                     .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
-                    .AsNoTracking().FirstOrDefault();
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
 
                 if (user == null)
                 {
@@ -288,19 +289,34 @@ namespace zapread.com.Controllers
 
                 var activityposts = await GetPosts(0, 10, user.Id);
 
-                int numUserPosts = db.Posts.Where(p => p.UserId.Id == user.Id).Count();
+                int numUserPosts = await db.Posts.Where(p => p.UserId.Id == user.Id)
+                    .CountAsync();
 
-                int numFollowers = db.Users.Where(p => p.Following.Select(f => f.Id).Contains(user.Id)).Count();
+                int numFollowers = await db.Users
+                    .Where(p => p.Following.Select(f => f.Id).Contains(user.Id))
+                    .CountAsync();
 
-                int numFollowing = user.Following.Count();
+                int numFollowing = await db.Users.Where(u => u.Name == username)
+                    .SelectMany(usr => usr.Following)
+                    .CountAsync();
 
                 bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
 
                 bool isIgnoring = loggedInUser != null ? (loggedInUser.IgnoringUsers != null ? loggedInUser.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false) : false;
 
-                var topFollowing = user.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                var topFollowing = await db.Users.Where(u => u.Name == username)
+                    .SelectMany(usr => usr.Following)
+                    .OrderByDescending(us => us.TotalEarned)
+                    .Take(20)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                var topFollowers = user.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
+                var topFollowers = await db.Users.Where(u => u.Name == username)
+                    .SelectMany(usr => usr.Followers)
+                    .OrderByDescending(us => us.TotalEarned)
+                    .Take(20)
+                    .AsNoTracking()
+                    .ToListAsync();
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
@@ -324,12 +340,9 @@ namespace zapread.com.Controllers
                     });
                 }
 
-                var gi = new List<GroupInfo>();
-                var userGroups = user.Groups.ToList();
-
-                foreach (var g in userGroups)
-                {
-                    gi.Add(new GroupInfo()
+                List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
+                    .SelectMany(usr => usr.Groups)
+                    .Select(g => new GroupInfo()
                     {
                         Id = g.GroupId,
                         Name = g.GroupName,
@@ -340,23 +353,23 @@ namespace zapread.com.Controllers
                         UserPosts = g.Posts.Where(p => p.UserId.Id == user.Id).Count(),
                         IsMod = g.Moderators.Select(usr => usr.Id).Contains(user.Id),
                         IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(user.Id),
-                    });
-                }
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
 
                 var uavm = new UserAchievementsViewModel
                 {
-                    Achievements = new List<UserAchievementViewModel>()
+                    Achievements = await db.Users.Where(u => u.Name == username)
+                        .SelectMany(usr => usr.Achievements)
+                        .Select(ac => new UserAchievementViewModel()
+                        {
+                            Id = ac.Id,
+                            ImageId = ac.Achievement.Id,
+                            Name = ac.Achievement.Name,
+                        })
+                        .AsNoTracking()
+                        .ToListAsync()
                 };
-
-                foreach (var ach in user.Achievements)
-                {
-                    uavm.Achievements.Add(new UserAchievementViewModel()
-                    {
-                        Id = ach.Id,
-                        ImageId = ach.Achievement.Id,
-                        Name = ach.Achievement.Name,
-                    });
-                }
 
                 var vm = new UserViewModel()
                 {
