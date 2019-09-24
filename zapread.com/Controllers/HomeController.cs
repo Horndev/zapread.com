@@ -507,7 +507,7 @@ namespace zapread.com.Controllers
                         Posts = await GeneratePostViewModels(user, posts, db),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
-                        SubscribedGroups = await GetUserGroups(user, db),
+                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db),
                     };
                     return View(vm);
                 }
@@ -566,18 +566,18 @@ namespace zapread.com.Controllers
             return viewerIgnoredUsers;
         }
 
-        private static Task<List<GroupInfo>> GetUserGroups(User user, ZapContext db)
+        private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
-            return db.Users.Where(u => u.Id == user.Id)
+            return db.Users.Where(u => u.Id == userId)
                 .SelectMany(u => u.Groups)
                 .OrderByDescending(g => g.TotalEarned)
                 .Select(g => new GroupInfo() {
-                    IsMod = g.Moderators.Select(m => m.Id).Contains(user.Id),
+                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+                    IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
                     Name = g.GroupName,
                     Icon = g.Icon,
                     Level = g.Tier,
                     Progress = 36,
-                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(user.Id),
                 }).ToListAsync();
         }
 
