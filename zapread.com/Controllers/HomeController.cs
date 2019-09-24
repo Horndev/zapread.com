@@ -507,7 +507,7 @@ namespace zapread.com.Controllers
                         Posts = await GeneratePostViewModels(user, posts, db),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
-                        SubscribedGroups = GetUserGroups(user),
+                        SubscribedGroups = await GetUserGroups(user, db),
                     };
                     return View(vm);
                 }
@@ -566,35 +566,19 @@ namespace zapread.com.Controllers
             return viewerIgnoredUsers;
         }
 
-        private static List<GroupInfo> GetUserGroups(User user)
+        private static Task<List<GroupInfo>> GetUserGroups(User user, ZapContext db)
         {
-            var gi = new List<GroupInfo>();
-            if (user != null)
-            {
-                // Get list of user subscribed groups (with highest activity on top)
-                int userid = user != null ? user.Id : 0;
-                var userGroups = user.Groups
-                    .Select(grp => new
-                    {
-                        IsModerator = grp.Moderators.Select(m => m.Id).Contains(userid),
-                        IsAdmin = grp.Administrators.Select(m => m.Id).Contains(userid),
-                        TotalIncome = grp.TotalEarned + grp.TotalEarnedToDistribute,
-                        grp,
-                    })
-                    .OrderByDescending(grp => grp.TotalIncome)
-                    .ToList();
-                gi = userGroups.Select(grp => new GroupInfo()
-                {
-                    Id = grp.grp.GroupId,
-                    Name = grp.grp.GroupName,
-                    Icon = grp.grp.Icon,
-                    Level = 1,
+            return db.Users.Where(u => u.Id == user.Id)
+                .SelectMany(u => u.Groups)
+                .OrderByDescending(g => g.TotalEarned)
+                .Select(g => new GroupInfo() {
+                    IsMod = g.Moderators.Select(m => m.Id).Contains(user.Id),
+                    Name = g.GroupName,
+                    Icon = g.Icon,
+                    Level = g.Tier,
                     Progress = 36,
-                    IsMod = grp.IsModerator,
-                    IsAdmin = grp.IsAdmin,
-                }).ToList();
-            }
-            return gi;
+                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(user.Id),
+                }).ToListAsync();
         }
 
         private void ValidateClaims(User user)
