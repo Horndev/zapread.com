@@ -491,17 +491,12 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     User user = await GetCurrentUser(db);
+                    ValidateClaims(user); // Checks user security claims
                     var posts = await GetPosts(
                         start: 0,
                         count: 10,
                         sort: sort ?? "Score",
                         userId: user != null ? user.Id : 0);
-
-                    if (user != null)
-                    {
-                        ValidateClaims(user); // Checks user security claims
-                    }
-
                     PostsViewModel vm = new PostsViewModel()
                     {
                         Posts = await GeneratePostViewModels(user, posts, db),
@@ -585,7 +580,10 @@ namespace zapread.com.Controllers
         {
             try
             {
-                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                if (user != null)
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                }
             }
             catch (Exception)
             {
