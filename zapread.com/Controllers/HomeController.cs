@@ -491,23 +491,18 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     User user = await GetCurrentUser(db);
+                    ValidateClaims(user); // Checks user security claims
                     var posts = await GetPosts(
                         start: 0,
                         count: 10,
                         sort: sort ?? "Score",
                         userId: user != null ? user.Id : 0);
-
-                    if (user != null)
-                    {
-                        ValidateClaims(user); // Checks user security claims
-                    }
-
                     PostsViewModel vm = new PostsViewModel()
                     {
                         Posts = await GeneratePostViewModels(user, posts, db),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
-                        SubscribedGroups = GetUserGroups(user),
+                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db),
                     };
                     return View(vm);
                 }
@@ -566,42 +561,29 @@ namespace zapread.com.Controllers
             return viewerIgnoredUsers;
         }
 
-        private static List<GroupInfo> GetUserGroups(User user)
+        private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
-            var gi = new List<GroupInfo>();
-            if (user != null)
-            {
-                // Get list of user subscribed groups (with highest activity on top)
-                int userid = user != null ? user.Id : 0;
-                var userGroups = user.Groups
-                    .Select(grp => new
-                    {
-                        IsModerator = grp.Moderators.Select(m => m.Id).Contains(userid),
-                        IsAdmin = grp.Administrators.Select(m => m.Id).Contains(userid),
-                        TotalIncome = grp.TotalEarned + grp.TotalEarnedToDistribute,
-                        grp,
-                    })
-                    .OrderByDescending(grp => grp.TotalIncome)
-                    .ToList();
-                gi = userGroups.Select(grp => new GroupInfo()
-                {
-                    Id = grp.grp.GroupId,
-                    Name = grp.grp.GroupName,
-                    Icon = grp.grp.Icon,
-                    Level = 1,
+            return db.Users.Where(u => u.Id == userId)
+                .SelectMany(u => u.Groups)
+                .OrderByDescending(g => g.TotalEarned)
+                .Select(g => new GroupInfo() {
+                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+                    IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
+                    Name = g.GroupName,
+                    Icon = g.Icon,
+                    Level = g.Tier,
                     Progress = 36,
-                    IsMod = grp.IsModerator,
-                    IsAdmin = grp.IsAdmin,
-                }).ToList();
-            }
-            return gi;
+                }).ToListAsync();
         }
 
         private void ValidateClaims(User user)
         {
             try
             {
-                User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                if (user != null)
+                {
+                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                }
             }
             catch (Exception)
             {
