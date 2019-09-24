@@ -1,5 +1,4 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
     // This formats the timestamps on the page
     $('.postTime').each(function (i, e) {
         var time = moment.utc($(e).html()).local().calendar();
@@ -59,7 +58,7 @@ var makeCommentsQuotable = function () {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);
-                selectionText = selection.toString();
+                selectionText = encode(selection.toString());
                 var commentid = $(e).data('commentid');
                 var popText = selectionText + '<hr/>' +
                     '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
@@ -83,6 +82,12 @@ var makeCommentsQuotable = function () {
     });
 };
 
+var encode = function (s) {
+    var x = document.createElement("div");
+    x.innerText = s;
+    return x.innerHTML;
+};
+
 var makePostsQuotable = function () {
     $(".post-quotable").each(function (ix, e) {
         // Trigger when mouse is released (i.e. possible selection made)
@@ -93,7 +98,7 @@ var makePostsQuotable = function () {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);
-                selectionText = selection.toString();
+                selectionText = encode(selection.toString());
                 var postId = $(e).data('postid');
                 var popText = selectionText + '<hr/>' +
                     '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
