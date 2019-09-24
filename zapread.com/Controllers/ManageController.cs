@@ -605,7 +605,24 @@ namespace zapread.com.Controllers
                 List<LNTxViewModel> txnView = GetRecentTransactions(u);
                 List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
                 List<EarningsViewModel> earningsView = GetRecentEarnings(u);
-                List<GroupInfo> gi = GetUserGroups(u);
+
+                List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userId)
+                    .SelectMany(usr => usr.Groups)
+                    .Select(g => new GroupInfo()
+                    {
+                        Id = g.GroupId,
+                        Name = g.GroupName,
+                        Icon = "fa-bolt",
+                        Level = 1,
+                        Progress = 36,
+                        NumPosts = g.Posts.Count(),
+                        UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
+                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
+                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
                 int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync();
                 int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync();
                 int numFollowing = u.Following.Count();
@@ -776,31 +793,6 @@ namespace zapread.com.Controllers
             }
 
             return earningsView;
-        }
-
-        private static List<GroupInfo> GetUserGroups(User u)
-        {
-            var gi = new List<GroupInfo>();
-
-            var userGroups = u.Groups.ToList();
-
-            foreach (var g in userGroups)
-            {
-                gi.Add(new GroupInfo()
-                {
-                    Id = g.GroupId,
-                    Name = g.GroupName,
-                    Icon = "fa-bolt",
-                    Level = 1,
-                    Progress = 36,
-                    NumPosts = g.Posts.Count(),
-                    UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
-                    IsMod = g.Moderators.Contains(u),
-                    IsAdmin = g.Administrators.Contains(u),
-                });
-            }
-
-            return gi;
         }
 
         private static List<string> GetLanguages()
