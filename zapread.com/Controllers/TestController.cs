@@ -19,9 +19,8 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public async Task<ViewResult> UserHover()
+        public ViewResult UserHover()
         {
-
             return View();
         }
 

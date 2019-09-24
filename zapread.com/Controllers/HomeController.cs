@@ -490,16 +490,19 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    User user = await GetCurrentUser(db);
-                    ValidateClaims(user); // Checks user security claims
+                    User user = await GetCurrentUser(db); // it would be nice to remove this line
+
+                    var userAppId = User.Identity.GetUserId();
+                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId)).Id;
+                    await ValidateClaims(userId); // Checks user security claims
                     var posts = await GetPosts(
                         start: 0,
                         count: 10,
                         sort: sort ?? "Score",
-                        userId: user != null ? user.Id : 0);
+                        userId: userId);
                     PostsViewModel vm = new PostsViewModel()
                     {
-                        Posts = await GeneratePostViewModels(user, posts, db),
+                        Posts = await GeneratePostViewModels(user, posts, db, userId),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
                         SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db),
@@ -521,11 +524,17 @@ namespace zapread.com.Controllers
             }
         }
 
-        private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db)
+        private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db, int userId)
         {
-            List<int> viewerIgnoredUsers = GetUserIgnoredUsers(user);
+            List<int> viewerIgnoredUsers = await GetUserIgnoredUsers(userId);
             var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                        .Select(gr => new
+                        {
+                            gr.GroupId,
+                            pc = gr.Posts.Count,
+                            mc = gr.Members.Count,
+                            l = gr.Tier
+                        })
                         .AsNoTracking()
                         .ToListAsync();
             var groupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc);
@@ -541,7 +550,7 @@ namespace zapread.com.Controllers
                     ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                     ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
                     NumComments = 0,
-                    ViewerIgnoredUsers = viewerIgnoredUsers,
+                    ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
                     GroupMemberCounts = groupMemberCounts,
                     GroupPostCounts = groupPostCounts,
                     GroupLevels = groupLevels,
@@ -549,16 +558,23 @@ namespace zapread.com.Controllers
             return postViews;
         }
 
-        private static List<int> GetUserIgnoredUsers(User user)
+        private static async Task<List<int>> GetUserIgnoredUsers(int userId)
         {
-            List<int> viewerIgnoredUsers = new List<int>();
-
-            if (user != null && user.IgnoringUsers != null)
+            if (userId > 0)
             {
-                viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
+                using (var db = new ZapContext())
+                {
+                    return await db.Users
+                        .Where(u => u.Id == userId)
+                        .SelectMany(u => u.IgnoringUsers.Select(i => i.Id))
+                        .Where(i => i != userId)
+                        .ToListAsync();
+                }
             }
-
-            return viewerIgnoredUsers;
+            else
+            {
+                return new List<int>();
+            }
         }
 
         private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
@@ -567,22 +583,32 @@ namespace zapread.com.Controllers
                 .SelectMany(u => u.Groups)
                 .OrderByDescending(g => g.TotalEarned)
                 .Select(g => new GroupInfo() {
+                    Id = g.GroupId,
                     IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
                     IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
                     Name = g.GroupName,
                     Icon = g.Icon,
                     Level = g.Tier,
                     Progress = 36,
-                }).ToListAsync();
+                })
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        private void ValidateClaims(User user)
+        private async Task ValidateClaims(int userId)
         {
             try
             {
-                if (user != null)
+                if (userId > 0)
                 {
-                    User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
+                    using (var db = new ZapContext())
+                    {
+                        var us = await db.Users
+                            .Where(u => u.Id == userId)
+                            .Select(u => u.Settings)
+                            .FirstOrDefaultAsync();
+                        User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
+                    }
                 }
             }
             catch (Exception)
