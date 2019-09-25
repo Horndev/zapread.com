@@ -333,7 +333,7 @@ namespace zapread.com.Controllers
             if (amount == null || amount.Value < 1)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { Result = "Failure", Message = "Invalid amount" });
+                return Json(new { success=false, Result = "Failure", Message = "Invalid amount" });
             }
             
             using (var db = new ZapContext())
@@ -347,7 +347,7 @@ namespace zapread.com.Controllers
                 if (receiver == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { Result = "Failure", Message = "User not found." });
+                    return Json(new { success = false, Result = "Failure", Message = "User not found." });
                 }
 
                 if (tx == null)

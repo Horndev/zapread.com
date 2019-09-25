@@ -77,19 +77,38 @@ var stickyPost = function (id) {
 };
 
 var nsfwPost = function (id) {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
     $.ajax({
         type: "POST",
         url: "/Post/ToggleNSFW",
         data: JSON.stringify({ "id": id }),
         dataType: "json",
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         success: function (result) {
-            if (result.Result === "Success") {
-                alert("Post successfully toggled NSFW.");
+            if (result.success) {
+                var message = "Successfully removed NSFW flag from post.";
+                if (result.IsNSFW) {
+                    message = "Successfully marked post NSFW.";
+                }
+                swal(message, {
+                    icon: "success"
+                });
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("fail");
+        failure: function (response) {
+            swal(response.message, {
+                icon: "error"
+            });
+        },
+        error: function (response) {
+            swal(response.message, {
+                icon: "error"
+            });
         }
     });
 };
