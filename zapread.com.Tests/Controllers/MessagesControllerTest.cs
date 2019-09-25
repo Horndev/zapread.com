@@ -82,7 +82,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.All().Result as ViewResult;
+            ViewResult result = controller.All() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
