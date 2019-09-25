@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -154,26 +155,42 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> ToggleNSFW(int id)
         {
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Credentials failure" }, JsonRequestBehavior.AllowGet);
+            }
+
             using (var db = new ZapContext())
             {
-                var post = db.Posts
-                    .Include("UserId")
-                    .FirstOrDefault(p => p.PostId == id);
+                var post = await db.Posts
+                    .Include(p => p.UserId)
+                    .FirstOrDefaultAsync(p => p.PostId == id);
 
                 if (post == null)
                 {
-                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, message = "Invalid post" }, JsonRequestBehavior.AllowGet);
                 }
 
-                if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || post.UserId.GroupModeration.Select(g => g.GroupId).Contains(post.Group.GroupId))
+                var callingUserIsMod = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.GroupModeration.Select(g => g.GroupId))
+                    .ContainsAsync(post.Group.GroupId);
+
+                if (post.UserId.AppId == userId 
+                    || UserManager.IsInRole(userId, "Administrator") 
+                    || callingUserIsMod)
                 {
                     post.IsNSFW = !post.IsNSFW;
 
                     // Alert the post owner
-
                     var postOwner = post.UserId;
 
                     // Add Alert
@@ -187,15 +204,14 @@ namespace zapread.com.Controllers
                         To = postOwner,
                         PostLink = post,
                     };
-
                     postOwner.Alerts.Add(alert);
-
                     await db.SaveChangesAsync();
-                    return Json(new { Result = "Success" }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success=true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { message = "Credentials failure" }, JsonRequestBehavior.AllowGet);
                 }
             }
         }

@@ -6,6 +6,7 @@
  * @param {any} id : object id
  * @returns {bool} : true on success
  */
+/* exported dismiss */
 var dismiss = function (t, id) {
     var url = "";
     if (t === 1) {
@@ -58,6 +59,7 @@ var dismiss = function (t, id) {
     return false;
 };
 
+/* exported stickyPost */
 var stickyPost = function (id) {
     $.ajax({
         type: "POST",
@@ -76,29 +78,51 @@ var stickyPost = function (id) {
     });
 };
 
+/* exported nsfwPost */
 var nsfwPost = function (id) {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
     $.ajax({
         type: "POST",
         url: "/Post/ToggleNSFW",
         data: JSON.stringify({ "id": id }),
         dataType: "json",
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         success: function (result) {
-            if (result.Result === "Success") {
-                alert("Post successfully toggled NSFW.");
+            if (result.success) {
+                var message = "Successfully removed NSFW flag from post.";
+                if (result.IsNSFW) {
+                    message = "Successfully marked post NSFW.";
+                }
+                swal(message, {
+                    icon: "success"
+                });
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("fail");
+        failure: function (response) {
+            swal(response.message, {
+                icon: "error"
+            });
+        },
+        error: function (response) {
+            swal(response.message, {
+                icon: "error"
+            });
         }
     });
 };
 
+/* exported showNSFW */
 var showNSFW = function (id) {
     $("#nsfw_" + id).hide();
     $("#nsfwb_" + id).hide();
 };
 
+/* exported deleteComment */
 var deleteComment = function (id) {
     swal({
         title: "Are you sure?",
@@ -127,6 +151,7 @@ var deleteComment = function (id) {
     });
 };
 
+/* exported setPostLanguage */
 var setPostLanguage = function (id) {
     swal({
         text: 'Enter new language code',
@@ -159,6 +184,7 @@ var setPostLanguage = function (id) {
     });
 };
 
+/* exported deletePost */
 var deletePost = function (id) {
     swal({
         title: "Are you sure?",
@@ -188,8 +214,10 @@ var deletePost = function (id) {
 };
 
 // For submitting comments (TODO: move this to own file)
+/* exported isCommenting */
 var isCommenting = false;
 
+/* exported submitCommentA */
 var submitCommentA = function (postId, commentId, isReply) {
     if (!isCommenting) {
         var action = "/Comment/AddComment";
@@ -235,6 +263,7 @@ var submitCommentA = function (postId, commentId, isReply) {
     return false;
 };
 
+/* exported onAjaxCommentSuccessA */
 var onAjaxCommentSuccessA = function (result) {
     $('#cs_' + result.PostId.toString()).hide();
     $('#csr_' + result.CommentId.toString()).hide();
@@ -278,6 +307,7 @@ var onAjaxCommentSuccessA = function (result) {
     }
 };
 
+/* exported dofeedback */
 var dofeedback = function () {
     var msg = $('#feedbackText').val();
     var feebackLocation = window.location.href;
@@ -295,6 +325,7 @@ var dofeedback = function () {
     $('.small-chat-box').toggleClass('active');
 };
 
+/* exported OkButton */
 var OkButton = function (context) {
     var ui = $.summernote.ui;
 
@@ -324,6 +355,7 @@ var OkButton = function (context) {
 return button.render();   // return button as jquery object
         };
 
+/* exported CancelButton */
 var CancelButton = function (context) {
     var ui = $.summernote.ui;
     // create button
@@ -343,6 +375,7 @@ var CancelButton = function (context) {
 
 var editingId = -1;
 var isEditing = false;
+/* exported editComment */
 var editComment = function (id) {
     if (!isEditing) {
         console.log("edit " + id.toString());
