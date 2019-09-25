@@ -37,7 +37,7 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<ActionResult> Chats()
+        public ActionResult Chats()
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -47,7 +47,7 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public async Task<ActionResult> All()
+        public ActionResult All()
         {
             return View();
         }

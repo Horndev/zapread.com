@@ -15,6 +15,15 @@ namespace zapread.com.Services
             new FirstPost(),
             new FirstFollowing(),
             new FirstFollowed(),
+            new FirstComment(),
+            new OneThousandReputation(),
+            new FirstLNDeposit(),
+            new FirstLNWithdraw(),
+            new TenThousandReputation(),
+            new HunderedThousandReputation(),
+            new HunderedImpressions(),
+            new FiveHunderedImpressions(),
+            new ThousandImpressions(),
         };
 
         public void CheckAchievements()
@@ -63,6 +72,132 @@ namespace zapread.com.Services
         }
     }
 
+    public class ThousandImpressions : IAchievementCriteria
+    {
+        public string Name { get => "1,000 Impressions"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Posts.Where(p => p.Impressions >= 1000).Any());
+
+            return newUsersAchieved;
+        }
+    }
+    public class FiveHunderedImpressions : IAchievementCriteria
+    {
+        public string Name { get => "500 Impressions"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Posts.Where(p => p.Impressions >= 500).Any());
+
+            return newUsersAchieved;
+        }
+    }
+    public class HunderedImpressions : IAchievementCriteria
+    {
+        public string Name { get => "100 Impressions"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Posts.Where(p => p.Impressions >= 100).Any());
+
+            return newUsersAchieved;
+        }
+    }
+    public class FirstLNWithdraw : IAchievementCriteria
+    {
+        public string Name { get => "First LN Withdraw"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.LNTransactions.Where(t => !t.IsDeposit && t.IsSettled).Count() > 0);
+
+            return newUsersAchieved;
+        }
+    }
+    public class FirstLNDeposit : IAchievementCriteria
+    {
+        public string Name { get => "First LN Deposit"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.LNTransactions.Where(t => t.IsDeposit && t.IsSettled).Count() > 0);
+
+            return newUsersAchieved;
+        }
+    }
+    public class HunderedThousandReputation : IAchievementCriteria
+    {
+        public string Name { get => "100,000 Reputation"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Reputation >= 100000);
+
+            return newUsersAchieved;
+        }
+    }
+    public class TenThousandReputation : IAchievementCriteria
+    {
+        public string Name { get => "10,000 Reputation"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Reputation >= 10000);
+
+            return newUsersAchieved;
+        }
+    }
+    public class OneThousandReputation : IAchievementCriteria
+    {
+        public string Name { get => "1000 Reputation"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Reputation >= 1000);
+
+            return newUsersAchieved;
+        }
+    }
+    public class FirstComment : IAchievementCriteria
+    {
+        public string Name { get => "First Comment"; }
+
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.Comments.Count() > 0);
+
+            return newUsersAchieved;
+        }
+    }
     public class FirstFollowed : IAchievementCriteria
     {
         public string Name { get => "First Followed"; }
@@ -77,7 +212,6 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
-
     public class FirstFollowing : IAchievementCriteria
     {
         public string Name { get => "First Following"; }
@@ -92,7 +226,6 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
-
     public class FirstPost : IAchievementCriteria
     {
         public string Name { get => "First Post"; }
@@ -107,7 +240,6 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
-
     public interface IAchievementCriteria
     {
         string Name { get; }

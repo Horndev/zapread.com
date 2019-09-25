@@ -3,18 +3,7 @@
 <div class="row">
     <div class="col">
         <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.User.AppId })" />
-        
         <span style="display:inline"><strong>@Model.User.Name</strong></span>
-
-        @*<a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Follow' onclick='follow(@Model.Id,1);'>
-            <i class='fa fa-user-plus'></i>
-        </a>
-        <a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tip' onclick='alert("Not yet implemented.");'>
-            <i class='fa fa-bolt'></i>
-        </a>
-        <a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Ignore' onclick='alert("Not yet implemented.  Please go to user page to ignore.");'>
-            <i class='fa fa-minus-circle'></i>
-        </a>*@
     </div>
 </div>
 <div class="row">
@@ -27,13 +16,13 @@
         </a>
         @if (Model.IsFollowing)
         {
-            <a href='javascript:void(0);' class='btn btn-sm btn-link' title='Un-follow' onclick='follow(@Model.User.Id,0);'>
+            <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Un-follow' onclick='follow(@Model.User.Id,0, this);'>
                 <i class='fa fa-user'></i><i class='fa fa-check'></i>
             </a>
         }
         else
         {
-            <a href='javascript:void(0);' class='btn btn-sm btn-link' title='Follow' onclick='follow(@Model.User.Id,1);'>
+            <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Follow' onclick='follow(@Model.User.Id,1, this);'>
                 <i class='fa fa-user-plus'></i>
             </a>
         }
