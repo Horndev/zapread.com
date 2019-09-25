@@ -244,7 +244,7 @@ var replyComment = function (id) {
     });
 };
 
-var follow = function (uid, s) {
+var follow = function (uid, s, e) {
     var msg = JSON.stringify({ 'id': uid, 's': s });
     $.ajax({
         type: "POST",
@@ -254,11 +254,20 @@ var follow = function (uid, s) {
         dataType: "json",
         success: function (response) {
             if (response.Result === "Success") {
-                if (s === 1) {
-                    // Subscribe
+                if (s === 1) { // Subscribed
+                    if ($(e).hasClass('hover-follow')) {
+                        $(e).html("<i class='fa fa-user'></i><i class='fa fa-check'></i>");
+                        $(e).attr('title', 'Un-follow');
+                        $(e).attr('onclick', 'follow(' + uid + ',0, this);');
+                    }
                     $('#subBtnText').html("Unsubscribe");
                     $('#sublink').attr("onclick", "follow(uid,0);");
-                } else {
+                } else { // Un-subscribed
+                    if ($(e).hasClass('hover-follow')) {
+                        $(e).html("<i class='fa fa-user-plus'></i>");
+                        $(e).attr('title', 'Follow');
+                        $(e).attr('onclick', 'follow(' + uid +',1, this);');
+                    }
                     $('#subBtnText').html("Subscribe");
                     $('#sublink').attr("onclick", "follow(uid,1);");
                 }
