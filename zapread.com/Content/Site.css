@@ -1461,10 +1461,6 @@ button.dim:active:before {
     font-size: 50px;
 }
 
-.btn:focus {
-    outline: none !important;
-}
-
 .label {
     background-color: #d1dade;
     color: #5e5e5e;
