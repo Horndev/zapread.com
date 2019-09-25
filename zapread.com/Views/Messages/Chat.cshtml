@@ -1,5 +1,7 @@
 ﻿@model zapread.com.Models.ChatMessagesViewModel
-
+@{
+	ViewBag.Title = "Chat with " + @Model.OtherUser.Name;
+}
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
