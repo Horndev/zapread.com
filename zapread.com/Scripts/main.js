@@ -101,6 +101,7 @@ $(document).ready(function () {
 
 }); // End document ready
 
+/* exported writeComment */
 var writeComment = function (e) {
     var id = $(e).data("postid");
     console.log('writeComment id: ' + id.toString());
@@ -111,6 +112,7 @@ var writeComment = function (e) {
     return false;
 };
 
+/* exported toggleChat */
 var toggleChat = function (id, show) {
     show = typeof show !== 'undefined' ? show : false;
     initCommentInput(id);
@@ -169,6 +171,7 @@ var initCommentInput = function (id) {
     return false;
 };
 
+/* exported loadMoreComments */
 var loadMoreComments = function (e) {
     var msg = JSON.stringify({ 'postId': $(e).data('postid'), 'nestLevel': $(e).data('nest'), 'rootshown': $(e).data('shown') });
     $.ajax({
@@ -199,6 +202,7 @@ var loadMoreComments = function (e) {
     return false;
 };
 
+/* exported replyComment */
 var replyComment = function (id) {
     $('#c_reply_' + id.toString()).toggle('show');
     $('#c_reply_' + id.toString()).load('/Comment/GetInputBox' + "/" + id.toString(), function () {
@@ -244,6 +248,7 @@ var replyComment = function (id) {
     });
 };
 
+/* exported follow */
 var follow = function (uid, s, e) {
     var msg = JSON.stringify({ 'id': uid, 's': s });
     $.ajax({
@@ -286,6 +291,7 @@ var follow = function (uid, s, e) {
     return false;
 };
 
+/* exported sendFile */
 function sendFile(file, that) {
     var data = new FormData();
     data.append('file', file);
