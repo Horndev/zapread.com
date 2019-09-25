@@ -315,7 +315,7 @@ namespace zapread.com.Controllers
                         return Json(new { result = "failure", success = false, message = "User mismatch" });
                     }
 
-                    post.PostTitle = p.Title.CleanUnicode().SanitizeXSS();
+                    post.PostTitle = p.Title == null ? "" : p.Title.CleanUnicode().SanitizeXSS();
                     post.Group = postGroup;
                     post.Content = contentStr;
                     post.Language = p.Language ?? post.Language;
@@ -355,7 +355,7 @@ namespace zapread.com.Controllers
                         Group = postGroup,
                         TimeStamp = DateTime.UtcNow,
                         VotesUp = new List<User>() { user },
-                        PostTitle = p.Title.CleanUnicode().SanitizeXSS(),
+                        PostTitle = p.Title == null ? "" : p.Title.CleanUnicode().SanitizeXSS(),
                         IsDraft = p.IsDraft,
                         Language = p.Language,
                     };
@@ -636,7 +636,7 @@ namespace zapread.com.Controllers
 
                 string contentStr = p.Content.SanitizeXSS();
                 post.Content = contentStr;
-                post.PostTitle = p.Title;
+                post.PostTitle = p.Title == null ? "" : p.Title.CleanUnicode().SanitizeXSS();
 
                 if (post.IsDraft)
                 {
