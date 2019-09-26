@@ -5,7 +5,22 @@ This guide lays out a few simple principals that have been adopted to help us al
 
 ## Bug reports
 
-If you identify an problem, please report it using the issue tracker
+If you identify an problem, please report it using the github issue tracker.
+
+## Setting up local development
+
+1.  Download Visual Studio Community 2017 or 2019 (free).  https://visualstudio.microsoft.com/
+1.  Clone the repository and all submodules
+1.  Set up the AppSettings.config file (copy AppSettings.config.template to AppSettings.config)
+1.  Set up the database.config file (copy database.config.template to database.config)
+1.  Open zapread.com.sln with Visual Studio
+1.  In the Package Manager Console, run `Update-Package Microsoft.CodeDom.Providers.DotNetCompilerPlatform -r` to set up compiler
+1.  Run zapread.com (e.g. press F5)
+1.  Go to /Home/Install/ to bootstrap database
+
+## Contributing your changes
+
+Submit a github pull request to the dev branch.
 
 ## Documentation
 
