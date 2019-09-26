@@ -1706,6 +1706,7 @@
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.js" />
