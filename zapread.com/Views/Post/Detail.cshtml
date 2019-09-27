@@ -46,6 +46,7 @@
 @section Scripts {
     @Scripts.Render("~/bundles/post/detail")
     <script type="text/javascript">
+        var ub = 0;
         var IsAuthenticated = @if (Request.IsAuthenticated) { <text>true</text> } else { <text>false</text> };
         var detailPostId = @Model.Post.PostId;
         var detailPostVote = @if (ViewBag.vote != null) { <text>@ViewBag.vote</text>} else { <text>0</text> };
