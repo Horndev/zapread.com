@@ -4851,7 +4851,7 @@ code {
 }
 
 .ibox-content {
-    background-color: #2b2b2b;
+    /*background-color: #2b2b2b;*/
     color: inherit;
     padding: 15px 20px 20px 20px;
     border-color: #2b2b2b;
