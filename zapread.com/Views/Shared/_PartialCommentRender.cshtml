@@ -13,7 +13,7 @@
 }
 
 <div class="media-body" id="comment_@Model.Comment.CommentId" style="min-height: 24px;">
-    <button class="btn btn-sm btn-link @if (Model.StartVisible) {<text>pull-left</text>}" style="display:flex;padding-left: 4px;" onclick="toggleComment(this);">
+    <button class="btn btn-sm btn-link @if (Model.StartVisible) {<text>pull-left</text>} comment-toggle" style="display:flex;padding-left: 4px;" onclick="toggleComment(this,0);">
         <i class="fa @if (!Model.StartVisible) {<text>fa-plus-square</text>} else {<text>fa-minus-square</text>} togglebutton" style="padding-top: 2px;"></i> <span id="cel" class="btn btn-link btn-sm" style="@if (Model.StartVisible) {<text>display:none;</text>}font-size: 10pt; border-top-width: 0px; padding-top: 0px; vertical-align: top;"> [@Model.Comment.Score] Show comment...</span>
     </button>
     <div class="comment-body" style="width:100%;@if (!Model.StartVisible) {<text>display:none;</text> } ">

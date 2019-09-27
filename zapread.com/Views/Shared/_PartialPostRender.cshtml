@@ -214,7 +214,7 @@
             </div>
         </div>
     }
-        <div id=@("comments_" + @Model.Post.PostId.ToString()) @*@if (Model.NumComments < 1) { <text> style="display: none" </text> }*@>
+        <div class="social-comment-box" id=@("comments_" + @Model.Post.PostId.ToString()) @*@if (Model.NumComments < 1) { <text> style="display: none" </text> }*@>
             @if (Model.Post.Comments != null)
                 {
                     var numshown = 0;
