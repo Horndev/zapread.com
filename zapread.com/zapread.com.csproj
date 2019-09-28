@@ -1701,6 +1701,7 @@
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
+    <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\index.js" />
     <Content Include="Scripts\Groups\members.js" />
@@ -1850,6 +1851,7 @@
     <Content Include="Views\User\_PartialUserAchievement.cshtml" />
     <Content Include="Views\User\Achievements.cshtml" />
     <Content Include="Views\User\_PartialUserAchievementBoxed.cshtml" />
+    <Content Include="Views\Home\Install.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Comment\" />

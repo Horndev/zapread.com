@@ -66,6 +66,11 @@ namespace zapread.com
                         "~/Scripts/Achievements/achievementhover.js")
                         .WithLastModifiedToken());
 
+            // Home/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
+                        "~/Scripts/Admin/install.js")
+                        .WithLastModifiedToken());
+
             // Post/Detail scripts
             bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
                         "~/Scripts/Posts/post-detail.js")

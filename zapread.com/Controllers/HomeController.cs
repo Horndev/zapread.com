@@ -317,6 +317,12 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         public async Task<ActionResult> Install()
         {
+            var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
+            if (!Convert.ToBoolean(isenabled))
+            {
+                return RedirectToAction("Index");
+            }
+
             using (var db = new ZapContext())
             {
                 var zapreadGlobals = await db.ZapreadGlobals
@@ -364,7 +370,33 @@ namespace zapread.com.Controllers
                     db.SaveChanges();
                 }
                 
-                return Json(new { result = "success" }, JsonRequestBehavior.AllowGet);
+                return View();
+            }
+        }
+
+        [HttpPost, Route("Home/Install/GrantAdmin"), ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> GrantAdmin(string adminKey, string grantUser)
+        {
+            var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
+            if (!Convert.ToBoolean(isenabled))
+            {
+                return Json(new { success = false, message = "Install disabled." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var adminKeySetting = System.Configuration.ConfigurationManager.AppSettings["AdminMasterPassword"];
+                if (adminKey != adminKeySetting)
+                {
+                    return Json(new { success = false, message = "Invalid Key." });
+                }
+
+                var u = await db.Users
+                    .Where(usr => usr.Name == grantUser)
+                    .FirstOrDefaultAsync();
+
+
+                return Json(new { success=false });
             }
         }
 

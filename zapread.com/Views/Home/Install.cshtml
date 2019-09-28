@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "ZapRead Install Page";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>ZapRead Install Page</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Install</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="ibox float-e-margins">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-1">
+        </div>
+        <div class="col-lg-10">
+            <div class="ibox-content no-padding">
+                <div class="sk-spinner sk-spinner-three-bounce">
+                    <div class="sk-bounce1"></div>
+                    <div class="sk-bounce2"></div>
+                    <div class="sk-bounce3"></div>
+                </div>
+                <div class="wrapper p-md">
+                    <form>
+                        <div class="form-group">
+                            <label>Administration Key</label>
+                            <input id="ZRAdminKey" type="text" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Grant User Site Admin</label>
+                            <input id="Username" type="text" class="form-control" value="@User.Identity.Name" />
+                            <br />
+                            <a href="#" class="btn btn-sm btn-primary" onclick="grantSiteAdmin()">Grant</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/admin/install")
+}
