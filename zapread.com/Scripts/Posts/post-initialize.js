@@ -1,12 +1,11 @@
-﻿$(document).ready(function () {
+﻿/**/
+
+$(document).ready(function () {
     // This formats the timestamps on the page
     $('.postTime').each(function (i, e) {
-        //var time = moment.utc($(e).html()).local().calendar();
-        //var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
         var datefn = dateFns.parse($(e).html());
         var time = dateFns.distanceInWordsToNow(datefn);
         $(e).html('<span>' + time + ' ago </span>');
-        //$(e).html('<span>' + time + ' - ' + date + '</span>');
         $(e).css('display', 'inline');
         $(e).removeClass("postTime");
     });
@@ -57,7 +56,7 @@ var makeCommentsQuotable = function () {
         $(e).mouseup(function () {
             var selection = getSelected();
             $(selectionMarker).popover('hide');
-            if (selection && selection != "") {
+            if (selection && selection !== "") {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);
@@ -97,7 +96,7 @@ var makePostsQuotable = function () {
         $(e).mouseup(function () {
             var selection = getSelected();
             $(selectionMarker).popover('hide');
-            if (selection && selection != "") {
+            if (selection && selection !== "") {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);

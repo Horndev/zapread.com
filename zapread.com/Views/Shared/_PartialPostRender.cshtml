@@ -180,7 +180,7 @@
         </div>
         <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
             <div id="pc_@Model.Post.PostId.ToString()" class="social-comment">
-                <div class="ibox-content no-padding ibox-comment">
+                <div class="ibox-content no-padding ibox-comment" style="background-color:inherit">
                     <div class="sk-spinner sk-spinner-three-bounce">
                         <div class="sk-bounce1"></div>
                         <div class="sk-bounce2"></div>
@@ -207,7 +207,7 @@
             </div>
         </div>
     }
-        <div class="social-comment-box" id=@("comments_" + @Model.Post.PostId.ToString()) @*@if (Model.NumComments < 1) { <text> style="display: none" </text> }*@>
+        <div class="social-comment-box" id="@("comments_" + @Model.Post.PostId.ToString())">
             @if (Model.Post.Comments != null)
                 {
                     var numshown = 0;
