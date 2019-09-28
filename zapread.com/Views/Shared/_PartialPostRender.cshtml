@@ -105,41 +105,34 @@
         @if (!Model.ViewerIgnoredUser)
         {
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
-                <img class="img-circle userhint" data-userid="@Model.Post.UserId.Id" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
+                <img class="img-circle userhint" data-userid="@Model.Post.UserId.Id" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.Post.UserId.AppId })" />
             </a>
         }
             <div class="media-body">
-                @*<div id="@(Model.IsFirstPost ? "postUserName" : "")">*@
-                @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })
-                @if (Model.Post.IsSticky)
-                {
-                    <span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>
-                }
-                posted in
-                <a id="@(Model.IsFirstPost ? "postGroupName" : "")" class="pop " data-container="body" data-toggle="popover" data-placement="top"
-                   data-content="<span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>@Model.GroupLevels[Model.Post.Group.GroupId]<i class='fa fa-arrow-up'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>@Model.GroupPostCounts[Model.Post.Group.GroupId] <i class='fa fa-pencil'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>@Model.GroupMemberCounts[Model.Post.Group.GroupId] <i class='fa fa-user'></i></span><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert(&quot;Not yet implemented. Check back soon&quot;);'><i class='fa fa-plus'></i></a>"
-                   data-original-title="" title="" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
-                    @Model.Post.Group.GroupName
+                <a class="vote-title" href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
+                    @if (Model.Post.PostTitle == null)
+                    {
+                        <text>Post</text>
+                    }
+                    else
+                    {
+                        @Model.Post.PostTitle
+                    }
                 </a>
-                <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
-                @if (Model.Post.TimeStampEdited != null)
-                {
-                    <span class="text-muted" style="display:inline"> edited </span>
-                    <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
-                }
-                <span class="appear" data-src="/Post/Impressions/@Model.Post.PostId"></span>
-                <h3 class="@(Model.IsFirstPost ? "firstPostTitle" : "")" style="display: block;">
-                    <a href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })">
-                        @if (Model.Post.PostTitle == null)
-                        {
-                            <text>Post</text>
-                        }
-                        else
-                        {
-                            @Model.Post.PostTitle
-                        }
+                <div class="vote-info">
+                    @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.Post.IsSticky){<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in<a id="@(Model.IsFirstPost ? "postGroupName" : "")" class="pop " data-container="body" data-toggle="popover" data-placement="top"
+                       data-content="<span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>@Model.GroupLevels[Model.Post.Group.GroupId]<i class='fa fa-arrow-up'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>@Model.GroupPostCounts[Model.Post.Group.GroupId] <i class='fa fa-pencil'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>@Model.GroupMemberCounts[Model.Post.Group.GroupId] <i class='fa fa-user'></i></span><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert(&quot;Not yet implemented. Check back soon&quot;);'><i class='fa fa-plus'></i></a>"
+                       data-original-title="" title="" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
+                       @Model.Post.Group.GroupName
                     </a>
-                </h3>
+                    <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
+                    @if (Model.Post.TimeStampEdited != null)
+                    {
+                        <span class="text-muted" style="display:inline"> edited </span>
+                        <small class="postTime text-muted" style="display: none">@Model.Post.TimeStampEdited.Value.ToString("o")</small>
+                    }
+                    <span class="appear" data-src="/Post/Impressions/@Model.Post.PostId"></span>
+                </div>
             </div>
     </div>
     <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>

@@ -6905,7 +6905,7 @@ table.shoping-cart-table {
 }
 
 .social-avatar {
-    padding: 15px 15px 1px 15px;
+    padding: 10px 15px 1px 15px;
 }
 
 .social-comment .social-comment {
@@ -6913,13 +6913,13 @@ table.shoping-cart-table {
 }
 
 .social-avatar img {
-    height: 40px;
-    width: 40px;
+    /*height: 40px;
+    width: 40px;*/
     margin-right: 10px;
 }
 
 .social-avatar .media-body a {
-    font-size: 14px;
+    /*font-size: 14px;*/
     /*display: block;*/
 }
 
@@ -7001,8 +7001,8 @@ table.shoping-cart-table {
     color: inherit;
     font-size: 18px;
     font-weight: 600;
-    margin-top: 5px;
-    margin-bottom: 2px;
+    /*margin-top: 5px;*/
+    /*margin-bottom: 2px;*/
 }
 
     .vote-title:hover,
@@ -7012,8 +7012,11 @@ table.shoping-cart-table {
 
 .vote-info,
 .vote-title {
-    margin-left: 45px;
+    margin-left: 75px;
 }
+    .vote-title:hover {
+        color: #1ab394;
+    }
 
     .vote-info,
     .vote-info a {
@@ -7022,7 +7025,10 @@ table.shoping-cart-table {
     }
 
         .vote-info a {
-            margin-right: 10px;
+            font-size: 14px;
+            color: #676a6c;
+            font-weight: 600
+            /*margin-right: 10px;*/
         }
 
             .vote-info a:hover {
