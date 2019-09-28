@@ -1629,6 +1629,7 @@
     <Content Include="node_modules\datatables.net-scroller-bs4\css\scroller.bootstrap4.min.css" />
     <Content Include="node_modules\datatables.net-scroller-bs4\js\scroller.bootstrap4.min.js" />
     <Content Include="node_modules\datatables.net\js\jquery.dataTables.min.js" />
+    <Content Include="node_modules\date-fns-1\dist\date_fns.min.js" />
     <Content Include="node_modules\dropzone\dist\dropzone.js" />
     <Content Include="node_modules\dropzone\dist\min\basic.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.css" />
