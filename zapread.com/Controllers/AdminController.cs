@@ -26,7 +26,7 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
-    [Authorize(Roles = "Administrator", Users = "Zelgada")]
+    [Authorize(Roles = "Administrator")]
     public class AdminController : Controller
     {
         private ApplicationUserManager _userManager;
@@ -53,6 +53,54 @@ namespace zapread.com.Controllers
             {
                 var votes = await db.SpendingEvents.Take(100).ToListAsync();
                 return View();
+            }
+        }
+
+        [AllowAnonymous] // Needed since we are doing this during install
+        [HttpPost, Route("Admin/Install/GrantAdmin"), ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> GrantAdmin(string adminKey, string grantUser)
+        {
+            var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
+            if (!Convert.ToBoolean(isenabled))
+            {
+                return Json(new { success = false, message = "Install disabled." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var adminKeySetting = System.Configuration.ConfigurationManager.AppSettings["AdminMasterPassword"];
+                if (adminKey != adminKeySetting)
+                {
+                    return Json(new { success = false, message = "Invalid Key." });
+                }
+
+                var u = await db.Users
+                    .Where(usr => usr.Name == grantUser)
+                    .FirstOrDefaultAsync();
+
+                // Ensure the role exists
+                if (!(await RoleManager.RoleExistsAsync("Administrator")))
+                {
+                    // role does not exist
+                    var createResult = await RoleManager.CreateAsync(new Microsoft.AspNet.Identity.EntityFramework.IdentityRole()
+                    {
+                        Name = "Administrator"
+                    });
+
+                    if (!createResult.Succeeded)
+                    {
+                        return Json(new { success = false, message = "Error Creating Role" });
+                    }
+                }
+
+                var addResult = await this.UserManager.AddToRoleAsync(u.AppId, "Administrator");
+
+                if (!addResult.Succeeded)
+                {
+                    return Json(new { success = false, message = "Error Adding to Role" });
+                }
+
+                return Json(new { success = true });
             }
         }
 

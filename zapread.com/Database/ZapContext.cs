@@ -7,7 +7,7 @@ namespace zapread.com.Database
 {
     public class ZapContext : DbContext
     {
-        public ZapContext() : base("name=ZapreadAzure")
+        public ZapContext() : base("name=" + System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"])
         {
 
         }

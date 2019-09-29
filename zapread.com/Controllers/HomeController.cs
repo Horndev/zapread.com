@@ -374,32 +374,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpPost, Route("Home/Install/GrantAdmin"), ValidateJsonAntiForgeryToken]
-        public async Task<ActionResult> GrantAdmin(string adminKey, string grantUser)
-        {
-            var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
-            if (!Convert.ToBoolean(isenabled))
-            {
-                return Json(new { success = false, message = "Install disabled." });
-            }
-
-            using (var db = new ZapContext())
-            {
-                var adminKeySetting = System.Configuration.ConfigurationManager.AppSettings["AdminMasterPassword"];
-                if (adminKey != adminKeySetting)
-                {
-                    return Json(new { success = false, message = "Invalid Key." });
-                }
-
-                var u = await db.Users
-                    .Where(usr => usr.Name == grantUser)
-                    .FirstOrDefaultAsync();
-
-
-                return Json(new { success=false });
-            }
-        }
-
         [HttpPost]
         public async Task<JsonResult> DismissTour(int id)
         {

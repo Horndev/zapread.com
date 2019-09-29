@@ -14,7 +14,7 @@ var grantSiteAdmin = function () {
     $.ajax({
         async: true,
         type: "POST",
-        url: "Home/Install/GrantAdmin/",
+        url: "/Admin/Install/GrantAdmin/",
         data: msg,
         headers: headers,
         contentType: "application/json; charset=utf-8",

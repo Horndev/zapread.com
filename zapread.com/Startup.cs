@@ -11,7 +11,7 @@ namespace zapread.com
         public void Configuration(IAppBuilder app)
         {
             // Set DB used by Hangfire
-            GlobalConfiguration.Configuration.UseSqlServerStorage("ZapreadAzure");
+            GlobalConfiguration.Configuration.UseSqlServerStorage(System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"]);
 
             ConfigureAuth(app);
 
