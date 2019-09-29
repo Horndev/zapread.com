@@ -3,6 +3,7 @@
   <!--Set this value to something private, only top admin should know it--> 
   <add key="AdminMasterPassword" value="admin"/>
   <add key="EnableInstall" value="true"/>
+  <add key="SiteConnectionString" value="ZapreadLocal"/>
   
   <add key="webpages:Version" value="3.0.0.0" />
   <add key="webpages:Enabled" value="false" />

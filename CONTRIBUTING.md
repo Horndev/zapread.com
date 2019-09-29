@@ -18,6 +18,15 @@ If you identify an problem, please report it using the github issue tracker.
 1.  Run zapread.com (e.g. press F5)
 1.  Go to /Home/Install/ to bootstrap database
 
+### Creating your admin account and security
+
+1.	Set the AppSettings.config key `AdminMasterPassword` to any private value you wish.
+1.  Navigate to /Home/Install/
+1.  Enter the key in the page, and set the user you wish to grant the site administration role to.
+1.  Click Grant.
+1.  Log off and back on to enable site administration.
+1.  Change the AppSettings.config key `EnableInstall` to `false` for added security.
+
 ## Contributing your changes
 
 Submit a github pull request to the dev branch.

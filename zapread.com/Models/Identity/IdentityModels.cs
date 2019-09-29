@@ -22,7 +22,8 @@ namespace zapread.com.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("ZapreadAzure", throwIfV1Schema: false)
+            : base(System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"], 
+                  throwIfV1Schema: false)
         {
         }
 
