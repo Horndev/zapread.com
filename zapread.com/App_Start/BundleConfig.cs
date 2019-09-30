@@ -71,6 +71,11 @@ namespace zapread.com
                         "~/Scripts/Admin/install.js")
                         .WithLastModifiedToken());
 
+            // Messages/Chat scripts
+            bundles.Add(new ScriptBundle("~/bundles/messages/chat").Include(
+                        "~/Scripts/Messages/chat-ui.js")
+                        .WithLastModifiedToken());
+
             // Post/Detail scripts
             bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
                         "~/Scripts/Posts/post-detail.js")
