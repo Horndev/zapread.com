@@ -38,28 +38,34 @@ var loadhover = function (e) {
                     container: "body",
                     title: ""
                 })
-                    .on("mouseenter", function () {
+                .on("mouseenter", function () {
+                    setTimeout(function () {
                         var _this = this;
                         $(this).popover("show");
                         $(".popover").addClass("tooltip-hover");
                         $(".popover").on("mouseleave", function () {
                             $(_this).popover('hide');
                         });
-                    })
-                    .on("mouseleave", function () {
-                        var _this = this;
+                    }, 500);
+                })
+                .on("mouseleave", function () {
+                    var _this = this;
+                    setTimeout(function () {
+                        if (!$(".popover:hover").length) {
+                            $(_this).popover("hide");
+                        }
+                    }, 300);
+                });
+                setTimeout(function () {
+                    $(e).popover("show");
+                    $(".popover").addClass("tooltip-hover");
+                    $(".popover").on("mouseleave", function () {
                         setTimeout(function () {
-                            if (!$(".popover:hover").length) {
-                                $(_this).popover("hide");
-                            }
+                            $(e).popover('hide');
                         }, 300);
                     });
-                $(e).popover("show");
-                $(".popover").addClass("tooltip-hover");
-                $(".popover").on("mouseleave", function () {
-                    $(e).popover('hide');
-                });
-                $(e).removeClass("zr-user");
+                    $(e).removeClass("zr-user");
+                }, 500);
             }
             else {
                 console.log(response.Message);

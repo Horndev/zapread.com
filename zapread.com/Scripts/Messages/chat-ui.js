@@ -71,6 +71,8 @@ var sendMessage = function (id) {
                         $("#endMessages").append(result.HTMLString);
                         $('.postTime').each(function (i, e) {
                             var datefn = dateFns.parse($(e).html());
+                            // Adjust to local time
+                            datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
                             var time = dateFns.distanceInWordsToNow(datefn);
                             $(e).html('<span>' + time + ' ago </span>');
                             $(e).css('display', 'inline');
