@@ -1,0 +1,5 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.GroupViews.GroupLinkViewModel
+<a id="@(Model.IsFirstPost ? "postGroupName" : "")" class="post-groupname grouphint" data-groupid="@Model.Group.GroupId" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Group.GroupId })" style="font-size: small; display: inline">
+    @Model.Group.GroupName
+</a>

@@ -2,6 +2,7 @@
 @using zapread.com.Helpers;
 @using zapread.com.Models;
 @using zapread.com.Models.UserViews;
+@using zapread.com.Models.GroupViews;
 @model zapread.com.Models.PostViewModel
 
 <div class="social-feed-box @(Model.IsFirstPost ? "firstPost" : "")" id=@("post_" + @Model.Post.PostId.ToString())>
@@ -120,11 +121,9 @@
                     }
                 </a>
                 <div class="vote-info">
-                    @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.Post.IsSticky){<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in<a id="@(Model.IsFirstPost ? "postGroupName" : "")" class="pop " data-container="body" data-toggle="popover" data-placement="top"
-                       data-content="<span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>@Model.GroupLevels[Model.Post.Group.GroupId]<i class='fa fa-arrow-up'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>@Model.GroupPostCounts[Model.Post.Group.GroupId] <i class='fa fa-pencil'></i></span><span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>@Model.GroupMemberCounts[Model.Post.Group.GroupId] <i class='fa fa-user'></i></span><a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert(&quot;Not yet implemented. Check back soon&quot;);'><i class='fa fa-plus'></i></a>"
-                       data-original-title="" title="" href="@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = Model.Post.Group.GroupId })" style="font-size: small; display: inline">
-                       @Model.Post.Group.GroupName
-                    </a>
+                    @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.Post.IsSticky){<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
+                    @Html.Partial("_PartialGroupLink", new GroupLinkViewModel() { Group = Model.Post.Group, IsFirstPost = Model.IsFirstPost})
+                    
                     <small class="postTime text-muted" style="display: none">@Model.Post.TimeStamp.Value.ToString("o")</small>
                     @if (Model.Post.TimeStampEdited != null)
                     {

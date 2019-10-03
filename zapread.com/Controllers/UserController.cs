@@ -320,11 +320,6 @@ namespace zapread.com.Controllers
 
                 List<PostViewModel> postViews = new List<PostViewModel>();
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
                 foreach (var p in activityposts)
                 {
                     postViews.Add(new PostViewModel()
@@ -334,9 +329,6 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 

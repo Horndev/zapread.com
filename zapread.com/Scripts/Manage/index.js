@@ -132,7 +132,7 @@ var loadmore = function () {
                         match: /\B@(\w*)$/,
                         search: function (keyword, callback) {
                             if (!keyword.length) return callback();
-                            var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                            var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                             $.ajax({
                                 async: true,
                                 url: '/Comment/GetMentions',

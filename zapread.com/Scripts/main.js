@@ -78,12 +78,15 @@ $(document).ready(function () {
     })
     .on("mouseenter", function () {
         var _this = this;
-        $(this).popover("show");
-        $('[data-toggle="tooltip"]').tooltip();
-        $(".popover").addClass("tooltip-hover");
-        $(".popover").on("mouseleave", function () {
-            $(_this).popover('hide');
-        });
+        setTimeout(function () {
+            
+            $(this).popover("show");
+            $('[data-toggle="tooltip"]').tooltip();
+            $(".popover").addClass("tooltip-hover");
+            $(".popover").on("mouseleave", function () {
+                $(_this).popover('hide');
+            });
+        }, 1000);
     })
     .on("mouseleave", function () {
         var _this = this;

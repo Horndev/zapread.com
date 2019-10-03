@@ -12,7 +12,9 @@
 @section Scripts {
     @Scripts.Render("~/plugins/dropZone")
     @Scripts.Render("~/bundles/achievements")
-    
+    @Scripts.Render("~/bundles/users")
+    @Scripts.Render("~/bundles/groups")
+
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";

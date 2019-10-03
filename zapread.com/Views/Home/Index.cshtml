@@ -8,7 +8,7 @@
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
 
-@if(ViewBag.ShowTourModal)
+@if (ViewBag.ShowTourModal)
 {
     @Html.Partial(partialViewName: "_PartialModalAskUserTourIndex")
 }
@@ -24,7 +24,7 @@
         </ol>
     </div>
     <div class="row">
-        <div class="d-none d-lg-block col-lg-2" >
+        <div class="d-none d-lg-block col-lg-2">
             <div class="ibox-title" style="white-space:nowrap">
                 <h5>Your Top Groups</h5>
                 <div class="ibox-tools">
@@ -35,7 +35,7 @@
             </div>
         </div>
         <div id="sortButtons" class="col-lg-8" align="center">
-            <a href="/?sort=Score" class="zr-top-btn-rounded" >
+            <a href="/?sort=Score" class="zr-top-btn-rounded">
                 <i class="fa fa-fire"></i> hot
             </a>
             <a href="/?sort=New" class="zr-top-btn-rounded">
@@ -56,19 +56,19 @@
             {
                 <div id="topGroups" class="ibox float-e-margins d-none d-lg-block">
                     <div id="group-box" class="ibox-content" style="display:none">
-                        @foreach(var g in Model.SubscribedGroups)
+                        @foreach (var g in Model.SubscribedGroups)
                         {
-                        <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
-                            <i class="fa fa-@g.Icon"></i> @g.Name
-                            @if (g.IsAdmin)
-                            {
-                                <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
-                            }
-                            else if (g.IsMod)
-                            {
-                                 <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
-                            }
-                        </button>
+                            <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
+                                <i class="fa fa-@g.Icon"></i> @g.Name
+                                @if (g.IsAdmin)
+                                {
+                                    <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
+                                }
+                                else if (g.IsMod)
+                                {
+                                    <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
+                                }
+                            </button>
                         }
                     </div>
                 </div>
@@ -106,11 +106,12 @@
 </div>
 
 @section Scripts {
+    @Scripts.Render("~/bundles/users")
+    @Scripts.Render("~/bundles/groups")
+
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-
-        
     </script>
 
     <script type="text/javascript">
@@ -130,7 +131,7 @@
                 inProgress = true;
                 $('#loadmore').show();
                 $('#btnLoadmore').prop('disabled', true);
-                $.post("@Url.Action("InfiniteScroll", "Home")", 
+                $.post("@Url.Action("InfiniteScroll", "Home")",
                     { "BlockNumber": BlockNumber, "sort": "@Model.Sort" },
                     function (data) {
                         $('#loadmore').hide();

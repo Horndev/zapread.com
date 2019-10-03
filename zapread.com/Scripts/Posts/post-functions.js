@@ -138,7 +138,7 @@ var deleteComment = function (id) {
                 if (data.Success) {
                     $('#comment_' + id.toString()).hide();
                     swal("Deleted! Your comment has been deleted.", {
-                        icon: "success",
+                        icon: "success"
                     });
                 }
                 else {
@@ -158,7 +158,7 @@ var setPostLanguage = function (id) {
         content: "input",
         button: {
             text: "Ok",
-            closeModal: false,
+            closeModal: false
         }
     }).then(function(name) {
         if (!name) throw null;
@@ -398,7 +398,7 @@ var editComment = function (id) {
                 match: /\B@(\w*)$/,
                 search: function (keyword, callback) {
                     if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                    var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                     $.ajax({
                         async: true,
                         url: '/Comment/GetMentions',

@@ -588,11 +588,6 @@ namespace zapread.com.Controllers
                 viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
             }
 
-            var groups = await db.Groups
-                    .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                    .AsNoTracking()
-                    .ToListAsync();
-
             PostViewModel vm = new PostViewModel()
             {
                 Post = pst,
@@ -602,9 +597,6 @@ namespace zapread.com.Controllers
                 ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
                 NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
                 ViewerIgnoredUsers = viewerIgnoredUsers,
-                GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
             };
             return vm;
         }

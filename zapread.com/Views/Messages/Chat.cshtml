@@ -1,6 +1,6 @@
 ﻿@model zapread.com.Models.ChatMessagesViewModel
 @{
-	ViewBag.Title = "Chat with " + @Model.OtherUser.Name;
+    ViewBag.Title = "Chat with " + @Model.OtherUser.Name;
 }
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
@@ -13,7 +13,6 @@
         </ol>
     </div>
     <div class="col-lg-2">
-
     </div>
 </div>
 
@@ -33,7 +32,10 @@
         <div class="col-lg-6">
             <div class="ibox chat-view">
                 <div class="ibox-title">
-                    <small class="float-right text-muted">Last message:  @if (Model.Messages.Count() > 0) {<span class="postTime" style="display: inline"> Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}else{ <text>Never</text> }</small>
+                    <small class="float-right text-muted">Last message:  @if (Model.Messages.Count() > 0)
+                    {<span class="postTime" style="display: inline"> @Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}
+                    else
+                    { <text>Never</text>}</small>
                 </div>
                 <div class="ibox-content">
                     <div class="row">
@@ -46,7 +48,6 @@
                                 <div id="endMessages">
 
                                 </div>
-
                             </div>
                             <div class="chat-discussion" style="height:200px;">
                                 <br /><br />
@@ -54,7 +55,6 @@
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -90,104 +90,9 @@
 </div>
 
 @section Scripts {
+    @Scripts.Render("~/bundles/messages/chat")
 <script type="text/javascript">
     var ChattingWithId = "@Model.OtherUser.AppId";
-    $(document).ready(function () {
-        $(".m_input").summernote({
-            callbacks: {
-                onImageUpload: function (files) {
-                    that = $(this);
-                    sendFile(files[0], that);
-                }
-            },
-            focus: false,
-            placeholder: 'Write message...',
-            disableDragAndDrop: false,
-            dialogsInBody: true,
-            toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-            minHeight: 100,
-            maxHeight: 600,
-            hint: {
-                match: /\B@@(\w*)$/,
-                search: function (keyword, callback) {
-                    if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
-                    $.ajax({
-                        async: true,
-                        url: '/Comment/GetMentions',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        data: msg,
-                        error: function () {
-                            callback();
-                        },
-                        success: function (res) {
-                            callback(res.users);
-                        }
-                    });
-                },
-                content: function (item) {
-                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                }
-            }
-        });
-        window.scrollTo(0, document.body.scrollHeight+50);
-    });
-
-    var sendMessage = function (id) {
-        var dataString;
-        var action = "/Messages/SendMessage";
-        var contentType = "application/json; charset=utf-8";
-        var dataval = '';
-        var dataString = '';
-        var messageElement = '#message_input';
-        dataval = $(messageElement).summernote('code');
-        dataString = JSON.stringify({ id: id, content: dataval, isChat: true });
-        $('#chatReply').addClass('sk-loading');
-        $.ajax({
-            type: "POST",
-            url: action,
-            data: dataString,
-            dataType: "json",
-            contentType: contentType,
-            success: function (response) {
-                if (response.success) {
-                    $(".m_input").summernote('reset');
-                    $.ajax({
-                        type: "POST",
-                        url: "/Messages/GetMessage",
-                        data: JSON.stringify({ 'id': response.id, 'userId':@Model.ThisUser.Id }),
-                        dataType: "json",
-                        contentType: contentType,
-                        success: function (result) {
-                            $("#endMessages").append(result.HTMLString);
-                            $('.postTime').each(function (i, e) {
-                                var time = moment.utc($(e).html()).local().calendar();
-                                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                                $(e).html('<span>' + time + ' - ' + date + '</span>');
-                                $(e).css('display', 'inline');
-                                $(e).removeClass("postTime");
-                            });
-                            window.scrollTo(0, document.body.scrollHeight+10);
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            alert("fail");
-                        }
-                    });
-
-                    $('#chatReply').removeClass('sk-loading');
-                }
-                else {
-                    $('#chatReply').removeClass('sk-loading');
-                    alert(response.message);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("fail");
-            }
-        });
-
-    }
+    var chatUserId = @Model.ThisUser.Id;
 </script>
 }

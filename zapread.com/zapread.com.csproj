@@ -697,6 +697,8 @@
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Finance\FinanceModels.cs" />
+    <Compile Include="Models\Group\GroupHoverViewModel.cs" />
+    <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
@@ -1703,10 +1705,12 @@
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\index.js" />
     <Content Include="Scripts\Groups\members.js" />
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
+    <Content Include="Scripts\Messages\chat-ui.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
@@ -1852,6 +1856,8 @@
     <Content Include="Views\User\Achievements.cshtml" />
     <Content Include="Views\User\_PartialUserAchievementBoxed.cshtml" />
     <Content Include="Views\Home\Install.cshtml" />
+    <Content Include="Views\Shared\_PartialGroupLink.cshtml" />
+    <Content Include="Views\Group\_PartialGroupHover.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Comment\" />

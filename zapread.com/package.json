@@ -28,6 +28,9 @@
     "sweetalert": "2.1.0",
     "toastr": "2.1.4",
     "truncate": "2.0.1",
-    "webrtc-adapter": "7.1.1"
+    "webrtc-adapter": "7.1.1",
+    "luxon": "1.19.3",
+    "dayjs": "1.8.16",
+    "dayjs-calendar": "1.0.1"
   }
 }
