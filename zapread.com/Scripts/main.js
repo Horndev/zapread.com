@@ -77,8 +77,9 @@ $(document).ready(function () {
         animation: false
     })
     .on("mouseenter", function () {
+        var _this = this;
         setTimeout(function () {
-            var _this = this;
+            
             $(this).popover("show");
             $('[data-toggle="tooltip"]').tooltip();
             $(".popover").addClass("tooltip-hover");

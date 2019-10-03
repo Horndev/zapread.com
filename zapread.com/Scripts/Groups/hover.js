@@ -1,29 +1,27 @@
-﻿/* Username hover
-*/
+﻿/* Group Hover 
+ */
 
 $(document).ready(function () {
-    $('.userhint').each(function () {
+    $('.grouphint').each(function () {
         $(this).mouseover(function () {
-            loaduserhover(this);
+            loadgrouphover(this);
         });
     });
 });
 
-var loaduserhover = function (e) {
+var loadgrouphover = function (e) {
     $(e).removeAttr('onmouseover');
-    var userid = $(e).data('userid');
-    var username = $(e).html().trim().replace('@', '');
-    if (typeof userid === 'undefined') {
-        userid = -1;
+    var groupid = $(e).data('groupid');
+    if (typeof groupid === 'undefined') {
+        groupid = -1;
     }
     var msg = JSON.stringify({
-        'userId': userid,
-        'username' : username
+        'groupId': groupid
     });
     var appearTimeout;
     $.ajax({
         type: "POST",
-        url: "/User/Hover",
+        url: "/Group/Hover",
         data: msg,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
@@ -39,25 +37,25 @@ var loaduserhover = function (e) {
                     container: "body",
                     title: ""
                 })
-                .on("mouseenter", function () {
-                    var _this = this;
-                    appearTimeout = setTimeout(function () {
-                        $(_this).popover("show");
-                        $(".popover").addClass("tooltip-hover");
-                        $(".popover").on("mouseleave", function () {
-                            $(_this).popover('hide');
-                        });
-                    }, 500);
-                })
-                .on("mouseleave", function () {
-                    var _this = this;
-                    clearTimeout(appearTimeout);
-                    setTimeout(function () {
-                        if (!$(".popover:hover").length) {
-                            $(_this).popover("hide");
-                        }
-                    }, 300);
-                });
+                    .on("mouseenter", function () {
+                        var _this = this;
+                        appearTimeout = setTimeout(function () {
+                            $(_this).popover("show");
+                            $(".popover").addClass("tooltip-hover");
+                            $(".popover").on("mouseleave", function () {
+                                $(_this).popover('hide');
+                            });
+                        }, 500);
+                    })
+                    .on("mouseleave", function () {
+                        clearTimeout(appearTimeout);
+                        var _this = this;
+                        setTimeout(function () {
+                            if (!$(".popover:hover").length) {
+                                $(_this).popover("hide");
+                            }
+                        }, 300);
+                    });
                 appearTimeout = setTimeout(function () {
                     $(e).popover("show");
                     $(".popover").addClass("tooltip-hover");

@@ -1,0 +1,19 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.GroupViews.GroupHoverViewModel
+
+<div class="row">
+    <div class="col">
+        <span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Tier'>
+            @Model.GroupLevel <i class='fa fa-arrow-up'></i>
+        </span>
+        <span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Posts'>
+            @Model.GroupPostCount <i class='fa fa-pencil'></i>
+        </span>
+        <span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>
+            @Model.GroupMemberCount <i class='fa fa-user'></i>
+        </span>
+        <a href='javascript:void(0);' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='alert("Not yet implemented. Check back soon");'>
+            <i class='fa fa-plus'></i>
+        </a>
+    </div>
+</div>

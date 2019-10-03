@@ -11,7 +11,7 @@ var zrOnLoadedMorePosts = function () {
     // User mention hover
     $('.userhint').each(function () {
         $(this).mouseover(function () {
-            loadhover(this);
+            loaduserhover(this);
         });
     });
 

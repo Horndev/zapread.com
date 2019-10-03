@@ -497,20 +497,6 @@ namespace zapread.com.Controllers
         private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db, int userId)
         {
             List<int> viewerIgnoredUsers = await GetUserIgnoredUsers(userId);
-            var groups = await db.Groups
-                        .Select(gr => new
-                        {
-                            gr.GroupId,
-                            pc = gr.Posts.Count,
-                            mc = gr.Members.Count,
-                            l = gr.Tier
-                        })
-                        .AsNoTracking()
-                        .ToListAsync();
-            var groupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc);
-            var groupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc);
-            var groupLevels = groups.ToDictionary(i => i.GroupId, i => i.l);
-
             List<PostViewModel> postViews = posts
                 .Select(p => new PostViewModel()
                 {
@@ -521,9 +507,6 @@ namespace zapread.com.Controllers
                     ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
                     NumComments = 0,
                     ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
-                    GroupMemberCounts = groupMemberCounts,
-                    GroupPostCounts = groupPostCounts,
-                    GroupLevels = groupLevels,
                 }).ToList();
             return postViews;
         }
@@ -662,11 +645,6 @@ namespace zapread.com.Controllers
 
                 string PostsHTMLString = "";
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
                 foreach (var p in posts)
                 {
                     var pvm = new PostViewModel()
@@ -676,9 +654,6 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);

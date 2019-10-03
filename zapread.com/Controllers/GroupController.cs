@@ -6,6 +6,7 @@ using System.Data.Entity.SqlServer;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using zapread.com.Database;
@@ -13,6 +14,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.Database;
+using zapread.com.Models.GroupViews;
 
 namespace zapread.com.Controllers
 {
@@ -421,6 +423,7 @@ namespace zapread.com.Controllers
                 // TODO also check if user is a site admin
                 if (!g.Administrators.Select(m => m.Id).Contains(callingUser.Id))
                 {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return Json(new { success = false, message = "You do not have administration privilages for this group." });
                 }
 
@@ -450,11 +453,6 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
                 }
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
                 foreach (var p in posts)
                 {
                     var pvm = new PostViewModel()
@@ -466,9 +464,6 @@ namespace zapread.com.Controllers
                         NumComments = 0,
 
                         ViewerIgnoredUsers = viewerIgnoredUsers,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
@@ -479,6 +474,43 @@ namespace zapread.com.Controllers
                     NoMoreData = posts.Count < BlockSize,
                     HTMLString = PostsHTMLString,
                 });
+            }
+        }
+
+        [HttpPost]
+        [Route("Group/Hover")]
+        public async Task<JsonResult> Hover(int groupId)
+        {
+            ;
+            using (var db = new ZapContext())
+            {
+                var group = await db.Groups
+                    .Select(g => new
+                    {
+                        g.GroupId,
+                        g.Tier,
+                        MemberCount = g.Members.Count,
+                        PostCount = g.Posts.Count,
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.GroupId == groupId);
+
+                if (group == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = "Group not found." });
+                }
+
+                GroupHoverViewModel vm = new GroupHoverViewModel()
+                {
+                    GroupId = group.GroupId,
+                    GroupLevel = group.Tier,
+                    GroupMemberCount = group.MemberCount,
+                    GroupPostCount = group.PostCount,
+                };
+
+                string HTMLString = RenderPartialViewToString("_PartialGroupHover", model: vm);
+                return Json(new { success = true, HTMLString });
             }
         }
 
@@ -810,11 +842,6 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
                 }
 
-                var groups = await db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
                 foreach (var p in groupPosts)
                 {
                     postViews.Add(new PostViewModel()
@@ -827,9 +854,6 @@ namespace zapread.com.Controllers
                         NumComments = 0,
 
                         ViewerIgnoredUsers = viewerIgnoredUsers,
-                        GroupMemberCounts = groups.ToDictionary(i => i.GroupId, i => i.mc),
-                        GroupPostCounts = groups.ToDictionary(i => i.GroupId, i => i.pc),
-                        GroupLevels = groups.ToDictionary(i => i.GroupId, i => i.l),
                     });
                 }
 
