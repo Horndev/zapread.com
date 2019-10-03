@@ -15,6 +15,12 @@ var zrOnLoadedMorePosts = function () {
         });
     });
 
+    $('.grouphint').each(function () {
+        $(this).mouseover(function () {
+            loadgrouphover(this);
+        });
+    });
+
     // show the read more
     $(".post-box").each(function (index, item) {
         if ($(item).height() >= 800) {
