@@ -60,7 +60,11 @@ namespace zapread.com.Controllers
             {
                 var i = await db.Users
                     .Where(u => u.AppId == UserId || u.Name == UserId)
-                    .Select(u => u.ProfileImage)
+                    .Select(u => new
+                    {
+                        u.ProfileImage.Image
+                    })
+                    .AsNoTracking()
                     .FirstAsync();
 
                 if (i.Image != null)
