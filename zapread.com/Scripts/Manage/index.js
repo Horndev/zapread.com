@@ -95,9 +95,12 @@ var loadmore = function () {
                 $("#posts").append(data.HTMLString);
                 inProgress = false;
                 $('.postTime').each(function (i, e) {
-                    var time = moment.utc($(e).html()).local().calendar();
-                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                    $(e).html('<span>' + time + ' - ' + date + '</span>');
+                    var datefn = dateFns.parse($(e).html());
+                    // Adjust to local time
+                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = dateFns.format(datefn, "DD MMM YYYY");
+                    var time = dateFns.distanceInWordsToNow(datefn);
+                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                     $(e).css('display', 'inline');
                     $(e).removeClass("postTime");
                 });

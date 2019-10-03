@@ -1659,7 +1659,6 @@
     <Content Include="node_modules\jssocials\dist\jssocials-theme-flat.css" />
     <Content Include="node_modules\jssocials\dist\jssocials.css" />
     <Content Include="node_modules\jssocials\dist\jssocials.min.js" />
-    <Content Include="node_modules\moment\min\moment-with-locales.min.js" />
     <Content Include="node_modules\popper.js\dist\umd\popper.min.js" />
     <Content Include="node_modules\selectize-bootstrap4-theme\dist\css\selectize.bootstrap4.css" />
     <Content Include="node_modules\selectize\dist\css\selectize.css" />

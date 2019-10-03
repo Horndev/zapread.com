@@ -39,8 +39,7 @@ namespace zapread.com
                         "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
                         "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
                         "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
-                        "~/node_modules/moment/min/moment-with-locales.min.js", // Time formatting
-                        "~/node_modules/date-fns-1/dist/date_fns.min.js"
+                        "~/node_modules/date-fns-1/dist/date_fns.min.js"        // Time formatting
                         ));
 
             // Shared scripts
@@ -231,10 +230,6 @@ namespace zapread.com
                       "~/Scripts/summernote/dist/summernote-bs4.js",
                       "~/Scripts/summernote-video-attributes.js")
                       .WithLastModifiedToken());
-
-            // summernote 
-            bundles.Add(new ScriptBundle("~/plugins/moment").Include(
-                      "~/node_modules/moment/min/moment-with-locales.min.js"));
 
             // selectize 
             bundles.Add(new ScriptBundle("~/plugins/selectize").Include(
