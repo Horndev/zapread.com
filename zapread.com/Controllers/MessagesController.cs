@@ -873,9 +873,15 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         public JsonResult GetMessage(int id, int userId)
         {
+            var localUserId = User.Identity.GetUserId();
+
+            if(localUserId == null)
+            {
+                return Json(new { success = false, result = "Failure", message = "Error receiving message." });
+            }
+
             string HTMLString = "";
 
             using (var db = new ZapContext())
@@ -883,7 +889,13 @@ namespace zapread.com.Controllers
                 var msg = db.Messages
                     .Include("From")
                     .Include("To")
+                    .Where(m => m.From.AppId == localUserId || m.To.AppId == localUserId)
                     .SingleOrDefault(m => m.Id == id);
+
+                if (msg == null)
+                {
+                    return Json(new { success = false, result = "Failure", message = "Error receiving message." });
+                }
 
                 var mvm = new ChatMessageViewModel()
                 {
