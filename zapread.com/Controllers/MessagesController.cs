@@ -879,7 +879,8 @@ namespace zapread.com.Controllers
 
             if(localUserId == null)
             {
-                return Json(new { success = false, result = "Failure", message = "Error receiving message." });
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, result = "Failure", message = "Error verifying logged in user." });
             }
 
             string HTMLString = "";
@@ -894,6 +895,7 @@ namespace zapread.com.Controllers
 
                 if (msg == null)
                 {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     return Json(new { success = false, result = "Failure", message = "Error receiving message." });
                 }
 
