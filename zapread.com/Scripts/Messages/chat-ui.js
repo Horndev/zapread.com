@@ -73,8 +73,9 @@ var sendMessage = function (id) {
                             var datefn = dateFns.parse($(e).html());
                             // Adjust to local time
                             datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                            var date = dateFns.format(datefn, "DD MMM YYYY");
                             var time = dateFns.distanceInWordsToNow(datefn);
-                            $(e).html('<span>' + time + ' ago </span>');
+                            $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                             $(e).css('display', 'inline');
                             $(e).removeClass("postTime");
                         });

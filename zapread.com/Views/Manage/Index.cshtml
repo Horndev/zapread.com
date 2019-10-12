@@ -75,17 +75,20 @@
 
             // This formats the timestamps on the page
             $('.eventTime').each(function (i, e) {
-                var time = moment.utc($(e).html()).local().calendar();
-                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                $(e).html('<span>' + time + ' - ' + date + '</span>');
+                var datefn = dateFns.parse($(e).html());
+                // Adjust to local time
+                datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                var date = dateFns.format(datefn, "DD MMM YYYY");
+                var time = dateFns.distanceInWordsToNow(datefn);
+                $(e).html('<span>' + time + ' ago - ' + date + '</span>');
             });
         });
     </script>
 }
 
-@Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
+@Html.Partial(partialViewName: "_PartialModalVote")                     @*This is the code for the modal dialog box to vote*@
 
-@Html.Partial(partialViewName: "_PartialModalUpdateUserAlias")         @*This is the code for the modal dialog box to vote*@
+@Html.Partial(partialViewName: "_PartialModalUpdateUserAlias")          @*This is the code for the modal dialog box to update username*@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
@@ -144,7 +147,7 @@
                     <div class="ibox-content no-padding border-left-right">
                         <div class="cuadro_intro_hover">
                             <p style="text-align:center; ">
-                                <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
+                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
                             </p>
                             <div class="caption">
                                 <div class="blur"></div>
@@ -154,14 +157,13 @@
                                 </div>
                             </div>
                         </div>
-                        @*<img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />*@
                     </div>
                     <div class="ibox-content profile-content">
                         <h4>
                             <strong>
                                 @if (Request.IsAuthenticated)
                                 {
-                                    <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name
+                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name
                                 }
                                 else
                                 {
@@ -173,7 +175,19 @@
                             </a>
                             <ul class="dropdown-menu dropdown-user">
                                 <li>
-                                    <a href="#" data-toggle="modal" data-target="#ModalProfileImage">Update Profile Image</a>
+                                    <a href="#" data-toggle="modal" data-target="#ModalProfileImage">Upload Profile Image</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:generateRobot(1);">Generate Profile Image (Robot)</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:generateRobot(2);">Generate Profile Image (Cat)</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:generateRobot(3);">Generate Profile Image (Human)</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:generateRobot(4);">Generate Profile Image (Monster)</a>
                                 </li>
                                 <li>
                                     <a href="#" data-toggle="modal" data-target="#userAliasModal">Change Alias</a>

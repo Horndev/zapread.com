@@ -481,7 +481,6 @@ namespace zapread.com.Controllers
         [Route("Group/Hover")]
         public async Task<JsonResult> Hover(int groupId)
         {
-            ;
             using (var db = new ZapContext())
             {
                 var group = await db.Groups

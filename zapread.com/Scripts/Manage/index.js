@@ -4,6 +4,55 @@ var updateLanguages = function () {
     console.log('updateLanguages');
 };
 
+/** Change userprofile image
+ * 
+ * @param {any} set : 1 = robot, 2 = cat, 3 = human
+ * @returns {boolean} false
+ */
+var generateRobot = function (set) {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+
+    console.log('generateRobot ' + set);
+
+    $.ajax({
+        async: true,
+        data: JSON.stringify({ "set": set }),
+        type: 'POST',
+        url: '/Home/SetUserImage/',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: headers,
+        success: function (response) {
+            if (response.success) {
+                // Reload images
+                $('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
+                $(".user-image-30").each(function () {
+                    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
+                });
+                $(".user-image-15").each(function () {
+                    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
+                });
+                swal("Your profile image has been updated!", {
+                    icon: "success"
+                });
+            } else {
+                // Did not work
+                swal("Error", "Error updating image: " + data.message, "error");
+            }
+        },
+        failure: function (response) {
+            swal("Error", "Failure updating image: " + response.message, "error");
+        },
+        error: function (response) {
+            swal("Error", "Error updating image: " + response.message, "error");
+        }
+    });
+    return false; // Prevent jump to top of page
+};
+
 var settingToggle = function (e) {
     var setting = e.id;
     var value = e.checked;
@@ -95,9 +144,12 @@ var loadmore = function () {
                 $("#posts").append(data.HTMLString);
                 inProgress = false;
                 $('.postTime').each(function (i, e) {
-                    var time = moment.utc($(e).html()).local().calendar();
-                    var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
-                    $(e).html('<span>' + time + ' - ' + date + '</span>');
+                    var datefn = dateFns.parse($(e).html());
+                    // Adjust to local time
+                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = dateFns.format(datefn, "DD MMM YYYY");
+                    var time = dateFns.distanceInWordsToNow(datefn);
+                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                     $(e).css('display', 'inline');
                     $(e).removeClass("postTime");
                 });
