@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -39,7 +40,93 @@ namespace zapread.com.Controllers
         //{
         //}
 
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpPost, ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> SetUserImage(int set)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, result = "Failure", message = "User authentication error." });
+            }
+
+            var UserAppId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Where(u => u.AppId == UserAppId)
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, result = "Failure", message = "User not found." });
+                }
+
+                var imagesPath = Server.MapPath("~/bin");
+                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
+                    basePath: imagesPath);
+
+                try
+                {
+
+                    // The image hash is based on the user UID
+                    var r = RoboHash.Net.RoboHash.Create(UserAppId);
+
+                    var Rand = new Random();
+
+                    var hashSet = "set1";
+
+                    var robotSets = new List<string>() { "set1", "set3" };
+
+                    if (set == 1)
+                    {
+                        hashSet = robotSets[Rand.Next(0, 1)];
+                    }
+                    else if (set == 2)
+                    {
+                        hashSet = "set4";
+                    }
+                    else if (set == 3)
+                    {
+                        hashSet = "set5";
+                    }
+                    else // Monster
+                    {
+                        hashSet = "set2";
+                    }
+
+                    int size = 1024;
+
+                    using (var image = r.Render(
+                        set: hashSet,
+                        backgroundSet: RoboHash.Net.RoboConsts.Any,
+                        color: null,
+                        width: 1024,
+                        height: 1024))
+                    {
+                        Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
+                        byte[] data = thumb.ToByteArray(ImageFormat.Png);
+
+                        // Cache to DB at full resolution
+                        if (user != null)
+                        {
+                            Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
+                            byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
+                            UserImage img = new UserImage() { Image = DBdata };
+                            user.ProfileImage = img;
+                            await db.SaveChangesAsync();
+                        }
+                        return Json(new { success = true, result = "Success" });
+                    }
+                }
+                catch (Exception e)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new { success = false, result = "Failure", message = "Endpoint error." });
+                }
+            }
+        }
+
         public async Task<ActionResult> UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
