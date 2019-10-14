@@ -21,13 +21,12 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="ibox-content no-padding" style="margin-bottom: 50px;">
-                <table id="usersTable" class="table table-striped" style="width:100%">
+                <table id="alertsTable" class="table table-striped" style="width:100%">
                     <thead>
                         <tr>
                             <th>Status</th>
                             <th>Date</th>
                             <th>Title</th>
-                            <th>Message</th>
                             <th>Link</th>
                             <th>Action</th>
                         </tr>
@@ -43,92 +42,7 @@
     @Styles.Render("~/bundles/css/datatables")
 }
 
-
 @section Scripts {
-@Scripts.Render("~/bundles/datatables")
-
-<script type="text/javascript">
-    var usersTable = {};
-    $(document).ready(function () {
-        // Table
-        usersTable = $('#usersTable').DataTable({
-            "searching": false,
-            "bInfo": false,
-            "lengthChange": false,
-            "ordering": true,
-            "order": [[1, "desc"]],
-            "pageLength": 25,
-            "processing": true,
-            "serverSide": true,
-            //"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
-            "ajax": {
-                type: "POST",
-                contentType: "application/json",
-                url: "/Messages/GetAlertsTable",
-                data: function (d) {
-                    return JSON.stringify(d);
-                }
-            },
-            "columns": [
-                {
-                    "data": null,
-                    "name": 'Status',
-                    "orderable": true,
-                    "mRender": function (data, type, row) {
-                        if (data.Status === "Read") {
-                            return "<span class='badge badge-primary' >" + data.Status + "</span>"
-                        }
-                        return "";
-                    }
-                },
-                { "data": "Date", "orderable": true, "name": "Date", "type": "date", "orderSequence": ["desc", "asc"] },
-                { "data": "Title", "orderable": false, "name": "Title" },
-                { "data": "Message", "orderable": false, "name": "Message"},
-                {
-                    "data": null,
-                    "name": 'Link',
-                    "orderable": false,
-                    "mRender": function (data, type, row) {
-                        var linkText = "Go to Post";
-                        if (data.HasCommentLink) {
-                            linkText = "Go to Comment";
-                        }
-                        return "<a href='/Post/Detail/" + data.Link + "#cid_" + data.Anchor + "'>" + linkText+"</a>";
-                    }
-                },
-                {
-                    "data": null,
-                    "name": 'Action',
-                    "orderable": false,
-                    "mRender": function (data, type, row) {
-                        return "<button class='btn btn-danger btn-outline btn-sm' id='a_"+data.AlertId+"' onclick='deletea(" + data.AlertId + ");'>Delete</button>";
-                    }
-                },
-            ],
-        });
-    }); // end ready
-
-    var deletea = function (id) {
-        var url = "/Messages/DeleteAlert";
-
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: url,
-            data: JSON.stringify({ "id": id }),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: function (result) {
-                if (result.Result == "Success") {
-                    $('#a_' + id).parent().parent().hide();
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("fail");
-            }
-        });
-        return false;
-    };
-
-</script>
+    @Scripts.Render("~/bundles/datatables")
+    @Scripts.Render("~/bundles/messages/alerts")
 }
