@@ -7,6 +7,12 @@
  *
 */
 
+.post-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: #676a6c;
+}
+
 .dataTables_filter {
     display: inline-block;
     text-align: center;

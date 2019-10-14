@@ -1119,7 +1119,7 @@ namespace zapread.com.Controllers
                     .ToListAsync();
 
                 var values = pageUsers.AsParallel()
-                    .Select(u => new UsersDataItem()
+                    .Select(u => new 
                     {
                         UserName = u.Name,
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
@@ -1127,7 +1127,8 @@ namespace zapread.com.Controllers
                         NumPosts = u.Posts.Count.ToString(),
                         NumComments = u.Comments.Count.ToString(),
                         Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
-                        Id = u.AppId,
+                        u.AppId,
+                        u.Id,
                     }).ToList();
 
                 int numrec = db.Users.Count();
