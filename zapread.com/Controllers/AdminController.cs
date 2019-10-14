@@ -1144,17 +1144,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        public class UsersDataItem
-        {
-            public string UserName { get; set; }
-            public string DateJoined { get; set; }
-            public string LastSeen { get; set; }
-            public string NumPosts { get; set; }
-            public string NumComments { get; set; }
-            public string Balance { get; set; }
-            public string Id { get; set; }
-        }
-
         #endregion
 
         #region CRON
