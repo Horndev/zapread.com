@@ -321,17 +321,18 @@ namespace zapread.com.Controllers
         private static List<AlertDataItem> GetAlertDataItems(List<UserAlert> pageUserAlerts)
         {
             return pageUserAlerts.AsParallel()
-                                .Select(u => new AlertDataItem()
-                                {
-                                    AlertId = u.Id,
-                                    Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
-                                    Title = u.Title,
-                                    Message = u.Content,
-                                    Status = u.IsRead ? "Read" : "Unread",
-                                    Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
-                                    Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
-                                    HasCommentLink = u.CommentLink != null,
-                                }).ToList();
+            .Select(u => new AlertDataItem()
+            {
+                AlertId = u.Id,
+                Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                Title = u.Title,
+                Message = u.Content,
+                Status = u.IsRead ? "Read" : "Unread",
+                Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
+                Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                HasCommentLink = u.CommentLink != null,
+                HasLink = u.PostLink != null,
+            }).ToList();
         }
 
         public class AlertDataItem
@@ -344,6 +345,7 @@ namespace zapread.com.Controllers
             public string Anchor { get; set; }
             public string Message { get; set; }
             public bool HasCommentLink { get; set; }
+            public bool HasLink { get; set; }
         }
 
         /// <summary>
