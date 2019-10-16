@@ -127,6 +127,7 @@ namespace zapread.com.Controllers
             }
         }
 
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
