@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -874,10 +875,17 @@ namespace zapread.com.Controllers
             return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
-        [HttpPost]
-        [AllowAnonymous]
+        [HttpPost, ValidateJsonAntiForgeryToken]
         public JsonResult GetMessage(int id, int userId)
         {
+            var localUserId = User.Identity.GetUserId();
+
+            if(localUserId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, result = "Failure", message = "Error verifying logged in user." });
+            }
+
             string HTMLString = "";
 
             using (var db = new ZapContext())
@@ -885,7 +893,14 @@ namespace zapread.com.Controllers
                 var msg = db.Messages
                     .Include("From")
                     .Include("To")
+                    .Where(m => m.From.AppId == localUserId || m.To.AppId == localUserId)
                     .SingleOrDefault(m => m.Id == id);
+
+                if (msg == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, result = "Failure", message = "Error receiving message." });
+                }
 
                 var mvm = new ChatMessageViewModel()
                 {
