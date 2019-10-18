@@ -99,7 +99,7 @@ var makePostsQuotable = function () {
         $(e).mouseup(function () {
             var selection = getSelected();
             $(selectionMarker).popover('hide');
-            if (selection && selection !== "") {
+            if (selection && encode(selection.toString()) !== "") {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);
@@ -120,7 +120,7 @@ var makePostsQuotable = function () {
                 }).on('hidden.bs.popover', function () {
                     $(selectionMarker).popover('dispose');
                 })
-                    .popover("show");
+                .popover("show");
             }
         });
         $(e).removeClass("post-quotable");
