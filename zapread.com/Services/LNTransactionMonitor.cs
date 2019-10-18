@@ -36,7 +36,7 @@ namespace zapread.com.Services
                     .Include(t => t.User)
                     .Include(t => t.User.Funds);
 
-                //var invoiceDebug = unpaidInvoices.ToList();
+                var invoiceDebug = unpaidInvoices.ToList();
                 foreach (var i in unpaidInvoices)
                 {
                     if (i.HashStr != null)
@@ -136,6 +136,7 @@ namespace zapread.com.Services
                     .Where(t => t.IsSettled == false)   // Not settled
                     .Where(t => t.IsDeposit == false)   // Withdraw
                     .Where(t => t.IsIgnored == false)   // Still valid
+                    .Where(t => t.IsLimbo)              // Only check those in limbo
                     .Include(t => t.User)
                     .Include(t => t.User.Funds);
 
@@ -207,7 +208,7 @@ namespace zapread.com.Services
                                                 + "\r\n invoice: " + i.PaymentRequest
                                                 + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
                                                 + "\r\n amount: " + Convert.ToString(i.Amount)
-                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage);
+                                                + "\r\n error: " + (i.ErrorMessage ?? "null"));
                             }
                             else
                             {
@@ -275,35 +276,31 @@ namespace zapread.com.Services
                                 {
                                     // Expired - let's stop checking this invoice
                                     i.IsIgnored = true;
-                                    if (i.ErrorMessage == "Error validating payment.")
+                                    // The payment can't go through any longer.
+                                    if (i.User.Funds.LimboBalance - amount < 0)
                                     {
-                                        // The payment can't go through any longer.
-                                        if (i.User.Funds.LimboBalance - amount < 0)
+                                        //shouldn't happen!
+                                        if (i.User.Funds.LimboBalance < 0)
                                         {
-                                            //shouldn't happen!
-                                            if (i.User.Funds.LimboBalance < 0)
-                                            {
-                                                i.User.Funds.LimboBalance = 0;
-                                            }
-                                            i.User.Funds.Balance += i.User.Funds.LimboBalance;
                                             i.User.Funds.LimboBalance = 0;
                                         }
-                                        else
-                                        {
-                                            i.User.Funds.LimboBalance -= amount;
-                                            i.User.Funds.Balance += amount;
-                                        }
-                                        i.IsLimbo = false;
-                                        Services.MailingService.SendErrorNotification(
+                                        i.User.Funds.Balance += i.User.Funds.LimboBalance;
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                    else
+                                    {
+                                        i.User.Funds.LimboBalance -= amount;
+                                        i.User.Funds.Balance += amount;
+                                    }
+                                    i.IsLimbo = false;
+                                    // TODO: send user email notification update of result.
+                                    Services.MailingService.SendErrorNotification(
                                             title: "User withdraw limbo expired (not settled - limbo returned)",
                                             message: "Withdraw Invoice expired (payment not found). Funds released to user."
                                                 + "\r\n invoice: " + i.PaymentRequest
                                                 + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
                                                 + "\r\n amount: " + Convert.ToString(i.Amount)
-                                                + "\r\n error: " + i.ErrorMessage == null ? "null" : i.ErrorMessage);
-                                        
-                                        // TODO: send user email notification update of result.
-                                    }
+                                                + "\r\n error: " + (i.ErrorMessage ?? "null"));
                                 }
                                 else
                                 {
