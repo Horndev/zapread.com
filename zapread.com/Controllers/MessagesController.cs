@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -872,7 +873,7 @@ namespace zapread.com.Controllers
             return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
-        [HttpPost]
+        [HttpPost, ValidateJsonAntiForgeryToken]
         public JsonResult GetMessage(int id, int userId)
         {
             var localUserId = User.Identity.GetUserId();

@@ -32,10 +32,12 @@
         <div class="col-lg-6">
             <div class="ibox chat-view">
                 <div class="ibox-title">
-                    <small class="float-right text-muted">Last message:  @if (Model.Messages.Count() > 0)
-                    {<span class="postTime" style="display: inline"> @Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}
+                    <small class="float-right text-muted">
+                        Last message:  @if (Model.Messages.Count() > 0)
+                        {<span class="postTime" style="display: inline"> @Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}
                     else
-                    { <text>Never</text>}</small>
+                    { <text>Never</text>}
+                    </small>
                 </div>
                 <div class="ibox-content">
                     <div class="row">
@@ -89,10 +91,15 @@
     </div>
 </div>
 
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
 @section Scripts {
     @Scripts.Render("~/bundles/messages/chat")
-<script type="text/javascript">
+    <script type="text/javascript">
     var ChattingWithId = "@Model.OtherUser.AppId";
     var chatUserId = @Model.ThisUser.Id;
-</script>
+    </script>
 }
