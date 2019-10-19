@@ -59,7 +59,7 @@ var makeCommentsQuotable = function () {
         $(e).mouseup(function () {
             var selection = getSelected();
             $(selectionMarker).popover('hide');
-            if (selection && selection !== "") {
+            if (selection && encode(selection.toString()) !== "") {
                 // User made a selection
                 var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
                 selectionMarker = markSelection(markerId);
