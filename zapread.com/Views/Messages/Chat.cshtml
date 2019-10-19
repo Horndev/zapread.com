@@ -33,9 +33,9 @@
             <div class="ibox chat-view">
                 <div class="ibox-title">
                     <small class="float-right text-muted">Last message:  @if (Model.Messages.Count() > 0)
-                    {<span class="postTime" style="display: inline"> @Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}
+                    {<span class="postTime" style="display: inline">@Model.Messages.Last().TimeStamp.ToString("o")</span>}
                     else
-                    { <text>Never</text>}</small>
+                    {<text>Never</text>}</small>
                 </div>
                 <div class="ibox-content">
                     <div class="row">
@@ -93,6 +93,5 @@
     @Scripts.Render("~/bundles/messages/chat")
 <script type="text/javascript">
     var ChattingWithId = "@Model.OtherUser.AppId";
-    var chatUserId = @Model.ThisUser.Id;
 </script>
 }

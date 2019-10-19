@@ -1,14 +1,14 @@
 ﻿@model zapread.com.Models.ChatMessageViewModel
 
 <div class="chat-message @if(Model.IsReceived){<text>left</text>}else{<text>right</text>}">
-    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Message.From.Name })">
-        <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Message.From.AppId })" alt="@Model.Message.From.Name">
+    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })">
+        <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.FromAppId })" alt="@Model.FromName">
     </a>
     <div class="message">
-        <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Message.From.Name })"> @Model.From.Name </a>
-        <span class="postTime message-date">@Model.Message.TimeStamp.Value.ToString("o")</span>
+        <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })"> @Model.FromName </a>
+        <span class="postTime message-date">@Model.TimeStamp.ToString("o")</span>
         <span class="message-content">
-            @Html.Raw(Model.Message.Content)
+            @Html.Raw(Model.Content)
         </span>
     </div>
 </div>

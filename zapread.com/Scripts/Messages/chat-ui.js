@@ -64,7 +64,7 @@ var sendMessage = function (id) {
                 $.ajax({
                     type: "POST",
                     url: "/Messages/GetMessage",
-                    data: JSON.stringify({ 'id': response.id, 'userId': chatUserId }),
+                    data: JSON.stringify({ 'id': response.id }),
                     dataType: "json",
                     contentType: contentType,
                     success: function (result) {
