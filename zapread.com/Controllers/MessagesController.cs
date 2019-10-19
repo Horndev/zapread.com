@@ -386,6 +386,39 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Messages/LoadOlder")]
+        [HttpPost]
+        public async Task<JsonResult> LoadOlder(string otherId, int start, int blocks)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Json(new { success = false, message = "Unable to authenticate user." });
+            }
+            using (var db = new ZapContext())
+            {
+                var otherUserId = await db.Users
+                    .Where(u => u.AppId == otherId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+                var userId = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+                var msgs = await GetChats(db, userId, otherUserId, blocks, start);
+
+                string HTMLString = "";
+                foreach (var mvm in msgs)
+                {
+                    HTMLString += RenderPartialViewToString("_PartialChatMessage", mvm);
+                }
+
+                return Json(new { success = true, HTMLString, message = "Error retreiving messages." });
+            }
+        }
+
         [Route("Messages/Chat/{username?}")]
         public async Task<ActionResult> Chat(string username)
         {
@@ -410,27 +443,33 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync();
 
                 vm.OtherUser = otherUser;
-
-                vm.Messages = await db.Messages
-                    .Where(m => m.IsPrivateMessage)
-                    .Where(m => !m.IsDeleted)
-                    .Where(m => (m.From.Id == otherUser.Id && m.To.Id == userId) ||
-                                (m.From.Id == userId       && m.To.Id == otherUser.Id))
-                    .OrderByDescending(m => m.TimeStamp)
-                    .Take(10)
-                    .OrderBy(m => m.TimeStamp)
-                    .Select(m => new ChatMessageViewModel() {
-                        Content = m.Content,
-                        TimeStamp = m.TimeStamp.Value,
-                        FromName = m.From.Name,
-                        FromAppId = m.From.AppId,
-                        IsReceived = m.From.Id == otherUser.Id
-                    })
-                    .AsNoTracking()
-                    .ToListAsync();
+                vm.Messages = await GetChats(db, userId, otherUser.Id, 10, 0);
 
                 return View(vm);
             }
+        }
+
+        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start)
+        {
+            return await db.Messages
+                .Where(m => m.IsPrivateMessage)
+                .Where(m => !m.IsDeleted)
+                .Where(m => (m.From.Id == otherUserId && m.To.Id == userId) ||
+                            (m.From.Id == userId && m.To.Id == otherUserId))
+                .OrderByDescending(m => m.TimeStamp)
+                .Skip(start)
+                .Take(step)
+                .OrderBy(m => m.TimeStamp)
+                .Select(m => new ChatMessageViewModel()
+                {
+                    Content = m.Content,
+                    TimeStamp = m.TimeStamp.Value,
+                    FromName = m.From.Name,
+                    FromAppId = m.From.AppId,
+                    IsReceived = m.From.Id == otherUserId
+                })
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<PartialViewResult> UnreadMessages()

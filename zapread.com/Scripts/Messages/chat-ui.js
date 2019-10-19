@@ -97,3 +97,39 @@ var sendMessage = function (id) {
         }
     });
 };
+
+/**
+ * Loads older chat history and inserts into DOM
+ * @param {any} id : User id for other user
+ */
+var loadolderchats = function (id) {
+    $.ajax({
+        type: "POST",
+        url: "/Messages/LoadOlder/",
+        data: JSON.stringify({ otherId: ChattingWithId, start: startBlock, blocks: 10 }),
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (response) {
+            if (response.success) {
+                $("#startMessages").prepend(response.HTMLString); // Insert at the front
+                startBlock += 10;
+                $('.postTime').each(function (i, e) {
+                    var datefn = dateFns.parse($(e).html());
+                    // Adjust to local time
+                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = dateFns.format(datefn, "DD MMM YYYY");
+                    var time = dateFns.distanceInWordsToNow(datefn);
+                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
+                    $(e).css('display', 'inline');
+                    $(e).removeClass("postTime");
+                });
+            }
+            else {
+                alert(response.message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("fail");
+        }
+    });
+};
