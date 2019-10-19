@@ -88,39 +88,45 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
+
             using (var db = new ZapContext())
             {
-                User u;
-                u = await db.Users
-                        .Include(usr => usr.LNTransactions)
-                        .Where(us => us.AppId == userId)
-                        .SingleOrDefaultAsync();
-
-                var pageTxns = u.LNTransactions
-                    .AsParallel()
-                    .Where(tx => tx.TimestampSettled != null)
-                    .OrderByDescending(tx => tx.TimestampSettled)
+                var values = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.LNTransactions)
+                    .OrderByDescending(t => t.TimestampCreated)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToList();
-
-                var values = pageTxns.AsParallel()
-                    .Select(t => new DataItem()
+                    .Select(t => new
                     {
-                        Time = t.TimestampSettled.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Type = t.IsDeposit ? "Deposit" : "Withdrawal",
-                        Amount = Convert.ToString(t.Amount),
-                        Memo = t.Memo,
-                    }).ToList();
+                        Time = t.TimestampCreated,
+                        Type = t.IsDeposit,
+                        t.Amount,
+                        t.Memo,
+                        t.IsSettled,
+                        t.IsLimbo,
+                    })
+                    .ToListAsync();
 
-                int numrec = u.LNTransactions.Where(tx => tx.TimestampSettled != null).Count();
+                int numrec = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.LNTransactions)
+                    .CountAsync();
 
                 var ret = new
                 {
                     draw = dataTableParameters.Draw,
                     recordsTotal = numrec,
                     recordsFiltered = numrec,
-                    data = values
+                    data = values.Select(v => new
+                    {
+                        Time = v.Time == null ? "" : v.Time.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        v.Type,
+                        v.Amount,
+                        v.Memo,
+                        v.IsSettled,
+                        v.IsLimbo,
+                    })
                 };
                 return Json(ret);
             }
