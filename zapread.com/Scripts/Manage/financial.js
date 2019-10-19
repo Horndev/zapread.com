@@ -40,7 +40,6 @@ $(document).ready(function () {
                 "data": null,
                 "orderable": false,
                 "mRender": function (data, type, row) {
-                    
                     var datefn = dateFns.parse(data.Time);
                     datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
                     var dateStr = dateFns.format(datefn, "DD MMM YYYY hh:mm:ss");

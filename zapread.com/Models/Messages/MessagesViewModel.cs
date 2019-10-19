@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Models
@@ -27,6 +28,11 @@ namespace zapread.com.Models
     public class ChatMessageViewModel
     {
         public UserMessage Message { get; set; }
+
+        public DateTime TimeStamp { get; set; }
+        public string Content { get; set; }
+        public string FromName { get; set; }
+        public string FromAppId { get; set; }
         public bool IsReceived { get; set; }
         public User From { get; set; }
         public User To { get; set; }

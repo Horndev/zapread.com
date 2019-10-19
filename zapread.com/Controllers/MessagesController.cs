@@ -387,11 +387,44 @@ namespace zapread.com.Controllers
             }
         }
 
+        [Route("Messages/LoadOlder")]
+        [HttpPost]
+        public async Task<JsonResult> LoadOlder(string otherId, int start, int blocks)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Json(new { success = false, message = "Unable to authenticate user." });
+            }
+            using (var db = new ZapContext())
+            {
+                var otherUserId = await db.Users
+                    .Where(u => u.AppId == otherId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+                var userId = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+                var msgs = await GetChats(db, userId, otherUserId, blocks, start);
+
+                string HTMLString = "";
+                foreach (var mvm in msgs)
+                {
+                    HTMLString += RenderPartialViewToString("_PartialChatMessage", mvm);
+                }
+
+                return Json(new { success = true, HTMLString, message = "Error retreiving messages." });
+            }
+        }
+
         [Route("Messages/Chat/{username?}")]
         public async Task<ActionResult> Chat(string username)
         {
-            var userId = User.Identity.GetUserId();
-            if (userId == null)
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -400,80 +433,44 @@ namespace zapread.com.Controllers
             {
                 var vm = new ChatMessagesViewModel();
 
-                var user = await db.Users
-                    .Include("Messages")
-                    .Include("Messages.PostLink")
-                    .Include("Messages.From")
-                    .Where(u => u.AppId == userId)
-                    .SingleOrDefaultAsync();
-
-                var otheruser = await db.Users
-                    .Include("Messages")
-                    .Include("Messages.PostLink")
-                    .Include("Messages.From")
+                var otherUser = await db.Users
                     .Where(u => u.Name == username)
-                    .SingleOrDefaultAsync();
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
 
-                if (otheruser == null)
-                {
-                    return RedirectToAction("Index", "Messages");
-                }
+                var userId = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
 
-                int thisUserId = user.Id;
-                int otherUserId = otheruser.Id;
-
-                // Better to just search from & to?
-
-                var receivedMessages = user.Messages
-                    .Where(m => m.From != null && m.From.Id == otherUserId)
-                    .Where(m => !m.IsDeleted)
-                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
-
-                foreach (var rm in receivedMessages.Where(m => m.IsRead == false))
-                {
-                    rm.IsRead = true;
-                }
-                await db.SaveChangesAsync();
-
-                var sentMessages = otheruser.Messages
-                    .Where(m => m.From != null && m.From.Id == thisUserId)
-                    .Where(m => !m.IsDeleted)
-                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage).ToList();
-
-                var messages = new List<ChatMessageViewModel>();
-
-                foreach (var m in receivedMessages)
-                {
-                    messages.Add(new ChatMessageViewModel()
-                    {
-                        Message = m,
-                        From = otheruser,
-                        To = user,
-                        IsReceived = true,
-                    });
-                }
-
-                foreach (var m in sentMessages)
-                {
-                    messages.Add(new ChatMessageViewModel()
-                    {
-                        Message = m,
-                        From = user,
-                        To = otheruser,
-                        IsReceived = false,
-                    });
-                }
-
-                vm.OtherUser = otheruser;
-                vm.ThisUser = user;
-                vm.Messages = messages
-                    .OrderByDescending(mv => mv.Message.TimeStamp)
-                    .Take(10)
-                    .OrderBy(mv => mv.Message.TimeStamp)
-                    .ToList();
+                vm.OtherUser = otherUser;
+                vm.Messages = await GetChats(db, userId, otherUser.Id, 10, 0);
 
                 return View(vm);
             }
+        }
+
+        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start)
+        {
+            return await db.Messages
+                .Where(m => m.IsPrivateMessage)
+                .Where(m => !m.IsDeleted)
+                .Where(m => (m.From.Id == otherUserId && m.To.Id == userId) ||
+                            (m.From.Id == userId && m.To.Id == otherUserId))
+                .OrderByDescending(m => m.TimeStamp)
+                .Skip(start)
+                .Take(step)
+                .OrderBy(m => m.TimeStamp)
+                .Select(m => new ChatMessageViewModel()
+                {
+                    Content = m.Content,
+                    TimeStamp = m.TimeStamp.Value,
+                    FromName = m.From.Name,
+                    FromAppId = m.From.AppId,
+                    IsReceived = m.From.Id == otherUserId
+                })
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<PartialViewResult> UnreadMessages()
@@ -834,10 +831,15 @@ namespace zapread.com.Controllers
 
                     var mvm = new ChatMessageViewModel()
                     {
+                        Content = msg.Content,
+                        FromAppId = msg.From.AppId,
+                        FromName = msg.From.Name,
+                        TimeStamp = msg.TimeStamp.Value,
+                        IsReceived = true,
+
                         Message = msg,
                         From = msg.From,
                         To = msg.To,
-                        IsReceived = true,
                     };
 
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
@@ -857,7 +859,7 @@ namespace zapread.com.Controllers
                         {
                             string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
                             string subject = "New private message";
-                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>"
+                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol:Request.Url.Scheme) + "'>"
                                         + sender.Name + "</a><br/> " + cleanContent
                                         + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
                                         + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
@@ -876,7 +878,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost, ValidateJsonAntiForgeryToken]
-        public JsonResult GetMessage(int id, int userId)
+        public async Task<JsonResult> GetMessage(int id)
         {
             var localUserId = User.Identity.GetUserId();
 
@@ -888,27 +890,30 @@ namespace zapread.com.Controllers
 
             string HTMLString = "";
 
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Json(new { success = false, HTMLString });
+            }
+
             using (var db = new ZapContext())
             {
-                var msg = db.Messages
-                    .Include("From")
-                    .Include("To")
-                    .Where(m => m.From.AppId == localUserId || m.To.AppId == localUserId)
-                    .SingleOrDefault(m => m.Id == id);
+                var userId = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
 
-                if (msg == null)
-                {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { success = false, result = "Failure", message = "Error receiving message." });
-                }
-
-                var mvm = new ChatMessageViewModel()
-                {
-                    Message = msg,
-                    From = msg.From,
-                    To = msg.To,
-                    IsReceived = msg.To.Id == userId,
-                };
+                var mvm = await db.Messages
+                    .Where(m => m.Id == id)
+                    .Select(m => new ChatMessageViewModel()
+                    {
+                        Content = m.Content,
+                        TimeStamp = m.TimeStamp.Value,
+                        FromName = m.From.Name,
+                        FromAppId = m.From.AppId,
+                        IsReceived = m.To.Id == userId,
+                    })
+                    .FirstOrDefaultAsync();
 
                 HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 

@@ -145,10 +145,6 @@ namespace zapread.com.Controllers
                     .Take(dataTableParameters.Length)
                     .ToListAsync();
 
-
-
-
-
                 var commentIds = pageEarnings
                     .Where(e => e.Type == 0 && e.OriginType == 1)
                     .Select(e => Convert.ToInt64(e.OriginId)).ToList();
@@ -173,7 +169,6 @@ namespace zapread.com.Controllers
                 var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync();
                 var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync();
 
-
                 var values = pageEarnings
                     .AsParallel()
                     .Select(t => new DataItem()
@@ -184,31 +179,6 @@ namespace zapread.com.Controllers
                         URL = GetEarningURL(t, commentIds, comments),
                         Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
                     }).ToList();
-
-                //var postEarning = await db.Users
-                //    .Where(us => us.AppId == userId)
-                //    .SelectMany(us => us.EarningEvents)
-                //    .OrderByDescending(e => e.TimeStamp)
-                //    .Skip(dataTableParameters.Start)
-                //    .Take(dataTableParameters.Length)
-                //    .Where(t => t.Type == 0 && t.OriginType == 0)
-                //    .Join(
-                //        inner: db.Posts, 
-                //        outerKeySelector: e => e.OriginId, 
-                //        innerKeySelector: p => p.PostId,
-                //        resultSelector: (e, p) => new { e.TimeStamp, e.Amount, p.PostId, p.PostTitle })
-                //    .ToListAsync();
-
-                //var postValues = postEarning
-                //    .AsParallel()
-                //    .Select(t => new DataItem()
-                //    {
-                //        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                //        Amount = t.Amount.ToString("0.##"),
-                //        Type = "Post",
-                //        URL = Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { id = t.PostId }),
-                //        Memo = t.PostTitle,
-                //    }).ToList();
 
                 int numrec = await db.Users
                     .Where(us => us.AppId == userId)

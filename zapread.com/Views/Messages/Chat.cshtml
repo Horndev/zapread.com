@@ -30,26 +30,31 @@
         <div class="col-lg-3">
         </div>
         <div class="col-lg-6">
+
+            
+
             <div class="ibox chat-view">
                 <div class="ibox-title">
                     <small class="float-right text-muted">
                         Last message:  @if (Model.Messages.Count() > 0)
-                        {<span class="postTime" style="display: inline"> @Model.Messages.Last().Message.TimeStamp.Value.ToString("o"); </span>}
+                        {<span class="postTime" style="display: inline">@Model.Messages.Last().TimeStamp.ToString("o")</span>}
                     else
-                    { <text>Never</text>}
+                    {<text>Never</text>}
                     </small>
                 </div>
                 <div class="ibox-content">
                     <div class="row">
                         <div class="col-md-12 ">
                             <div class="chat-discussion">
+                                <div class="social-feed-box-nb">
+                                    <button id="btnLoadOlder" class="btn btn-primary btn-block" onclick="loadolderchats(@Model.OtherUser.Id)"><i class="fa fa-arrow-up"></i> Show Older <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                                </div>
+                                <div id="startMessages"></div>
                                 @foreach (var c in Model.Messages)
                                 {
                                     @Html.Partial(partialViewName: "_PartialChatMessage", model: c)
                                 }
-                                <div id="endMessages">
-
-                                </div>
+                                <div id="endMessages"></div>
                             </div>
                             <div class="chat-discussion" style="height:200px;">
                                 <br /><br />
@@ -100,6 +105,7 @@
     @Scripts.Render("~/bundles/messages/chat")
     <script type="text/javascript">
     var ChattingWithId = "@Model.OtherUser.AppId";
-    var chatUserId = @Model.ThisUser.Id;
+
+    var startBlock = 10;
     </script>
 }
