@@ -1,5 +1,4 @@
 ﻿/* quotable */
-
 /* This code is used for having Zapread selections popup and produce a quote in the comments*/
 
 var selectionText;
