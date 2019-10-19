@@ -791,10 +791,15 @@ namespace zapread.com.Controllers
 
                     var mvm = new ChatMessageViewModel()
                     {
+                        Content = msg.Content,
+                        FromAppId = msg.From.AppId,
+                        FromName = msg.From.Name,
+                        TimeStamp = msg.TimeStamp.Value,
+                        IsReceived = true,
+
                         Message = msg,
                         From = msg.From,
                         To = msg.To,
-                        IsReceived = true,
                     };
 
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
@@ -814,7 +819,7 @@ namespace zapread.com.Controllers
                         {
                             string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
                             string subject = "New private message";
-                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }) + "'>"
+                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol:Request.Url.Scheme) + "'>"
                                         + sender.Name + "</a><br/> " + cleanContent
                                         + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
                                         + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
