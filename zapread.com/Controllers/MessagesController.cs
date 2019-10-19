@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -876,10 +877,17 @@ namespace zapread.com.Controllers
             return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
-        [HttpPost]
-        [AllowAnonymous]
+        [HttpPost, ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> GetMessage(int id)
         {
+            var localUserId = User.Identity.GetUserId();
+
+            if(localUserId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, result = "Failure", message = "Error verifying logged in user." });
+            }
+
             string HTMLString = "";
 
             var userAppId = User.Identity.GetUserId();
@@ -906,14 +914,6 @@ namespace zapread.com.Controllers
                         IsReceived = m.To.Id == userId,
                     })
                     .FirstOrDefaultAsync();
-
-                //var mvm = new ChatMessageViewModel()
-                //{
-                //    Message = msg,
-                //    From = msg.From,
-                //    To = msg.To,
-                //    IsReceived = true,// FIX msg.To.Id == userId,
-                //};
 
                 HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 

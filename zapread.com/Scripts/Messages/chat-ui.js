@@ -43,21 +43,37 @@ $(document).ready(function () {
     window.scrollTo(0, document.body.scrollHeight + 50);
 });
 
+/**
+ * @return {any} REST headers
+ * */
+var getAntiForgeryToken = function () {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+    return headers;
+};
+
+/**
+ * 
+ * @param {any} id: message id
+ */
 var sendMessage = function (id) {
     var action = "/Messages/SendMessage";
-    var contentType = "application/json; charset=utf-8";
     var dataval = '';
     var dataString = '';
     var messageElement = '#message_input';
     dataval = $(messageElement).summernote('code');
     dataString = JSON.stringify({ id: id, content: dataval, isChat: true });
     $('#chatReply').addClass('sk-loading');
+    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: action,
         data: dataString,
         dataType: "json",
-        contentType: contentType,
+        headers: headers,
+        contentType: "application/json; charset=utf-8",
         success: function (response) {
             if (response.success) {
                 $(".m_input").summernote('reset');
@@ -65,8 +81,9 @@ var sendMessage = function (id) {
                     type: "POST",
                     url: "/Messages/GetMessage",
                     data: JSON.stringify({ 'id': response.id }),
+                    headers: headers,
                     dataType: "json",
-                    contentType: contentType,
+                    contentType: "application/json; charset=utf-8",
                     success: function (result) {
                         $("#endMessages").append(result.HTMLString);
                         $('.postTime').each(function (i, e) {
