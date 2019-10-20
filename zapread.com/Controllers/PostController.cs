@@ -236,7 +236,7 @@ namespace zapread.com.Controllers
                 {
                     Content = "",
                     UserId = user,
-                    Group = postGroup ?? communityGroup,
+                    Group = postGroup,// ?? communityGroup,
                     Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
                 };
 
