@@ -7,11 +7,18 @@
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>New Post in <span id="postGroupActive">@Model.Post.Group.GroupName</span></h2>
+        <h2>New Post in <span id="postGroupActive">@if (Model.Post.Group != null) { @Model.Post.Group.GroupName } else {<text>Community</text>}</span></h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
-            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Post.Group.GroupId })">@Model.Post.Group.GroupName</a></li>
+            @if (Model.Post.Group != null)
+            {
+                <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Post.Group.GroupId })">@Model.Post.Group.GroupName</a></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = 1 })">Community</a></li>
+            }
             <li class="breadcrumb-item active">New</li>
         </ol>
     </div>
@@ -27,7 +34,7 @@
             <div id="postEdit" class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h3>
-                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name : New Post
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30 })" /> @User.Identity.Name : New Post
                     </h3>
                 </div>
                 <div class="ibox-content no-padding">
@@ -43,8 +50,8 @@
                                 <input id="postTitle" type="text" class="form-control">
                             </div>
                             <div class="form-group">
-                                <label>Post Group</label>
-                                <input id="postGroup" type="text" class="form-control" value="@Model.Post.Group.GroupName" />
+                                <label>Post Group (Community if left blank)</label>
+                                <input id="postGroup" type="text" class="form-control" value="@if (Model.Post.Group != null) { @Model.Post.Group.GroupName }" />
                             </div>
                             <div class="form-group">
                                 <label>Post Language</label>
@@ -132,13 +139,13 @@
 
     <script type="text/javascript">
 
-    var gid = @Model.Post.Group.GroupId;
+    var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
     var knownGroups = [''];
     var draftsTable = {};
 
     $(document).ready(function () {
-        draftsTable = $('#draftsTable').DataTable({
-            "searching": true,
+    draftsTable = $('#draftsTable').DataTable({
+        "searching": true,
             //"bInfo": false,
             "lengthChange": false,
             "pageLength": 10,
@@ -146,13 +153,13 @@
             "serverSide": true,
             //"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
             "ajax": {
-                type: "POST",
+        type: "POST",
                 contentType: "application/json",
                 url: "/Post/GetDrafts",
                 data: function (d) {
-                    return JSON.stringify(d);
-                }
-            },
+                return JSON.stringify(d);
+            }
+        },
             "columns": [
                 { "data": "Title", "orderable": true },
                 {
@@ -183,12 +190,12 @@
                     dataType: "json",
                     data: { prefix: request.term },
                     success: function (data) {
-                        knownGroups = data;
-                        response($.map(data, function (item) {
-                            return { label: item.GroupName, value: item.GroupName };
-                        }))
+                            knownGroups = data;
+                            response($.map(data, function (item) {
+                                return { label: item.GroupName, value: item.GroupName };
+                            }))
                     }
-                })
+                    })
             },
             select: function (event, ui) {
                 // if user clicked
@@ -212,17 +219,17 @@
                     }
                 }
             }
-        });
+            });
 
         $('.click2edit').summernote({
             toolbarContainer: '#editorToolbar',
             otherStaticBar: '.navbar',
             callbacks: {
                 onImageUpload: function (files) {
-                    that = $(this);
-                    sendFile(files[0], that);
-                }
-            },
+                        that = $(this);
+                        sendFile(files[0], that);
+                    }
+                },
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
@@ -237,28 +244,28 @@
             hint: {
                 match: /\B@@(\w*)$/,
                 search: function (keyword, callback) {
-                    if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                if (!keyword.length) return callback();
+                var msg = JSON.stringify({ 'searchstr': keyword.toString() })
                     $.ajax({
-                        async: true,
+                async: true,
                         url: '/Comment/GetMentions',
                         type: 'POST',
                         contentType: "application/json; charset=utf-8",
                         dataType: 'json',
                         data: msg,
                         error: function () {
-                            callback();
-                        },
+                        callback();
+                    },
                         success: function (res) {
-                            callback(res.users);
-                        }
-                    });
-                },
+                        callback(res.users);
+                    }
+                });
+            },
                 content: function (item) {
-                    return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-                }
+                return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
             }
-        });
+        }
+    });
     });
     </script>
 }

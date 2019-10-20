@@ -238,7 +238,8 @@ namespace zapread.com.Services
                                             message: "tx.id: " + Convert.ToString(i.Id)
                                             + " Reason 5");
                             }
-                            else if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice")
+                            else if (i.ErrorMessage == "Error: amount must be specified when paying a zero amount invoice" ||
+                                     i.ErrorMessage == "Error: payment attempt not completed before timeout")
                             {
                                 i.IsIgnored = true;
                                 
@@ -261,10 +262,14 @@ namespace zapread.com.Services
                                     }
                                 }
                                 i.IsLimbo = false;
+                                // TODO: send user email notification update of result.
                                 Services.MailingService.SendErrorNotification(
-                                            title: "Tx marked as ignored (not settled - funds returned)",
-                                            message: "tx.id: " + Convert.ToString(i.Id)
-                                            + " Reason 6");
+                                        title: "User withdraw limbo expired (not settled - limbo returned)",
+                                        message: "Withdraw Invoice expired (payment not found). Funds released to user."
+                                            + "\r\n invoice: " + i.PaymentRequest
+                                            + "\r\n user: " + i.User.Name + "(" + i.User.AppId + ")"
+                                            + "\r\n amount: " + Convert.ToString(i.Amount)
+                                            + "\r\n error: " + (i.ErrorMessage ?? "null"));
                             }
                             else
                             {
