@@ -2,6 +2,7 @@
 using System.Data.Entity.ModelConfiguration.Conventions;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Lightning;
 
 namespace zapread.com.Database
 {
@@ -27,6 +28,11 @@ namespace zapread.com.Database
         public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<PendingPostVote> PendingPostVotes { get; set; }
         public DbSet<PendingCommentVote> PendingCommentVotes { get; set; }
+        public DbSet<HourlyStatistics> HourlyStatistics { get; set; }
+        public DbSet<DailyStatistics> DailyStatistics { get; set; }
+        public DbSet<WeeklyStatistics> WeeklyStatistics { get; set; }
+        public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
+        public DbSet<LNNode> LNNodes { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
