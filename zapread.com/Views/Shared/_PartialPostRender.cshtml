@@ -164,7 +164,6 @@
                 </div>
                 <br />
             </div>
-
         </div>
         @*<div class="row">
             <div class="col col-auto">
@@ -208,37 +207,39 @@
     }
         <div class="social-comment-box" id="@("comments_" + @Model.Post.PostId.ToString())">
             @if (Model.Post.Comments != null)
+            {
+                var numshown = 0;
+                var numToShow = 3;
+                if (Model.IsDetailView) { numToShow = 50; }
+                bool showmore = false;
+                List<long> rootshown = new List<long>();
+                var comments = Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
+                var numComments = comments.Count();
+                foreach (var comment in comments)
                 {
-                    var numshown = 0;
-                    bool showmore = false;
-                    List<long> rootshown = new List<long>();
-                    var comments = Model.Post.Comments.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
-                    var numComments = comments.Count();
-                    foreach (var comment in comments)
+                    var vm = new PostCommentsViewModel
                     {
-                        var vm = new PostCommentsViewModel
-                        {
-                            NestLevel = 1, // Root level comment
-                            Comment = comment,
-                            Comments = Model.Post.Comments.ToList(),
-                            ViewerIgnoredUsers = Model.ViewerIgnoredUsers
-                        };
+                        NestLevel = 1, // Root level comment
+                        Comment = comment,
+                        Comments = Model.Post.Comments.ToList(),
+                        ViewerIgnoredUsers = Model.ViewerIgnoredUsers
+                    };
 
-                        // Have the top 3 root comments start visible
-                        if (numshown < 3 && comment.Score >= 0)
-                        {
-                            numshown += 1;
-                            vm.StartVisible = true;
+                    // Have the top 3 root comments start visible
+                    if (numshown < numToShow && comment.Score >= 0)
+                    {
+                        numshown += 1;
+                        vm.StartVisible = true;
                             @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
                             rootshown.Add(comment.CommentId);
                         }
-                        else if (numshown < 3)
+                        else if (numshown < numToShow)
                         {
                             numshown += 1;
                             vm.StartVisible = false;
                             @Html.Partial(partialViewName: "_PartialCommentRender", model: vm)
                         }
-                        if (numshown >= 3 && numComments > 3)
+                        if (numshown >= numToShow && numComments > numToShow)
                         {
                             showmore = true;
                         }
