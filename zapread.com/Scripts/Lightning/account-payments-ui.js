@@ -2,6 +2,15 @@
  * 
 */
 
+$(document).ready(function () {
+    $.get("/Account/GetBalance", function (data, status) {
+        $('#userDepositBalance').html(data.balance);
+        $(".userBalanceValue").each(function (i, e) {
+            $(e).html(data.balance);
+        });
+    });
+});
+
 var onGetInvoice = function (e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
@@ -57,18 +66,63 @@ var onGetInvoice = function (e) {
     });
 };
 
+var onValidateInvoice = function (e) {
+    var invoice = $("#lightningWithdrawInvoiceInput").val();
+    headers = getAntiForgeryToken();
+    $.ajax({
+        type: "POST",
+        url: "/Lightning/ValidatePaymentRequest",
+        data: JSON.stringify({ request: invoice.toString() }),
+        headers: headers,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                $('#lightningInvoiceAmount').val(response.num_satoshis);
+                $('#confirmWithdraw').show();
+                $('#btnPayLNWithdraw').hide();
+                $('#btnVerifyLNWithdraw').hide();
+                $('#btnPayLNWithdraw').show();
+                
+                $("#lightningTransactionInvoiceResult").html("Verify amount and click Withdraw");
+
+
+                console.log('Withdraw Node:' + response.destination);
+            }
+            else {
+                // Error?
+            }
+        },
+        failure: function (response) {
+            alert(response.message);
+        },
+        error: function (response) {
+            alert(response.message);
+        }
+    });
+
+};
+
+/**
+ * Validates invoice before payment
+ * @param {any} e element clicked
+ */
 var onPayInvoice = function (e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
-    var msg = '{ request: "' + invoice.toString() + '" }';
     $("#btnPayLNWithdraw").attr("disabled", "disabled");
+    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: "/Lightning/SubmitPaymentRequest",
-        data: msg,
+        data: JSON.stringify({ request: invoice.toString() }),
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             if (response.Result === "success") {
                 $("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
                 $("#lightningTransactionInvoiceResult").removeClass("bg-info");
@@ -96,6 +150,9 @@ var onPayInvoice = function (e) {
         },
         failure: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             $("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
             $("#lightningTransactionInvoiceResult").removeClass("bg-success");
             $("#lightningTransactionInvoiceResult").addClass("bg-error");
@@ -103,6 +160,9 @@ var onPayInvoice = function (e) {
         },
         error: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             $("#lightningTransactionInvoiceResult").html("Error receiving invoice");
             $("#lightningTransactionInvoiceResult").removeClass("bg-success");
             $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
@@ -172,7 +232,7 @@ var checkInvoicePaid = function (e) {
 var switchWithdraw = function () {
     $('#doLightningTransactionBtn').hide();
     $('#btnCheckLNDeposit').hide();
-    $('#btnPayLNWithdraw').show();
+    $('#btnVerifyLNWithdraw').show();
     $("#lightningTransactionInvoiceResult").show();
     $("#lightningDepositQR").hide();
     $("#lightningDepositInvoice").hide();
@@ -187,6 +247,7 @@ var switchDeposit = function () {
     $('#doLightningTransactionBtn').show();
     $('#btnCheckLNDeposit').hide();
     $('#btnPayLNWithdraw').hide();
+    $('#btnVerifyLNWithdraw').hide();
     $("#lightningTransactionInvoiceResult").removeClass("bg-info");
     $("#lightningTransactionInvoiceResult").removeClass("bg-error");
     $("#lightningTransactionInvoiceResult").addClass("bg-muted");

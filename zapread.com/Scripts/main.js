@@ -127,6 +127,17 @@ $(document).ready(function () {
 
 }); // End document ready
 
+/**
+ * @return {any} REST headers
+ * */
+var getAntiForgeryToken = function () {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    var headers = {};
+    headers['__RequestVerificationToken'] = token;
+    return headers;
+};
+
 /* exported writeComment */
 var writeComment = function (e) {
     var id = $(e).data("postid");

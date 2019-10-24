@@ -52,11 +52,6 @@
     </div>
 </div>
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
 @section Scripts {
     @Scripts.Render("~/bundles/admin/install")
 }

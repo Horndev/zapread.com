@@ -8,11 +8,6 @@
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />

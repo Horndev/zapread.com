@@ -7,5 +7,6 @@ namespace zapread.com.Services
 {
     public class LNNodeMonitor
     {
+
     }
 }

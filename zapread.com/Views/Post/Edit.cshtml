@@ -98,11 +98,6 @@
     </div>
 </div>
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
 @section Styles {
     @Styles.Render("~/plugins/summernoteStyles")
     @Styles.Render("~/bundles/css/datatables")

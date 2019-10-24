@@ -70,6 +70,11 @@
 
                         <img id="lightningDepositQR" src="/Img/Qr?qr=lninvoice" class="img-fluid" style="display:none" />
 
+                        <div id="confirmWithdraw" style="display:none">
+                            <span>Invoice amount:</span>
+                            <input type="text" id="lightningInvoiceAmount" class="form-control" readonly="readonly">
+                        </div>
+
                         <div class="input-group mb-3" id="lightningDepositInvoice" style="display:none">
                             <div class="input-group-prepend">
                                 <a href="lightning:xxx" id="lightningDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
@@ -100,6 +105,7 @@
             </div>
             <div class="modal-footer">
                 <button id="btnCheckLNDeposit" type="button" class="btn btn-info" style="display:none;" onclick="checkInvoicePaid(this);" data-invoice-element="lightningDepositInvoiceInput" data-spin-element="spinCheckPaymentLN">Check Payment <i id="spinCheckPaymentLN" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                <button id="btnVerifyLNWithdraw" type="button" class="btn btn-primary" style="display:none" onclick="onValidateInvoice(this);">Validate Invoice</button>
                 <button id="btnPayLNWithdraw" type="button" class="btn btn-primary" style="display:none" onclick="onPayInvoice(this);">Withdraw</button>
                 <button id="doLightningTransactionBtn" type="button" class="btn btn-primary" onclick="onGetInvoice(this);">Get Invoice</button>
                 <button onclick="onCancelDepositWithdraw(this);" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -107,16 +113,3 @@
         </div>
     </div>
 </div>
-
-@Html.Script(
-@<script type="text/javascript">
-     $(document).ready(function () {
-         $.get("/Account/GetBalance", function (data, status) {
-             $('#userDepositBalance').html(data.balance);
-             $(".userBalanceValue").each(function (i, e) {
-                 $(e).html(data.balance);
-             });
-         });
-     });
-</script>
-)

@@ -90,11 +90,6 @@
 
 @Html.Partial(partialViewName: "_PartialModalUpdateUserAlias")          @*This is the code for the modal dialog box to update username*@
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
 <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         @Html.Partial(partialViewName: "_ModalAboutMe", model: @Model.AboutMe)

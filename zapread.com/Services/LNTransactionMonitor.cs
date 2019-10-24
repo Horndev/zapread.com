@@ -138,7 +138,8 @@ namespace zapread.com.Services
                     .Where(t => t.IsIgnored == false)   // Still valid
                     .Where(t => t.IsLimbo)              // Only check those in limbo
                     .Include(t => t.User)
-                    .Include(t => t.User.Funds);
+                    .Include(t => t.User.Funds)
+                    .OrderByDescending(t => t.TimestampCreated);
 
                 var numup = unpaidWithdraws.Count();
 
@@ -163,8 +164,31 @@ namespace zapread.com.Services
                             // Paid?
                             if (i.ErrorMessage == "Error: invoice is already paid")
                             {
+                                // Invoice is already paid - 
+                                double amount = Convert.ToDouble(i.Amount);
+
                                 // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
+                                if (i.User.Funds.LimboBalance - amount < 0)
+                                {
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                    i.User.Funds.Balance += i.User.Funds.LimboBalance;
+                                    i.User.Funds.LimboBalance = 0;
+                                }
+                                else
+                                {
+                                    i.User.Funds.LimboBalance -= amount;
+                                    i.User.Funds.Balance += amount;
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                }
+                                i.IsLimbo = false;
                                 i.IsIgnored = true;
+                                i.IsSettled = false;
                                 Services.MailingService.SendErrorNotification(
                                             title: "Tx marked as ignored",
                                             message: "tx.id: "+Convert.ToString(i.Id) 
