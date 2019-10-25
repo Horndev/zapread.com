@@ -337,6 +337,49 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpPost, ValidateJsonAntiForgeryToken]
+        public ActionResult ValidatePaymentRequest(string request)
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "User not authorized." });
+            }
+
+            // Get interface to LND
+            LndRpcClient lndClient = GetLndClient();
+
+            var decoded = lndClient.DecodePayment(request.SanitizeXSS());
+
+            if (decoded != null)
+            {
+                // Check user balance
+                using (var db = new ZapContext())
+                {
+                    var user = db.Users
+                        .Include(usr => usr.Funds)
+                        .FirstOrDefault(u => u.AppId == userAppId);
+
+                    if (user == null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        return Json(new { success = false, message = "User not found in database." });
+                    }
+
+                    if (user.Funds.Balance < Convert.ToDouble(decoded.num_satoshis))
+                    {
+                        return Json(new { success = false, message = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.") + ", invoice is for " + decoded.num_satoshis + "." });
+                    }
+
+                    return Json(new { success = true, decoded.num_satoshis, decoded.destination });
+                }
+            }
+
+            return Json(new { success=false, message="Error decoding invoice." });
+        }
+
         /// <summary>
         /// Pay a lightning invoice.
         /// </summary>
@@ -349,7 +392,8 @@ namespace zapread.com.Controllers
 
             if (userId == null)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "User not authorized." });
             }
 
             // Get interface to LND

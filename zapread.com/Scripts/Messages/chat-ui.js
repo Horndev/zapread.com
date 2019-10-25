@@ -44,17 +44,6 @@ $(document).ready(function () {
 });
 
 /**
- * @return {any} REST headers
- * */
-var getAntiForgeryToken = function () {
-    var form = $('#__AjaxAntiForgeryForm');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
-    return headers;
-};
-
-/**
  * 
  * @param {any} id: message id
  */

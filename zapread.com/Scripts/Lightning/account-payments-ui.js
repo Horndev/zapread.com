@@ -2,13 +2,20 @@
  * 
 */
 
+$(document).ready(function () {
+    $.get("/Account/GetBalance", function (data, status) {
+        $('#userDepositBalance').html(data.balance);
+        $(".userBalanceValue").each(function (i, e) {
+            $(e).html(data.balance);
+        });
+    });
+});
+
 var onGetInvoice = function (e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
-
     var amount = $("#depositValueAmount").val();
     var memo = 'ZapRead.com deposit';
-
     var msg = JSON.stringify({
         "amount": amount.toString(),
         "memo": memo,
@@ -17,7 +24,6 @@ var onGetInvoice = function (e) {
         "useId": -1,           // undefined
         "useAction": -1        // undefined
     });
-
     $.ajax({
         type: "POST",
         url: "/Lightning/GetDepositInvoice/",
@@ -28,10 +34,7 @@ var onGetInvoice = function (e) {
             $("#lightningDepositInvoiceInput").val(response.Invoice);
             $("#lightningDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
             $("#lightningDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-error bg-muted");
             $("#lightningTransactionInvoiceResult").addClass("bg-info");
             $("#lightningTransactionInvoiceResult").html("Please pay invoice to complete your deposit.");
             $("#lightningTransactionInvoiceResult").show();
@@ -40,44 +43,78 @@ var onGetInvoice = function (e) {
         },
         failure: function (response) {
             $("#lightningTransactionInvoiceResult").html("Failed to generate invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
             $("#lightningTransactionInvoiceResult").addClass("bg-error");
             $("#lightningTransactionInvoiceResult").show();
         },
         error: function (response) {
             $("#lightningTransactionInvoiceResult").html("Error generating invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-info bg-muted");
             $("#lightningTransactionInvoiceResult").addClass("bg-error");
             $("#lightningTransactionInvoiceResult").show();
         }
     });
 };
 
+var onValidateInvoice = function (e) {
+    var invoice = $("#lightningWithdrawInvoiceInput").val();
+    headers = getAntiForgeryToken();
+    $.ajax({
+        type: "POST",
+        url: "/Lightning/ValidatePaymentRequest",
+        data: JSON.stringify({ request: invoice.toString() }),
+        headers: headers,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                $('#lightningInvoiceAmount').val(response.num_satoshis);
+                $('#confirmWithdraw').show();
+                $('#btnPayLNWithdraw').hide();
+                $('#btnVerifyLNWithdraw').hide();
+                $('#btnPayLNWithdraw').show();
+                $("#lightningTransactionInvoiceResult").html("Verify amount and click Withdraw");
+                console.log('Withdraw Node:' + response.destination);
+            }
+            else {
+                swal("Error", response.message, "error");
+            }
+        },
+        failure: function (response) {
+            swal("Error", response.message, "error");
+        },
+        error: function (response) {
+            swal("Error", response.message, "error");
+        }
+    });
+};
+
+/**
+ * Validates invoice before payment
+ * @param {any} e element clicked
+ */
 var onPayInvoice = function (e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
-    var msg = '{ request: "' + invoice.toString() + '" }';
     $("#btnPayLNWithdraw").attr("disabled", "disabled");
+    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: "/Lightning/SubmitPaymentRequest",
-        data: msg,
+        data: JSON.stringify({ request: invoice.toString() }),
+        headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             if (response.Result === "success") {
                 $("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-error");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
+                $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-muted");
                 $("#lightningTransactionInvoiceResult").addClass("bg-success");
                 $("#lightningTransactionInvoiceResult").show();
                 $('#withdrawModal').modal('hide');
-
                 $.get("/Account/GetBalance", function (data, status) {
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);
@@ -87,15 +124,16 @@ var onPayInvoice = function (e) {
             }
             else {
                 $("#lightningTransactionInvoiceResult").html(response.Result);
-                $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+                $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
                 $("#lightningTransactionInvoiceResult").addClass("bg-error");
                 $("#lightningTransactionInvoiceResult").show();
             }
         },
         failure: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             $("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
             $("#lightningTransactionInvoiceResult").removeClass("bg-success");
             $("#lightningTransactionInvoiceResult").addClass("bg-error");
@@ -103,10 +141,11 @@ var onPayInvoice = function (e) {
         },
         error: function (response) {
             $("#btnPayLNWithdraw").removeAttr("disabled");
+            $('#btnVerifyLNWithdraw').show();
+            $("#btnPayLNWithdraw").hide();
+            $('#confirmWithdraw').hide();
             $("#lightningTransactionInvoiceResult").html("Error receiving invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-muted");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-info");
+            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
             $("#lightningTransactionInvoiceResult").addClass("bg-error");
             $("#lightningTransactionInvoiceResult").show();
         }
@@ -120,7 +159,6 @@ var onPayInvoice = function (e) {
 var onCancelDepositWithdraw = function (e) {
     $("#btnCheckLNDeposit").hide();
     $("#doLightningTransactionBtn").show();
-
     $("#lightningTransactionInvoiceResult").hide();
     $("#lightningDepositQR").hide();
     $("#lightningDepositInvoice").hide();
@@ -172,14 +210,12 @@ var checkInvoicePaid = function (e) {
 var switchWithdraw = function () {
     $('#doLightningTransactionBtn').hide();
     $('#btnCheckLNDeposit').hide();
-    $('#btnPayLNWithdraw').show();
+    $('#btnVerifyLNWithdraw').show();
     $("#lightningTransactionInvoiceResult").show();
     $("#lightningDepositQR").hide();
     $("#lightningDepositInvoice").hide();
-    $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-    $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+    $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
     $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-    $("#lightningTransactionInvoiceResult").removeClass("bg-success");
     $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
 };
 
@@ -187,9 +223,8 @@ var switchDeposit = function () {
     $('#doLightningTransactionBtn').show();
     $('#btnCheckLNDeposit').hide();
     $('#btnPayLNWithdraw').hide();
-    $("#lightningTransactionInvoiceResult").removeClass("bg-info");
-    $("#lightningTransactionInvoiceResult").removeClass("bg-error");
+    $('#btnVerifyLNWithdraw').hide();
+    $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
     $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-    $("#lightningTransactionInvoiceResult").removeClass("bg-success");
     $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
 };

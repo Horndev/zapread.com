@@ -113,11 +113,6 @@
     </div>
 </div>
 
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
 @section Scripts {
     <script type="text/javascript">
         // Setup a job

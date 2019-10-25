@@ -50,6 +50,10 @@
             @RenderBody()
             <!-- Footer -->
             @Html.Partial("_Footer")
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+            {
+                @Html.AntiForgeryToken()
+            }
         </div>
         <!-- End page wrapper-->
     </div>

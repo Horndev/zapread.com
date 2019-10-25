@@ -555,16 +555,23 @@ namespace zapread.com.Controllers
                     User user = await GetCurrentUser(db); // it would be nice to remove this line
 
                     var userAppId = User.Identity.GetUserId();
-                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId)).Id;
-                    await ValidateClaims(userId); // Checks user security claims
+
+                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId))?.Id;
+
+                    if (!userId.HasValue)
+                    {
+                        return RedirectToAction(actionName: "Login", controllerName: "Account");
+                    }
+
+                    await ValidateClaims(userId.Value); // Checks user security claims
                     var posts = await GetPosts(
                         start: 0,
                         count: 10,
                         sort: sort ?? "Score",
-                        userId: userId);
+                        userId: userId.Value);
                     PostsViewModel vm = new PostsViewModel()
                     {
-                        Posts = await GeneratePostViewModels(user, posts, db, userId),
+                        Posts = await GeneratePostViewModels(user, posts, db, userId.Value),
                         UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
                         SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db),
