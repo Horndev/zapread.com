@@ -65,7 +65,7 @@ var submit = function (postId, groupId, userId, isUpdate) {
     var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': groupId, 'UserId': userId, 'Title': postTitle, 'IsDraft': false, 'Language': language });
     var url = "/Post/SubmitNewPost/";
     if (isUpdate) {
-        url = "/Post/Update";
+        url = "/Post/Update/";
     }
 
     var form = $('#__AjaxAntiForgeryForm');
@@ -81,21 +81,30 @@ var submit = function (postId, groupId, userId, isUpdate) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         headers: headers,
-        success: function (response) {
-            $('#submit').prop('disabled', false);
-            var newPostUrl = "/Post/Detail";
-            newPostUrl = newPostUrl + '/' + response.postId;
-            window.location.replace(newPostUrl);
+        success: function(response) {
+            if (response.success) {
+                $('#submit').prop('disabled', false);
+                var newPostUrl = "/Post/Detail";
+                newPostUrl = newPostUrl + '/' + response.postId;
+                window.location.replace(newPostUrl);
+            } else {
+                $('#submit').prop('disabled', false);
+                $('#save').prop('disabled', false);
+                $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+                swal("Error", response.message);
+            }
         },
         failure: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+            swal("Error", response.message);
         },
         error: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
+            swal("Error", response.message);
         }
     });
     $('.click2edit').summernote('destroy');
