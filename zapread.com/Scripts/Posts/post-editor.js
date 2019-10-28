@@ -91,20 +91,20 @@ var submit = function (postId, groupId, userId, isUpdate) {
                 $('#submit').prop('disabled', false);
                 $('#save').prop('disabled', false);
                 $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-                swal("Error", response.message);
+                swal("Error", response.message, "error");
             }
         },
         failure: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            swal("Error", response.message);
+            swal("Error", response.message, "error");
         },
         error: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            swal("Error", response.message);
+            swal("Error", response.message, "error");
         }
     });
     $('.click2edit').summernote('destroy');
@@ -137,6 +137,7 @@ var save = function (postId, groupId, userId, isUpdate) {
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
             draftsTable.ajax.reload(null, false);
+            $('.click2edit').html(response.HTMLContent);
         },
         failure: function (response) {
             $('#submit').prop('disabled', false);

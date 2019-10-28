@@ -302,7 +302,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = await db.Users.Where(u => u.AppId == userId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                    .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
 
                 // Cleanup post HTML
                 HtmlDocument postDocument = new HtmlDocument();
@@ -319,6 +319,23 @@ namespace zapread.com.Controllers
                         }
                     }
                 }
+
+                // Check links
+                var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
+                foreach (var link in postLinks.ToList())
+                {
+                    string url = link.GetAttributeValue("href", "");
+                    // replace links to embedded videos
+                    if (url.Contains("youtu.be"))
+                    {
+                        var uri = new Uri(url);
+                        string videoId = uri.Segments.Last();
+                        string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                        var newNode = HtmlNode.CreateNode(modElement);
+                        link.ParentNode.ReplaceChild(newNode, link);
+                    }
+                }
+
                 string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
 
@@ -355,14 +372,14 @@ namespace zapread.com.Controllers
                     if (post.IsDraft && !p.IsDraft) // Post was a draft, now published
                     {
                         post.IsDraft = p.IsDraft;
-                        await db.SaveChangesAsync().ConfigureAwait(false);
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                         // We don't return yet - so notifications can be fired off.
                     }
                     else
                     {
                         post.IsDraft = p.IsDraft;
-                        await db.SaveChangesAsync().ConfigureAwait(false);
-                        return Json(new { result = "success", postId = post.PostId });
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                        return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
                 }
                 else
@@ -384,24 +401,24 @@ namespace zapread.com.Controllers
                     };
 
                     db.Posts.Add(post);
-                    await db.SaveChangesAsync().ConfigureAwait(false);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 
                 bool quiet = false;  // Used when debugging
 
                 if (p.IsDraft || quiet) // Don't send any alerts
                 {
-                    return Json(new { result = "success", postId = post.PostId });
+                    return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                 }
 
                 // Send alerts to users subscribed to group
-                await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(false);
+                await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
 
                 // Send alerts to users subscribed to users
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
-                await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(false);
+                await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
 
-                return Json(new { result = "success", postId = post.PostId });
+                return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
             }
         }
 
@@ -414,7 +431,7 @@ namespace zapread.com.Controllers
 
             mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
             string subject = "New post by user you are following: " + user.Name;
-            string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject);
+            string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject).ConfigureAwait(true);
 
             foreach (var u in followUsers)
             {
@@ -501,7 +518,7 @@ namespace zapread.com.Controllers
                 }
 
                 post.IsDeleted = true;
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(false);
 
                 return Json(new { Success = true });
                 //return RedirectToAction("Index", "Home");
@@ -703,7 +720,7 @@ namespace zapread.com.Controllers
 
                 post.IsDraft = p.IsDraft;
                 await db.SaveChangesAsync().ConfigureAwait(false);
-                return Json(new { result = "success", success = true, postId = post.PostId });
+                return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
             }
         }
 
