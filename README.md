@@ -1,6 +1,6 @@
 # ZapRead.com
 
-[![Build status](https://horndev.visualstudio.com/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI)](https://horndev.visualstudio.com/Coinpanic/_build/latest?definitionId=2)
+[![Build Status](https://dev.azure.com/horndev/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI?branchName=master)](https://dev.azure.com/horndev/Coinpanic/_build/latest?definitionId=2&branchName=master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com?ref=badge_shield)
 [![BCH compliance](https://bettercodehub.com/edge/badge/Horndev/zapread.com?branch=master)](https://bettercodehub.com/)
 [![CodeFactor](https://www.codefactor.io/repository/github/horndev/zapread.com/badge/master)](https://www.codefactor.io/repository/github/horndev/zapread.com/overview/master)
