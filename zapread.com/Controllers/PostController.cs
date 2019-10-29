@@ -322,20 +322,22 @@ namespace zapread.com.Controllers
 
                 // Check links
                 var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
-                foreach (var link in postLinks.ToList())
+                if (postLinks != null)
                 {
-                    string url = link.GetAttributeValue("href", "");
-                    // replace links to embedded videos
-                    if (url.Contains("youtu.be"))
+                    foreach (var link in postLinks.ToList())
                     {
-                        var uri = new Uri(url);
-                        string videoId = uri.Segments.Last();
-                        string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
-                        var newNode = HtmlNode.CreateNode(modElement);
-                        link.ParentNode.ReplaceChild(newNode, link);
+                        string url = link.GetAttributeValue("href", "");
+                        // replace links to embedded videos
+                        if (url.Contains("youtu.be"))
+                        {
+                            var uri = new Uri(url);
+                            string videoId = uri.Segments.Last();
+                            string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                            var newNode = HtmlNode.CreateNode(modElement);
+                            link.ParentNode.ReplaceChild(newNode, link);
+                        }
                     }
                 }
-
                 string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
 
