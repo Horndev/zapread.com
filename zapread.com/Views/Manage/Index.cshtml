@@ -78,7 +78,7 @@
                     <div class="ibox-content no-padding border-left-right">
                         <div class="cuadro_intro_hover">
                             <p style="text-align:center; ">
-                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
+                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, v=Model.User.ProfileImage.Version})" />
                             </p>
                             <div class="caption">
                                 <div class="blur"></div>
@@ -94,7 +94,7 @@
                             <strong>
                                 @if (Request.IsAuthenticated)
                                 {
-                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name
+                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30, v=Model.User.ProfileImage.Version})" /> @User.Identity.Name
                                 }
                                 else
                                 {
@@ -493,14 +493,6 @@
                         </div>
                     </div>
                     <div class="ibox-tools">
-                    </div>
-                </div>
-                <div>
-                    <div class="ibox-content profile-content">
-                        <div class="partialContents" data-url="/Account/Balance"></div>
-                        <br />
-                        <b>Recent Lightning Transactions</b>
-                        @Html.Partial(partialViewName: "_PartialFinance", model: @Model.Financial)
                     </div>
                 </div>
 

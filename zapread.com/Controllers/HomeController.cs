@@ -54,7 +54,7 @@ namespace zapread.com.Controllers
             {
                 var user = await db.Users
                     .Where(u => u.AppId == UserAppId)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
                 if (user == null)
                 {
@@ -112,9 +112,9 @@ namespace zapread.com.Controllers
                         {
                             Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                             byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                            UserImage img = new UserImage() { Image = DBdata };
+                            UserImage img = new UserImage() { Image = DBdata, Version = user.ProfileImage.Version + 1};
                             user.ProfileImage = img;
-                            await db.SaveChangesAsync();
+                            await db.SaveChangesAsync().ConfigureAwait(false);
                         }
                         return Json(new { success = true, result = "Success" });
                     }
@@ -201,7 +201,7 @@ namespace zapread.com.Controllers
                     {
                         Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                         byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                        UserImage img = new UserImage() { Image = DBdata };
+                        UserImage img = new UserImage() { Image = DBdata, Version = 0 };
                         user.ProfileImage = img;
                         await db.SaveChangesAsync().ConfigureAwait(false);
                     }
