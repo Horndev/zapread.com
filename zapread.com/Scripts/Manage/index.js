@@ -1,5 +1,95 @@
 ﻿/* These are scripts for Manage/Index page*/
 
+Dropzone.options.dropzoneForm = {
+    paramName: "file", // The name that will be used to transfer the file
+    maxFilesize: 15, // MB
+    acceptedFiles: "image/*",
+    maxFiles: 1,
+    uploadMultiple: false,
+    init: function() {
+        this.on("addedfile", function() {
+        });
+        this.on("success", function(file, response) {
+            if (response.success) {
+                // Reload images
+                $('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
+                $(".user-image-30").each(function() {
+                    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
+                });
+                $(".post-image-45").each(function() {
+                    // Refreshes post user images
+                    var src = $(this).attr('src');
+                    $(this).attr("src", src + "&r=" + new Date().getTime());
+                });
+                $(".user-image-15").each(function() {
+                    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
+                });
+                swal("Your profile image has been updated!", {
+                    icon: "success"
+                });
+                // This doesn't seem to be working properly :(
+                $('.cuadro_intro_hover').each(function() {
+                    $(this).css('position', 'absolute');
+                    $(this).css('position', 'relative');
+                });
+            } else {
+                // Did not work
+                swal("Error", "Error updating image: " + data.message, "error");
+            }
+        });
+    },
+    dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
+};
+
+$(document).ready(function() {
+    $('.chosen-select').chosen({ width: "100%" }).on('change', function(evt, params) {
+        var selectedValue = params.selected;
+        var values = $('#languagesSelect').val();
+        console.log(selectedValue);
+        var userlangs = values.join(',');
+        console.log(userlangs);
+        $.ajax({
+            async: true,
+            data: JSON.stringify({ 'languages': userlangs }),
+            type: 'POST',
+            url: '/Manage/UpdateUserLanguages',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    console.log('languages updated.');
+                }
+                else {
+                    console.log(response.message);
+                }
+            }
+        });
+    });
+
+    // Set group list as clickable
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+
+    // This loads all partial views on page
+    $(".partialContents").each(function(index, item) {
+        var url = $(item).data("url");
+        if (url && url.length > 0) {
+            $(item).load(url);
+        }
+    });
+
+    // This formats the timestamps on the page
+    $('.eventTime').each(function(i, e) {
+        var datefn = dateFns.parse($(e).html());
+        // Adjust to local time
+        datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+        var date = dateFns.format(datefn, "DD MMM YYYY");
+        var time = dateFns.distanceInWordsToNow(datefn);
+        $(e).html('<span>' + time + ' ago - ' + date + '</span>');
+    });
+});
+
 var updateLanguages = function () {
     console.log('updateLanguages');
 };

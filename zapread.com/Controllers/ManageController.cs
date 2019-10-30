@@ -932,6 +932,12 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public async Task<JsonResult> UpdateProfileImage(HttpPostedFileBase file)
         {
+            if (file == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No file uploaded." });
+            }
+
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
@@ -970,9 +976,9 @@ namespace zapread.com.Controllers
                     //await EnsureUserExists(userId, db);
                     UserImage i = new UserImage() { Image = data };
                     db.Users.First(u => u.AppId == userId).ProfileImage = i;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
-                return Json(new { result = "success" });
+                return Json(new { success = true, result = "success" });
             }
         }
 
