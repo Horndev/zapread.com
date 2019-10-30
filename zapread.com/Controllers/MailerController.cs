@@ -164,6 +164,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         public async Task<string> GenerateNewPostEmailBod(int id, string subject)
         {
+            // TODO: convert youtube embeds to images to mail out: https://img.youtube.com/vi/ifesHElrfuo/hqdefault.jpg
             using (var db = new ZapContext())
             {
                 Post pst = await db.Posts

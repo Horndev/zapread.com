@@ -54,7 +54,7 @@ namespace zapread.com.Controllers
             {
                 var user = await db.Users
                     .Where(u => u.AppId == UserAppId)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
                 if (user == null)
                 {
@@ -112,9 +112,9 @@ namespace zapread.com.Controllers
                         {
                             Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                             byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                            UserImage img = new UserImage() { Image = DBdata };
+                            UserImage img = new UserImage() { Image = DBdata, Version = user.ProfileImage.Version + 1};
                             user.ProfileImage = img;
-                            await db.SaveChangesAsync();
+                            await db.SaveChangesAsync().ConfigureAwait(false);
                         }
                         return Json(new { success = true, result = "Success" });
                     }
@@ -127,7 +127,14 @@ namespace zapread.com.Controllers
             }
         }
 
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        /// <summary>
+        /// Gets the user's image
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        [OutputCache(Duration = 3600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> UserImage(int? size, string UserId)
         {
             if (size == null) size = 100;
@@ -148,25 +155,27 @@ namespace zapread.com.Controllers
             {
                 var i = await db.Users
                     .Where(u => u.AppId == UserId || u.Name == UserId)
-                    .Select(u => new
-                    {
-                        u.ProfileImage.Image
-                    })
+                    .Select(u => new { u.ProfileImage.Image })
                     .AsNoTracking()
-                    .FirstAsync();
+                    .FirstAsync().ConfigureAwait(false);
 
                 if (i.Image != null)
                 {
-                    Image png = Image.FromStream(new MemoryStream(i.Image));
-                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
-                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
-                    return File(data, "image/png");
+                    using (var ms = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ms);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        }
+                    }
                 }
 
                 // RoboHash
                 var user = await db.Users
                     .Where(u => u.AppId == UserId || u.Name == UserId)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
                 // Should generate robohash off the appId if Name was supplied
                 if (user != null)
@@ -192,9 +201,9 @@ namespace zapread.com.Controllers
                     {
                         Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                         byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                        UserImage img = new UserImage() { Image = DBdata };
+                        UserImage img = new UserImage() { Image = DBdata, Version = 0 };
                         user.ProfileImage = img;
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(false);
                     }
                     return File(data, "image/png");
                 }

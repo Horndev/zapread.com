@@ -687,6 +687,10 @@
     <Compile Include="Migrations\201910210155096_LNNodesAndStats.Designer.cs">
       <DependentUpon>201910210155096_LNNodesAndStats.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201910300359121_addUserImageVersion.cs" />
+    <Compile Include="Migrations\201910300359121_addUserImageVersion.Designer.cs">
+      <DependentUpon>201910300359121_addUserImageVersion.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -2093,6 +2097,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201910210155096_LNNodesAndStats.resx">
       <DependentUpon>201910210155096_LNNodesAndStats.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201910300359121_addUserImageVersion.resx">
+      <DependentUpon>201910300359121_addUserImageVersion.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

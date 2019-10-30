@@ -12,77 +12,13 @@
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/manage/index")
     @Scripts.Render("~/bundles/users")
     @Scripts.Render("~/bundles/groups")
+    @Scripts.Render("~/bundles/manage/index")
 
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-
-        Dropzone.options.dropzoneForm = {
-            paramName: "file", // The name that will be used to transfer the file
-            maxFilesize: 15, // MB
-            acceptedFiles: "image/*",
-            maxFiles: 1,
-            uploadMultiple: false,
-            init: function () {
-                this.on("addedfile", function () {
-                });
-            },
-            dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
-        };
-
-        $(document).ready(function () {
-            $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
-                var selectedValue = params.selected;
-                var values = $('#languagesSelect').val();
-                console.log(selectedValue);
-
-                var userlangs = values.join(',');
-                console.log(userlangs);
-
-                $.ajax({
-                    async: true,
-                    data: JSON.stringify({ 'languages': userlangs }),
-                    type: 'POST',
-                    url: '/Manage/UpdateUserLanguages',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            console.log('languages updated.');
-                        }
-                        else {
-                            console.log(response.message);
-                        }
-                    }
-                });
-            });
-
-            // Set group list as clickable
-            $(".clickable-row").click(function () {
-                window.location = $(this).data("href");
-            });
-
-            // This loads all partial views on page
-            $(".partialContents").each(function (index, item) {
-                var url = $(item).data("url");
-                if (url && url.length > 0) {
-                    $(item).load(url);
-                }
-            });
-
-            // This formats the timestamps on the page
-            $('.eventTime').each(function (i, e) {
-                var datefn = dateFns.parse($(e).html());
-                // Adjust to local time
-                datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-                var date = dateFns.format(datefn, "DD MMM YYYY");
-                var time = dateFns.distanceInWordsToNow(datefn);
-                $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-            });
-        });
     </script>
 }
 
@@ -142,7 +78,7 @@
                     <div class="ibox-content no-padding border-left-right">
                         <div class="cuadro_intro_hover">
                             <p style="text-align:center; ">
-                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500})" />
+                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, v=Model.User.ProfileImage.Version})" />
                             </p>
                             <div class="caption">
                                 <div class="blur"></div>
@@ -158,7 +94,7 @@
                             <strong>
                                 @if (Request.IsAuthenticated)
                                 {
-                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name
+                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30, v=Model.User.ProfileImage.Version})" /> @User.Identity.Name
                                 }
                                 else
                                 {
@@ -559,14 +495,6 @@
                     <div class="ibox-tools">
                     </div>
                 </div>
-                <div>
-                    <div class="ibox-content profile-content">
-                        <div class="partialContents" data-url="/Account/Balance"></div>
-                        <br />
-                        <b>Recent Lightning Transactions</b>
-                        @Html.Partial(partialViewName: "_PartialFinance", model: @Model.Financial)
-                    </div>
-                </div>
 
                 <div class="ibox-title">
                     <h5>Groups</h5>
@@ -606,30 +534,3 @@
         </div>
     </div>
 </div>
-
-
-@*<p class="text-success">@ViewBag.StatusMessage</p>
-    <div>
-        <h4>Change your account settings</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>Password:</dt>
-            <dd>
-                [
-                @if (Model.HasPassword)
-                {
-                    @Html.ActionLink("Change your password", "ChangePassword")
-                }
-                else
-                {
-                    @Html.ActionLink("Create", "SetPassword")
-                }
-                ]
-            </dd>
-            <dt>External Logins:</dt>
-            <dd>
-                @Model.Logins.Count [
-                @Html.ActionLink("Manage", "ManageLogins") ]
-            </dd>
-        </dl>
-    </div>*@

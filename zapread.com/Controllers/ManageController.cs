@@ -537,6 +537,7 @@ namespace zapread.com.Controllers
         //
         // GET: /Manage/Index
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
@@ -559,11 +560,12 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
+                        .Include(usr => usr.ProfileImage)
                         .Include(usr => usr.Achievements)
                         .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
                         .AsNoTracking()
                         .Where(us => us.AppId == userId)
-                        .FirstAsync();
+                        .FirstAsync().ConfigureAwait(false);
 
                 aboutMe = u.AboutMe;
 
@@ -577,10 +579,10 @@ namespace zapread.com.Controllers
                     u.Settings = new UserSettings();
                 }
 
-                var activityposts = await GetPosts(0, 10, userId: u.Id);
-                List<LNTxViewModel> txnView = GetRecentTransactions(u);
-                List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
-                List<EarningsViewModel> earningsView = GetRecentEarnings(u);
+                var activityposts = await GetPosts(0, 10, userId: u.Id).ConfigureAwait(false);
+                //List<LNTxViewModel> txnView = GetRecentTransactions(u);
+                //List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
+                //List<EarningsViewModel> earningsView = GetRecentEarnings(u);
 
                 List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userId)
                     .SelectMany(usr => usr.Groups)
@@ -591,22 +593,22 @@ namespace zapread.com.Controllers
                         Icon = "fa-bolt",
                         Level = 1,
                         Progress = 36,
-                        NumPosts = g.Posts.Count(),
+                        NumPosts = g.Posts.Count,
                         UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
                         IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
                         IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
                     })
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
 
-                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync();
-                int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync();
-                int numFollowing = u.Following.Count();
+                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync().ConfigureAwait(false);
+                int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync().ConfigureAwait(false);
+                int numFollowing = u.Following.Count;
                 bool isFollowing = false;
                 var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
                 var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20).ToList();
                 List<int> viewerIgnoredUsers = GetUserIgnored(u);
-                List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers);
+                List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers).ConfigureAwait(false);
                 List<string> languages = GetLanguages();
 
                 var uavm = new UserAchievementsViewModel();
@@ -626,13 +628,13 @@ namespace zapread.com.Controllers
                 {
                     HasPassword = HasPassword(),
                     User = u,
-                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
-                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
-                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId),
-                    Logins = await UserManager.GetLoginsAsync(userId),
+                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userId).ConfigureAwait(false),
+                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId).ConfigureAwait(false),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId).ConfigureAwait(false),
+                    Logins = await UserManager.GetLoginsAsync(userId).ConfigureAwait(false),
                     //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),  // This is an extension method which can't be mocked for test
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
-                    Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
+                    //Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
                     NumPosts = numUserPosts,
                     NumFollowers = numFollowers,
@@ -932,6 +934,12 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public async Task<JsonResult> UpdateProfileImage(HttpPostedFileBase file)
         {
+            if (file == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No file uploaded." });
+            }
+
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
@@ -967,12 +975,12 @@ namespace zapread.com.Controllers
                     graph.DrawImage(img, ((int)max_wh - newWidth) / 2, ((int)max_wh - newHeight) / 2, newWidth, newHeight);
                     byte[] data = bmp.ToByteArray(ImageFormat.Png);
 
-                    //await EnsureUserExists(userId, db);
-                    UserImage i = new UserImage() { Image = data };
-                    db.Users.First(u => u.AppId == userId).ProfileImage = i;
-                    await db.SaveChangesAsync();
+                    var user = db.Users.First(u => u.AppId == userId);
+                    UserImage i = new UserImage() { Image = data, Version = user.ProfileImage.Version + 1 };
+                    user.ProfileImage = i;
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
-                return Json(new { result = "success" });
+                return Json(new { success = true, result = "success" });
             }
         }
 
