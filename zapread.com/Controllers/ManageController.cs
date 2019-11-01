@@ -555,10 +555,8 @@ namespace zapread.com.Controllers
             {
                 string aboutMe = "Nothing to tell.";
                 User u = await db.Users
-                        .Include(usr => usr.LNTransactions)
-                        .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.IgnoringUsers)
-                        .Include(usr => usr.Funds)
+                        //.Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
                         .Include(usr => usr.ProfileImage)
                         .Include(usr => usr.Achievements)
@@ -580,9 +578,6 @@ namespace zapread.com.Controllers
                 }
 
                 var activityposts = await GetPosts(0, 10, userId: u.Id).ConfigureAwait(false);
-                //List<LNTxViewModel> txnView = GetRecentTransactions(u);
-                //List<SpendingsViewModel> spendingsView = GetRecentSpending(u);
-                //List<EarningsViewModel> earningsView = GetRecentEarnings(u);
 
                 List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userId)
                     .SelectMany(usr => usr.Groups)
@@ -684,86 +679,6 @@ namespace zapread.com.Controllers
             }
 
             return postViews;
-        }
-
-        private static List<LNTxViewModel> GetRecentTransactions(User u)
-        {
-            // Get record of recent LN transactions
-            var recentTxs = u.LNTransactions
-                .Where(tx => tx.TimestampSettled != null)
-                .OrderByDescending(tx => tx.TimestampSettled)
-                .Take(5);
-
-            var txnView = new List<LNTxViewModel>();
-
-            foreach (var tx in recentTxs)
-            {
-                txnView.Add(new LNTxViewModel()
-                {
-                    Timestamp = (DateTime)tx.TimestampSettled,
-                    Type = tx.IsDeposit ? "Deposit" : "Withdrawal",
-                    Value = tx.Amount,
-                });
-            }
-
-            return txnView;
-        }
-
-        private static List<SpendingsViewModel> GetRecentSpending(User u)
-        {
-            var recentSpendings = u.SpendingEvents
-                                .OrderByDescending(s => s.TimeStamp)
-                                .Take(5);
-
-            var spendingsView = new List<SpendingsViewModel>();
-
-            foreach (var s in recentSpendings)
-            {
-                string link = "";
-                if (s.Post != null)
-                {
-                    link = "Post " + s.Post.PostId.ToString();
-                }
-                else if (s.Comment != null)
-                {
-                    link = "Comment " + s.Comment.CommentId.ToString();
-                }
-                else if (s.Group != null)
-                {
-                    link = "Group " + s.Group.GroupId.ToString();
-                }
-
-                spendingsView.Add(new SpendingsViewModel()
-                {
-                    TimeStamp = s.TimeStamp.Value,
-                    Value = Convert.ToString(s.Amount),
-                    Link = link,
-                });
-            }
-
-            return spendingsView;
-        }
-
-        private static List<EarningsViewModel> GetRecentEarnings(User u)
-        {
-            var earningsView = new List<EarningsViewModel>();
-
-            var recentEarnings = u.EarningEvents
-                .OrderByDescending(e => e.TimeStamp)
-                .Take(5);
-
-            foreach (var e in recentEarnings)
-            {
-                earningsView.Add(new EarningsViewModel()
-                {
-                    TimeStamp = e.TimeStamp.Value,
-                    Value = e.Amount.ToString("0.#"),
-                    Type = e.Type == 0 ? (e.OriginType == 0 ? "Post" : "Comment") : e.Type == 1 ? "Group" : e.Type == 2 ? "Community" : "Unknown",
-                    ItemId = 0,
-                });
-            }
-
-            return earningsView;
         }
 
         private static List<string> GetLanguages()
