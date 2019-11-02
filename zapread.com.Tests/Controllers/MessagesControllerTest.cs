@@ -103,7 +103,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.Alerts().Result as ViewResult;
+            ViewResult result = controller.Alerts() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

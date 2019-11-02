@@ -89,11 +89,22 @@
 @Html.Script(
 @<script type="text/javascript">
 
+    function createNewEvent(eventName) {
+        var event;
+        if (typeof(Event) === 'function') {
+            event = new Event(eventName);
+        } else {
+            event = document.createEvent('Event');
+            event.initEvent(eventName, true, true);
+        }
+        return event;
+    }
+
      var userVote = { id: 0, d: 0, t: 0, amount: 1, tx: 0, b: 0 }
      var userTip = { username: "", amount: 1 }
      var isTip = false;
-     var voteReadyEvent = new Event('voteReady');
-
+    var voteReadyEvent = createNewEvent('voteReady');//new Event('voteReady');
+     
      $(document).ready(function () {
          var userdefaultvote = '1';
          $('#payAmount').html(userdefaultvote);

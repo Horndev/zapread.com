@@ -69,11 +69,11 @@
         }
         else if (@Model.IsMember)
         {
-            <a href="javascript:void(0);" id="j_@Model.Id" onclick="leave(@Model.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+            <a href="javascript:void(0);" id="j_@Model.Id" onclick="leaveGroup(@Model.Id,this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
         }
         else
         {
-            <a href="javascript:void(0);" id="j_@Model.Id" onclick="join(@Model.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
+            <a href="javascript:void(0);" id="j_@Model.Id" onclick="joinGroup(@Model.Id,this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
         }       
     </td>
 </tr>

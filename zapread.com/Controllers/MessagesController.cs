@@ -53,7 +53,7 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public async Task<ActionResult> Alerts()
+        public ActionResult Alerts()
         {
             return View();
         }

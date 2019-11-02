@@ -17,7 +17,7 @@
                 <td>@g.NumPosts / @g.UserPosts</td>
                 <td>@if (g.IsAdmin) { <text>Admin </text>} @if (g.IsMod) { <text>Moderator </text>}</td>
                 <td>
-                    <a href="javascript:void(0);" id="j_@g.Id" onclick="leave(@g.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+                    <a href="javascript:void(0);" id="j_@g.Id" onclick="leaveGroup(@g.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
                 </td>
             </tr>
         }
