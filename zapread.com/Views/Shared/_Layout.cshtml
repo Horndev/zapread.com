@@ -73,7 +73,7 @@
 
     <script type="text/javascript">
         var toggleChat; // global function for quotable.  TODO: fix
-
+        var ub = 0;
         $(document).ready(function () {
             // Only if logged in
             @if (Request.IsAuthenticated)
@@ -89,6 +89,7 @@
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);
                     });
+                    ub = data.balance;
                 });
                 // Textarea autoexpand
                 jQuery.each(jQuery('textarea[data-autoresize]'), function () {

@@ -70,9 +70,13 @@ namespace zapread.com
                         "~/Scripts/Manage/financial.js")
                         .WithLastModifiedToken());
 
-            // Home/Index scripts
+            // Home/Install scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
                         "~/Scripts/Admin/install.js")
+                        .WithLastModifiedToken());
+
+            bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
+                        "~/Scripts/Home/index.js")
                         .WithLastModifiedToken());
 
             // Messages/Chat scripts

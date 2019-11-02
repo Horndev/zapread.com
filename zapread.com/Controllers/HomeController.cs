@@ -16,6 +16,7 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Home;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -521,6 +522,34 @@ namespace zapread.com.Controllers
             return cookieResultValue;
         }
 
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> TopPosts(string sort)
+        {
+            using (var db = new ZapContext())
+            {
+                User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
+                
+                var userAppId = User.Identity.GetUserId();
+                var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
+
+                var posts = await GetPosts(
+                    start: 0,
+                    count: 10,
+                    sort: sort ?? "Score",
+                    userId: userId.Value).ConfigureAwait(true);
+
+                PostsViewModel vm = new PostsViewModel()
+                {
+                    Posts = await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
+                };
+
+                var PostHTMLString = RenderPartialViewToString("_Posts", vm);
+                return Json(new { success = true, HTMLString = PostHTMLString });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -531,6 +560,7 @@ namespace zapread.com.Controllers
         /// <param name="p">page</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             //PaymentPoller.Subscribe();
@@ -541,11 +571,11 @@ namespace zapread.com.Controllers
 
             try
             {
-                if (Request.IsAuthenticated && (l == null || l == "" || l == "0"))
+                if (Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "0"))
                 {
                     return RedirectToAction("Index", new { sort, l = "1", g, f });
                 }
-                else if (!Request.IsAuthenticated && (l == null || l == "" || l == "1"))
+                else if (!Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "1"))
                 {
                     return RedirectToAction("Index", new { sort, l = "0", g, f });
                 }
@@ -561,30 +591,38 @@ namespace zapread.com.Controllers
             {
                 using (var db = new ZapContext())
                 {
-                    User user = await GetCurrentUser(db); // it would be nice to remove this line
+                    User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
 
                     var userAppId = User.Identity.GetUserId();
 
-                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId))?.Id;
+                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
 
                     if (!userId.HasValue)
                     {
                         return RedirectToAction(actionName: "Login", controllerName: "Account");
                     }
 
-                    await ValidateClaims(userId.Value); // Checks user security claims
-                    var posts = await GetPosts(
-                        start: 0,
-                        count: 10,
-                        sort: sort ?? "Score",
-                        userId: userId.Value);
-                    PostsViewModel vm = new PostsViewModel()
+                    await ValidateClaims(userId.Value).ConfigureAwait(true); // Checks user security claims
+
+                    //var posts = await GetPosts(
+                    //    start: 0,
+                    //    count: 10,
+                    //    sort: sort ?? "Score",
+                    //    userId: userId.Value).ConfigureAwait(true);
+
+                    var vm = new HomeIndexViewModel()
                     {
-                        Posts = await GeneratePostViewModels(user, posts, db, userId.Value),
-                        UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
                         Sort = sort ?? "Score",
-                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db),
+                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
                     };
+
+                    //PostsViewModel vm = new PostsViewModel()
+                    //{
+                    //    Posts = await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
+                    //    UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
+                    //    Sort = sort ?? "Score",
+                    //    SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
+                    //};
                     return View(vm);
                 }
             }

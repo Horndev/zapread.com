@@ -1,9 +1,8 @@
 ﻿@using Microsoft.AspNet.Identity;
-@model zapread.com.Models.PostsViewModel
+@model zapread.com.Models.Home.HomeIndexViewModel
 
 @{
     ViewBag.Title = "Zapread.com";
-    bool firstPost = true;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -81,18 +80,17 @@
             <div class="social-feed-box-nb">
                 <button id="btnNewPost" onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-block"><i class="fa fa-plus"></i> Add Post</button>
             </div>
-
             <div id="posts">
-                @foreach (var p in Model.Posts)
-                {
-                    // We mark the first post with identifiers used in the tour
-                    p.IsFirstPost = firstPost;
-                    @Html.Partial(partialViewName: "_PartialPostRender", model: p)
-                    firstPost = false;
-                }
+                <div class="ibox-content no-padding sk-loading" style="border-style:none">
+                    <div class="sk-spinner sk-spinner-three-bounce">
+                        <div class="sk-bounce1"></div>
+                        <div class="sk-bounce2"></div>
+                        <div class="sk-bounce3"></div>
+                    </div>
+                </div>
             </div>
             <div class="social-feed-box-nb">
-                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore('@Model.Sort')" style="display:none;"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
             </div>
 
             <div class="social-feed-box-nb">
@@ -108,49 +106,11 @@
 @section Scripts {
     @Scripts.Render("~/bundles/users")
     @Scripts.Render("~/bundles/groups")
+    @Scripts.Render("~/bundles/home/index")
 
     <script type="text/javascript">
-        var ub = @Model.UserBalance;
+        @*var ub = @Model.UserBalance;*@
+        var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-    </script>
-
-    <script type="text/javascript">
-        var BlockNumber = 10;  //Infinite Scroll starts from second block
-        var NoMoreData = false;
-        var inProgress = false;
-
-        $(window).scroll(function () {
-            if ($(window).scrollTop() == $(document).height() -
-            $(window).height() && !NoMoreData && !inProgress) {
-                loadmore();
-            }
-        });
-
-        var loadmore = function () {
-            if (!inProgress) {
-                inProgress = true;
-                $('#loadmore').show();
-                $('#btnLoadmore').prop('disabled', true);
-                $.post("@Url.Action("InfiniteScroll", "Home")",
-                    { "BlockNumber": BlockNumber, "sort": "@Model.Sort" },
-                    function (data) {
-                        $('#loadmore').hide();
-                        $('#btnLoadmore').prop('disabled', false);
-                        BlockNumber = BlockNumber + 10;
-                        NoMoreData = data.NoMoreData;
-                        inProgress = false;
-
-                        // Wait for new posts to be added then tidy up.
-                        $.when(addposts(data), $.ready).then(function () {
-                            zrOnLoadedMorePosts();
-                        });
-
-                        if (NoMoreData) {
-                            $('#showmore').hide();
-                        }
-                    }
-                );
-            }
-        };
     </script>
 }
