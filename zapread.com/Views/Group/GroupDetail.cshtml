@@ -25,11 +25,11 @@
                 }
                 if (Model.GroupInfo.IsMember)
                 {
-                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" onclick="leave(@Model.GroupInfo.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" data-page="detail" onclick="leaveGroup(@Model.GroupInfo.Id, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
                 }
                 else
                 {
-                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" onclick="join(@Model.GroupInfo.Id)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
+                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" data-page="detail" onclick="joinGroup(@Model.GroupInfo.Id, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
                 }
             }
         </p>
@@ -188,50 +188,6 @@
                     else {
                         $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
                     }
-                }
-            }
-        });
-        return false;
-    };
-
-    var join = function (id) {
-        joinurl = "/Group/JoinGroup";
-        var data = JSON.stringify({ 'gid': id });
-        $.ajax({
-            async: true,
-            data: data.toString(),
-            type: 'POST',
-            url: joinurl,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.result == "success") {
-                    $("#j_" + id.toString()).html("<i class='fa fa-user-times'></i> Leave ");
-                    $("#j_" + id.toString()).attr("onClick", "javascript: leave(" + id.toString() + "); ");
-                    var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
-                    $('#group_membercount_' + id.toString()).html(numMembers + 1);
-                }
-            }
-        });
-        return false;
-    };
-
-    var leave = function (id) {
-        leaveurl = "/Group/LeaveGroup";
-        var data = JSON.stringify({ 'gid': id });
-        $.ajax({
-            async: true,
-            data: data.toString(),
-            type: 'POST',
-            url: leaveurl,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.result == "success") {
-                    $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Join ");
-                    $("#j_" + id.toString()).attr("onClick", "javascript: join(" + id.toString() + "); ");
-                    var numMembers = parseInt($('#group_membercount_' + id.toString()).html());
-                    $('#group_membercount_' + id.toString()).html(numMembers - 1);
                 }
             }
         });

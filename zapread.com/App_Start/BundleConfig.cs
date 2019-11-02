@@ -154,9 +154,6 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/Content/plugins/css/jquery-ui").Include(
                         "~/node_modules/jquery-ui-dist/jquery-ui.min.css"));
 
-            bundles.Add(new ScriptBundle("~/bundles/truncate").Include(
-                        "~/Scripts/jquery.truncate.js"));
-
             // Jquery
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/node_modules/jquery/dist/jquery.js",

@@ -97,7 +97,7 @@
             <li class="dropdown-submenu pull-left">
                 <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
                 <ul class="dropdown-menu">
-                    <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { id = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle "></div></li>
+                    <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { id = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle"></div></li>
                 </ul>
             </li>
         </ul>

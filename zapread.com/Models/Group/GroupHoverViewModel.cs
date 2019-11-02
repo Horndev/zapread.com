@@ -11,5 +11,6 @@ namespace zapread.com.Models.GroupViews
         public int GroupLevel { get; set; }
         public int GroupPostCount { get; set; }
         public int GroupMemberCount { get; set; }
+        public bool IsMember { get; set; }
     }
 }

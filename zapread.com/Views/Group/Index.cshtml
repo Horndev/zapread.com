@@ -203,9 +203,9 @@
                         if (!data.IsLoggedIn) {
                             td += "<button class='btn btn-primary btn-sm' disabled><i class='fa fa-user-plus'></i> Join </button>";
                         } else if (data.IsMember) {
-                            td += "<a href='javascript:void(0);' id='j_" + data.Id + "' onclick='leave(" + data.Id + ")' class='btn btn-primary btn-outline btn-sm'><i class='fa fa-user-times'></i> Leave </a>";
+                            td += "<a href='javascript:void(0);' id='j_" + data.Id + "' onclick='leaveGroup(" + data.Id + ",this)' class='btn btn-primary btn-outline btn-sm'><i class='fa fa-user-times'></i> Leave </a>";
                         } else {
-                            td += "<a href='javascript:void(0);' id='j_" + data.Id + "' onclick='join(" + data.Id + ")' class='btn btn-primary btn-outline btn-sm'><i class='fa fa-user-plus'></i> Join </a>";
+                            td += "<a href='javascript:void(0);' id='j_" + data.Id + "' onclick='joinGroup(" + data.Id + ",this)' class='btn btn-primary btn-outline btn-sm'><i class='fa fa-user-plus'></i> Join </a>";
                         }
                         return td;
                     }

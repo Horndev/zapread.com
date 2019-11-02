@@ -479,10 +479,18 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [Route("Group/Hover")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Not sensitive")]
         public async Task<JsonResult> Hover(int groupId)
         {
             using (var db = new ZapContext())
             {
+                var userId = User.Identity.GetUserId();
+
+                if (userId == null)
+                {
+                    userId = "";
+                }
+
                 var group = await db.Groups
                     .Select(g => new
                     {
@@ -490,9 +498,10 @@ namespace zapread.com.Controllers
                         g.Tier,
                         MemberCount = g.Members.Count,
                         PostCount = g.Posts.Count,
+                        IsMember = g.Members.Select(m=>m.AppId).Contains(userId),
                     })
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.GroupId == groupId);
+                    .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(false);
 
                 if (group == null)
                 {
@@ -506,6 +515,7 @@ namespace zapread.com.Controllers
                     GroupLevel = group.Tier,
                     GroupMemberCount = group.MemberCount,
                     GroupPostCount = group.PostCount,
+                    IsMember = group.IsMember,
                 };
 
                 string HTMLString = RenderPartialViewToString("_PartialGroupHover", model: vm);
@@ -743,8 +753,13 @@ namespace zapread.com.Controllers
             return 10;
         }
 
-        public async Task<ActionResult> GroupDetail(int id)
+        [HttpGet]
+        public async Task<ActionResult> GroupDetail(int? id)
         {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(actionName:"Index", controllerName:"Home");
+            }
             var userId = User.Identity.GetUserId();
             GroupViewModel vm = new GroupViewModel()
             {
@@ -1295,11 +1310,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        public class jgModel
-        {
-            public int gid { get; set; }
-        }
-
         [HttpPost]
         public ActionResult ToggleIgnore(int groupId)
         {
@@ -1350,7 +1360,9 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
-        public ActionResult JoinGroup(jgModel m)
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> JoinGroup(int gid)
         {
             if (!ModelState.IsValid)
             {
@@ -1363,13 +1375,13 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    //.Include(u => u.Groups)
-                    .FirstOrDefault(u => u.AppId == userId);
+                var user = await db.Users
+                    .Include(u => u.Groups)
+                    .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(false);
 
-                var group = db.Groups
+                var group = await db.Groups
                     .Include(g => g.Members)
-                    .FirstOrDefault(g => g.GroupId == m.gid);
+                    .FirstOrDefaultAsync(g => g.GroupId == gid).ConfigureAwait(false);
 
                 if (group != null)
                 {
@@ -1381,15 +1393,16 @@ namespace zapread.com.Controllers
                     {
                         group.Members.Add(user);
                     }
-                    db.SaveChanges();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
             }
-
-            return Json(new { result = "success" });
+            return Json(new { success = true });
         }
 
         [HttpPost]
-        public ActionResult LeaveGroup(jgModel m)
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> LeaveGroup(int gid)
         {
             if (!ModelState.IsValid)
             {
@@ -1398,17 +1411,15 @@ namespace zapread.com.Controllers
 
             var userId = User.Identity.GetUserId();
 
-            // if userId is null, then it is anonymous
-
             using (var db = new ZapContext())
             {
-                var user = db.Users
+                var user = await db.Users
                     .Include(u => u.Groups)
-                    .FirstOrDefault(u => u.AppId == userId);
+                    .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(false);
 
-                var group = db.Groups
+                var group = await db.Groups
                     .Include(g => g.Members)
-                    .FirstOrDefault(g => g.GroupId == m.gid);
+                    .FirstOrDefaultAsync(g => g.GroupId == gid).ConfigureAwait(false);
 
                 if (group != null)
                 {
@@ -1421,10 +1432,9 @@ namespace zapread.com.Controllers
                         group.Members.Remove(user);
                     }
                 }
-                db.SaveChanges();
+                await db.SaveChangesAsync().ConfigureAwait(false);
             }
-
-            return Json(new { result = "success" });
+            return Json(new { success = true });
         }
 
         [HttpPost]

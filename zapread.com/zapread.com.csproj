@@ -1672,6 +1672,8 @@
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_ffffff_256x240.png" />
     <Content Include="node_modules\jquery-ui-dist\jquery-ui.min.css" />
     <Content Include="node_modules\jquery-ui-dist\jquery-ui.min.js" />
+    <Content Include="node_modules\jquery-validation\dist\jquery.validate.js" />
+    <Content Include="node_modules\jquery-validation\dist\jquery.validate.min.js" />
     <Content Include="node_modules\jquery.flot.tooltip\js\jquery.flot.tooltip.min.js" />
     <Content Include="node_modules\jquery.flot\jquery.flot.js" />
     <Content Include="node_modules\jquery.flot\jquery.flot.pie.js" />
