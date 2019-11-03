@@ -106,11 +106,11 @@
 @section Scripts {
     @Scripts.Render("~/bundles/users")
     @Scripts.Render("~/bundles/groups")
-    @Scripts.Render("~/bundles/home/index")
 
     <script type="text/javascript">
-        @*var ub = @Model.UserBalance;*@
         var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
     </script>
+
+    @Scripts.Render("~/bundles/home/index")
 }

@@ -1,5 +1,5 @@
 ﻿
-$(document).ready(function () {
+//$(document).ready(function () {
     var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
@@ -31,8 +31,8 @@ $(document).ready(function () {
             swal("Error", "Error loading posts: " + response.message, "error");
         }
     });
-    return false; // Prevent jump to top of page
-});
+//    return false; // Prevent jump to top of page
+//});
 
 var BlockNumber = 10;  //Infinite Scroll starts from second block
 var NoMoreData = false;
