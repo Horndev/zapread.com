@@ -522,9 +522,7 @@ namespace zapread.com.Controllers
             return cookieResultValue;
         }
 
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
             using (var db = new ZapContext())
@@ -546,7 +544,7 @@ namespace zapread.com.Controllers
                 };
 
                 var PostHTMLString = RenderPartialViewToString("_Posts", vm);
-                return Json(new { success = true, HTMLString = PostHTMLString });
+                return Json(new { success = true, HTMLString = PostHTMLString }, JsonRequestBehavior.AllowGet);
             }
         }
 

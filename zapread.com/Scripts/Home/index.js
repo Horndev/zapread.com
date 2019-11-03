@@ -1,12 +1,12 @@
 ﻿
 //$(document).ready(function () {
-    var headers = getAntiForgeryToken();
+    //var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
         data: JSON.stringify({ "sort": postSort }),
-        type: 'POST',
+        type: 'GET',
         url: '/Home/TopPosts/',
-        headers: headers,
+        //headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
