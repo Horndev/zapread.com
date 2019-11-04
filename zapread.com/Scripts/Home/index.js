@@ -3,7 +3,7 @@
     //var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
-        data: JSON.stringify({ "sort": postSort }),
+        data: { "sort": postSort },
         type: 'GET',
         url: '/Home/TopPosts/',
         //headers: headers,

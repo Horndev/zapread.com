@@ -523,6 +523,12 @@ namespace zapread.com.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult> TopFollowing()
+        {
+            return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
             using (var db = new ZapContext())
