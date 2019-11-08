@@ -4920,6 +4920,7 @@
               var item = clipboardData.items.length > 1 ? clipboardData.items[1] : lists.head(clipboardData.items);
               if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
                   this.context.invoke('editor.insertImagesOrCallback', [item.getAsFile()]);
+                  event.preventDefault(); // fix double image https://github.com/summernote/summernote/issues/2717#issuecomment-413605898
               }
               this.context.invoke('editor.afterCommand');
           }
