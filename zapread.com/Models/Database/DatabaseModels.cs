@@ -31,8 +31,11 @@ namespace zapread.com.Models
         [Key]
         public int ImageId { get; set; }
         public byte[] Image { get; set; }
-
+        public string ContentType { get; set; }
+        public int XSize { get; set; }
+        public int YSize { get; set; }
         public int Version { get; set; }
+        public string UserAppId { get; set; }
     }
 
     public enum VoteDirection

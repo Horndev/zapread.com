@@ -154,21 +154,52 @@ namespace zapread.com.Controllers
             // Check for image in DB
             using (var db = new ZapContext())
             {
-                var i = await db.Users
-                    .Where(u => u.AppId == UserId || u.Name == UserId)
+                // Fetch image from image cache
+                var i = await db.Images
+                    .Where(im => im.UserAppId == UserId && im.XSize == size)
+                    .Select(im => new { im.Image })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                if (i != null && i.Image != null)
+                {
+                    // https://code.msdn.microsoft.com/How-to-save-Image-to-978a7b0b
+                    var ms = new MemoryStream(i.Image);
+                    return new FileStreamResult(ms, "image/png");
+                }
+                else
+                {
+                    // Check if non size-cached version exists
+                    i = await db.Users
+                    .Where(u => u.AppId == UserId)
                     .Select(u => new { u.ProfileImage.Image })
                     .AsNoTracking()
-                    .FirstAsync().ConfigureAwait(false);
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
-                if (i.Image != null)
-                {
-                    using (var ms = new MemoryStream(i.Image))
+                    if (i != null && i.Image != null)
                     {
-                        Image png = Image.FromStream(ms);
-                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size))
+                        // Load and convert image size
+                        using (var ms = new MemoryStream(i.Image))
                         {
-                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
-                            return File(data, "image/png");
+                            Image png = Image.FromStream(ms);
+                            using (Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size))
+                            {
+                                byte[] data = thumb.ToByteArray(ImageFormat.Png);
+
+                                db.Images.Add(new Models.UserImage()
+                                {
+                                    ContentType = "image/png",
+                                    Image = data,
+                                    UserAppId = UserId,
+                                    Version = 0,
+                                    XSize = size.Value,
+                                    YSize = size.Value,
+                                });
+
+                                await db.SaveChangesAsync().ConfigureAwait(false);
+
+                                return File(data, "image/png");
+                            }
                         }
                     }
                 }
@@ -525,6 +556,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> TopFollowing()
         {
+
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
