@@ -664,11 +664,11 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = await db.Users
-                    .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(false);
+                    .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
                 var post = await db.Posts
                     .Include(ps => ps.UserId)
                     .Include(ps => ps.Group)
-                    .SingleOrDefaultAsync(ps => ps.PostId == p.PostId).ConfigureAwait(false);
+                    .SingleOrDefaultAsync(ps => ps.PostId == p.PostId).ConfigureAwait(true);
                 if (post == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -698,11 +698,11 @@ namespace zapread.com.Controllers
 
                         // Send alerts to users subscribed to group
                         var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
-                        await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(false);
+                        await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
 
                         // Send alerts to users subscribed to users
                         var mailer = DependencyResolver.Current.GetService<MailerController>();
-                        await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(false);
+                        await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
                     }
                 }
                 else
@@ -717,11 +717,11 @@ namespace zapread.com.Controllers
                 {
                     // Need to reset score
                     post.Score = 1;
-                    post.Group = await db.Groups.FirstAsync(g => g.GroupId == p.GroupId).ConfigureAwait(false);
+                    post.Group = await db.Groups.FirstAsync(g => g.GroupId == p.GroupId).ConfigureAwait(true);
                 }
 
                 post.IsDraft = p.IsDraft;
-                await db.SaveChangesAsync().ConfigureAwait(false);
+                await db.SaveChangesAsync().ConfigureAwait(true);
                 return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
             }
         }
