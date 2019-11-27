@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using MvcSiteMapProvider;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -555,6 +556,7 @@ namespace zapread.com.Controllers
         /// <param name="PostId"></param>
         /// <param name="vote">0 = downvote, 1 = upvote</param>
         /// <returns></returns>
+        [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("Post/Detail/{PostId}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Detail(int PostId, int? vote)

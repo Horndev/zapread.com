@@ -1,3 +1,4 @@
+using DI.Ninject.Modules;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Ninject;
 using Ninject.Web.Common;
@@ -12,8 +13,6 @@ using zapread.com.Services;
 
 namespace zapread.com.App_Start
 {
-
-
     public static class NinjectWebCommon
     {
         private static readonly Bootstrapper bootstrapper = new Bootstrapper();
@@ -49,8 +48,8 @@ namespace zapread.com.App_Start
                 kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
 
                 GlobalConfiguration.Configuration.DependencyResolver = new Ninject.Web.WebApi.NinjectDependencyResolver(kernel);
-
                 RegisterServices(kernel);
+
                 return kernel;
             }
             catch
@@ -66,6 +65,8 @@ namespace zapread.com.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            kernel.Load(new MvcSiteMapProviderModule());
+
             kernel.Bind<LightningPayments>().ToSelf().InSingletonScope();
             kernel.Bind<ILightningPayments>().ToMethod(ctx => ctx.Kernel.Get<LightningPayments>());
         }
