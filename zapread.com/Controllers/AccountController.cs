@@ -100,7 +100,7 @@ namespace zapread.com.Controllers
         {
             if (userId != null)
             {
-                if (db.Users.Where(u => u.AppId == userId).Count() == 0)
+                if (!db.Users.Where(u => u.AppId == userId).Any())
                 {
                     // no user entry
                     User u = new User()
@@ -115,11 +115,11 @@ namespace zapread.com.Controllers
                         DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
                 else
                 {
-                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId);
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
                     if (user.Settings == null)
                     {
                         user.Settings = new UserSettings()
@@ -142,7 +142,7 @@ namespace zapread.com.Controllers
                     {
                         user.LNTransactions = new List<LNTransaction>();
                     }
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
             }
         }
@@ -641,22 +641,23 @@ namespace zapread.com.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
-                var result = await UserManager.CreateAsync(user, model.Password);
+                var result = await UserManager.CreateAsync(user, model.Password).ConfigureAwait(true);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false).ConfigureAwait(true);
 
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id).ConfigureAwait(true);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>").ConfigureAwait(true);
 
                     // Initialize ZapRead user with default parameters
-                    var userId = await UserManager.FindByNameAsync(model.UserName);
+                    var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true);
+                    
                     using (var db = new ZapContext())
                     {
-                        await EnsureUserExists(userId.Id, db);
+                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
                     }
 
                     return RedirectToAction("Index", "Home");

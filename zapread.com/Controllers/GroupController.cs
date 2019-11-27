@@ -760,6 +760,7 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction(actionName:"Index", controllerName:"Home");
             }
+
             var userId = User.Identity.GetUserId();
             GroupViewModel vm = new GroupViewModel()
             {
@@ -773,11 +774,10 @@ namespace zapread.com.Controllers
                     .Include(usr => usr.Groups)
                     .Include(usr => usr.Groups.Select(grp => grp.Moderators))
                     .AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == userId);
+                    .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(false);
 
                 var group = await db.Groups
-                    //.AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.GroupId == id);
+                    .FirstOrDefaultAsync(g => g.GroupId == id).ConfigureAwait(false);
 
                 var groupPosts = db.Posts
                     .Include(p => p.Group)
@@ -794,7 +794,7 @@ namespace zapread.com.Controllers
                     .OrderByDescending(p => new { p.IsSticky, p.TimeStamp })
                     .Take(10).ToList();
 
-                if (groupPosts.Count() < 10)
+                if (groupPosts.Count < 10)
                 {
                     vm.HasMorePosts = false;
                 }
@@ -838,7 +838,7 @@ namespace zapread.com.Controllers
                     Id = group.GroupId,
                     CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy"),
                     Name = group.GroupName,
-                    NumMembers = group.Members.Count(),
+                    NumMembers = group.Members.Count,
                     Tags = tags,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
                     Level = group.Tier,

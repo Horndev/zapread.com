@@ -596,7 +596,7 @@ namespace zapread.com.Controllers
         /// <param name="p">page</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        [HttpGet]
+        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]
         public async Task<ActionResult> Index(string sort, string l, int? g, int? f)
         {
             //PaymentPoller.Subscribe();
