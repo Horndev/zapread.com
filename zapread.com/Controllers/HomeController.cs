@@ -30,8 +30,8 @@ namespace zapread.com.Controllers
 
             stringBuilder.AppendLine("user-agent: *");
             stringBuilder.AppendLine("disallow: ");
-            //stringBuilder.Append("sitemap: ");
-            //stringBuilder.AppendLine(this.Url.RouteUrl("GetSitemapXml", null, this.Request.Url.Scheme).TrimEnd('/'));
+            stringBuilder.Append("sitemap: ");
+            stringBuilder.AppendLine("https://www.zapread.com/sitemap.xml");
 
             return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
         }
