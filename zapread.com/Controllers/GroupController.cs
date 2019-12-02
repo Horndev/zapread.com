@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using MvcSiteMapProvider;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -754,6 +755,7 @@ namespace zapread.com.Controllers
         }
 
         [HttpGet]
+        [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Group", DynamicNodeProvider = "zapread.com.DI.GroupsDetailsProvider, zapread.com")]
         public async Task<ActionResult> GroupDetail(int? id)
         {
             if (!id.HasValue)

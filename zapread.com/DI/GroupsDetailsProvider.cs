@@ -7,34 +7,32 @@ using zapread.com.Database;
 
 namespace zapread.com.DI
 {
-    public class PostsDetailsProvider : DynamicNodeProviderBase
+    public class GroupsDetailsProvider : DynamicNodeProviderBase
     {
         public override IEnumerable<DynamicNode> GetDynamicNodeCollection(ISiteMapNode node)
         {
             using (var db = new ZapContext())
             {
                 // Create a node for each post
-                var posts = db.Posts
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .Select(p => new {
-                        p,
-                        timeUpdated = p.Comments.OrderByDescending(c => c.TimeStamp)
+                var groups = db.Groups
+                    .Select(g => new {
+                        g,
+                        timeUpdated = g.Posts.OrderByDescending(c => c.TimeStamp)
                             .Select(c => c.TimeStamp)
                             .FirstOrDefault(),
                     });
                 
-                foreach (var post in posts)
+                foreach (var group in groups)
                 {
                     DynamicNode dynamicNode = new DynamicNode();
-                    dynamicNode.Title = post.p.PostTitle;
+                    dynamicNode.Title = group.g.GroupName;
                     //dynamicNode.ParentKey = "Detail_" + post.Group.GroupName;
-                    dynamicNode.RouteValues.Add("PostId", post.p.PostId);
+                    dynamicNode.RouteValues.Add("id", group.g.GroupId);
                     
                     // Re-index every month (for searching comments)
                     //dynamicNode.ChangeFrequency = ChangeFrequency.Monthly;
 
-                    dynamicNode.LastModifiedDate = post.timeUpdated;
+                    dynamicNode.LastModifiedDate = group.timeUpdated;
 
                     yield return dynamicNode;
                 }
