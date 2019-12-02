@@ -28,7 +28,7 @@ namespace zapread.com.DI
                     dynamicNode.Title = group.g.GroupName;
                     //dynamicNode.ParentKey = "Detail_" + post.Group.GroupName;
                     dynamicNode.RouteValues.Add("id", group.g.GroupId);
-                    
+                    dynamicNode.Protocol = "https";
                     // Re-index every month (for searching comments)
                     //dynamicNode.ChangeFrequency = ChangeFrequency.Monthly;
 
