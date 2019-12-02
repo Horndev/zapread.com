@@ -134,7 +134,10 @@ namespace zapread.com.Controllers
                         data = img.ToByteArray(ImageFormat.Jpeg);
                     }
 
-                    UserImage i = new UserImage() { Image = data };
+                    UserImage i = new UserImage() { 
+                        Image = data,
+                        ContentType = "image/jpeg",
+                    };
 
                     db.Images.Add(i);
                     db.SaveChanges();

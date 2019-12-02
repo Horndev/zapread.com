@@ -29,17 +29,17 @@ namespace zapread.com.Controllers
             StringBuilder stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine("user-agent: *");
-            stringBuilder.AppendLine("disallow: ");
+            stringBuilder.AppendLine("disallow: /Account/UserBalance/");
+            stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
+            stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
+            stringBuilder.AppendLine("disallow: /Manage/TipUser/");
+            stringBuilder.AppendLine("disallow: /Post/ToggleStickyPost/");
+
             stringBuilder.Append("sitemap: ");
             stringBuilder.AppendLine("https://www.zapread.com/sitemap.xml");
 
             return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
         }
-
-        //[Route("sitemap.xml", Name = "GetSitemapXml"), OutputCache(Duration = 86400)]
-        //public ContentResult SitemapXml()
-        //{
-        //}
 
         [HttpPost, ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> SetUserImage(int set)

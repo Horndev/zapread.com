@@ -418,6 +418,7 @@
     <Compile Include="DI\InjectableControllerFactory.cs" />
     <Compile Include="DI\InjectableDependencyResolver.cs" />
     <Compile Include="DI\Ninject\Modules\MvcSiteMapProviderModule.cs" />
+    <Compile Include="DI\GroupsDetailsProvider.cs" />
     <Compile Include="DI\PostsDetailsProvider.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

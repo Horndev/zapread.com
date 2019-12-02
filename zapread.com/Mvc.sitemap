@@ -4,8 +4,9 @@
             xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
 
   <mvcSiteMapNode title="Home" controller="Home" action="Index">
-    <mvcSiteMapNode title="About" controller="Home" action="About"/>
-    <mvcSiteMapNode title="Post" controller="Post" action="Detail" key="Post"/>
+    <mvcSiteMapNode title="About" controller="Home" action="About" protocol="https"/>
+    <mvcSiteMapNode title="Group" controller="Group" action="GroupDetail" key="Group" protocol="https"/>
+    <mvcSiteMapNode title="Post" controller="Post" action="Detail" key="Post" protocol="https"/>
   </mvcSiteMapNode>
 
 </mvcSiteMap>
