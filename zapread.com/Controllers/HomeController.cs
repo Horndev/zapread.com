@@ -640,25 +640,12 @@ namespace zapread.com.Controllers
 
                     await ValidateClaims(userId.Value).ConfigureAwait(true); // Checks user security claims
 
-                    //var posts = await GetPosts(
-                    //    start: 0,
-                    //    count: 10,
-                    //    sort: sort ?? "Score",
-                    //    userId: userId.Value).ConfigureAwait(true);
-
                     var vm = new HomeIndexViewModel()
                     {
                         Sort = sort ?? "Score",
                         SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
                     };
 
-                    //PostsViewModel vm = new PostsViewModel()
-                    //{
-                    //    Posts = await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
-                    //    UserBalance = user == null ? 0 : Math.Floor(user.Funds.Balance),    // TODO: Should this be here?
-                    //    Sort = sort ?? "Score",
-                    //    SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
-                    //};
                     return View(vm);
                 }
             }
@@ -714,6 +701,25 @@ namespace zapread.com.Controllers
 
         private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
+            if (userId == 0)
+            {
+                return db.Groups
+                    .OrderByDescending(g => g.TotalEarned)
+                    .Take(20)
+                    .Select(g => new GroupInfo()
+                    {
+                        Id = g.GroupId,
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+                        IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
+                        Name = g.GroupName,
+                        Icon = g.Icon,
+                        Level = g.Tier,
+                        Progress = 36,
+                    })
+                .AsNoTracking()
+                .ToListAsync();
+            }
+            
             return db.Users.Where(u => u.Id == userId)
                 .SelectMany(u => u.Groups)
                 .OrderByDescending(g => g.TotalEarned)
