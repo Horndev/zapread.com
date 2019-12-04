@@ -10,5 +10,10 @@ namespace zapread.com.Models.Admin
         public double LNTotalDeposited { get; set; }
         public double LNTotalWithdrawn { get; set; }
         public double LNFeesPaid { get; set; }
+
+        public double LNLocalBalance { get; set; }
+
+        public double LNRemoteBalance { get; set; }
+        public double LNCapacity { get; set; }
     }
 }

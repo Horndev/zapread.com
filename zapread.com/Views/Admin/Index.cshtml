@@ -128,7 +128,7 @@
                 <h5>LN Active Local</h5>
             </div>
             <div class="ibox-content bg-danger">
-                <h1 class="no-margins">0</h1>
+                <h1 class="no-margins">@Model.LNLocalBalance.ToString("F8")</h1>
                 <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
                 <small>BTC in channels (can send)</small>
             </div>
@@ -140,7 +140,7 @@
                 <h5>LN Active Remote</h5>
             </div>
             <div class="ibox-content bg-danger">
-                <h1 class="no-margins">0</h1>
+                <h1 class="no-margins">@Model.LNRemoteBalance.ToString("F8")</h1>
                 <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
                 <small>BTC in channels (can receive)</small>
             </div>
@@ -149,10 +149,10 @@
     <div class="col-lg-3">
         <div class="ibox float-e-margins">
             <div class="ibox-title">
-                <h5>LN Channel Balance</h5>
+                <h5>LN Active Channel Balance</h5>
             </div>
             <div class="ibox-content bg-danger">
-                <h1 class="no-margins">0</h1>
+                <h1 class="no-margins">@Model.LNCapacity.ToString("F8")</h1>
                 <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
                 <small>BTC on LN</small>
             </div>
