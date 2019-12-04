@@ -604,6 +604,8 @@ namespace zapread.com.Controllers
             //a.CheckLNTransactions();
             //AchievementsService a = new AchievementsService();
             //a.CheckAchievements();
+            //LNNodeMonitor a = new LNNodeMonitor();
+            //a.UpdateHourly();
 
             try
             {

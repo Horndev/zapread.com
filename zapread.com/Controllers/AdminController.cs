@@ -1332,20 +1332,34 @@ namespace zapread.com.Controllers
 
                 DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
-                var stats = groupedStats.Select(x => new
-                {
-                    x.Key,
-                    Count = x.Count()
-                })
-                    .ToList()
-                    .Select(x => new Stat
-                    {
-                        //TimeStamp = GetDate(group, x.Key.Value, startDate),
-                        TimeStampUtc = Convert.ToInt64((GetDate(group, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                        Count = x.Count
-                    })
-                    .OrderBy(x => x.TimeStampUtc)
-                    .ToList();
+                // Usage Statistics
+                //var stats = groupedStats.Select(x => new
+                //{
+                //    x.Key,
+                //    Count = x.Count()
+                //})
+                //    .ToList()
+                //    .Select(x => new Stat
+                //    {
+                //        //TimeStamp = GetDate(group, x.Key.Value, startDate),
+                //        TimeStampUtc = Convert.ToInt64((GetDate(group, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
+                //        Count = x.Count
+                //    })
+                //    .OrderBy(x => x.TimeStampUtc)
+                //    .ToList();
+
+                //Node Statistics
+                var localActive = db.LNNodes.First().Channels
+                    .Where(c => c.IsOnline)
+                    .Sum(c => c.ChannelHistory.Last().LocalBalance_MilliSatoshi);
+
+                var remoteActive = db.LNNodes.First().Channels
+                    .Where(c => c.IsOnline)
+                    .Sum(c => c.ChannelHistory.Last().RemoteBalance_MilliSatoshi);
+
+                var channelBalance = db.LNNodes.First().Channels
+                    .Where(c => c.IsOnline)
+                    .Sum(c => c.Capacity_MilliSatoshi);
 
                 vm = new AdminViewModel()
                 {
@@ -1354,6 +1368,9 @@ namespace zapread.com.Controllers
                     LNTotalDeposited = LNdep,
                     LNTotalWithdrawn = LNwth,
                     LNFeesPaid = LNfee,
+                    LNCapacity = channelBalance / 100000000.0,
+                    LNLocalBalance = localActive / 100000000.0,
+                    LNRemoteBalance = remoteActive / 100000000.0,
                 };
 
                 return View(vm);
