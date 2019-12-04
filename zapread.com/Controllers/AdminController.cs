@@ -1175,6 +1175,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "LNNodeMonitor.UpdateHourly")
+            {
+                RecurringJob.Trigger("LNNodeMonitor.UpdateHourly");
+                return Json(new { success = true });
+            }
+
             return Json(new { success = false });
         }
 
@@ -1211,6 +1217,15 @@ namespace zapread.com.Controllers
                 return Json(new { success = true });
             }
 
+            if (jobid == "LNNodeMonitor.UpdateHourly")
+            {
+                RecurringJob.AddOrUpdate<LNNodeMonitor>(
+                    x => x.UpdateHourly(),
+                    Cron.Hourly(0));
+                return Json(new { success = true });
+            }
+            
+
             return Json(new { success = false });
         }
 
@@ -1238,6 +1253,12 @@ namespace zapread.com.Controllers
             if (jobid == "CheckAchievements")
             {
                 RecurringJob.RemoveIfExists("AchievementsService.CheckAchievements");
+                return Json(new { success = true });
+            }
+
+            if (jobid == "LNNodeMonitor.UpdateHourly")
+            {
+                RecurringJob.RemoveIfExists("LNNodeMonitor.UpdateHourly");
                 return Json(new { success = true });
             }
 
