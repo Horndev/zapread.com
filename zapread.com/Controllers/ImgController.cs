@@ -72,19 +72,35 @@ namespace zapread.com.Controllers
 
         // GET: Img
         [OutputCache(Duration = int.MaxValue, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public ActionResult Content(int id)
         {
             using (var db = new ZapContext())
             {
-                MemoryStream ms = new MemoryStream();
-
                 var img = db.Images.FirstOrDefault(i => i.ImageId == id);
                 if (img.Image != null)
                 {
-                    Image png = Image.FromStream(new MemoryStream(img.Image));
-                    byte[] data = png.ToByteArray(ImageFormat.Jpeg);
+                    var contentType = img.ContentType;
+                    if (contentType == null)
+                    {
+                        contentType = "image/jpeg";
+                    }
+                    using (var ms = new MemoryStream(img.Image))
+                    {
+                        Image png = Image.FromStream(ms);
 
-                    return File(data, "image/jpeg");
+                        byte[] data;
+                        if (contentType == "image/gif")
+                        {
+                            data = png.ToByteArray(ImageFormat.Gif);
+                        }
+                        else
+                        {
+                            data = png.ToByteArray(ImageFormat.Jpeg);
+                        }
+
+                        return File(data, contentType);
+                    }
                 }
             }
             return Json(new { result = "failure" });
@@ -119,6 +135,15 @@ namespace zapread.com.Controllers
                     Image img = Image.FromStream(file.InputStream);
 
                     byte[] data;
+                    string contentType = "image/jpeg";
+                    if (img.RawFormat.Equals(ImageFormat.Gif))
+                    {
+                        contentType = "image/gif";
+                    }
+                    else
+                    {
+
+                    }
 
                     int maxwidth = 720;
 
@@ -127,16 +152,32 @@ namespace zapread.com.Controllers
                         // rescale if too large for post
                         var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
                         Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale));
-                        data = thumb.ToByteArray(ImageFormat.Jpeg);
+                       
+                        if (img.RawFormat.Equals(ImageFormat.Gif))
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Gif);
+                        }
+                        else
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Jpeg);
+                        }
                     }
                     else
                     {
-                        data = img.ToByteArray(ImageFormat.Jpeg);
+                        
+                        if (img.RawFormat.Equals(ImageFormat.Gif))
+                        {
+                            data = img.ToByteArray(ImageFormat.Gif);
+                        }
+                        else
+                        {
+                            data = img.ToByteArray(ImageFormat.Jpeg);
+                        }
                     }
 
                     UserImage i = new UserImage() { 
                         Image = data,
-                        ContentType = "image/jpeg",
+                        ContentType = contentType,
                     };
 
                     db.Images.Add(i);

@@ -15,6 +15,8 @@ namespace zapread.com.Models
         public int NumUses { get; set; }
 
         public string Lib { get; set; }
+        public int ImageSize { get; set; }
+        public byte[] Image { get; set; }
     }
 
     public class UserFunds
@@ -34,6 +36,8 @@ namespace zapread.com.Models
         public string ContentType { get; set; }
         public int XSize { get; set; }
         public int YSize { get; set; }
+
+        // Version is used when image is updated
         public int Version { get; set; }
         public string UserAppId { get; set; }
     }

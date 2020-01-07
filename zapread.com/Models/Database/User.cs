@@ -52,6 +52,9 @@ namespace zapread.com.Models.Database
 
         public virtual ICollection<Post> PostVotesUp { get; set; }
         public virtual ICollection<Post> PostVotesDown { get; set; }
+
+        [InverseProperty("HiddenBy")]
+        public virtual ICollection<Post> HiddenPosts { get; set; }
         public virtual ICollection<Comment> CommentVotesUp { get; set; }
         public virtual ICollection<Comment> CommentVotesDown { get; set; }
 

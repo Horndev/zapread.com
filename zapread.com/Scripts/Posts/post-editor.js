@@ -91,6 +91,7 @@ $(document).ready(function () {
             ['style', ['style']],
             ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
             ['fontname', ['fontname']],
+            ['fontsize', ['fontsize']],
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
             ['table', ['table']],
@@ -102,7 +103,7 @@ $(document).ready(function () {
             match: /\B@@(\w*)$/,
             search: function (keyword, callback) {
                 if (!keyword.length) return callback();
-                var msg = JSON.stringify({ 'searchstr': keyword.toString() })
+                var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                 $.ajax({
                     async: true,
                     url: '/Comment/GetMentions',

@@ -715,6 +715,10 @@
     <Compile Include="Migrations\201911080258253_UserImageAttr.designer.cs">
       <DependentUpon>201911080258253_UserImageAttr.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202001070125307_AddUserHide.cs" />
+    <Compile Include="Migrations\202001070125307_AddUserHide.designer.cs">
+      <DependentUpon>202001070125307_AddUserHide.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -735,6 +739,7 @@
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
+    <Compile Include="Models\Finance\CurrencyModels.cs" />
     <Compile Include="Models\Finance\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
@@ -2145,6 +2150,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201911080258253_UserImageAttr.resx">
       <DependentUpon>201911080258253_UserImageAttr.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202001070125307_AddUserHide.resx">
+      <DependentUpon>202001070125307_AddUserHide.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

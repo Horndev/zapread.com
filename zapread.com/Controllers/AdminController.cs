@@ -1332,22 +1332,6 @@ namespace zapread.com.Controllers
 
                 DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
-                // Usage Statistics
-                //var stats = groupedStats.Select(x => new
-                //{
-                //    x.Key,
-                //    Count = x.Count()
-                //})
-                //    .ToList()
-                //    .Select(x => new Stat
-                //    {
-                //        //TimeStamp = GetDate(group, x.Key.Value, startDate),
-                //        TimeStampUtc = Convert.ToInt64((GetDate(group, x.Key.Value, startDate) - epochUTC).TotalMilliseconds),
-                //        Count = x.Count
-                //    })
-                //    .OrderBy(x => x.TimeStampUtc)
-                //    .ToList();
-
                 //Node Statistics
                 var localActive = db.LNNodes.First().Channels
                     .Where(c => c.IsOnline)
