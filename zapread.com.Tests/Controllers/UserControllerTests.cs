@@ -34,6 +34,12 @@ namespace zapread.com.Tests.Controllers
         }
 
         [TestMethod]
+        public void TestUserFollow()
+        {
+
+        }
+
+        [TestMethod]
         public void TestUserToggleIgnore()
         {
             // Arrange

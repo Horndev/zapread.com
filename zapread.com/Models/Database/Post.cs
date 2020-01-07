@@ -24,6 +24,9 @@ namespace zapread.com.Models.Database
         [InverseProperty("Posts")]
         public virtual User UserId { get; set; }
 
+        [InverseProperty("HiddenPosts")]
+        public virtual User HiddenBy { get; set; }
+
         // Language post is written in
         public string Language { get; set; }
 

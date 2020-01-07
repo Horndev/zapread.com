@@ -33,6 +33,8 @@ namespace zapread.com.Services
                     return;
                 }
 
+
+
                 var node = db.LNNodes
                     .Include(n => n.Channels)
                     .Where(n => n.PubKey == ni.identity_pubkey)
