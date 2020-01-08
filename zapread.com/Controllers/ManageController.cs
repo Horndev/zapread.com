@@ -588,8 +588,8 @@ namespace zapread.com.Controllers
                         Icon = "fa-bolt",
                         Level = 1,
                         Progress = 36,
-                        NumPosts = g.Posts.Count,
-                        UserPosts = g.Posts.Where(p => p.UserId.Id == u.Id).Count(),
+                        NumPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Count(),
+                        UserPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Where(p => p.UserId.Id == u.Id).Count(),
                         IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
                         IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
                     })
