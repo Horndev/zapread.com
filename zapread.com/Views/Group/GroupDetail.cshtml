@@ -173,6 +173,7 @@
     var toggleIgnore = function (id) {
         joinurl = "/Group/ToggleIgnore";
         var data = JSON.stringify({ 'groupId': id });
+        var headers = getAntiForgeryToken();
         $.ajax({
             async: true,
             data: data.toString(),
@@ -180,6 +181,7 @@
             url: joinurl,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            headers: headers,
             success: function (response) {
                 if (response.result == "success") {
                     if (response.added) {
