@@ -304,6 +304,8 @@ namespace zapread.com.Controllers
         }
 
         [AllowAnonymous]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
         {
             if (amount == null || amount.Value < 1)

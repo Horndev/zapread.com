@@ -17,6 +17,7 @@ namespace zapread.com.Helpers
             dirty = Encoding.Unicode.GetString(bytes);
             var sanitizer = new Ganss.XSS.HtmlSanitizer();
             sanitizer.AllowedTags.Remove("button");
+            sanitizer.AllowedTags.Remove("form");
             sanitizer.AllowedTags.Add("iframe");
             sanitizer.AllowedTags.Remove("script");
             sanitizer.AllowedAttributes.Add("class");
