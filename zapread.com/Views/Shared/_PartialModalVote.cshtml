@@ -213,6 +213,7 @@
 
          var data = JSON.stringify({ 'id': id, 'amount': parseInt(amount), 'tx': tx });
          var url = '/Manage/TipUser';
+         var headers = getAntiForgeryToken();
          console.log(data);
          $.ajax({
              data: data.toString(),
@@ -220,6 +221,7 @@
              url: url,
              contentType: "application/json; charset=utf-8",
              dataType: "json",
+             headers: headers,
              success: function (response) {
                  if (response.Result == "Success") {
 
