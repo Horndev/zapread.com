@@ -94,18 +94,20 @@
                 })
             },
             change: function (event, ui) {
+                var headers = getAntiForgeryToken();
                 $.ajax({
                     async: true,
                     url: "/Admin/GetUserGroupRoles",
                     type: "POST",
                     dataType: "json",
                     data: { group: "@Model.GroupName", user: $("#User").val() },
+                    headers: headers,
                     success: function (data) {
                         $('#UserGroupMember').prop('checked', data.indexOf("Member") > -1)
                         $('#UserGroupModerator').prop('checked', data.indexOf("Moderator") > -1)
                         $('#UserGroupAdministrator').prop('checked', data.indexOf("Administrator") > -1)
                     }
-                })
+                });
             }
         });
     });

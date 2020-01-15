@@ -182,9 +182,15 @@
         })
         .then(desc => {
             if (!desc) throw null;
-            $.post("@Url.Action("ChangeShortDesc", "Group")",
-                { "groupId": groupId, "newDesc": desc },
-                function (data) {
+            var headers = getAntiForgeryToken();
+            $.ajax({
+                async: true,
+                url: "@Url.Action("ChangeShortDesc", "Group")",
+                type: "POST",
+                dataType: "json",
+                data: { "groupId": groupId, "newDesc": desc },
+                headers: headers,
+                success: function (data) {
                     if (data.success) {
                         swal("Your group short description has been updated!", {
                             icon: "success",
@@ -193,7 +199,8 @@
                     else {
                         swal("Error", "Error updating group short description: " + data.message, "error");
                     }
-                });
+                }
+            });
         })
         .catch(err => {
             if (err) {
@@ -216,10 +223,15 @@
         })
         .then(name => {
             if (!name) throw null;
-            $.post("@Url.Action("ChangeName",
-                "Group")",
-                { "groupId": groupId, "newName": name },
-                function (data) {
+            var headers = getAntiForgeryToken();
+            $.ajax({
+                async: true,
+                url: "@Url.Action("ChangeName", "Group")",
+                type: "POST",
+                dataType: "json",
+                data: { "groupId": groupId, "newName": name },
+                headers: headers,
+                success: function (data) {
                     if (data.success) {
                         swal("Your group name has been updated!", {
                             icon: "success",
@@ -228,7 +240,8 @@
                     else {
                         swal("Error", "Error updating group name: " + data.message, "error");
                     }
-                });
+                }
+            });
         })
         .catch(err => {
             if (err) {

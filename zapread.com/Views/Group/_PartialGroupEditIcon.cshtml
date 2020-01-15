@@ -31,12 +31,14 @@
     $('#GroupIconSaveChanges').click(function () {
         var gid = @Model.GroupId;
         var groupIcon = $('#select-icon').val();
+        var headers = getAntiForgeryToken();
         $.ajax({
             async: true,
             url: "/Group/UpdateGroupIcon",
             type: "POST",
             dataType: "json",
-            data: { groupId: gid, icon: groupIcon},
+            data: { groupId: gid, icon: groupIcon },
+            headers: headers,
             success: function (data) {
                 alert('Update successful.');
                 $('#GAdminEditIconModal').modal('hide');

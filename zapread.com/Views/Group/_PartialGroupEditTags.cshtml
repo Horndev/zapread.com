@@ -37,12 +37,14 @@
     $('#GroupTagSaveChanges').click(function () {
         var gid = @Model.GroupId;
         var tags = $('#tagsel').val();
+        var headers = getAntiForgeryToken();
         $.ajax({
             async: true,
             url: "/Group/UpdateGrouptags",
             type: "POST",
             dataType: "json",
-            data: {groupId: gid, tags: tags},
+            data: { groupId: gid, tags: tags },
+            headers: headers,
             success: function (data) {
                 alert('Update successful.');
                 $('#GAdminEditTagModal').modal('hide');

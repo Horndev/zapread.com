@@ -925,6 +925,8 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public JsonResult ChangeName(int groupId, string newName)
         {
             using (var db = new ZapContext())
@@ -948,7 +950,7 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", success = false, message = "User not authorized." });
                 }
 
-                var cleanName = newName.CleanUnicode();
+                var cleanName = newName.CleanUnicode().SanitizeXSS();
 
                 if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
                 {
@@ -964,6 +966,8 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> ChangeShortDesc(int groupId, string newDesc)
         {
             using (var db = new ZapContext())
@@ -989,7 +993,7 @@ namespace zapread.com.Controllers
                     return Json(new { result = "error", success = false, message = "User not authorized." });
                 }
 
-                var cleanName = newDesc.CleanUnicode();
+                var cleanName = newDesc.CleanUnicode().SanitizeXSS();
 
                 if (cleanName.Length > 60)
                 {
@@ -1006,6 +1010,7 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod)
         {
             using (var db = new ZapContext())
@@ -1070,6 +1075,7 @@ namespace zapread.com.Controllers
         // This method can only be called by a group admin
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public JsonResult GetUsers(string group, string prefix)
         {
             using (var db = new ZapContext())
@@ -1098,6 +1104,8 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public JsonResult GetUserGroupRoles(string group, string user)
         {
             var roles = new List<string>();
@@ -1125,6 +1133,7 @@ namespace zapread.com.Controllers
             return Json(roles);
         }
 
+        [HttpGet]
         public PartialViewResult GetGroupIcons(int groupId)
         {
             using (var db = new ZapContext())
@@ -1146,7 +1155,8 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("Group/GetGroups/{prefix}")]
         public JsonResult GetGroups(string prefix)
         {
             using (var db = new ZapContext())
@@ -1170,6 +1180,7 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet]
         public PartialViewResult GetGroupTags(int groupId)
         {
             var vm = new GroupAdminTagsViewModel();
@@ -1187,6 +1198,9 @@ namespace zapread.com.Controllers
             return PartialView("_PartialGroupEditTags", vm);
         }
 
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult UpdateGroupIcon(int groupId, string icon)
         {
             using (var db = new ZapContext())
@@ -1197,12 +1211,15 @@ namespace zapread.com.Controllers
                     return PartialView();
                 }
 
-                g.Icon = icon;
+                g.Icon = icon.CleanUnicode().SanitizeXSS();
                 db.SaveChanges();
             }
             return Json(new { result = "success" });
         }
 
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult UpdateGrouptags(int groupId, string tags)
         {
             using (var db = new ZapContext())
@@ -1213,7 +1230,7 @@ namespace zapread.com.Controllers
                     return PartialView();
                 }
 
-                g.Tags = tags;
+                g.Tags = tags.CleanUnicode().SanitizeXSS();
                 db.SaveChanges();
             }
             return Json(new { result = "success" });
@@ -1313,6 +1330,8 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult ToggleIgnore(int groupId)
         {
             if (!User.Identity.IsAuthenticated)
@@ -1437,12 +1456,6 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync().ConfigureAwait(false);
             }
             return Json(new { success = true });
-        }
-
-        [HttpPost]
-        public ActionResult CreateNewGroup(NewGroupViewModel m)
-        {
-            return RedirectToAction("Index", "Home");
         }
     }
 }

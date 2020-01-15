@@ -42,10 +42,10 @@ $(document).ready(function () {
         source: function (request, response) {
             $.ajax({
                 async: true,
-                url: "/Group/GetGroups",
-                type: "POST",
+                url: "/Group/GetGroups/" + request.term,
+                type: "GET",
                 dataType: "json",
-                data: { prefix: request.term },
+                //data: { prefix: request.term },
                 success: function (data) {
                     knownGroups = data;
                     response($.map(data, function (item) {
