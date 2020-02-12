@@ -91,8 +91,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                User u;
-                u = db.Users
+                User u = db.Users
                         .Where(us => us.AppId == userId).First();
 
                 var draftPosts = db.Posts
@@ -137,12 +136,12 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var post = await db.Posts
-                    .FirstOrDefaultAsync(p => p.PostId == id);
+                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
                 if (post != null)
                 {
                     post.Impressions += 1;
                     ViewBag.PostImpressions = post.Impressions;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
                 return PartialView("_Impressions");
             }
