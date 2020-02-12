@@ -13,6 +13,7 @@ $(document).ready(function () {
             type: "POST",
             contentType: "application/json",
             url: "/Post/GetDrafts",
+            headers: getAntiForgeryToken(),
             data: function (d) {
                 return JSON.stringify(d);
             }

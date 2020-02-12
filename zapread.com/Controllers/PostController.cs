@@ -65,9 +65,22 @@ namespace zapread.com.Controllers
             public string PostId { get; set; }
         }
 
+        /// <summary>
+        /// This method returns the drafts table on the post editing view.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
         public ActionResult GetDrafts(DataTableParameters dataTableParameters)
         {
+            if (dataTableParameters == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No parameters passed to method call." });
+            }
+
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
