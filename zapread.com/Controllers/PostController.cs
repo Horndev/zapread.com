@@ -82,6 +82,13 @@ namespace zapread.com.Controllers
             }
 
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Credentials failure" });
+            }
+
             using (var db = new ZapContext())
             {
                 User u;
