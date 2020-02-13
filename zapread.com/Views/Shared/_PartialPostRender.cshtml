@@ -123,8 +123,8 @@
                 </a>
             }
             <div class="media-body">
-                <a class="vote-title" href="@Url.Action("Detail", "Post", new { id = Model.Post.PostId })" style="margin-left: 110px;">
-                    @if (Model.Post.PostTitle == null)
+                <a class="vote-title" href="@Url.Action("Detail", "Post", new { PostId = Model.Post.PostId, postTitle = Model.Post.PostTitle != null ? Model.Post.PostTitle.Replace(" ","-").Trim().Substring(0,Math.Min(500,Model.Post.PostTitle.Trim().Length)) : null })" style="margin-left: 110px;">
+                    @if (String.IsNullOrEmpty(Model.Post.PostTitle))
                     {
                         <text>Post</text>
                     }

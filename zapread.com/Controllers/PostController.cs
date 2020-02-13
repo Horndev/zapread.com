@@ -65,14 +65,33 @@ namespace zapread.com.Controllers
             public string PostId { get; set; }
         }
 
+        /// <summary>
+        /// This method returns the drafts table on the post editing view.
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
         public ActionResult GetDrafts(DataTableParameters dataTableParameters)
         {
+            if (dataTableParameters == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No parameters passed to method call." });
+            }
+
             var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Credentials failure" });
+            }
+
             using (var db = new ZapContext())
             {
-                User u;
-                u = db.Users
+                User u = db.Users
                         .Where(us => us.AppId == userId).First();
 
                 var draftPosts = db.Posts
@@ -117,12 +136,12 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var post = await db.Posts
-                    .FirstOrDefaultAsync(p => p.PostId == id);
+                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
                 if (post != null)
                 {
                     post.Impressions += 1;
                     ViewBag.PostImpressions = post.Impressions;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
                 return PartialView("_Impressions");
             }
@@ -555,11 +574,13 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="PostId"></param>
         /// <param name="vote">0 = downvote, 1 = upvote</param>
+        /// <param name="postTitle">Optonal string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
-        [Route("Post/Detail/{PostId}")]
+        [Route("Post/Detail/{PostId}/{postTitle?}")]
+        [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int PostId, int? vote)
+        public async Task<ActionResult> Detail(int PostId, string postTitle, int? vote)
         {
             using (var db = new ZapContext())
             {
