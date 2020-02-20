@@ -592,10 +592,10 @@ namespace zapread.com.Controllers
                 List<Stat> commentStats = GetCommentStats(epochUTC, startDate, bin, binnedCommentStats);
                 List<Stat> spendingStats = GetSpendingStats(epochUTC, startDate, bin, binnedSpendingStats);
 
-                var maxPosts = postStats.Max(x => x.Count);
-                var maxComments = commentStats.Max(x => x.Count);
+                var maxPosts = postStats.Any() ? postStats.Max(x => x.Count) : 0;
+                var maxComments = commentStats.Any() ? commentStats.Max(x => x.Count) : 0;
                 var maxPostComments = maxPosts > maxComments ? maxPosts : maxComments;
-                var maxSpent = spendingStats.Max(x => x.Count);
+                var maxSpent = spendingStats.Any() ? spendingStats.Max(x => x.Count) : 0;
 
                 return Json(new { postStats, commentStats, spendingStats, maxPostComments, maxSpent }, JsonRequestBehavior.AllowGet);
             }
@@ -1315,10 +1315,20 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .FirstOrDefault();
 
-                var gd = db.Groups.Sum(g => g.TotalEarnedToDistribute);
-                var LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
-                var LNwth = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
-                var LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
+                double gd = 0;
+                double LNdep = 0;
+                double LNwth = 0;
+                double LNfee = 0;
+                if (db.Groups.Count() > 1)
+                {
+                    gd = db.Groups.Sum(g => g.TotalEarnedToDistribute);
+                }
+                if (db.LightningTransactions.Any())
+                {
+                    LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                    LNwth = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                    LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
+                }
 
                 // Calculate post and comment stats.
                 var startDate = DateTime.Now.AddDays(-1 * 31);
@@ -1333,17 +1343,23 @@ namespace zapread.com.Controllers
                 DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
 
                 //Node Statistics
-                var localActive = db.LNNodes.First().Channels
-                    .Where(c => c.IsOnline)
-                    .Sum(c => c.ChannelHistory.Last().LocalBalance_MilliSatoshi);
+                long localActive = 0;
+                long remoteActive = 0;
+                long channelBalance = 0;
+                if (db.LNNodes.Any())
+                {
+                    localActive = db.LNNodes.First().Channels
+                        .Where(c => c.IsOnline)
+                        .Sum(c => c.ChannelHistory.Last().LocalBalance_MilliSatoshi);
 
-                var remoteActive = db.LNNodes.First().Channels
-                    .Where(c => c.IsOnline)
-                    .Sum(c => c.ChannelHistory.Last().RemoteBalance_MilliSatoshi);
+                    remoteActive = db.LNNodes.First().Channels
+                        .Where(c => c.IsOnline)
+                        .Sum(c => c.ChannelHistory.Last().RemoteBalance_MilliSatoshi);
 
-                var channelBalance = db.LNNodes.First().Channels
-                    .Where(c => c.IsOnline)
-                    .Sum(c => c.Capacity_MilliSatoshi);
+                    channelBalance = db.LNNodes.First().Channels
+                        .Where(c => c.IsOnline)
+                        .Sum(c => c.Capacity_MilliSatoshi);
+                }
 
                 vm = new AdminViewModel()
                 {

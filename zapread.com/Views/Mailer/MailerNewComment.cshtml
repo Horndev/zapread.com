@@ -21,7 +21,7 @@
                 <div class="social-footer">
                     <div class=" social-comment">
                         <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Comment.UserId.Name.Trim() })" class="pull-left">
-                            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId })" />
+                            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Comment.UserId.AppId, v = Model.Comment.UserId.ProfileImage.Version })" />
                         </a>
                         <div class="media-body">
                             @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Comment.UserId, IsIgnored = false })

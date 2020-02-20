@@ -92,7 +92,8 @@ namespace zapread.com.Tests.Controllers
 
             ApplicationUser testUser = new ApplicationUser()
             {
-                Id = "f752739e-8d58-4bf5-a140-fc225cc5ebdb"
+                Id = "f752739e-8d58-4bf5-a140-fc225cc5ebdb",
+                UserName = "Test"
             };
 
             var claimsIdentity = new Mock<ClaimsIdentity>(MockBehavior.Loose);
@@ -100,6 +101,7 @@ namespace zapread.com.Tests.Controllers
             claimsIdentity.Setup(x => x.AddClaim(It.IsAny<Claim>()));
 
             userManager.Setup(x => x.FindByNameAsync("Test")).Returns(Task.FromResult(testUser));
+            userManager.Setup(x => x.FindByIdAsync("f752739e-8d58-4bf5-a140-fc225cc5ebdb")).Returns(Task.FromResult(testUser));
             userManager.Setup(x => x.CreateIdentityAsync(It.IsAny<ApplicationUser>(), DefaultAuthenticationTypes.ApplicationCookie))
                 .Returns(Task.FromResult(claimsIdentity.Object));
 

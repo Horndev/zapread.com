@@ -153,7 +153,8 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var post = db.Posts
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .FirstOrDefault(p => p.PostId == id);
 
                 if (post == null)
@@ -577,18 +578,23 @@ namespace zapread.com.Controllers
         /// <param name="postTitle">Optonal string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
-        [Route("Post/Detail/{PostId}/{postTitle?}")]
+        [Route("Post/Detail/{PostId?}/{postTitle?}")]
         [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int PostId, string postTitle, int? vote)
+        public async Task<ActionResult> Detail(int? PostId, string postTitle, int? vote)
         {
+            if (PostId == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
                 var user = await db.Users
                     .Include("Settings")
                     .Include(usr => usr.IgnoringUsers)
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(false);
 
                 if (user != null)
                 {
@@ -609,7 +615,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == PostId);
 

@@ -36,6 +36,7 @@ namespace zapread.com.Models
         public bool IsReceived { get; set; }
         public User From { get; set; }
         public User To { get; set; }
+        public int FromProfileImgVersion { get; set; }
     }
 
     public class ChatMessagesViewModel

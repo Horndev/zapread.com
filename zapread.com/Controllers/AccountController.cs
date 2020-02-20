@@ -107,7 +107,7 @@ namespace zapread.com.Controllers
                     {
                         AboutMe = "Nothing to tell.",
                         AppId = userId,
-                        Name = UserManager.FindById(userId).UserName,
+                        Name = UserManager.FindByIdAsync(userId).Result.UserName,
                         ProfileImage = new UserImage(),
                         ThumbImage = new UserImage(),
                         Funds = new UserFunds(),

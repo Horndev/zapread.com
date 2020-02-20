@@ -43,7 +43,7 @@
     <meta name="twitter:site" content=@("@zapread") />
     <meta name="twitter:title" content="@Model.Post.PostTitle" />
     <meta name="twitter:description" content="View post on zapread.com" />
-    <meta name="twitter:image" content="@Url.Action("UserImage", "Home", new { UserId = Model.Post.UserId.AppId }, "https")" />
+    <meta name="twitter:image" content="@Url.Action("UserImage", "Home", new { UserId = Model.Post.UserId.AppId, v=Model.Post.UserId.ProfileImage.Version }, "https")" />
 }
 
 

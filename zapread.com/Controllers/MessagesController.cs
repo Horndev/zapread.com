@@ -444,7 +444,18 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync();
 
                 vm.OtherUser = otherUser;
-                vm.Messages = await GetChats(db, userId, otherUser.Id, 10, 0);
+                vm.Messages = otherUser == null ? new List<ChatMessageViewModel> () 
+                    : await GetChats(db, userId, otherUser.Id, 10, 0);
+
+                if (otherUser == null)
+                {
+                    vm.OtherUser = new User()
+                    {
+                        Name = username,
+                        Id = 0,
+                        AppId = ""
+                    };
+                }
 
                 return View(vm);
             }
@@ -467,6 +478,7 @@ namespace zapread.com.Controllers
                     TimeStamp = m.TimeStamp.Value,
                     FromName = m.From.Name,
                     FromAppId = m.From.AppId,
+                    FromProfileImgVersion = m.From.ProfileImage.Version,
                     IsReceived = m.From.Id == otherUserId
                 })
                 .AsNoTracking()
@@ -484,6 +496,7 @@ namespace zapread.com.Controllers
                 {
                     var numUnread = await db.Users
                         .Include("Messages")
+                        .Include(u => u.ProfileImage)
                         .Where(u => u.AppId == userId)
                         .SelectMany(u => u.Messages)
                         .Where(m => !m.IsRead && !m.IsDeleted)
