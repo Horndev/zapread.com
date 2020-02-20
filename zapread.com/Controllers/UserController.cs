@@ -649,6 +649,14 @@ namespace zapread.com.Controllers
                     .Include(usr => usr.IgnoringUsers)
                     .FirstOrDefault(u => u.AppId == userId);
 
+                if (user == null)
+                {
+                    user = new User()
+                    {
+                        IgnoringUsers = new List<User>()
+                    };
+                }
+
                 var ignoredUser = db.Users
                     .FirstOrDefault(u => u.Id == id);
 
