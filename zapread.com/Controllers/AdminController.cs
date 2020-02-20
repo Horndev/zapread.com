@@ -592,10 +592,10 @@ namespace zapread.com.Controllers
                 List<Stat> commentStats = GetCommentStats(epochUTC, startDate, bin, binnedCommentStats);
                 List<Stat> spendingStats = GetSpendingStats(epochUTC, startDate, bin, binnedSpendingStats);
 
-                var maxPosts = postStats.Max(x => x.Count);
-                var maxComments = commentStats.Max(x => x.Count);
+                var maxPosts = postStats.Any() ? postStats.Max(x => x.Count) : 0;
+                var maxComments = commentStats.Any() ? commentStats.Max(x => x.Count) : 0;
                 var maxPostComments = maxPosts > maxComments ? maxPosts : maxComments;
-                var maxSpent = spendingStats.Max(x => x.Count);
+                var maxSpent = spendingStats.Any() ? spendingStats.Max(x => x.Count) : 0;
 
                 return Json(new { postStats, commentStats, spendingStats, maxPostComments, maxSpent }, JsonRequestBehavior.AllowGet);
             }

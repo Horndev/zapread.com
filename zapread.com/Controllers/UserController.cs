@@ -86,7 +86,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking().Take(20);
 
                 var followposts = db.Posts
@@ -98,7 +100,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking().Take(20);
 
                 var activityposts = await userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
@@ -262,6 +266,7 @@ namespace zapread.com.Controllers
                     loggedInUser = await db.Users
                         .Include(usr => usr.IgnoringUsers)
                         .Include(usr => usr.Funds)
+                        .Include(usr => usr.ProfileImage)
                         .AsNoTracking()
                         .FirstOrDefaultAsync(u => u.AppId == userId);
 
@@ -269,12 +274,13 @@ namespace zapread.com.Controllers
                     {
                         return RedirectToAction(actionName: "Index", controllerName: "Manage");
                     }
-                    userFunds = loggedInUser.Funds.Balance;
+                    userFunds = loggedInUser == null ? 0 : loggedInUser.Funds.Balance;
                 }
 
                 var user = await db.Users.Where(u => u.Name == username)
                     .Include(u => u.Following)
                     .Include(usr => usr.Groups)
+                    .Include(usr => usr.ProfileImage)
                     .Include(usr => usr.Achievements)
                     .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
                     .AsNoTracking()
@@ -307,6 +313,7 @@ namespace zapread.com.Controllers
                 var topFollowing = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Following)
                     .OrderByDescending(us => us.TotalEarned)
+                    .Include(us => us.ProfileImage)
                     .Take(20)
                     .AsNoTracking()
                     .ToListAsync();
@@ -314,6 +321,7 @@ namespace zapread.com.Controllers
                 var topFollowers = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Followers)
                     .OrderByDescending(us => us.TotalEarned)
+                    .Include(us => us.ProfileImage)
                     .Take(20)
                     .AsNoTracking()
                     .ToListAsync();
