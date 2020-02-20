@@ -2,7 +2,7 @@
 @model zapread.com.Models.UserViews.UserHoverViewModel
 <div class="row">
     <div class="col">
-        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.User.AppId })" />
+        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.User.AppId, v=Model.User.ProfileImage.Version })" />
         <span style="display:inline"><strong>@Model.User.Name</strong></span>
     </div>
 </div>

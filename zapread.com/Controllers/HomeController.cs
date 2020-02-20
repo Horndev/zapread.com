@@ -136,7 +136,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [OutputCache(Duration = 3600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
-        public async Task<ActionResult> UserImage(int? size, string UserId)
+        public async Task<ActionResult> UserImage(int? size, string UserId, string v)
         {
             if (size == null) size = 100;
             if (UserId != null)
@@ -321,7 +321,9 @@ namespace zapread.com.Controllers
                 .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                 .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                 .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include("UserId")
+                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                .Include(p => p.UserId)
+                .Include(p => p.UserId.ProfileImage)
                 .AsNoTracking()
                 .Where(p => !p.IsDeleted)
                 .Where(p => !p.IsDraft)
@@ -363,7 +365,9 @@ namespace zapread.com.Controllers
                 .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                 .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                 .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include("UserId")
+                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                .Include(p => p.UserId)
+                .Include(p => p.UserId.ProfileImage)
                 .AsNoTracking()
                 .Skip(start)
                 .Take(count)
@@ -415,7 +419,9 @@ namespace zapread.com.Controllers
                 .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                 .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                 .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include("UserId")
+                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                .Include(p => p.UserId)
+                .Include(p => p.UserId.ProfileImage)
                 .AsNoTracking()
                 .Skip(start)
                 .Take(count)

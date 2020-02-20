@@ -18,7 +18,7 @@
             <div class="container" style="background-color:white;margin-bottom: 0px;">
                 <div class="social-avatar">
                     <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left">
-                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId })" />
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.Post.UserId.AppId, v = Model.Post.UserId.ProfileImage.Version })" />
                     </a>
                     <div class="media-body">
                         <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name.Trim() })">

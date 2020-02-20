@@ -502,7 +502,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking().Take(20);
 
                 var userCommentedPosts = db.Comments
@@ -510,7 +512,8 @@ namespace zapread.com.Controllers
                     //.Where(c => !c.IsDeleted)
                     .Select(c => c.Post)
                     .Distinct()
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking().Take(20);
 
                 // Followers posts
@@ -523,7 +526,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking().Take(20);
 
                 var activityposts = await userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)

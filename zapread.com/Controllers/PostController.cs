@@ -153,7 +153,8 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var post = db.Posts
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .FirstOrDefault(p => p.PostId == id);
 
                 if (post == null)
@@ -614,7 +615,9 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
                     .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
                     .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include("UserId")
+                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == PostId);
 

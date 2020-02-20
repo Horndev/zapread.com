@@ -463,7 +463,7 @@
                             @foreach (var u in Model.TopFollowing)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImage.Version})" />
                                 </a>
                             }
                         </div>
@@ -480,7 +480,7 @@
                             @foreach (var u in Model.TopFollowers)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImage.Version})" />
                                 </a>
                             }
                         </div>

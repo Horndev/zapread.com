@@ -33,7 +33,8 @@ namespace zapread.com.Controllers
 
                 Post pst = db.Posts
                     .Include(p => p.Group)
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
                     .FirstOrDefault(p => p.PostId == id);
 
@@ -169,7 +170,8 @@ namespace zapread.com.Controllers
             {
                 Post pst = await db.Posts
                     .Include(p => p.Group)
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(p => p.PostId == id);
 
@@ -203,7 +205,8 @@ namespace zapread.com.Controllers
             {
                 Post pst = await db.Posts
                     .Include(p => p.Group)
-                    .Include("UserId")
+                    .Include(p => p.UserId)
+                    .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(p => p.PostId == id);
 
