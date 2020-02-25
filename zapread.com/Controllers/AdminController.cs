@@ -710,8 +710,6 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Login", "Account", new { returnUrl = "/" });
             }
 
-            
-
             using (var db = new ZapContext())
             {
                 var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
@@ -729,7 +727,7 @@ namespace zapread.com.Controllers
                     macaroonRead: website.LnMainnetMacaroonRead,
                     macaroonInvoice: website.LnMainnetMacaroonInvoice);
 
-                var payments = lndClient.GetPayments();
+                var payments = lndClient.GetPayments(include_incomplete: true);
 
                 var t = db.LightningTransactions
                     .Include(tr => tr.User)
