@@ -30,7 +30,9 @@ namespace zapread.com.Models.Database
 
         public int Score { get; set; }
 
+        [InverseProperty("CommentVotesUp")]
         public virtual ICollection<User> VotesUp { get; set; }
+        [InverseProperty("CommentVotesDown")]
         public virtual ICollection<User> VotesDown { get; set; }
 
         public bool IsDeleted { get; set; }

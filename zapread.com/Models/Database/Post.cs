@@ -32,7 +32,10 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("Posts")]
         public virtual Group Group { get; set; }
+
+        [InverseProperty("PostVotesUp")]
         public virtual ICollection<User> VotesUp { get; set; }
+        [InverseProperty("PostVotesDown")]
         public virtual ICollection<User> VotesDown { get; set; }
 
         [InverseProperty("Post")]

@@ -50,12 +50,17 @@ namespace zapread.com.Models.Database
         [InverseProperty("IgnoringUsers")]
         public virtual ICollection<User> IgnoredByUsers { get; set; }
 
+        [InverseProperty("VotesUp")]
         public virtual ICollection<Post> PostVotesUp { get; set; }
+        [InverseProperty("VotesDown")]
         public virtual ICollection<Post> PostVotesDown { get; set; }
 
         [InverseProperty("HiddenBy")]
         public virtual ICollection<Post> HiddenPosts { get; set; }
+
+        [InverseProperty("VotesUp")]
         public virtual ICollection<Comment> CommentVotesUp { get; set; }
+        [InverseProperty("VotesDown")]
         public virtual ICollection<Comment> CommentVotesDown { get; set; }
 
         [InverseProperty("Following")]
