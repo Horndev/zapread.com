@@ -132,6 +132,7 @@ namespace zapread.com.Controllers
                         //user.PostVotesUp.Remove(post);
                         //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
                         //return Json(new { result = "success", message = "Already Voted", delta = 0, score = post.Score, balance = user.Funds.Balance });
+                        userRep = user.Reputation;
                     }
                     else if (user != null)
                     {
@@ -238,6 +239,7 @@ namespace zapread.com.Controllers
                         //user.PostVotesDown.Remove(post);
                         //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
                         //return Json(new { result = "success", message = "Already Voted", delta = 0, score = post.Score, balance = user.Funds.Balance });
+                        userRep = user.Reputation;
                     }
                     else if (user != null)
                     {
