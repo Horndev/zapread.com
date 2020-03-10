@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Models
@@ -6,6 +7,24 @@ namespace zapread.com.Models
     public class PostViewModel
     {
         public Post Post;
+
+        public string PostTitle;
+        public string Content;
+        public int PostId;
+        public int GroupId;
+        public string GroupName;
+        public string UserName;
+        public int UserId;
+        public string UserAppId;
+        public int UserProfileImageVersion;
+        public int Score;
+        public DateTime? TimeStamp { get; set; }
+        public DateTime? TimeStampEdited { get; set; }
+        public bool IsNSFW;
+        public bool IsSticky;
+
+        public IEnumerable<PostCommentsViewModel> CommentVms;
+
         public bool ViewerIsMod;        // User has moderation privilage on this post
         public bool ViewerUpvoted;      // If the user has upvoted this post
         public bool ViewerDownvoted;    // If the user has downvoted this post
@@ -48,11 +67,43 @@ namespace zapread.com.Models
 
     public class PostCommentsViewModel
     {
+        [Obsolete]
         public Comment Comment { get; set; }
+        [Obsolete]
         public Comment ParentComment { get; set; }
+
+        public PostCommentsViewModel ParentCommentVm { get; set; }
         public List<Comment> Comments { get; set; } // All comments
+
+        [Obsolete("Use ViewerIgnoredUser instead of this list.")]
         public List<int> ViewerIgnoredUsers;        // If the user has ignored the user
         public bool StartVisible { get; set; }
         public int NestLevel { get; set; }          // How far down the comment nesting is
+
+        public string Text { get; set; }
+
+        public int Score { get; set; }
+
+        public bool IsReply { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        public DateTime? TimeStamp { get; set; }
+
+        public DateTime? TimeStampEdited { get; set; }
+
+        public Int64 CommentId { get; set; }
+
+        public int UserId { get; set; }
+
+        public string UserName { get; set; }
+
+        public string UserAppId { get; set; }
+        public int ProfileImageVersion { get; set; }
+        public List<PostCommentsViewModel> CommentVms { get; set; } // All comments
+
+        public bool ViewerUpvoted;      // If the user has upvoted this comment
+        public bool ViewerDownvoted;    // If the user has downvoted this comment
+        public bool ViewerIgnoredUser;  // If the user has ignored the user
     }
 }

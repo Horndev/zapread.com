@@ -242,6 +242,143 @@ namespace zapread.com.Controllers
             }
         }
 
+        protected async Task<List<PostViewModel>> GetPostsVm(int start, int count, string sort = "Score", int userId = 0)
+        {
+            List<string> userLanguages = GetUserLanguages();
+
+            using (var db = new ZapContext())
+            {
+                DateTime t = DateTime.Now;
+
+                var user = await db.Users
+                    .Include(usr => usr.Settings)
+                    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+
+                IQueryable<Post> validposts = QueryValidPosts(userId, userLanguages, db, user);
+
+                switch (sort)
+                {
+                    case "Score":
+                        return await QueryPostsByScoreVm(start, count, validposts, user).ConfigureAwait(false);
+                    //case "Active":
+                    //    return await QueryPostsByActive(start, count, validposts).ConfigureAwait(false);
+                    //default:
+                    //    return await QueryPostsByNew(start, count, validposts).ConfigureAwait(false);
+                }
+            }
+
+            return new List<PostViewModel>();
+        }
+
+        private static async Task<List<PostViewModel>> QueryPostsByScoreVm(int start, int count, IQueryable<Post> validposts, User user)
+        {
+            DateTime scoreStart = new DateTime(2018, 07, 01);
+
+            int userId = user != null ? user.Id : 0;
+
+            var sposts = await validposts
+                .Where(p => !p.IsDeleted)
+                .Where(p => !p.IsDraft)
+                .Select(p => new
+                {
+                    p,
+                    // Includes the sum of absolute value of comment scores
+                    cScore = p.Comments.Any() ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    p.cScore,
+                    s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    order1 = SqlFunctions.Log10(p.s),
+                    order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore),     // Comment scores
+                    sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
+                    dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
+                })
+                .Select(p => new
+                {
+                    p.p,
+                    p.order1,
+                    p.order2,
+                    p.sign,
+                    p.dt,
+                    hot = p.sign * (p.order1 + p.order2) + p.dt / 90000
+                })
+                .OrderByDescending(p => p.hot)
+                .Select(p => p.p)
+                .Select(p => new PostViewModel()
+                {
+                    PostTitle = p.PostTitle,
+                    Content = p.Content,
+                    PostId = p.PostId,
+                    GroupId = p.Group.GroupId,
+                    GroupName = p.Group.GroupName,
+                    IsSticky = p.IsSticky,
+                    UserName = p.UserId.Name,
+                    UserId = p.UserId.Id,
+                    UserAppId = p.UserId.AppId,
+                    UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                    Score = p.Score,
+                    TimeStamp = p.TimeStamp,
+                    TimeStampEdited = p.TimeStampEdited,
+                    IsNSFW = p.IsNSFW,
+                    ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                    ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                    ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                    ViewerIgnoredUser = p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                    CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                    {
+                        CommentId = c.CommentId,
+                        Text = c.Text,
+                        Score = c.Score,
+                        IsReply = c.IsReply,
+                        IsDeleted = c.IsDeleted,
+                        TimeStamp = c.TimeStamp,
+                        TimeStampEdited = c.TimeStampEdited,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                        ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                        ViewerIgnoredUser = c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                    }),
+                })
+                .AsNoTracking()
+                .Skip(start)
+                .Take(count)
+                .ToListAsync();
+
+                    //ref
+                    //ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
+                    //ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    //ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                    //ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+                    //NumComments = 0,
+                    //ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
+
+                //Old way which returned the models and lots of extraneous data.
+                //.Select(p => p.p)
+                //.Include(p => p.Group)
+                //.Include(p => p.Comments)
+                //.Include(p => p.Comments.Select(cmt => cmt.Parent))
+                //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                //.Include(p => p.Comments.Select(cmt => cmt.UserId))
+                //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                //.Include(p => p.UserId)
+                //.Include(p => p.UserId.ProfileImage)
+                //.AsNoTracking()
+                //.Skip(start)
+                //.Take(count)
+                //.ToListAsync().ConfigureAwait(true);
+            return sposts;
+        }
+
         protected async Task<List<Post>> GetPosts(int start, int count, string sort = "Score", int userId = 0)
         {
             //Modified reddit-like algorithm
@@ -269,18 +406,18 @@ namespace zapread.com.Controllers
 
                 var user = await db.Users
                     .Include(usr => usr.Settings)
-                    .SingleOrDefaultAsync(u => u.Id == userId);
+                    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
 
                 IQueryable<Post> validposts = QueryValidPosts(userId, userLanguages, db, user);
 
                 switch (sort)
                 {
                     case "Score":
-                        return await QueryPostsByScore(start, count, validposts);
+                        return await QueryPostsByScore(start, count, validposts).ConfigureAwait(false);
                     case "Active":
-                        return await QueryPostsByActive(start, count, validposts);
+                        return await QueryPostsByActive(start, count, validposts).ConfigureAwait(false);
                     default:
-                        return await QueryPostsByNew(start, count, validposts);
+                        return await QueryPostsByNew(start, count, validposts).ConfigureAwait(false);
                 }
             }
         }
@@ -576,18 +713,18 @@ namespace zapread.com.Controllers
                 var userAppId = User.Identity.GetUserId();
                 var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
 
-                var posts = await GetPosts(
-                    start: 0,
-                    count: 10,
-                    sort: sort ?? "Score",
-                    userId: userId.Value).ConfigureAwait(true);
+                //var posts = await GetPosts(
+                //    start: 0,
+                //    count: 10,
+                //    sort: sort ?? "Score",
+                //    userId: userId.Value).ConfigureAwait(true);
 
                 PostsViewModel vm = new PostsViewModel()
                 {
-                    Posts = await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
+                    Posts = await GetPostsVm(0,10,sort,userId.Value).ConfigureAwait(true)// await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
                 };
 
-                var PostHTMLString = RenderPartialViewToString("_Posts", vm);
+                var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
                 return Json(new { success = true, HTMLString = PostHTMLString }, JsonRequestBehavior.AllowGet);
             }
         }

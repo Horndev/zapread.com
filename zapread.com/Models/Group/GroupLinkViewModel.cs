@@ -9,6 +9,11 @@ namespace zapread.com.Models.GroupViews
     public class GroupLinkViewModel
     {
         public Group Group { get; set; }
+
+        public int GroupId { get; set; }
+
+        public string GroupName { get; set; }
+
         public bool IsFirstPost { get; set; }
     }
 }
