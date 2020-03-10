@@ -6,6 +6,7 @@ namespace zapread.com.Models
 {
     public class PostViewModel
     {
+        [Obsolete("Use view model attributes instead of the Post object.")]
         public Post Post;
 
         public string PostTitle;
@@ -24,18 +25,16 @@ namespace zapread.com.Models
         public bool IsSticky;
 
         public IEnumerable<PostCommentsViewModel> CommentVms;
-
         public bool ViewerIsMod;        // User has moderation privilage on this post
         public bool ViewerUpvoted;      // If the user has upvoted this post
         public bool ViewerDownvoted;    // If the user has downvoted this post
         public bool ViewerIgnoredUser;  // If the user has ignored the user
-
         public int NumComments;
-
         public bool IsDetailView;       // If the post is being viewed by itself
         public bool IsFirstPost;        // If the post is the first post on a page
 
         // Not ideal!
+        [Obsolete("Check ViewerIgnoredUser for post status instead.")]
         public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
     }
 

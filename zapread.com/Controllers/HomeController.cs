@@ -351,7 +351,7 @@ namespace zapread.com.Controllers
                 .AsNoTracking()
                 .Skip(start)
                 .Take(count)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(true);
 
                     //ref
                     //ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
