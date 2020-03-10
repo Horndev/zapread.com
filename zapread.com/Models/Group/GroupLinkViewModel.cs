@@ -8,6 +8,7 @@ namespace zapread.com.Models.GroupViews
 {
     public class GroupLinkViewModel
     {
+        [Obsolete]
         public Group Group { get; set; }
 
         public int GroupId { get; set; }
