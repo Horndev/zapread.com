@@ -415,92 +415,6 @@ namespace zapread.com.Controllers
             return sposts;
         }
 
-        private static async Task<List<PostViewModel>> QueryPostsByScoreVm(int start, int count, IQueryable<Post> validposts, User user)
-        {
-            DateTime scoreStart = new DateTime(2018, 07, 01);
-
-            int userId = user != null ? user.Id : 0;
-
-            var sposts = await validposts
-                .Where(p => !p.IsDeleted)
-                .Where(p => !p.IsDraft)
-                .Select(p => new
-                {
-                    p,
-                    // Includes the sum of absolute value of comment scores
-                    cScore = p.Comments.Any() ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    p.cScore,
-                    s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    order1 = SqlFunctions.Log10(p.s),
-                    order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore),     // Comment scores
-                    sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
-                    dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    p.order1,
-                    p.order2,
-                    p.sign,
-                    p.dt,
-                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / 90000)
-                })
-                .OrderByDescending(p => p.hot)
-                .Select(p => p.p)
-                .Select(p => new PostViewModel()
-                {
-                    PostTitle = p.PostTitle,
-                    Content = p.Content,
-                    PostId = p.PostId,
-                    GroupId = p.Group.GroupId,
-                    GroupName = p.Group.GroupName,
-                    IsSticky = p.IsSticky,
-                    UserName = p.UserId.Name,
-                    UserId = p.UserId.Id,
-                    UserAppId = p.UserId.AppId,
-                    UserProfileImageVersion = p.UserId.ProfileImage.Version,
-                    Score = p.Score,
-                    TimeStamp = p.TimeStamp,
-                    TimeStampEdited = p.TimeStampEdited,
-                    IsNSFW = p.IsNSFW,
-                    ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
-                    ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
-                    ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
-                    ViewerIgnoredUser = p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
-                    CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
-                    {
-                        CommentId = c.CommentId,
-                        Text = c.Text,
-                        Score = c.Score,
-                        IsReply = c.IsReply,
-                        IsDeleted = c.IsDeleted,
-                        TimeStamp = c.TimeStamp,
-                        TimeStampEdited = c.TimeStampEdited,
-                        UserId = c.UserId.Id,
-                        UserName = c.UserId.Name,
-                        UserAppId = c.UserId.AppId,
-                        ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
-                        ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
-                        ViewerIgnoredUser = c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
-                    }),
-                })
-                .AsNoTracking()
-                .Skip(start)
-                .Take(count)
-                .ToListAsync().ConfigureAwait(true);
-
-            return sposts;
-        }
-
         protected async Task<List<Post>> GetPosts(int start, int count, string sort = "Score", int userId = 0)
         {
             //Modified reddit-like algorithm
@@ -933,41 +847,41 @@ namespace zapread.com.Controllers
             }
         }
 
-        private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db, int userId)
-        {
-            List<int> viewerIgnoredUsers = await GetUserIgnoredUsers(userId);
-            List<PostViewModel> postViews = posts
-                .Select(p => new PostViewModel()
-                {
-                    Post = p,
-                    ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
-                    ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                    ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                    ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
-                    NumComments = 0,
-                    ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
-                }).ToList();
-            return postViews;
-        }
+        //private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db, int userId)
+        //{
+        //    List<int> viewerIgnoredUsers = await GetUserIgnoredUsers(userId);
+        //    List<PostViewModel> postViews = posts
+        //        .Select(p => new PostViewModel()
+        //        {
+        //            Post = p,
+        //            ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
+        //            ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+        //            ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+        //            ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
+        //            NumComments = 0,
+        //            ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
+        //        }).ToList();
+        //    return postViews;
+        //}
 
-        private static async Task<List<int>> GetUserIgnoredUsers(int userId)
-        {
-            if (userId > 0)
-            {
-                using (var db = new ZapContext())
-                {
-                    return await db.Users
-                        .Where(u => u.Id == userId)
-                        .SelectMany(u => u.IgnoringUsers.Select(i => i.Id))
-                        .Where(i => i != userId)
-                        .ToListAsync();
-                }
-            }
-            else
-            {
-                return new List<int>();
-            }
-        }
+        //private static async Task<List<int>> GetUserIgnoredUsers(int userId)
+        //{
+        //    if (userId > 0)
+        //    {
+        //        using (var db = new ZapContext())
+        //        {
+        //            return await db.Users
+        //                .Where(u => u.Id == userId)
+        //                .SelectMany(u => u.IgnoringUsers.Select(i => i.Id))
+        //                .Where(i => i != userId)
+        //                .ToListAsync();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        return new List<int>();
+        //    }
+        //}
 
         private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
@@ -1207,58 +1121,58 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        private async Task EnsureUserExists(string userId, ZapContext db)
-        {
-            if (userId != null)
-            {
-                var user = await db.Users
-                    .Include(usr => usr.ProfileImage)
-                    .Include(usr => usr.ThumbImage)
-                    .Include(usr => usr.Funds)
-                    .Include(usr => usr.Settings)
-                    .Where(u => u.AppId == userId)
-                    .SingleOrDefaultAsync();
+        //private async Task EnsureUserExists(string userId, ZapContext db)
+        //{
+        //    if (userId != null)
+        //    {
+        //        var user = await db.Users
+        //            .Include(usr => usr.ProfileImage)
+        //            .Include(usr => usr.ThumbImage)
+        //            .Include(usr => usr.Funds)
+        //            .Include(usr => usr.Settings)
+        //            .Where(u => u.AppId == userId)
+        //            .SingleOrDefaultAsync();
 
-                if (user == null)
-                {
-                    // no user entry
-                    User u = new User()
-                    {
-                        AboutMe = "Nothing to tell.",
-                        AppId = userId,
-                        Name = User.Identity.Name,
-                        ProfileImage = new UserImage(),
-                        ThumbImage = new UserImage(),
-                        Funds = new UserFunds(),
-                        Settings = new UserSettings(),
-                        DateJoined = DateTime.UtcNow,
-                    };
-                    db.Users.Add(u);
-                    await db.SaveChangesAsync();
-                }
-                else
-                {
-                    // ensure all properties are not null
-                    if (user.Funds == null)
-                    {
-                        // DANGER!
-                        user.Funds = new UserFunds();
-                    }
-                    if (user.Settings == null)
-                    {
-                        user.Settings = new UserSettings();
-                    }
-                    if (user.ThumbImage == null)
-                    {
-                        user.ThumbImage = new UserImage();
-                    }
-                    if (user.ProfileImage == null)
-                    {
-                        user.ProfileImage = new UserImage();
-                    }
-                    await db.SaveChangesAsync();
-                }
-            }
-        }
+        //        if (user == null)
+        //        {
+        //            // no user entry
+        //            User u = new User()
+        //            {
+        //                AboutMe = "Nothing to tell.",
+        //                AppId = userId,
+        //                Name = User.Identity.Name,
+        //                ProfileImage = new UserImage(),
+        //                ThumbImage = new UserImage(),
+        //                Funds = new UserFunds(),
+        //                Settings = new UserSettings(),
+        //                DateJoined = DateTime.UtcNow,
+        //            };
+        //            db.Users.Add(u);
+        //            await db.SaveChangesAsync();
+        //        }
+        //        else
+        //        {
+        //            // ensure all properties are not null
+        //            if (user.Funds == null)
+        //            {
+        //                // DANGER!
+        //                user.Funds = new UserFunds();
+        //            }
+        //            if (user.Settings == null)
+        //            {
+        //                user.Settings = new UserSettings();
+        //            }
+        //            if (user.ThumbImage == null)
+        //            {
+        //                user.ThumbImage = new UserImage();
+        //            }
+        //            if (user.ProfileImage == null)
+        //            {
+        //                user.ProfileImage = new UserImage();
+        //            }
+        //            await db.SaveChangesAsync();
+        //        }
+        //    }
+        //}
     }
 }
