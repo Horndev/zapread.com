@@ -7,35 +7,33 @@ namespace zapread.com.Models
     public class PostViewModel
     {
         [Obsolete("Use view model attributes instead of the Post object.")]
-        public Post Post;
-
-        public string PostTitle;
-        public string Content;
-        public int PostId;
-        public int GroupId;
-        public string GroupName;
-        public string UserName;
-        public int UserId;
-        public string UserAppId;
-        public int UserProfileImageVersion;
-        public int Score;
+        public Post Post { get; set; }
+        public string PostTitle { get; set; }
+        public string Content { get; set; }
+        public int PostId { get; set; }
+        public int GroupId { get; set; }
+        public string GroupName { get; set; }
+        public string UserName { get; set; }
+        public int UserId { get; set; }
+        public string UserAppId { get; set; }
+        public int UserProfileImageVersion { get; set; }
+        public int Score { get; set; }
         public DateTime? TimeStamp { get; set; }
         public DateTime? TimeStampEdited { get; set; }
-        public bool IsNSFW;
-        public bool IsSticky;
-
-        public IEnumerable<PostCommentsViewModel> CommentVms;
-        public bool ViewerIsMod;        // User has moderation privilage on this post
-        public bool ViewerUpvoted;      // If the user has upvoted this post
-        public bool ViewerDownvoted;    // If the user has downvoted this post
-        public bool ViewerIgnoredUser;  // If the user has ignored the user
-        public int NumComments;
-        public bool IsDetailView;       // If the post is being viewed by itself
-        public bool IsFirstPost;        // If the post is the first post on a page
+        public bool IsNSFW { get; set; }
+        public bool IsSticky { get; set; }
+        public IEnumerable<PostCommentsViewModel> CommentVms { get; set; }
+        public bool ViewerIsMod { get; set; }        // User has moderation privilage on this post
+        public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
+        public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
+        public bool ViewerIgnoredUser { get; set; }  // If the user has ignored the user
+        public int NumComments { get; set; }
+        public bool IsDetailView { get; set; }       // If the post is being viewed by itself
+        public bool IsFirstPost { get; set; }        // If the post is the first post on a page
 
         // Not ideal!
         [Obsolete("Check ViewerIgnoredUser for post status instead.")]
-        public List<int> ViewerIgnoredUsers;  // If the user has ignored the user
+        public List<int> ViewerIgnoredUsers { get; set; }  // If the user has ignored the user
     }
 
     public class NewPostViewModel
