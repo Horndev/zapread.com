@@ -719,6 +719,14 @@
     <Compile Include="Migrations\202001070125307_AddUserHide.designer.cs">
       <DependentUpon>202001070125307_AddUserHide.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202003100118162_FixPostVotes.cs" />
+    <Compile Include="Migrations\202003100118162_FixPostVotes.designer.cs">
+      <DependentUpon>202003100118162_FixPostVotes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202003100129445_FixCommentVotes.cs" />
+    <Compile Include="Migrations\202003100129445_FixCommentVotes.designer.cs">
+      <DependentUpon>202003100129445_FixCommentVotes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1075,6 +1083,11 @@
     <Content Include="Views\Shared\DisplayTemplates\MetaRobotsHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\MenuHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CanonicalHelperModel.cshtml" />
+    <Content Include="Views\Home\_PartialPosts.cshtml" />
+    <Content Include="Views\Shared\_PartialPostRenderVm.cshtml" />
+    <Content Include="Views\Shared\_PartialUserLinkVm.cshtml" />
+    <Content Include="Views\Shared\_PartialGroupLinkVm.cshtml" />
+    <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -1305,6 +1318,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202001070125307_AddUserHide.resx">
       <DependentUpon>202001070125307_AddUserHide.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202003100118162_FixPostVotes.resx">
+      <DependentUpon>202003100118162_FixPostVotes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202003100129445_FixCommentVotes.resx">
+      <DependentUpon>202003100129445_FixCommentVotes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

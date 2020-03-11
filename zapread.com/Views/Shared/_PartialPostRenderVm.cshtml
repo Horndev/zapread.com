@@ -1,0 +1,274 @@
+﻿@using Microsoft.AspNet.Identity;
+@using zapread.com.Helpers;
+@using zapread.com.Models;
+@using zapread.com.Models.UserViews;
+@using zapread.com.Models.GroupViews;
+@model zapread.com.Models.PostViewModel
+
+    <div class="social-feed-box @(Model.IsFirstPost ? "firstPost" : "")" id=@("post_" + @Model.PostId.ToString())>
+        <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
+            <i class="fa fa-minus-square togglebutton"></i>
+        </button>
+        <div class="pull-right social-action dropdown">
+            <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
+            <ul class="dropdown-menu m-t-xs">
+                <li>
+                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
+                </li>
+                @if (Model.ViewerIgnoredUser)
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')"><i class="fa fa-eye"></i> Show Post</button>
+                    </li>
+                }
+                @if (User.Identity.Name == Model.UserName)
+                {
+                    using (Html.BeginForm("Edit", "Post",
+                        new { ReturnUrl = ViewBag.ReturnUrl },
+                        FormMethod.Post,
+                        new { role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("PostId", Model.PostId)
+                        <li>
+                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
+                        </li>
+                    }
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete</button>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit" onclick="alert('Not yet implemented.')"><i class="fa fa-globe"></i> Translate</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-flag"></i> Report Spam</button>
+                    </li>
+                }
+
+                @if (User.IsInRole("Administrator"))
+                {
+                    using (Html.BeginForm("Edit", "Post",
+                        new { ReturnUrl = ViewBag.ReturnUrl },
+                        FormMethod.Post,
+                        new { role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("PostId", Model.PostId)
+                        <li>
+                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
+                        </li>
+                    }
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-link btn-sm" type="submit" onclick="setPostLanguage(@Model.PostId)"><i class="fa fa-times"></i> Set Language (Admin)</button>
+                    </li>
+                }
+
+                @if (Model.ViewerIsMod || User.Identity.Name == Model.UserName || User.IsInRole("Administrator"))
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle Explicit</button>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.  Feature coming soon.');"><i class="fa fa-exclamation-triangle"></i> Report NSFW</button>
+                    </li>
+                }
+
+                @if (Model.ViewerIsMod)
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.PostId)"><i class="fa fa-map-pin"></i> Toggle Group Sitcky</button>
+                    </li>
+                }
+                @if (User.IsInRole("Administrator"))
+                {
+
+                }
+                <li class="dropdown-submenu pull-left">
+                    <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
+                    <ul class="dropdown-menu">
+                        <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { id = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        @*border-style: solid;border-color: #1ab394;border-top-width: 0px;border-left-width: 0px;border-right-width: 0px;border-bottom-width: 1px;*@
+        <div class="social-avatar" style="padding-bottom: 15px;">
+            <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
+                <div class="vote-actions">
+                    <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100, this)" class="@(Model.ViewerUpvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteUp" : "")" id="uVote_@Model.PostId">
+                        <i class="fa fa-chevron-up"> </i>
+                    </a>
+                    <div id="sVote_@Model.PostId" class="@(Model.IsFirstPost ? "firstPostScore" : "")">@Model.Score.ToAbbrString()</div>
+                    <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100, this)" class="@(Model.ViewerDownvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteDown" : "")" id="dVote_@Model.PostId">
+                        <i class="fa fa-chevron-down"> </i>
+                    </a>
+                </div>
+            </div>
+            @if (!Model.ViewerIgnoredUser)
+            {
+                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
+                    <img class="img-circle userhint post-image-45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Convert.ToString(Model.UserProfileImageVersion) })" />
+                </a>
+            }
+            <div class="media-body">
+                <a class="vote-title" href="@Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.Replace(" ","-").Trim().Substring(0,Math.Min(500,Model.PostTitle.Trim().Length)) : null })" style="margin-left: 110px;">
+                    @if (String.IsNullOrEmpty(Model.PostTitle))
+                    {
+                        <text>Post</text>
+                    }
+                    else
+                    {
+                        @Model.PostTitle
+                    }
+                </a>
+                <div class="vote-info" style="margin-left: 110px;">
+                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.IsSticky)
+                    {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
+                    @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = Model.IsFirstPost })
+
+                    <small class="postTime text-muted" style="display: none">@Model.TimeStamp.Value.ToString("o")</small>
+                    @if (Model.TimeStampEdited != null)
+                    {
+                        <span class="text-muted" style="display:inline"> edited </span>
+                        <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
+                    }
+                    <span class="appear" data-src="/Post/Impressions/@Model.PostId"></span>
+                </div>
+            </div>
+        </div>
+        <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
+            <div class="row">
+                <div class="col">
+                    <div class="post-quotable post-content @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userid="@Model.UserId">
+                        <div @if (!Model.IsDetailView) { <text> class="post-content" </text> }>
+                            @Html.Raw(Model.Content)
+                        </div>
+                        @if (Model.IsNSFW)
+                        {
+                            <div id="nsfw_@Model.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
+                            <button id="nsfwb_@Model.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.PostId)">Show NSFW</button>
+                        }
+                        @if (!Model.IsDetailView)
+                        {
+                            <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
+                        }
+                    </div>
+                    @*<br />*@
+                </div>
+            </div>
+            @*<div class="row">
+                <div class="col col-auto">
+                    <a href="javascript:void(0);" onclick="toggleChat(@Model.Post.PostId);" class="btn-link btn btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Discuss</a>
+                </div>
+            </div>*@
+        </div>
+        @if (Request.IsAuthenticated)
+        {
+            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(this);" data-postid="@Model.PostId">
+                <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+            </div>
+            <div id=@("preply_" + @Model.PostId.ToString()) class="social-footer" style="display: none"}>
+                <div id="pc_@Model.PostId.ToString()" class="social-comment">
+                    <div class="ibox-content no-padding ibox-comment" style="background-color:inherit">
+                        <div class="sk-spinner sk-spinner-three-bounce">
+                            <div class="sk-bounce1"></div>
+                            <div class="sk-bounce2"></div>
+                            <div class="sk-bounce3"></div>
+                        </div>
+                        <a href="@Url.Action(actionName: "Index", controllerName: "Manage")" class="pull-left">
+                            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30 })" />
+                        </a>
+                        <div class="media-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="ibox-content no-padding">
+                                        <div class="@("c_input_" + @Model.PostId.ToString()) wrapper p-md" id="c_input_@Model.PostId.ToString()"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-auto">
+                                    <div class="btn-group-vertical">
+                                        <button id="bc_@Model.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.PostId.ToString(), 0, false)">Submit <i id="cs_@Model.PostId.ToString()" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
+            @if (Model.CommentVms.Any())
+            {
+                var numshown = 0;
+                var numToShow = 3;
+                if (Model.IsDetailView) { numToShow = 50; }
+                bool showmore = false;
+                List<long> rootshown = new List<long>();
+                var comments = Model.CommentVms.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
+                var numComments = comments.Count();
+                foreach (var cmt in comments)
+                {
+                    var vm = new PostCommentsViewModel
+                    {
+                        NestLevel = 1, // Root level comment
+                        //Comment = comment,
+                        //Comments = Model.Post.Comments.ToList(),
+                        //ViewerIgnoredUsers = Model.ViewerIgnoredUsers
+                        ViewerIgnoredUser = cmt.ViewerIgnoredUser,
+                        CommentId = cmt.CommentId,
+                        CommentVms = cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
+                        TimeStamp = cmt.TimeStamp,
+                        TimeStampEdited = cmt.TimeStampEdited,
+                        UserId = cmt.UserId,
+                        IsDeleted = cmt.IsDeleted,
+                        IsReply = cmt.IsReply,
+                        ProfileImageVersion = cmt.ProfileImageVersion,
+                        Score = cmt.Score,
+                        StartVisible = cmt.StartVisible,
+                        Text = cmt.Text,
+                        UserName = cmt.UserName,
+                        UserAppId = cmt.UserAppId,
+                        ViewerUpvoted = cmt.ViewerUpvoted,
+                        ViewerDownvoted = cmt.ViewerDownvoted,
+                    };
+
+                    // Have the top 3 root comments start visible
+                    if (numshown < numToShow && cmt.Score >= 0)
+                    {
+                        numshown += 1;
+                        vm.StartVisible = true;
+                        @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
+                        rootshown.Add(cmt.CommentId);
+                    }
+                    else if (numshown < numToShow)
+                    {
+                        numshown += 1;
+                        vm.StartVisible = false;
+                        @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
+                    }
+                    if (numshown >= numToShow && numComments > numToShow)
+                    {
+                        showmore = true;
+                    }
+                }
+                if (showmore)
+                {
+                    <div class="insertComments" id="mc_@Model.PostId"></div> @*new comments appear below this div*@
+                    <text><div onclick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div></text>
+                }
+            }
+        </div>
+
+    </div>
