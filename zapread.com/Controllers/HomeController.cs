@@ -308,7 +308,7 @@ namespace zapread.com.Controllers
                     p.order2,
                     p.sign,
                     p.dt,
-                    hot = p.sign * (p.order1 + p.order2) + p.dt / 90000
+                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / 90000.0)
                 })
                 .OrderByDescending(p => p.hot)
                 .Select(p => p.p);
@@ -337,7 +337,7 @@ namespace zapread.com.Controllers
                 .Select(p => new
                 {
                     p.p,
-                    active = p.sign * p.order + p.dt / 2000000 // Reduced time effect
+                    active = (p.sign * p.order) + (p.dt / 2000000.0) // Reduced time effect
                 })
                 .OrderByDescending(p => p.active)
                 .Select(p => p.p);
@@ -451,7 +451,7 @@ namespace zapread.com.Controllers
                     p.order2,
                     p.sign,
                     p.dt,
-                    hot = p.sign * (p.order1 + p.order2) + p.dt / 90000
+                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / 90000)
                 })
                 .OrderByDescending(p => p.hot)
                 .Select(p => p.p)
