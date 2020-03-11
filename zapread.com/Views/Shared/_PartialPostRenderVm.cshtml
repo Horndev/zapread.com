@@ -228,7 +228,7 @@
                         //ViewerIgnoredUsers = Model.ViewerIgnoredUsers
                         ViewerIgnoredUser = cmt.ViewerIgnoredUser,
                         CommentId = cmt.CommentId,
-                        CommentVms = cmt.CommentVms.ToList(),
+                        CommentVms = cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
                         TimeStamp = cmt.TimeStamp,
                         TimeStampEdited = cmt.TimeStampEdited,
                         UserId = cmt.UserId,
