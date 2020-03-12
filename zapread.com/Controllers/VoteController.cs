@@ -32,6 +32,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> Post(Vote v)
         {
             if (!ModelState.IsValid)
@@ -39,7 +40,7 @@ namespace zapread.com.Controllers
                 return Json(new { success = false, result = "error", message = "Invalid" });
             }
 
-            if (v.a < 1)
+            if (v == null || v.a < 1)
             {
                 return Json(new { success = false, result = "error", message = "Invalid" });
             }
@@ -56,7 +57,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1);
+                var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(true);
 
                 User user = null;
 
@@ -65,7 +66,7 @@ namespace zapread.com.Controllers
                     .Include(p => p.VotesDown)
                     .Include(p => p.UserId)
                     .Include(p => p.UserId.Funds)
-                    .FirstOrDefaultAsync(p => p.PostId == v.Id);
+                    .FirstOrDefaultAsync(p => p.PostId == v.Id).ConfigureAwait(true);
 
                 if (post == null)
                 {
@@ -83,7 +84,7 @@ namespace zapread.com.Controllers
                     }
 
                     vtx.IsSpent = true;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -91,7 +92,7 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.EarningEvents)
                         .Include(usr => usr.SpendingEvents)
-                        .FirstOrDefaultAsync(u => u.AppId == userId);
+                        .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
 
                     if (user == null)
                     {
@@ -106,20 +107,7 @@ namespace zapread.com.Controllers
                     user.Funds.Balance -= v.a;
                 }
 
-                var spendingEvent = new SpendingEvent()
-                {
-                    Amount = v.a,
-                    Post = post,
-                    TimeStamp = DateTime.UtcNow,
-                };
-
-                double userBalance = 0.0;
-                if (user != null)
-                {
-                    userBalance = user.Funds.Balance;
-                    user.SpendingEvents.Add(spendingEvent);
-                }
-
+                double userBalance = RecordSpendingEvent(v, user, post);
                 long authorRep = post.UserId.Reputation;
                 long userRep = 0;
 
@@ -144,91 +132,22 @@ namespace zapread.com.Controllers
                     var adj = ReputationService.GetReputationAdjustedAmount(v.a, 0, userRep);
                     post.Score += Convert.ToInt32(adj);// v.a;
 
-                    // Record and assign earnings
-                    // Related to post owner
-                    post.TotalEarned += 0.6 * v.a;
+                    string ownerAppId = RecordPostIncome(v, ref IsUserOwner, IsUserAnonymous, user, post);
 
-                    var ea = new EarningEvent()
-                    {
-                        Amount = 0.6 * v.a,
-                        OriginType = 0,
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,
-                        OriginId = post.PostId,
-                    };
-
-                    var webratio = 0.1;     // Website income
-                    var comratio = 0.1;     // Community pool
-
-                    var owner = post.UserId;
-
-                    if (user != null && owner.Id == user.Id)
-                    {
-                        IsUserOwner = true;
-                    }
-
-                    if (owner != null)
-                    {
-                        // If user is not anonymous, and user is not owner, add reputation
-                        if (!IsUserAnonymous && !IsUserOwner)
-                        {
-                            owner.Reputation += v.a;
-                        }
-
-                        owner.EarningEvents.Add(ea);
-                        owner.TotalEarned += 0.6 * v.a;
-
-                        if (owner.Funds == null)
-                        {
-                            owner.Funds = new UserFunds() { Balance = 0.6 * v.a, TotalEarned = 0.6 * v.a };
-                        }
-                        else
-                        {
-                            owner.Funds.Balance += 0.6 * v.a;
-                        }
-                    }
-                    else
-                    {
-                        ; // TODO: log this error
-                    }
-
-                    var postGroup = post.Group;
-                    if (postGroup != null)
-                    {
-                        postGroup.TotalEarnedToDistribute += 0.2 * v.a;
-                    }
-                    else
-                    {
-                        // not in group - send to community
-                        comratio += 0.2;
-                    }
-
-                    if (website != null)
-                    {
-                        // Will be distributed to all users
-                        website.CommunityEarnedToDistribute += comratio * v.a;
-
-                        // And to the website
-                        website.ZapReadTotalEarned += webratio * v.a;
-                        website.ZapReadEarnedBalance += webratio * v.a;
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to load Zapread DB globals.");
-                    }
+                    RecordDistributions(v, website, post);
 
                     try
                     {
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                     catch (Exception)
                     {
-                        return Json(new { success=false, result = "error", message = "Error" });
+                        return Json(new { success = false, result = "error", message = "Error" });
                     }
 
-                    NotificationService.SendIncomeNotification(0.6 * v.a, owner.AppId, "Post upvote", Url.Action("Detail", "Post", new { post.PostId }));
+                    NotificationService.SendIncomeNotification(0.6 * v.a, ownerAppId, "Post upvote", Url.Action("Detail", "Post", new { post.PostId }));
 
-                    return Json(new { success=true, result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
+                    return Json(new { success = true, result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
                 else
                 {
@@ -291,9 +210,108 @@ namespace zapread.com.Controllers
                     }
 
                     await db.SaveChangesAsync();
-                    return Json(new { success=true, result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
+                    return Json(new { success = true, result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
                 }
             }
+        }
+
+        private static string RecordPostIncome(Vote v, ref bool IsUserOwner, bool IsUserAnonymous, User user, Post post)
+        {
+            // Record and assign earnings
+            // Related to post owner
+            post.TotalEarned += 0.6 * v.a;
+
+            var ea = new EarningEvent()
+            {
+                Amount = 0.6 * v.a,
+                OriginType = 0,
+                TimeStamp = DateTime.UtcNow,
+                Type = 0,
+                OriginId = post.PostId,
+            };
+
+            var owner = post.UserId;
+
+            if (user != null && owner.Id == user.Id)
+            {
+                IsUserOwner = true;
+            }
+
+            if (owner != null)
+            {
+                // If user is not anonymous, and user is not owner, add reputation
+                if (!IsUserAnonymous && !IsUserOwner)
+                {
+                    owner.Reputation += v.a;
+                }
+
+                owner.EarningEvents.Add(ea);
+                owner.TotalEarned += 0.6 * v.a;
+
+                if (owner.Funds == null)
+                {
+                    owner.Funds = new UserFunds() { Balance = 0.6 * v.a, TotalEarned = 0.6 * v.a };
+                }
+                else
+                {
+                    owner.Funds.Balance += 0.6 * v.a;
+                }
+            }
+            else
+            {
+                ; // TODO: log this error
+            }
+            string ownerAppId = owner.AppId;
+            return ownerAppId;
+        }
+
+        private static void RecordDistributions(Vote v, ZapReadGlobals website, Post post)
+        {
+            var webratio = 0.1;     // Website income
+            var comratio = 0.1;     // Community pool
+            var postGroup = post.Group;
+            if (postGroup != null)
+            {
+                postGroup.TotalEarnedToDistribute += 0.2 * v.a;
+            }
+            else
+            {
+                // not in group - send to community
+                comratio += 0.2;
+            }
+
+            if (website != null)
+            {
+                // Will be distributed to all users
+                website.CommunityEarnedToDistribute += comratio * v.a;
+
+                // And to the website
+                website.ZapReadTotalEarned += webratio * v.a;
+                website.ZapReadEarnedBalance += webratio * v.a;
+            }
+            else
+            {
+                throw new Exception("Unable to load Zapread DB globals.");
+            }
+        }
+
+        private static double RecordSpendingEvent(Vote v, User user, Post post)
+        {
+            var spendingEvent = new SpendingEvent()
+            {
+                Amount = v.a,
+                Post = post,
+                TimeStamp = DateTime.UtcNow,
+            };
+
+            double userBalance = 0.0;
+            if (user != null)
+            {
+                userBalance = user.Funds.Balance;
+                user.SpendingEvents.Add(spendingEvent);
+            }
+
+            return userBalance;
         }
 
         [HttpPost]
