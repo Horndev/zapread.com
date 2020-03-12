@@ -69,7 +69,15 @@ namespace zapread.com.Models
         [Obsolete]
         public Comment ParentComment { get; set; }
 
+        [Obsolete]
         public PostCommentsViewModel ParentCommentVm { get; set; }
+
+        public long ParentCommentId { get; set; }
+
+        public int ParentUserId { get; set; }
+
+        public string ParentUserName { get; set; }
+
         public List<Comment> Comments { get; set; } // All comments
 
         [Obsolete("Use ViewerIgnoredUser instead of this list.")]
