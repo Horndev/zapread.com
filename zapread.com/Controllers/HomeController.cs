@@ -408,6 +408,9 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
                         ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
                         ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
                     }),
                 })
                 .AsNoTracking()
@@ -630,6 +633,7 @@ namespace zapread.com.Controllers
         /// This method is run once when first launched to ensure database globals are in place.
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
         public async Task<ActionResult> Install()
         {
             var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];

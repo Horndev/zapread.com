@@ -108,7 +108,7 @@
                     }
                     <small>
                         -@if (Model.IsReply)
-                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentVm.UserId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentCommentVm.UserName.Trim() })">@@@Model.ParentCommentVm.UserName</a> </text> }
+                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> </text> }
                     else
                     { <text> commented </text>}
                     </small><small class="postTime text-muted">@Model.TimeStamp.Value.ToString("o")</small>
@@ -148,21 +148,19 @@
                 </div>
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{
-                        var subcomments = Model.CommentVms.Where(c => c.IsReply).Where(c => c.ParentCommentVm.CommentId == Model.CommentId);
+                        var subcomments = Model.CommentVms.Where(c => c.IsReply).Where(c => c.ParentCommentId == Model.CommentId);
                         foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
                         {
                             var vm = new PostCommentsViewModel
                             {
                                 NestLevel = Model.NestLevel + 1,
-                                //Comment = cmt,
-                                //ParentComment = Model.Comment,
-                                ParentCommentVm = Model,
-                                //Comments = Model.Comments.ToList(),
-                                //ViewerIgnoredUsers = Model.ViewerIgnoredUsers,
+                                ParentCommentId = cmt.ParentCommentId,
+                                ParentUserName = cmt.ParentUserName,
+                                ParentUserId = cmt.ParentUserId,
                                 StartVisible = Model.NestLevel < 4,
                                 ViewerIgnoredUser = cmt.ViewerIgnoredUser,
                                 CommentId = cmt.CommentId,
-                                CommentVms = cmt.CommentVms.ToList(),
+                                CommentVms = cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
                                 TimeStamp = cmt.TimeStamp,
                                 TimeStampEdited = cmt.TimeStampEdited,
                                 UserId = cmt.UserId,

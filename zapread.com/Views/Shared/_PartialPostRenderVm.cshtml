@@ -223,12 +223,12 @@
                     var vm = new PostCommentsViewModel
                     {
                         NestLevel = 1, // Root level comment
-                        //Comment = comment,
-                        //Comments = Model.Post.Comments.ToList(),
-                        //ViewerIgnoredUsers = Model.ViewerIgnoredUsers
                         ViewerIgnoredUser = cmt.ViewerIgnoredUser,
+                        ParentCommentId = cmt.ParentCommentId,
+                        ParentUserName = cmt.ParentUserName,
+                        ParentUserId = cmt.ParentUserId,
                         CommentId = cmt.CommentId,
-                        CommentVms = cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
+                        CommentVms = Model.CommentVms == null ? new List<PostCommentsViewModel>() : Model.CommentVms.ToList(),//cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
                         TimeStamp = cmt.TimeStamp,
                         TimeStampEdited = cmt.TimeStampEdited,
                         UserId = cmt.UserId,
