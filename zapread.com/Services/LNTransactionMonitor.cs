@@ -28,6 +28,9 @@ namespace zapread.com.Services
                     macaroonRead: website.LnMainnetMacaroonRead,
                     macaroonInvoice: website.LnMainnetMacaroonInvoice);
 
+                //var invv = lndClient.GetInvoice("8Td4xGBvz4nI2qRLIVC93S9mcTDodd/sylhd9IG7FEA=", out string responseStr, useQuery: false);
+                //var allpayments = lndClient.GetPayments(out string responseStr, include_incomplete: true);
+
                 // These are the unpaid invoices in database
                 var unpaidInvoices = db.LightningTransactions
                     .Where(t => t.IsSettled == false)
@@ -146,7 +149,7 @@ namespace zapread.com.Services
                 if (numup > 0)
                 {
                     // Check the unpaid withdraws
-                    var payments = lndClient.GetPayments();
+                    var payments = lndClient.GetPayments(include_incomplete: true);
 
                     //var pmts = LndRpcClient.LndApiGetStr("lightning.zapread.com", 
                     //    "/v1/payments", 
@@ -158,14 +161,76 @@ namespace zapread.com.Services
                     foreach (var i in unpaidWithdraws)
                     {
                         var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
+                        double amount = Convert.ToDouble(i.Amount);
 
                         if (pmt != null)
                         {
                             // Paid?
-                            if (i.ErrorMessage == "Error: invoice is already paid")
+                            if (pmt.status == "SUCCEEDED")
+                            {
+                                // Payment succeeded - remove from Limbo
+                                if (i.IsLimbo)
+                                {
+                                    if (i.User.Funds.LimboBalance - amount < 0)
+                                    {
+                                        // shouldn't happen!
+                                        i.User.Funds.LimboBalance = 0;
+                                        Services.MailingService.SendErrorNotification(
+                                            title: "Tx caused limbo to be negative. - payment verified",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason -1");
+                                    }
+                                    else
+                                    {
+                                        i.User.Funds.LimboBalance -= amount;
+                                        if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                        {
+                                            i.User.Funds.LimboBalance = 0;
+                                        }
+                                    }
+                                }
+                                
+                                i.IsLimbo = false;
+                                i.IsIgnored = true;
+                                i.IsSettled = true;
+
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored - payment verified",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 0");
+                            }
+                            else if (pmt.status == "FAILED")
+                            {
+                                // Payment failed
+                                if (i.User.Funds.LimboBalance - amount < 0)
+                                {
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                    i.User.Funds.Balance += i.User.Funds.LimboBalance;
+                                    i.User.Funds.LimboBalance = 0;
+                                }
+                                else
+                                {
+                                    i.User.Funds.LimboBalance -= amount;
+                                    i.User.Funds.Balance += amount;
+                                    if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
+                                    {
+                                        i.User.Funds.LimboBalance = 0;
+                                    }
+                                }
+                                i.IsLimbo = false;
+                                i.IsIgnored = true;
+                                i.IsSettled = false;
+                                Services.MailingService.SendErrorNotification(
+                                            title: "Tx marked as ignored - failure verified",
+                                            message: "tx.id: " + Convert.ToString(i.Id)
+                                            + " Reason 0");
+                            }
+                            else if (i.ErrorMessage == "Error: invoice is already paid")
                             {
                                 // Invoice is already paid - 
-                                double amount = Convert.ToDouble(i.Amount);
 
                                 // This was a duplicate payment - funds were not sent and this payment hash should only have one paid version.
                                 if (i.User.Funds.LimboBalance - amount < 0)
@@ -214,7 +279,6 @@ namespace zapread.com.Services
                             else if (i.ErrorMessage == "Error validating payment." || i.ErrorMessage == "Error executing payment.")
                             {
                                 // Payment has come through
-                                double amount = Convert.ToDouble(i.Amount);
 
                                 // No longer in limbo
                                 i.User.Funds.LimboBalance -= amount;
@@ -251,7 +315,6 @@ namespace zapread.com.Services
                         }
                         else
                         {
-                            double amount = Convert.ToDouble(i.Amount);
                             // Consider as not paid (for now) if not in DB - probably an error
                             if (i.ErrorMessage == "Error: invoice is already paid")
                             {

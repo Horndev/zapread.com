@@ -118,6 +118,7 @@ namespace zapread.com.Services
 
                 SendPaymentResponse paymentresult = null;
                 LNTransaction t = null;
+                string responseStr = "";
 
                 //all (should be) ok - make the payment
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
@@ -148,9 +149,10 @@ namespace zapread.com.Services
                     // Register polling listener (TODO)
 
                     // Execute payment
+                    
                     try
                     {
-                        paymentresult = lndClient.PayInvoice(request);
+                        paymentresult = lndClient.PayInvoice(request, out responseStr);
                     }
                     catch (RestException e)
                     {
@@ -163,7 +165,8 @@ namespace zapread.com.Services
                                 + "\r\n hash: " + t.HashStr
                                 + "\r\n Content: " + e.Content
                                 + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request
-                                + "\r\n user: " + userId + "\r\n username: " + user.Name,
+                                + "\r\n user: " + userId + "\r\n username: " + user.Name
+                                + "\r\n <br><br> response: " + responseStr,
                             Email = "",
                             Name = "zapread.com Exception",
                             Subject = "User withdraw error 4",
@@ -184,7 +187,7 @@ namespace zapread.com.Services
                 if (paymentresult == null)
                 {
                     // Something went wrong.  Check if the payment went through
-                    var payments = lndClient.GetPayments();
+                    var payments = lndClient.GetPayments(include_incomplete: true);
 
                     var pmt = payments.payments.Where(p => p.payment_hash == t.HashStr).FirstOrDefault();
 
@@ -199,9 +202,9 @@ namespace zapread.com.Services
                         Subject = "User withdraw error 3",
                     });
 
-                    if (pmt != null)
+                    if (pmt != null && pmt.status == "SUCCEEDED")
                     {
-                        // Looks like the payment did go through.
+                        // Looks like the payment may have gone through.
                         // the payment went through process withdrawal
                         paymentresult = new SendPaymentResponse()
                         {
@@ -210,6 +213,17 @@ namespace zapread.com.Services
                                 total_fees = "0",
                             }
                         };
+
+                        MailingService.Send(new UserEmailModel()
+                        {
+                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                            Body = " Withdraw error: payment error "
+                               + "\r\n user: " + userId + "\r\n username: " + user.Name
+                               + "\r\n <br><br> response: " + responseStr,
+                            Email = "",
+                            Name = "zapread.com Exception",
+                            Subject = "User withdraw possible error 6",
+                        });
                     }
                     else
                     {
@@ -227,6 +241,7 @@ namespace zapread.com.Services
                 if (paymentresult.error != null && paymentresult.error != "")
                 {
                     t.ErrorMessage = "Error: " + paymentresult.error;
+                    t.IsError = true;
                     db.SaveChanges();
                     return new { Result = "Error: " + paymentresult.error };
                 }
@@ -234,7 +249,20 @@ namespace zapread.com.Services
                 if (paymentresult.payment_error != null)
                 {
                     t.ErrorMessage = "Error: " + paymentresult.payment_error;
+                    t.IsError = true;
+                    t.IsLimbo = false;
                     db.SaveChanges();
+
+                    MailingService.Send(new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: payment error "
+                               + "\r\n user: " + userId + "\r\n username: " + user.Name
+                               + "\r\n <br><br> response: " + responseStr,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "User withdraw error 5",
+                    });
                     return new { Result = "Error: " + paymentresult.payment_error };
                 }
 
