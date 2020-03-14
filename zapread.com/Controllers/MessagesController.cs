@@ -870,11 +870,11 @@ namespace zapread.com.Controllers
                         // Send email
                         if (receiver.Settings != null && receiver.Settings.NotifyOnPrivateMessage)
                         {
-                            string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId)).Email;
+                            string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId).ConfigureAwait(true)).Email;
                             string subject = "New private message";
                             string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol:Request.Url.Scheme) + "'>"
                                         + sender.Name + "</a><br/> " + cleanContent
-                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
+                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "/'>Go to live chat.</a>"
                                         + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
 
                             BackgroundJob.Enqueue<MailingService>(x => x.SendEmail(

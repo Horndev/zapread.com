@@ -149,7 +149,7 @@
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{
                         var subcomments = Model.CommentVms.Where(c => c.IsReply).Where(c => c.ParentCommentId == Model.CommentId);
-                        foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp))
+                        foreach (var cmt in subcomments.OrderByDescending(cmt => cmt.Score))
                         {
                             var vm = new PostCommentsViewModel
                             {
@@ -160,7 +160,7 @@
                                 StartVisible = Model.NestLevel < 4,
                                 ViewerIgnoredUser = cmt.ViewerIgnoredUser,
                                 CommentId = cmt.CommentId,
-                                CommentVms = cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
+                                CommentVms = Model.CommentVms == null ? new List<PostCommentsViewModel>() : Model.CommentVms.ToList(),
                                 TimeStamp = cmt.TimeStamp,
                                 TimeStampEdited = cmt.TimeStampEdited,
                                 UserId = cmt.UserId,
