@@ -166,7 +166,7 @@ namespace zapread.com.Controllers
                 {
                     post.IsSticky = !post.IsSticky;
 
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                     return Json(new { Result = "Success" }, JsonRequestBehavior.AllowGet);
                 }
                 else
@@ -178,6 +178,7 @@ namespace zapread.com.Controllers
 
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> ToggleNSFW(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -192,7 +193,7 @@ namespace zapread.com.Controllers
             {
                 var post = await db.Posts
                     .Include(p => p.UserId)
-                    .FirstOrDefaultAsync(p => p.PostId == id);
+                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
 
                 if (post == null)
                 {
@@ -203,7 +204,7 @@ namespace zapread.com.Controllers
                 var callingUserIsMod = await db.Users
                     .Where(u => u.AppId == userId)
                     .SelectMany(u => u.GroupModeration.Select(g => g.GroupId))
-                    .ContainsAsync(post.Group.GroupId);
+                    .ContainsAsync(post.Group.GroupId).ConfigureAwait(false);
 
                 if (post.UserId.AppId == userId 
                     || UserManager.IsInRole(userId, "Administrator") 
@@ -226,7 +227,7 @@ namespace zapread.com.Controllers
                         PostLink = post,
                     };
                     postOwner.Alerts.Add(alert);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                     return Json(new { success=true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
                 }
                 else
@@ -462,7 +463,7 @@ namespace zapread.com.Controllers
                 var alert = new UserAlert()
                 {
                     TimeStamp = DateTime.Now,
-                    Title = "New post by user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
+                    Title = "New post by a user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
                     Content = "",//post.PostTitle,
                     IsDeleted = false,
                     IsRead = false,
@@ -493,7 +494,7 @@ namespace zapread.com.Controllers
                         }, "Notify"));
                 }
             }
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
         private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)

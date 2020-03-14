@@ -17,7 +17,7 @@
         <i class="fa @if (!Model.StartVisible) {<text>fa-plus-square</text>} else {<text>fa-minus-square</text>} togglebutton" style="padding-top: 2px;"></i> <span id="cel" class="btn btn-link btn-sm" style="@if (Model.StartVisible) {<text>display:none;</text>}font-size: 10pt; border-top-width: 0px; padding-top: 0px; vertical-align: top;"> [@Model.Score] Show comment...</span>
     </button>
     <div class="comment-body" style="width:100%;@if (!Model.StartVisible) {<text>display:none;</text> } ">
-        @if (Request.IsAuthenticated)
+        @if (Request.IsAuthenticated && !Model.IsDeleted)
         {
             <div class="pull-right social-action dropdown" @if (Model.IsReply) { <text> style="left:15px;" </text> }>
                 <a id="cid_@Model.CommentId"></a><button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
@@ -43,7 +43,7 @@
                             <button class="btn btn-link btn-sm" onclick="deleteComment(@Model.CommentId)"><i class="fa fa-times"></i> Delete</button>
                         </li>
                     }
-                    else
+                    else if (!Model.IsDeleted)
                     {
                         <form>
                             <li>
@@ -72,11 +72,11 @@
                 }
                 else if (Model.IsDeleted)
                 {
-                    <div class="vote-actions">
+                    @*<div class="vote-actions">
                         <i class="fa fa-minus"> </i>
                         <div>@Model.Score</div>
                         <i class="fa fa-minus"> </i>
-                    </div>
+                    </div>*@
                 }
                 else
                 {
@@ -127,7 +127,7 @@
                             {
                                 if (Model.IsDeleted)
                                 {
-                                    <div>deleted</div><br />
+                                    @*<span><br /></span>*@@*<div>deleted</div><br />*@
                                 }
                                 else
                                 {
