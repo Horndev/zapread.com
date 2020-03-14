@@ -874,7 +874,7 @@ namespace zapread.com.Controllers
                             string subject = "New private message";
                             string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol:Request.Url.Scheme) + "'>"
                                         + sender.Name + "</a><br/> " + cleanContent
-                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "'>Go to live chat.</a>"
+                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "/'>Go to live chat.</a>"
                                         + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
 
                             BackgroundJob.Enqueue<MailingService>(x => x.SendEmail(
