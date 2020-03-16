@@ -123,7 +123,7 @@
                 </a>
             }
             <div class="media-body">
-                <a class="vote-title" href="@Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.Replace(" ","-").Trim().Substring(0,Math.Min(500,Model.PostTitle.Trim().Length)) : null })" style="margin-left: 110px;">
+                <a class="vote-title" href="@Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Uri.EscapeUriString(Model.PostTitle.Replace(" ","-").Replace(".","").Replace(":","").Trim()) : null })" style="margin-left: 110px;">
                     @if (String.IsNullOrEmpty(Model.PostTitle))
                     {
                         <text>Post</text>
