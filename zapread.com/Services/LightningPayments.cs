@@ -243,10 +243,21 @@ namespace zapread.com.Services
                     t.ErrorMessage = "Error: " + paymentresult.error;
                     t.IsError = true;
                     db.SaveChanges();
+                    
+                    MailingService.Send(new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: payment error "
+                               + "\r\n user: " + userId + "\r\n username: " + user.Name
+                               + "\r\n <br><br> response: " + responseStr,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "User withdraw error 7",
+                    });
                     return new { Result = "Error: " + paymentresult.error };
                 }
 
-                if (paymentresult.payment_error != null)
+                if (!String.IsNullOrEmpty(paymentresult.payment_error))//paymentresult.payment_error != null && paymentresult.payment_error != "")
                 {
                     t.ErrorMessage = "Error: " + paymentresult.payment_error;
                     t.IsError = true;
