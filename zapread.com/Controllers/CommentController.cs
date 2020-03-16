@@ -268,23 +268,30 @@ namespace zapread.com.Controllers
                 if (!c.IsReply && (postOwner.AppId != user.AppId))
                 {
                     if (!c.IsTest)
-                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner);
+                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner).ConfigureAwait(true);
                 }
 
                 if (c.IsReply && commentOwner.AppId != user.AppId)
                 {
                     if (!c.IsTest)
-                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner);
+                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner).ConfigureAwait(true);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", new PostCommentsViewModel() { StartVisible = true, Comment = comment, ParentComment = parent, Comments = new List<Comment>() });
+                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", 
+                    new PostCommentsViewModel() 
+                    { 
+                        StartVisible = true, 
+                        Comment = comment, 
+                        ParentComment = parent, 
+                        Comments = new List<Comment>() 
+                    });
 
                 return this.Json(new
                 {
                     HTMLString = CommentHTMLString,
                     c.PostId,
                     success = true,
-                    IsReply = c.IsReply,
+                    c.IsReply,
                     c.CommentId,
                 });
             }
