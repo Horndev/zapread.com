@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using zapread.com.Database;
+using zapread.com.Helpers;
 
 namespace zapread.com.DI
 {
@@ -32,7 +33,7 @@ namespace zapread.com.DI
                     dynamicNode.RouteValues.Add("PostId", post.p.PostId);
                     if (!string.IsNullOrEmpty(post.p.PostTitle))
                     {
-                        dynamicNode.RouteValues.Add("postTitle", Uri.EscapeUriString(post.p.PostTitle.Replace(" ", "-").Replace("*", "").Replace("+", "p").Replace("?", "").Replace(".", "").Replace(":", "").Trim()));
+                        dynamicNode.RouteValues.Add("postTitle", post.p.PostTitle.MakeURLFriendly());
                     }
                     dynamicNode.Protocol = "https";
                     // Re-index every month (for searching comments)
