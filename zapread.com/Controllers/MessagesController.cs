@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,6 +15,7 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Messages;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -170,7 +172,7 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GetMessagesTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
-            if (userId == null)
+            if (userId == null || dataTableParameters == null)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -218,22 +220,23 @@ namespace zapread.com.Controllers
                 var pageUserMessages = await pageUserMessagesQ
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 var values = pageUserMessages.AsParallel()
                     .Select(u => new MessageDataItem()
                     {
+                        Id = u.Id,
                         Type = u.IsPrivateMessage ? "Private Message" : u.CommentLink != null ? "Comment" : "?",
-                        Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o") : "?",
+                        Date = u.TimeStamp != null ? u.TimeStamp.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
                         From = u.From != null ? u.From.Name : "?",
                         FromID = u.From != null ? u.From.AppId : "?",
                         Message = u.Content,
                         Status = u.IsRead ? "Read" : "Unread",
-                        Link = u.PostLink != null ? u.PostLink.PostId.ToString() : "",
-                        Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString() : "",
+                        Link = u.PostLink != null ? u.PostLink.PostId.ToString(CultureInfo.InvariantCulture) : "",
+                        Anchor = u.CommentLink != null ? u.CommentLink.CommentId.ToString(CultureInfo.InvariantCulture) : "",
                     }).ToList();
 
-                int numrec = await pageUserMessagesQ.CountAsync();
+                int numrec = await pageUserMessagesQ.CountAsync().ConfigureAwait(true);
 
                 var ret = new
                 {
@@ -244,18 +247,6 @@ namespace zapread.com.Controllers
                 };
                 return Json(ret);
             }
-        }
-
-        public class MessageDataItem
-        {
-            public string Status { get; set; }
-            public string Type { get; set; }
-            public string From { get; set; }
-            public string FromID { get; set; }
-            public string Date { get; set; }
-            public string Link { get; set; }
-            public string Anchor { get; set; }
-            public string Message { get; set; }
         }
 
         /// <summary>
