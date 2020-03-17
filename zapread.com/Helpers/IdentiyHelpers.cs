@@ -32,6 +32,10 @@ namespace zapread.com.Helpers
                 return null;
 
             var claim = identity.Claims.FirstOrDefault(c => c.Type == key);
+            if (claim == null)
+            {
+                return "";
+            }
             return claim.Value;
         }
     }
