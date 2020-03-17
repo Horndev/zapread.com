@@ -32,8 +32,10 @@ namespace zapread.com.Controllers
             stringBuilder.AppendLine("disallow: /Account/UserBalance/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
+            stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
             stringBuilder.AppendLine("disallow: /Manage/TipUser/");
             stringBuilder.AppendLine("disallow: /Post/ToggleStickyPost/");
+            stringBuilder.AppendLine("disallow: /Img/Content/");
 
             stringBuilder.Append("sitemap: ");
             stringBuilder.AppendLine("https://www.zapread.com/sitemap.xml");
