@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Models
@@ -18,14 +19,27 @@ namespace zapread.com.Models
 
         public List<PostViewModel> ActivityPosts { get; set; }
 
+        [Obsolete]
         public List<User> TopFollowing { get; set; }
 
+        public List<UserFollowView> TopFollowingVm { get; set; }
+
+        [Obsolete]
         public List<User> TopFollowers { get; set; }
+
+        public List<UserFollowView> TopFollowersVm { get; set; }
 
         public double UserBalance { get; set; }
 
         public ManageUserGroupsViewModel UserGroups { get; set; }
 
         public UserAchievementsViewModel AchievementsViewModel { get; set; }
+    }
+
+    public class UserFollowView
+    {
+        public string Name { get; set; }
+        public string AppId { get; set; }
+        public int ProfileImageVersion { get; set; }
     }
 }

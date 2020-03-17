@@ -460,10 +460,10 @@
                             You are subscribed to content from these users.  Their content will appear in your activity feed.
                         </p>
                         <div class="user-friends">
-                            @foreach (var u in Model.TopFollowing)
+                            @foreach (var u in Model.TopFollowingVm)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImage.Version})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImageVersion})" />
                                 </a>
                             }
                         </div>
@@ -477,10 +477,10 @@
                             These users are subscribing to you.  Your content will appear in their activity feed.
                         </p>
                         <div class="user-friends">
-                            @foreach (var u in Model.TopFollowers)
+                            @foreach (var u in Model.TopFollowersVm)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImage.Version})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImageVersion})" />
                                 </a>
                             }
                         </div>
