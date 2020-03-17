@@ -32,7 +32,7 @@ namespace zapread.com.DI
                     dynamicNode.RouteValues.Add("PostId", post.p.PostId);
                     if (!string.IsNullOrEmpty(post.p.PostTitle))
                     {
-                        dynamicNode.RouteValues.Add("postTitle", Uri.EscapeUriString(post.p.PostTitle.Replace(" ", "-").Replace(".", "").Replace(":", "").Trim()));
+                        dynamicNode.RouteValues.Add("postTitle", Uri.EscapeUriString(post.p.PostTitle.Replace(" ", "-").Replace("*", "").Replace("+", "p").Replace("?", "").Replace(".", "").Replace(":", "").Trim()));
                     }
                     dynamicNode.Protocol = "https";
                     // Re-index every month (for searching comments)
