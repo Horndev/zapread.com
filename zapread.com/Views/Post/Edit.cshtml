@@ -1,7 +1,9 @@
-﻿@model zapread.com.Models.Database.Post
+﻿@model zapread.com.Models.PostViewModel
+
 @{
     ViewBag.Title = "Edit Post";
 }
+
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
@@ -9,7 +11,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
-            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Group.GroupId })">@Model.Group.GroupName</a></li>
+            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.GroupId })">@Model.GroupName</a></li>
             <li class="breadcrumb-item active">Edit</li>
         </ol>
     </div>
@@ -41,7 +43,7 @@
                             </div>
                             <div id="editGroup" class="form-group" style="display:none;">
                                 <label>Post Group</label>
-                                <input id="postGroup" type="text" class="form-control" value="@Model.Group.GroupName" />
+                                <input id="postGroup" type="text" class="form-control" value="@Model.GroupName" />
                             </div>
                             <div id="changeGroupBtn" class="form-group">
                                 <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="changeGroup();">Change Group</a>
@@ -62,8 +64,8 @@
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
                             <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(@Model.PostId,gid,'@Model.UserId.AppId',true);" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(@Model.PostId,gid,'@Model.UserId.AppId',true);" type="button">Submit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(@Model.PostId,gid,'@Model.UserAppId',true);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(@Model.PostId,gid,'@Model.UserAppId',true);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -109,6 +111,6 @@
     @Scripts.Render("~/bundles/post/edit")
 
 <script type="text/javascript">
-    var gid = @Model.Group.GroupId;
+    var gid = @Model.GroupId;
 </script>
 }

@@ -562,12 +562,27 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var user = db.Users.Where(u => u.AppId == userId).First();
-                var post = db.Posts.Include(p => p.UserId).Include(p => p.Group).FirstOrDefault(p => p.PostId == i.PostId);
-                if (post == null)
+                var postVm = db.Posts
+                    .Where(p => p.PostId == i.PostId)
+                    .Select(p => new PostViewModel()
+                    {
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                if (postVm == null || postVm.UserAppId != userId)
                 {
+                    // TODO: If userId doesn't match - should throw more informative error.
                     return RedirectToAction("Index", "Home");
                 }
-                return View(post);
+                return View(postVm);
             }
         }
 

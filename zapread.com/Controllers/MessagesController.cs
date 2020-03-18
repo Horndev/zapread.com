@@ -499,7 +499,6 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
-        [HttpGet]
         public PartialViewResult RecentUnreadAlerts(int count)
         {
             string userId = null;
@@ -536,7 +535,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpGet]
         public PartialViewResult RecentUnreadMessages(int count)
         {
             string userId = null;
