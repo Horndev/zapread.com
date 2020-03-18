@@ -400,6 +400,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\FeedController.cs" />
     <Compile Include="Controllers\FinanceController.cs" />
     <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -1090,6 +1091,7 @@
     <Content Include="Views\Shared\_PartialUserLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialGroupLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
+    <Content Include="Views\Feed\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
