@@ -17,7 +17,29 @@ namespace zapread.com.Models
 
     public class RecentUnreadMessagesViewModel
     {
+        [Obsolete]
         public List<UserMessage> Messages = new List<UserMessage>();
+
+        public List<UserMessageVm> MessagesVm { get; set; }
+    }
+
+    public class UserMessageVm
+    {
+        public int Id { get; set; }
+
+        public string FromName { get; set; }
+
+        public string FromAppId { get; set; }
+
+        public int FromProfileImageVersion { get; set; }
+
+        public bool IsComment { get; set; }
+
+        public int PostId { get; set; }
+
+        public bool IsPrivateMessage { get; set; }
+
+        public string Content { get; set; }
     }
 
     public class RecentUnreadAlertsViewModel
