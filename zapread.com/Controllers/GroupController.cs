@@ -23,45 +23,14 @@ namespace zapread.com.Controllers
     {
         // GET: Group
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> Index(int? p = 1)
         {
             using (var db = new ZapContext())
             {
-                User user = await GetCurrentUser(db);
-                ValidateClaims(user);
-                int userid = user != null ? user.Id : 0;
-                var groups = await db.Groups
-                    .Select(g => new
-                    {
-                        numPosts = g.Posts.Count(),
-                        numMembers = g.Members.Count(),
-                        IsMember = g.Members.Select(m => m.Id).Contains(userid),
-                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
-                        g,
-                    }).AsNoTracking()
-                    .OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute)
-                    .Take(100)
-                    .ToListAsync();
                 GroupsViewModel vm = new GroupsViewModel()
                 {
-                    TotalPosts = (await db.Posts.CountAsync()).ToString("N0"),
-                    Groups = groups.Select(g => new GroupInfo()
-                    {
-                        Id = g.g.GroupId,
-                        CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
-                        Name = g.g.GroupName,
-                        NumMembers = g.numMembers,
-                        NumPosts = g.numPosts,
-                        Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
-                        Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
-                        Level = g.g.Tier,
-                        Progress = GetGroupProgress(g.g),
-                        IsMember = g.IsMember,
-                        IsLoggedIn = user != null,
-                        IsMod = g.IsModerator,
-                        IsAdmin = g.IsAdmin,
-                    }).ToList(),
+                    TotalPosts = (await db.Posts.CountAsync().ConfigureAwait(true)).ToString("N0", CultureInfo.InvariantCulture),
                 };
                 return View(vm);
             }
