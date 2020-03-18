@@ -520,8 +520,8 @@ namespace zapread.com.Controllers
                         Id = a.Id,
                         Title = a.Title,
                         HasPostLink = a.PostLink != null,
-                        PostLinkPostId = a.PostLink.PostId,
-                        PostLinkPostTitle = a.PostLink.PostTitle,
+                        PostLinkPostId = a.PostLink != null ? a.PostLink.PostId : 0,
+                        PostLinkPostTitle = a.PostLink != null ? a.PostLink.PostTitle : "",
                         Content = a.Content,
                     })
                     .AsNoTracking()
