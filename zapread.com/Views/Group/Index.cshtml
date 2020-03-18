@@ -29,12 +29,6 @@
                     </div>
                 </div>
                 <div class="ibox-content">
-                    @*<div class="input-group mb-3">
-                        <input id="groupSearch" type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button id="searchGo" class="btn btn-primary btn-outline" type="button" onclick="go()">Go!</button>
-                        </div>
-                    </div>*@
                     <div class="project-list">
                         <table id="groupTable" class="table table-hover" style="width:100%">
                             <thead style="display:none;">
@@ -52,16 +46,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                    @*<div class="project-list">
-                            <table id="groupTableOld" class="table table-hover">
-                                <tbody>
-                                    @foreach (var g in Model.Groups)
-                                    {
-                                        @Html.Partial(partialViewName: "_PartialGroupSummary", model: g)
-                                    }
-                                </tbody>
-                            </table>
-                        </div>*@
                 </div>
             </div>
         </div>
@@ -97,6 +81,7 @@
                     type: "POST",
                     contentType: "application/json",
                     url: "/Group/GetGroupsTable",
+                    headers: getAntiForgeryToken(),
                     data: function (d) {
                         return JSON.stringify(d);
                     }

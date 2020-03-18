@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -936,9 +937,17 @@ namespace zapread.com.Controllers
                     {
                         var us = await db.Users
                             .Where(u => u.Id == userId)
-                            .Select(u => u.Settings)
-                            .FirstOrDefaultAsync();
+                            .Select(u => new
+                            {
+                                u.Settings.ColorTheme,
+                                u.ProfileImage.Version,
+                                u.AppId,
+                            })
+                            .FirstOrDefaultAsync().ConfigureAwait(true);
+
                         User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
+                        User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
+                        User.AddUpdateClaim("UserAppId", us.AppId);
                     }
                 }
             }
