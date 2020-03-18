@@ -1,6 +1,6 @@
 ﻿@model zapread.com.Models.RecentUnreadAlertsViewModel
 
-@foreach (var m in Model.Alerts)
+@foreach (var m in Model.AlertsVm)
 {
     <li id="a1_@m.Id">
         <div class="dropdown-messages-box">
@@ -9,12 +9,12 @@
                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(1,@m.Id)" class="btn btn-sm btn-link" data-toggle="tooltip" data-placement="top" title="Dismiss"><icon class="fa fa-minus-circle"></icon></a>
                 </span>
                 @Html.Raw(m.Title) <br />
-                @if (m.PostLink != null)
+                @if (m.HasPostLink)
                 {
-                    <span>Post:</span> <a href="@Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { PostId = m.PostLink.PostId})">
-                        @if (m.PostLink.PostTitle != null)
+                    <span>Post:</span> <a href="@Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { PostId = m.PostLinkPostId})">
+                        @if (m.PostLinkPostTitle != null)
                         {
-                            <text>@m.PostLink.PostTitle</text> }
+                            <text>@m.PostLinkPostTitle</text> }
                         else
                         {
                             <text>Link</text>

@@ -44,7 +44,19 @@ namespace zapread.com.Models
 
     public class RecentUnreadAlertsViewModel
     {
+        [Obsolete]
         public List<UserAlert> Alerts = new List<UserAlert>();
+        public List<UserAlertVm> AlertsVm { get; set; }
+    }
+
+    public class UserAlertVm
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public bool HasPostLink { get; set; }
+        public int PostLinkPostId { get; set; }
+        public string PostLinkPostTitle { get; set; }
+        public string Content { get; set; }
     }
 
     public class ChatMessageViewModel

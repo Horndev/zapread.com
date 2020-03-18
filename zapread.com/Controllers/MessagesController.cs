@@ -499,6 +499,7 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
+        [HttpGet]
         public PartialViewResult RecentUnreadAlerts(int count)
         {
             string userId = null;
@@ -508,21 +509,28 @@ namespace zapread.com.Controllers
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .Include("Alerts")
-                    //.Include("Messages")
-                    .Include("Alerts.PostLink")
-                    //.Include("Messages.PostLink")
-                    //.Include("Messages.From")
-                    .Where(u => u.AppId == userId).FirstOrDefault();
+                var userAlerts = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Alerts)
+                    .Where(m => !m.IsRead && !m.IsDeleted)
+                    .OrderByDescending(m => m.TimeStamp)
+                    .Take(count)
+                    .Select(a => new UserAlertVm()
+                    {
+                        Id = a.Id,
+                        Title = a.Title,
+                        HasPostLink = a.PostLink != null,
+                        PostLinkPostId = a.PostLink.PostId,
+                        PostLinkPostTitle = a.PostLink.PostTitle,
+                        Content = a.Content,
+                    })
+                    .AsNoTracking()
+                    .ToList();
 
-                var vm = new RecentUnreadAlertsViewModel();
-
-                if (user != null)
+                var vm = new RecentUnreadAlertsViewModel()
                 {
-                    var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp).Take(count);
-                    vm.Alerts = alerts.ToList();
-                }
+                    AlertsVm = userAlerts,
+                };
 
                 return PartialView("_PartialRecentUnreadAlerts", model: vm);
             }
