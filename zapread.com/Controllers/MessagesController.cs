@@ -499,6 +499,7 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
+        [HttpGet]
         public PartialViewResult RecentUnreadAlerts(int count)
         {
             string userId = null;
@@ -508,26 +509,34 @@ namespace zapread.com.Controllers
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .Include("Alerts")
-                    //.Include("Messages")
-                    .Include("Alerts.PostLink")
-                    //.Include("Messages.PostLink")
-                    //.Include("Messages.From")
-                    .Where(u => u.AppId == userId).FirstOrDefault();
+                var userAlerts = db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Alerts)
+                    .Where(m => !m.IsRead && !m.IsDeleted)
+                    .OrderByDescending(m => m.TimeStamp)
+                    .Take(count)
+                    .Select(a => new UserAlertVm()
+                    {
+                        Id = a.Id,
+                        Title = a.Title,
+                        HasPostLink = a.PostLink != null,
+                        PostLinkPostId = a.PostLink.PostId,
+                        PostLinkPostTitle = a.PostLink.PostTitle,
+                        Content = a.Content,
+                    })
+                    .AsNoTracking()
+                    .ToList();
 
-                var vm = new RecentUnreadAlertsViewModel();
-
-                if (user != null)
+                var vm = new RecentUnreadAlertsViewModel()
                 {
-                    var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp).Take(count);
-                    vm.Alerts = alerts.ToList();
-                }
+                    AlertsVm = userAlerts,
+                };
 
                 return PartialView("_PartialRecentUnreadAlerts", model: vm);
             }
         }
 
+        [HttpGet]
         public PartialViewResult RecentUnreadMessages(int count)
         {
             string userId = null;
@@ -537,27 +546,36 @@ namespace zapread.com.Controllers
             }
             using (var db = new ZapContext())
             {
-                var user = db.Users
-                    .Include("Messages")
-                    .Include("Messages.CommentLink")
-                    .Include("Messages.PostLink")
-                    .Include("Messages.From")
+                var userMessages = db.Users
                     .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => !m.IsRead && !m.IsDeleted)
+                    .OrderByDescending(m => m.TimeStamp)
+                    .Take(count)
+                    .Select(m => new UserMessageVm()
+                    {
+                        FromName = m.From == null ? "" : m.From.Name,
+                        FromAppId = m.From == null ? "" : m.From.AppId,
+                        Id = m.Id,
+                        FromProfileImageVersion = m.From == null ? 0 : m.From.ProfileImage.Version,
+                        IsComment = m.CommentLink != null,
+                        PostId = m.PostLink == null ? 0 : m.PostLink.PostId,
+                        IsPrivateMessage = m.IsPrivateMessage,
+                        Content = m.Content,
+                    })
                     .AsNoTracking()
-                    .FirstOrDefault();
+                    .ToList();
 
-                var vm = new RecentUnreadMessagesViewModel();
-
-                if (user != null)
+                var vm = new RecentUnreadMessagesViewModel()
                 {
-                    var messages = user.Messages.Where(m => !m.IsRead && !m.IsDeleted).OrderByDescending(m => m.TimeStamp).Take(count);
-                    vm.Messages = messages.ToList();
-                }
+                    MessagesVm = userMessages,
+                };
 
                 return PartialView("_PartialRecentUnreadMessages", model: vm);
             }
         }
 
+        [HttpGet]
         public async Task<PartialViewResult> UnreadAlerts()
         {
             Response.AddHeader("X-Frame-Options", "DENY");
