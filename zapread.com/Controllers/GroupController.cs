@@ -37,17 +37,22 @@ namespace zapread.com.Controllers
         }
 
         [HttpPost, Route("Group/GetGroupsTable")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> GetGroupsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
+            if (dataTableParameters == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { Error = "No query provided." });
+            }
+
             using (var db = new ZapContext())
             {
                 var sorts = dataTableParameters.Order;
                 var search = dataTableParameters.Search;
 
-                //var searchstr = searchstr.Resplace("\"", "");
-                //var matched = db.Groups.Where(g => g.GroupName.Contains(searchstr) || g.Tags.Contains(searchstr)).AsNoTracking().Take(30).ToList();
-
-                User user = await GetCurrentUser(db);
+                User user = await GetCurrentUser(db).ConfigureAwait(true);
                 ValidateClaims(user);
                 int userid = user != null ? user.Id : 0;
 
@@ -55,107 +60,55 @@ namespace zapread.com.Controllers
                 var groupsQ = db.Groups
                     .Select(g => new
                     {
-                        numPosts = g.Posts.Count(),
-                        numMembers = g.Members.Count(),
+                        numPosts = g.Posts.Count,
+                        numMembers = g.Members.Count,
                         IsMember = g.Members.Select(m => m.Id).Contains(userid),
                         IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
                         IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
-                        g,
+                        g.GroupId,
+                        g.GroupName,
+                        g.Tags,
+                        g.TotalEarned,
+                        g.TotalEarnedToDistribute,
+                        g.CreationDate,
+                        g.Icon,
+                        g.Tier,
                     }).AsNoTracking();
 
                 if (search.Value != null)
                 {
-                    groupsQ = groupsQ.Where(g => g.g.GroupName.Contains(search.Value) || g.g.Tags.Contains(search.Value));
+                    groupsQ = groupsQ.Where(g => g.GroupName.Contains(search.Value) || g.Tags.Contains(search.Value));
                 }
 
-                groupsQ = groupsQ.OrderByDescending(g => g.g.TotalEarned + g.g.TotalEarnedToDistribute);
+                groupsQ = groupsQ.OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute);
 
                 var groups = await groupsQ
                     .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length).ToListAsync();
-
+                    .Take(dataTableParameters.Length)
+                    .ToListAsync().ConfigureAwait(false);
 
                 var values = groups.Select(g => new GroupInfo()
                 {
-                    Id = g.g.GroupId,
-                    CreatedddMMMYYYY = g.g.CreationDate == null ? "2 Aug 2018" : g.g.CreationDate.Value.ToString("dd MMM yyyy"),
-                    Name = g.g.GroupName,
+                    Id = g.GroupId,
+                    CreatedddMMMYYYY = g.CreationDate == null ? "2 Aug 2018" : g.CreationDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture),
+                    Name = g.GroupName,
                     NumMembers = g.numMembers,
                     NumPosts = g.numPosts,
-                    Tags = g.g.Tags != null ? g.g.Tags.Split(',').ToList() : new List<string>(),
-                    Icon = g.g.Icon != null ? "fa-" + g.g.Icon : "fa-bolt",
-                    Level = g.g.Tier,
-                    Progress = GetGroupProgress(g.g),
+                    Tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>(),
+                    Icon = g.Icon != null ? "fa-" + g.Icon : "fa-bolt",
+                    Level = g.Tier,
+                    Progress = GetGroupProgress(g.TotalEarned, g.TotalEarnedToDistribute, g.Tier),
                     IsMember = g.IsMember,
                     IsLoggedIn = user != null,
                     IsMod = g.IsModerator,
                     IsAdmin = g.IsAdmin,
                 }).ToList();
 
-                //// Build our query
-                //var pageUsersQS = db.Users
-                //    .Include("Funds")
-                //    .Include("Posts")
-                //    .Include("Comments");
-                //IOrderedQueryable<User> pageUsersQ = null;// pageUsersQS.OrderByDescending(q => q.Id);
-
-                //foreach (var s in sorts)
-                //{
-                //    if (s.Dir == "asc")
-                //    {
-                //        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
-                //            pageUsersQ = pageUsersQS.OrderBy(q => q.DateJoined);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
-                //            pageUsersQ = pageUsersQS.OrderBy(q => q.DateLastActivity);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
-                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Posts.Count);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
-                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Comments.Count);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
-                //            pageUsersQ = pageUsersQS.OrderBy(q => q.Funds == null ? 0 : q.Funds.Balance);
-                //    }
-                //    else
-                //    {
-                //        if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
-                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateJoined);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
-                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateLastActivity);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
-                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Posts.Count);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "NumComments")
-                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Comments.Count);
-                //        else if (dataTableParameters.Columns[s.Column].Name == "Balance")
-                //            pageUsersQ = pageUsersQS.OrderByDescending(q => q.Funds == null ? 0 : q.Funds.Balance);
-                //    }
-                //}
-
-                //if (pageUsersQ == null)
-                //{
-                //    pageUsersQ = pageUsersQS.OrderByDescending(q => q.Id);
-                //}
-
-                //var pageUsers = await pageUsersQ
-                //    .Skip(dataTableParameters.Start)
-                //    .Take(dataTableParameters.Length)
-                //    .ToListAsync();
-
-                //var values = pageUsers.AsParallel()
-                //    .Select(u => new GroupInfo()
-                //    {
-                //        UserName = u.Name,
-                //        DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
-                //        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
-                //        NumPosts = u.Posts.Count.ToString(),
-                //        NumComments = u.Comments.Count.ToString(),
-                //        Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
-                //        Id = u.AppId,
-                //    }).ToList();
-
                 var ret = new
                 {
                     draw = dataTableParameters.Draw,
-                    recordsTotal = await db.Groups.CountAsync(),
-                    recordsFiltered = await groupsQ.CountAsync(),
+                    recordsTotal = await db.Groups.CountAsync().ConfigureAwait(false),
+                    recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false),
                     data = values
                 };
                 return Json(ret);
@@ -626,48 +579,48 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected static int GetGroupProgress(Group g)
+        protected static int GetGroupProgress(double TotalEarned, double TotalEarnedToDistribute, double Tier)
         {
-            var e = g.TotalEarned + g.TotalEarnedToDistribute;
-            var level = GetGroupLevel(g);
+            var e = TotalEarned + TotalEarnedToDistribute;
+            //var level = GetGroupLevel(g);
 
-            if (g.Tier == 0)
+            if (Tier == 0)
             {
                 return Convert.ToInt32(100.0 * e / 1000.0);
             }
-            if (g.Tier == 1)
+            if (Tier == 1)
             {
                 return Convert.ToInt32(100.0 * (e - 1000.0) / 10000.0);
             }
-            if (g.Tier == 2)
+            if (Tier == 2)
             {
                 return Convert.ToInt32(100.0 * (e - 10000.0) / 50000.0);
             }
-            if (g.Tier == 3)
+            if (Tier == 3)
             {
                 return Convert.ToInt32(100.0 * (e - 50000.0) / 200000.0);
             }
-            if (g.Tier == 4)
+            if (Tier == 4)
             {
                 return Convert.ToInt32(100.0 * (e - 200000.0) / 500000.0);
             }
-            if (g.Tier == 5)
+            if (Tier == 5)
             {
                 return Convert.ToInt32(100.0 * (e - 500000.0) / 1000000.0);
             }
-            if (g.Tier == 6)
+            if (Tier == 6)
             {
                 return Convert.ToInt32(100.0 * (e - 1000000.0) / 5000000.0);
             }
-            if (g.Tier == 7)
+            if (Tier == 7)
             {
                 return Convert.ToInt32(100.0 * (e - 5000000.0) / 10000000.0);
             }
-            if (g.Tier == 8)
+            if (Tier == 8)
             {
                 return Convert.ToInt32(100.0 * (e - 10000000.0) / 20000000.0);
             }
-            if (g.Tier == 9)
+            if (Tier == 9)
             {
                 return Convert.ToInt32(100.0 * (e - 20000000.0) / 50000000.0);
             }
