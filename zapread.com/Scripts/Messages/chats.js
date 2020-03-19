@@ -16,6 +16,7 @@ $(document).ready(function () {
             type: "POST",
             contentType: "application/json",
             url: "/Messages/GetChatsTable",
+            headers: getAntiForgeryToken(),
             data: function (d) {
                 return JSON.stringify(d);
             }

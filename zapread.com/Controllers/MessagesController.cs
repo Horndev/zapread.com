@@ -66,81 +66,100 @@ namespace zapread.com.Controllers
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> GetChatsTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
-            if (userId == null)
+            if (userId == null || dataTableParameters == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
             using (var db = new ZapContext())
             {
-                var sorts = dataTableParameters.Order;
-
                 var pageUserChatsQSReceived = db.Users
                     .Where(u => u.AppId == userId)
                     .SelectMany(u => u.Messages)
                     .Where(m => !m.IsDeleted)
                     .Where(m => m.IsPrivateMessage)
-                    .Include(m => m.From)
-                    .Include(m => m.To)
-                    .Select(m => new { other = m.From.Name, otherid = m.From.AppId, toid = m.To.AppId, m });
+                    .Select(m => new 
+                    { 
+                        other = m.From.Name, 
+                        otherid = m.From.AppId, 
+                        toid = m.To.AppId,
+                        m.IsRead,
+                        m.TimeStamp,
+                    });
 
                 var pageUserChatsQSSent = db.Users
                     .SelectMany(u => u.Messages.Where(m => m.From.AppId == userId))
                     .Where(m => !m.IsDeleted)
                     .Where(m => m.IsPrivateMessage)
-                    .Include(m => m.To)
-                    .Include(m => m.From)
-                    .Select(m => new { other = m.To.Name, otherid = m.To.AppId, toid = m.To.AppId, m });
+                    .Select(m => new 
+                    { 
+                        other = m.To.Name, 
+                        otherid = m.To.AppId, 
+                        toid = m.To.AppId,
+                        m.IsRead,
+                        m.TimeStamp,
+                    });
 
                 var messageSet = pageUserChatsQSReceived.Union(pageUserChatsQSSent);
 
                 var pageUserChatsQS = messageSet//pageUserChatsQSReceived;
                     .GroupBy(a => a.other)
-                    .Select(x => x.OrderByDescending(y => y.m.TimeStamp).FirstOrDefault())
+                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault())
                     .AsQueryable();
 
-                var cq = pageUserChatsQS.ToList();
-
                 // Build our query
-                var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp); ;
+                var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
 
+                var sorts = dataTableParameters.Order;
                 foreach (var s in sorts)
                 {
                     if (s.Dir == "asc")
                     {
                         if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.m.TimeStamp ?? DateTime.UtcNow);
+                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
                         else if (dataTableParameters.Columns[s.Column].Name == "From")
                             pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
                     }
                     else
                     {
                         if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.m.TimeStamp);
+                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
                         else if (dataTableParameters.Columns[s.Column].Name == "From")
                             pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
                     }
                 }
 
-                var pageUserChats = await pageUserChatsQ
+                int numrec = await pageUserChatsQ.CountAsync().ConfigureAwait(true);
+
+                var valuesQ = await pageUserChatsQ
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToListAsync();
-
-                var values = pageUserChats.AsParallel()
-                    .Select(u => new ChatsDataItem()
+                    .Select(u => new 
                     {
                         From = u.other,
-                        IsRead = u.m.IsRead ? "Read" : "Unread",
-                        LastMessage = u.m.TimeStamp.HasValue ? u.m.TimeStamp.Value.ToString("o") : "?",
+                        IsRead = u.IsRead ? "Read" : "Unread",
+                        u.TimeStamp,
                         FromID = u.otherid,
                         Status = u.toid == userId ? "Waiting" : "Replied",
-                    }).ToList();
+                    })
+                    .AsNoTracking()
+                    .ToListAsync().ConfigureAwait(true);
 
-                int numrec = await pageUserChatsQ.CountAsync();
+                // have to do this afterwords since DateTime.ToString() is not supported on SQL Server
+                var values = valuesQ
+                    .Select(u => new ChatsDataItem()
+                    {
+                        From = u.From,
+                        IsRead = u.IsRead,
+                        LastMessage = u.TimeStamp.HasValue ? u.TimeStamp.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
+                        FromID = u.FromID,
+                        Status = u.Status,
+                    });
 
                 var ret = new
                 {
