@@ -1,7 +1,7 @@
 ﻿@model zapread.com.Models.PostViewModel
 
 @{
-    ViewBag.Title = Model.Post.UserId.Name + ": in " + Model.Post.Group.GroupName + " - " + Model.Post.PostTitle;
+    ViewBag.Title = Model.UserName + ": in " + Model.GroupName + " - " + Model.PostTitle;
     Model.IsDetailView = true;
 }
 
@@ -10,7 +10,7 @@
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>@Model.Post.PostTitle</h2>
+        <h2>@Model.PostTitle</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a>Posts</a></li>
@@ -26,7 +26,7 @@
         <div class="col-sm-2">
         </div>
         <div class="col-lg-8">
-            @Html.Partial(partialViewName: "_PartialPostRender", model: Model)
+            @Html.Partial(partialViewName: "_PartialPostRenderVm", model: Model)
             <div class="social-feed-box-nb">
                 <span></span>
             </div>
@@ -41,9 +41,9 @@
 @section meta {
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content=@("@zapread") />
-    <meta name="twitter:title" content="@Model.Post.PostTitle" />
+    <meta name="twitter:title" content="@Model.PostTitle" />
     <meta name="twitter:description" content="View post on zapread.com" />
-    <meta name="twitter:image" content="@Url.Action("UserImage", "Home", new { UserId = Model.Post.UserId.AppId, v=Model.Post.UserId.ProfileImage.Version }, "https")" />
+    <meta name="twitter:image" content="@Url.Action("UserImage", "Home", new { UserId = Model.UserAppId, v=Model.UserProfileImageVersion }, "https")" />
 }
 
 
@@ -54,7 +54,7 @@
     <script type="text/javascript">
         var ub = 0;
         var IsAuthenticated = @if (Request.IsAuthenticated) { <text>true</text> } else { <text>false</text> };
-        var detailPostId = @Model.Post.PostId;
+        var detailPostId = @Model.PostId;
         var detailPostVote = @if (ViewBag.vote != null) { <text>@ViewBag.vote</text>} else { <text>0</text> };
         var showVoteDialog = @if (ViewBag.showVote != null && ViewBag.showVote) { <text>true</text> } else { <text>false</text> };
     </script>

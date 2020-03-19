@@ -606,36 +606,59 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var uid = User.Identity.GetUserId();
-                var user = await db.Users
-                    .Include("Settings")
-                    .Include(usr => usr.IgnoringUsers)
-                    .SingleOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(false);
+                var userAppId = User.Identity.GetUserId();
+                var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
 
-                if (user != null)
+                if (userId.HasValue && userId != 0)
                 {
-                    try
-                    {
-                        User.AddUpdateClaim("ColorTheme", user.Settings.ColorTheme ?? "light");
-                    }
-                    catch (Exception)
-                    {
-                        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-                    }
+                    await ClaimsHelpers.ValidateClaims(userId.Value, User).ConfigureAwait(true);
                 }
 
                 var pst = db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
+                    .Where(p => p.PostId == PostId)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false,
+                        ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
+                        ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
+                        ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = userId.HasValue ? c.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
+                            ViewerDownvoted = userId.HasValue ? c.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
+                            ViewerIgnoredUser = userId.HasValue ? (c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    })
                     .AsNoTracking()
-                    .FirstOrDefault(p => p.PostId == PostId);
+                    .FirstOrDefault();
 
                 if (pst == null)
                 {
@@ -648,30 +671,8 @@ namespace zapread.com.Controllers
                     ViewBag.vote = vote.Value;
                 }
 
-                return View(await GeneratePostViewModel(db, user, pst));
+                return View(pst);
             }
-        }
-
-        private static async Task<PostViewModel> GeneratePostViewModel(ZapContext db, User user, Post pst)
-        {
-            List<int> viewerIgnoredUsers = new List<int>();
-
-            if (user != null && user.IgnoringUsers != null)
-            {
-                viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != user.Id).ToList();
-            }
-
-            PostViewModel vm = new PostViewModel()
-            {
-                Post = pst,
-                ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(pst.Group.GroupId) : false,
-                ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(pst.PostId) : false,
-                ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? pst.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(pst.UserId.Id) : false) : false,
-                NumComments = pst.Comments != null ? pst.Comments.Count() : 0,
-                ViewerIgnoredUsers = viewerIgnoredUsers,
-            };
-            return vm;
         }
 
         public ActionResult PostNotFound()
