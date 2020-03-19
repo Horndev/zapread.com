@@ -424,6 +424,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
     <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />

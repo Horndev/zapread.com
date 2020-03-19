@@ -829,7 +829,7 @@ namespace zapread.com.Controllers
                         return RedirectToAction(actionName: "Login", controllerName: "Account");
                     }
 
-                    await ValidateClaims(userId.Value).ConfigureAwait(true); // Checks user security claims
+                    await ClaimsHelpers.ValidateClaims(userId.Value, User).ConfigureAwait(true);
 
                     var vm = new HomeIndexViewModel()
                     {
@@ -927,35 +927,35 @@ namespace zapread.com.Controllers
                 .ToListAsync();
         }
 
-        private async Task ValidateClaims(int userId)
-        {
-            try
-            {
-                if (userId > 0)
-                {
-                    using (var db = new ZapContext())
-                    {
-                        var us = await db.Users
-                            .Where(u => u.Id == userId)
-                            .Select(u => new
-                            {
-                                u.Settings.ColorTheme,
-                                u.ProfileImage.Version,
-                                u.AppId,
-                            })
-                            .FirstOrDefaultAsync().ConfigureAwait(true);
+        //private async Task ValidateClaims(int userId)
+        //{
+        //    try
+        //    {
+        //        if (userId > 0)
+        //        {
+        //            using (var db = new ZapContext())
+        //            {
+        //                var us = await db.Users
+        //                    .Where(u => u.Id == userId)
+        //                    .Select(u => new
+        //                    {
+        //                        u.Settings.ColorTheme,
+        //                        u.ProfileImage.Version,
+        //                        u.AppId,
+        //                    })
+        //                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                        User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
-                        User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
-                        User.AddUpdateClaim("UserAppId", us.AppId);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
-            }
-        }
+        //                User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
+        //                User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
+        //                User.AddUpdateClaim("UserAppId", us.AppId);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+        //    }
+        //}
 
         private async Task<User> GetCurrentUser(ZapContext db)
         {
