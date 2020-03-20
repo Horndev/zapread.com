@@ -15,7 +15,17 @@ namespace zapread.com.Models
         public bool IsFollowing { get; set; }
         public bool IsIgnoring { get; set; }
 
+        [Obsolete]
         public User User { get; set; }
+        public string UserName { get; set; }
+
+        public int UserId { get; set; }
+
+        public string UserAppId { get; set; }
+
+        public int UserProfileImageVersion { get; set; }
+        public DateTime? DateJoined { get; set; }
+        public Int64 Reputation { get; set; }
 
         public List<PostViewModel> ActivityPosts { get; set; }
 

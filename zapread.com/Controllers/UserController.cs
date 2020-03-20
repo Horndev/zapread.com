@@ -58,57 +58,151 @@ namespace zapread.com.Controllers
             }
         }
 
-
-        protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
+        protected async Task<List<PostViewModel>> GetActivityPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                        .AsNoTracking()
-                        .Where(us => us.Id == userId).FirstOrDefaultAsync();
-
-                if (user == null)
-                {
-                    return new List<Post>();
-                }
-
-                // These are the user ids which we are following
-                var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
+                List<int> followingIds = await db.Users
+                        .Where(us => us.Id == userId)
+                        .SelectMany(us => us.Following)
+                        .Select(f => f.Id)
+                        .ToListAsync()
+                        .ConfigureAwait(true);
 
                 var userposts = db.Posts
-                    .Where(p => p.UserId.Id == user.Id)
+                    .Where(p => p.UserId.Id == userId)
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft)
                     .OrderByDescending(p => p.TimeStamp)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking().Take(20);
+                    .Take(20)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    });
 
+                    //.Include(p => p.Group)
+                    //.Include(p => p.Comments)
+                    //.Include(p => p.Comments.Select(cmt => cmt.Parent))
+                    //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                    //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                    //.Include(p => p.Comments.Select(cmt => cmt.UserId))
+                    //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                    //.Include(p => p.UserId)
+                    //.Include(p => p.UserId.ProfileImage)
+                    //.AsNoTracking();
+
+                // These are the user ids which we are following
+                //var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
+
+                // Posts by users who are following this user
                 var followposts = db.Posts
                     .Where(p => followingIds.Contains(p.UserId.Id))
                     .Where(p => !p.IsDeleted)
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking().Take(20);
+                    .Where(p => !p.IsDraft)
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Take(20)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    });
 
-                var activityposts = await userposts.Union(followposts).OrderByDescending(p => p.TimeStamp)
+                //.Include(p => p.Group)
+                //.Include(p => p.Comments)
+                //.Include(p => p.Comments.Select(cmt => cmt.Parent))
+                //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
+                //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
+                //.Include(p => p.Comments.Select(cmt => cmt.UserId))
+                //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
+                //.Include(p => p.UserId)
+                //.Include(p => p.UserId.ProfileImage)
+                //.AsNoTracking();
+
+                //var activityposts = await userposts.Union(followposts)
+                //    .OrderByDescending(p => p.TimeStamp)
+                //    .Skip(start)
+                //    .Take(count)
+                //    .ToListAsync().ConfigureAwait(true);
+
+                var activityposts = userposts.ToList().Union(followposts.ToList())
+                    .OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToListAsync();
+                    .ToList();
+                    //.ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
@@ -249,6 +343,7 @@ namespace zapread.com.Controllers
         // GET: User
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> Index(string username)
         {
             if (username == null)
@@ -259,64 +354,93 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 double userFunds = 0;
-                User loggedInUser = null;
-                if (User.Identity.IsAuthenticated)
-                {
-                    var userId = User.Identity.GetUserId();
-                    loggedInUser = await db.Users
-                        .Include(usr => usr.IgnoringUsers)
-                        .Include(usr => usr.Funds)
-                        .Include(usr => usr.ProfileImage)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(u => u.AppId == userId);
+                bool isFollowing = false;
+                bool isIgnoring = false;
 
-                    if (loggedInUser != null && loggedInUser.Name == username)
+                //var user = await db.Users.Where(u => u.Name == username)
+                //    .Include(u => u.Following)
+                //    .Include(usr => usr.Groups)
+                //    .Include(usr => usr.ProfileImage)
+                //    .Include(usr => usr.Achievements)
+                //    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
+                //    .AsNoTracking()
+                //    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                //ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                //ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                //ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+
+                var userInfo = await db.Users
+                    .Where(u => u.Name == username)
+                    .Select(u => new
                     {
-                        return RedirectToAction(actionName: "Index", controllerName: "Manage");
-                    }
-                    userFunds = loggedInUser == null ? 0 : loggedInUser.Funds.Balance;
-                }
-
-                var user = await db.Users.Where(u => u.Name == username)
-                    .Include(u => u.Following)
-                    .Include(usr => usr.Groups)
-                    .Include(usr => usr.ProfileImage)
-                    .Include(usr => usr.Achievements)
-                    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
+                        u.Name,
+                        u.Id,
+                        u.AboutMe,
+                        u.AppId,
+                        UserProfileImageVersion = u.ProfileImage.Version,
+                        u.DateJoined,
+                        u.Reputation,
+                    })
                     .AsNoTracking()
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                if (user == null)
+                if (userInfo == null)
                 {
                     // User doesn't exist.
                     // TODO: send to user not found error page
                     return RedirectToAction("Index", "Home");
                 }
 
-                var activityposts = await GetPosts(0, 10, user.Id);
+                int userId = userInfo.Id;
 
-                int numUserPosts = await db.Posts.Where(p => p.UserId.Id == user.Id)
-                    .CountAsync();
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userAppId = User.Identity.GetUserId();
+
+                    var loggedInUserInfo = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => new
+                        {
+                            u.Name,
+                            u.Funds.Balance,
+                            isFollowing = u.Following.Select(us => us.Id).Contains(userId),
+                            isIgnoring = u.IgnoringUsers.Select(us => us.Id).Contains(userId),
+                        })
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (loggedInUserInfo != null && loggedInUserInfo.Name == username)
+                    {
+                        return RedirectToAction(actionName: "Index", controllerName: "Manage");
+                    }
+
+                    userFunds = loggedInUserInfo == null ? 0 : loggedInUserInfo.Balance;
+                    isFollowing = loggedInUserInfo.isFollowing;
+                    isIgnoring = loggedInUserInfo.isIgnoring;
+                }
+
+                var activityposts = await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
+
+                int numUserPosts = await db.Posts.Where(p => p.UserId.Id == userId)
+                    .CountAsync().ConfigureAwait(true);
 
                 int numFollowers = await db.Users
-                    .Where(p => p.Following.Select(f => f.Id).Contains(user.Id))
-                    .CountAsync();
+                    .Where(p => p.Following.Select(f => f.Id).Contains(userId))
+                    .CountAsync().ConfigureAwait(true);
 
                 int numFollowing = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Following)
-                    .CountAsync();
+                    .CountAsync().ConfigureAwait(true);
 
-                bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
-
-                bool isIgnoring = loggedInUser != null ? (loggedInUser.IgnoringUsers != null ? loggedInUser.IgnoringUsers.Select(usr => usr.Id).Contains(user.Id) : false) : false;
-
+                
                 var topFollowing = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Following)
                     .OrderByDescending(us => us.TotalEarned)
                     .Include(us => us.ProfileImage)
                     .Take(20)
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 var topFollowers = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Followers)
@@ -324,21 +448,21 @@ namespace zapread.com.Controllers
                     .Include(us => us.ProfileImage)
                     .Take(20)
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
-                List<PostViewModel> postViews = new List<PostViewModel>();
+                //List<PostViewModel> postViews = new List<PostViewModel>();
 
-                foreach (var p in activityposts)
-                {
-                    postViews.Add(new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    });
-                }
+                //foreach (var p in activityposts)
+                //{
+                //    postViews.Add(new PostViewModel()
+                //    {
+                //        //Post = p,
+                //        ViewerIsMod = false, //user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
+                //        ViewerUpvoted = false, //user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                //        ViewerDownvoted = false, //user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
+                //        NumComments = 0,
+                //    });
+                //}
 
                 List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Groups)
@@ -349,13 +473,13 @@ namespace zapread.com.Controllers
                         Icon = "fa-bolt",
                         Level = 1,
                         Progress = 36,
-                        NumPosts = g.Posts.Count(),
-                        UserPosts = g.Posts.Where(p => p.UserId.Id == user.Id).Count(),
-                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(user.Id),
-                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(user.Id),
+                        NumPosts = g.Posts.Count,
+                        UserPosts = g.Posts.Where(p => p.UserId.Id == userId).Count(),
+                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(userId),
+                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(userId),
                     })
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 var uavm = new UserAchievementsViewModel
                 {
@@ -368,14 +492,14 @@ namespace zapread.com.Controllers
                             Name = ac.Achievement.Name,
                         })
                         .AsNoTracking()
-                        .ToListAsync()
+                        .ToListAsync().ConfigureAwait(true)
                 };
 
                 var vm = new UserViewModel()
                 {
                     AboutMe = new AboutMeViewModel()
                     {
-                        AboutMe = user.AboutMe
+                        AboutMe = userInfo.AboutMe
                     },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
                     NumPosts = numUserPosts,
@@ -383,16 +507,22 @@ namespace zapread.com.Controllers
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing,
                     IsIgnoring = isIgnoring,
-                    User = user,
-                    ActivityPosts = postViews,
+                    //User = user,
+                    ActivityPosts = activityposts,
                     TopFollowers = topFollowers,
                     TopFollowing = topFollowing,
                     UserBalance = userFunds,
                     AchievementsViewModel = uavm,
+                    UserId = userId,
+                    UserAppId = userInfo.AppId,
+                    UserProfileImageVersion = userInfo.UserProfileImageVersion,
+                    UserName = userInfo.Name,
+                    DateJoined = userInfo.DateJoined,
+                    Reputation = userInfo.Reputation,
                 };
 
                 ViewBag.Username = username;
-                ViewBag.UserId = user.Id;
+                ViewBag.UserId = userId;
 
                 return View(vm);
             }
@@ -408,19 +538,19 @@ namespace zapread.com.Controllers
             {
                 var uid = User.Identity.GetUserId();
                 User user = await db.Users.AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.AppId == uid);
+                    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
-                List<Post> posts = await GetPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0);
+                List<PostViewModel> posts = await GetActivityPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
 
                 List<GroupStats> groups = await db.Groups.AsNoTracking()
                         .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .ToListAsync();
+                        .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)
                 {
-                    PostViewModel pvm = HTMLRenderHelpers.CreatePostViewModel(p, user, groups);
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    //PostViewModel pvm = HTMLRenderHelpers.CreatePostViewModel(p, user, groups);
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
 

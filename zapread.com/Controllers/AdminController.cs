@@ -970,6 +970,13 @@ namespace zapread.com.Controllers
 
         #region Lightning
 
+        [HttpGet]
+        [Route("Admin/Lightning/Payments")]
+        public async Task<ActionResult> LightningPayments()
+        {
+            return View();
+        }
+
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
