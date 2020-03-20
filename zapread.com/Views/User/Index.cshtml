@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "User";
-    ViewBag.ViewInfo = "User:" + Model.User.Id;
+    ViewBag.ViewInfo = "User:" + Model.UserId;
 }
 
 @section Styles {
@@ -92,7 +92,7 @@
                 inProgress = true;
                 $('#loadmore').show();
                 $('#btnLoadmore').prop('disabled', true);
-                var userId = @Model.User.Id;
+                var userId = @Model.UserId;
                 $.post("@Url.Action("InfiniteScroll", "User")",
                     { "BlockNumber": BlockNumber, "userId": userId },
                     function (data) {
@@ -186,19 +186,19 @@
                 </div>
                 <div>
                     <div class="ibox-content no-padding border-left-right">
-                        <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, UserId = Model.User.AppId, v = Model.User.ProfileImage.Version})" />
+                        <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, UserId = Model.UserAppId, v = Model.UserProfileImageVersion})" />
                     </div>
                     <div class="ibox-content profile-content">
                         <h4>
                             <strong>
-                                <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.User.AppId, v=Model.User.ProfileImage.Version})" /> @Model.User.Name
+                                <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.UserAppId, v=Model.UserProfileImageVersion})" /> @Model.UserName
                             </strong>
                         </h4>
-                        @if (Model.User.DateJoined != null)
+                        @if (Model.DateJoined != null)
                         {
-                            <p>Joined @Model.User.DateJoined.Value.ToShortDateString()</p>
+                            <p>Joined @Model.DateJoined.Value.ToShortDateString()</p>
                         }
-                        <p><i class="fa fa-star"></i> Reputation @Model.User.Reputation</p>
+                        <p><i class="fa fa-star"></i> Reputation @Model.Reputation</p>
                         <h5>
                             About me
                         </h5>
@@ -208,7 +208,7 @@
                         @*Achievements*@
                         <div class="row m-t-lg">
                             <div class="col-md-12">
-                                <h5><a href="@Url.Action("Achievements","User", new { username = Model.User.Name })">Achievements</a></h5>
+                                <h5><a href="@Url.Action("Achievements","User", new { username = Model.UserName })">Achievements</a></h5>
                                 @foreach (var a in Model.AchievementsViewModel.Achievements)
                                 {
                                     <img class="ach-hover" data-achid="@a.Id" src="/Img/AchievementImage/@a.ImageId/" title="@a.Name" />
@@ -237,18 +237,18 @@
                                     </a>
                                 </div>
                                 <div class="col-md-4">
-                                    <button type="button" class="btn btn-default btn-sm btn-block" onclick="tip('@Model.User.Name', @Model.User.Id);"><i class="fa fa-bolt"></i> Send a tip</button>
+                                    <button type="button" class="btn btn-default btn-sm btn-block" onclick="tip('@Model.UserName', @Model.UserId);"><i class="fa fa-bolt"></i> Send a tip</button>
                                 </div>
                                 <div class="col-md-4">
                                     @if (Request.IsAuthenticated)
                                     {
                                         if (Model.IsFollowing)
                                         {
-                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.User.Id,0)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
+                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
                                         }
                                         else
                                         {
-                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.User.Id,1)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
+                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
                                         }
                                     }
                                     else
@@ -263,7 +263,7 @@
                                 <div class="col-md-4">
                                     @if (Request.IsAuthenticated)
                                     {
-                                        <a href="@Url.Action("Chat", "Messages", new { username = Model.User.Name })" class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </a>
+                                        <a href="@Url.Action("Chat", "Messages", new { username = Model.UserName })" class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </a>
                                     }
                                     else
                                     {
@@ -277,11 +277,11 @@
                                     {
                                         if (Model.IsIgnoring)
                                         {
-                                            <a href="javascript:void(0);" id="i_@Model.User.Id" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.User.Id)"><i class="fa fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
                                         }
                                         else
                                         {
-                                            <a href="javascript:void(0);" id="i_@Model.User.Id" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.User.Id)"><i class="fa fa-ban"></i> <span id="igBtnText">Ignore</span></a>
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa fa-ban"></i> <span id="igBtnText">Ignore</span></a>
                                         }
                                     }
                                     else
@@ -296,9 +296,9 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>@Model.User.Name is subscribed to</h3>
+                        <h3>@Model.UserName is subscribed to</h3>
                         <p class="small">
-                            @Model.User.Name is subscribed to content from these users.  Their content will appear in the activity feed.
+                            @Model.UserName is subscribed to content from these users.  Their content will appear in the activity feed.
                         </p>
                         <div class="user-friends">
                             @foreach (var u in Model.TopFollowing)
@@ -313,9 +313,9 @@
 
                 <div class="ibox">
                     <div class="ibox-content">
-                        <h3>Subscribing to @Model.User.Name</h3>
+                        <h3>Subscribing to @Model.UserName</h3>
                         <p class="small">
-                            These users are subscribing to @Model.User.Name.  @Model.User.Name's content will appear in their activity feed.
+                            These users are subscribing to @Model.UserName.  @Model.UserName's content will appear in their activity feed.
                         </p>
                         <div class="user-friends">
                             @foreach (var u in Model.TopFollowers)
@@ -364,7 +364,7 @@
                     <div id="posts">
                         @foreach (var p in Model.ActivityPosts)
                         {
-                            @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                            @Html.Partial(partialViewName: "_PartialPostRenderVm", model: p)
                         }
                     </div>
                     <div>
