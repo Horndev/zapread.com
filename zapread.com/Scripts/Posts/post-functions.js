@@ -248,6 +248,7 @@ var submitCommentA = function (postId, commentId, isReply) {
             type: "POST",
             url: action,
             data: dataString,
+            headers: getAntiForgeryToken(),
             dataType: "json",
             contentType: contentType,
             success: function (result) {

@@ -78,6 +78,7 @@ namespace zapread.com.Models
 
         public string ParentUserName { get; set; }
 
+        [Obsolete]
         public List<Comment> Comments { get; set; } // All comments
 
         [Obsolete("Use ViewerIgnoredUser instead of this list.")]
