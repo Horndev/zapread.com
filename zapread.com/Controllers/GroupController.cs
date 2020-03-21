@@ -353,20 +353,25 @@ namespace zapread.com.Controllers
                 g.Moderators.Remove(u);
                 u.GroupModeration.Remove(g);
 
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
             return Json(new { success = true, result = "success" });
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> InfiniteScroll(int id, int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            var posts = await GetPosts(id, BlockNumber, BlockSize, sort);
+            var posts = await GetPosts(id, BlockNumber, BlockSize, sort).ConfigureAwait(true);
+
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid);
+                var user = await db.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 List<int> viewerIgnoredUsers = new List<int>();
@@ -385,16 +390,17 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
                         NumComments = 0,
-
                         ViewerIgnoredUsers = viewerIgnoredUsers,
                     };
 
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
                     PostsHTMLString += PostHTMLString;
                 }
+
                 return Json(new
                 {
-                    NoMoreData = posts.Count < BlockSize,
+                    Success = true,
+                    NoMoreData = posts.Count < BlockNumber*BlockSize,
                     HTMLString = PostsHTMLString,
                 });
             }

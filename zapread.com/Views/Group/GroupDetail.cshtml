@@ -212,25 +212,33 @@
             inProgress = true;
             $('#loadmore').show();
             $('#btnLoadmore').prop('disabled', true);
-            $.post(
-                "@Url.Action("InfiniteScroll", "Group")",
-                { "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" },
-                function (data) {
-                    $('#loadmore').hide();
-                    $('#btnLoadmore').prop('disabled', false);
-                    BlockNumber = BlockNumber + 10;
-                    NoMoreData = data.NoMoreData;
-                    $("#posts").append(data.HTMLString);
-                    inProgress = false;
+            $.ajax({
+                async: true,
+                data: JSON.stringify({ "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" }),
+                type: 'POST',
+                url: "@Url.Action("InfiniteScroll", "Group")",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                headers: getAntiForgeryToken(),
+                success: function (response) {
+                    if (response.Success) {
+                        $('#loadmore').hide();
+                        $('#btnLoadmore').prop('disabled', false);
+                        BlockNumber = BlockNumber + 10;
+                        NoMoreData = response.NoMoreData;
+                        $("#posts").append(response.HTMLString);
+                        inProgress = false;
 
-                    // Wait for new posts to be added then tidy up.
-                    $.when(addposts(data), $.ready).then(function () {
-                        zrOnLoadedMorePosts();
-                    });
+                        // Wait for new posts to be added then tidy up.
+                        $.when(addposts(response), $.ready).then(function () {
+                            zrOnLoadedMorePosts();
+                        });
 
-                    if (NoMoreData) {
-                        $('#showmore').hide();
+                        if (NoMoreData) {
+                            $('#showmore').hide();
+                        }
                     }
+                }
             });
         }
     };
