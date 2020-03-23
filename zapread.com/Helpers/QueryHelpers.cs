@@ -15,11 +15,15 @@ namespace zapread.com.Helpers
     {
         public static IQueryable<Post> QueryValidPosts(int userId, List<string> userLanguages, ZapContext db, User user = null)
         {
-            IQueryable<Post> validposts;
+            IQueryable<Post> validposts = db.Posts
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft);
+
             if (userId > 0 && user != null)
             {
                 var ig = user.IgnoredGroups.Select(g => g.GroupId);
-                validposts = db.Posts.Where(p => !ig.Contains(p.Group.GroupId));
+                validposts = validposts
+                    .Where(p => !ig.Contains(p.Group.GroupId));
 
                 var allLang = user.Settings.ViewAllLanguages;
 
