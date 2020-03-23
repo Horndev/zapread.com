@@ -776,7 +776,7 @@ namespace zapread.com.Controllers
                 var vm = new GroupViewModel()
                 {
                     HasMorePosts = groupPosts.Count() < 10 ? false : true,
-                    SubscribedGroups = user.SubscribedGroups.ToList(),
+                    SubscribedGroups = user == null ? new List<GroupInfo>() : user.SubscribedGroups.ToList(),
                     Posts = await QueryHelpers.QueryPostsVm(0, 10, groupPosts, user: null, userId: userId).ConfigureAwait(true),
                     GroupId = group.GroupId,
                     IsMember = group.isMember,
