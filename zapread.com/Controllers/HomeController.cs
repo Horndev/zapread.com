@@ -592,7 +592,7 @@ namespace zapread.com.Controllers
 
                 PostsViewModel vm = new PostsViewModel()
                 {
-                    Posts = await GetPostsVm(0,10,sort,userId.Value).ConfigureAwait(true)// await GeneratePostViewModels(user, posts, db, userId.Value).ConfigureAwait(true),
+                    Posts = await GetPostsVm(0,10,sort,userId.Value).ConfigureAwait(true)
                 };
 
                 // Not sure these are needed.
