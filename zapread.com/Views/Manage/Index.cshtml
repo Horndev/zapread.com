@@ -78,7 +78,7 @@
                     <div class="ibox-content no-padding border-left-right">
                         <div class="cuadro_intro_hover">
                             <p style="text-align:center; ">
-                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, v=Model.User.ProfileImage.Version})" />
+                                <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, v=Model.UserProfileImageVersion})" />
                             </p>
                             <div class="caption">
                                 <div class="blur"></div>
@@ -94,7 +94,7 @@
                             <strong>
                                 @if (Request.IsAuthenticated)
                                 {
-                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30, v=Model.User.ProfileImage.Version})" /> @User.Identity.Name
+                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30, v=Model.UserProfileImageVersion})" /> @Model.UserName
                                 }
                                 else
                                 {
@@ -126,7 +126,7 @@
                             </ul>
                         </h4>
 
-                        <p><i class="fa fa-star"></i> Reputation @Model.User.Reputation</p>
+                        <p><i class="fa fa-star"></i> Reputation @Model.Reputation</p>
                         <h5>
                             About me
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color:#c3c3c3;">

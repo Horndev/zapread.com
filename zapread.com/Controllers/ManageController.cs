@@ -556,7 +556,7 @@ namespace zapread.com.Controllers
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
                 : "";
 
-            var userId = User.Identity.GetUserId();
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
@@ -564,13 +564,12 @@ namespace zapread.com.Controllers
 
                 User u = await db.Users
                         .Include(usr => usr.IgnoringUsers)
-                        //.Include(usr => usr.Funds)
                         .Include(usr => usr.Settings)
                         .Include(usr => usr.ProfileImage)
                         .Include(usr => usr.Achievements)
                         .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
                         .AsNoTracking()
-                        .Where(us => us.AppId == userId)
+                        .Where(us => us.AppId == userAppId)
                         .FirstAsync().ConfigureAwait(true);
 
                 aboutMe = u.AboutMe;
@@ -587,7 +586,7 @@ namespace zapread.com.Controllers
 
                 var activityposts = await GetPosts(0, 10, userId: u.Id).ConfigureAwait(true);
 
-                List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userId)
+                List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userAppId)
                     .SelectMany(usr => usr.Groups)
                     .Select(g => new GroupInfo()
                     {
@@ -604,10 +603,11 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .ToListAsync().ConfigureAwait(true);
 
-                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync().ConfigureAwait(true);
+                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userAppId).CountAsync().ConfigureAwait(true);
                 int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync().ConfigureAwait(true);
                 int numFollowing = u.Following.Count;
                 bool isFollowing = false;
+
                 var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
                     .Select(us => new UserFollowView()
                     {
@@ -625,6 +625,7 @@ namespace zapread.com.Controllers
                         ProfileImageVersion = us.ProfileImage.Version,
                     })
                     .ToList();
+
                 List<int> viewerIgnoredUsers = GetUserIgnored(u);
                 List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers).ConfigureAwait(true);
                 List<string> languages = GetLanguages();
@@ -645,23 +646,22 @@ namespace zapread.com.Controllers
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
-                    User = u,
-                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userId).ConfigureAwait(true),
-                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId).ConfigureAwait(true),
-                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId).ConfigureAwait(true),
-                    Logins = await UserManager.GetLoginsAsync(userId).ConfigureAwait(true),
-                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),  // This is an extension method which can't be mocked for test
+                    //User = u,
+                    UserName = u.Name,
+                    UserAppId = u.AppId,
+                    UserProfileImageVersion = u.ProfileImage.Version,
+                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
+                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
+                    Logins = await UserManager.GetLoginsAsync(userAppId).ConfigureAwait(true),
                     AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
-                    //Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
                     NumPosts = numUserPosts,
                     NumFollowers = numFollowers,
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing,
                     ActivityPosts = postViews,
-                    //TopFollowing = null,//topFollowing,
                     TopFollowingVm = topFollowing,
-                    //TopFollowers = topFollowers,
                     TopFollowersVm = topFollowers,
                     UserBalance = u.Funds.Balance,
                     AchievementsViewModel = uavm,
