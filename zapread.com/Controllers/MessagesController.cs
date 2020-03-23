@@ -916,12 +916,14 @@ namespace zapread.com.Controllers
             return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
-        [HttpPost, ValidateJsonAntiForgeryToken]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> GetMessage(int id)
         {
-            var localUserId = User.Identity.GetUserId();
+            var userAppId = User.Identity.GetUserId();
 
-            if(localUserId == null)
+            if(userAppId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return Json(new { success = false, result = "Failure", message = "Error verifying logged in user." });
@@ -929,21 +931,16 @@ namespace zapread.com.Controllers
 
             string HTMLString = "";
 
-            var userAppId = User.Identity.GetUserId();
-            if (userAppId == null)
-            {
-                return Json(new { success = false, HTMLString });
-            }
-
             using (var db = new ZapContext())
             {
                 var userId = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Select(u => u.Id)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 var mvm = await db.Messages
                     .Where(m => m.Id == id)
+                    .Where(m => m.From.AppId == userAppId || m.To.AppId == userAppId)       // Only fetch messages in party
                     .Select(m => new ChatMessageViewModel()
                     {
                         Content = m.Content,
@@ -952,7 +949,7 @@ namespace zapread.com.Controllers
                         FromAppId = m.From.AppId,
                         IsReceived = m.To.Id == userId,
                     })
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
