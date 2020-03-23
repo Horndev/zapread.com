@@ -65,6 +65,7 @@
                 type: "POST",
                 contentType: "application/json",
                 url: "/Messages/GetMessagesTable",
+                headers: getAntiForgeryToken(),
                 data: function (d) {
                     return JSON.stringify(d);
                 }
