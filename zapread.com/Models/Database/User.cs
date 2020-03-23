@@ -24,21 +24,15 @@ namespace zapread.com.Models.Database
         public string AboutMe { get; set; }
         public DateTime? DateJoined { get; set; }
         public DateTime? DateLastActivity { get; set; }
-
         public Int64 Reputation { get; set; }
-
         public string PGPPubKey { get; set; }
-
         public bool IsOnline { get; set; }
-
         // Comma-separated list of language codes. e.g.: en,es,it,fr
         public string Languages { get; set; }
-
         //Earnings including direct, group, community
         public double TotalEarned { get; set; }
         public virtual ICollection<EarningEvent> EarningEvents { get; set; }
         public virtual ICollection<SpendingEvent> SpendingEvents { get; set; }
-
         public virtual UserSettings Settings { get; set; }
         public virtual UserFunds Funds { get; set; }
         public virtual UserImage ThumbImage { get; set; }
@@ -52,6 +46,7 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("VotesUp")]
         public virtual ICollection<Post> PostVotesUp { get; set; }
+
         [InverseProperty("VotesDown")]
         public virtual ICollection<Post> PostVotesDown { get; set; }
 
@@ -60,6 +55,7 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("VotesUp")]
         public virtual ICollection<Comment> CommentVotesUp { get; set; }
+
         [InverseProperty("VotesDown")]
         public virtual ICollection<Comment> CommentVotesDown { get; set; }
 
@@ -80,7 +76,6 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("Administrators")]
         public virtual ICollection<Group> GroupAdministration { get; set; }
-
         public ICollection<LNTransaction> LNTransactions { get; set; }
 
         [InverseProperty("UserId")]
@@ -100,6 +95,7 @@ namespace zapread.com.Models.Database
 
         public static implicit operator User(string v)
         {
+            // not sure why this exists...
             throw new NotImplementedException();
         }
     }

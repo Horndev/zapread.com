@@ -52,11 +52,27 @@ namespace zapread.com.Models
     {
         public List<GroupInfo> SubscribedGroups;
         public List<PostViewModel> Posts { get; set; }
-        public GroupInfo GroupInfo { get; set; }
+
+        //[Obsolete]
+        //public GroupInfo GroupInfo { get; set; }
+
         public List<int> Upvoted;
         public List<int> Downvoted;
-        public Group Group { get; set; }
-        public double UserBalance;
+
+        //[Obsolete]
+        //public Group Group { get; set; }
+
+        public int GroupId { get; set; }
+        public string GroupName { get; set; }
+        public string ShortDescription { get; set; }
+        public int NumMembers { get; set; }
+        public bool IsMember { get; set; }
+        public string Icon { get; set; }
+
+        public int Tier { get; set; }
+        public double TotalEarnedToDistribute { get; set; }
+        public double TotalEarned { get; set; }
+        public double UserBalance { get; set; }
 
         public bool IsGroupAdmin { get; set; }
         public bool IsGroupMod { get; set; }

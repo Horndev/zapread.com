@@ -353,20 +353,24 @@ namespace zapread.com.Controllers
                 g.Moderators.Remove(u);
                 u.GroupModeration.Remove(g);
 
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
             return Json(new { success = true, result = "success" });
         }
 
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> InfiniteScroll(int id, int BlockNumber, string sort)
         {
             int BlockSize = 10;
-            var posts = await GetPosts(id, BlockNumber, BlockSize, sort);
+
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid);
+                var user = await db.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 List<int> viewerIgnoredUsers = new List<int>();
@@ -376,25 +380,25 @@ namespace zapread.com.Controllers
                     viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
                 }
 
-                foreach (var p in posts)
+                int userId = user == null ? 0 : user.Id;
+
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db, user);
+
+                var postquery = QueryHelpers.OrderPostsByNew(validposts, id, true);
+
+                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber * BlockSize, BlockSize, postquery, user).ConfigureAwait(true);
+
+                // Render each post HTML
+                foreach (var pvm in postsVm)
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-
-                        ViewerIgnoredUsers = viewerIgnoredUsers,
-                    };
-
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", pvm);
                     PostsHTMLString += PostHTMLString;
                 }
+
                 return Json(new
                 {
-                    NoMoreData = posts.Count < BlockSize,
+                    Success = true,
+                    NoMoreData = postsVm.Count < BlockSize,
                     HTMLString = PostsHTMLString,
                 });
             }
@@ -632,10 +636,10 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="g"></param>
         /// <returns></returns>
-        protected static int GetGroupLevel(Group g)
+        protected static int GetGroupLevel(double e)
         {
             //259 641.6
-            var e = g.TotalEarned + g.TotalEarnedToDistribute;
+            //var e = g.TotalEarned + g.TotalEarnedToDistribute;
 
             if (e < 1000)
             {
@@ -689,129 +693,109 @@ namespace zapread.com.Controllers
                 return RedirectToAction(actionName:"Index", controllerName:"Home");
             }
 
-            var userId = User.Identity.GetUserId();
-            GroupViewModel vm = new GroupViewModel()
-            {
-                HasMorePosts = true,
-            };
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
                 var user = await db.Users
-                    .Include(usr => usr.IgnoringUsers)
-                    .Include(usr => usr.Groups)
-                    .Include(usr => usr.Groups.Select(grp => grp.Moderators))
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(id.Value),
+                        u.Id,
+                        FundsBalance = u.Funds.Balance,
+                        SubscribedGroups = u.Groups
+                            .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
+                            .Select(g => new GroupInfo()
+                            {
+                                Id = g.GroupId,
+                                Name = g.GroupName,
+                                Icon = g.Icon,
+                                Level = 1,
+                                Progress = 36,
+                                IsMod = g.Moderators.Select(m => m.Id).Contains(u.Id),
+                                IsAdmin = g.Administrators.Select(m => m.Id).Contains(u.Id),
+                            }),
+                    })
                     .AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(false);
+                    .SingleOrDefaultAsync().ConfigureAwait(true);
+
+                int userId = user == null ? 0 : user.Id;
 
                 var group = await db.Groups
-                    .FirstOrDefaultAsync(g => g.GroupId == id).ConfigureAwait(false);
+                    .Where(g => g.GroupId == id)
+                    .Select(g => new
+                    {
+                        g.GroupId,
+                        g.GroupName,
+                        g.ShortDescription,
+                        g.Icon,
+                        g.Tags,
+                        g.TotalEarned,
+                        g.TotalEarnedToDistribute,
+                        g.Tier,
+                        NumMembers = g.Members.Count,
+                        isMember = userId == 0 ? false : g.Members.Select(mb => mb.Id).Contains(userId),
+                        g.CreationDate,
+                        IsGroupAdmin = userId == 0 ? false : g.Administrators.Select(usr => usr.Id).Contains(userId),
+                        IsGroupMod = userId == 0 ? false : g.Moderators.Select(usr => usr.Id).Contains(userId),
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                var groupPosts = db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking()
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .Where(p => p.Group.GroupId == group.GroupId)
-                    .OrderByDescending(p => new { p.IsSticky, p.TimeStamp })
-                    .Take(10).ToList();
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db, 
+                    user: null);
 
-                if (groupPosts.Count < 10)
-                {
-                    vm.HasMorePosts = false;
-                }
+                var groupPosts = QueryHelpers.OrderPostsByNew(validposts, group.GroupId, true);
 
                 // Check tier
-                var level = GetGroupLevel(group);
-
-                if (group.Tier < level)
-                {
-                    group.Tier = level;
-                    db.SaveChanges();
-                }
+                // TODO - move to periodic check
+                //var level = GetGroupLevel(group.TotalEarned + group.TotalEarnedToDistribute);
+                //if (group.Tier < level)
+                //{
+                //    //group.Tier = level;
+                //    //db.SaveChanges();
+                //}
 
                 List<string> tags = group.Tags != null ? group.Tags.Split(',').ToList() : new List<string>();
 
-                bool isMember = user == null ? false : group.Members.Select(mb => mb.Id).Contains(user.Id);
-                var gis = new List<GroupInfo>();
+                bool isMember = group.isMember;
 
-                if (user != null)
-                {
-                    var userGroups = user.Groups
-                    .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
-                    .ToList();
-
-                    foreach (var g in userGroups)
-                    {
-                        gis.Add(new GroupInfo()
-                        {
-                            Id = g.GroupId,
-                            Name = g.GroupName,
-                            Icon = g.Icon,
-                            Level = 1,
-                            Progress = 36,
-                            IsMod = g.Moderators.Select(m => m.Id).Contains(user.Id),
-                            IsAdmin = g.Administrators.Select(m => m.Id).Contains(user.Id),
-                        });
-                    }
-                }
                 var gi = new GroupInfo()
                 {
                     Id = group.GroupId,
-                    CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy"),
+                    CreatedddMMMYYYY = group.CreationDate == null ? "2 Aug 2018" : group.CreationDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture),
                     Name = group.GroupName,
-                    NumMembers = group.Members.Count,
+                    NumMembers = group.NumMembers,
                     Tags = tags,
                     Icon = group.Icon != null ? "fa-" + group.Icon : "fa-bolt",
                     Level = group.Tier,
-                    //Progress = Convert.ToInt32(100.0 * g.TotalEarned / 0.1),
                     IsMember = isMember,
                     IsLoggedIn = user != null,
                 };
 
-                List<PostViewModel> postViews = new List<PostViewModel>();
-
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (user != null && user.IgnoringUsers != null)
+                var vm = new GroupViewModel()
                 {
-                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(uid => uid != user.Id).ToList();
-                }
+                    HasMorePosts = groupPosts.Count() < 10 ? false : true,
+                    SubscribedGroups = user.SubscribedGroups.ToList(),
+                    Posts = await QueryHelpers.QueryPostsVm(0, 10, groupPosts, user: null, userId: userId).ConfigureAwait(true),
+                    GroupId = group.GroupId,
+                    IsMember = group.isMember,
+                    NumMembers = group.NumMembers,
+                    GroupName = group.GroupName,
+                    ShortDescription = group.ShortDescription,
+                    Icon = group.Icon,
+                    Tier = group.Tier,
+                    TotalEarned = group.TotalEarned,
+                    TotalEarnedToDistribute = group.TotalEarnedToDistribute,
+                    UserBalance = user == null ? 0 : user.FundsBalance,
+                    IsGroupAdmin = group.IsGroupAdmin,
+                    IsGroupMod = group.IsGroupMod,
+                    IsIgnored = user == null ? false : user.IsIgnored,
+                    Tags = group.Tags,
+                };
 
-                foreach (var p in groupPosts)
-                {
-                    postViews.Add(new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
-                        NumComments = 0,
-
-                        ViewerIgnoredUsers = viewerIgnoredUsers,
-                    });
-                }
-
-                vm.SubscribedGroups = gis;
-                vm.GroupInfo = gi;
-                vm.Posts = postViews;
-                vm.Group = group;
-                vm.UserBalance = user == null ? 0 : user.Funds.Balance;
-                vm.IsGroupAdmin = user == null ? false : group.Administrators.Select(usr => usr.Id).Contains(user.Id);
-                vm.IsGroupMod = user == null ? false : group.Moderators.Select(usr => usr.Id).Contains(user.Id);
-                vm.IsIgnored = user == null ? false : user.IgnoredGroups.Select(gr => gr.GroupId).Contains(group.GroupId);
-                vm.Tags = group.Tags;
+                return View(vm);
             }
-            return View(vm);
         }
 
         public PartialViewResult GroupAdminBar(string groupId)

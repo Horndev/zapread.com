@@ -7,11 +7,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
@@ -149,19 +151,21 @@ namespace zapread.com.Controllers
         /// <param name="c"></param>
         /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> AddComment(NewComment c)
         {
+            if (c == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { Success = false, Message = "Invalid parameter." });
+            }
+
             // Check for empty comment
             if (c.CommentContent.Replace(" ", "") == "<p><br></p>")
             {
-                return Json(new
-                {
-                    success = false,
-                    message = "Error: Empty comment.",
-                    c.PostId,
-                    c.IsReply,
-                    c.CommentId,
-                });
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { Success = false, Message = "Empty comment." });
             }
 
             var userId = User.Identity.GetUserId();
@@ -171,33 +175,23 @@ namespace zapread.com.Controllers
                 var user = await db.Users
                     .Include(usr => usr.Settings)
                     .Where(u => u.AppId == userId)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (user == null)
                 {
-                    return this.Json(new
-                    {
-                        HTMLString = "",
-                        c.PostId,
-                        Success = false,
-                        c.CommentId
-                    });
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new { Success = false, Message = "User not found in DB." });
                 }
 
                 var post = await db.Posts
                     .Include(pst => pst.UserId)
                     .Include(pst => pst.UserId.Settings)
-                    .FirstOrDefaultAsync(p => p.PostId == c.PostId);
+                    .FirstOrDefaultAsync(p => p.PostId == c.PostId).ConfigureAwait(true);
 
                 if (post == null)
                 {
-                    return this.Json(new
-                    {
-                        HTMLString = "",
-                        c.PostId,
-                        Success = false,
-                        c.CommentId
-                    });
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new { Success = false, Message = "Post not found in DB." });
                 }
 
                 Comment parent = null;
@@ -234,7 +228,7 @@ namespace zapread.com.Controllers
                 if (!c.IsTest)
                 {
                     db.Comments.Add(comment);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 
                 // Find user mentions
@@ -248,7 +242,7 @@ namespace zapread.com.Controllers
                         foreach (var s in spans)
                         {
                             if (!c.IsTest)
-                                await NotifyUserMentioned(db, user, post, comment, s);
+                                await NotifyUserMentioned(db, user, post, comment, s).ConfigureAwait(true);
                         }
                     }
                 }
@@ -277,16 +271,33 @@ namespace zapread.com.Controllers
                         await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner).ConfigureAwait(true);
                 }
 
-                string CommentHTMLString = RenderPartialViewToString("_PartialCommentRender", 
-                    new PostCommentsViewModel() 
+                // Render the comment to be inserted to HTML
+                string CommentHTMLString = RenderPartialViewToString(
+                    viewName: "_PartialCommentRenderVm", 
+                    model: new PostCommentsViewModel() 
                     { 
                         StartVisible = true, 
-                        Comment = comment, 
-                        ParentComment = parent, 
-                        Comments = new List<Comment>() 
+                        CommentId = comment.CommentId,
+                        IsReply = comment.IsReply,
+                        IsDeleted = comment.IsDeleted,
+                        CommentVms = new List<PostCommentsViewModel>(),
+                        NestLevel = 0,
+                        ParentUserId = parent == null ? 0 : parent.UserId.Id,
+                        UserId = comment.UserId.Id,
+                        Score = comment.Score,
+                        ParentUserName = parent == null ? "" : parent.UserId.Name,
+                        ProfileImageVersion = comment.UserId.ProfileImage.Version,
+                        Text = comment.Text,
+                        TimeStamp = comment.TimeStamp,
+                        TimeStampEdited = comment.TimeStampEdited,
+                        UserAppId = comment.UserId.AppId,
+                        UserName = comment.UserId.Name,
+                        ViewerDownvoted = false,
+                        ViewerIgnoredUser = false,
+                        ParentCommentId = parent == null ? 0 : parent.CommentId,
                     });
 
-                return this.Json(new
+                return Json(new
                 {
                     HTMLString = CommentHTMLString,
                     c.PostId,

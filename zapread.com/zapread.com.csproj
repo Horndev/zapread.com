@@ -442,6 +442,7 @@
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
+    <Compile Include="Helpers\QueryHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
     <Compile Include="Helpers\URLHelperExtensions.cs" />
     <Compile Include="Helpers\ValidateJsonAntiForgeryToken.cs" />

@@ -117,5 +117,32 @@ namespace zapread.com.Tests.Controllers
             // Assert
             Assert.IsNotNull(result);
         }
+
+        //[TestMethod]
+        //public void PostsByScore()
+        //{
+        //    // Arrange
+        //    var context = new Mock<HttpContextBase>();
+
+        //    var identity = new GenericIdentity("test");
+        //    IPrincipal principal = new GenericPrincipal(identity, new[] { "user" });
+        //    context.Setup(s => s.User).Returns(principal);
+
+        //    HomeController controller = new HomeController();
+
+        //    var routeData = new RouteData();
+        //    routeData.Values.Add("Controller", "Home");
+        //    routeData.Values.Add("Action", "TopPosts");
+
+        //    context.Setup(c => c.Items).Returns(new Dictionary<object, object>());
+
+        //    controller.ControllerContext = new ControllerContext(context.Object, routeData, controller);
+
+        //    // Act
+        //    JsonResult result = controller.TopPosts(sort: "Score").Result as JsonResult;
+
+        //    // Assert
+        //    Assert.IsNotNull(result);
+        //}
     }
 }

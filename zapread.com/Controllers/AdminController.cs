@@ -972,7 +972,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [Route("Admin/Lightning/Payments")]
-        public async Task<ActionResult> LightningPayments()
+        public ActionResult LightningPayments()
         {
             return View();
         }
