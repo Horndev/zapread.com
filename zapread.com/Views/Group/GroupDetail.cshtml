@@ -2,8 +2,8 @@
 
 @model zapread.com.Models.GroupViewModel
 @{
-    ViewBag.Title = Model.Group.GroupName + (string.IsNullOrEmpty(Model.Group.ShortDescription) ? "" : " - " + Model.Group.ShortDescription);
-    ViewBag.ViewInfo = "Group:" + Model.Group.GroupName;
+    ViewBag.Title = Model.GroupName + (string.IsNullOrEmpty(Model.ShortDescription) ? "" : " - " + Model.ShortDescription);
+    ViewBag.ViewInfo = "Group:" + Model.GroupName;
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
@@ -12,37 +12,37 @@
     <div class="col-lg-10">
         <br />
         <p class="pull-right">
-            <a class="btn btn-sm btn-link" href="@Url.Action("Members", "Group", new { id = Model.Group.GroupId })"><i class="fa fa-users"></i> <span id="group_membercount_@Model.GroupInfo.Id">@Model.GroupInfo.NumMembers</span> Members</a>
+            <a class="btn btn-sm btn-link" href="@Url.Action("Members", "Group", new { id = Model.GroupId })"><i class="fa fa-users"></i> <span id="group_membercount_@Model.GroupId">@Model.NumMembers</span> Members</a>
             @if (User.Identity.IsAuthenticated)
             {
                 if (Model.IsIgnored)
                 {
-                    <a href="javascript:void(0);" id="i_@Model.GroupInfo.Id" onclick="toggleIgnore(@Model.GroupInfo.Id)" class="btn btn-sm btn-link btn-warning btn-outline"><i class="fa fa-circle"></i> Un-Ignore</a>
+                    <a href="javascript:void(0);" id="i_@Model.GroupId" onclick="toggleIgnore(@Model.GroupId)" class="btn btn-sm btn-link btn-warning btn-outline"><i class="fa fa-circle"></i> Un-Ignore</a>
                 }
                 else
                 {
-                    <a href="javascript:void(0);" id="i_@Model.GroupInfo.Id" onclick="toggleIgnore(@Model.GroupInfo.Id)" class="btn btn-sm btn-link btn-warning btn-outline"><i class="fa fa-ban"></i> Ignore</a>
+                    <a href="javascript:void(0);" id="i_@Model.GroupId" onclick="toggleIgnore(@Model.GroupId)" class="btn btn-sm btn-link btn-warning btn-outline"><i class="fa fa-ban"></i> Ignore</a>
                 }
-                if (Model.GroupInfo.IsMember)
+                if (Model.IsMember)
                 {
-                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" data-page="detail" onclick="leaveGroup(@Model.GroupInfo.Id, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
+                    <a href="javascript:void(0);" id="j_@Model.GroupId" data-page="detail" onclick="leaveGroup(@Model.GroupId, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-times"></i> Leave </a>
                 }
                 else
                 {
-                    <a href="javascript:void(0);" id="j_@Model.GroupInfo.Id" data-page="detail" onclick="joinGroup(@Model.GroupInfo.Id, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
+                    <a href="javascript:void(0);" id="j_@Model.GroupId" data-page="detail" onclick="joinGroup(@Model.GroupId, this)" class="btn btn-primary btn-outline btn-sm"><i class="fa fa-user-plus"></i> Join </a>
                 }
             }
         </p>
-        <h2><i class="fa @Model.GroupInfo.Icon"></i> @Model.GroupInfo.Name @if (!string.IsNullOrEmpty(Model.Group.ShortDescription))
-        {<text> - </text> @Model.Group.ShortDescription}</h2>
+        <h2><i class="fa @Model.Icon"></i> @Model.GroupName @if (!string.IsNullOrEmpty(Model.ShortDescription))
+        {<text> - </text> @Model.ShortDescription}</h2>
 
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="/Group">Groups</a></li>
-            <li class="breadcrumb-item active">@Model.GroupInfo.Name</li>
+            <li class="breadcrumb-item active">@Model.GroupName</li>
         </ol>
 
-        <small>Tier @Model.Group.Tier - @(Model.Group.TotalEarned + Model.Group.TotalEarnedToDistribute) Satoshi earned</small>
+        <small>Tier @Model.Tier - @(Model.TotalEarned + Model.TotalEarnedToDistribute) Satoshi earned</small>
     </div>
     <div class="col-lg-2">
     </div>
@@ -50,7 +50,7 @@
 
 @if (Model.IsGroupAdmin)
 {
-    Html.RenderAction("GroupAdminBar", controllerName: "Group", routeValues: new { groupId = Model.Group.GroupId });
+    Html.RenderAction("GroupAdminBar", controllerName: "Group", routeValues: new { groupId = Model.GroupId });
 }
 
 @if (Model.IsGroupMod)
@@ -124,12 +124,12 @@
                 <span></span>
             </div>
             <div class="social-feed-box-nb">
-                <button onclick="location.href='@Url.Action("NewPost", "Post", new { group = Model.Group.GroupId})'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
+                <button onclick="location.href='@Url.Action("NewPost", "Post", new { group = Model.GroupId})'" class="btn btn-primary btn-outline btn-block"><i class="fa fa-plus"></i> Add Post</button>
             </div>
             <div id="posts">
                 @foreach (var p in Model.Posts)
                 {
-                    @Html.Partial(partialViewName: "_PartialPostRender", model: p)
+                    @Html.Partial(partialViewName: "_PartialPostRenderVm", model: p)
                 }
             </div>
 
@@ -214,7 +214,7 @@
             $('#btnLoadmore').prop('disabled', true);
             $.ajax({
                 async: true,
-                data: JSON.stringify({ "id": "@Model.Group.GroupId", "BlockNumber": BlockNumber, "sort": "New" }),
+                data: JSON.stringify({ "id": "@Model.GroupId", "BlockNumber": BlockNumber, "sort": "New" }),
                 type: 'POST',
                 url: "@Url.Action("InfiniteScroll", "Group")",
                 contentType: "application/json; charset=utf-8",

@@ -73,5 +73,25 @@ namespace zapread.com.Tests.Controllers
             // Assert
             Assert.IsNotNull(result);
         }
+
+        [TestMethod]
+        public void TestGroupDetailAnonymous()
+        {
+            // Arrange
+            var context = new Mock<HttpContextBase>();
+
+            var identity = new GenericIdentity("test");
+            IPrincipal principal = new GenericPrincipal(identity, new[] { "user" });
+            context.Setup(s => s.User).Returns(principal);
+
+            GroupController controller = new GroupController();
+            controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
+
+            // Act
+            ViewResult result = controller.GroupDetail(1).Result as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
     }
 }
