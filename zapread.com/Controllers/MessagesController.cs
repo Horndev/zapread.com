@@ -182,12 +182,74 @@ namespace zapread.com.Controllers
             public string LastMessage { get; set; }
         }
 
+        [HttpGet]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> UnreadMessages(bool? include_alerts, bool? include_content)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "Unauthorized." }, JsonRequestBehavior.AllowGet);
+            }
+            using (var db = new ZapContext())
+            {
+                var messageQuery = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(u => u.Messages)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => !m.IsRead);
+
+                if (include_alerts.HasValue && !include_alerts.Value)
+                {
+                    messageQuery = messageQuery.
+                        Where(m => m.IsPrivateMessage);
+                }
+
+                if (include_content.HasValue && include_content.Value)
+                {
+                    var messages = await messageQuery
+                    .Select(m => new
+                    {
+                        MessageId = m.Id,
+                        FromId = m.From.Id,
+                        FromName = m.From.Name,
+                        ToId = m.To.Id,
+                        ToName = m.To.Name,
+                        m.IsPrivateMessage,
+                        m.TimeStamp,
+                        m.Content,
+                    })
+                    .ToListAsync().ConfigureAwait(false);
+                    return Json(new { success = true, messages }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    var messages = await messageQuery
+                    .Select(m => new
+                    {
+                        MessageId = m.Id,
+                        FromId = m.From.Id,
+                        FromName = m.From.Name,
+                        ToId = m.To.Id,
+                        ToName = m.To.Name,
+                        m.IsPrivateMessage,
+                        m.TimeStamp,
+                    })
+                    .ToListAsync().ConfigureAwait(false);
+                    return Json(new { success = true, messages }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
         /// <summary>
         /// Queries messages for a paging table.
         /// </summary>
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> GetMessagesTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
