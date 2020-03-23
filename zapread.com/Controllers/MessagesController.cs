@@ -184,7 +184,7 @@ namespace zapread.com.Controllers
 
         [HttpGet]
         [ValidateJsonAntiForgeryToken]
-        public async Task<ActionResult> UnreadMessages(bool? include_alerts, bool? include_content)
+        public async Task<ActionResult> Unread(bool? include_alerts, bool? include_content)
         {
             var userAppId = User.Identity.GetUserId();
             if (userAppId == null)
