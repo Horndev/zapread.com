@@ -155,12 +155,12 @@ namespace zapread.com.Controllers
 
         private static string GetEarningMemo(dynamic t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
         {
-            if (t.Type == 1)
+            if (t.Type == 1 && t.OriginId > 0)
             {
-                if (t.OriginId > 0)
-                    return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
+                return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
             }
-            else if (t.Type == 0 && t.OriginType == 0)
+
+            if (t.Type == 0 && t.OriginType == 0)
             {
                 string memo = postIds.Contains(t.OriginId) ? posts.FirstOrDefault(p => p.PostId == t.OriginId)?.PostTitle : "";
                 if (memo == null)
@@ -169,22 +169,20 @@ namespace zapread.com.Controllers
                     memo = memo.Substring(0, 30) + "...";
                 return memo;
             }
-            else if (t.Type == 0 && t.OriginType == 1) // Comment
+
+            if (t.Type == 0 && t.OriginType == 1 && t.OriginId > 0) // Comment
             {
-                if (t.OriginId > 0)
+                var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                if (postId != null && postId > 0)
                 {
-                    var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
-                    if (postId != null && postId > 0)
-                    {
-                        string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
-                        if (memo == null)
-                            memo = "";
-                        if (memo.Length > 33)
-                            memo = memo.Substring(0, 30) + "...";
-                        return memo;
-                    }
-                    return postId.ToString();
+                    string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
+                    if (memo == null)
+                        memo = "";
+                    if (memo.Length > 33)
+                        memo = memo.Substring(0, 30) + "...";
+                    return memo;
                 }
+                return postId.ToString();
             }
             return "";
         }
@@ -203,14 +201,6 @@ namespace zapread.com.Controllers
             var userAppId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                //var pageEarnings = await db.Users
-                //    .Where(us => us.AppId == userAppId)
-                //    .SelectMany(us => us.EarningEvents)
-                //    .OrderByDescending(e => e.TimeStamp)
-                //    .Skip(dataTableParameters.Start)
-                //    .Take(dataTableParameters.Length)
-                //    .ToListAsync();
-
                 // Query data
                 var pageData = await db.Users
                     .Where(us => us.AppId == userAppId)
