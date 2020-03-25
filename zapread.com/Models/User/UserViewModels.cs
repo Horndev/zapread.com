@@ -32,12 +32,12 @@ namespace zapread.com.Models
         [Obsolete]
         public List<User> TopFollowing { get; set; }
 
-        public List<UserFollowView> TopFollowingVm { get; set; }
+        public IEnumerable<UserFollowView> TopFollowingVm { get; set; }
 
         [Obsolete]
         public List<User> TopFollowers { get; set; }
 
-        public List<UserFollowView> TopFollowersVm { get; set; }
+        public IEnumerable<UserFollowView> TopFollowersVm { get; set; }
 
         public double UserBalance { get; set; }
 

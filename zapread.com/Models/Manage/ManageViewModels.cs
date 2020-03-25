@@ -56,7 +56,7 @@ namespace zapread.com.Models
 
     public class ManageUserGroupsViewModel
     {
-        public List<GroupInfo> Groups { get; set; }
+        public IEnumerable<GroupInfo> Groups { get; set; }
     }
 
     public class UpdateImageViewModel
