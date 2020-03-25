@@ -79,6 +79,7 @@ $(document).ready(function () {
             type: "POST",
             contentType: "application/json",
             url: "/Manage/GetEarningEvents",
+            headers: getAntiForgeryToken(),
             data: function (d) {
                 return JSON.stringify(d);
             }
@@ -110,6 +111,7 @@ $(document).ready(function () {
             type: "POST",
             contentType: "application/json",
             url: "/Manage/GetSpendingEvents",
+            headers: getAntiForgeryToken(),
             data: function (d) {
                 return JSON.stringify(d);
             }
@@ -120,7 +122,16 @@ $(document).ready(function () {
                 "data": null,
                 "orderable": false,
                 "mRender": function (data, type, row) {
-                    return "<a href='" + data.URL + "'>" + data.Type + "</a>";
+                    var URL = "/";
+                    if (data.Type === "Post") {
+                        URL = "/Post/Detail/" + data.TypeId + "/";
+                    } else if (data.Type === "Comment") {
+                        URL = "/Post/Detail/" + data.TypeId + "/";
+                    } else if (data.Type === "Group") {
+                        URL = "/Group/GroupDetail/" + data.TypeId + "/";
+                    }
+
+                    return "<a href='" + URL + "'>" + data.Type + "</a>";
                 }
             },
             { "data": "Amount", "orderable": false }
