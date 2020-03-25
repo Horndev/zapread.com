@@ -132,71 +132,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        public async Task<ActionResult> GetEarningEvents(DataTableParameters dataTableParameters)
-        {
-            var userId = User.Identity.GetUserId();
-            using (var db = new ZapContext())
-            {
-                var pageEarnings = await db.Users
-                    .Where(us => us.AppId == userId)
-                    .SelectMany(us => us.EarningEvents)
-                    .OrderByDescending(e => e.TimeStamp)
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
-                    .ToListAsync();
-
-                var commentIds = pageEarnings
-                    .Where(e => e.Type == 0 && e.OriginType == 1)
-                    .Select(e => Convert.ToInt64(e.OriginId)).ToList();
-
-                var groupIds = pageEarnings
-                    .Where(e => e.Type == 1)
-                    .Select(e => e.OriginId).ToList();
-
-                var comments = await db.Comments
-                    .Include(c => c.Post)
-                    .Where(c => commentIds.Contains(c.CommentId)).ToListAsync();
-
-                var postIds = pageEarnings
-                    .Where(e => e.Type == 0 && e.OriginType == 0)
-                    .Select(e => e.OriginId).ToList();
-
-                var cids = comments.Where(c => c.Post != null)
-                    .Select(c => c.Post.PostId);
-
-                postIds = postIds.Union(cids).ToList();
-
-                var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync();
-                var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync();
-
-                var values = pageEarnings
-                    .AsParallel()
-                    .Select(t => new DataItem()
-                    {
-                        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Amount = t.Amount.ToString("0.##"),
-                        Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
-                        URL = GetEarningURL(t, commentIds, comments),
-                        Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
-                    }).ToList();
-
-                int numrec = await db.Users
-                    .Where(us => us.AppId == userId)
-                    .SelectMany(us => us.EarningEvents)
-                    .CountAsync();
-
-                var ret = new
-                {
-                    draw = dataTableParameters.Draw,
-                    recordsTotal = numrec,
-                    recordsFiltered = numrec,
-                    data = values
-                };
-                return Json(ret);
-            }
-        }
-
-        private string GetEarningURL(EarningEvent t, List<long> commentIds, List<Comment> comments)
+        private string GetEarningURL(dynamic t, List<long> commentIds, List<Comment> comments)
         {
             if (t.Type == 1)
             {
@@ -217,14 +153,14 @@ namespace zapread.com.Controllers
             return t.OriginId.ToString();
         }
 
-        private static string GetEarningMemo(EarningEvent t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
+        private static string GetEarningMemo(dynamic t, List<int> groupIds, List<Group> groups, List<int> postIds, List<Post> posts, List<long> commentIds, List<Comment> comments)
         {
-            if (t.Type == 1)
+            if (t.Type == 1 && t.OriginId > 0)
             {
-                if (t.OriginId > 0)
-                    return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
+                return groupIds.Contains(t.OriginId) ? groups.FirstOrDefault(g => g.GroupId == t.OriginId)?.GroupName : "";
             }
-            else if (t.Type == 0 && t.OriginType == 0)
+
+            if (t.Type == 0 && t.OriginType == 0)
             {
                 string memo = postIds.Contains(t.OriginId) ? posts.FirstOrDefault(p => p.PostId == t.OriginId)?.PostTitle : "";
                 if (memo == null)
@@ -233,72 +169,155 @@ namespace zapread.com.Controllers
                     memo = memo.Substring(0, 30) + "...";
                 return memo;
             }
-            else if (t.Type == 0 && t.OriginType == 1) // Comment
+
+            if (t.Type == 0 && t.OriginType == 1 && t.OriginId > 0) // Comment
             {
-                if (t.OriginId > 0)
+                var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
+                if (postId != null && postId > 0)
                 {
-                    var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
-                    if (postId != null && postId > 0)
-                    {
-                        string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
-                        if (memo == null)
-                            memo = "";
-                        if (memo.Length > 33)
-                            memo = memo.Substring(0, 30) + "...";
-                        return memo;
-                    }
-                    return postId.ToString();
+                    string memo = postIds.Contains(postId.Value) ? posts.FirstOrDefault(p => p.PostId == postId)?.PostTitle : "";
+                    if (memo == null)
+                        memo = "";
+                    if (memo.Length > 33)
+                        memo = memo.Substring(0, 30) + "...";
+                    return memo;
                 }
+                return postId.ToString();
             }
             return "";
         }
 
-        [HttpGet]
-        public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> GetEarningEvents(DataTableParameters dataTableParameters)
         {
-            var userId = User.Identity.GetUserId();
+            if (dataTableParameters == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No parameters provided." });
+            }
+
+            var userAppId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                int numrec = await db.Users
-                    .Where(us => us.AppId == userId)
-                    .SelectMany(usr => usr.SpendingEvents)
-                    .CountAsync();
-
-                var pageSpendings = await db.Users
-                        .Include(usr => usr.LNTransactions)
-                        .Include(usr => usr.SpendingEvents)
-                        .Include(usr => usr.SpendingEvents.Select(s => s.Post))
-                        .Include(usr => usr.SpendingEvents.Select(s => s.Group))
-                        .Include(usr => usr.SpendingEvents.Select(s => s.Comment))
-                        .Include(usr => usr.SpendingEvents.Select(s => s.Comment).Select(c => c.Post))
-                        .Where(us => us.AppId == userId)
-                        .SelectMany(usr => usr.SpendingEvents)
-                        .OrderByDescending(e => e.TimeStamp)
-                        .Skip(dataTableParameters.Start)
-                        .Take(dataTableParameters.Length)
-                        .ToListAsync();
-
-                var values = pageSpendings.AsParallel()
-                    .Select(t => new DataItem()
+                // Query data
+                var pageData = await db.Users
+                    .Where(us => us.AppId == userAppId)
+                    .SelectMany(us => us.EarningEvents)
+                    .OrderByDescending(e => e.TimeStamp)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .Select(t => new
                     {
-                        Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Type = t.Post != null ? "Post " + t.Post.PostId.ToString() : (
-                            t.Comment != null ? "Comment " + t.Comment.CommentId.ToString() : (
-                            t.Group != null ? "Group " + t.Group.GroupId.ToString() :
-                            "Other")),
-                        Amount = Convert.ToString(t.Amount),
-                        URL = t.Post != null ? Url.Action("Detail", "Post") + "/" + Convert.ToString(t.Post.PostId) : (
-                            t.Comment != null ? Url.Action("Detail", "Post") + "/" + t.Comment.Post.PostId.ToString() : (
-                            t.Group != null ? Url.Action("Index", "Group") :
-                            "")),
-                    }).ToList();
+                        TimeValue = t.TimeStamp.Value,
+                        t.Amount,
+                        t.Type,
+                        t.OriginType,
+                        t.OriginId,
+                    })
+                    .ToListAsync().ConfigureAwait(false);
+
+                var commentIds = pageData
+                    .Where(e => e.Type == 0 && e.OriginType == 1)
+                    .Select(e => Convert.ToInt64(e.OriginId)).ToList();
+
+                var groupIds = pageData
+                    .Where(e => e.Type == 1)
+                    .Select(e => e.OriginId).ToList();
+
+                var comments = await db.Comments
+                    .Include(c => c.Post)
+                    .Where(c => commentIds.Contains(c.CommentId)).ToListAsync().ConfigureAwait(false);
+
+                var postIds = pageData
+                    .Where(e => e.Type == 0 && e.OriginType == 0)
+                    .Select(e => e.OriginId).ToList();
+
+                var cids = comments.Where(c => c.Post != null)
+                    .Select(c => c.Post.PostId);
+
+                postIds = postIds.Union(cids).ToList();
+
+                var posts = await db.Posts.Where(p => postIds.Contains(p.PostId)).ToListAsync().ConfigureAwait(false);
+                var groups = await db.Groups.Where(g => groupIds.Contains(g.GroupId)).ToListAsync().ConfigureAwait(false);
+
+                //Format data
+                var data = pageData.Select(t => new
+                {
+                    Time = t.TimeValue.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    t.Amount,
+                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                    URL = GetEarningURL(t, commentIds, comments),
+                    Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
+                }).ToList();
+
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userAppId)
+                    .SelectMany(us => us.EarningEvents)
+                    .CountAsync().ConfigureAwait(false);
 
                 var ret = new
                 {
                     draw = dataTableParameters.Draw,
                     recordsTotal = numrec,
                     recordsFiltered = numrec,
-                    data = values
+                    data,
+                };
+                return Json(ret);
+            }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
+        {
+            if (dataTableParameters == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "No parameters provided."});
+            }
+
+            var userAppId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                int numrec = await db.Users
+                    .Where(us => us.AppId == userAppId)
+                    .SelectMany(usr => usr.SpendingEvents)
+                    .CountAsync().ConfigureAwait(false);
+
+                // Query data
+                var pageData = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(usr => usr.SpendingEvents)
+                    .OrderByDescending(e => e.TimeStamp)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .Select(t => new 
+                    {
+                        TimeValue = t.TimeStamp.Value,
+                        @Type = t.Post != null ? "Post" : (t.Comment != null ? "Comment" : (t.Group != null ? "Group" : "Other")),
+                        t.Amount,
+                        TypeId = t.Post != null ? t.Post.PostId : (t.Comment != null ? t.Comment.Post.PostId : (t.Group != null ? t.Group.GroupId : 0))
+                    })
+                    .ToListAsync().ConfigureAwait(true);
+
+                // Formatting (in-memory)
+                var data = pageData.Select(t => new
+                {
+                    Time = t.TimeValue.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    t.Type,
+                    t.Amount,
+                    t.TypeId,
+                }).ToList();
+
+                var ret = new
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data,
                 };
                 return Json(ret);
             }
