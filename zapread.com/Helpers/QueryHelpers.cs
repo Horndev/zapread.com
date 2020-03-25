@@ -55,6 +55,124 @@ namespace zapread.com.Helpers
             return validposts;
         }
 
+        public static async Task<List<PostViewModel>> QueryActivityPostsVm(int start, int count, int userId = 0)
+        {
+            using (var db = new ZapContext())
+            {
+                List<int> followingIds = await db.Users
+                        .Where(us => us.Id == userId)
+                        .SelectMany(us => us.Following)
+                        .Select(f => f.Id)
+                        .ToListAsync()
+                        .ConfigureAwait(true);
+
+                var userposts = db.Posts
+                    .Where(p => p.UserId.Id == userId)
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft)
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Take(20)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    });
+
+                // Posts by users who are following this user
+                var followposts = db.Posts
+                    .Where(p => followingIds.Contains(p.UserId.Id))
+                    .Where(p => !p.IsDeleted)
+                    .Where(p => !p.IsDraft)
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Take(20)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    });
+
+                var activityposts = userposts.ToList().Union(followposts.ToList())
+                    .OrderByDescending(p => p.TimeStamp)
+                    .Skip(start)
+                    .Take(count)
+                    .ToList();
+
+                return activityposts;
+            }
+        }
+
         public static IQueryable<Post> OrderPostsByActive(IQueryable<Post> validposts)
         {
             DateTime scoreStart = new DateTime(2018, 07, 01);

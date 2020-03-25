@@ -253,6 +253,7 @@ namespace zapread.com.Controllers
             return "";
         }
 
+        [HttpGet]
         public async Task<ActionResult> GetSpendingEvents(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
@@ -534,12 +535,11 @@ namespace zapread.com.Controllers
                 var activityposts = await userposts.Union(followposts).Union(userCommentedPosts).OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
         }
-
 
         //
         // GET: /Manage/Index
@@ -556,154 +556,105 @@ namespace zapread.com.Controllers
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
                 : "";
 
-            var userId = User.Identity.GetUserId();
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
-                string aboutMe = "Nothing to tell.";
-
-                User u = await db.Users
-                        .Include(usr => usr.IgnoringUsers)
-                        //.Include(usr => usr.Funds)
-                        .Include(usr => usr.Settings)
-                        .Include(usr => usr.ProfileImage)
-                        .Include(usr => usr.Achievements)
-                        .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
-                        .AsNoTracking()
-                        .Where(us => us.AppId == userId)
-                        .FirstAsync().ConfigureAwait(true);
-
-                aboutMe = u.AboutMe;
-
-                ValidateClaims(u);
-
-                ViewBag.UserName = u.Name;
-                ViewBag.UserId = u.Id;
-
-                if (u.Settings == null)
-                {
-                    u.Settings = new UserSettings();
-                }
-
-                var activityposts = await GetPosts(0, 10, userId: u.Id).ConfigureAwait(true);
-
-                List<GroupInfo> gi = await db.Users.Where(us => us.AppId == userId)
-                    .SelectMany(usr => usr.Groups)
-                    .Select(g => new GroupInfo()
+                // This query returns a single list of objects from the database with required information for the view.  This is much 
+                //  faster than returning EF classes.
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
                     {
-                        Id = g.GroupId,
-                        Name = g.GroupName,
-                        Icon = "fa-bolt",
-                        Level = 1,
-                        Progress = 36,
-                        NumPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Count(),
-                        UserPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Where(p => p.UserId.Id == u.Id).Count(),
-                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
-                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
+                        u.Id,
+                        u.AppId,
+                        u.ProfileImage.Version,
+                        u.AboutMe,
+                        u.Name,
+
+                        TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
+                            .Select(us => new UserFollowView()
+                            {
+                                Name = us.Name,
+                                AppId = us.AppId,
+                                ProfileImageVersion = us.ProfileImage.Version,
+                            }),
+
+                        TopFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20)
+                            .Select(us => new UserFollowView()
+                            {
+                                Name = us.Name,
+                                AppId = us.AppId,
+                                ProfileImageVersion = us.ProfileImage.Version,
+                            }),
+
+                        UserGroups = u.Groups
+                            .Select(g => new GroupInfo()
+                            {
+                                Id = g.GroupId,
+                                Name = g.GroupName,
+                                Icon = "fa-bolt",
+                                Level = 1,
+                                Progress = 36,
+                                NumPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Count(),
+                                UserPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Where(p => p.UserId.Id == u.Id).Count(),
+                                IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
+                                IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
+                            }),
+                        UserAchievements = u.Achievements.Select(ach => new UserAchievementViewModel()
+                            {
+                                Id = ach.Id,
+                                ImageId = ach.Achievement.Id,
+                                Name = ach.Achievement.Name,// + " on " + ach.DateAchieved.Value.ToShortDateString()
+                            }),
+                        UserIgnoring = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id),
+                        ColorTheme = u.Settings == null ? "" : u.Settings.ColorTheme,
+                        NumPosts = u.Posts.Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Count(),
+                        NumFollowing = u.Following.Count,
+                        NumFollowers = u.Followers.Count,
+                        UserBalance = u.Funds.Balance,
+                        u.Languages,
+                        u.Settings,
                     })
                     .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                int numUserPosts = await db.Posts.Where(p => p.UserId.AppId == userId).CountAsync().ConfigureAwait(true);
-                int numFollowers = await db.Users.Where(p => p.Following.Select(f => f.Id).Contains(u.Id)).CountAsync().ConfigureAwait(true);
-                int numFollowing = u.Following.Count;
-                bool isFollowing = false;
-                var topFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
-                    .Select(us => new UserFollowView()
-                    {
-                        Name = us.Name,
-                        AppId = us.AppId,
-                        ProfileImageVersion = us.ProfileImage.Version,
-                    })
-                    .ToList();
+                ValidateClaims(new UserSettings() { ColorTheme = userInfo.ColorTheme });
 
-                var topFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20)
-                    .Select(us => new UserFollowView()
-                    {
-                        Name = us.Name,
-                        AppId = us.AppId,
-                        ProfileImageVersion = us.ProfileImage.Version,
-                    })
-                    .ToList();
-                List<int> viewerIgnoredUsers = GetUserIgnored(u);
-                List<PostViewModel> postViews = await GetUserActivtiesView(db, u, activityposts, viewerIgnoredUsers).ConfigureAwait(true);
-                List<string> languages = GetLanguages();
+                var postViews = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.Id).ConfigureAwait(true);
 
-                var uavm = new UserAchievementsViewModel();
-                uavm.Achievements = new List<UserAchievementViewModel>();
-
-                foreach (var ach in u.Achievements)
-                {
-                    uavm.Achievements.Add(new UserAchievementViewModel()
-                    {
-                        Id = ach.Id,
-                        ImageId = ach.Achievement.Id,
-                        Name = ach.Achievement.Name + " on " + ach.DateAchieved.Value.ToShortDateString()
-                    });
-                }
+                var uavm = new UserAchievementsViewModel() { 
+                    Achievements = userInfo.UserAchievements
+                };
 
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
-                    User = u,
-                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userId).ConfigureAwait(true),
-                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId).ConfigureAwait(true),
-                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userId).ConfigureAwait(true),
-                    Logins = await UserManager.GetLoginsAsync(userId).ConfigureAwait(true),
-                    //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),  // This is an extension method which can't be mocked for test
-                    AboutMe = new AboutMeViewModel() { AboutMe = aboutMe },
-                    //Financial = new FinancialViewModel() { Transactions = txnView, Earnings = earningsView, Spendings = spendingsView },
-                    UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
-                    NumPosts = numUserPosts,
-                    NumFollowers = numFollowers,
-                    NumFollowing = numFollowing,
-                    IsFollowing = isFollowing,
+                    UserName = userInfo.Name,
+                    UserAppId = userInfo.AppId,
+                    UserProfileImageVersion = userInfo.Version,
+                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
+                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
+                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
+                    Logins = await UserManager.GetLoginsAsync(userAppId).ConfigureAwait(true),
+                    AboutMe = new AboutMeViewModel() { AboutMe = userInfo.AboutMe == null ? "Nothing to tell." : userInfo.AboutMe },
+                    UserGroups = new ManageUserGroupsViewModel() { Groups = userInfo.UserGroups },
+                    NumPosts = userInfo.NumPosts,
+                    NumFollowers = userInfo.NumFollowers,
+                    NumFollowing = userInfo.NumFollowing,
+                    IsFollowing = true, // Not actually used here
                     ActivityPosts = postViews,
-                    //TopFollowing = null,//topFollowing,
-                    TopFollowingVm = topFollowing,
-                    //TopFollowers = topFollowers,
-                    TopFollowersVm = topFollowers,
-                    UserBalance = u.Funds.Balance,
+                    TopFollowingVm = userInfo.TopFollowing,
+                    TopFollowersVm = userInfo.TopFollowers,
+                    UserBalance = userInfo.UserBalance,
                     AchievementsViewModel = uavm,
-                    Settings = u.Settings,
-                    Languages = u.Languages == null ? new List<string>() : u.Languages.Split(',').ToList(),
-                    KnownLanguages = languages,
+                    Settings = userInfo.Settings,
+                    Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
+                    KnownLanguages = GetLanguages(),
                 };
 
                 return View(model);
             }
-        }
-
-        private static List<int> GetUserIgnored(User u)
-        {
-            List<int> viewerIgnoredUsers = new List<int>();
-
-            if (u != null && u.IgnoringUsers != null)
-            {
-                viewerIgnoredUsers = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id).ToList();
-            }
-
-            return viewerIgnoredUsers;
-        }
-
-        private static async Task<List<PostViewModel>> GetUserActivtiesView(ZapContext db, User u, List<Post> activityposts, List<int> viewerIgnoredUsers)
-        {
-            List<PostViewModel> postViews = new List<PostViewModel>();
-
-            foreach (var p in activityposts)
-            {
-                postViews.Add(new PostViewModel()
-                {
-                    Post = p,
-                    ViewerIsMod = u != null ? u.GroupModeration.Contains(p.Group) : false,
-                    ViewerUpvoted = u != null ? u.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                    ViewerDownvoted = u != null ? u.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                    NumComments = 0,
-                    ViewerIgnoredUsers = viewerIgnoredUsers,
-                });
-            }
-
-            return postViews;
         }
 
         private static List<string> GetLanguages()
@@ -723,11 +674,11 @@ namespace zapread.com.Controllers
             return languages;
         }
 
-        private void ValidateClaims(User u)
+        private void ValidateClaims(UserSettings userSettings)
         {
             try
             {
-                User.AddUpdateClaim("ColorTheme", u.Settings.ColorTheme ?? "light");
+                User.AddUpdateClaim("ColorTheme", userSettings.ColorTheme ?? "light");
             }
             catch (Exception)
             {
@@ -843,6 +794,7 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Manage/AddPhoneNumber
+        [HttpGet]
         public ActionResult AddPhoneNumber()
         {
             return View();
@@ -1224,6 +1176,7 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Manage/VerifyPhoneNumber
+        [HttpGet]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
@@ -1361,8 +1314,6 @@ namespace zapread.com.Controllers
             });
         }
 
-
-
         //
         // POST: /Manage/LinkLogin
         [HttpPost]
@@ -1375,6 +1326,7 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Manage/LinkLoginCallback
+        [HttpGet]
         public async Task<ActionResult> LinkLoginCallback()
         {
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());

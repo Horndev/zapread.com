@@ -320,13 +320,14 @@ namespace zapread.com.Controllers
 
                 var vm = new UserAchievementsViewModel()
                 {
-                    Achievements = new List<UserAchievementViewModel>(),
                     Username = username,
                 };
 
+                var userAchievements = new List<UserAchievementViewModel>();
+
                 foreach (var ach in user.Achievements)
                 {
-                    vm.Achievements.Add(new UserAchievementViewModel()
+                    userAchievements.Add(new UserAchievementViewModel()
                     {
                         Id = ach.Id,
                         ImageId = ach.Achievement.Id,
@@ -335,6 +336,8 @@ namespace zapread.com.Controllers
                         DateAchieved = ach.DateAchieved.Value,
                     });
                 }
+
+                vm.Achievements = userAchievements;
 
                 return View(vm);
             }
@@ -420,7 +423,7 @@ namespace zapread.com.Controllers
                     isIgnoring = loggedInUserInfo.isIgnoring;
                 }
 
-                var activityposts = await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
+                var activityposts = await QueryHelpers.QueryActivityPostsVm(0, 10, userId).ConfigureAwait(true); //await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
 
                 int numUserPosts = await db.Posts.Where(p => p.UserId.Id == userId)
                     .CountAsync().ConfigureAwait(true);
@@ -540,16 +543,15 @@ namespace zapread.com.Controllers
                 User user = await db.Users.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
-                List<PostViewModel> posts = await GetActivityPosts(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
+                List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
 
-                List<GroupStats> groups = await db.Groups.AsNoTracking()
+                List <GroupStats> groups = await db.Groups.AsNoTracking()
                         .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
                         .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)
                 {
-                    //PostViewModel pvm = HTMLRenderHelpers.CreatePostViewModel(p, user, groups);
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
