@@ -68,6 +68,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0-preview2-19525-03\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Forloop.HtmlHelpers, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Forloop.HtmlHelpers.1.2.0.0\lib\net45\Forloop.HtmlHelpers.dll</HintPath>
+    </Reference>
     <Reference Include="Hangfire.Core, Version=1.6.22.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.Core.1.6.22\lib\net45\Hangfire.Core.dll</HintPath>
     </Reference>
@@ -941,6 +944,7 @@
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\Manage\financial.js" />
+    <Content Include="Scripts\Manage\updateAlias.js" />
     <Content Include="Scripts\Messages\alerts.js" />
     <Content Include="Scripts\Messages\all.js" />
     <Content Include="Scripts\Messages\chat-ui.js" />
