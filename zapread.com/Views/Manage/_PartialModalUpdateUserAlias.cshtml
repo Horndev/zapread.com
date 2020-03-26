@@ -1,4 +1,4 @@
-﻿
+﻿@using Forloop.HtmlHelpers
 
 <div class="modal fade" id="userAliasModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="userAliasModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -22,50 +22,7 @@
     </div>
 </div>
 
-@Html.Script(
-@<script type="text/javascript">
-
-    var updateAlias = function () {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        var action = "/Manage/UpdateUserAlias";
-        var contentType = "application/json; charset=utf-8";
-        var dataval = '';
-        var dataString = '';
-        var messageElement = '#userAliasInput';
-
-        var form = $('#__AjaxAntiForgeryForm');
-        var token = $('input[name="__RequestVerificationToken"]', form).val();
-        var headers = {};
-        headers['__RequestVerificationToken'] = token;
-
-        dataval = $(messageElement).val();
-        
-        dataString = JSON.stringify({
-            alias: dataval
-        });
-        console.log(dataString);
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: action,
-            data: dataString,
-            dataType: "json",
-            contentType: contentType,
-            headers: headers,
-            success: function (response) {
-                if (response.success) {
-                    $('#userAliasModal').modal('hide');
-                    alert('Update successful.  It may take a few minutes for the change to propagate.');
-                }
-                else {
-                    alert(response.message);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("fail");
-            }
-        });
-    }
-</script>
-)
+@using (var context = Html.BeginScriptContext())
+{
+    context.AddScriptFile("~/bundles/manage/partial/updateAlias");
+}

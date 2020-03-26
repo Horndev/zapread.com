@@ -57,6 +57,41 @@ namespace zapread.com
                         "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
 
+            // Partial script - summary statistics
+            bundles.Add(new ScriptBundle("~/bundles/partial/summaryStatistics").Include(
+                        "~/Scripts/Partial/summaryStatistics.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - vote modal
+            bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
+                        "~/Scripts/Partial/vote.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - group edit tags
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
+                        "~/Scripts/Groups/tags.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - group admin bar
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/adminbar").Include(
+                        "~/Scripts/Groups/adminbar.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - group user Roles
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
+                        "~/Scripts/Groups/userRoles.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - group edit icon
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/editIcon").Include(
+                        "~/Scripts/Groups/editIcon.js")
+                        .WithLastModifiedToken());
+
+            // Partial script - vote modal
+            bundles.Add(new ScriptBundle("~/bundles/partial/messageCompose").Include(
+                        "~/Scripts/Partial/messageCompose.js")
+                        .WithLastModifiedToken());
+
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
@@ -65,9 +100,19 @@ namespace zapread.com
                         "~/Scripts/Achievements/achievementhover.js")
                         .WithLastModifiedToken());
 
+            // Manage - partial view scripts
+            bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
+                        "~/Scripts/Manage/updateAlias.js")
+                        .WithLastModifiedToken());
+
             // Manage/Financial scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/financial").Include(
                         "~/Scripts/Manage/financial.js")
+                        .WithLastModifiedToken());
+
+            // User/{username}
+            bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
+                        "~/Scripts/Users/index.js")
                         .WithLastModifiedToken());
 
             // Home/Install scripts
@@ -77,6 +122,16 @@ namespace zapread.com
 
             bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
                         "~/Scripts/Home/index.js")
+                        .WithLastModifiedToken());
+
+            // Messages/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/messages/index").Include(
+                        "~/Scripts/Messages/index.js")
+                        .WithLastModifiedToken());
+
+            // Messages/All scripts
+            bundles.Add(new ScriptBundle("~/bundles/messages/all").Include(
+                        "~/Scripts/Messages/all.js")
                         .WithLastModifiedToken());
 
             // Messages/Chat scripts
@@ -102,6 +157,16 @@ namespace zapread.com
             // Group/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
                         "~/Scripts/Groups/index.js")
+                        .WithLastModifiedToken());
+
+            // Group/New scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
+                        "~/Scripts/Groups/new.js")
+                        .WithLastModifiedToken());
+
+            // Group/GroupDetail scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
+                        "~/Scripts/Groups/detail.js")
                         .WithLastModifiedToken());
 
             // Group/Members scripts

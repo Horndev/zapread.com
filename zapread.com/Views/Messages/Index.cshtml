@@ -14,7 +14,6 @@
         </ol>
     </div>
     <div class="col-lg-2">
-
     </div>
 </div>
 
@@ -39,7 +38,7 @@
                     <div class="feed-activity-list">
                         @foreach (var m in Model.Messages)
                         {
-                            <div id ="m_@m.Id" class="feed-element">
+                            <div id="m_@m.Id" class="feed-element">
                                 <div>
                                     <span class="pull-right">
                                         &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(0, @m.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
@@ -55,16 +54,18 @@
                                         @if (m.PostLink != null)
                                         {
                                             <span>Post:</span> <a href="@Url.Action("Detail", "Post", new { id = m.PostLink.PostId})">
-                                            @if (m.PostLink.PostTitle != null) { 
-                                                <text>@m.PostLink.PostTitle</text> }
-                                            else {
-                                                <text>Link</text>
-                                            }
+                                                @if (m.PostLink.PostTitle != null)
+                                                {
+                                                    <text>@m.PostLink.PostTitle</text> }
+                                                else
+                                                {
+                                                    <text>Link</text>
+                                                }
                                             </a>
                                         }
                                         @if (m.CommentLink != null)
                                         {
-                                            
+
                                         }
                                         @if (m.IsPrivateMessage)
                                         {
@@ -105,7 +106,7 @@
                     <div class="feed-activity-list">
                         @foreach (var a in Model.Alerts)
                         {
-                            <div id ="a_@a.Id" class="feed-element">
+                            <div id="a_@a.Id" class="feed-element">
                                 <div>
                                     <span class="pull-right">
                                         &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(1, @a.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
@@ -144,67 +145,9 @@
                 </div>
             </div>
         </div>
-
     </div>
-
 </div>
 
 @section Scripts {
-<script type="text/javascript">
-    
-    var deletea = function (t, id) {
-        var url = "";
-        if (t == 1) {
-            url = "/Messages/DeleteAlert";
-        }
-        else if (t == 0) {
-            url = "/Messages/DeleteMessage";
-        }
-
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: url,
-            data: JSON.stringify({ "id": id }),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: function (result) {
-                if (result.Result == "Success") {
-                    if (t == 1) {
-                        if (id === -1) { // Deleted all
-                            $('[id^="a_"]').hide();
-                        } else {
-                            $('#a_' + id).hide();
-                            $('#a1_' + id).hide();
-                            $('#a2_' + id).hide();
-                        }
-                    }
-                    else {
-                        if (id === -1) { // Deleted all
-                            $('[id^="m_"]').hide();
-                        } else {
-                            $('#m_' + id).hide();
-                            $('#m1_' + id).hide();
-                            $('#m2_' + id).hide();
-                        }
-                    }
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("fail");
-            }
-        });
-        return false;
-    };
-
-    var ignore = function (t, id) {
-        if (t == 1) {
-            $('#a_' + id).hide();
-        }
-        else if (t == 0) {
-            $('#m_' + id).hide();
-        }
-        return false;
-    };
-</script>
+    @Scripts.Render("~/bundles/messages/index")
 }
