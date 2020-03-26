@@ -1021,7 +1021,6 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
-    <Content Include="Views\Shared\_Old.cshtml" />
     <Content Include="Views\Shared\_ModalAboutMe.cshtml" />
     <Content Include="Views\Post\NewPost.cshtml" />
     <Content Include="Views\Post\Edit.cshtml" />
