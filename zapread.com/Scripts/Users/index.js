@@ -19,8 +19,6 @@ $(document).ready(function () {
         var time = dateFns.distanceInWordsToNow(datefn);
         $(e).html('<span>' + time + ' ago - ' + date + '</span>');
     });
-
-    alert('!');
 });
 
 Dropzone.options.dropzoneForm = {
