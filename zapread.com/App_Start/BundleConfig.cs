@@ -72,6 +72,11 @@ namespace zapread.com
                         "~/Scripts/Groups/tags.js")
                         .WithLastModifiedToken());
 
+            // Partial script - group admin bar
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/adminbar").Include(
+                        "~/Scripts/Groups/adminbar.js")
+                        .WithLastModifiedToken());
+
             // Partial script - group user Roles
             bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
                         "~/Scripts/Groups/userRoles.js")
