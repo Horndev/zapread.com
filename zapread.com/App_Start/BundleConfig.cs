@@ -67,6 +67,11 @@ namespace zapread.com
                         "~/Scripts/Partial/vote.js")
                         .WithLastModifiedToken());
 
+            // Partial script - group edit tags
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
+                        "~/Scripts/Groups/tags.js")
+                        .WithLastModifiedToken());
+
             // Partial script - vote modal
             bundles.Add(new ScriptBundle("~/bundles/partial/messageCompose").Include(
                         "~/Scripts/Partial/messageCompose.js")
