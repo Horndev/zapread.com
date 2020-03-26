@@ -940,6 +940,7 @@
     <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\index.js" />
     <Content Include="Scripts\Groups\members.js" />
+    <Content Include="Scripts\Groups\new.js" />
     <Content Include="Scripts\Home\index.js" />
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
