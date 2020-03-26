@@ -72,6 +72,11 @@ namespace zapread.com
                         "~/Scripts/Groups/tags.js")
                         .WithLastModifiedToken());
 
+            // Partial script - group edit icon
+            bundles.Add(new ScriptBundle("~/bundles/partial/group/editIcon").Include(
+                        "~/Scripts/Groups/editIcon.js")
+                        .WithLastModifiedToken());
+
             // Partial script - vote modal
             bundles.Add(new ScriptBundle("~/bundles/partial/messageCompose").Include(
                         "~/Scripts/Partial/messageCompose.js")
