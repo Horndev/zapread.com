@@ -944,6 +944,7 @@
     <Content Include="Scripts\Messages\alerts.js" />
     <Content Include="Scripts\Messages\chat-ui.js" />
     <Content Include="Scripts\Messages\chats.js" />
+    <Content Include="Scripts\Messages\index.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
