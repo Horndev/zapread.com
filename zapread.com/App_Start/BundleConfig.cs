@@ -62,6 +62,11 @@ namespace zapread.com
                         "~/Scripts/Partial/summaryStatistics.js")
                         .WithLastModifiedToken());
 
+            // Partial script - vote modal
+            bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
+                        "~/Scripts/Partial/vote.js")
+                        .WithLastModifiedToken());
+
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
