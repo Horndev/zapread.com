@@ -57,6 +57,11 @@ namespace zapread.com
                         "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
 
+            // Partial script - summary statistics
+            bundles.Add(new ScriptBundle("~/bundles/partial/summaryStatistics").Include(
+                        "~/Scripts/Partial/summaryStatistics.js")
+                        .WithLastModifiedToken());
+
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
