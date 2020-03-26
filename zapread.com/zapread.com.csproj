@@ -937,6 +937,7 @@
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\Groups\detail.js" />
     <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\index.js" />
     <Content Include="Scripts\Groups\members.js" />
