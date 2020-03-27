@@ -99,7 +99,7 @@ handleInvoicePaid = function (invoiceResponse) {
         var userBalance = ub;
         $('#userDepositBalance').html(userBalance);
         $('#userVoteBalance').html(userBalance);
-        $.get("/Account/GetBalance", function (data, status) {
+        $.get("/Account/Balance", function (data, status) {
             $(".userBalanceValue").each(function (i, e) {
                 $(e).html(data.balance);
             });

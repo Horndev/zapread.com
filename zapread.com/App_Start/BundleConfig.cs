@@ -62,6 +62,11 @@ namespace zapread.com
                         "~/Scripts/Partial/summaryStatistics.js")
                         .WithLastModifiedToken());
 
+            // Partial script - top navbar
+            bundles.Add(new ScriptBundle("~/bundles/partial/topnavbar").Include(
+                        "~/Scripts/Partial/topnavbar.js")
+                        .WithLastModifiedToken());
+
             // Partial script - vote modal
             bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
                         "~/Scripts/Partial/vote.js")

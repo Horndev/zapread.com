@@ -23,34 +23,7 @@ $(document).ready(function () {
     $('#voteValueAmount').val(userdefaultvote);
 
     var userBalance = userVote.b;
-    $.get("/Account/GetBalance", function (data, status) {
-        userBalance = parseFloat(data.balance);
-        $('#userVoteBalance').html(data.balance);
-        ub = data.balance;
-        //userVote.b = ub;
-        $(".userBalanceValue").each(function (i, e) {
-            $(e).html(data.balance);
-        });
-    });
-
     $('#userVoteBalance').html(userBalance);
-    $.ajax({
-        type: "POST",
-        url: "/Account/UserBalance/",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            ub = response.balance;
-            $('#userVoteBalance').html(response.balance);
-            userVote.b = ub;
-        },
-        failure: function (response) {
-            //alert("failure " + JSON.stringify(response));
-        },
-        error: function (response) {
-            //alert("error " + JSON.stringify(response));
-        }
-    });
 
     // If the user updates the amount
     $('#voteValueAmount').on('input', function () {
@@ -87,7 +60,7 @@ $(document).ready(function () {
 var tip = function (user, uid) {
     isTip = true;
     $('#voteModalTitle').html("Tip " + user);
-    $.get("/Account/GetBalance", function (data, status) {
+    $.get("/Account/Balance", function (data, status) {
         $('#userVoteBalance').html(data.balance);
         userBalance = parseFloat(data.balance);
         $(".userBalanceValue").each(function (i, e) {
@@ -137,7 +110,7 @@ var doTip = function (id, amount, tx) {
             if (response.Result === "Success") {
                 $('#voteModal').modal('hide');
                 // Update user balance displays
-                $.get("/Account/GetBalance", function (data, status) {
+                $.get("/Account/Balance", function (data, status) {
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);
                     });

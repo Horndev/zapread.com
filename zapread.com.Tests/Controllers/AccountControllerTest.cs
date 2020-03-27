@@ -48,7 +48,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            JsonResult result = controller.GetBalance().Result as JsonResult;
+            JsonResult result = controller.Balance().Result as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);

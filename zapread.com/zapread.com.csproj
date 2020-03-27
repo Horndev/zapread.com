@@ -959,6 +959,7 @@
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\Partial\messageCompose.js" />
     <Content Include="Scripts\Partial\summaryStatistics.js" />
+    <Content Include="Scripts\Partial\topnavbar.js" />
     <Content Include="Scripts\Partial\vote.js" />
     <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />

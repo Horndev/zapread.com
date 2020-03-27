@@ -2,15 +2,6 @@
  * 
 */
 
-$(document).ready(function () {
-    $.get("/Account/GetBalance", function (data, status) {
-        $('#userDepositBalance').html(data.balance);
-        $(".userBalanceValue").each(function (i, e) {
-            $(e).html(data.balance);
-        });
-    });
-});
-
 var onGetInvoice = function (e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
@@ -115,7 +106,7 @@ var onPayInvoice = function (e) {
                 $("#lightningTransactionInvoiceResult").addClass("bg-success");
                 $("#lightningTransactionInvoiceResult").show();
                 $('#withdrawModal').modal('hide');
-                $.get("/Account/GetBalance", function (data, status) {
+                $.get("/Account/Balance", function (data, status) {
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);
                     });
