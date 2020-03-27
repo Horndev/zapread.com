@@ -1162,6 +1162,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = false });
             }
 
+            if (jobid == "CheckLNTransactions")
+            {
+                RecurringJob.Trigger("LNTransactionMonitor.CheckLNTransactions");
+                return Json(new { success = true });
+            }
+
             if (jobid == "CommunityPayout")
             {
                 RecurringJob.Trigger("PayoutsService.CommunityPayout");
@@ -1191,13 +1197,22 @@ namespace zapread.com.Controllers
 
         [HttpPost, Route("Admin/Jobs/Install")]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult InstallJob(string jobid)
         {
             if (jobid == null)
             {
                 return Json(new { success = false });
             }
-                
+
+            if (jobid == "CheckLNTransactions")
+            {
+                RecurringJob.AddOrUpdate<LNTransactionMonitor>(
+                    x => x.CheckLNTransactions(),
+                    Cron.MinuteInterval(5));
+                return Json(new { success = true });
+            }
+
             if (jobid == "CommunityPayout")
             {
                 RecurringJob.AddOrUpdate<PayoutsService>(
@@ -1236,11 +1251,18 @@ namespace zapread.com.Controllers
 
         [HttpPost, Route("Admin/Jobs/Remove")]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult RemoveJob(string jobid)
         {
             if (jobid == null)
             {
                 return Json(new { success = false });
+            }
+
+            if (jobid == "CheckLNTransactions")
+            {
+                RecurringJob.RemoveIfExists("LNTransactionMonitor.CheckLNTransactions");
+                return Json(new { success = true });
             }
 
             if (jobid == "CommunityPayout")
@@ -1276,15 +1298,6 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Jobs/" });
             }
-
-            // Re-register Periodic hangfire monitor
-            //RecurringJob.AddOrUpdate<LNTransactionMonitor>(
-            //    x => x.CheckLNTransactions(),
-            //    Cron.MinuteInterval(5));
-            
-            //RecurringJob.AddOrUpdate<PayoutsService>(
-            //    x => x.GroupsPayout(),
-            //    Cron.Daily(0, 0));
 
             var vm = new AdminJobsViewModel();
 

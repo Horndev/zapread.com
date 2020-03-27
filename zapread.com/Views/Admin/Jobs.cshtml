@@ -56,6 +56,20 @@
                         }
                         <text><br /></text>
                     }
+                    <h3>LN Transaction Monitor</h3>
+                    @if (Model.RecurringJobs.Select(j => j.Id).Contains("LNTransactionMonitor.CheckLNTransactions"))
+                    {
+                        <span>Installed </span>
+                    }
+                    else
+                    {
+                        <span>Not Installed</span>
+                    }
+
+                    <button id="btnLNI" class="btn btn-primary btn-sm" onclick="setupJob('CheckLNTransactions')" type="button">(Re)Install</button>
+
+                    <button id="btnLNF" class="btn btn-primary btn-sm" onclick="runJob('CheckLNTransactions')" type="button">Trigger Now</button>
+
                     <h3>Community Payout</h3>
                     @if (Model.RecurringJobs.Select(j => j.Id).Contains("PayoutsService.CommunityPayout"))
                     {
@@ -98,7 +112,7 @@
                     <button id="btnAI" class="btn btn-primary btn-sm" onclick="setupJob('CheckAchievements')" type="button">(Re)Install</button>
 
                     <button id="btnAF" class="btn btn-primary btn-sm" onclick="runJob('CheckAchievements')" type="button">Trigger Now</button>
-                    
+
                     <h3>LN Node</h3>
                     @if (Model.RecurringJobs.Select(j => j.Id).Contains("LNNodeMonitor.UpdateHourly"))
                     {
@@ -114,14 +128,6 @@
                     <button id="btnAF" class="btn btn-primary btn-sm" onclick="runJob('LNNodeMonitor.UpdateHourly')" type="button">Trigger Now</button>
                 </div>
             </div>
-            @*<div class="ibox-footer">
-                    <div class="row text-right">
-                        <div class="col-sm-8"></div>
-                        <div class="col-sm-4 text-right">
-                            <button id="save" class="btn btn-primary btn-sm" onclick="save()" type="button">Save</button>
-                        </div>
-                    </div>
-                </div>*@
         </div>
     </div>
 </div>

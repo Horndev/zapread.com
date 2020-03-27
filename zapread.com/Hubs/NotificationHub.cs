@@ -37,7 +37,7 @@ namespace zapread.com.Hubs
 
             if (name != null)
             {
-                await Groups.Add(Context.ConnectionId, name);
+                await Groups.Add(Context.ConnectionId, name).ConfigureAwait(true);
 
                 try
                 {
@@ -45,14 +45,14 @@ namespace zapread.com.Hubs
                     {
                         var user = await db.Users
                             .Include(usr => usr.Settings)
-                            .SingleOrDefaultAsync(u => u.AppId == name);
+                            .SingleOrDefaultAsync(u => u.AppId == name).ConfigureAwait(true);
 
                         if (!user.Settings.ShowOnline)
                         {
                             user.DateLastActivity = DateTime.UtcNow;
                             user.IsOnline = true;
                         }
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                 }
                 catch
@@ -60,7 +60,7 @@ namespace zapread.com.Hubs
 
                 }
             }
-            await base.OnConnected();
+            await base.OnConnected().ConfigureAwait(true);
         }
 
         public override async Task OnDisconnected(bool stopCalled)
@@ -75,14 +75,14 @@ namespace zapread.com.Hubs
                     {
                         var user = await db.Users
                             .Include(usr => usr.Settings)
-                            .SingleOrDefaultAsync(u => u.AppId == name);
+                            .SingleOrDefaultAsync(u => u.AppId == name).ConfigureAwait(true);
 
                         if (!user.Settings.ShowOnline)
                         {
                             user.DateLastActivity = DateTime.UtcNow;
                         }
                         user.IsOnline = false;
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                 }
                 catch
@@ -90,7 +90,7 @@ namespace zapread.com.Hubs
 
                 }
             }
-            await base.OnDisconnected(stopCalled);
+            await base.OnDisconnected(stopCalled).ConfigureAwait(true);
         }
     }
 }

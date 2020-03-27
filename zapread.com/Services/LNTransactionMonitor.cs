@@ -28,8 +28,15 @@ namespace zapread.com.Services
                     macaroonRead: website.LnMainnetMacaroonRead,
                     macaroonInvoice: website.LnMainnetMacaroonInvoice);
 
+
+
                 //var invv = lndClient.GetInvoice("8Td4xGBvz4nI2qRLIVC93S9mcTDodd/sylhd9IG7FEA=", out string responseStr, useQuery: false);
                 //var allpayments = lndClient.GetPayments(out string responseStr, include_incomplete: true);
+
+                // ** DANGER ZONE **
+                //lndClient.DeletePayments(out string responseStr);
+                // *****************
+
 
                 // These are the unpaid invoices in database
                 var unpaidInvoices = db.LightningTransactions
