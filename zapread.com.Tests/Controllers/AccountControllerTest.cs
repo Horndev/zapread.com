@@ -3,7 +3,9 @@ using Microsoft.Owin.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -20,10 +22,41 @@ namespace zapread.com.Tests.Controllers
         public void TestAccountBalance()
         {
             // Arrange
+            var request = new Mock<HttpRequestBase>();
+            request.SetupGet(x => x.Headers).Returns(
+                new System.Net.WebHeaderCollection {
+                    {"X-Requested-With", "XMLHttpRequest"}
+                });
+            request.SetupGet(x => x.IsAuthenticated).Returns(true);
+
+            var context = new Mock<HttpContextBase>();
+            context.SetupGet(x => x.Request).Returns(request.Object);
+
+            var identity = new GenericIdentity("test");
+            identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "f752739e-8d58-4bf5-a140-fc225cc5ebdb")); //test user
+            var principal = new GenericPrincipal(identity, new[] { "user" });
+            context.Setup(s => s.User).Returns(principal);
+
             AccountController controller = new AccountController();
+            controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
+
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var userManager = new Mock<ApplicationUserManager>(userStore.Object);
+            var authenticationManager = new Mock<IAuthenticationManager>();
+            var signInManager = new Mock<ApplicationSignInManager>(userManager.Object, authenticationManager.Object);
+
+            var claimsIdentity = new Mock<ClaimsIdentity>(MockBehavior.Loose);
+
+            claimsIdentity.Setup(x => x.AddClaim(It.IsAny<Claim>()));
+
+            IList<UserLoginInfo> userlogins = new List<UserLoginInfo>();
+
+            userManager.Setup(x => x.GetPhoneNumberAsync(It.IsAny<string>())).Returns(Task.FromResult("123"));
+            userManager.Setup(x => x.GetTwoFactorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
+            userManager.Setup(x => x.GetLoginsAsync(It.IsAny<string>())).Returns(Task.FromResult(userlogins));
 
             // Act
-            PartialViewResult result = controller.Balance().Result as PartialViewResult;
+            JsonResult result = controller.Balance().Result as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -42,7 +75,6 @@ namespace zapread.com.Tests.Controllers
 
             var context = new Mock<HttpContextBase>();
             context.SetupGet(x => x.Request).Returns(request.Object);
-
 
             AccountController controller = new AccountController();
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
