@@ -9,6 +9,8 @@ $(document).ready(function () {
     });
 });
 
+var LoadedHovers = new Array();
+
 var loaduserhover = function (e) {
     $(e).removeAttr('onmouseover');
     var userid = $(e).data('userid');
@@ -20,15 +22,23 @@ var loaduserhover = function (e) {
         'userId': userid,
         'username' : username
     });
+
+    if ($.inArray(userid, LoadedHovers) > -1) {
+        //console.log("userid in array");
+        return;
+    }
+
     var appearTimeout;
+
     $.ajax({
         type: "POST",
-        url: "/User/Hover",
+        url: "/User/Hover/",
         data: msg,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
             if (response.success) {
+                LoadedHovers.push(userid);
                 $(e).attr("data-content", response.HTMLString);
                 $(e).popover({
                     trigger: "manual",
@@ -41,6 +51,10 @@ var loaduserhover = function (e) {
                 })
                 .on("mouseenter", function () {
                     var _this = this;
+                    if ($.inArray(userid, LoadedHovers) > -1) {
+                        //console.log("userid in array");
+                        return;
+                    }
                     appearTimeout = setTimeout(function () {
                         $(_this).popover("show");
                         $(".popover").addClass("tooltip-hover");
@@ -55,15 +69,28 @@ var loaduserhover = function (e) {
                     setTimeout(function () {
                         if (!$(".popover:hover").length) {
                             $(_this).popover("hide");
+                            // Prevent double popups for same user
+                            for (var i = 0; i < LoadedHovers.length; i++) {
+                                if (LoadedHovers[i] === userid) {
+                                    LoadedHovers.splice(i, 1);
+                                }
+                            }
                         }
                     }, 300);
                 });
+
                 appearTimeout = setTimeout(function () {
                     $(e).popover("show");
                     $(".popover").addClass("tooltip-hover");
                     $(".popover").on("mouseleave", function () {
                         setTimeout(function () {
                             $(e).popover('hide');
+                            // Prevent double popups for same user if one already open
+                            for (var i = 0; i < LoadedHovers.length; i++) {
+                                if (LoadedHovers[i] === userid) {
+                                    LoadedHovers.splice(i, 1);
+                                }
+                            }
                         }, 300);
                     });
                 }, 500);
