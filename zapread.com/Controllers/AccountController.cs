@@ -162,14 +162,7 @@ namespace zapread.com.Controllers
             }
             string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
 
-            try
-            {
-                Response.AddHeader("X-Frame-Options", "DENY");
-            }
-            catch
-            {
-                ;  // TODO: add error handling - temp fix for unit test.
-            }
+            Response.AddHeader("X-Frame-Options", "DENY");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
