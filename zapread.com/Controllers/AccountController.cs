@@ -4,6 +4,7 @@ using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -147,33 +148,19 @@ namespace zapread.com.Controllers
             }
         }
         
-        public async Task<ActionResult> Balance()
-        {
-            try
-            {
-                Response.AddHeader("X-Frame-Options", "DENY");
-            }
-            catch
-            {
-                ;  // TODO: add error handling - temp fix for unit test.
-            }
-            ViewBag.Balance = await GetUserBalance();
-            return PartialView("_PartialBalance");
-        }
-
         //
         // GET: /Account/GetBalance
         // Returns the currently logged in user balance
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult> GetBalance()
+        public async Task<ActionResult> Balance()
         {
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = await GetUserBalance();
+                userBalance = await GetUserBalance().ConfigureAwait(true);
             }
-            string balance = userBalance.ToString("0.##");
+            string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
 
             try
             {
@@ -184,6 +171,67 @@ namespace zapread.com.Controllers
                 ;  // TODO: add error handling - temp fix for unit test.
             }
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
+        }
+
+        private async Task<double> GetUserBalance()
+        {
+            double balance;
+            var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
+
+            if (userAppId == null)
+            {
+                return 0.0;
+            }
+
+            try
+            {
+                using (var db = new ZapContext())
+                {
+                    var userBalance = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => new
+                        {
+                            Value = u.Funds == null ? -1 : u.Funds.Balance
+                        })
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (userBalance == null)
+                    {
+                        // User not found in database, or not logged in
+                        return 0.0;
+                    }
+                    else
+                    {
+                        if (userBalance.Value == -1)
+                        {
+                            // Neets to be initialized
+                            var user_modified = await db.Users
+                                .Include(i => i.Funds)
+                                .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+
+                            user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
+                            await db.SaveChangesAsync().ConfigureAwait(true);
+                        }
+                        balance = userBalance.Value;//user.Funds.Balance;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MailingService.Send(new UserEmailModel()
+                {
+                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userAppId,
+                    Email = "",
+                    Name = "zapread.com Exception",
+                    Subject = "Account Controller error",
+                });
+
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                balance = 0.0;
+            }
+
+            return Math.Floor(balance);
         }
 
         //
@@ -243,53 +291,6 @@ namespace zapread.com.Controllers
                             user = user_modified;
                         }
                         balance = user.Funds.LimboBalance;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // todo: add some error logging
-
-                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
-                balance = 0.0;
-            }
-
-            return Math.Floor(balance);
-        }
-
-        private async Task<double> GetUserBalance()
-        {
-            double balance;
-            try
-            {
-                using (var db = new ZapContext())
-                {
-                    // Get the logged in user ID
-                    var uid = User.Identity.GetUserId();
-                    var user = await db.Users
-                        .Include(i => i.Funds)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(u => u.AppId == uid);
-
-                    if (user == null)
-                    {
-                        // User not found in database, or not logged in
-                        balance = 0.0;
-                    }
-                    else
-                    {
-                        if (user.Funds == null)
-                        {
-                            // Neets to be initialized
-                            var user_modified = await db.Users
-                                .Include(i => i.Funds)
-                                .FirstOrDefaultAsync(u => u.AppId == uid);
-
-                            user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            await db.SaveChangesAsync();
-                            user = user_modified;
-                        }
-                        balance = user.Funds.Balance;
                     }
                 }
             }

@@ -73,40 +73,5 @@
     @Scripts.Render("~/bundles/DetailPost")
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js"></script>
     <script type="text/javascript" src="~/Scripts/instascan.min.js"></script>
-
-    <script type="text/javascript">
-        var toggleChat; // global function for quotable.  TODO: fix
-        var ub = 0;
-        $(document).ready(function () {
-            // Only if logged in
-            @if (Request.IsAuthenticated)
-            {
-                <text>
-                var urla = $("#unreadAlerts").data("url");
-                $("#unreadAlerts").load(urla);
-
-                var urlm = $("#unreadMessages").data("url");
-                $("#unreadMessages").load(urlm);
-
-                $.get("/Account/GetBalance", function(data, status) {
-                    $(".userBalanceValue").each(function (i, e) {
-                        $(e).html(data.balance);
-                    });
-                    ub = data.balance;
-                });
-                // Textarea autoexpand
-                jQuery.each(jQuery('textarea[data-autoresize]'), function () {
-                    var offset = this.offsetHeight - this.clientHeight;
-                    var resizeTextarea = function (el) {
-                        jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
-                    };
-                    jQuery(this).on('keyup input', function () { resizeTextarea(this); }).removeAttr('data-autoresize');
-                });
-                </text>
-            }
-        }); //end ready
-
-    </script>
-
 </body>
 </html>

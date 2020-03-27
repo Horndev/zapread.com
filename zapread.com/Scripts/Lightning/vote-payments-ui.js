@@ -140,7 +140,7 @@ var vote = function (id, d, t, b, o) {
     $("#voteDepositInvoice").hide();
     $('#voteModal').modal('show');
 
-    $.get("/Account/GetBalance", function (data, status) {
+    $.get("/Account/Balance", function (data, status) {
         $('#userVoteBalance').html(data.balance);
         userBalance = parseFloat(data.balance);
         $(".userBalanceValue").each(function (i, e) {
@@ -213,7 +213,7 @@ var doVote = function (id, d, t, amount, tx) {
                 $(sid + id.toString()).html(val.toString());
 
                 // Update user balance displays
-                $.get("/Account/GetBalance", function (data, status) {
+                $.get("/Account/Balance", function (data, status) {
                     $(".userBalanceValue").each(function (i, e) {
                         $(e).html(data.balance);
                     });
