@@ -4,6 +4,24 @@
 var toggleChat; // global function for quotable.  TODO: fix
 var ub = 0;
 
+// Used for caching scripts when loaded on-demand.
+var LoadedScripts = new Array();
+jQuery.getScript = function (url, callback, cache) {
+    if ($.inArray(url, LoadedScripts) > -1) {
+        callback();
+    }
+    else {
+        LoadedScripts.push(url);
+        jQuery.ajax({
+            type: "GET",
+            url: url,
+            success: callback,
+            dataType: "script",
+            cache: cache
+        });
+    }
+};
+
 $(document).ready(function () {
     $.get("/Account/Balance", function (data, status) {
         // Used in vote.js (needs refactoring)
