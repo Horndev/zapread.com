@@ -28,8 +28,6 @@ namespace zapread.com.Services
                     macaroonRead: website.LnMainnetMacaroonRead,
                     macaroonInvoice: website.LnMainnetMacaroonInvoice);
 
-
-
                 //var invv = lndClient.GetInvoice("8Td4xGBvz4nI2qRLIVC93S9mcTDodd/sylhd9IG7FEA=", out string responseStr, useQuery: false);
                 //var allpayments = lndClient.GetPayments(out string responseStr, include_incomplete: true);
 
@@ -37,8 +35,7 @@ namespace zapread.com.Services
                 //lndClient.DeletePayments(out string responseStr);
                 // *****************
 
-
-                // These are the unpaid invoices in database
+                // These are the unpaid invoices in database (incoming payments)
                 var unpaidInvoices = db.LightningTransactions
                     .Where(t => t.IsSettled == false)
                     .Where(t => t.IsDeposit == true)
@@ -158,13 +155,6 @@ namespace zapread.com.Services
                     // Check the unpaid withdraws
                     var payments = lndClient.GetPayments(include_incomplete: true);
 
-                    //var pmts = LndRpcClient.LndApiGetStr("lightning.zapread.com", 
-                    //    "/v1/payments", 
-                    //    urlParameters: new System.Collections.Generic.Dictionary<string, string>()
-                    //    {
-                    //        { "include_incomplete", "true"}
-                    //    }, 
-                    //    adminMacaroon: website.LnMainnetMacaroonAdmin);
                     foreach (var i in unpaidWithdraws)
                     {
                         var pmt = payments.payments.Where(p => p.payment_hash == i.HashStr).FirstOrDefault();
@@ -208,7 +198,7 @@ namespace zapread.com.Services
                             }
                             else if (pmt.status == "FAILED")
                             {
-                                // Payment failed
+                                // Payment failed - refund user
                                 if (i.User.Funds.LimboBalance - amount < 0)
                                 {
                                     if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
@@ -235,6 +225,8 @@ namespace zapread.com.Services
                                             message: "tx.id: " + Convert.ToString(i.Id)
                                             + " Reason 0");
                             }
+
+                            // I really don't like these next options!!  Should verify validity
                             else if (i.ErrorMessage == "Error: invoice is already paid")
                             {
                                 // Invoice is already paid - 
