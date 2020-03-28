@@ -8,11 +8,58 @@
                 <a href="/" style="color:darkgreen;font-weight: 900;">Social Economy</a>
             </span>
         </div>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"><i class="fa fa-reorder" style="font-size: 22px;"></i></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarText">
-            <ul class="nav navbar-nav nav-fill w-100">
+        <div class="d-flex flex-row order-2 order-lg-3">
+            <ul class="nav navbar-nav flex-row" style="margin-left: 10px;">
+                @if (Request.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a id="topFinancial" href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
+                            <i class="fa fa-bitcoin"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="topBalance" href="#" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;padding-right: 10px;">
+                            <span class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="white-space:nowrap; padding-right: 10px;">
+                            <img class="user-image-15" width="15" height="15" src="@Url.Action("UserImage", "Home", new { size = 15, UserId = User.GetClaimValue("UserAppId"), v = User.GetClaimValue("ProfileImageVersion") })" /> @User.Identity.Name
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" style="text-align: left;position: absolute;">
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")">Profile</a>
+                            <a class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-link nav-link" style="text-align: left;">
+                                        <i class="fa fa-sign-out"></i> Log off
+                                    </button>
+                                }
+                            </a>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li id="navRegister" class="nav-item">
+                        <a href="@Url.Action("Register", "Account")" class="nav-link" style="white-space:nowrap; padding-right: 10px;">
+                            <i class="fa fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Login", "Account")" class="nav-link" style="white-space:nowrap; padding-right: 10px;">
+                            <i class="fa fa-sign-in"></i> Log in
+                        </a>
+                    </li>
+                }
+            </ul>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation" style="height: 40px;">
+                <span class="navbar-toggler-icon"><i class="fa fa-reorder" style="font-size: 22px;"></i></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse order-3 order-lg-2" id="navbarText">
+            <ul class="nav navbar-nav navbar-top-links nav-fill w-100 nav-stacked">
                 <li id="navGroups" class="nav-item">
                     @Html.ActionLink("Groups", "Index", "Group", new { area = "" }, new { @class = "nav-link" })
                 </li>
@@ -42,19 +89,7 @@
             </div>
             @if (Request.IsAuthenticated)
             {
-                <ul class="nav navbar-nav" style="margin-left: 10px;">
-                    <li class="nav-item">
-                        <a id="topFinancial" href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
-                            <i class="fa fa-bitcoin"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="topBalance" href="#" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;">
-                            <span class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-top-links">
+                <ul class="nav navbar-top-links" style="justify-content: center;">
                     <li class="dropdown">
                         <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">-</span>
@@ -101,85 +136,10 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="padding-top: 15px;padding-bottom: 0px">
+                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="        padding-top: 15px;
+        padding-bottom: 0px
+">
                             <i class="fa fa-comments"></i>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav">
-                    <li class="nav-item">
-                        <a href="@Url.Action("Index", "Manage")" class="nav-link d-flex flex-nowrap" style="white-space:nowrap">
-                            <img class="user-image-15" width="15" height="15" src="@Url.Action("UserImage", "Home", new {size = 15, UserId = User.GetClaimValue("UserAppId"), v=User.GetClaimValue("ProfileImageVersion")})" /> @User.Identity.Name
-                        </a>
-                    </li>
-                </ul>
-                using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))
-                {
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-link nav-link" style="white-space:nowrap">
-                        <i class="fa fa-sign-out"></i> Log off
-                    </button>
-                }
-            }
-            else
-            {
-                <ul class="nav navbar-nav" style="margin-left: 10px;">
-                    <li class="nav-item">
-                        <a id="topFinancial" href="@Url.Action("Login", "Account")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
-                            <i class="fa fa-bitcoin"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="topBalance" href="@Url.Action("Login", "Account")" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;">
-                            <div data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw">0</div>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-top-links">
-                    <li class="dropdown">
-                        <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
-                            <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
-                            <li>
-                                <div class="text-center link-block">
-                                    <a href="@Url.Action("Login","Account")">
-                                        <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a id="topAlerts" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
-                            <i class="fa fa-bell" data-toggle="tooltip" data-placement="bottom" title="Alerts"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
-                            <li>
-                                <div class="text-center link-block">
-                                    <a href="@Url.Action("Login","Account")">
-                                        <i class="fa fa-bell"></i> <strong>See All Alerts</strong>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="padding-top: 15px;padding-bottom: 0px">
-                            <i class="fa fa-comments"></i>
-                        </a>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav">
-                    <li id="navRegister" class="nav-item">
-                        <a href="@Url.Action("Register", "Account")" class="nav-link" style="white-space:nowrap">
-                            <i class="fa fa-user-plus"></i> Register
-                        </a>
-                    </li>
-                    <li class="nav-item">
-
-                        <a href="@Url.Action("Login", "Account")" class="nav-link" style="white-space:nowrap">
-                            <i class="fa fa-sign-in"></i> Log in
                         </a>
                     </li>
                 </ul>
