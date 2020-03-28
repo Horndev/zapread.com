@@ -29,8 +29,12 @@ namespace zapread.com.Tests.Controllers
                 });
             request.SetupGet(x => x.IsAuthenticated).Returns(true);
 
-            var context = new Mock<HttpContextBase>();
+            var context = new Mock<HttpContextBase>() { DefaultValue = DefaultValue.Mock };
             context.SetupGet(x => x.Request).Returns(request.Object);
+
+            var responseObject = Mock.Get(context.Object.Response);
+            responseObject.Setup(
+                s => s.AddHeader("X-Frame-Options", "DENY"));
 
             var identity = new GenericIdentity("test");
             identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "f752739e-8d58-4bf5-a140-fc225cc5ebdb")); //test user
@@ -67,14 +71,18 @@ namespace zapread.com.Tests.Controllers
         {
             // Arrange
             var request = new Mock<HttpRequestBase>();
-
             request.SetupGet(x => x.Headers).Returns(
                 new System.Net.WebHeaderCollection {
                     {"X-Requested-With", "XMLHttpRequest"}
                 });
+            request.SetupGet(x => x.IsAuthenticated).Returns(true);
 
-            var context = new Mock<HttpContextBase>();
+            var context = new Mock<HttpContextBase>() { DefaultValue = DefaultValue.Mock };
             context.SetupGet(x => x.Request).Returns(request.Object);
+
+            var responseObject = Mock.Get(context.Object.Response);
+            responseObject.Setup(
+                s => s.AddHeader("X-Frame-Options", "DENY"));
 
             AccountController controller = new AccountController();
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
