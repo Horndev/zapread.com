@@ -3,23 +3,23 @@
 <div class="white-bg">
     <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
         <div id="goHome">
-            <a class="navbar-brand" href="/"><img src="~/Content/logo.png" style="width:27px;height:32px" /></a>
-            <span class="navbar-text" style="color:darkgreen;font-weight: 900;">
+            <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logo.png" style="width:27px;height:32px" /></a>
+            @*<span class="navbar-text" style="color:darkgreen;font-weight: 900;">
                 <a href="/" style="color:darkgreen;font-weight: 900;">Social Economy</a>
-            </span>
+            </span>*@
         </div>
         <div class="d-flex flex-row order-2 order-lg-3">
             <ul class="nav navbar-nav flex-row" style="margin-left: 10px;">
                 @if (Request.IsAuthenticated)
                 {
-                    <li class="nav-item">
+                    @*<li class="nav-item">
                         <a id="topFinancial" href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
                             <i class="fa fa-bitcoin"></i>
                         </a>
-                    </li>
+                    </li>*@
                     <li class="nav-item">
                         <a id="topBalance" href="#" data-toggle="modal" data-target="#depositModal" class="nav-link" style="padding-left: 0px;padding-right: 10px;">
-                            <span class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
+                            <i class="fa fa-bitcoin"></i> <span class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -27,7 +27,8 @@
                             <img class="user-image-15" width="15" height="15" src="@Url.Action("UserImage", "Home", new { size = 15, UserId = User.GetClaimValue("UserAppId"), v = User.GetClaimValue("ProfileImageVersion") })" /> @User.Identity.Name
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" style="text-align: left;position: absolute;">
-                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")">Profile</a>
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")"><i class="fa fa-user"></i> Profile</a>
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Financial", "Manage")"><i class="fa fa-bitcoin"></i> Financial</a>
                             <a class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
                                 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))
                                 {
