@@ -30,7 +30,6 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-
                 Post pst = db.Posts
                     .Include(p => p.Group)
                     .Include(p => p.UserId)
@@ -45,14 +44,15 @@ namespace zapread.com.Controllers
                     return RedirectToAction("PostNotFound");
                 }
 
-                var groups = db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToList();
+                //var groups = db.Groups
+                //        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                //        .AsNoTracking()
+                //        .ToList();
 
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
+                    PostTitle = pst.PostTitle,
                 };
 
                 ViewBag.Message = "New post from a user you are following: " + pst.UserId.Name;
