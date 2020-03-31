@@ -1113,20 +1113,40 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        [Route("Group/Icon/Update")]
         public ActionResult UpdateGroupIcon(int groupId, string icon)
         {
+            // calling user id
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "User not authorized."});
+            }
+
             using (var db = new ZapContext())
             {
-                var g = db.Groups.Where(grp => grp.GroupId == groupId).FirstOrDefault();
+                var g = db.Groups.Where(grp => grp.GroupId == groupId)
+                    .Include(gr => gr.Administrators)
+                    .FirstOrDefault();
                 if (g == null)
                 {
-                    return PartialView();
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = "Group not found." });
+                }
+
+                // Ensure user is admin
+                if (!g.Administrators.Select(a => a.AppId).Contains(userAppId))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    return Json(new { success = false, message = "User not authorized." });
                 }
 
                 g.Icon = icon.CleanUnicode().SanitizeXSS();
                 db.SaveChanges();
             }
-            return Json(new { result = "success" });
+            return Json(new { success = true });
         }
 
         [HttpPost]

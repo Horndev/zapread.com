@@ -72,7 +72,7 @@ namespace zapread.com.Controllers
 
                 var vm = new PostCommentsViewModel()
                 {
-                    Comment = c,
+                    //Comment = c,
                     CommentId = c.CommentId,
                     Score = c.Score,
                     Text = c.Text,
@@ -105,11 +105,20 @@ namespace zapread.com.Controllers
                 var c = await db.Comments
                     .Include(cmt => cmt.UserId)
                     .Include(cmt => cmt.Post)
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
+                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id).ConfigureAwait(true);
 
                 var vm = new PostCommentsViewModel()
                 {
-                    Comment = c,
+                    //Comment = c,
+                    CommentId = c.CommentId,
+                    Score = c.Score,
+                    Text = c.Text,
+                    UserId = c.UserId.Id,
+                    UserName = c.UserId.Name,
+                    UserAppId = c.UserId.AppId,
+                    ProfileImageVersion = c.UserId.ProfileImage.Version,
+                    PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                    PostId = c.Post == null ? 0 : c.Post.PostId,
                 };
 
                 if (c == null)
@@ -123,7 +132,7 @@ namespace zapread.com.Controllers
                 //debug
                 //email = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
 
-                await SendMailAsync(HTMLString, email, subject);
+                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
             }
             return true;
         }
