@@ -44,11 +44,6 @@ namespace zapread.com.Controllers
                     return RedirectToAction("PostNotFound");
                 }
 
-                //var groups = db.Groups
-                //        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                //        .AsNoTracking()
-                //        .ToList();
-
                 PostViewModel vm = new PostViewModel()
                 {
                     Post = pst,
@@ -72,14 +67,21 @@ namespace zapread.com.Controllers
                 var c = await db.Comments
                     .Include(cmt => cmt.UserId)
                     .Include(cmt => cmt.Post)
-                    //.Take(1)
-                    //.AsNoTracking()
-                    //.FirstOrDefault();
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
+                    .Include(cmt => cmt.UserId.ProfileImage)
+                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id).ConfigureAwait(true);
 
                 var vm = new PostCommentsViewModel()
                 {
                     Comment = c,
+                    CommentId = c.CommentId,
+                    Score = c.Score,
+                    Text = c.Text,
+                    UserId = c.UserId.Id,
+                    UserName = c.UserId.Name,
+                    UserAppId = c.UserId.AppId,
+                    ProfileImageVersion = c.UserId.ProfileImage.Version,
+                    PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                    PostId = c.Post == null ? 0 : c.Post.PostId,
                 };
 
                 return View(vm);
