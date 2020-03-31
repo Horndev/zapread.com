@@ -168,13 +168,13 @@ namespace zapread.com.Controllers
                 return Json(new { Success = false, Message = "Empty comment." });
             }
 
-            var userId = User.Identity.GetUserId();
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
                 var user = await db.Users
                     .Include(usr => usr.Settings)
-                    .Where(u => u.AppId == userId)
+                    .Where(u => u.AppId == userAppId)
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (user == null)
@@ -228,7 +228,9 @@ namespace zapread.com.Controllers
                 if (!c.IsTest)
                 {
                     db.Comments.Add(comment);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    // Done synchronously since we can get errors when trying to render post HTML later.
+                    db.SaveChanges();
                 }
 
                 // Find user mentions
@@ -251,7 +253,7 @@ namespace zapread.com.Controllers
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userId,
+                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId,
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "User comment error",
@@ -490,7 +492,7 @@ namespace zapread.com.Controllers
             {
                 UserAlert alert = CreateCommentedAlert(user, post, comment, postOwner);
                 postOwner.Alerts.Add(alert);
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
 
             // Send Email
@@ -502,7 +504,7 @@ namespace zapread.com.Controllers
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
                 mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
 
-                await mailer.SendPostComment(comment.CommentId, ownerEmail, subject);
+                await mailer.SendPostComment(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
             }
         }
 
