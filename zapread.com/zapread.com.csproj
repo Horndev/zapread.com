@@ -1121,6 +1121,7 @@
     <Content Include="Views\Shared\_PartialGroupLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
     <Content Include="Views\Feed\Index.cshtml" />
+    <Content Include="Views\Mailer\NewCommentReply.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
