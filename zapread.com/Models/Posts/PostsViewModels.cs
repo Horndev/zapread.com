@@ -103,7 +103,8 @@ namespace zapread.com.Models
         public int UserId { get; set; }
 
         public string UserName { get; set; }
-
+        public string PostTitle { get; set; }
+        public int PostId { get; set; }
         public string UserAppId { get; set; }
         public int ProfileImageVersion { get; set; }
         public List<PostCommentsViewModel> CommentVms { get; set; } // All comments

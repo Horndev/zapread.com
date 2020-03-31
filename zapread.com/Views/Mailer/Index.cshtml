@@ -1,15 +1,24 @@
 ﻿
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "ZapRead Mailer Templates";
 }
 
-<h2>Index</h2>
+<h2>Mailer templates</h2>
 
 <div class="row">
-    <div class="col-lg-2">
+    <div class="col-lg-12">
         <hr />
     </div>
-    <div class="col-lg-8">
-        <a href="#" class="btn btn-primary">Push me</a>
+</div>
+<div class="row">
+    @*<div class="col-lg-2">
+    </div>*@
+    <div class="col-lg-12">
+        <p>
+            <a href="@Url.Action("MailerNewPost", "Mailer", routeValues: new { id = 6196 })" class="btn btn-primary">New Post Template</a>
+        </p>
+        <p>
+            <a href="@Url.Action("MailerNewComment", "Mailer", routeValues: new { id = 214 })" class="btn btn-primary">New Comment Template</a>
+        </p>
     </div>
 </div>
