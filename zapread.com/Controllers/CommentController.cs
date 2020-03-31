@@ -513,40 +513,23 @@ namespace zapread.com.Controllers
             UserMessage message = CreateCommentRepliedMessage(user, post, comment, commentOwner);
 
             commentOwner.Messages.Add(message);
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync().ConfigureAwait(true);
 
             if (commentOwner.Settings == null)
             {
                 commentOwner.Settings = new UserSettings();
             }
 
+            // Send Email
             if (commentOwner.Settings.NotifyOnOwnCommentReplied)
             {
-                var cdoc = new HtmlDocument();
-                cdoc.LoadHtml(comment.Text);
-                var baseUri = new Uri("https://www.zapread.com/");
-                var imgs = cdoc.DocumentNode.SelectNodes("//img/@src");
-                if (imgs != null)
-                {
-                    foreach (var item in imgs)
-                    {
-                        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                    }
-                }
-                string commentContent = cdoc.DocumentNode.OuterHtml;
-
+                string subject = "New reply to your comment in post: " + post.PostTitle;
                 string ownerEmail = UserManager.FindById(commentOwner.AppId).Email;
-                MailingService.Send(user: "Notify",
-                    message: new UserEmailModel()
-                    {
-                        Subject = "New reply to your comment in post: " + post.PostTitle,
-                        Body = "From: <a href='http://www.zapread.com/user/" + user.Name.ToString() + "'>" + user.Name + "</a>"
-                            + "<br/> " + commentContent
-                            + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a> at <a href='http://www.zapread.com'>zapread.com</a>",
-                        Destination = ownerEmail,
-                        Email = "",
-                        Name = "ZapRead.com Notify"
-                    });
+
+                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+                await mailer.SendPostCommentReply(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
             }
         }
 

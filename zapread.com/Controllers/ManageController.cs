@@ -142,13 +142,13 @@ namespace zapread.com.Controllers
             else if (t.Type == 0 && t.OriginType == 0)
             {
                 if (t.OriginId > 0)
-                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = t.OriginId });
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { PostId = t.OriginId });
             }
             else if (t.Type == 0 && t.OriginType == 1)
             {
                 var postId = commentIds.Contains(t.OriginId) ? comments.FirstOrDefault(c => c.CommentId == t.OriginId)?.Post.PostId : 0;
                 if (postId > 0)
-                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { id = postId });
+                    return Url.Action(controllerName: "Post", actionName: "Detail", routeValues: new { PostId = postId });
             }
             return t.OriginId.ToString();
         }

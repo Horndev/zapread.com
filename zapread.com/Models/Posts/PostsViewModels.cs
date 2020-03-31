@@ -75,8 +75,13 @@ namespace zapread.com.Models
         public long ParentCommentId { get; set; }
 
         public int ParentUserId { get; set; }
+        public string ParentUserAppId { get; set; }
 
         public string ParentUserName { get; set; }
+        public int ParentUserProfileImageVersion { get; set; }
+
+        // Used for mailer
+        public string ParentCommentText { get; set; }
 
         [Obsolete]
         public List<Comment> Comments { get; set; } // All comments
@@ -89,6 +94,7 @@ namespace zapread.com.Models
         public string Text { get; set; }
 
         public int Score { get; set; }
+        public int ParentScore { get; set; }
 
         public bool IsReply { get; set; }
 

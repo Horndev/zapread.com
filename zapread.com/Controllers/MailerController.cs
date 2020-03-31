@@ -17,6 +17,8 @@ namespace zapread.com.Controllers
     public class MailerController : Controller
     {
         // GET: Mailer
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
         public ActionResult Index()
         {
             return View();
@@ -26,6 +28,8 @@ namespace zapread.com.Controllers
         /// Mailer renders HTML for new Post.
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
         public ActionResult MailerNewPost(int id)
         {
             using (var db = new ZapContext())
@@ -60,32 +64,58 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> MailerNewComment(int? id)
         {
             using (var db = new ZapContext())
             {
-                var c = await db.Comments
-                    .Include(cmt => cmt.UserId)
-                    .Include(cmt => cmt.Post)
-                    .Include(cmt => cmt.UserId.ProfileImage)
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id).ConfigureAwait(true);
-
-                var vm = new PostCommentsViewModel()
-                {
-                    //Comment = c,
-                    CommentId = c.CommentId,
-                    Score = c.Score,
-                    Text = c.Text,
-                    UserId = c.UserId.Id,
-                    UserName = c.UserId.Name,
-                    UserAppId = c.UserId.AppId,
-                    ProfileImageVersion = c.UserId.ProfileImage.Version,
-                    PostTitle = c.Post == null ? "" : c.Post.PostTitle,
-                    PostId = c.Post == null ? 0 : c.Post.PostId,
-                };
+                var vm = await db.Comments
+                    .Where(cmt => cmt.CommentId == id)
+                    .Select(c => new PostCommentsViewModel()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 return View(vm);
             }
+        }
+
+        public async Task<bool> SendPostComment(long id, string email, string subject)
+        {
+            using (var db = new ZapContext())
+            {
+                var vm = await db.Comments
+                    .Where(cmt => cmt.CommentId == id)
+                    .Select(c => new PostCommentsViewModel()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                ViewBag.Message = subject;
+                string HTMLString = RenderViewToString("MailerNewComment", vm);
+
+                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
+            }
+            return true;
         }
 
         /// <summary>
@@ -93,44 +123,71 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ActionResult MailerCommentReply(int id)
-        {
-            return View();
-        }
-
-        public async Task<bool> SendPostComment(long id, string email, string subject)
+        [Route("Mailer/Template/CommentReply/{id}")]
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<ActionResult> MailerCommentReply(int id)
         {
             using (var db = new ZapContext())
             {
-                var c = await db.Comments
-                    .Include(cmt => cmt.UserId)
-                    .Include(cmt => cmt.Post)
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id).ConfigureAwait(true);
+                var vm = await db.Comments
+                    .Where(cmt => cmt.CommentId == id)
+                    .Select(c => new PostCommentsViewModel()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                        IsReply = c.IsReply,
+                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
+                        ParentUserProfileImageVersion = c.Parent == null ? 0 : c.Parent.UserId.ProfileImage.Version,
+                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        ParentCommentText = c.Parent == null ? "" : c.Parent.Text,
+                        ParentScore = c.Parent == null ? 0 : c.Parent.Score,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                var vm = new PostCommentsViewModel()
-                {
-                    //Comment = c,
-                    CommentId = c.CommentId,
-                    Score = c.Score,
-                    Text = c.Text,
-                    UserId = c.UserId.Id,
-                    UserName = c.UserId.Name,
-                    UserAppId = c.UserId.AppId,
-                    ProfileImageVersion = c.UserId.ProfileImage.Version,
-                    PostTitle = c.Post == null ? "" : c.Post.PostTitle,
-                    PostId = c.Post == null ? 0 : c.Post.PostId,
-                };
+                return View(viewName: "NewCommentReply", model: vm);
+            }
+        }
 
-                if (c == null)
-                {
-                    return false;
-                }
+        public async Task<bool> SendPostCommentReply(long id, string email, string subject)
+        {
+            using (var db = new ZapContext())
+            {
+                var vm = await db.Comments
+                    .Where(cmt => cmt.CommentId == id)
+                    .Select(c => new PostCommentsViewModel()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                        IsReply = c.IsReply,
+                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
+                        ParentUserProfileImageVersion = c.Parent == null ? 0 : c.Parent.UserId.ProfileImage.Version,
+                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        ParentCommentText = c.Parent == null ? "" : c.Parent.Text,
+                        ParentScore = c.Parent == null ? 0 : c.Parent.Score,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 ViewBag.Message = subject;
-                string HTMLString = RenderViewToString("MailerNewComment", vm);
-
-                //debug
-                //email = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+                string HTMLString = RenderViewToString("NewCommentReply", vm);
 
                 await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
             }
