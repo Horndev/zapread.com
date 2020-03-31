@@ -29,14 +29,26 @@ $('#GroupIconSaveChanges').click(function () {
     var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
-        url: "/Group/UpdateGroupIcon",
+        url: "/Group/Icon/Update/",
         type: "POST",
         dataType: "json",
         data: { groupId: gid, icon: groupIcon },
         headers: headers,
-        success: function (data) {
-            alert('Update successful.');
-            $('#GAdminEditIconModal').modal('hide');
+        success: function (response) {
+            if (response.success) {
+                swal("Group icon update successful", {
+                    icon: "success"
+                });
+                $('#GAdminEditIconModal').modal('hide');
+            } else {
+                swal("Error", "Error: " + response.message, "error");
+            }
+        },
+        failure: function (response) {
+            swal("Error", "Failure: " + response.message, "error");
+        },
+        error: function (response) {
+            swal("Error", "Error: " + response.message, "error");
         }
     });
 });
