@@ -508,16 +508,16 @@ namespace zapread.com.Controllers
                 var otherUser = await db.Users
                     .Where(u => u.Name == username)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 var userId = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Select(u => u.Id)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 vm.OtherUser = otherUser;
                 vm.Messages = otherUser == null ? new List<ChatMessageViewModel> () 
-                    : await GetChats(db, userId, otherUser.Id, 10, 0);
+                    : await GetChats(db, userId, otherUser.Id, 10, 0).ConfigureAwait(true);
 
                 if (otherUser == null)
                 {
@@ -554,7 +554,7 @@ namespace zapread.com.Controllers
                     IsReceived = m.From.Id == otherUserId
                 })
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(true);
         }
 
         public async Task<PartialViewResult> UnreadMessages()
@@ -959,17 +959,12 @@ namespace zapread.com.Controllers
                         if (receiver.Settings != null && receiver.Settings.NotifyOnPrivateMessage)
                         {
                             string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId).ConfigureAwait(true)).Email;
-                            string subject = "New private message";
-                            string body = "From: <a href='" + Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol:Request.Url.Scheme) + "'>"
-                                        + sender.Name + "</a><br/> " + cleanContent
-                                        + "<br/><a href='https://www.zapread.com/Messages/Chat/" + Url.Encode(sender.Name) + "/'>Go to live chat.</a>"
-                                        + "<br/><br/><a href='https://www.zapread.com'>zapread.com</a>";
 
-                            BackgroundJob.Enqueue<MailingService>(x => x.SendEmail(
-                                mentionedEmail,
-                                subject,
-                                body,
-                                "Notify"));
+                            var mailer = DependencyResolver.Current.GetService<MailerController>();
+                            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+
+                            string subject = "New private ZapRead message from " + sender.Name;
+                            await mailer.SendNewChat(msg.Id, mentionedEmail, subject).ConfigureAwait(true);
                         }
                     }
                     return Json(new { success = true, result = "Success", id = msg.Id });
