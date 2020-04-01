@@ -67,7 +67,7 @@ namespace zapread.com.Tests.Controllers
             AdminController controller = CreateAdminController_LoggedIn();
 
             // Act
-            ViewResult result = controller.Users().Result as ViewResult;
+            ViewResult result = controller.Users() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
