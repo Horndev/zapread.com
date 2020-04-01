@@ -149,7 +149,7 @@ namespace zapread.com.Controllers
         }
         
         //
-        // GET: /Account/GetBalance
+        // GET: /Account/Balance
         // Returns the currently logged in user balance
         [HttpGet]
         [AllowAnonymous]
@@ -164,6 +164,13 @@ namespace zapread.com.Controllers
 
             Response.AddHeader("X-Frame-Options", "DENY");
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult GetBalance()
+        {
+            return RedirectToActionPermanent("Balance");
         }
 
         private async Task<double> GetUserBalance()

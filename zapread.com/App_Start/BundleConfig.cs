@@ -97,17 +97,22 @@ namespace zapread.com
                         "~/Scripts/Partial/messageCompose.js")
                         .WithLastModifiedToken());
 
+            // Partial scripts - manage
+            bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
+                        "~/Scripts/Manage/updateAlias.js")
+                        .WithLastModifiedToken());
+
+            // Admin/Users scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
+                        "~/Scripts/Admin/users.js")
+                        .WithLastModifiedToken());
+
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
                         "~/Scripts/Manage/index.js",
                         "~/Scripts/Achievements/achievementhover.js")
-                        .WithLastModifiedToken());
-
-            // Manage - partial view scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
-                        "~/Scripts/Manage/updateAlias.js")
                         .WithLastModifiedToken());
 
             // Manage/Financial scripts

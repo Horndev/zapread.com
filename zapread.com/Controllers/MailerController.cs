@@ -194,6 +194,55 @@ namespace zapread.com.Controllers
             return true;
         }
 
+        [Route("Mailer/Template/NewChat/{id}")]
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<ActionResult> MailerNewChat(int id)
+        {
+            using (var db = new ZapContext())
+            {
+                var vm = await db.Messages
+                    .Where(m => m.Id == id)
+                    .Select(m => new ChatMessageViewModel()
+                    {
+                        Content = m.Content,
+                        TimeStamp = m.TimeStamp.Value,
+                        FromName = m.From.Name,
+                        FromAppId = m.From.AppId,
+                        IsReceived = true,
+                        FromProfileImgVersion = m.From.ProfileImage.Version,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                return View("NewChat", vm);
+            }
+        }
+
+        public async Task<bool> SendNewChat(long id, string email, string subject)
+        {
+            using (var db = new ZapContext())
+            {
+                var vm = await db.Messages
+                    .Where(m => m.Id == id)
+                    .Select(m => new ChatMessageViewModel()
+                    {
+                        Content = m.Content,
+                        TimeStamp = m.TimeStamp.Value,
+                        FromName = m.From.Name,
+                        FromAppId = m.From.AppId,
+                        IsReceived = true,
+                        FromProfileImgVersion = m.From.ProfileImage.Version,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                ViewBag.Message = subject;
+                string HTMLString = RenderViewToString("NewChat", vm);
+
+                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
+            }
+            return true;
+        }
+
         /// <summary>
         /// Generates the HTML to be mailed out
         /// </summary>

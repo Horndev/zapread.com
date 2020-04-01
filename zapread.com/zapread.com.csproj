@@ -936,6 +936,7 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
+    <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\detail.js" />
@@ -1122,6 +1123,7 @@
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
     <Content Include="Views\Feed\Index.cshtml" />
     <Content Include="Views\Mailer\NewCommentReply.cshtml" />
+    <Content Include="Views\Mailer\NewChat.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

@@ -138,6 +138,12 @@ var getAntiForgeryToken = function () {
     return headers;
 };
 
+var getAntiForgeryTokenValue = function () {
+    var form = $('#__AjaxAntiForgeryForm');
+    var token = $('input[name="__RequestVerificationToken"]', form).val();
+    return token;
+};
+
 /* exported writeComment */
 var writeComment = function (e) {
     var id = $(e).data("postid");

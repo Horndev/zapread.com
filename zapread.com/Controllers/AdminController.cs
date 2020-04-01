@@ -11,6 +11,7 @@ using System.Data.Entity.SqlServer;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1043,25 +1044,18 @@ namespace zapread.com.Controllers
 
         #region Users
 
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
         [Route("Admin/Users")]
-        public async Task<ActionResult> Users()
+        public ActionResult Users()
         {
-            var vm = new AdminUsersViewModel();
-
             // Redirect to login screen if not authenticated.
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users" });
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Users/" });
             }
 
-            using (var db = new ZapContext())
-            {
-                var userCount = await db.Users.CountAsync();
-
-                vm.NumUsers = userCount;
-
-                return View(vm);
-            }
+            return View();
         }
 
         /// <summary>
@@ -1069,19 +1063,18 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="dataTableParameters"></param>
         /// <returns></returns>
-        [HttpPost, Route("Admin/GetUsersTable")]
-        public async Task<ActionResult> GetUsersTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
+        [HttpPost, Route("Admin/UsersTable")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> UsersTable([System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
             using (var db = new ZapContext())
             {
                 var sorts = dataTableParameters.Order;
 
                 // Build our query
-                var pageUsersQS = db.Users
-                    .Include("Funds")
-                    .Include("Posts")
-                    .Include("Comments");
-                IOrderedQueryable<User> pageUsersQ = null;// pageUsersQS.OrderByDescending(q => q.Id);
+                var pageUsersQS = db.Users.AsNoTracking();
+                IOrderedQueryable<User> pageUsersQ = null;
 
                 foreach (var s in sorts)
                 {
@@ -1121,17 +1114,30 @@ namespace zapread.com.Controllers
                 var pageUsers = await pageUsersQ
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToListAsync();
-
-                var values = pageUsers.AsParallel()
-                    .Select(u => new 
+                    .Select(u => new
                     {
                         UserName = u.Name,
-                        DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o") : "?",
-                        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o") : "?",
-                        NumPosts = u.Posts.Count.ToString(),
-                        NumComments = u.Comments.Count.ToString(),
-                        Balance = ((u.Funds != null ? u.Funds.Balance : 0) / 100000000.0).ToString("F8"),
+                        u.DateJoined,
+                        u.DateLastActivity,
+                        NumPosts = u.Posts.Count,
+                        NumComments = u.Comments.Count,
+                        Balance = u.Funds != null ? u.Funds.Balance : 0,
+                        u.AppId,
+                        u.Id,
+                    })
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                // Tidy up formatting
+                var values = pageUsers.AsParallel()
+                    .Select(u => new
+                    {
+                        u.UserName,
+                        DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
+                        LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
+                        u.NumPosts,
+                        u.NumComments,
+                        Balance = (u.Balance / 100000000.0).ToString("F8", CultureInfo.InvariantCulture),
                         u.AppId,
                         u.Id,
                     }).ToList();
