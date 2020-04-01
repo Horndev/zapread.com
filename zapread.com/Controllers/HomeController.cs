@@ -31,6 +31,8 @@ namespace zapread.com.Controllers
 
             stringBuilder.AppendLine("user-agent: *");
             stringBuilder.AppendLine("disallow: /Account/UserBalance/");
+            stringBuilder.AppendLine("disallow: /Account/Balance/");
+            stringBuilder.AppendLine("disallow: /Account/GetBalance/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
             stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
