@@ -32,6 +32,20 @@ $(document).ready(function () {
                     return "<img class='img-circle user-image-30' src='/Home/UserImage/?size=30&UserId=" + data.AppId + "' /> <a class='post-username userhint' data-userid='" + data.Id + "' target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
                 }
             },
+            {
+                "data": null,
+                "name": 'IsOnline',
+                "orderable": true,
+                "mRender": function (data, _type, _row) {
+                    if (data.IsOnline) {
+                        return "Yes";
+                    } else {
+                        return "No";
+                    }
+                    
+                    //return "<img class='img-circle user-image-30' src='/Home/UserImage/?size=30&UserId=" + data.AppId + "' /> <a class='post-username userhint' data-userid='" + data.Id + "' target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
+                }
+            },
             { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["desc", "asc"] },
             { "data": "LastSeen", "orderable": true, "name": "LastSeen", "type": "date", "orderSequence": ["desc", "asc"] },
             { "data": "NumPosts", "orderable": true, "name": "NumPosts", "type": "num", "orderSequence": ["desc", "asc"] },
