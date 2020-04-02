@@ -800,6 +800,7 @@
     <Compile Include="Services\PaymentPoller.cs" />
     <Compile Include="Services\PayoutsService.cs" />
     <Compile Include="Services\ReputationService.cs" />
+    <Compile Include="Services\UserState.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

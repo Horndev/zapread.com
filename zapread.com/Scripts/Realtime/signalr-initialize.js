@@ -23,7 +23,6 @@ $(document).ready(function () {
                 toastr.success(envelope.message, 'Message Received');
             }
         }
-        
     };
 
     hub.client.SendUserChat = function (envelope) {
