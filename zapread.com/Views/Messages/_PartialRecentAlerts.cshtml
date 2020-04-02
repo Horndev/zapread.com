@@ -13,7 +13,7 @@
                 <br>
                 @if (a.PostLink != null)
                 {
-                    <a href="@Url.Action("Detail", "Post", new { id = a.PostLink.PostId})">@a.PostLink.PostTitle</a>
+                    <a href="@Url.Action("Detail", "Post", new { PostId = a.PostLink.PostId})">@a.PostLink.PostTitle</a>
                 }
                 <small class="postTime text-muted">@a.TimeStamp.Value.ToString("o")</small>
             </div>
