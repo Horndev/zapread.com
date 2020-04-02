@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
 using System;
 using System.Data.Entity;
+using System.Linq;
 using System.Threading.Tasks;
 using zapread.com.Database;
+using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Hubs
 {
@@ -33,25 +37,31 @@ namespace zapread.com.Hubs
 
         public override async Task OnConnected()
         {
-            string name = Context.User.Identity.GetUserId();
+            string userAppId = Context.User.Identity.GetUserId();
 
-            if (name != null)
+            if (userAppId != null)
             {
-                await Groups.Add(Context.ConnectionId, name).ConfigureAwait(true);
+                await Groups.Add(Context.ConnectionId, userAppId).ConfigureAwait(true);
 
                 try
                 {
                     using (var db = new ZapContext())
                     {
-                        var user = await db.Users
-                            .Include(usr => usr.Settings)
-                            .SingleOrDefaultAsync(u => u.AppId == name).ConfigureAwait(true);
+                        // idea for this from https://stackoverflow.com/questions/4218566/update-a-record-without-first-querying
+                        // we want this to be fast - so we reduce the trips to DB
 
-                        if (!user.Settings.ShowOnline)
-                        {
-                            user.DateLastActivity = DateTime.UtcNow;
-                            user.IsOnline = true;
-                        }
+                        // This does seem to work - could introduce in future for performance improvement
+                        //User u = db.Users.Attach(new User { AppId = userAppId });
+                        //u.IsOnline = true;
+                        //db.Entry<User>(u).Property(ee => ee.IsOnline).IsModified = true;
+                        //db.Configuration.ValidateOnSaveEnabled = false;
+                        //await db.SaveChangesAsync().ConfigureAwait(false);
+
+                        var user = await db.Users
+                            .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+
+                        user.IsOnline = true;
+                        user.DateLastActivity = DateTime.UtcNow;
                         await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                 }
@@ -65,24 +75,39 @@ namespace zapread.com.Hubs
 
         public override async Task OnDisconnected(bool stopCalled)
         {
-            string name = Context.User.Identity.GetUserId();
+            string userAppId = Context.User.Identity.GetUserId();
 
-            if (name != null)
+            if (userAppId != null)
             {
                 try
                 {
                     using (var db = new ZapContext())
                     {
-                        var user = await db.Users
-                            .Include(usr => usr.Settings)
-                            .SingleOrDefaultAsync(u => u.AppId == name).ConfigureAwait(true);
+                        // Performance - this gets called often, so we don't need to transfer all info, just the jobid
+                        var jobq = await db.Users
+                            .Where(u => u.AppId == userAppId)
+                            .Select(u => new
+                            {
+                                u.PGPPubKey, // Hack: this is actually the job ID.
+                                u.Name,
+                            })
+                            .SingleOrDefaultAsync().ConfigureAwait(false);
 
-                        if (!user.Settings.ShowOnline)
+                        if (String.IsNullOrEmpty(jobq.PGPPubKey))
                         {
-                            user.DateLastActivity = DateTime.UtcNow;
+                            // If LastActivity is not updated in the last 10 minutes, then user will go offline.
+                            var jobId = BackgroundJob.Schedule<UserState>(
+                                methodCall: x => x.UserOffline(userAppId, jobq.Name, DateTime.UtcNow),
+                                delay: TimeSpan.FromMinutes(10));
+
+                            var user = await db.Users
+                                .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+
+                            // Save the jobId so we don't schedule another check
+                            user.PGPPubKey = jobId;
+
+                            await db.SaveChangesAsync().ConfigureAwait(true);
                         }
-                        user.IsOnline = false;
-                        await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                 }
                 catch

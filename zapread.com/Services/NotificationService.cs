@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.SignalR;
+using System.Globalization;
 using zapread.com.Hubs;
 
 namespace zapread.com.Services
@@ -7,7 +8,7 @@ namespace zapread.com.Services
     {
         public static void SendIncomeNotification(double amount, string userId, string reason, string clickUrl)
         {
-            string message = "You just earned " + amount.ToString("0.##") + " Satoshi.";
+            string message = "You just earned " + amount.ToString("0.##", CultureInfo.InvariantCulture) + " Satoshi.";
 
             var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
 
