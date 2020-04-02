@@ -634,6 +634,7 @@ namespace zapread.com.Controllers
                         UserBalance = u.Funds.Balance,
                         u.Languages,
                         u.Settings,
+                        u.Reputation,
                     })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(true);
@@ -670,6 +671,7 @@ namespace zapread.com.Controllers
                     Settings = userInfo.Settings,
                     Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
                     KnownLanguages = GetLanguages(),
+                    Reputation = userInfo.Reputation,
                 };
 
                 return View(model);
