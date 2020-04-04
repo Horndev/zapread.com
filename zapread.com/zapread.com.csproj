@@ -928,17 +928,20 @@
     <Content Include="Content\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="Mvc.sitemap" />
     <Compile Include="DI\NinjectDependencyInjectionContainer.cs" />
+    <Content Include=".babelrc" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
+    <Content Include="Scripts\config\webpack.config.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\detail.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
@@ -984,6 +987,7 @@
     <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
@@ -1125,6 +1129,7 @@
     <Content Include="Views\Feed\Index.cshtml" />
     <Content Include="Views\Mailer\NewCommentReply.cshtml" />
     <Content Include="Views\Mailer\NewChat.cshtml" />
+    <Content Include="Views\Home\React.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -1443,8 +1448,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>npm run build</PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
   <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />

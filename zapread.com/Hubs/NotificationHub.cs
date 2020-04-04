@@ -6,18 +6,12 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using zapread.com.Database;
-using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.Hubs
 {
     public class NotificationHub : Hub
     {
-        public void Hello()
-        {
-            Clients.All.hello();
-        }
-
         // Send notification to all users
         public void NotifyInvoicePaid(string invoice)
         {

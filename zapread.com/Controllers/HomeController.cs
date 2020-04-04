@@ -33,6 +33,7 @@ namespace zapread.com.Controllers
             stringBuilder.AppendLine("disallow: /Account/UserBalance/");
             stringBuilder.AppendLine("disallow: /Account/Balance/");
             stringBuilder.AppendLine("disallow: /Account/GetBalance/");
+            stringBuilder.AppendLine("disallow: /Account/Login/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
             stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
@@ -692,41 +693,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        //private async Task<List<PostViewModel>> GeneratePostViewModels(User user, List<Post> posts, ZapContext db, int userId)
-        //{
-        //    List<int> viewerIgnoredUsers = await GetUserIgnoredUsers(userId);
-        //    List<PostViewModel> postViews = posts
-        //        .Select(p => new PostViewModel()
-        //        {
-        //            Post = p,
-        //            ViewerIsMod = user != null ? user.GroupModeration.Select(grp => grp.GroupId).Contains(p.Group.GroupId) : false,
-        //            ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-        //            ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-        //            ViewerIgnoredUser = user != null ? (user.IgnoringUsers != null ? p.UserId.Id != user.Id && user.IgnoringUsers.Select(usr => usr.Id).Contains(p.UserId.Id) : false) : false,
-        //            NumComments = 0,
-        //            ViewerIgnoredUsers = viewerIgnoredUsers, // Very inefficient
-        //        }).ToList();
-        //    return postViews;
-        //}
-
-        //private static async Task<List<int>> GetUserIgnoredUsers(int userId)
-        //{
-        //    if (userId > 0)
-        //    {
-        //        using (var db = new ZapContext())
-        //        {
-        //            return await db.Users
-        //                .Where(u => u.Id == userId)
-        //                .SelectMany(u => u.IgnoringUsers.Select(i => i.Id))
-        //                .Where(i => i != userId)
-        //                .ToListAsync();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return new List<int>();
-        //    }
-        //}
+        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]
+        public ActionResult React()
+        {
+            return View();
+        }
 
         private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
