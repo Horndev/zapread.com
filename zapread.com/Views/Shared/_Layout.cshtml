@@ -1,5 +1,5 @@
 ﻿@{ 
-    var claimsIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
+    var claimsIdentity = User != null ? User.Identity as System.Security.Claims.ClaimsIdentity : null;
 }
 
 <!DOCTYPE html>
@@ -21,7 +21,7 @@
     @Styles.Render("~/plugins/summernoteStyles")
     @Styles.Render("~/Content/style/jssocials")
     @Styles.Render("~/Content/style/toastr")
-    @if (claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
+    @if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
     {
         @Styles.Render("~/Content/css-dark")
     }
@@ -44,7 +44,7 @@
     <div id="wrapper" class="@Html.PageClass()">
         <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
             @Html.Partial("_TopNavbar")
-            @if (User.IsInRole("Administrator"))
+            @if (User != null && User.IsInRole("Administrator"))
             {
                 Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
             }
