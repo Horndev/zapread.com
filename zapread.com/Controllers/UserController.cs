@@ -238,45 +238,68 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId">The id of the user to hover</param>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Hover/")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> Hover(int userId, string username)
         {
             using (var db = new ZapContext())
             {
-                User user;
-                User loggedInUser = null;
-                if (userId == -1)
-                {
-                    string usernameClean = CleanUsername(username);
-                    user = db.Users.FirstOrDefault(u => u.Name == usernameClean);
-                }
-                else
-                {
-                    user = db.Users.FirstOrDefault(u => u.Id == userId);
-                }
+                string usernameClean = CleanUsername(username);
+                bool isFollowing = false;
+                int hoverUserId = userId; // take from parameter passed
 
-                if (user == null)
+                var userInfo = await db.Users
+                    .Where(u => u.Id == hoverUserId || u.Name == usernameClean)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.AppId,
+                        u.Name,
+                        u.Reputation,
+                        u.ProfileImage.Version,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (userInfo == null)
                 {
                     return Json(new { success = false, message = "User not found." });
                 }
 
                 if (User.Identity.IsAuthenticated)
                 {
-                    var uid = User.Identity.GetUserId();
-                    loggedInUser = await db.Users
-                        .Include(usr => usr.Following)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(u => u.AppId == uid);
-                }
+                    var userAppId = User.Identity.GetUserId();
 
-                bool isFollowing = loggedInUser != null ? loggedInUser.Following.Select(f => f.Id).Contains(user.Id) : false;
+                    var loggedInUserInfo = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => new
+                        {
+                            IsFollowing = u.Following.Select(f => f.Id).Contains(hoverUserId),
+                        })
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (loggedInUserInfo != null)
+                    {
+                        isFollowing = loggedInUserInfo.IsFollowing;
+                    }
+                }
 
                 UserHoverViewModel vm = new UserHoverViewModel()
                 {
-                    User = user,
+                    UserId = userInfo.Id,
+                    AppId = userInfo.AppId,
+                    Name = userInfo.Name,
+                    Reputation = userInfo.Reputation,
+                    ProfileImageVersion = userInfo.Version,
                     IsFollowing = isFollowing,
-                    IsIgnored = false,
+                    IsIgnored = false, // TODO?
                 };
                 string HTMLString = RenderPartialViewToString("_PartialUserHover", model: vm);
                 return Json(new { success = true, HTMLString });

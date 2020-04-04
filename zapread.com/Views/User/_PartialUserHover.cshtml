@@ -2,29 +2,33 @@
 @model zapread.com.Models.UserViews.UserHoverViewModel
 <div class="row">
     <div class="col">
-        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.User.AppId, v=Model.User.ProfileImage.Version })" />
-        <span style="display:inline"><strong>@Model.User.Name</strong></span>
+        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.AppId, v=Model.ProfileImageVersion })" />
+        <span style="display:inline"><strong>@Model.Name</strong></span>
     </div>
 </div>
 <div class="row">
     <div class="col">
         <span class='btn btn-link btn-sm' data-toggle='tooltip' data-placement='bottom' title='Reputation'>
-            @Model.User.Reputation.ToAbbrString() <i class='fa fa-star'></i>
+            @Model.Reputation.ToAbbrString() <i class='fa fa-star'></i>
         </span>&nbsp;
-        <a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.User.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'>
-            <i class='fa fa-envelope'></i>
-        </a>
-        @if (Model.IsFollowing)
+
+        @if (Request.IsAuthenticated) // Only add if user is logged in!
         {
-            <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Un-follow' onclick='follow(@Model.User.Id,0, this);'>
-                <i class='fa fa-user'></i><i class='fa fa-check'></i>
+            <a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'>
+                <i class='fa fa-envelope'></i>
             </a>
-        }
-        else
-        {
-            <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Follow' onclick='follow(@Model.User.Id,1, this);'>
-                <i class='fa fa-user-plus'></i>
-            </a>
+            if (Model.IsFollowing)
+            {
+                <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Un-follow' onclick='follow(@Model.UserId,0, this);'>
+                    <i class='fa fa-user'></i><i class='fa fa-check'></i>
+                </a>
+            }
+            else
+            {
+                <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Follow' onclick='follow(@Model.UserId,1, this);'>
+                    <i class='fa fa-user-plus'></i>
+                </a>
+            }
         }
     </div>
 </div>

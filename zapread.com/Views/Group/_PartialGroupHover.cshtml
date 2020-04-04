@@ -12,17 +12,20 @@
         <span class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Members'>
             @Model.GroupMemberCount <i class='fa fa-user'></i>
         </span>
-        @if (!Model.IsMember)
+        @if (Request.IsAuthenticated) // Only show join group if user is logged in
         {
+            if (!Model.IsMember)
+            {
             <a href='javascript:void(0);' class='btn btn-sm btn-link' data-page='h' data-toggle='tooltip' data-placement='bottom' title='Join' onclick='joinGroup(@Model.GroupId,this);'>
                 <i class='fa fa-plus'></i>
             </a>
-        }
-        else
-        {
+            }
+            else
+            {
             <a href='javascript:void(0);' class='btn btn-sm btn-link' data-page='h' data-toggle='tooltip' data-placement='bottom' title='Leave' onclick='leaveGroup(@Model.GroupId,this);'>
                 <i class='fa fa-minus'></i>
             </a>
+            }
         }
     </div>
 </div>
