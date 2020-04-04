@@ -2,6 +2,8 @@ using System.Web.Http;
 using WebActivatorEx;
 using zapread.com;
 using Swashbuckle.Application;
+using System.Net.Http;
+using System;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -9,18 +11,36 @@ namespace zapread.com
 {
     public class SwaggerConfig
     {
+        private static string ResolveBasePath(HttpRequestMessage message)
+        {
+            var virtualPathRoot = message.GetRequestContext().VirtualPathRoot;
+
+            var schemeAndHost = message.RequestUri.Scheme + "://" + message.RequestUri.Host;
+            if (message.RequestUri.Scheme == "http" && message.RequestUri.Port != 80)
+            {
+                schemeAndHost += ":" + message.RequestUri.Port;
+            }
+            if (message.RequestUri.Scheme == "https" && message.RequestUri.Port != 443)
+            {
+                schemeAndHost += ":" + message.RequestUri.Port;
+            }
+            return new Uri(new Uri(schemeAndHost, UriKind.Absolute), virtualPathRoot).AbsoluteUri;
+        }
+
         public static void Register()
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;
 
             GlobalConfiguration.Configuration
-                .EnableSwagger(c =>
+                .EnableSwagger(routeTemplate: "docs/{apiVersion}",
+                    configure: c =>
                     {
                         // By default, the service root url is inferred from the request used to access the docs.
                         // However, there may be situations (e.g. proxy and load-balanced environments) where this does not
                         // resolve correctly. You can workaround this by providing your own code to determine the root URL.
                         //
                         //c.RootUrl(req => GetRootUrlFromAppConfig());
+                        c.RootUrl(ResolveBasePath);
 
                         // If schemes are not explicitly provided in a Swagger 2.0 document, then the scheme used to access
                         // the docs is taken as the default. If your API supports multiple schemes and you want to be explicit
