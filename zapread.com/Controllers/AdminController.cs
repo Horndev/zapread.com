@@ -1082,6 +1082,8 @@ namespace zapread.com.Controllers
                     {
                         if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
                             pageUsersQ = pageUsersQS.OrderBy(q => q.DateJoined);
+                        else if (dataTableParameters.Columns[s.Column].Name == "IsOnline")
+                            pageUsersQ = pageUsersQS.OrderBy(q => q.IsOnline);
                         else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
                             pageUsersQ = pageUsersQS.OrderBy(q => q.DateLastActivity);
                         else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
@@ -1095,6 +1097,8 @@ namespace zapread.com.Controllers
                     {
                         if (dataTableParameters.Columns[s.Column].Name == "DateJoined")
                             pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateJoined);
+                        if (dataTableParameters.Columns[s.Column].Name == "IsOnline")
+                            pageUsersQ = pageUsersQS.OrderByDescending(q => q.IsOnline);
                         else if (dataTableParameters.Columns[s.Column].Name == "LastSeen")
                             pageUsersQ = pageUsersQS.OrderByDescending(q => q.DateLastActivity);
                         else if (dataTableParameters.Columns[s.Column].Name == "NumPosts")
@@ -1124,12 +1128,13 @@ namespace zapread.com.Controllers
                         Balance = u.Funds != null ? u.Funds.Balance : 0,
                         u.AppId,
                         u.Id,
+                        u.IsOnline,
                     })
                     .ToListAsync()
                     .ConfigureAwait(false);
 
                 // Tidy up formatting
-                var values = pageUsers.AsParallel()
+                var values = pageUsers
                     .Select(u => new
                     {
                         u.UserName,
@@ -1140,6 +1145,7 @@ namespace zapread.com.Controllers
                         Balance = (u.Balance / 100000000.0).ToString("F8", CultureInfo.InvariantCulture),
                         u.AppId,
                         u.Id,
+                        u.IsOnline,
                     }).ToList();
 
                 int numrec = db.Users.Count();

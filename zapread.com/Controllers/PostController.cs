@@ -577,7 +577,8 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .FirstOrDefault();
 
-                if (postVm == null || postVm.UserAppId != userId)
+                // Must own post, or be an Administrator to edit
+                if (postVm == null || (postVm.UserAppId != userId && !User.IsInRole("Administrator")))
                 {
                     // TODO: If userId doesn't match - should throw more informative error.
                     return RedirectToAction("Index", "Home");
@@ -713,10 +714,12 @@ namespace zapread.com.Controllers
             {
                 var user = await db.Users
                     .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+
                 var post = await db.Posts
                     .Include(ps => ps.UserId)
                     .Include(ps => ps.Group)
                     .SingleOrDefaultAsync(ps => ps.PostId == p.PostId).ConfigureAwait(true);
+
                 if (post == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;

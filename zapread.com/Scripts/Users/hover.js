@@ -35,6 +35,7 @@ var loaduserhover = function (e) {
         url: "/User/Hover/",
         data: msg,
         contentType: "application/json; charset=utf-8",
+        headers: getAntiForgeryToken(),
         dataType: "json",
         success: function (response) {
             if (response.success) {
