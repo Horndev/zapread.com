@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -253,11 +254,25 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 string usernameClean = CleanUsername(username);
-                bool isFollowing = false;
+                //bool isFollowing = false;
                 int hoverUserId = userId; // take from parameter passed
+                var userAppId = User.Identity.GetUserId();
 
-                var userInfo = await db.Users
-                    .Where(u => u.Id == hoverUserId || u.Name == usernameClean)
+                // If a username was provided - use it in search, otherwise don't use.  This is built as a separate query
+                // here to reduce the sql query payload.
+                IQueryable<User> uiq;
+                if (usernameClean.Length > 0)
+                {
+                    uiq = db.Users
+                        .Where(u => u.Id == hoverUserId || u.Name == usernameClean);
+                }
+                else
+                {
+                    uiq = db.Users
+                        .Where(u => u.Id == hoverUserId);
+                }
+
+                var userInfo = await uiq
                     .Select(u => new
                     {
                         u.Id,
@@ -265,30 +280,15 @@ namespace zapread.com.Controllers
                         u.Name,
                         u.Reputation,
                         u.ProfileImage.Version,
+                        u.IsOnline,
+                        IsFollowed = userAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(userAppId),
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (userInfo == null)
                 {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
                     return Json(new { success = false, message = "User not found." });
-                }
-
-                if (User.Identity.IsAuthenticated)
-                {
-                    var userAppId = User.Identity.GetUserId();
-
-                    var loggedInUserInfo = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new
-                        {
-                            IsFollowing = u.Following.Select(f => f.Id).Contains(hoverUserId),
-                        })
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                    if (loggedInUserInfo != null)
-                    {
-                        isFollowing = loggedInUserInfo.IsFollowing;
-                    }
                 }
 
                 UserHoverViewModel vm = new UserHoverViewModel()
@@ -298,8 +298,9 @@ namespace zapread.com.Controllers
                     Name = userInfo.Name,
                     Reputation = userInfo.Reputation,
                     ProfileImageVersion = userInfo.Version,
-                    IsFollowing = isFollowing,
+                    IsFollowing = userInfo.IsFollowed,
                     IsIgnored = false, // TODO?
+                    IsOnline = userInfo.IsOnline,
                 };
                 string HTMLString = RenderPartialViewToString("_PartialUserHover", model: vm);
                 return Json(new { success = true, HTMLString });

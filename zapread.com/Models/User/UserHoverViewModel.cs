@@ -11,5 +11,6 @@ namespace zapread.com.Models.UserViews
         public Int64 Reputation { get; set; }
         public bool IsFollowing { get; set; }
         public bool IsIgnored { get; set; }
+        public bool IsOnline { get; set; }
     }
 }

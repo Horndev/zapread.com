@@ -1,14 +1,15 @@
 ﻿@{
-    var controller = HttpContext.Current.Request.RequestContext.RouteData.Values["Controller"].ToString();
-    string cLayout = "";
-    if (controller == "Mailer")
+    var controller = HttpContext.Current.Request.RequestContext.RouteData.Values["Controller"];
+    //.ToString();
+    string cLayout = "~/Views/Shared/_Layout.cshtml";
+    if (controller != null && controller.ToString() == "Mailer")
     {
         cLayout = "~/Views/Shared/_LayoutMailer.cshtml";
     }
-    else
-    {
-        cLayout = "~/Views/Shared/_Layout.cshtml";
-    }
+    //else
+    //{
+    //    cLayout = "~/Views/Shared/_Layout.cshtml";
+    //}
     Layout = cLayout;
 
 

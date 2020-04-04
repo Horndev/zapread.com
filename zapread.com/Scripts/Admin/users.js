@@ -1,6 +1,16 @@
 ﻿//
 //
 
+var checkonline = function (id) {
+    $.get("/api/v1/admin/checkonline/" + id + "/", function (result) {
+        if (result.success) {
+            alert("Check successful.");
+        } else {
+            alert("Check failed.");
+        }
+    });
+};
+
 var usersTable = {};
 $(document).ready(function () {
     // Table
@@ -38,12 +48,11 @@ $(document).ready(function () {
                 "orderable": true,
                 "mRender": function (data, _type, _row) {
                     if (data.IsOnline) {
-                        return "Yes";
+                        var html = "<span onclick='checkonline(" + data.Id + ");'>";
+                        return html + "Yes" + "</span>";
                     } else {
-                        return "No";
+                        return html + "No" + "</span>";
                     }
-                    
-                    //return "<img class='img-circle user-image-30' src='/Home/UserImage/?size=30&UserId=" + data.AppId + "' /> <a class='post-username userhint' data-userid='" + data.Id + "' target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
                 }
             },
             { "data": "DateJoined", "orderable": true, "name": "DateJoined", "type": "date", "orderSequence": ["desc", "asc"] },
