@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
@@ -253,18 +254,16 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                string usernameClean = CleanUsername(username);
-                //bool isFollowing = false;
                 int hoverUserId = userId; // take from parameter passed
                 var userAppId = User.Identity.GetUserId();
 
                 // If a username was provided - use it in search, otherwise don't use.  This is built as a separate query
                 // here to reduce the sql query payload.
                 IQueryable<User> uiq;
-                if (usernameClean.Length > 0)
+                if (!String.IsNullOrEmpty(username))
                 {
                     uiq = db.Users
-                        .Where(u => u.Id == hoverUserId || u.Name == usernameClean);
+                        .Where(u => u.Id == hoverUserId || u.Name == username);
                 }
                 else
                 {
