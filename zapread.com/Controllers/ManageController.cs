@@ -73,18 +73,6 @@ namespace zapread.com.Controllers
             return PartialView("_PartialModalWithdraw");
         }
 
-        // https://gist.github.com/ChinhP/9b4dc1df1b12637b99a420aa268ae32b
-        // https://www.codeproject.com/Tips/1011531/Using-jQuery-DataTables-with-Server-Side-Processin
-
-        public class DataItem
-        {
-            public string Time { get; set; }
-            public string Type { get; set; }
-            public string Amount { get; set; }
-            public string URL { get; set; }
-            public string Memo { get; set; }
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -113,10 +101,13 @@ namespace zapread.com.Controllers
                     Roles = apiRoles,
                     User = user,
                 };
-
                 db.APIKeys.Add(newKey);
 
-                await db.SaveChangesAsync().ConfigureAwait(true);
+                if (roles != "test")
+                {
+                    // don't save if testing
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
 
                 return Json(new { success = true, Key = "ZR" + newKey.Key }, JsonRequestBehavior.AllowGet);
             }

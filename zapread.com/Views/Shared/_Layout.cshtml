@@ -1,7 +1,6 @@
 ﻿@{ 
     var claimsIdentity = User != null ? User.Identity as System.Security.Claims.ClaimsIdentity : null;
 }
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,7 +34,6 @@
         }({
             instrumentationKey: "ee8f21e2-3d87-40b4-9055-f61ead610053"
         });
-
         window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length && appInsights.trackPageView();
     </script>
 </head>
@@ -49,29 +47,21 @@
                 Html.RenderAction("SiteAdminBar", controllerName: "Admin", routeValues: new { viewInfo = ViewBag.ViewInfo });
             }
             @RenderBody()
-            <!-- Footer -->
             @Html.Partial("_Footer")
-            @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-            {
-                @Html.AntiForgeryToken()
-            }
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" })){@Html.AntiForgeryToken()}
         </div>
-        <!-- End page wrapper-->
     </div>
-    <!-- End wrapper-->
-    <!-- Section for main scripts render -->
-    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jquery")    @*Section for main scripts*@
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/plugins")
     @Scripts.Render("~/bundles/shared")
-    <!-- Handler for local scripts -->
-    @RenderSection("scripts", required: false)
+    @RenderSection("scripts", required: false) @*Handler for local scripts*@
     @Html.RenderPartialViewScripts()
     @Html.RenderScripts() @*Render Forloop.HtmlHelpers*@
     <script src="~/Scripts/jquery.signalR-2.4.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
     @Scripts.Render("~/bundles/DetailPost")
     @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js"></script>
-    <script type="text/javascript" src="~/Scripts/instascan.min.js"></script>*@
+        <script type="text/javascript" src="~/Scripts/instascan.min.js"></script>*@
 </body>
 </html>
