@@ -4,6 +4,7 @@ using zapread.com;
 using Swashbuckle.Application;
 using System.Net.Http;
 using System;
+using System.Globalization;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -24,7 +25,13 @@ namespace zapread.com
             {
                 schemeAndHost += ":" + message.RequestUri.Port;
             }
-            return new Uri(new Uri(schemeAndHost, UriKind.Absolute), virtualPathRoot).AbsoluteUri;
+            var val = new Uri(new Uri(schemeAndHost, UriKind.Absolute), virtualPathRoot).AbsoluteUri;
+
+            if (val.EndsWith("/", true, CultureInfo.InvariantCulture))
+            {
+                val = val.TrimEnd('/');
+            }
+            return val;
         }
 
         public static void Register()
@@ -82,10 +89,10 @@ namespace zapread.com
                         //    .Description("Basic HTTP Authentication");
                         //
 						// NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
-                        //c.ApiKey("apiKey")
-                        //    .Description("API Key Authentication")
-                        //    .Name("apiKey")
-                        //    .In("header");
+                        c.ApiKey("X-ApiKey")
+                            .Description("API Key Authentication")
+                            .Name("X-ApiKey")
+                            .In("header");
                         //
                         //c.OAuth2("oauth2")
                         //    .Description("OAuth2 Implicit Grant")
@@ -269,7 +276,7 @@ namespace zapread.com
                         // If your API supports ApiKey, you can override the default values.
                         // "apiKeyIn" can either be "query" or "header"
                         //
-                        //c.EnableApiKeySupport("apiKey", "header");
+                        c.EnableApiKeySupport("X-ApiKey", "header");
                     });
         }
     }

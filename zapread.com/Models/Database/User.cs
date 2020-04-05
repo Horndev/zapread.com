@@ -78,6 +78,10 @@ namespace zapread.com.Models.Database
         public virtual ICollection<Group> GroupAdministration { get; set; }
         public ICollection<LNTransaction> LNTransactions { get; set; }
 
+        public ICollection<APIKey> APIKeys { get; set; }
+
+        public ICollection<UserProcess> UserProcesses { get; set; }
+
         [InverseProperty("UserId")]
         public virtual ICollection<Post> Posts { get; set; }
 

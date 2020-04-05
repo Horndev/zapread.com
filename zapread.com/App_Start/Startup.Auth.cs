@@ -1,18 +1,31 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
+using Microsoft.Owin.Security.ApiKey;
+using Microsoft.Owin.Security.ApiKey.Contexts;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Owin.Security.Providers.GitHub;
 using Owin.Security.Providers.Reddit;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web;
+using zapread.com.API;
 using zapread.com.Models;
 
 namespace zapread.com
 {
     public partial class Startup
     {
+        private static bool IsApiRequest(IOwinRequest request)
+        {
+            string apiPath = VirtualPathUtility.ToAbsolute("~/api/");
+            return request.Uri.LocalPath.StartsWith(apiPath);
+        }
+
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -32,6 +45,14 @@ namespace zapread.com
                 CookieName = "ZapreadUserAuth",
                 Provider = new CookieAuthenticationProvider
                 {
+                    // Don't redirect if we are using the REST API
+                    OnApplyRedirect = ctx =>
+                    {
+                        if (!IsApiRequest(ctx.Request))
+                        {
+                            ctx.Response.Redirect(ctx.RedirectUri);
+                        }
+                    },
                     // Enables the application to validate the security stamp when the user logs in.
                     // This is a security feature which is used when you change a password or add an external login to your account.  
                     OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
@@ -40,6 +61,18 @@ namespace zapread.com
                 }
             });
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
+
+            // Enable API key authentication
+            app.UseApiKeyAuthentication(new ApiKeyAuthenticationOptions()
+            {
+                Header = "X-ApiKey",
+                HeaderKey = "ZR",
+                Provider = new ApiKeyAuthenticationProvider()
+                {
+                    OnValidateIdentity = APIKeyAuthorizationHandler.ValidateIdentity,
+                    OnGenerateClaims = APIKeyAuthorizationHandler.GenerateClaims,
+                }
+            });
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.
             app.UseTwoFactorSignInCookie(DefaultAuthenticationTypes.TwoFactorCookie, TimeSpan.FromMinutes(5));

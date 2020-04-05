@@ -33,6 +33,7 @@ namespace zapread.com.Database
         public DbSet<WeeklyStatistics> WeeklyStatistics { get; set; }
         public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
         public DbSet<LNNode> LNNodes { get; set; }
+        public DbSet<APIKey> APIKeys { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -90,6 +90,38 @@ $(document).ready(function() {
     });
 });
 
+var requestAPIKey = function () {
+    $.ajax({
+        async: true,
+        type: 'GET',
+        url: '/Manage/APIKey/new/',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                swal("Your new key is:", {
+                    content: {
+                        element: 'input',
+                        attributes: {
+                            defaultValue: response.Key
+                        }
+                    }
+                });
+            } else {
+                // Did not work
+                swal("Error", "Error generating key: " + data.message, "error");
+            }
+        },
+        failure: function (response) {
+            swal("Error", "Failure generating key: " + response.message, "error");
+        },
+        error: function (response) {
+            swal("Error", "Error generating key: " + response.message, "error");
+        }
+    });
+    return false; // Prevent jump to top of page
+};
+
 var updateLanguages = function () {
     console.log('updateLanguages');
 };

@@ -55,6 +55,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
+    <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
@@ -193,14 +194,14 @@
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.0.0\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.4.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.4.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
@@ -357,6 +358,9 @@
     <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Http.Owin, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.7\lib\net45\System.Web.Http.Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Http.WebHost, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.6\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
@@ -410,6 +414,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\AdminController.cs" />
+    <Compile Include="API\APIKeyAuthorizationHandler.cs" />
+    <Compile Include="API\APIKeyRequired.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -758,6 +764,14 @@
     <Compile Include="Migrations\202003100129445_FixCommentVotes.designer.cs">
       <DependentUpon>202003100129445_FixCommentVotes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202004050034132_AddUserAPIKey.cs" />
+    <Compile Include="Migrations\202004050034132_AddUserAPIKey.designer.cs">
+      <DependentUpon>202004050034132_AddUserAPIKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202004050040016_AddUserProcess.cs" />
+    <Compile Include="Migrations\202004050040016_AddUserProcess.designer.cs">
+      <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -768,7 +782,9 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
+    <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\Group.cs" />
     <Compile Include="Models\Database\Post.cs" />
@@ -776,6 +792,7 @@
     <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
     <Compile Include="Models\Database\UserMessage.cs" />
+    <Compile Include="Models\Database\UserProcess.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
@@ -1382,11 +1399,21 @@
     <EmbeddedResource Include="Migrations\202003100129445_FixCommentVotes.resx">
       <DependentUpon>202003100129445_FixCommentVotes.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202004050034132_AddUserAPIKey.resx">
+      <DependentUpon>202004050034132_AddUserAPIKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202004050040016_AddUserProcess.resx">
+      <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LndLib.NET\LightningLib\LightningLib.csproj">
       <Project>{824d15c2-a623-46d0-a45e-cf152e97c025}</Project>
       <Name>LightningLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Owin.Security.ApiKey\src\Microsoft.Owin.Security.ApiKey\Microsoft.Owin.Security.ApiKey.csproj">
+      <Project>{e09682cb-8e40-41dd-b36c-7fec758958c6}</Project>
+      <Name>Microsoft.Owin.Security.ApiKey</Name>
     </ProjectReference>
     <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj">
       <Project>{803f9eb7-029c-45ac-ab81-135e60d5beae}</Project>

@@ -85,6 +85,43 @@ namespace zapread.com.Controllers
             public string Memo { get; set; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="roles"></param>
+        /// <returns></returns>
+        [Route("Manage/APIKey/new")]
+        [HttpGet]
+        public async Task<ActionResult> RequestAPIKey(string roles)
+        {
+            var userAppId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                string apiRoles = "APIUser";
+                if (!String.IsNullOrEmpty(roles))
+                {
+                    apiRoles = apiRoles + "," + roles;
+                }
+
+                var user = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                APIKey newKey = new APIKey()
+                {
+                    Key = Guid.NewGuid().ToString(),
+                    Roles = apiRoles,
+                    User = user,
+                };
+
+                db.APIKeys.Add(newKey);
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Json(new { success = true, Key = "ZR" + newKey.Key }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();

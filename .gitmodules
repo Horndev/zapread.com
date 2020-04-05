@@ -7,3 +7,6 @@
 [submodule "RoboHash.Net"]
 	path = RoboHash.Net
 	url = https://github.com/Horndev/RoboHash.Net.git
+[submodule "Microsoft.Owin.Security.ApiKey"]
+	path = Microsoft.Owin.Security.ApiKey
+	url = https://github.com/Horndev/Microsoft.Owin.Security.ApiKey.git
