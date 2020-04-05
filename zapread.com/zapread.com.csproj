@@ -416,6 +416,7 @@
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\APIKeyRequired.cs" />
+    <Compile Include="API\PostController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
