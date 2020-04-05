@@ -27,15 +27,15 @@ namespace zapread.com.API
         /// </summary>
         /// <param name="userid">User ID to check</param>
         /// <returns>success={true|false}</returns>
-        [Route("api/v1/admin/checkonline/{userid}")]
+        [Route("api/v1/admin/checkonline/{userId}")]
         [AcceptVerbs("GET")]
         [Authorize(Roles = "Administrator,APIUser")]
-        public async Task<ZapReadResponse> CheckOnline(int userid)
+        public async Task<ZapReadResponse> CheckOnline(int userId)
         {
             using (var db = new ZapContext())
             {
                 var user = await db.Users
-                    .Where(u => u.Id == userid)
+                    .Where(u => u.Id == userId)
                     .SingleOrDefaultAsync().ConfigureAwait(false);
 
                 var jobId = BackgroundJob.Schedule<UserState>(
