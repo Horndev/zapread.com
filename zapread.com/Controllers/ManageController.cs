@@ -317,6 +317,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// MVC API Call to tip a user
+        /// </summary>
+        /// <param name="id">the user-id of the user to tip</param>
+        /// <param name="amount">amount to tip in Satoshi</param>
+        /// <param name="tx">transaction id to use if anonymous tip</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -334,7 +341,8 @@ namespace zapread.com.Controllers
                     .Include(usr => usr.Funds)
                     .Include(usr => usr.EarningEvents)
                     .Include(usr => usr.Settings)
-                    .Where(u => u.Id == id).FirstOrDefaultAsync();
+                    .Where(u => u.Id == id)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (receiver == null)
                 {
@@ -353,7 +361,8 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.SpendingEvents)
-                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     // Ensure user has the funds available.
                     if (user.Funds.Balance < amount)
@@ -398,7 +407,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     try
                     {
@@ -464,7 +473,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     if (receiver.Settings == null)
                     {
