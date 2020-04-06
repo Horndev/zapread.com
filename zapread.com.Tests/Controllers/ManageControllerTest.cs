@@ -183,6 +183,5 @@ namespace zapread.com.Tests.Controllers
             userManager.Setup(x => x.GetTwoFactorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
             userManager.Setup(x => x.GetLoginsAsync(It.IsAny<string>())).Returns(Task.FromResult(userlogins));
         }
-
     }
 }
