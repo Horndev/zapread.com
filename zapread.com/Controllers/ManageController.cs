@@ -73,44 +73,10 @@ namespace zapread.com.Controllers
             return PartialView("_PartialModalWithdraw");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="roles"></param>
-        /// <returns></returns>
-        [Route("Manage/APIKey/new")]
-        [HttpGet]
-        public async Task<ActionResult> RequestAPIKey(string roles)
+        [Route("Manage/APIKeys/")]
+        public ActionResult APIKeys()
         {
-            var userAppId = User.Identity.GetUserId();
-            using (var db = new ZapContext())
-            {
-                string apiRoles = "APIUser";
-                if (!String.IsNullOrEmpty(roles))
-                {
-                    apiRoles = apiRoles + "," + roles;
-                }
-
-                var user = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                APIKey newKey = new APIKey()
-                {
-                    Key = Guid.NewGuid().ToString(),
-                    Roles = apiRoles,
-                    User = user,
-                };
-                db.APIKeys.Add(newKey);
-
-                if (roles != "test")
-                {
-                    // don't save if testing
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-                }
-
-                return Json(new { success = true, Key = "ZR" + newKey.Key }, JsonRequestBehavior.AllowGet);
-            }
+            return View();
         }
 
         public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)

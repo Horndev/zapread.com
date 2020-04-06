@@ -161,25 +161,6 @@ namespace zapread.com.Tests.Controllers
             Assert.IsNotNull(result);
         }
 
-        [TestMethod]
-        public void ManageRequestAPIKey()
-        {
-            // Arrange
-            Mock<HttpContextBase> context;
-            Mock<ApplicationUserManager> userManager;
-            Mock<ApplicationSignInManager> signInManager;
-            SetupUserLoggedIn(out context, out userManager, out signInManager);
-
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
-            controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
-
-            // Act
-            JsonResult result = controller.RequestAPIKey("test").Result as JsonResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-        }
-
         private static void SetupUserLoggedIn(out Mock<HttpContextBase> context, out Mock<ApplicationUserManager> userManager, out Mock<ApplicationSignInManager> signInManager)
         {
             context = new Mock<HttpContextBase>();

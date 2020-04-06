@@ -94,7 +94,7 @@ var requestAPIKey = function () {
     $.ajax({
         async: true,
         type: 'GET',
-        url: '/Manage/APIKey/new/',
+        url: '/api/v1/account/apikeys/new?roles=default',
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
@@ -103,7 +103,7 @@ var requestAPIKey = function () {
                     content: {
                         element: 'input',
                         attributes: {
-                            defaultValue: response.Key
+                            defaultValue: response.Key.Key
                         }
                     }
                 });
