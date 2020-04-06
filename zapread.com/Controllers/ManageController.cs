@@ -73,53 +73,10 @@ namespace zapread.com.Controllers
             return PartialView("_PartialModalWithdraw");
         }
 
-        // https://gist.github.com/ChinhP/9b4dc1df1b12637b99a420aa268ae32b
-        // https://www.codeproject.com/Tips/1011531/Using-jQuery-DataTables-with-Server-Side-Processin
-
-        public class DataItem
+        [Route("Manage/APIKeys/")]
+        public ActionResult APIKeys()
         {
-            public string Time { get; set; }
-            public string Type { get; set; }
-            public string Amount { get; set; }
-            public string URL { get; set; }
-            public string Memo { get; set; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="roles"></param>
-        /// <returns></returns>
-        [Route("Manage/APIKey/new")]
-        [HttpGet]
-        public async Task<ActionResult> RequestAPIKey(string roles)
-        {
-            var userAppId = User.Identity.GetUserId();
-            using (var db = new ZapContext())
-            {
-                string apiRoles = "APIUser";
-                if (!String.IsNullOrEmpty(roles))
-                {
-                    apiRoles = apiRoles + "," + roles;
-                }
-
-                var user = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                APIKey newKey = new APIKey()
-                {
-                    Key = Guid.NewGuid().ToString(),
-                    Roles = apiRoles,
-                    User = user,
-                };
-
-                db.APIKeys.Add(newKey);
-
-                await db.SaveChangesAsync().ConfigureAwait(true);
-
-                return Json(new { success = true, Key = "ZR" + newKey.Key }, JsonRequestBehavior.AllowGet);
-            }
+            return View();
         }
 
         public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)
@@ -360,6 +317,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// MVC API Call to tip a user
+        /// </summary>
+        /// <param name="id">the user-id of the user to tip</param>
+        /// <param name="amount">amount to tip in Satoshi</param>
+        /// <param name="tx">transaction id to use if anonymous tip</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -377,7 +341,8 @@ namespace zapread.com.Controllers
                     .Include(usr => usr.Funds)
                     .Include(usr => usr.EarningEvents)
                     .Include(usr => usr.Settings)
-                    .Where(u => u.Id == id).FirstOrDefaultAsync();
+                    .Where(u => u.Id == id)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (receiver == null)
                 {
@@ -396,7 +361,8 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include(usr => usr.Funds)
                         .Include(usr => usr.SpendingEvents)
-                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     // Ensure user has the funds available.
                     if (user.Funds.Balance < amount)
@@ -441,7 +407,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     try
                     {
@@ -507,7 +473,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     if (receiver.Settings == null)
                     {

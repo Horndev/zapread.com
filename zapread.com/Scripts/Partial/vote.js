@@ -96,7 +96,7 @@ var tip = function (user, uid) {
 // tx : txid if the tip is anonymous
 var doTip = function (id, amount, tx) {
     var data = JSON.stringify({ 'id': id, 'amount': parseInt(amount), 'tx': tx });
-    var url = '/Manage/TipUser';
+    var url = '/Manage/TipUser/';
     var headers = getAntiForgeryToken();
     console.log(data);
     $.ajax({
