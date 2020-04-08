@@ -1,10 +1,6 @@
 ﻿/* ZapRead LoadMore functionality
 */
 
-var addposts = function (data) {
-    $("#posts").append(data.HTMLString);
-};
-
 var zrOnLoadedMorePosts = function () {
     console.log("[DEBUG] Initializing after load more.");
 

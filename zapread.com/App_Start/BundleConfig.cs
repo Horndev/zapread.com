@@ -131,6 +131,7 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
+                        "~/Scripts/dist/home_index.js",
                         "~/Scripts/Home/index.js")
                         .WithLastModifiedToken());
 

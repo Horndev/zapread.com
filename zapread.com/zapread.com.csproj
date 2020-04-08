@@ -976,6 +976,7 @@
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\dist\home_index.js" />
     <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\dist\manage_apikeys.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
@@ -1024,9 +1025,12 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\src\components\page-heading.js" />
+    <Content Include="Scripts\src\home\globals.js" />
+    <Content Include="Scripts\src\home\index.js" />
     <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\manage\apikeys.js" />
     <Content Include="Scripts\src\manage\keystable.js" />
+    <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
