@@ -27,7 +27,7 @@ namespace zapread.com.API
                     .Where(k => k.Key == submittedKey)
                     .AnyAsync().ConfigureAwait(true);
 
-                if (isValidKey)//context.ApiKey == "123")
+                if (isValidKey)
                 {
                     context.Validate();
                 }

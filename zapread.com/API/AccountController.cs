@@ -25,7 +25,7 @@ namespace zapread.com.API
         /// <param name="roles">A comma-separated list of roles which the new key should have.</param>
         /// <returns>APIKeyResponse</returns>
         [AcceptVerbs("GET")]
-        [Authorize(Roles = "Administrator,APIUser")]
+        [Authorize]
         [Route("api/v1/account/apikeys/new")]
         public async Task<APIKeyResponse> RequestAPIKey(string roles)
         {
@@ -73,7 +73,7 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Authorize(Roles = "Administrator,APIUser")]
+        [Authorize]
         [Route("api/v1/account/apikeys/list")]
         public async Task<APIKeysResponse> ListAPIKeys()
         {
@@ -103,7 +103,7 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Authorize(Roles = "Administrator,APIUser")]
+        [Authorize]
         [Route("api/v1/account/apikeys/revoke/{key}")]
         public async Task<ZapReadResponse> RevokeAPIKey(string key)
         {
