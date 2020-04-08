@@ -416,7 +416,6 @@
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
-    <Compile Include="API\APIKeyRequired.cs" />
     <Compile Include="API\PostController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
@@ -978,6 +977,7 @@
     <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\dist\index.js" />
+    <Content Include="Scripts\dist\manage_apikeys.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\detail.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
@@ -1023,7 +1023,10 @@
     <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\src\components\page-heading.js" />
     <Content Include="Scripts\src\index.js" />
+    <Content Include="Scripts\src\manage\apikeys.js" />
+    <Content Include="Scripts\src\manage\keystable.js" />
     <Content Include="Scripts\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
@@ -1167,6 +1170,7 @@
     <Content Include="Views\Mailer\NewChat.cshtml" />
     <Content Include="Views\Home\React.cshtml" />
     <Content Include="Views\SwashbuckleMVC\Index.cshtml" />
+    <Content Include="Views\Manage\APIKeys.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

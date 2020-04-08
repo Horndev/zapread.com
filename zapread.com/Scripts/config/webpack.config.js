@@ -1,8 +1,9 @@
 ﻿const path = require("path");
 
 module.exports = {
-  entry: {
-    index: "./Scripts/src/index.js"
+    entry: {
+        index: "./Scripts/src/index.js",
+        manage_apikeys: "./Scripts/src/manage/apikeys.js"
   },
   output: {
     path: path.resolve(__dirname, "../dist"),
