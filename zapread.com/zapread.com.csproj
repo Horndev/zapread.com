@@ -1030,7 +1030,11 @@
     <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\manage\apikeys.js" />
     <Content Include="Scripts\src\manage\keystable.js" />
+    <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
+    <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
+    <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">

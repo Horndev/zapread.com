@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
 //const addposts = require('../utility/loadmore').default;
 import { addposts } from '../utility/loadmore';
+import { onLoadedMorePosts } from '../utility/onLoadedMorePosts';
 
 var request = new XMLHttpRequest();
 request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
@@ -18,7 +19,7 @@ request.onload = function () {
         if (response.success) {
             // Insert posts
             document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
-            addposts(response, zrOnLoadedMorePosts); //TODO: zrOnLoadedMorePosts uses jquery
+            addposts(response, onLoadedMorePosts); //TODO: zrOnLoadedMorePosts uses jquery
             document.querySelectorAll('#btnLoadmore').item(0).style.display = ''; //$('#btnLoadmore').show();
         } else {
             // Did not work

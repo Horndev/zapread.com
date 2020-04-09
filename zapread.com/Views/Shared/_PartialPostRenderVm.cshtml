@@ -98,12 +98,12 @@
                 {
 
                 }
-                <li class="dropdown-submenu pull-left">
+                @*<li class="dropdown-submenu pull-left">
                     <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
                     <ul class="dropdown-menu">
                         <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
                     </ul>
-                </li>
+                </li>*@
             </ul>
         </div>
         @*border-style: solid;border-color: #1ab394;border-top-width: 0px;border-left-width: 0px;border-right-width: 0px;border-bottom-width: 1px;*@
@@ -122,7 +122,7 @@
             @if (!Model.ViewerIgnoredUser)
             {
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle userhint post-image-45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+                    <img class="img-circle post-image-45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
                 </a>
             }
             <div class="media-body">

@@ -1,17 +1,18 @@
 ﻿/* Username hover
 */
 
-$(document).ready(function () {
-    $('.userhint').each(function () {
-        $(this).mouseover(function () {
-            loaduserhover(this);
-        });
-    });
-});
+//$(document).ready(function () {
+//    $('.userhint').each(function () {
+//        $(this).mouseover(function () {
+//            loaduserhover(this);
+//        });
+//    });
+//});
 
 var LoadedHovers = new Array();
 
 var loaduserhover = function (e) {
+    alert('!');
     $(e).removeAttr('onmouseover');
     var userid = $(e).data('userid');
     var username = $(e).html().trim().replace('@', '');
