@@ -28,7 +28,9 @@ $(document).ready(function () {
         userBalance = parseFloat(data.balance);
         $('#userVoteBalance').html(data.balance);
         ub = data.balance;
-        userVote.b = ub;
+        if (typeof userVote !== 'undefined') {
+            userVote.b = ub;
+        }
 
         // Used for account-payments-ui.js  (needs refactoring)
         $('#userDepositBalance').html(data.balance);

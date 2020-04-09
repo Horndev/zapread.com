@@ -2,7 +2,7 @@
 */
 
 var zrOnLoadedMorePosts = function () {
-    console.log("[DEBUG] Initializing after load more.");
+    //console.log("[DEBUG] Initializing after load more.");
 
     // User mention hover
     $('.userhint').each(function () {
@@ -84,5 +84,5 @@ var zrOnLoadedMorePosts = function () {
     // Make comments quotable
     makeCommentsQuotable();
 
-    console.log("[DEBUG] Done initializing after load more.");
+    //console.log("[DEBUG] Done initializing after load more.");
 };
