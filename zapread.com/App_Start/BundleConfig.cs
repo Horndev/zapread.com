@@ -205,7 +205,7 @@ namespace zapread.com
                         "~/Scripts/Posts/post-editor.js")                       // For the post editing
                         .WithLastModifiedToken());
 
-            bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
+            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
                         "~/Scripts/Realtime/signalr-initialize.js")
                         .WithLastModifiedToken());
 
@@ -257,7 +257,7 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/node_modules/popper.js/dist/umd/popper.min.js",
                         "~/node_modules/bootstrap/dist/js/bootstrap.min.js",
-                        "~/Scripts/bootstrap-tour.min.js",
+                        //"~/Scripts/bootstrap-tour.min.js",
                         "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
@@ -266,8 +266,8 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
 
-            bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
-                      "~/Content/bootstrap-tour.min.css"));
+            //bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
+            //          "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css",

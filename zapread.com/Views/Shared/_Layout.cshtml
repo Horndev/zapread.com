@@ -14,11 +14,9 @@
     <link href="@Url.Content("~/node_modules/jquery-ui-dist/jquery-ui.min.css")" rel="stylesheet" type="text/css" />
     @RenderSection("Styles", required: false)
     @Styles.Render("~/Content/bootstrap")
-    @Styles.Render("~/Content/bootstrap-tour")
     @Styles.Render("~/Content/font-awesome/css")
     @Styles.Render("~/Content/style/textspinners")
     @Styles.Render("~/plugins/summernoteStyles")
-    @Styles.Render("~/Content/style/jssocials")
     @Styles.Render("~/Content/style/toastr")
     @if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
     {
@@ -51,16 +49,16 @@
             @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" })){@Html.AntiForgeryToken()}
         </div>
     </div>
-    @Scripts.Render("~/bundles/jquery")    @*Section for main scripts*@
+    @Scripts.Render("~/bundles/jquery")         @*Section for main scripts*@
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/plugins")
     @Scripts.Render("~/bundles/shared")
-    @RenderSection("scripts", required: false) @*Handler for local scripts*@
-    @Html.RenderPartialViewScripts()
-    @Html.RenderScripts() @*Render Forloop.HtmlHelpers*@
+    @RenderSection("scripts", required: false)  @*Handler for local scripts*@
+    @Html.RenderPartialViewScripts()            @*Scripts used in any partial views (include once only)*@
+    @Html.RenderScripts()                       @*Render Forloop.HtmlHelpers*@
     <script src="~/Scripts/jquery.signalR-2.4.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
-    @Scripts.Render("~/bundles/DetailPost")
+    @Scripts.Render("~/bundles/realtime")
     @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js"></script>
         <script type="text/javascript" src="~/Scripts/instascan.min.js"></script>*@
 </body>

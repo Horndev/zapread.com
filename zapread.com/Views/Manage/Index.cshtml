@@ -9,6 +9,7 @@
 @section Styles {
     @Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
     @Styles.Render("~/Content/plugins/chosen/chosenStyles")
+    @Styles.Render("~/Content/style/jssocials")
 }
 
 @section Scripts {
@@ -190,22 +191,22 @@
                                     </div>
                                 </div>
                             }
-                        <div class="row">
-                            <div class="col-auto">
-                                <a class="btn btn-outline btn-sm btn-info" href='javascript:void(0);' onclick="requestAPIKey();"><i class="fa fa-key"></i> Request Key</a>
-                            </div>
-                            <div class="col">
-                                Request a new API key.
-                            </div>
-                        </div>
                             <div class="row">
-                            <div class="col-auto">
-                                <a class="btn btn-outline btn-sm btn-warning" href='/Manage/APIKeys/'><i class="fa fa-key"></i> Manage Keys</a>
+                                <div class="col-auto">
+                                    <a class="btn btn-outline btn-sm btn-info" href='javascript:void(0);' onclick="requestAPIKey();"><i class="fa fa-key"></i> Request Key</a>
+                                </div>
+                                <div class="col">
+                                    Request a new API key.
+                                </div>
                             </div>
-                            <div class="col">
-                               Manage API keys
+                            <div class="row">
+                                <div class="col-auto">
+                                    <a class="btn btn-outline btn-sm btn-warning" href='/Manage/APIKeys/'><i class="fa fa-key"></i> Manage Keys</a>
+                                </div>
+                                <div class="col">
+                                    Manage API keys
+                                </div>
                             </div>
-                        </div>
                         </div>
                         <div class="ibox-content profile-content">
                             <h4>Notifications</h4>
