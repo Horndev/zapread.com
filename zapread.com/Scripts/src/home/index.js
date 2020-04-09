@@ -1,16 +1,17 @@
 ﻿/*
  * 
  */
-const Swal = require('sweetalert2');
+import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
-const addposts = require('../utility/loadmore').default;
+//const addposts = require('../utility/loadmore').default;
+import { addposts } from '../utility/loadmore';
 
 var request = new XMLHttpRequest();
 request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
 
 request.onload = function () {
     var resp = this.response;
-    //console.log(response);
+    var response = {};
     if (this.status >= 200 && this.status < 400) {
         // Success!
         response = JSON.parse(resp);
@@ -57,8 +58,8 @@ request.send();
 //    }
 //});
 
-module.exports = {
-    Globals,
-    addposts
-};
+//module.exports = {
+//    Globals,
+//    addposts
+//};
 
