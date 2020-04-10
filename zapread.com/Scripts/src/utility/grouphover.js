@@ -35,6 +35,7 @@ export function loadgrouphover(e) {
             postData('/Group/Hover/', { 'groupId': groupid })
                 .then((data) => {
                     instance.setContent(data.HTMLString);
+                    instance._src = true;
                 })
                 .catch((error) => {
                     instance._error = error;

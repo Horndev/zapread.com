@@ -4,7 +4,8 @@ module.exports = {
     entry: {
         index: "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
-        home_index: "./Scripts/src/home/index.js"
+        home_index: "./Scripts/src/home/index.js",
+        post_detail: "./Scripts/src/post/detail.js"
     },
     output: {
         path: path.resolve(__dirname, "../dist"),

@@ -5,13 +5,13 @@ import { loaduserhover } from '../utility/userhover';
 import { loadgrouphover } from '../utility/grouphover';
 
 export function onLoadedMorePosts() {
+    console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover
     // --- new version
     var elements = document.querySelectorAll(".userhint");
     Array.prototype.forEach.call(elements, function (el, _i) {
-        el.addEventListener("mouseover", function () {
-            loaduserhover(this);
-        });
+        loaduserhover(el);
+        el.classList.remove('userhint');
     });
     
     // old version
@@ -25,9 +25,8 @@ export function onLoadedMorePosts() {
     // ---
     elements = document.querySelectorAll(".grouphint");
     Array.prototype.forEach.call(elements, function (el, _i) {
-        el.addEventListener("mouseover", function () {
-            loadgrouphover(this);
-        });
+        loadgrouphover(el);
+        el.classList.remove('grouphint');
     });
 
     // old version

@@ -12,7 +12,6 @@
 var LoadedHovers = new Array();
 
 var loaduserhover = function (e) {
-    alert('!');
     $(e).removeAttr('onmouseover');
     var userid = $(e).data('userid');
     var username = $(e).html().trim().replace('@', '');

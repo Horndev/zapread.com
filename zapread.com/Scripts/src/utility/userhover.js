@@ -28,9 +28,10 @@ export function loaduserhover(e) {
         delay: 300,
         interactive: true,
         interactiveBorder: 30,
-        flipOnUpdate: true,
+        //flipOnUpdate: true,
         // some async loading code...
         onCreate(instance) {
+            //console.log('created tippy');
             // Setup our own custom state properties
             instance._isFetching = false;
             instance._src = null;
@@ -38,20 +39,30 @@ export function loaduserhover(e) {
         },
         onShow(instance) {
             if (instance._isFetching || instance._src || instance._error) {
+                //console.log('hover cached.');
                 return;
+            } else {
+                //console.log('fetching...');
+                instance._isFetching = true;
+                postData('/User/Hover/', { 'userId': userid, 'username': username })
+                    .then((data) => {
+                        instance.setContent(data.HTMLString);
+                        instance._src = true;
+                    })
+                    .catch((error) => {
+                        instance._error = error;
+                        instance.setContent(`Request failed. ${error}`);
+                    })
+                    .finally(() => {
+                        instance._isFetching = false;
+                    });
             }
-            instance._isFetching = true;
-            postData('/User/Hover/', { 'userId': userid, 'username': username })
-                .then((data) => {
-                    instance.setContent(data.HTMLString);
-                })
-                .catch((error) => {
-                    instance._error = error;
-                    instance.setContent(`Request failed. ${error}`);
-                })
-                .finally(() => {
-                    instance._isFetching = false;
-                });
-        }
+        }//,
+        //onHidden(instance) {
+        //    instance.setContent('Loading...');
+        //    // Unset these properties so new network requests can be initiated
+        //    instance._src = null;
+        //    instance._error = null;
+        //}
     });
 }
