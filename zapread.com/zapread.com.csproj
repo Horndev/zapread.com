@@ -980,6 +980,7 @@
     <Content Include="Scripts\dist\home_index.js" />
     <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\dist\manage_apikeys.js" />
+    <Content Include="Scripts\dist\manage_index.js" />
     <Content Include="Scripts\dist\post_detail.js" />
     <Content Include="Scripts\dist\user_index.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
@@ -1033,6 +1034,7 @@
     <Content Include="Scripts\src\home\index.js" />
     <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\manage\apikeys.js" />
+    <Content Include="Scripts\src\manage\index.js" />
     <Content Include="Scripts\src\manage\keystable.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\user\index.js" />

@@ -2,11 +2,12 @@
 
 module.exports = {
     entry: {
+        group_detail:   "./Scripts/src/group/detail.js",
+        home_index:     "./Scripts/src/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
-        home_index:     "./Scripts/src/home/index.js",
+        manage_index:   "./Scripts/src/manage/index.js",
         post_detail:    "./Scripts/src/post/detail.js",
-        group_detail:   "./Scripts/src/group/detail.js",
         user_index:     "./Scripts/src/user/index.js"
     },
     output: {

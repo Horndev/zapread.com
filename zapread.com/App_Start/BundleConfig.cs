@@ -112,7 +112,8 @@ namespace zapread.com
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
                         "~/Scripts/Manage/index.js",
-                        "~/Scripts/Achievements/achievementhover.js")
+                        "~/Scripts/Achievements/achievementhover.js",
+                        "~/Scripts/dist/manage_index.js")
                         .WithLastModifiedToken());
 
             // Manage/Financial scripts
