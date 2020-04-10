@@ -46,6 +46,9 @@
     <meta name="twitter:image" content="@Url.Action("UserImage", "Home", new { UserId = Model.UserAppId, v=Model.UserProfileImageVersion }, "https")" />
 }
 
+@section Styles {
+    @Styles.Render("~/Content/style/jssocials")
+}
 
 @section Scripts {
     @Scripts.Render("~/bundles/users")

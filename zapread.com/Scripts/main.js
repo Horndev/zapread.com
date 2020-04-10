@@ -350,26 +350,6 @@ var leaveGroup = function (id,e) {
     return false;
 };
 
-//var leaveGroup = function (id) {
-//    var leaveurl = "/Group/LeaveGroup";
-//    var data = JSON.stringify({ 'gid': id });
-//    $.ajax({
-//        async: true,
-//        data: data.toString(),
-//        type: 'POST',
-//        url: leaveurl,
-//        contentType: "application/json; charset=utf-8",
-//        dataType: "json",
-//        success: function (response) {
-//            if (response.result === "success") {
-//                $("#j_" + id.toString()).html("<i class='fa fa-user-plus'></i> Rejoin ");
-//                $("#j_" + id.toString()).attr("onClick", "javascript: joinGroup(" + id.toString() + "); ");
-//            }
-//        }
-//    });
-//    return false; // Prevent jump to top of page
-//};
-
 /* exported follow */
 var follow = function (uid, s, e) {
     var msg = JSON.stringify({ 'id': uid, 's': s });
