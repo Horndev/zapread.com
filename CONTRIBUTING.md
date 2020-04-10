@@ -1,6 +1,6 @@
 # Contribution Guide
 
-Thank you for taking interest in the Zapraed.com community!  We welcome your contributions, ideas, and help.
+Thank you for taking interest in the Zapread.com community!  We welcome your contributions, ideas, and help.
 This guide lays out a few simple principals that have been adopted to help us all work together.
 
 ## Bug reports
@@ -15,7 +15,7 @@ If you identify an problem, please report it using the github issue tracker.
 1.  Set up the database.config file (copy database.config.template to database.config)
 1.  Open zapread.com.sln with Visual Studio
 1.  In the Package Manager Console, run `Update-Package Microsoft.CodeDom.Providers.DotNetCompilerPlatform -r` to set up compiler
-1.  Run zapread.com (e.g. press F5)
+1.  Run zapread.com project (e.g. press F5)
 1.  Go to /Home/Install/ to bootstrap database
 
 ### Creating your admin account and security
@@ -43,6 +43,12 @@ Standard C# coding conventions are used as much as possible.
 ### Style
 
 LINQ queries are implemented using lambda functions and not in-line language.
+
+### Front end
+
+The website uses a combination of server-side and client-side rendering.  The layout of the page is rendered server-side, which includes the meta data, and SEO related features.  React.js is used to render the client side.  (Note - conversion is in progress from Razor to React and older pages are not yet converted over)
+
+[Webpack](https://webpack.js.org/) and [Babel](https://babeljs.io/) are used to bundle and minify javascript and css.  The MVC bundling engine is then used to add a timestamp (cache busting) for the scripts - which are then referenced through the MVC views.
 
 ## Thank you!
 
