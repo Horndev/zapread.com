@@ -976,6 +976,7 @@
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\dist\group_detail.js" />
     <Content Include="Scripts\dist\home_index.js" />
     <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\dist\manage_apikeys.js" />
@@ -1026,6 +1027,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\src\components\page-heading.js" />
+    <Content Include="Scripts\src\group\detail.js" />
     <Content Include="Scripts\src\home\globals.js" />
     <Content Include="Scripts\src\home\index.js" />
     <Content Include="Scripts\src\index.js" />

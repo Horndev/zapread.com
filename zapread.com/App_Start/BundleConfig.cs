@@ -178,7 +178,8 @@ namespace zapread.com
 
             // Group/GroupDetail scripts
             bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
-                        "~/Scripts/Groups/detail.js")
+                        "~/Scripts/Groups/detail.js",
+                        "~/Scripts/dist/group_detail.js")
                         .WithLastModifiedToken());
 
             // Group/Members scripts

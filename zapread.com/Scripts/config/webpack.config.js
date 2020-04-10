@@ -2,10 +2,11 @@
 
 module.exports = {
     entry: {
-        index: "./Scripts/src/index.js",
+        index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
-        home_index: "./Scripts/src/home/index.js",
-        post_detail: "./Scripts/src/post/detail.js"
+        home_index:     "./Scripts/src/home/index.js",
+        post_detail:    "./Scripts/src/post/detail.js",
+        group_detail:   "./Scripts/src/group/detail.js"
     },
     output: {
         path: path.resolve(__dirname, "../dist"),
