@@ -549,8 +549,8 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult Edit(EditPostInfo i)
+        [HttpGet]
+        public ActionResult Edit(int postId)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -563,7 +563,7 @@ namespace zapread.com.Controllers
             {
                 var user = db.Users.Where(u => u.AppId == userId).First();
                 var postVm = db.Posts
-                    .Where(p => p.PostId == i.PostId)
+                    .Where(p => p.PostId == postId)
                     .Select(p => new PostViewModel()
                     {
                         GroupId = p.Group.GroupId,

@@ -1,13 +1,13 @@
 ﻿/* Group Hover 
  */
 
-$(document).ready(function () {
-    $('.grouphint').each(function () {
-        $(this).mouseover(function () {
-            loadgrouphover(this);
-        });
-    });
-});
+//$(document).ready(function () {
+//    $('.grouphint').each(function () {
+//        $(this).mouseover(function () {
+//            loadgrouphover(this);
+//        });
+//    });
+//});
 
 var loadgrouphover = function (e) {
     $(e).removeAttr('onmouseover');

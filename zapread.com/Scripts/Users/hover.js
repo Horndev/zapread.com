@@ -1,13 +1,13 @@
 ﻿/* Username hover
 */
 
-$(document).ready(function () {
-    $('.userhint').each(function () {
-        $(this).mouseover(function () {
-            loaduserhover(this);
-        });
-    });
-});
+//$(document).ready(function () {
+//    $('.userhint').each(function () {
+//        $(this).mouseover(function () {
+//            loaduserhover(this);
+//        });
+//    });
+//});
 
 var LoadedHovers = new Array();
 

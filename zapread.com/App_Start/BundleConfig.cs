@@ -112,7 +112,8 @@ namespace zapread.com
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
                         "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
                         "~/Scripts/Manage/index.js",
-                        "~/Scripts/Achievements/achievementhover.js")
+                        "~/Scripts/Achievements/achievementhover.js",
+                        "~/Scripts/dist/manage_index.js")
                         .WithLastModifiedToken());
 
             // Manage/Financial scripts
@@ -122,7 +123,8 @@ namespace zapread.com
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-                        "~/Scripts/Users/index.js")
+                        "~/Scripts/Users/index.js",
+                        "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
 
             // Home/Install scripts
@@ -131,6 +133,7 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
+                        "~/Scripts/dist/home_index.js",
                         "~/Scripts/Home/index.js")
                         .WithLastModifiedToken());
 
@@ -161,7 +164,8 @@ namespace zapread.com
 
             // Post/Detail scripts
             bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
-                        "~/Scripts/Posts/post-detail.js")
+                        "~/Scripts/Posts/post-detail.js",
+                        "~/Scripts/dist/post_detail.js")
                         .WithLastModifiedToken());
 
             // Group/Index scripts
@@ -176,7 +180,8 @@ namespace zapread.com
 
             // Group/GroupDetail scripts
             bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
-                        "~/Scripts/Groups/detail.js")
+                        "~/Scripts/Groups/detail.js",
+                        "~/Scripts/dist/group_detail.js")
                         .WithLastModifiedToken());
 
             // Group/Members scripts
@@ -204,7 +209,7 @@ namespace zapread.com
                         "~/Scripts/Posts/post-editor.js")                       // For the post editing
                         .WithLastModifiedToken());
 
-            bundles.Add(new ScriptBundle("~/bundles/DetailPost").Include(
+            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
                         "~/Scripts/Realtime/signalr-initialize.js")
                         .WithLastModifiedToken());
 
@@ -256,7 +261,7 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/node_modules/popper.js/dist/umd/popper.min.js",
                         "~/node_modules/bootstrap/dist/js/bootstrap.min.js",
-                        "~/Scripts/bootstrap-tour.min.js",
+                        //"~/Scripts/bootstrap-tour.min.js",
                         "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
@@ -265,8 +270,8 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
 
-            bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
-                      "~/Content/bootstrap-tour.min.css"));
+            //bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
+            //          "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css",

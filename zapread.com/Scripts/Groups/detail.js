@@ -71,9 +71,16 @@ var loadmore = function () {
                     inProgress = false;
 
                     // Wait for new posts to be added then tidy up.
-                    $.when(addposts(response), $.ready).then(function () {
-                        zrOnLoadedMorePosts();
-                    });
+
+                    // New version using a callback
+                    //addposts(response, zrOnLoadedMorePosts);
+                    $("#posts").append(response.HTMLString);
+                    zrOnLoadedMorePosts();
+
+                    // old version with jquery
+                    //$.when(addposts(response), $.ready).then(function () {
+                    //    zrOnLoadedMorePosts();
+                    //});
 
                     if (NoMoreData) {
                         $('#showmore').hide();

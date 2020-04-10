@@ -12,7 +12,7 @@ var readMoreButton = function (e) {
     $ps.each(function () {
         totalHeight += $(this).outerHeight();
     });
-    console.log(totalHeight);
+    //console.log(totalHeight);
 
     $up
         .css({
