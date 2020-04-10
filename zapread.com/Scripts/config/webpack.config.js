@@ -6,7 +6,8 @@ module.exports = {
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
         home_index:     "./Scripts/src/home/index.js",
         post_detail:    "./Scripts/src/post/detail.js",
-        group_detail:   "./Scripts/src/group/detail.js"
+        group_detail:   "./Scripts/src/group/detail.js",
+        user_index:     "./Scripts/src/user/index.js"
     },
     output: {
         path: path.resolve(__dirname, "../dist"),

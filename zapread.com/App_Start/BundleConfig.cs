@@ -122,7 +122,8 @@ namespace zapread.com
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-                        "~/Scripts/Users/index.js")
+                        "~/Scripts/Users/index.js",
+                        "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
 
             // Home/Install scripts
