@@ -21,9 +21,9 @@
                         <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')"><i class="fa fa-eye"></i> Show Post</button>
                     </li>
                 }
-                @if (User.Identity.Name == Model.Post.UserId.Name)
+                @if (User.Identity.Name == Model.Post.UserId.Name || User.IsInRole("Administrator"))
                 {
-                    using (Html.BeginForm("Edit", "Post",
+                    @*using (Html.BeginForm("Edit", "Post",
                         new { ReturnUrl = ViewBag.ReturnUrl },
                         FormMethod.Post,
                         new { role = "form" }))
@@ -33,7 +33,10 @@
                         <li>
                             <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
                         </li>
-                    }
+                    }*@
+                    <li>
+                        <a class="btn btn-link btn-sm" href="/Post/Edit?postId=@Model.Post.PostId"><i class="fa fa-edit"></i> Edit</a>
+                    </li>
                     <li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete</button>
                     </li>
@@ -50,17 +53,17 @@
 
                 @if (User.IsInRole("Administrator"))
                 {
-                    using (Html.BeginForm("Edit", "Post",
-                        new { ReturnUrl = ViewBag.ReturnUrl },
-                        FormMethod.Post,
-                        new { role = "form" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.Hidden("PostId", Model.Post.PostId)
-                        <li>
-                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
-                        </li>
-                    }
+                    @*using (Html.BeginForm("Edit", "Post",
+                new { ReturnUrl = ViewBag.ReturnUrl },
+                FormMethod.Post,
+                new { role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("PostId", Model.Post.PostId)
+                <li>
+                    <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
+                </li>
+            }*@
                     <li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.Post.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
                     </li>
@@ -95,12 +98,12 @@
                 {
 
                 }
-                <li class="dropdown-submenu pull-left">
-                    <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
-                    <ul class="dropdown-menu">
-                        <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle"></div></li>
-                    </ul>
-                </li>
+                @*<li class="dropdown-submenu pull-left">
+            <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
+            <ul class="dropdown-menu">
+                <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.Post.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.Post.PostTitle"></div></li>
+            </ul>
+        </li>*@
             </ul>
         </div>
         @*border-style: solid;border-color: #1ab394;border-top-width: 0px;border-left-width: 0px;border-right-width: 0px;border-bottom-width: 1px;*@
