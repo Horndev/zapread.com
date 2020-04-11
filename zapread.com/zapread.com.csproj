@@ -988,6 +988,8 @@
     <Content Include="Scripts\dist\home_index.js" />
     <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\dist\manage_apikeys.js" />
+    <Content Include="Scripts\dist\manage_default.css" />
+    <Content Include="Scripts\dist\manage_default.js" />
     <Content Include="Scripts\dist\manage_index.css" />
     <Content Include="Scripts\dist\manage_index.js" />
     <Content Include="Scripts\dist\post_detail.css" />
@@ -1053,6 +1055,7 @@
     <Content Include="Scripts\src\manage\index.js" />
     <Content Include="Scripts\src\manage\keystable.js" />
     <Content Include="Scripts\src\pages\account\login.js" />
+    <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />

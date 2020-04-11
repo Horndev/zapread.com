@@ -9,6 +9,7 @@ module.exports = {
         home_index:     "./Scripts/src/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
+        manage_default: "./Scripts/src/pages/manage/default.js",
         manage_index:   "./Scripts/src/manage/index.js",
         post_detail:    "./Scripts/src/post/detail.js",
         post_edit:      "./Scripts/src/post/edit.js",

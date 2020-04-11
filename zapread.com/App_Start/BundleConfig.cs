@@ -32,16 +32,6 @@ namespace zapread.com
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-            // Shared view plugins together
-            //bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
-            //            //"~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
-            //            //"~/Scripts/summernote-video-attributes.js",             // Summernote plugin
-            //            //"~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
-            //            //"~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
-            //            //"~/node_modules/toastr/build/toastr.min.js"            // toastr notification 
-            //            //"~/node_modules/date-fns-1/dist/date_fns.min.js"        // Time formatting
-            //            ));
-
             // Shared scripts
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         //"~/Scripts/main.js",                                    // Custom for all
@@ -119,6 +109,16 @@ namespace zapread.com
                         "~/Scripts/Admin/users.js")
                         .WithLastModifiedToken());
 
+            #region manage scripts
+
+            // Manage view default scripts
+            bundles.Add(new ScriptBundle("~/bundles/manage/default").Include(
+                        "~/Scripts/dist/manage_default.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/manage/default/css").Include(
+                          "~/Scripts/dist/manage_default.css")
+                          .WithLastModifiedToken());
+
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
                         "~/node_modules/dropzone/dist/min/dropzone.min.js",
@@ -132,6 +132,8 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/manage/financial").Include(
                         "~/Scripts/Manage/financial.js")
                         .WithLastModifiedToken());
+
+            #endregion
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
