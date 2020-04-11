@@ -29,15 +29,10 @@
     </div>
 </div>
 
-
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+@section Styles {
+    @Styles.Render("~/bundles/account/login/css")  @*same css and scripts*@
 }
 
-@*<h2>@ViewBag.Title.</h2>
-<div>
-    <p>
-        Thank you for confirming your email. Please @Html.ActionLink("Click here to Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
-    </p>
-</div>*@
+@section Scripts {
+    @Scripts.Render("~/bundles/account/login")
+}
