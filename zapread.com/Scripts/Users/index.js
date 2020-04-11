@@ -47,7 +47,7 @@ var toggleUserIgnore = function (id) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
-            if (response.result == "success") {
+            if (response.result === "success") {
                 if (response.added) {
                     $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
                 }

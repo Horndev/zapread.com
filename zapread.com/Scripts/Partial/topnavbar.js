@@ -1,7 +1,7 @@
 ﻿//
 // Script for TopNavBar (All site content)
 
-var toggleChat; // global function for quotable.  TODO: fix
+//var toggleChat; // global function for quotable.  TODO: fix
 var ub = 0;
 
 // Used for caching scripts when loaded on-demand.
@@ -40,11 +40,15 @@ $(document).ready(function () {
         });
     });
 
-    var urla = $("#unreadAlerts").data("url");
-    $("#unreadAlerts").load(urla);
+    if ($("#unreadAlerts").length) {
+        var urla = $("#unreadAlerts").data("url");
+        $("#unreadAlerts").load(urla);
+    }
 
-    var urlm = $("#unreadMessages").data("url");
-    $("#unreadMessages").load(urlm);
+    if ($("#unreadMessages").length) {
+        var urlm = $("#unreadMessages").data("url");
+        $("#unreadMessages").load(urlm);
+    }
 
     // Textarea autoexpand
     jQuery.each(jQuery('textarea[data-autoresize]'), function () {

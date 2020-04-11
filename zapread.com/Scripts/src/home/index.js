@@ -1,11 +1,27 @@
 ﻿/*
  * 
  */
+import '../shared/shared';
+import '../realtime/signalr';
+
+import 'summernote/dist/summernote-bs4';
+import 'summernote/dist/summernote-bs4.css';
+import '../utility/summernote/summernote-video-attributes';
+
 import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
-//const addposts = require('../utility/loadmore').default;
-import { addposts } from '../utility/loadmore';
+
+import { addposts, loadmore} from '../utility/loadmore';
 import { onLoadedMorePosts } from '../utility/onLoadedMorePosts';
+import { writeComment } from '../comment/writecomment';
+import { replyComment } from '../comment/replycomment';
+import { loadMoreComments } from '../comment/loadmorecomments';
+
+// Make global (called from html)
+window.writeComment = writeComment;
+window.replyComment = replyComment;
+window.loadMoreComments = loadMoreComments;
+window.loadmore = loadmore;
 
 var request = new XMLHttpRequest();
 request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
@@ -35,32 +51,7 @@ request.onload = function () {
 request.onerror = function () {
     // There was a connection error of some sort
     var response = JSON.parse(this.response);
-    swal("Error", "Error requesting posts: " + response.message, "error");
+    Swal.fire("Error", "Error requesting posts: " + response.message, "error");
 };
 
 request.send();
-
-// This was re-written to not use jquery
-//$.ajax({
-//    async: true,
-//    data: { "sort": postSort },
-//    type: 'GET',
-//    url: '/Home/TopPosts/',
-//    contentType: "application/json; charset=utf-8",
-//    dataType: "json",
-//    success: function (response) {
-        
-//    },
-//    failure: function (response) {
-//        swal("Error", "Failure loading posts: " + response.message, "error");
-//    },
-//    error: function (response) {
-//        swal("Error", "Error loading posts: " + response.message, "error");
-//    }
-//});
-
-//module.exports = {
-//    Globals,
-//    addposts
-//};
-

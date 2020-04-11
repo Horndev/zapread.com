@@ -60,8 +60,8 @@
                 </section>
 
                 @*<p class="m-t">
-                    <small>Small footnote here</small>
-                </p>*@
+                        <small>Small footnote here</small>
+                    </p>*@
 
                 <br />
                 <section id="socialLoginForm">
@@ -73,6 +73,10 @@
     </div>
 </div>
 
+@section Styles {
+    @Styles.Render("~/bundles/account/login/css")
+}
+
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/account/login")
 }

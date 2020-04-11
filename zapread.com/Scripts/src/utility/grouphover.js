@@ -6,6 +6,13 @@ import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 
+import { joinGroup } from './ui/joingroup';
+import { leaveGroup } from './ui/leavegroup';
+
+// Save to window globals (part of the group hover)
+window.joinGroup = joinGroup;
+window.leaveGroup = leaveGroup;
+
 export function loadgrouphover(e) {
     e.removeAttribute('onmouseover');
     var groupid = e.getAttribute('data-groupid');

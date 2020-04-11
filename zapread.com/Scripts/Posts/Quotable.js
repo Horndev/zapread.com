@@ -117,6 +117,20 @@ var commentQuoteComment = function (id, mention) {
     });
 };
 
+var toggleChat = function (id, show) {
+    show = typeof show !== 'undefined' ? show : false;
+    initCommentInput(id);
+    $(".note-statusbar").css("display", "none");
+    if (!show) {
+        $('#comments_' + id.toString()).slideToggle(200);
+        $('#preply_' + id.toString()).slideToggle(200);
+    }
+    else {
+        $('#comments_' + id.toString()).slideDown(200);
+        $('#preply_' + id.toString()).slideDown(200);
+    }
+};
+
 var postQuoteComment = function (id, mention) {
     mention = typeof mention !== 'undefined' ? mention : false;
     toggleChat(id, true);

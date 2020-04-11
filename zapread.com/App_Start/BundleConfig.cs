@@ -33,18 +33,18 @@ namespace zapread.com
         public static void RegisterBundles(BundleCollection bundles)
         {
             // Shared view plugins together
-            bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
-                        "~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
-                        "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
-                        "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
-                        "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
-                        "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
-                        "~/node_modules/date-fns-1/dist/date_fns.min.js"        // Time formatting
-                        ));
+            //bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
+            //            //"~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
+            //            //"~/Scripts/summernote-video-attributes.js",             // Summernote plugin
+            //            //"~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
+            //            //"~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
+            //            //"~/node_modules/toastr/build/toastr.min.js"            // toastr notification 
+            //            //"~/node_modules/date-fns-1/dist/date_fns.min.js"        // Time formatting
+            //            ));
 
             // Shared scripts
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
-                        "~/Scripts/main.js",                                    // Custom for all
+                        //"~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
                         "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
@@ -56,6 +56,8 @@ namespace zapread.com
                         "~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
                         "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
+
+            #region partial scripts
 
             // Partial script - summary statistics
             bundles.Add(new ScriptBundle("~/bundles/partial/summaryStatistics").Include(
@@ -102,6 +104,16 @@ namespace zapread.com
                         "~/Scripts/Manage/updateAlias.js")
                         .WithLastModifiedToken());
 
+            #endregion
+
+            // Account/Login scripts
+            bundles.Add(new ScriptBundle("~/bundles/account/login").Include(
+                        "~/Scripts/dist/account_login.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/account/login/css").Include(
+                          "~/Scripts/dist/account_login.css")
+                          .WithLastModifiedToken());
+
             // Admin/Users scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
                         "~/Scripts/Admin/users.js")
@@ -132,10 +144,16 @@ namespace zapread.com
                         "~/Scripts/Admin/install.js")
                         .WithLastModifiedToken());
 
+            // Home/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
-                        "~/Scripts/dist/home_index.js",
-                        "~/Scripts/Home/index.js")
+                        "~/Scripts/dist/home_index.js")
                         .WithLastModifiedToken());
+            // Post/NewPost & Edit styles
+            bundles.Add(new StyleBundle("~/bundles/home/index/css").Include(
+                          "~/Scripts/dist/home_index.css")
+                          .WithLastModifiedToken());
+
+            #region messages
 
             // Messages/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/messages/index").Include(
@@ -161,6 +179,18 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/messages/alerts").Include(
                         "~/Scripts/Messages/alerts.js")
                         .WithLastModifiedToken());
+
+            #endregion
+
+            // Post/NewPost & Edit scripts
+            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
+                        "~/Scripts/dist/post_edit.js",
+                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
+                        .WithLastModifiedToken());
+            // Post/NewPost & Edit styles
+            bundles.Add(new StyleBundle("~/bundles/post/edit/css").Include(
+                          "~/Scripts/dist/post_edit.css")
+                          .WithLastModifiedToken());
 
             // Post/Detail scripts
             bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
@@ -202,11 +232,6 @@ namespace zapread.com
             // Achievement scripts
             bundles.Add(new ScriptBundle("~/bundles/achievements").Include(
                         "~/Scripts/Achievements/achievementhover.js")
-                        .WithLastModifiedToken());
-
-            // Post/NewPost scripts
-            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
-                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
                         .WithLastModifiedToken());
 
             bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
@@ -302,14 +327,6 @@ namespace zapread.com
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/social").Include(
                       "~/Content/bootstrap-social.css"));
-
-            // toastr notification 
-            bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
-                      "~/node_modules/toastr/build/toastr.min.js"));
-
-            // toastr notification styles
-            bundles.Add(new StyleBundle("~/Content/style/toastr").Include(
-                      "~/node_modules/toastr/build/toastr.min.css"));
 
             // SlimScroll
             bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(

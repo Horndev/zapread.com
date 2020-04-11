@@ -964,6 +964,10 @@
     <Content Include="Mvc.sitemap" />
     <Compile Include="DI\NinjectDependencyInjectionContainer.cs" />
     <Content Include=".babelrc" />
+    <Content Include="Content\fonts\summernote.eot" />
+    <Content Include="Content\fonts\summernote.ttf" />
+    <Content Include="Content\fonts\summernote.woff" />
+    <Content Include="Content\fonts\summernote.woff2" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -976,12 +980,21 @@
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
+    <Content Include="Scripts\dist\account_login.css" />
+    <Content Include="Scripts\dist\account_login.js" />
+    <Content Include="Scripts\dist\group_detail.css" />
     <Content Include="Scripts\dist\group_detail.js" />
+    <Content Include="Scripts\dist\home_index.css" />
     <Content Include="Scripts\dist\home_index.js" />
     <Content Include="Scripts\dist\index.js" />
     <Content Include="Scripts\dist\manage_apikeys.js" />
+    <Content Include="Scripts\dist\manage_index.css" />
     <Content Include="Scripts\dist\manage_index.js" />
+    <Content Include="Scripts\dist\post_detail.css" />
     <Content Include="Scripts\dist\post_detail.js" />
+    <Content Include="Scripts\dist\post_edit.css" />
+    <Content Include="Scripts\dist\post_edit.js" />
+    <Content Include="Scripts\dist\user_index.css" />
     <Content Include="Scripts\dist\user_index.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\detail.js" />
@@ -992,7 +1005,6 @@
     <Content Include="Scripts\Groups\new.js" />
     <Content Include="Scripts\Groups\tags.js" />
     <Content Include="Scripts\Groups\userRoles.js" />
-    <Content Include="Scripts\Home\index.js" />
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\Manage\financial.js" />
@@ -1028,6 +1040,10 @@
     <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\src\comment\initCommentInput.js" />
+    <Content Include="Scripts\src\comment\loadmorecomments.js" />
+    <Content Include="Scripts\src\comment\replycomment.js" />
+    <Content Include="Scripts\src\comment\writecomment.js" />
     <Content Include="Scripts\src\components\page-heading.js" />
     <Content Include="Scripts\src\group\detail.js" />
     <Content Include="Scripts\src\home\globals.js" />
@@ -1036,14 +1052,25 @@
     <Content Include="Scripts\src\manage\apikeys.js" />
     <Content Include="Scripts\src\manage\index.js" />
     <Content Include="Scripts\src\manage\keystable.js" />
+    <Content Include="Scripts\src\pages\account\login.js" />
     <Content Include="Scripts\src\post\detail.js" />
+    <Content Include="Scripts\src\post\edit.js" />
+    <Content Include="Scripts\src\realtime\signalr.js" />
+    <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\user\index.js" />
+    <Content Include="Scripts\src\utility\antiforgery.js" />
+    <Content Include="Scripts\src\utility\appinsights.js" />
+    <Content Include="Scripts\src\utility\datetime\posttime.js" />
     <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
     <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\sendfile.js" />
+    <Content Include="Scripts\src\utility\ui\follow.js" />
+    <Content Include="Scripts\src\utility\ui\joingroup.js" />
+    <Content Include="Scripts\src\utility\ui\leavegroup.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
-    <Content Include="Scripts\summernote-video-attributes.js" />
+    <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

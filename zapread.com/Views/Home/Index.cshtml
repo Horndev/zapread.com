@@ -111,17 +111,19 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/bundles/home/index/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/users")
-    @Scripts.Render("~/bundles/groups")
-
     <script type="text/javascript">
         var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
     </script>
 
     @Scripts.Render("~/bundles/home/index")
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")*@
+    @*@Scripts.Render("~/bundles/users")
+        @Scripts.Render("~/bundles/groups")*@
+
 }

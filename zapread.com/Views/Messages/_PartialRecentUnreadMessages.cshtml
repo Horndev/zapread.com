@@ -5,7 +5,7 @@
     <li id="m1_@m.Id">
         <div class="dropdown-messages-box">
             <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = m.FromName })" class="pull-left">
-                <img alt="image" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = m.FromAppId, v=m.FromProfileImageVersion})">
+                <img alt="image" loading="lazy" class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = m.FromAppId, v=m.FromProfileImageVersion})">
             </a>
             <div class="media-body">
                 <span class="pull-right">

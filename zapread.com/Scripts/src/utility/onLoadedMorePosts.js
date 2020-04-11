@@ -1,11 +1,13 @@
 ﻿/*
  *
  */
+//import 'date-fns-1/dist/date_fns';
 import { loaduserhover } from '../utility/userhover';
 import { loadgrouphover } from '../utility/grouphover';
+import { updatePostTimes } from '../utility/datetime/posttime';
 
 export function onLoadedMorePosts() {
-    console.log('[DEBUG] onLoadedMorePosts');
+    //console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover
     // --- new version
     var elements = document.querySelectorAll(".userhint");
@@ -75,28 +77,7 @@ export function onLoadedMorePosts() {
 
 
     // --- relative times
-    elements = document.querySelectorAll(".postTime");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        var datefn = dateFns.parse(el.innerHTML);
-        datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-        var date = dateFns.format(datefn, "DD MMM YYYY");
-        var time = dateFns.distanceInWordsToNow(datefn);
-        el.innerHTML = '<span>' + time + ' ago - ' + date + '</span>';
-        el.style.display = 'inline';
-        el.classList.remove('postTime');
-    });
-
-    //old version
-    //    $('.postTime').each(function (i, e) {
-    //        var datefn = dateFns.parse($(e).html());
-    //        // Adjust to local time
-    //        datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-    //        var date = dateFns.format(datefn, "DD MMM YYYY");
-    //        var time = dateFns.distanceInWordsToNow(datefn);
-    //        $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-    //        $(e).css('display', 'inline');
-    //        $(e).removeClass("postTime");
-    //    });
+    updatePostTimes();
     // ---
 
     // --- socials buttons
