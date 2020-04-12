@@ -14,9 +14,9 @@ import 'dropzone/dist/dropzone.css';
 import Swal from 'sweetalert2';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 
-var id = -1;
 window.Dropzone = Dropzone;
 
+var id = -1;
 Dropzone.options.dropzoneForm = {
     url: "/Admin/Achievements/Upload/",
     paramName: "file", // The name that will be used to transfer the file

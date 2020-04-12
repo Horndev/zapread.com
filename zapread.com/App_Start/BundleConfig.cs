@@ -136,12 +136,20 @@ namespace zapread.com
                           "~/Scripts/dist/admin_index.css")
                           .WithLastModifiedToken());
 
-            // Admin/ Jobs
+            // Admin/Jobs scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/jobs").Include(
                         "~/Scripts/dist/admin_jobs.js")
                         .WithLastModifiedToken());
             bundles.Add(new StyleBundle("~/bundles/admin/jobs/css").Include(
                           "~/Scripts/dist/admin_jobs.css")
+                          .WithLastModifiedToken());
+
+            // Admin/Lightning scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/lightning").Include(
+                        "~/Scripts/dist/admin_lightning.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/admin/lightning/css").Include(
+                          "~/Scripts/dist/admin_lightning.css")
                           .WithLastModifiedToken());
 
             // Admin/Users scripts

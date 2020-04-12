@@ -6,12 +6,12 @@
 
 <div class="modal fade" id="ModalFileUpload" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-header">
+        @*<div class="modal-header">
             <h5 class="modal-title">Upload macaroon</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
-        </div>
+        </div>*@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Upload macaroon</h5>
@@ -25,7 +25,7 @@
                     @Html.AntiForgeryToken()
                     <div class="fallback">
                         <input name="file" type="file" />
-                        <input id="mt" name="macaroonType" type="hidden" value="test"/>
+                        <input id="mt" name="macaroonType" type="hidden" value="test" />
                     </div>
                 }
             </div>
@@ -109,78 +109,9 @@
 </div>
 
 @section Styles {
-@Styles.Render("~/bundles/css/datatables")
-@Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
+    @Styles.Render("~/bundles/admin/lightning/css")
 }
 
 @section Scripts {
-@Scripts.Render("~/plugins/dropZone")
-@Scripts.Render("~/bundles/datatables")
-
-
-<script type="text/javascript">
-
-    var mt = "";
-
-    Dropzone.options.dropzoneForm = {
-        paramName: "file", // The name that will be used to transfer the file
-        maxFilesize: 5, // MB
-        acceptedFiles: ".macaroon",
-        maxFiles: 1,
-        addRemoveLinks: true,
-        init: function () {
-            this.on("sending", function (file, xhr, formData) {
-                formData.append("macaroonType", mt);
-                console.log(formData)
-            });
-            this.on("addedfile", function () {
-                if (this.files[1] != null) {
-                    this.removeFile(this.files[0]);
-                }
-            });
-            this.on("success", function (file, response) {
-                console.log(response.macaroon);
-                $('#' + mt).val(response.macaroon);
-                $('#ModalFileUpload').modal('hide');
-            })
-        },
-        dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
-    };
-
-    var uploadMacaroon = function (id) {
-        mt = id;
-        console.log(id);
-        $('#ModalFileUpload').modal('show');
-        return false;
-    };
-
-    var save = function () {
-        var msg = JSON.stringify({
-            'LnMainnetHost': $('#LnMainnetHost').val(),
-            'LnPubkey': $('#LnPubkey').val(),
-            'LnMainnetMacaroonAdmin': $('#LnMainnetMacaroonAdmin').val(),
-            'LnMainnetMacaroonInvoice': $('#LnMainnetMacaroonInvoice').val(),
-            'LnMainnetMacaroonRead': $('#LnMainnetMacaroonRead').val()
-        });
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "/Admin/Lightning/Update/",
-            data: msg,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                if (response.result === 'success') {
-                    alert("Successfully saved.");
-                }
-            },
-            failure: function (response) {
-                alert("Error saving.");
-            },
-            error: function (response) {
-                alert("Error saving.");
-            }
-        });
-    };
-</script>
+    @Scripts.Render("~/bundles/admin/lightning")
 }

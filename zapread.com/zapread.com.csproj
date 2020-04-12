@@ -851,6 +851,8 @@
     <Content Include="Content\logo.png" />
     <Content Include="Scripts\dist\admin_jobs.css" />
     <Content Include="Scripts\dist\admin_jobs.js" />
+    <Content Include="Scripts\dist\admin_lightning.css" />
+    <Content Include="Scripts\dist\admin_lightning.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1062,6 +1064,7 @@
     <Content Include="Scripts\src\pages\admin\icons.js" />
     <Content Include="Scripts\src\pages\admin\index.js" />
     <Content Include="Scripts\src\pages\admin\jobs.js" />
+    <Content Include="Scripts\src\pages\admin\lightning.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />

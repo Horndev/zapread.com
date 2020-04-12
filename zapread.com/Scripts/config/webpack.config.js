@@ -10,6 +10,7 @@ module.exports = {
         admin_icons:    "./Scripts/src/pages/admin/icons.js",
         admin_index:    "./Scripts/src/pages/admin/index.js",
         admin_jobs:     "./Scripts/src/pages/admin/jobs.js",
+        admin_lightning:"./Scripts/src/pages/admin/lightning.js",
         group_detail:   "./Scripts/src/group/detail.js",
         home_index:     "./Scripts/src/home/index.js",
         index:          "./Scripts/src/index.js",
