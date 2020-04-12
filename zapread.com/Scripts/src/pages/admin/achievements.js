@@ -4,18 +4,14 @@
 
 import '../../shared/shared';
 import '../../realtime/signalr';
-
 import 'datatables.net-bs4';
 import 'datatables.net-scroller-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
-
 import Dropzone from 'dropzone';
 import 'dropzone/dist/basic.css';
 import 'dropzone/dist/dropzone.css';
-
 import Swal from 'sweetalert2';
-
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 
 var id = -1;
