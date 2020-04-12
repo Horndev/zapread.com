@@ -13,14 +13,14 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
     @RenderSection("Styles", required: false)
     @Styles.Render("~/Content/style/textspinners")
-    @if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
+    @*@if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
     {
         @Styles.Render("~/Content/css-dark")
     }
     else
     {
         @Styles.Render("~/Content/css")
-    }
+    }*@
 </head>
 <body class="top-navigation gray-bg">
     @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
