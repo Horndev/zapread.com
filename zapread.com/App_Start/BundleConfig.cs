@@ -128,6 +128,14 @@ namespace zapread.com
                           "~/Scripts/dist/admin_icons.css")
                           .WithLastModifiedToken());
 
+            // Admin/ scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/index").Include(
+                        "~/Scripts/dist/admin_index.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/admin/index/css").Include(
+                          "~/Scripts/dist/admin_index.css")
+                          .WithLastModifiedToken());
+
             // Admin/Users scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
                         "~/Scripts/Admin/users.js")

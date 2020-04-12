@@ -8,6 +8,7 @@ module.exports = {
         admin_achievements: "./Scripts/src/pages/admin/achievements.js",
         admin_audit:    "./Scripts/src/pages/admin/audit.js",
         admin_icons:    "./Scripts/src/pages/admin/icons.js",
+        admin_index:    "./Scripts/src/pages/admin/index.js",
         group_detail:   "./Scripts/src/group/detail.js",
         home_index:     "./Scripts/src/home/index.js",
         index:          "./Scripts/src/index.js",

@@ -987,6 +987,8 @@
     <Content Include="Scripts\dist\admin_audit.js" />
     <Content Include="Scripts\dist\admin_icons.css" />
     <Content Include="Scripts\dist\admin_icons.js" />
+    <Content Include="Scripts\dist\admin_index.css" />
+    <Content Include="Scripts\dist\admin_index.js" />
     <Content Include="Scripts\dist\group_detail.css" />
     <Content Include="Scripts\dist\group_detail.js" />
     <Content Include="Scripts\dist\home_index.css" />
@@ -1056,6 +1058,7 @@
     <Content Include="Scripts\src\pages\admin\achievements.js" />
     <Content Include="Scripts\src\pages\admin\audit.js" />
     <Content Include="Scripts\src\pages\admin\icons.js" />
+    <Content Include="Scripts\src\pages\admin\index.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
