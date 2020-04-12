@@ -112,6 +112,14 @@ namespace zapread.com
                           "~/Scripts/dist/admin_achievements.css")
                           .WithLastModifiedToken());
 
+            // Admin/Audit scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/audit").Include(
+                        "~/Scripts/dist/admin_audit.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/admin/audit/css").Include(
+                          "~/Scripts/dist/admin_audit.css")
+                          .WithLastModifiedToken());
+
             // Admin/Users scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
                         "~/Scripts/Admin/users.js")
@@ -267,19 +275,6 @@ namespace zapread.com
                       "~/node_modules/dropzone/dist/min/basic.min.css",
                       "~/node_modules/dropzone/dist/min/dropzone.min.css"));
 
-            // Jquery ui
-            bundles.Add(new ScriptBundle("~/Content/plugins/css/jquery-ui").Include(
-                        "~/node_modules/jquery-ui-dist/jquery-ui.min.css"));
-
-            // Jquery
-            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/node_modules/jquery/dist/jquery.js",
-                        "~/node_modules/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
-                        "~/node_modules/jquery-ui-dist/jquery-ui.min.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/Scripts/jquery.validate*"));
-
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
                         "~/node_modules/datatables.net/js/jquery.dataTables.min.js",
@@ -289,11 +284,6 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/bundles/css/datatables").Include(
                       "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
                       "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
-
-            // Use the development version of Modernizr to develop with and learn from. Then, when you're
-            // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
-            bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
-                        "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/node_modules/popper.js/dist/umd/popper.min.js",

@@ -975,7 +975,6 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\Admin\users.js" />
@@ -984,6 +983,8 @@
     <Content Include="Scripts\dist\account_login.js" />
     <Content Include="Scripts\dist\admin_achievements.css" />
     <Content Include="Scripts\dist\admin_achievements.js" />
+    <Content Include="Scripts\dist\admin_audit.css" />
+    <Content Include="Scripts\dist\admin_audit.js" />
     <Content Include="Scripts\dist\group_detail.css" />
     <Content Include="Scripts\dist\group_detail.js" />
     <Content Include="Scripts\dist\home_index.css" />
@@ -1018,7 +1019,6 @@
     <Content Include="Scripts\Messages\chat-ui.js" />
     <Content Include="Scripts\Messages\chats.js" />
     <Content Include="Scripts\Messages\index.js" />
-    <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\Partial\messageCompose.js" />
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\Partial\topnavbar.js" />
@@ -1028,10 +1028,6 @@
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.min.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\Lightning\account-payments-ui.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\Manage\index.js" />
@@ -1058,6 +1054,7 @@
     <Content Include="Scripts\src\manage\keystable.js" />
     <Content Include="Scripts\src\pages\account\login.js" />
     <Content Include="Scripts\src\pages\admin\achievements.js" />
+    <Content Include="Scripts\src\pages\admin\audit.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
