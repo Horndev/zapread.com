@@ -104,10 +104,20 @@ namespace zapread.com
                           "~/Scripts/dist/account_login.css")
                           .WithLastModifiedToken());
 
+            // Admin/Achievements scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/achievements").Include(
+                        "~/Scripts/dist/admin_achievements.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/admin/achievements/css").Include(
+                          "~/Scripts/dist/admin_achievements.css")
+                          .WithLastModifiedToken());
+
             // Admin/Users scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
                         "~/Scripts/Admin/users.js")
                         .WithLastModifiedToken());
+
+
 
             #region manage scripts
 
