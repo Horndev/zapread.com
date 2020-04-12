@@ -848,6 +848,15 @@
     <Content Include="Content\FFFFFF-0.png" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\images\fontawesome-webfont.svg" />
+    <Content Include="Content\images\header-profile.png" />
+    <Content Include="Content\images\shattered.png" />
+    <Content Include="Content\images\ui-icons_444444_256x240.png" />
+    <Content Include="Content\images\ui-icons_555555_256x240.png" />
+    <Content Include="Content\images\ui-icons_777620_256x240.png" />
+    <Content Include="Content\images\ui-icons_777777_256x240.png" />
+    <Content Include="Content\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
     <Content Include="Content\logo.png" />
     <Content Include="Scripts\dist\admin_jobs.css" />
     <Content Include="Scripts\dist\admin_jobs.js" />
@@ -980,7 +989,6 @@
     <Content Include="Scripts\config\webpack.config.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\Admin\install.js" />
-    <Content Include="Scripts\Admin\users.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\dist\account_login.css" />
     <Content Include="Scripts\dist\account_login.js" />
@@ -1065,6 +1073,7 @@
     <Content Include="Scripts\src\pages\admin\index.js" />
     <Content Include="Scripts\src\pages\admin\jobs.js" />
     <Content Include="Scripts\src\pages\admin\lightning.js" />
+    <Content Include="Scripts\src\pages\admin\users.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />

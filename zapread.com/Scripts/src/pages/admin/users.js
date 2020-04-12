@@ -1,7 +1,15 @@
-﻿//
-//
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'datatables.net-bs4';
+import 'datatables.net-scroller-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
 
-var checkonline = function (id) {
+export function checkonline(id) {
     $.get("/api/v1/admin/checkonline/" + id + "/", function (result) {
         if (result.success) {
             alert("Check successful.");
@@ -9,7 +17,8 @@ var checkonline = function (id) {
             alert("Check failed.");
         }
     });
-};
+}
+window.checkonline = checkonline;
 
 var usersTable = {};
 $(document).ready(function () {
@@ -47,8 +56,8 @@ $(document).ready(function () {
                 "name": 'IsOnline',
                 "orderable": true,
                 "mRender": function (data, _type, _row) {
+                    var html = "<span onclick='checkonline(" + data.Id + ");'>";
                     if (data.IsOnline) {
-                        var html = "<span onclick='checkonline(" + data.Id + ");'>";
                         return html + "Yes" + "</span>";
                     } else {
                         return html + "No" + "</span>";

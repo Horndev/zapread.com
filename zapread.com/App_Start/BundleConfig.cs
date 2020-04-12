@@ -154,8 +154,16 @@ namespace zapread.com
 
             // Admin/Users scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
-                        "~/Scripts/Admin/users.js")
+                        "~/Scripts/dist/admin_users.js")
                         .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/admin/users/css").Include(
+                          "~/Scripts/dist/admin_users.css")
+                          .WithLastModifiedToken());
+
+            // Admin/Users scripts
+            //bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
+            //            "~/Scripts/Admin/users.js")
+            //            .WithLastModifiedToken());
 
 
 
