@@ -1,6 +1,12 @@
-﻿
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
 
-var deletea = function (t, id) {
+import '../../shared/sharedlast';
+
+export function deletea(t, id) {
     var url = "";
     if (t === 1) {
         url = "/Messages/DeleteAlert";
@@ -43,9 +49,10 @@ var deletea = function (t, id) {
         }
     });
     return false;
-};
+}
+window.deletea = deletea;
 
-var ignore = function (t, id) {
+export function ignore(t, id) {
     if (t === 1) {
         $('#a_' + id).hide();
     }
@@ -53,4 +60,5 @@ var ignore = function (t, id) {
         $('#m_' + id).hide();
     }
     return false;
-};
+}
+window.ignore = ignore;

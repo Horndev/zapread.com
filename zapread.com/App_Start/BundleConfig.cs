@@ -122,21 +122,13 @@ namespace zapread.com
             BundlePage(bundles, "messages", "all");
             BundlePage(bundles, "messages", "chat");
             BundlePage(bundles, "messages", "chats");
+            BundlePage(bundles, "messages", "index");
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
                         "~/Scripts/Users/index.js",
                         "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
-
-            #region messages
-
-            // Messages/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/index").Include(
-                        "~/Scripts/Messages/index.js")
-                        .WithLastModifiedToken());
-
-            #endregion
 
             // Post/NewPost & Edit scripts
             bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(

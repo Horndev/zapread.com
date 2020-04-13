@@ -41,13 +41,13 @@
                             <div id="m_@m.Id" class="feed-element">
                                 <div>
                                     <span class="pull-right">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(0, @m.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-danger" onclick="deletea(0, @m.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
                                     </span>
                                     <span class="pull-right text-navy">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(0, @m.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick="dismiss(0, @m.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
                                     </span>
                                     <span class="pull-right">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-info" onclick="ignore(0, @m.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-info" onclick="ignore(0, @m.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
                                     </span>
                                     <strong>@Html.Raw(m.Title)</strong>
                                     <div>
@@ -109,13 +109,13 @@
                             <div id="a_@a.Id" class="feed-element">
                                 <div>
                                     <span class="pull-right">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-danger" onclick="deletea(1, @a.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-danger" onclick="deletea(1, @a.Id);">Delete <icon class="fa fa-times-circle"></icon></a>
                                     </span>
                                     <span class="pull-right text-navy">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-warning" onclick="dismiss(1, @a.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick="dismiss(1, @a.Id);">Dismiss <icon class="fa fa-minus-circle"></icon></a>
                                     </span>
                                     <span class="pull-right">
-                                        &nbsp;<a href="javascript:void();" class="btn btn-sm btn-info" onclick="ignore(1, @a.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
+                                        &nbsp;<a href="javascript:void(0);" class="btn btn-sm btn-info" onclick="ignore(1, @a.Id);">Ignore <icon class="fa fa-eye-slash"></icon></a>
                                     </span>
 
                                     <strong>@Html.Raw(a.Title)</strong>
@@ -147,6 +147,10 @@
         </div>
     </div>
 </div>
+
+@section Styles {
+    @Styles.Render("~/bundles/messages/index/css")
+}
 
 @section Scripts {
     @Scripts.Render("~/bundles/messages/index")
