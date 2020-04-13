@@ -50,7 +50,7 @@
                 </div>
             </div>
             <div class="container" style="background-color:white;">
-                
+
                 <br />
                 <hr />
                 Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
@@ -60,3 +60,11 @@
         </div>
     </div>
 </div>
+
+@section Styles {
+    @Styles.Render("~/bundles/mailer/default/css")
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/mailer/default")
+}

@@ -212,6 +212,8 @@ namespace zapread.com
 
             #endregion
 
+            BundlePage(bundles, "mailer", "default");
+
             #region manage scripts
 
             // Manage view default scripts
@@ -243,8 +245,6 @@ namespace zapread.com
                         "~/Scripts/Users/index.js",
                         "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
-
-
 
             #region messages
 

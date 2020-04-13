@@ -876,6 +876,8 @@
     <Content Include="Scripts\dist\home_faq.js" />
     <Content Include="Scripts\dist\home_install.css" />
     <Content Include="Scripts\dist\home_install.js" />
+    <Content Include="Scripts\dist\mailer_default.css" />
+    <Content Include="Scripts\dist\mailer_default.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1088,6 +1090,7 @@
     <Content Include="Scripts\src\pages\group\detail.js" />
     <Content Include="Scripts\src\pages\home\about.js" />
     <Content Include="Scripts\src\pages\home\install.js" />
+    <Content Include="Scripts\src\pages\mailer\default.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
@@ -1249,7 +1252,6 @@
     <Content Include="Views\Feed\Index.cshtml" />
     <Content Include="Views\Mailer\NewCommentReply.cshtml" />
     <Content Include="Views\Mailer\NewChat.cshtml" />
-    <Content Include="Views\Home\React.cshtml" />
     <Content Include="Views\SwashbuckleMVC\Index.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
   </ItemGroup>

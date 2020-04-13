@@ -693,12 +693,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]
-        public ActionResult React()
-        {
-            return View();
-        }
-
         private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
         {
             if (userId == 0)
