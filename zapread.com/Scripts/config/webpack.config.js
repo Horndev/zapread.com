@@ -17,6 +17,7 @@ module.exports = {
         group_members:  "./Scripts/src/pages/group/members.js",
         group_new:      "./Scripts/src/pages/group/new.js",
         home_about:     "./Scripts/src/pages/home/about.js",
+        home_faq:       "./Scripts/src/pages/home/faq.js",
         home_index:     "./Scripts/src/pages/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",

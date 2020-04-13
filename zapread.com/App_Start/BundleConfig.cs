@@ -36,7 +36,7 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         //"~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-                        //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                                                                                //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
@@ -205,13 +205,8 @@ namespace zapread.com
 
             #region home
 
-            // Home/About scripts
-            bundles.Add(new ScriptBundle("~/bundles/home/about").Include(
-                        "~/Scripts/dist/home_about.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/home/about/css").Include(
-                        "~/Scripts/dist/home_about.css")
-                        .WithLastModifiedToken());
+            BundlePage(bundles, "home", "about");
+            BundlePage(bundles, "home", "faq");
 
             // Home/Install scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
@@ -261,7 +256,7 @@ namespace zapread.com
                         "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
 
-            
+
 
             #region messages
 
@@ -437,6 +432,16 @@ namespace zapread.com
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = true;// false;
+        }
+
+        private static void BundlePage(BundleCollection bundles, string controller, string page)
+        {
+            bundles.Add(new ScriptBundle("~/bundles/" + controller + "/" + page).Include(
+                        "~/Scripts/dist/" + controller+"_" + page+".js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/" + controller + "/" + page + "/css").Include(
+                        "~/Scripts/dist/" + controller + "_" + page + ".css")
+                        .WithLastModifiedToken());
         }
     }
 }

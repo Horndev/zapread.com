@@ -872,6 +872,8 @@
     <Content Include="Scripts\dist\group_new.js" />
     <Content Include="Scripts\dist\home_about.css" />
     <Content Include="Scripts\dist\home_about.js" />
+    <Content Include="Scripts\dist\home_faq.css" />
+    <Content Include="Scripts\dist\home_faq.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1067,6 +1069,7 @@
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
     <Content Include="Scripts\src\pages\group\new.js" />
+    <Content Include="Scripts\src\pages\home\faq.js" />
     <Content Include="Scripts\src\pages\home\globals.js" />
     <Content Include="Scripts\src\pages\home\index.js" />
     <Content Include="Scripts\src\index.js" />
