@@ -21,17 +21,22 @@ module.exports = {
         home_index:     "./Scripts/src/pages/home/index.js",
         home_install:   "./Scripts/src/pages/home/install.js",
         mailer_default: "./Scripts/src/pages/mailer/default.js",
-        index:          "./Scripts/src/index.js",
+        //index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/pages/manage/apikeys.js",
         manage_default: "./Scripts/src/pages/manage/default.js",
-        manage_index:   "./Scripts/src/manage/index.js",
+        manage_financial: "./Scripts/src/pages/manage/financial.js",
+        manage_index:   "./Scripts/src/pages/manage/index.js",
         post_detail:    "./Scripts/src/post/detail.js",
         post_edit:      "./Scripts/src/post/edit.js",
         user_index:     "./Scripts/src/user/index.js"
     },
     output: {
         path: path.resolve(__dirname, "../dist"),
-        filename: "[name].js"
+        filename: (c) => {
+            var subpath = c.chunk.name.split('_')[0];
+            var filename = c.chunk.name.split('_')[1];
+            return subpath + "/" + filename + ".js";
+        }
     },
     module: {
         rules: [
@@ -104,8 +109,9 @@ module.exports = {
             CodeMirror: 'codemirror'
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css'
+            moduleFilename: (chunk) => `${chunk.name.split('_')[0]}/${chunk.name.split('_')[1]}.css`
+            //filename: '[name].css',
+            //chunkFilename: '[id].css'
         })
     ]
 };

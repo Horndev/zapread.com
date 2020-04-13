@@ -96,135 +96,29 @@ namespace zapread.com
 
             #endregion
 
-            #region account
-
-            // Account/Login scripts
-            bundles.Add(new ScriptBundle("~/bundles/account/login").Include(
-                        "~/Scripts/dist/account_login.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/account/login/css").Include(
-                          "~/Scripts/dist/account_login.css")
-                          .WithLastModifiedToken());
-            #endregion
-
-            #region admin
-
-            // Admin/Achievements scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/achievements").Include(
-                        "~/Scripts/dist/admin_achievements.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/achievements/css").Include(
-                          "~/Scripts/dist/admin_achievements.css")
-                          .WithLastModifiedToken());
-
-            // Admin/Audit scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/audit").Include(
-                        "~/Scripts/dist/admin_audit.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/audit/css").Include(
-                          "~/Scripts/dist/admin_audit.css")
-                          .WithLastModifiedToken());
-
-            // Admin/Icons scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/icons").Include(
-                        "~/Scripts/dist/admin_icons.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/icons/css").Include(
-                          "~/Scripts/dist/admin_icons.css")
-                          .WithLastModifiedToken());
-
-            // Admin/ scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/index").Include(
-                        "~/Scripts/dist/admin_index.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/index/css").Include(
-                          "~/Scripts/dist/admin_index.css")
-                          .WithLastModifiedToken());
-
-            // Admin/Jobs scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/jobs").Include(
-                        "~/Scripts/dist/admin_jobs.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/jobs/css").Include(
-                          "~/Scripts/dist/admin_jobs.css")
-                          .WithLastModifiedToken());
-
-            // Admin/Lightning scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/lightning").Include(
-                        "~/Scripts/dist/admin_lightning.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/lightning/css").Include(
-                          "~/Scripts/dist/admin_lightning.css")
-                          .WithLastModifiedToken());
-
-            // Admin/Users scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
-                        "~/Scripts/dist/admin_users.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/admin/users/css").Include(
-                          "~/Scripts/dist/admin_users.css")
-                          .WithLastModifiedToken());
-
-            #endregion
-
-            #region group
-
-            // Group/GroupDetail scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
-                        "~/Scripts/dist/group_detail.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/group/detail/css").Include(
-                        "~/Scripts/dist/group_detail.css")
-                        .WithLastModifiedToken());
-
-            // Group/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
-                        "~/Scripts/dist/group_index.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/group/index/css").Include(
-                        "~/Scripts/dist/group_index.css")
-                        .WithLastModifiedToken());
-
-            // Group/Members scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
-                        "~/Scripts/dist/group_members.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/group/members/css").Include(
-                        "~/Scripts/dist/group_members.css")
-                        .WithLastModifiedToken());
-
-            // Group/New scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
-                        "~/Scripts/dist/group_new.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/group/new/css").Include(
-                        "~/Scripts/dist/group_new.css")
-                        .WithLastModifiedToken());
-
-            #endregion
-
-            #region home
-
+            BundlePage(bundles, "account", "login");
+            BundlePage(bundles, "admin", "achievements");
+            BundlePage(bundles, "admin", "audit");
+            BundlePage(bundles, "admin", "icons");
+            BundlePage(bundles, "admin", "index");
+            BundlePage(bundles, "admin", "jobs");
+            BundlePage(bundles, "admin", "lightning");
+            BundlePage(bundles, "admin", "users");
+            BundlePage(bundles, "group", "detail");
+            BundlePage(bundles, "group", "index");
+            BundlePage(bundles, "group", "members");
+            BundlePage(bundles, "group", "new");
             BundlePage(bundles, "home", "about");
             BundlePage(bundles, "home", "faq");
             BundlePage(bundles, "home", "install");
             BundlePage(bundles, "home", "index");
-
-            #endregion
-
             BundlePage(bundles, "mailer", "default");
 
             #region manage scripts
 
             BundlePage(bundles, "manage", "apikeys");
-
-            // Manage view default scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/default").Include(
-                        "~/Scripts/dist/manage_default.js")
-                        .WithLastModifiedToken());
-            bundles.Add(new StyleBundle("~/bundles/manage/default/css").Include(
-                          "~/Scripts/dist/manage_default.css")
-                          .WithLastModifiedToken());
+            BundlePage(bundles, "manage", "default");
+            BundlePage(bundles, "manage", "financial");
 
             // Manage/Index scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
@@ -233,11 +127,6 @@ namespace zapread.com
                         "~/Scripts/Manage/index.js",
                         "~/Scripts/Achievements/achievementhover.js",
                         "~/Scripts/dist/manage_index.js")
-                        .WithLastModifiedToken());
-
-            // Manage/Financial scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/financial").Include(
-                        "~/Scripts/Manage/financial.js")
                         .WithLastModifiedToken());
 
             #endregion
@@ -427,10 +316,10 @@ namespace zapread.com
         private static void BundlePage(BundleCollection bundles, string controller, string page)
         {
             bundles.Add(new ScriptBundle("~/bundles/" + controller + "/" + page).Include(
-                        "~/Scripts/dist/" + controller+"_" + page+".js")
+                        "~/Scripts/dist/" + controller + "/" + page+".js")
                         .WithLastModifiedToken());
             bundles.Add(new StyleBundle("~/bundles/" + controller + "/" + page + "/css").Include(
-                        "~/Scripts/dist/" + controller + "_" + page + ".css")
+                        "~/Scripts/dist/" + controller + "/" + page + ".css")
                         .WithLastModifiedToken());
         }
     }
