@@ -36,7 +36,7 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         //"~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-                        "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                        //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
@@ -96,6 +96,8 @@ namespace zapread.com
 
             #endregion
 
+            #region account
+
             // Account/Login scripts
             bundles.Add(new ScriptBundle("~/bundles/account/login").Include(
                         "~/Scripts/dist/account_login.js")
@@ -103,6 +105,9 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/bundles/account/login/css").Include(
                           "~/Scripts/dist/account_login.css")
                           .WithLastModifiedToken());
+            #endregion
+
+            #region admin
 
             // Admin/Achievements scripts
             bundles.Add(new ScriptBundle("~/bundles/admin/achievements").Include(
@@ -160,12 +165,34 @@ namespace zapread.com
                           "~/Scripts/dist/admin_users.css")
                           .WithLastModifiedToken());
 
-            // Admin/Users scripts
-            //bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
-            //            "~/Scripts/Admin/users.js")
-            //            .WithLastModifiedToken());
+            #endregion
 
+            #region group
 
+            // Group/GroupDetail scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
+                        "~/Scripts/dist/group_detail.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/group/detail/css").Include(
+                          "~/Scripts/dist/group_detail.css")
+                          .WithLastModifiedToken());
+
+            // Group/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
+                        "~/Scripts/Groups/index.js")
+                        .WithLastModifiedToken());
+
+            // Group/New scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
+                        "~/Scripts/Groups/new.js")
+                        .WithLastModifiedToken());
+
+            // Group/Members scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
+                        "~/Scripts/Groups/members.js")
+                        .WithLastModifiedToken());
+
+            #endregion
 
             #region manage scripts
 
@@ -256,27 +283,6 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
                         "~/Scripts/Posts/post-detail.js",
                         "~/Scripts/dist/post_detail.js")
-                        .WithLastModifiedToken());
-
-            // Group/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
-                        "~/Scripts/Groups/index.js")
-                        .WithLastModifiedToken());
-
-            // Group/New scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
-                        "~/Scripts/Groups/new.js")
-                        .WithLastModifiedToken());
-
-            // Group/GroupDetail scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
-                        "~/Scripts/Groups/detail.js",
-                        "~/Scripts/dist/group_detail.js")
-                        .WithLastModifiedToken());
-
-            // Group/Members scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
-                        "~/Scripts/Groups/members.js")
                         .WithLastModifiedToken());
 
             // User scripts

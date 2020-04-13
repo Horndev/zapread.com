@@ -2,59 +2,33 @@
  *
  */
 //import 'date-fns-1/dist/date_fns';
-import { loaduserhover } from '../utility/userhover';
-import { loadgrouphover } from '../utility/grouphover';
-import { updatePostTimes } from '../utility/datetime/posttime';
+import { loaduserhover } from './userhover';
+import { loadgrouphover } from './grouphover';
+import { updatePostTimes } from './datetime/posttime';
+import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
 
 export function onLoadedMorePosts() {
     //console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover
-    // --- new version
     var elements = document.querySelectorAll(".userhint");
     Array.prototype.forEach.call(elements, function (el, _i) {
         loaduserhover(el);
         el.classList.remove('userhint');
     });
-    
-    // old version
-    //    $('.userhint').each(function () {
-    //        $(this).mouseover(function () {
-    //            loaduserhover(this);
-    //        });
-    //    });
-    // ---
 
-    // ---
     elements = document.querySelectorAll(".grouphint");
     Array.prototype.forEach.call(elements, function (el, _i) {
         loadgrouphover(el);
         el.classList.remove('grouphint');
     });
 
-    // old version
-    //    $('.grouphint').each(function () {
-    //        $(this).mouseover(function () {
-    //            loadgrouphover(this);
-    //        });
-    //    });
-    // ---
-
     // show the read more
-    // --- new version
     elements = document.querySelectorAll(".post-box");
     Array.prototype.forEach.call(elements, function (el, _i) {
         if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
             el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
         }
     });
-
-    // old version
-    //$(".post-box").each(function (index, item) {
-    //    if ($(item).height() >= 800) {
-    //        $(item).find(".read-more-button").show();
-    //    }
-    //});
-    // --- ^^^
 
     // --- update impressions counts
     elements = document.querySelectorAll(".impression");
@@ -67,14 +41,6 @@ export function onLoadedMorePosts() {
             el.classList.remove('impression');
         });
     });
-
-    // old version
-    //    $(".impression").each(function (ix, e) {
-    //        $(e).load($(e).data("url"));
-    //        $(e).removeClass("impression");
-    //    });
-    // ---
-
 
     // --- relative times
     updatePostTimes();

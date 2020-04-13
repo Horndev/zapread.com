@@ -1,19 +1,19 @@
 ﻿/*
  * 
  */
-import '../shared/shared';
-import '../realtime/signalr';
+import '../../shared/shared';
+import '../../realtime/signalr';
 import 'summernote/dist/summernote-bs4';
 import 'summernote/dist/summernote-bs4.css';
-import '../utility/summernote/summernote-video-attributes';
+import '../../utility/summernote/summernote-video-attributes';
 import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
-import { addposts, loadmore} from '../utility/loadmore';
-import { onLoadedMorePosts } from '../utility/onLoadedMorePosts';
-import { writeComment } from '../comment/writecomment';
-import { replyComment } from '../comment/replycomment';
-import { loadMoreComments } from '../comment/loadmorecomments';
-import '../shared/sharedlast';
+import { addposts, loadmore} from '../../utility/loadmore';
+import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
+import { writeComment } from '../../comment/writecomment';
+import { replyComment } from '../../comment/replycomment';
+import { loadMoreComments } from '../../comment/loadmorecomments';
+import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;

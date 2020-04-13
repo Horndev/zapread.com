@@ -862,6 +862,8 @@
     <Content Include="Scripts\dist\admin_jobs.js" />
     <Content Include="Scripts\dist\admin_lightning.css" />
     <Content Include="Scripts\dist\admin_lightning.js" />
+    <Content Include="Scripts\dist\admin_users.css" />
+    <Content Include="Scripts\dist\admin_users.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1017,7 +1019,6 @@
     <Content Include="Scripts\dist\user_index.css" />
     <Content Include="Scripts\dist\user_index.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
-    <Content Include="Scripts\Groups\detail.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
     <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\index.js" />
@@ -1050,7 +1051,6 @@
     <Content Include="Scripts\Posts\post-functions.js" />
     <Content Include="Scripts\Posts\post-initialize.js" />
     <Content Include="Scripts\Posts\post-ui.js" />
-    <Content Include="Scripts\Posts\quotable.js" />
     <Content Include="Scripts\Posts\readmore.js" />
     <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\src\comment\initCommentInput.js" />
@@ -1059,9 +1059,8 @@
     <Content Include="Scripts\src\comment\writecomment.js" />
     <Content Include="Scripts\src\components\page-heading.js" />
     <Content Include="Scripts\src\css\Site.css" />
-    <Content Include="Scripts\src\group\detail.js" />
-    <Content Include="Scripts\src\home\globals.js" />
-    <Content Include="Scripts\src\home\index.js" />
+    <Content Include="Scripts\src\pages\home\globals.js" />
+    <Content Include="Scripts\src\pages\home\index.js" />
     <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\manage\apikeys.js" />
     <Content Include="Scripts\src\manage\index.js" />
@@ -1074,6 +1073,8 @@
     <Content Include="Scripts\src\pages\admin\jobs.js" />
     <Content Include="Scripts\src\pages\admin\lightning.js" />
     <Content Include="Scripts\src\pages\admin\users.js" />
+    <Content Include="Scripts\src\pages\group\detail.js" />
+    <Content Include="Scripts\src\pages\home\about.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
@@ -1088,6 +1089,7 @@
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
     <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\quotable\quotable.js" />
     <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />

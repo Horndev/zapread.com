@@ -21,7 +21,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import * as Toastr from 'toastr';
 import 'toastr/build/toastr.css';
 
-import './sharedlast';
+//import './sharedlast';
 
 Toastr.options.closeMethod = 'fadeOut';
 Toastr.options.closeDuration = 700;

@@ -1,5 +1,83 @@
-﻿/* quotable */
-/* This code is used for having Zapread selections popup and produce a quote in the comments*/
+﻿/*
+ * 
+ */
+import $ from 'jquery'; // yuck ...
+import { initCommentInput } from '../../comment/initCommentInput';
+
+function encode(s) {
+    var x = document.createElement("div");
+    x.innerText = s;
+    return x.innerHTML;
+}
+
+export function makePostsQuotable() {
+    $(".post-quotable").each(function (ix, e) {
+        // Trigger when mouse is released (i.e. possible selection made)
+        $(e).mouseup(function () {
+            var selection = getSelected();
+            $(selectionMarker).popover('hide');
+            if (selection && encode(selection.toString()) !== "") {
+                // User made a selection
+                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                selectionMarker = markSelection(markerId);
+                selectionText = encode(selection.toString());
+                var postId = $(e).data('postid');
+                var popText = selectionText + '<hr/>' +
+                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                    '<button class="btn btn-sm btn-link" onclick="postQuoteComment(' + postId + ',true);">' +
+                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                $(selectionMarker).popover({
+                    trigger: "hover",
+                    html: true,
+                    sanitize: false,
+                    animation: false,
+                    title: "Quote",
+                    placement: "top",
+                    content: popText
+                }).on('hidden.bs.popover', function () {
+                    $(selectionMarker).popover('dispose');
+                })
+                    .popover("show");
+            }
+        });
+        $(e).removeClass("post-quotable");
+    });
+}
+
+export function makeCommentsQuotable() {
+    $(".comment-quotable").each(function (ix, e) {
+        // Trigger when mouse is released (i.e. possible selection made)
+        $(e).mouseup(function () {
+            var selection = getSelected();
+            $(selectionMarker).popover('hide');
+            if (selection && encode(selection.toString()) !== "") {
+                // User made a selection
+                var markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
+                selectionMarker = markSelection(markerId);
+                selectionText = encode(selection.toString());
+                var commentid = $(e).data('commentid');
+                var popText = selectionText + '<hr/>' +
+                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ');"><i class="fa fa-reply"></i> Reply</button>' +
+                    '<button class="btn btn-sm btn-link" onclick="commentQuoteComment(' + commentid + ',true);">' +
+                    '<i class="fa fa-reply"></i><i class="fa fa-bell"></i> Mention</button>';
+                $(selectionMarker).popover({
+                    trigger: "hover",
+                    html: true,
+                    sanitize: false,
+                    animation: false,
+                    title: "Quote",
+                    placement: "top",
+                    content: popText
+                }).on('hidden.bs.popover', function () {
+                    $(selectionMarker).popover('dispose');
+                })
+                    .popover("show");
+            }
+        });
+        $(e).removeClass("post-quotable");
+    });
+}
+
 
 var selectionText;
 var selectionMarker;
@@ -60,7 +138,7 @@ function getSelected() {
 }
 
 // TODO: Needs cleanup and code refactor with showreply(id)
-var commentQuoteComment = function (id, mention) {
+export function commentQuoteComment(id, mention) {
     mention = typeof mention !== 'undefined' ? mention : false;
     $('#c_reply_' + id.toString()).toggle('show');
     var quotetext = '<blockquote class="blockquote">' + selectionText + '</blockquote><br/>';
@@ -90,7 +168,7 @@ var commentQuoteComment = function (id, mention) {
                     var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                     $.ajax({
                         async: true,
-                        url: '/Comment/GetMentions',
+                        url: '/Comment/GetMentions/',
                         type: 'POST',
                         contentType: "application/json; charset=utf-8",
                         dataType: 'json',
@@ -115,9 +193,10 @@ var commentQuoteComment = function (id, mention) {
         editbox.placeCursorAtEnd();
         $('#c_reply_' + id.toString()).find('.c_input').summernote('focus');
     });
-};
+}
+window.commentQuoteComment = commentQuoteComment;
 
-var toggleChat = function (id, show) {
+function toggleCommentInput(id, show) {
     show = typeof show !== 'undefined' ? show : false;
     initCommentInput(id);
     $(".note-statusbar").css("display", "none");
@@ -129,11 +208,11 @@ var toggleChat = function (id, show) {
         $('#comments_' + id.toString()).slideDown(200);
         $('#preply_' + id.toString()).slideDown(200);
     }
-};
+}
 
-var postQuoteComment = function (id, mention) {
+export function postQuoteComment(id, mention) {
     mention = typeof mention !== 'undefined' ? mention : false;
-    toggleChat(id, true);
+    toggleCommentInput(id, true);
     var quotetext = '<blockquote class="blockquote">' + selectionText + '</blockquote><br/>';
     if (mention) {
         var username = $('#post_' + id.toString()).find('.post-username').data('user');
@@ -145,4 +224,5 @@ var postQuoteComment = function (id, mention) {
     var editbox = $('.c_input_' + id.toString()).parent().find('.note-editable');
     editbox.placeCursorAtEnd();
     $('.c_input_' + id.toString()).summernote('focus');
-};
+}
+window.postQuoteComment = postQuoteComment;

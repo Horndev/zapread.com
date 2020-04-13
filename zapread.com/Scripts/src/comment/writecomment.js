@@ -26,3 +26,4 @@ export function writeComment(el) {
     replyElement.style.display = '';
     return false;
 }
+window.writeComment = writeComment;

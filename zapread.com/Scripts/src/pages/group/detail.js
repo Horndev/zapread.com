@@ -1,25 +1,37 @@
-﻿//
-//
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'summernote/dist/summernote-bs4';
+import 'summernote/dist/summernote-bs4.css';
+import '../../utility/summernote/summernote-video-attributes';
+import Swal from 'sweetalert2';
+import 'selectize/dist/js/standalone/selectize';
+import 'selectize/dist/css/selectize.css';
+import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
+import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
+import { writeComment } from '../../comment/writecomment';
+import { replyComment } from '../../comment/replycomment';
+import { loadMoreComments } from '../../comment/loadmorecomments';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import '../../shared/sharedlast';
 
-$(document).ready(function () {
-    // This loads all async partial views on page
-    $(".partialContents").each(function (index, item) {
-        var url = $(item).data("url");
-        if (url && url.length > 0) {
-            $(item).load(url);
-        }
-    });
-});
+// Make global (called from html)
+window.writeComment = writeComment;
+window.replyComment = replyComment;
+window.loadMoreComments = loadMoreComments;
 
-var toggleIgnore = function (id) {
-    joinurl = "/Group/ToggleIgnore";
+onLoadedMorePosts();
+
+export function toggleIgnore(id) {
     var data = JSON.stringify({ 'groupId': id });
     var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
         data: data.toString(),
         type: 'POST',
-        url: joinurl,
+        url: "/Group/ToggleIgnore/",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         headers: headers,
@@ -35,20 +47,15 @@ var toggleIgnore = function (id) {
         }
     });
     return false;
-};
+}
+window.toggleIgnore = toggleIgnore;
 
 /* Infinite scroll */
 var BlockNumber = 10;
 var NoMoreData = false;
 var inProgress = false;
 
-$(window).scroll(function () {
-    if ($(window).scrollTop() === $(document).height() - $(window).height() && !NoMoreData && !inProgress) {
-        loadmore();
-    }
-});
-
-var loadmore = function () {
+export function loadmore() {
     if (!inProgress) {
         inProgress = true;
         $('#loadmore').show();
@@ -57,7 +64,7 @@ var loadmore = function () {
             async: true,
             data: JSON.stringify({ "id": groupId, "BlockNumber": BlockNumber, "sort": "New" }),
             type: 'POST',
-            url: "/Group/InfiniteScroll/",//"@Url.Action("InfiniteScroll", "Group")",
+            url: "/Group/InfiniteScroll/",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             headers: getAntiForgeryToken(),
@@ -89,4 +96,5 @@ var loadmore = function () {
             }
         });
     }
-};
+}
+window.loadmore = loadmore;
