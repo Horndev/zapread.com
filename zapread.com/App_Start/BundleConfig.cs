@@ -185,14 +185,17 @@ namespace zapread.com
                         "~/Scripts/dist/group_index.css")
                         .WithLastModifiedToken());
 
+            // Group/Members scripts
+            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
+                        "~/Scripts/dist/group_members.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/group/members/css").Include(
+                        "~/Scripts/dist/group_members.css")
+                        .WithLastModifiedToken());
+
             // Group/New scripts
             bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
                         "~/Scripts/Groups/new.js")
-                        .WithLastModifiedToken());
-
-            // Group/Members scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
-                        "~/Scripts/Groups/members.js")
                         .WithLastModifiedToken());
 
             #endregion

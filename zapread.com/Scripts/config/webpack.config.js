@@ -14,6 +14,7 @@ module.exports = {
         admin_users:    "./Scripts/src/pages/admin/users.js",
         group_detail:   "./Scripts/src/pages/group/detail.js",
         group_index:    "./Scripts/src/pages/group/index.js",
+        group_members:  "./Scripts/src/pages/group/members.js",
         home_index:     "./Scripts/src/pages/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",

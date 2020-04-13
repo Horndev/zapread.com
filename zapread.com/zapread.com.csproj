@@ -866,6 +866,8 @@
     <Content Include="Scripts\dist\admin_users.js" />
     <Content Include="Scripts\dist\group_index.css" />
     <Content Include="Scripts\dist\group_index.js" />
+    <Content Include="Scripts\dist\group_members.css" />
+    <Content Include="Scripts\dist\group_members.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1023,7 +1025,6 @@
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
     <Content Include="Scripts\Groups\hover.js" />
-    <Content Include="Scripts\Groups\members.js" />
     <Content Include="Scripts\Groups\new.js" />
     <Content Include="Scripts\Groups\tags.js" />
     <Content Include="Scripts\Groups\userRoles.js" />
@@ -1061,6 +1062,7 @@
     <Content Include="Scripts\src\components\page-heading.js" />
     <Content Include="Scripts\src\css\Site.css" />
     <Content Include="Scripts\src\pages\group\index.js" />
+    <Content Include="Scripts\src\pages\group\members.js" />
     <Content Include="Scripts\src\pages\home\globals.js" />
     <Content Include="Scripts\src\pages\home\index.js" />
     <Content Include="Scripts\src\index.js" />
