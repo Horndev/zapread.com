@@ -1,5 +1,16 @@
-﻿//
-// Scripts for /Messages/All/
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'datatables.net-bs4';
+import 'datatables.net-scroller-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
+
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import '../../shared/sharedlast';
 
 var usersTable = {};
 $(document).ready(function () {

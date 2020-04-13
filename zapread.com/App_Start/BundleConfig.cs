@@ -119,6 +119,7 @@ namespace zapread.com
             BundlePage(bundles, "manage", "index");
 
             BundlePage(bundles, "messages", "alerts");
+            BundlePage(bundles, "messages", "all");
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
@@ -133,10 +134,7 @@ namespace zapread.com
                         "~/Scripts/Messages/index.js")
                         .WithLastModifiedToken());
 
-            // Messages/All scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/all").Include(
-                        "~/Scripts/Messages/all.js")
-                        .WithLastModifiedToken());
+            
 
             // Messages/Chat scripts
             bundles.Add(new ScriptBundle("~/bundles/messages/chat").Include(

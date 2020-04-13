@@ -21,12 +21,12 @@ module.exports = {
         home_index:     "./Scripts/src/pages/home/index.js",
         home_install:   "./Scripts/src/pages/home/install.js",
         mailer_default: "./Scripts/src/pages/mailer/default.js",
-        //index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/pages/manage/apikeys.js",
         manage_default: "./Scripts/src/pages/manage/default.js",
         manage_financial: "./Scripts/src/pages/manage/financial.js",
         manage_index:   "./Scripts/src/pages/manage/index.js",
         messages_alerts:"./Scripts/src/pages/messages/alerts.js",
+        messages_all:   "./Scripts/src/pages/messages/all.js",
         post_detail:    "./Scripts/src/post/detail.js",
         post_edit:      "./Scripts/src/post/edit.js",
         user_index:     "./Scripts/src/user/index.js"
