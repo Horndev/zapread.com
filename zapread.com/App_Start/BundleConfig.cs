@@ -120,6 +120,7 @@ namespace zapread.com
 
             BundlePage(bundles, "messages", "alerts");
             BundlePage(bundles, "messages", "all");
+            BundlePage(bundles, "messages", "chat");
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
@@ -134,19 +135,10 @@ namespace zapread.com
                         "~/Scripts/Messages/index.js")
                         .WithLastModifiedToken());
 
-            
-
-            // Messages/Chat scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/chat").Include(
-                        "~/Scripts/Messages/chat-ui.js")
-                        .WithLastModifiedToken());
-
             // Messages/Chats scripts
             bundles.Add(new ScriptBundle("~/bundles/messages/chats").Include(
                         "~/Scripts/Messages/chats.js")
                         .WithLastModifiedToken());
-
-            
 
             #endregion
 

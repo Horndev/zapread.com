@@ -1,4 +1,17 @@
-﻿/**/
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'summernote/dist/summernote-bs4';
+import 'summernote/dist/summernote-bs4.css';
+import '../../utility/summernote/summernote-video-attributes';
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import { updatePostTimes } from '../../utility/datetime/posttime';
+import '../../shared/sharedlast';
+
+updatePostTimes();
 
 $(document).ready(function () {
     $(".m_input").summernote({
@@ -47,7 +60,7 @@ $(document).ready(function () {
  * 
  * @param {any} id: message id
  */
-var sendMessage = function (id) {
+export function sendMessage(id) {
     var action = "/Messages/SendMessage";
     var dataval = '';
     var dataString = '';
@@ -55,13 +68,12 @@ var sendMessage = function (id) {
     dataval = $(messageElement).summernote('code');
     dataString = JSON.stringify({ id: id, content: dataval, isChat: true });
     $('#chatReply').addClass('sk-loading');
-    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: action,
         data: dataString,
         dataType: "json",
-        headers: headers,
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         success: function (response) {
             if (response.success) {
@@ -70,17 +82,16 @@ var sendMessage = function (id) {
                     type: "POST",
                     url: "/Messages/GetMessage",
                     data: JSON.stringify({ 'id': response.id }),
-                    headers: headers,
+                    headers: getAntiForgeryToken(),
                     dataType: "json",
                     contentType: "application/json; charset=utf-8",
                     success: function (result) {
                         $("#endMessages").append(result.HTMLString);
                         $('.postTime').each(function (i, e) {
-                            var datefn = dateFns.parse($(e).html());
-                            // Adjust to local time
-                            datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-                            var date = dateFns.format(datefn, "DD MMM YYYY");
-                            var time = dateFns.distanceInWordsToNow(datefn);
+                            var datefn = parseISO($(e).html());
+                            datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+                            var date = format(datefn, "dd MMM yyyy");
+                            var time = formatDistanceToNow(datefn, { addSuffix: true });
                             $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                             $(e).css('display', 'inline');
                             $(e).removeClass("postTime");
@@ -102,29 +113,30 @@ var sendMessage = function (id) {
             alert("fail");
         }
     });
-};
+}
+window.sendMessage = sendMessage;
 
 /**
  * Loads older chat history and inserts into DOM
  * @param {any} id : User id for other user
  */
-var loadolderchats = function (id) {
+export function loadolderchats(id) {
     $.ajax({
         type: "POST",
         url: "/Messages/LoadOlder/",
         data: JSON.stringify({ otherId: ChattingWithId, start: startBlock, blocks: 10 }),
         dataType: "json",
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         success: function (response) {
             if (response.success) {
                 $("#startMessages").prepend(response.HTMLString); // Insert at the front
                 startBlock += 10;
                 $('.postTime').each(function (i, e) {
-                    var datefn = dateFns.parse($(e).html());
-                    // Adjust to local time
-                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-                    var date = dateFns.format(datefn, "DD MMM YYYY");
-                    var time = dateFns.distanceInWordsToNow(datefn);
+                    var datefn = parseISO($(e).html());
+                    datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = format(datefn, "dd MMM yyyy");
+                    var time = formatDistanceToNow(datefn, { addSuffix: true });
                     $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                     $(e).css('display', 'inline');
                     $(e).removeClass("postTime");
@@ -138,4 +150,5 @@ var loadolderchats = function (id) {
             alert("fail");
         }
     });
-};
+}
+window.loadolderchats = loadolderchats;
