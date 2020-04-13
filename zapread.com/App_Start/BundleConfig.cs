@@ -203,6 +203,32 @@ namespace zapread.com
 
             #endregion
 
+            #region home
+
+            // Home/About scripts
+            bundles.Add(new ScriptBundle("~/bundles/home/about").Include(
+                        "~/Scripts/dist/home_about.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/home/about/css").Include(
+                        "~/Scripts/dist/home_about.css")
+                        .WithLastModifiedToken());
+
+            // Home/Install scripts
+            bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
+                        "~/Scripts/Admin/install.js")
+                        .WithLastModifiedToken());
+
+            // Home/Index scripts
+            bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
+                        "~/Scripts/dist/home_index.js")
+                        .WithLastModifiedToken());
+            // Post/NewPost & Edit styles
+            bundles.Add(new StyleBundle("~/bundles/home/index/css").Include(
+                          "~/Scripts/dist/home_index.css")
+                          .WithLastModifiedToken());
+
+            #endregion
+
             #region manage scripts
 
             // Manage view default scripts
@@ -235,19 +261,7 @@ namespace zapread.com
                         "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
 
-            // Home/Install scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
-                        "~/Scripts/Admin/install.js")
-                        .WithLastModifiedToken());
-
-            // Home/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
-                        "~/Scripts/dist/home_index.js")
-                        .WithLastModifiedToken());
-            // Post/NewPost & Edit styles
-            bundles.Add(new StyleBundle("~/bundles/home/index/css").Include(
-                          "~/Scripts/dist/home_index.css")
-                          .WithLastModifiedToken());
+            
 
             #region messages
 

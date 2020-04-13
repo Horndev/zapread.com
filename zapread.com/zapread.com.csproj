@@ -870,6 +870,8 @@
     <Content Include="Scripts\dist\group_members.js" />
     <Content Include="Scripts\dist\group_new.css" />
     <Content Include="Scripts\dist\group_new.js" />
+    <Content Include="Scripts\dist\home_about.css" />
+    <Content Include="Scripts\dist\home_about.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />

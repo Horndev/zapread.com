@@ -7,7 +7,7 @@ import 'datatables.net-bs4';
 import 'datatables.net-scroller-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
-
+import '../../shared/sharedlast';
 var iconstable = {};
 $(document).ready(function () {
     iconstable = $('#iconsTable').DataTable({

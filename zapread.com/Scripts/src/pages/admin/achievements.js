@@ -13,7 +13,7 @@ import 'dropzone/dist/basic.css';
 import 'dropzone/dist/dropzone.css';
 import Swal from 'sweetalert2';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
-
+import '../../shared/sharedlast';
 window.Dropzone = Dropzone;
 
 var id = -1;

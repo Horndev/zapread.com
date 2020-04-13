@@ -8,7 +8,7 @@ import 'datatables.net-scroller-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
-
+import '../../shared/sharedlast';
 export function checkonline(id) {
     $.get("/api/v1/admin/checkonline/" + id + "/", function (result) {
         if (result.success) {
