@@ -19,6 +19,7 @@ module.exports = {
         home_about:     "./Scripts/src/pages/home/about.js",
         home_faq:       "./Scripts/src/pages/home/faq.js",
         home_index:     "./Scripts/src/pages/home/index.js",
+        home_install:   "./Scripts/src/pages/home/install.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
         manage_default: "./Scripts/src/pages/manage/default.js",

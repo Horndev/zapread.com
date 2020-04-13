@@ -874,6 +874,8 @@
     <Content Include="Scripts\dist\home_about.js" />
     <Content Include="Scripts\dist\home_faq.css" />
     <Content Include="Scripts\dist\home_faq.js" />
+    <Content Include="Scripts\dist\home_install.css" />
+    <Content Include="Scripts\dist\home_install.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1000,7 +1002,6 @@
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
     <Content Include="Scripts\Achievements\achievementhover.js" />
-    <Content Include="Scripts\Admin\install.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\dist\account_login.css" />
     <Content Include="Scripts\dist\account_login.js" />
@@ -1086,6 +1087,7 @@
     <Content Include="Scripts\src\pages\admin\users.js" />
     <Content Include="Scripts\src\pages\group\detail.js" />
     <Content Include="Scripts\src\pages\home\about.js" />
+    <Content Include="Scripts\src\pages\home\install.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />

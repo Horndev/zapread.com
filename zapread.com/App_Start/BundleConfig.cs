@@ -207,20 +207,8 @@ namespace zapread.com
 
             BundlePage(bundles, "home", "about");
             BundlePage(bundles, "home", "faq");
-
-            // Home/Install scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
-                        "~/Scripts/Admin/install.js")
-                        .WithLastModifiedToken());
-
-            // Home/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
-                        "~/Scripts/dist/home_index.js")
-                        .WithLastModifiedToken());
-            // Post/NewPost & Edit styles
-            bundles.Add(new StyleBundle("~/bundles/home/index/css").Include(
-                          "~/Scripts/dist/home_index.css")
-                          .WithLastModifiedToken());
+            BundlePage(bundles, "home", "install");
+            BundlePage(bundles, "home", "index");
 
             #endregion
 

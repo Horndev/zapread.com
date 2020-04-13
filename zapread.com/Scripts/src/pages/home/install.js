@@ -1,6 +1,11 @@
-﻿/**/
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import '../../shared/sharedlast';
 
-var grantSiteAdmin = function () {
+export function grantSiteAdmin() {
     var msg = JSON.stringify({
         'adminKey': $('#ZRAdminKey').val(),
         'grantUser': $('#Username').val()
@@ -31,4 +36,5 @@ var grantSiteAdmin = function () {
             alert("Error saving.");
         }
     });
-};
+}
+window.grantSiteAdmin = grantSiteAdmin;
