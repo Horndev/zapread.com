@@ -900,6 +900,8 @@
     <Content Include="Scripts\dist\manage\financial.js" />
     <Content Include="Scripts\dist\manage\index.css" />
     <Content Include="Scripts\dist\manage\index.js" />
+    <Content Include="Scripts\dist\messages\alerts.css" />
+    <Content Include="Scripts\dist\messages\alerts.js" />
     <Content Include="Scripts\dist\post\detail.css" />
     <Content Include="Scripts\dist\post\detail.js" />
     <Content Include="Scripts\dist\post\edit.css" />
@@ -1040,7 +1042,6 @@
     <Content Include="Scripts\Lightning\payments-scan.js" />
     <Content Include="Scripts\Lightning\vote-payments-ui.js" />
     <Content Include="Scripts\Manage\updateAlias.js" />
-    <Content Include="Scripts\Messages\alerts.js" />
     <Content Include="Scripts\Messages\all.js" />
     <Content Include="Scripts\Messages\chat-ui.js" />
     <Content Include="Scripts\Messages\chats.js" />
@@ -1092,6 +1093,7 @@
     <Content Include="Scripts\src\pages\home\install.js" />
     <Content Include="Scripts\src\pages\mailer\default.js" />
     <Content Include="Scripts\src\pages\manage\default.js" />
+    <Content Include="Scripts\src\pages\messages\alerts.js" />
     <Content Include="Scripts\src\post\detail.js" />
     <Content Include="Scripts\src\post\edit.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />

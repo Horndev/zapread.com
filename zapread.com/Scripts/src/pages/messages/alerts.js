@@ -1,5 +1,17 @@
-﻿/** Scripts for Messages/Alerts
- **/
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'datatables.net-bs4';
+import 'datatables.net-scroller-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
+
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import '../../shared/sharedlast';
+
 
 /* exported alertsTable */
 var alertsTable = {};
@@ -18,7 +30,7 @@ $(document).ready(function () {
         "ajax": {
             type: "POST",
             contentType: "application/json",
-            url: "/Messages/GetAlertsTable",
+            url: "/Messages/GetAlertsTable/",
             data: function (d) {
                 return JSON.stringify(d);
             }
@@ -42,9 +54,10 @@ $(document).ready(function () {
                 "type": "date",
                 "orderSequence": ["desc", "asc"],
                 "mRender": function (data, type, row) {
-                    var datefn = dateFns.parse(data);
-                    var date = dateFns.format(datefn, "DD MMM YYYY");
-                    var time = dateFns.distanceInWordsToNow(datefn, { addSuffix: true });
+                    var datefn = parseISO(data);
+                    datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = format(datefn, "dd MMM yyyy");
+                    var time = formatDistanceToNow(datefn, { addSuffix: true });
                     return date + ", " + time;
                 }
             },
@@ -53,7 +66,7 @@ $(document).ready(function () {
                 "data": null,
                 "name": 'Link',
                 "orderable": false,
-                "mRender": function(data, type, row) {
+                "mRender": function (data, type, row) {
                     var linkText = "Go to Post";
                     if (data.HasLink) {
                         linkText = "Go to Post";
@@ -79,12 +92,11 @@ $(document).ready(function () {
     });
 }); // end ready
 
-/**
+/*
  * Delete an alert
  * @param {any} id : alert identifier
  */
-/* exported deletea */
-var deletea = function (id) {
+export function deletea(id) {
     var url = "/Messages/DeleteAlert";
 
     $.ajax({
@@ -104,4 +116,5 @@ var deletea = function (id) {
         }
     });
     return false;
-};
+}
+window.deletea = deletea;

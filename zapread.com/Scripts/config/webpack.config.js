@@ -26,6 +26,7 @@ module.exports = {
         manage_default: "./Scripts/src/pages/manage/default.js",
         manage_financial: "./Scripts/src/pages/manage/financial.js",
         manage_index:   "./Scripts/src/pages/manage/index.js",
+        messages_alerts:"./Scripts/src/pages/messages/alerts.js",
         post_detail:    "./Scripts/src/post/detail.js",
         post_edit:      "./Scripts/src/post/edit.js",
         user_index:     "./Scripts/src/user/index.js"
