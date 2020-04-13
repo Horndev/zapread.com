@@ -15,6 +15,7 @@ module.exports = {
         group_detail:   "./Scripts/src/pages/group/detail.js",
         group_index:    "./Scripts/src/pages/group/index.js",
         group_members:  "./Scripts/src/pages/group/members.js",
+        group_new:      "./Scripts/src/pages/group/new.js",
         home_index:     "./Scripts/src/pages/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
@@ -36,15 +37,9 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader
                     },
-                    //{
-                    //    loader: 'style-loader',
-                    //},
                     {
                         loader: 'css-loader'
                     },
-                    //{
-                    //    loader: 'postcss-loader',
-                    //},
                     {
                         loader: 'sass-loader',
                         options: {
@@ -53,10 +48,6 @@ module.exports = {
                     }
                 ]
             },
-            //{
-            //    test: /\.css$/,
-            //    use: ['style-loader', 'css-loader']
-            //},
             {
                 use: {
                     loader: "babel-loader"

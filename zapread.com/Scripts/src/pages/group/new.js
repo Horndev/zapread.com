@@ -1,5 +1,14 @@
-﻿//
-//
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'selectize/dist/js/standalone/selectize';
+import 'selectize/dist/css/selectize.css';
+import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
+import Swal from 'sweetalert2';
+
+import '../../shared/sharedlast';
 
 $(document).ready(function () {
     $('#select-icon').selectize({
@@ -11,13 +20,13 @@ $(document).ready(function () {
                 return '<div>' +
                     '<span class="title">' +
                     '<i class="fa fa-2x fa-' + escape(item.name) + '"></i>' + /* + ' ' + escape(item.name) + '</span>'*/
-                '</div>';
+                    '</div>';
             },
             item: function (item, escape) {
                 return '<div>' +
                     '<span class="title">' +
                     '<i class="fa fa-3x fa-' + escape(item.name) + '"></i>' +
-                '</div>';
+                    '</div>';
             }
         }
     });

@@ -195,7 +195,10 @@ namespace zapread.com
 
             // Group/New scripts
             bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
-                        "~/Scripts/Groups/new.js")
+                        "~/Scripts/dist/group_new.js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/group/new/css").Include(
+                        "~/Scripts/dist/group_new.css")
                         .WithLastModifiedToken());
 
             #endregion
