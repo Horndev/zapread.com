@@ -13,6 +13,7 @@ module.exports = {
         admin_lightning:"./Scripts/src/pages/admin/lightning.js",
         admin_users:    "./Scripts/src/pages/admin/users.js",
         group_detail:   "./Scripts/src/pages/group/detail.js",
+        group_index:    "./Scripts/src/pages/group/index.js",
         home_index:     "./Scripts/src/pages/home/index.js",
         index:          "./Scripts/src/index.js",
         manage_apikeys: "./Scripts/src/manage/apikeys.js",
