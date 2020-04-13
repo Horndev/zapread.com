@@ -1,7 +1,16 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+﻿/*
+ * 
+ */
+
+import '../../shared/shared';
+import '../../realtime/signalr';
+
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import PageHeading from '../components/page-heading';
+import PageHeading from '../../components/page-heading';
 import KeysTable from './keystable';
+
+import '../../shared/sharedlast';
 
 function Page() {
     return (

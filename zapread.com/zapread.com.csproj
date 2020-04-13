@@ -878,6 +878,7 @@
     <Content Include="Scripts\dist\home_install.js" />
     <Content Include="Scripts\dist\mailer_default.css" />
     <Content Include="Scripts\dist\mailer_default.js" />
+    <Content Include="Scripts\dist\manage_apikeys.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1076,9 +1077,9 @@
     <Content Include="Scripts\src\pages\home\globals.js" />
     <Content Include="Scripts\src\pages\home\index.js" />
     <Content Include="Scripts\src\index.js" />
-    <Content Include="Scripts\src\manage\apikeys.js" />
+    <Content Include="Scripts\src\pages\manage\apikeys.js" />
     <Content Include="Scripts\src\manage\index.js" />
-    <Content Include="Scripts\src\manage\keystable.js" />
+    <Content Include="Scripts\src\pages\manage\keystable.js" />
     <Content Include="Scripts\src\pages\account\login.js" />
     <Content Include="Scripts\src\pages\admin\achievements.js" />
     <Content Include="Scripts\src\pages\admin\audit.js" />

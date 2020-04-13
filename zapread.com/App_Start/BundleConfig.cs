@@ -216,6 +216,8 @@ namespace zapread.com
 
             #region manage scripts
 
+            BundlePage(bundles, "manage", "apikeys");
+
             // Manage view default scripts
             bundles.Add(new ScriptBundle("~/bundles/manage/default").Include(
                         "~/Scripts/dist/manage_default.js")
