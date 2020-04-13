@@ -1031,7 +1031,6 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <Content Include="Scripts\Achievements\achievementhover.js" />
     <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
@@ -1057,7 +1056,6 @@
     <Content Include="Scripts\jquery.signalR-2.4.0.min.js" />
     <Content Include="Scripts\Lightning\account-payments-ui.js" />
     <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\Manage\index.js" />
     <Content Include="Scripts\Posts\post-editor.js" />
     <Content Include="Scripts\Posts\post-functions.js" />
     <Content Include="Scripts\Posts\post-initialize.js" />
@@ -1100,6 +1098,7 @@
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
     <Content Include="Scripts\src\user\index.js" />
+    <Content Include="Scripts\src\utility\achievementhover.js" />
     <Content Include="Scripts\src\utility\antiforgery.js" />
     <Content Include="Scripts\src\utility\appinsights.js" />
     <Content Include="Scripts\src\utility\datetime\posttime.js" />
@@ -1164,7 +1163,6 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
-    <Content Include="Views\Manage\_PartialFinance.cshtml" />
     <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
     <Content Include="Views\Shared\_PartialModalVote.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />

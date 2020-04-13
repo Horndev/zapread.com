@@ -1,13 +1,8 @@
-﻿/* Achievements hover
+﻿/*
+ * 
  */
 
-$('.ach-hover').each(function () {
-    $(this).mouseover(function () {
-        loadachhover(this);
-    });
-});
-
-var loadachhover = function (e) {
+export function loadachhover(e) {
     $(e).removeAttr('onmouseover');
     var achid = $(e).data('achid');
     if (typeof achid === 'undefined') {
@@ -34,22 +29,22 @@ var loadachhover = function (e) {
                     container: "body",
                     title: ""
                 })
-                .on("mouseenter", function () {
-                    var _this = this;
-                    $(this).popover("show");
-                    $(".popover").addClass("tooltip-hover");
-                    $(".popover").on("mouseleave", function () {
-                        $(_this).popover('hide');
+                    .on("mouseenter", function () {
+                        var _this = this;
+                        $(this).popover("show");
+                        $(".popover").addClass("tooltip-hover");
+                        $(".popover").on("mouseleave", function () {
+                            $(_this).popover('hide');
+                        });
+                    })
+                    .on("mouseleave", function () {
+                        var _this = this;
+                        setTimeout(function () {
+                            if (!$(".popover:hover").length) {
+                                $(_this).popover("hide");
+                            }
+                        }, 300);
                     });
-                })
-                .on("mouseleave", function () {
-                    var _this = this;
-                    setTimeout(function () {
-                        if (!$(".popover:hover").length) {
-                            $(_this).popover("hide");
-                        }
-                    }, 300);
-                });
                 $(e).popover("show");
                 $(".popover").addClass("tooltip-hover");
                 $(".popover").on("mouseleave", function () {
@@ -68,4 +63,4 @@ var loadachhover = function (e) {
             console.log('load more error');
         }
     });
-};
+}

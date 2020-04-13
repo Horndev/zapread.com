@@ -113,23 +113,11 @@ namespace zapread.com
             BundlePage(bundles, "home", "install");
             BundlePage(bundles, "home", "index");
             BundlePage(bundles, "mailer", "default");
-
-            #region manage scripts
-
             BundlePage(bundles, "manage", "apikeys");
             BundlePage(bundles, "manage", "default");
             BundlePage(bundles, "manage", "financial");
+            BundlePage(bundles, "manage", "index");
 
-            // Manage/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
-                        "~/node_modules/dropzone/dist/min/dropzone.min.js",
-                        "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
-                        "~/Scripts/Manage/index.js",
-                        "~/Scripts/Achievements/achievementhover.js",
-                        "~/Scripts/dist/manage_index.js")
-                        .WithLastModifiedToken());
-
-            #endregion
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
@@ -201,13 +189,6 @@ namespace zapread.com
                         "~/Scripts/Realtime/signalr-initialize.js")
                         .WithLastModifiedToken());
 
-            // chosen scripts
-            bundles.Add(new ScriptBundle("~/plugins/chosen").Include(
-                      "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js"));
-
-            // chosen styles
-            bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
-                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css", new CssRewriteUrlTransform()));
 
             // dropZone scripts
             bundles.Add(new ScriptBundle("~/plugins/dropZone").Include(
