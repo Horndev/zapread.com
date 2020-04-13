@@ -1,4 +1,14 @@
-﻿
+﻿/*
+ *
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import 'datatables.net-bs4';
+import 'datatables.net-scroller-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import '../../shared/sharedlast';
 
 var usersTable = {};
 $(document).ready(function () {
@@ -15,7 +25,7 @@ $(document).ready(function () {
         "ajax": {
             type: "POST",
             contentType: "application/json",
-            url: "/Messages/GetChatsTable",
+            url: "/Messages/GetChatsTable/",
             headers: getAntiForgeryToken(),
             data: function (d) {
                 return JSON.stringify(d);
@@ -66,7 +76,7 @@ $(document).ready(function () {
                 "mRender": function (data, type, row) {
                     return "<a href='/Messages/Chat/" + encodeURIComponent(data.From) + "/' class='btn btn-primary btn-outline'>Go to Chat</a>";
                 }
-            },
-        ],
+            }
+        ]
     });
 });

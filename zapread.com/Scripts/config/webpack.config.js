@@ -28,6 +28,7 @@ module.exports = {
         messages_alerts:"./Scripts/src/pages/messages/alerts.js",
         messages_all:   "./Scripts/src/pages/messages/all.js",
         messages_chat:  "./Scripts/src/pages/messages/chat.js",
+        messages_chats: "./Scripts/src/pages/messages/chats.js",
         post_detail:    "./Scripts/src/post/detail.js",
         post_edit:      "./Scripts/src/post/edit.js",
         user_index:     "./Scripts/src/user/index.js"
