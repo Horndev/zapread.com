@@ -1,6 +1,6 @@
 ﻿var $el, $ps, $up, totalHeight;
 
-var readMoreButton = function (e) {
+export function readMoreButton(e) {
     totalHeight = 0;
 
     $el = $(e);
@@ -29,4 +29,5 @@ var readMoreButton = function (e) {
 
     // prevent jump-down
     return false;
-};
+}
+window.readMoreButton = readMoreButton;
