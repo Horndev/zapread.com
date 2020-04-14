@@ -32,6 +32,7 @@ module.exports = {
         messages_index: "./Scripts/src/pages/messages/index.js",
         post_detail:    "./Scripts/src/pages/post/detail.js",
         post_edit:      "./Scripts/src/pages/post/edit.js",
+        post_newpost:   "./Scripts/src/pages/post/newpost.js",
         user_index:     "./Scripts/src/user/index.js"
     },
     output: {

@@ -5,7 +5,13 @@ import '../../shared/shared';
 import '../../realtime/signalr';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { initCommentInput } from '../../comment/initCommentInput';
+import { writeComment } from '../../comment/writecomment';
+import { replyComment } from '../../comment/replycomment';
 import '../../shared/sharedlast';
+
+// Make global (called from html)
+window.writeComment = writeComment;
+window.replyComment = replyComment;
 
 // 
 onLoadedMorePosts();

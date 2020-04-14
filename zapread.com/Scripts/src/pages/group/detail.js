@@ -15,12 +15,22 @@ import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
+import { loadmore } from '../../utility/loadmore';
 import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
 window.loadMoreComments = loadMoreComments;
+
+export function grouploadmore() {
+    loadmore({
+        url: '/Group/InfiniteScroll/',
+        blocknumber: BlockNumber,
+        sort: "New"
+    });
+}
+window.loadmore = grouploadmore;
 
 onLoadedMorePosts();
 
@@ -55,46 +65,46 @@ var BlockNumber = 10;
 var NoMoreData = false;
 var inProgress = false;
 
-export function loadmore() {
-    if (!inProgress) {
-        inProgress = true;
-        $('#loadmore').show();
-        $('#btnLoadmore').prop('disabled', true);
-        $.ajax({
-            async: true,
-            data: JSON.stringify({ "id": groupId, "BlockNumber": BlockNumber, "sort": "New" }),
-            type: 'POST',
-            url: "/Group/InfiniteScroll/",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            headers: getAntiForgeryToken(),
-            success: function (response) {
-                if (response.Success) {
-                    $('#loadmore').hide();
-                    $('#btnLoadmore').prop('disabled', false);
-                    BlockNumber = BlockNumber + 10;
-                    NoMoreData = response.NoMoreData;
-                    $("#posts").append(response.HTMLString);
-                    inProgress = false;
+//export function loadmore() {
+//    if (!inProgress) {
+//        inProgress = true;
+//        $('#loadmore').show();
+//        $('#btnLoadmore').prop('disabled', true);
+//        $.ajax({
+//            async: true,
+//            data: JSON.stringify({ "id": groupId, "BlockNumber": BlockNumber, "sort": "New" }),
+//            type: 'POST',
+//            url: "/Group/InfiniteScroll/",
+//            contentType: "application/json; charset=utf-8",
+//            dataType: "json",
+//            headers: getAntiForgeryToken(),
+//            success: function (response) {
+//                if (response.Success) {
+//                    $('#loadmore').hide();
+//                    $('#btnLoadmore').prop('disabled', false);
+//                    BlockNumber = BlockNumber + 10;
+//                    NoMoreData = response.NoMoreData;
+//                    $("#posts").append(response.HTMLString);
+//                    inProgress = false;
 
-                    // Wait for new posts to be added then tidy up.
+//                    // Wait for new posts to be added then tidy up.
 
-                    // New version using a callback
-                    //addposts(response, zrOnLoadedMorePosts);
-                    $("#posts").append(response.HTMLString);
-                    zrOnLoadedMorePosts();
+//                    // New version using a callback
+//                    //addposts(response, zrOnLoadedMorePosts);
+//                    $("#posts").append(response.HTMLString);
+//                    zrOnLoadedMorePosts();
 
-                    // old version with jquery
-                    //$.when(addposts(response), $.ready).then(function () {
-                    //    zrOnLoadedMorePosts();
-                    //});
+//                    // old version with jquery
+//                    //$.when(addposts(response), $.ready).then(function () {
+//                    //    zrOnLoadedMorePosts();
+//                    //});
 
-                    if (NoMoreData) {
-                        $('#showmore').hide();
-                    }
-                }
-            }
-        });
-    }
-}
-window.loadmore = loadmore;
+//                    if (NoMoreData) {
+//                        $('#showmore').hide();
+//                    }
+//                }
+//            }
+//        });
+//    }
+//}
+//window.loadmore = loadmore;

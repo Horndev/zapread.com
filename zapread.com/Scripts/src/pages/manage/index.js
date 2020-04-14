@@ -21,13 +21,23 @@ import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
+import { loadmore } from '../../utility/loadmore';
 import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
 window.loadMoreComments = loadMoreComments;
-window.loadmore = loadmore;
+
+// Wrapper for load more
+export function manageloadmore() {
+    loadmore({
+        url: '/Manage/InfiniteScroll/',
+        blocknumber: BlockNumber,
+        sort: "New"
+    });
+}
+window.loadmore = manageloadmore;
 
 // 
 onLoadedMorePosts();
@@ -227,91 +237,91 @@ window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
-export function loadmore() {
-    if (!inProgress) {
-        inProgress = true;
-        $('#loadmore').show();
-        $('#btnLoadmore').prop('disabled', true);
-        $.post("/Manage/InfiniteScroll/",
-            { "BlockNumber": BlockNumber },
-            function (data) {
-                $('#loadmore').hide();
-                $('#btnLoadmore').prop('disabled', false);
-                BlockNumber = BlockNumber + 10;
-                NoMoreData = data.NoMoreData;
-                $("#posts").append(data.HTMLString);
-                inProgress = false;
-                $('.postTime').each(function (i, e) {
-                    var datefn = dateFns.parse($(e).html());
-                    // Adjust to local time
-                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-                    var date = dateFns.format(datefn, "DD MMM YYYY");
-                    var time = dateFns.distanceInWordsToNow(datefn);
-                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-                    $(e).css('display', 'inline');
-                    $(e).removeClass("postTime");
-                });
-                if (NoMoreData) {
-                    $('#showmore').hide();
-                }
-                $(".sharing").each(function () {
-                    $(this).jsSocials({
-                        url: $(this).data('url'),
-                        text: $(this).data('sharetext'),
-                        showLabel: false,
-                        showCount: false,
-                        shareIn: "popup",
-                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-                    });
-                    $(this).removeClass("sharing");
-                });
-                $(".c_input").summernote({
-                    callbacks: {
-                        onImageUpload: function (files) {
-                            let that = $(this);
-                            sendFile(files[0], that);
-                        }
-                    },
-                    focus: false,
-                    placeholder: 'Write comment...',
-                    disableDragAndDrop: true,
-                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-                    minHeight: 60,
-                    maxHeight: 300,
-                    hint: {
-                        match: /\B@(\w*)$/,
-                        search: function (keyword, callback) {
-                            if (!keyword.length) return callback();
-                            var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-                            $.ajax({
-                                async: true,
-                                url: '/Comment/GetMentions',
-                                type: 'POST',
-                                contentType: "application/json; charset=utf-8",
-                                dataType: 'json',
-                                data: msg,
-                                error: function () {
-                                    callback();
-                                },
-                                success: function (res) {
-                                    callback(res.users);
-                                }
-                            });
-                        },
-                        content: function (item) {
-                            return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
-                        }
-                    }
-                });
-                $('.c_input').each(function (i, e) {
-                    $(e).removeClass("c_input");
-                });
-                $(".impression").each(function (ix, e) {
-                    $(e).load($(e).data("url"));
-                    $(e).removeClass("impression");
-                });
-                $(".note-statusbar").css("display", "none");
-            });
-    }
-}
-window.loadmore = loadmore;
+//export function loadmore() {
+//    if (!inProgress) {
+//        inProgress = true;
+//        $('#loadmore').show();
+//        $('#btnLoadmore').prop('disabled', true);
+//        $.post("/Manage/InfiniteScroll/",
+//            { "BlockNumber": BlockNumber },
+//            function (data) {
+//                $('#loadmore').hide();
+//                $('#btnLoadmore').prop('disabled', false);
+//                BlockNumber = BlockNumber + 10;
+//                NoMoreData = data.NoMoreData;
+//                $("#posts").append(data.HTMLString);
+//                inProgress = false;
+//                $('.postTime').each(function (i, e) {
+//                    var datefn = dateFns.parse($(e).html());
+//                    // Adjust to local time
+//                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+//                    var date = dateFns.format(datefn, "DD MMM YYYY");
+//                    var time = dateFns.distanceInWordsToNow(datefn);
+//                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
+//                    $(e).css('display', 'inline');
+//                    $(e).removeClass("postTime");
+//                });
+//                if (NoMoreData) {
+//                    $('#showmore').hide();
+//                }
+//                $(".sharing").each(function () {
+//                    $(this).jsSocials({
+//                        url: $(this).data('url'),
+//                        text: $(this).data('sharetext'),
+//                        showLabel: false,
+//                        showCount: false,
+//                        shareIn: "popup",
+//                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
+//                    });
+//                    $(this).removeClass("sharing");
+//                });
+//                $(".c_input").summernote({
+//                    callbacks: {
+//                        onImageUpload: function (files) {
+//                            let that = $(this);
+//                            sendFile(files[0], that);
+//                        }
+//                    },
+//                    focus: false,
+//                    placeholder: 'Write comment...',
+//                    disableDragAndDrop: true,
+//                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
+//                    minHeight: 60,
+//                    maxHeight: 300,
+//                    hint: {
+//                        match: /\B@(\w*)$/,
+//                        search: function (keyword, callback) {
+//                            if (!keyword.length) return callback();
+//                            var msg = JSON.stringify({ 'searchstr': keyword.toString() });
+//                            $.ajax({
+//                                async: true,
+//                                url: '/Comment/GetMentions',
+//                                type: 'POST',
+//                                contentType: "application/json; charset=utf-8",
+//                                dataType: 'json',
+//                                data: msg,
+//                                error: function () {
+//                                    callback();
+//                                },
+//                                success: function (res) {
+//                                    callback(res.users);
+//                                }
+//                            });
+//                        },
+//                        content: function (item) {
+//                            return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
+//                        }
+//                    }
+//                });
+//                $('.c_input').each(function (i, e) {
+//                    $(e).removeClass("c_input");
+//                });
+//                $(".impression").each(function (ix, e) {
+//                    $(e).load($(e).data("url"));
+//                    $(e).removeClass("impression");
+//                });
+//                $(".note-statusbar").css("display", "none");
+//            });
+//    }
+//}
+//window.loadmore = loadmore;

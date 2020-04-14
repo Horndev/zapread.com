@@ -12,13 +12,25 @@ export function addposts(data, callback) {
     callback();
 }
 
-export function loadmore(sort) {
+export function loadmore(options) {
+    if (typeof options === 'undefined') {
+        options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 10 };
+    }
+    if (typeof options.url === 'undefined') {
+        options.url = '/Home/InfiniteScroll/';
+    }
+    if (typeof options.blocknumber === 'undefined') {
+        options.blocknumber = 10;
+    }
+    if (typeof options.sort === 'undefined') {
+        options.sort = 'Score';
+    }
     if (!inProgress) {
         inProgress = true;
-        document.querySelectorAll('#loadmore').item(0).style.display = ''; // $('#loadmore').show();
-        document.querySelectorAll('#btnLoadmore').item(0).disabled = true; //$('#btnLoadmore').prop('disabled', true);
+        document.querySelectorAll('#loadmore').item(0).style.display = '';
+        document.querySelectorAll('#btnLoadmore').item(0).disabled = true;
 
-        postData('/Home/InfiniteScroll/', { "BlockNumber": BlockNumber, "sort": sort })
+        postData(options.url, { "BlockNumber": options.blocknumber, "sort": options.sort })
             .then((data) => {
                 document.querySelectorAll('#loadmore').item(0).style.display = 'none';  // $('#loadmore').hide();
                 document.querySelectorAll('#btnLoadmore').item(0).disabled = false;     // $('#btnLoadmore').prop('disabled', false);
@@ -32,6 +44,9 @@ export function loadmore(sort) {
             })
             .catch((error) => {
                 Swal.fire("Error", `Error loading posts: ${error}`, "error");
+                document.querySelectorAll('#loadmore').item(0).style.display = 'none';
+                document.querySelectorAll('#btnLoadmore').item(0).disabled = false;
+                inProgress = false;
             })
             .finally(() => {
                 // nothing?

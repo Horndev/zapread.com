@@ -1,143 +1,23 @@
-﻿
+﻿/*
+ * 
+ */
 
-//$(document).ready(function () {
-//    //draftsTable = $('#draftsTable').DataTable({
-//    //    "searching": true,
-//    //    "lengthChange": false,
-//    //    "pageLength": 10,
-//    //    "processing": true,
-//    //    "serverSide": true,
-//    //    "ajax": {
-//    //        type: "POST",
-//    //        contentType: "application/json",
-//    //        url: "/Post/GetDrafts",
-//    //        headers: getAntiForgeryToken(),
-//    //        data: function (d) {
-//    //            return JSON.stringify(d);
-//    //        }
-//    //    },
-//    //    "columns": [
-//    //        { "data": "Title", "orderable": true },
-//    //        {
-//    //            "data": null,
-//    //            "orderable": true,
-//    //            "mRender": function (data, type, row) {
-//    //                return "<a href='/Group/GroupDetail/" + data.GroupId + "'>" + data.Group + "</a>";
-//    //            }
-//    //        },
-//    //        { "data": "Time", "orderable": false },
-//    //        {
-//    //            "data": null,//"Type",
-//    //            "orderable": false,
-//    //            "mRender": function (data, type, row) {
-//    //                return "<button class='btn btn-sm btn-primary' onclick=loadpost(" + data.PostId + ")>Load</button> <button class='btn btn-sm btn-danger' onclick=del(" + data.PostId + ")>Delete</button>"//"<a href='" + data.URL + "'>" + data.Type + "</a>";
-//    //            }
-//    //        }
-//    //    ]
-//    //});
+import Swal from 'sweetalert2';
+import { getAntiForgeryToken } from '../antiforgery';
 
-//    //$("#postGroup").autocomplete({
-//    //    autoFocus: true,
-//    //    source: function (request, response) {
-//    //        $.ajax({
-//    //            async: true,
-//    //            url: "/Group/GetGroups/" + request.term,
-//    //            type: "GET",
-//    //            dataType: "json",
-//    //            //data: { prefix: request.term },
-//    //            success: function (data) {
-//    //                knownGroups = data;
-//    //                response($.map(data, function (item) {
-//    //                    return { label: item.GroupName, value: item.GroupName };
-//    //                }));
-//    //            }
-//    //        });
-//    //    },
-//    //    select: function (event, ui) {
-//    //        // if user clicked
-//    //    },
-//    //    change: function (event, ui) {
-//    //        var gn = $("#postGroup").val();
-//    //        if (typeof knownGroups === 'undefined' || knownGroups.length === 0) {
-//    //            // variable is undefined
-//    //            $("#postGroup").addClass('is-invalid');
-//    //        }
-//    //        else {
-//    //            if (knownGroups.findIndex(function (i) { return i.GroupName === gn; }) >= 0) {
-//    //                $("#postGroup").removeClass('is-invalid');
-//    //                gid = knownGroups[knownGroups.findIndex(function (i) { return i.GroupName === gn; })].GroupId;
-//    //                $('#postGroupActive').html(gn);
-//    //                $('#groupLink').html(gn);
-//    //                $('#groupLink').attr('href', '@Url.Action("GroupDetail", "Group")' + '?id=' + gid.toString());
-//    //            }
-//    //            else {
-//    //                $("#postGroup").addClass('is-invalid');
-//    //            }
-//    //        }
-//    //    }
-//    //});
-
-//    //$('.click2edit').summernote({
-//    //    toolbarContainer: '#editorToolbar',
-//    //    otherStaticBar: '.navbar',
-//    //    callbacks: {
-//    //        onImageUpload: function (files) {
-//    //            that = $(this);
-//    //            sendFile(files[0], that);
-//    //        }
-//    //    },
-//    //    toolbar: [
-//    //        ['style', ['style']],
-//    //        ['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
-//    //        ['fontname', ['fontname']],
-//    //        ['fontsize', ['fontsize']],
-//    //        ['color', ['color']],
-//    //        ['para', ['ul', 'ol', 'paragraph']],
-//    //        ['table', ['table']],
-//    //        ['insert', ['link', 'picture', 'videoAttributes']],
-//    //        ['view', ['fullscreen', 'codeview']]
-//    //    ],
-//    //    focus: true,
-//    //    hint: {
-//    //        match: /\B@@(\w*)$/,
-//    //        search: function (keyword, callback) {
-//    //            if (!keyword.length) return callback();
-//    //            var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-//    //            $.ajax({
-//    //                async: true,
-//    //                url: '/Comment/GetMentions',
-//    //                type: 'POST',
-//    //                contentType: "application/json; charset=utf-8",
-//    //                dataType: 'json',
-//    //                data: msg,
-//    //                error: function () {
-//    //                    callback();
-//    //                },
-//    //                success: function (res) {
-//    //                    callback(res.users);
-//    //                }
-//    //            });
-//    //        },
-//    //        content: function (item) {
-//    //            return $("<span class='badge badge-info userhint'>").html('@@' + item)[0];
-//    //        }
-//    //    }
-//    //});
-//});
-
-var loadpost = function (postId) {
-    swal({
+export function loadpost(postId) {
+    Swal.fire({
         title: "Are you sure?",
         text: "Any unsaved changes in the current post will be lost.",
         icon: "warning",
         buttons: true,
         dangerMode: true
     }).then((willDelete) => {
-        if (willDelete) {
+        if (willDelete.value) {
             var form = document.createElement('form');
             document.body.appendChild(form);
             form.method = 'post';
-            form.action = "/Post/Edit";
+            form.action = "/Post/Edit/";
             var data = { 'PostId': postId };
             for (var name in data) {
                 var input = document.createElement('input');
@@ -151,37 +31,39 @@ var loadpost = function (postId) {
             console.log("cancelled load");
         }
     });
-};
+}
+window.loadpost = loadpost;
 
-var del = function (postId) {
-    swal({
+export function del(postId) {
+    Swal.fire({
         title: "Are you sure?",
         text: "Once deleted, you will not be able to recover this draft!",
         icon: "warning",
         buttons: true,
         dangerMode: true
     }).then(function (willDelete) {
-        if (willDelete) {
+        if (willDelete.value) {
             $.post("/Post/DeletePost/",
-            { "PostId": postId },
-            function (data) {
-                if (data.Success) {
-                    swal("Deleted! Your draft has been deleted.", {
-                        icon: "success"
-                    });
-                    draftsTable.ajax.reload(null, false);
-                }
-                else {
-                    swal("Error", "Error deleting draft.", "error");
-                }
-            });
+                { "PostId": postId },
+                function (data) {
+                    if (data.Success) {
+                        Swal.fire("Deleted! Your draft has been deleted.", {
+                            icon: "success"
+                        });
+                        draftsTable.ajax.reload(null, false);
+                    }
+                    else {
+                        Swal.fire("Error", "Error deleting draft.", "error");
+                    }
+                });
         } else {
             console.log("cancelled delete");
         }
     });
-};
+}
+window.del = del;
 
-var submit = function (postId, groupId, userId, isUpdate) {
+export function submit(postId, groupId, userId, isUpdate) {
     $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
     $('#submit').prop('disabled', true);
     $('#save').prop('disabled', true);
@@ -194,11 +76,6 @@ var submit = function (postId, groupId, userId, isUpdate) {
         url = "/Post/Update/";
     }
 
-    var form = $('#__AjaxAntiForgeryForm');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
-
     $.ajax({
         async: true,
         type: "POST",
@@ -206,8 +83,8 @@ var submit = function (postId, groupId, userId, isUpdate) {
         data: msg,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        headers: headers,
-        success: function(response) {
+        headers: getAntiForgeryToken(),
+        success: function (response) {
             if (response.success) {
                 $('#submit').prop('disabled', false);
                 var newPostUrl = "/Post/Detail";
@@ -217,26 +94,27 @@ var submit = function (postId, groupId, userId, isUpdate) {
                 $('#submit').prop('disabled', false);
                 $('#save').prop('disabled', false);
                 $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-                swal("Error", response.message, "error");
+                Swal.fire("Error", response.message, "error");
             }
         },
         failure: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            swal("Error", response.message, "error");
+            Swal.fire("Error", response.message, "error");
         },
         error: function (response) {
             $('#submit').prop('disabled', false);
             $('#save').prop('disabled', false);
             $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
-            swal("Error", response.message, "error");
+            Swal.fire("Error", response.message, "error");
         }
     });
     $('.click2edit').summernote('destroy');
-};
+}
+window.submit = submit;
 
-var save = function (postId, groupId, userId, isUpdate) {
+export function save(postId, groupId, userId, isUpdate) {
     $('#postEdit').children('.ibox-content').toggleClass('sk-loading');
     $('#submit').prop('disabled', true);
     $('#save').prop('disabled', true);
@@ -245,17 +123,12 @@ var save = function (postId, groupId, userId, isUpdate) {
     var language = $('#languageSelect').val();
     var msg = JSON.stringify({ 'PostId': postId, 'Content': aHTML, 'GroupId': groupId, 'UserId': userId, 'Title': postTitle, 'IsDraft': true, 'Language': language });
 
-    var form = $('#__AjaxAntiForgeryForm');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
-
     $.ajax({
         async: true,
         type: "POST",
         url: "/Post/SubmitNewPost/",
         data: msg,
-        headers: headers,
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
@@ -277,9 +150,10 @@ var save = function (postId, groupId, userId, isUpdate) {
         }
     });
     $('.click2edit').summernote('destroy');
-};
+}
+window.save = save;
 
-var edit = function () {
+export function edit() {
     $('.click2edit').summernote({
         callbacks: {
             onImageUpload: function (files) {
@@ -299,17 +173,17 @@ var edit = function () {
         ],
         focus: true
     });
-};
+}
+window.edit = edit;
 
-var changeGroup = function () {
-    swal({
+export function changeGroup() {
+    Swal.fire({
         title: "Changing groups resets the score.",
         text: "Are you sure you want to move this post?",
         icon: "warning",
-        buttons: true,
-        dangerMode: true
+        showCancelButton: true
     }).then(function (willMove) {
-        if (willMove) {
+        if (willMove.value) {
             $("#postGroup").autocomplete({
                 autoFocus: true,
                 source: function (request, response) {
@@ -355,4 +229,5 @@ var changeGroup = function () {
         }
     });
     return false;
-};
+}
+window.changeGroup = changeGroup;

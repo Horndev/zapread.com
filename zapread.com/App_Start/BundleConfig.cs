@@ -131,6 +131,7 @@ namespace zapread.com
 
             BundlePage(bundles, "post", "detail");
             BundlePage(bundles, "post", "edit");
+            BundlePage(bundles, "post", "newpost");
 
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
@@ -143,10 +144,6 @@ namespace zapread.com
             //            "~/Scripts/dist/post_edit.js",
             //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
             //            .WithLastModifiedToken());
-            //// Post/NewPost & Edit styles
-            //bundles.Add(new StyleBundle("~/bundles/post/edit/css").Include(
-            //              "~/Scripts/dist/post_edit.css")
-            //              .WithLastModifiedToken());
 
             // User scripts
             bundles.Add(new ScriptBundle("~/bundles/users").Include(

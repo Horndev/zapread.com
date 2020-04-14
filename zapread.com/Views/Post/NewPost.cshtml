@@ -130,13 +130,12 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/bundles/post/edit/css")
+    @Styles.Render("~/bundles/post/newpost/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/post/edit")
-
     <script type="text/javascript">
-    var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
+        var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
     </script>
+    @Scripts.Render("~/bundles/post/newpost")
 }
