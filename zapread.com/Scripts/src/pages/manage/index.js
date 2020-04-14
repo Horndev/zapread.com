@@ -4,7 +4,7 @@
 
 import '../../shared/shared';
 import '../../realtime/signalr';
-import 'summernote/dist/summernote-bs4';
+import '../../../summernote/dist/summernote-bs4';
 import 'summernote/dist/summernote-bs4.css';
 import '../../utility/summernote/summernote-video-attributes';
 
@@ -22,6 +22,8 @@ import { replyComment } from '../../comment/replycomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
 import { loadmore } from '../../utility/loadmore';
+
+import './updateAlias';
 import '../../shared/sharedlast';
 
 // Make global (called from html)

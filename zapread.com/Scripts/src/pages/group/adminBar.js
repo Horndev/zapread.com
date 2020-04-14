@@ -21,12 +21,12 @@ export function changeShortDesc(groupId) {
             headers: getAntiForgeryToken(),
             success: function (data) {
                 if (data.success) {
-                    swal("Your group short description has been updated!", {
-                        icon: "success",
+                    Swal.fire("Your group short description has been updated!", {
+                        icon: "success"
                     });
                 }
                 else {
-                    swal("Error", "Error updating group short description: " + data.message, "error");
+                    Swal.fire("Error", "Error updating group short description: " + data.message, "error");
                 }
             }
         });

@@ -5,7 +5,7 @@
  * @param {any} e element of close button
  * @param {any} d direction force (1 force close, -1 force open, 0 toggle)
  */
-var toggleComment = function (e, d) {
+export function toggleComment(e, d) {
     $(e).parent().find('.comment-body').first().fadeToggle({ duration: 0 });
     if (d === 1 || (d === 0 && $(e).find('.togglebutton').hasClass("fa-minus-square"))) {
         $(e).removeClass('pull-left');
@@ -21,9 +21,10 @@ var toggleComment = function (e, d) {
         $(e).find('.togglebutton').addClass("fa-minus-square");
         $(e).find('#cel').hide();
     }
-};
+}
+window.toggleComment = toggleComment;
 
-var togglePost = function (e) {
+export function togglePost(e) {
     $(e).parent().find('.social-body').slideToggle();
     if ($(e).find('.togglebutton').hasClass("fa-minus-square")) {
         toggleComment($(e).parent().find('.social-comment-box').find('.comment-toggle'), 1);
@@ -35,4 +36,5 @@ var togglePost = function (e) {
         $(e).find('.togglebutton').removeClass("fa-plus-square");
         $(e).find('.togglebutton').addClass("fa-minus-square");
     }
-};
+}
+window.togglePost = togglePost;

@@ -1,7 +1,9 @@
 ﻿//
 // Partial Modal for update user alias
 
-var updateAlias = function () {
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+
+export function updateAlias() {
     event.preventDefault();
     event.stopImmediatePropagation();
     var action = "/Manage/UpdateUserAlias";
@@ -9,10 +11,6 @@ var updateAlias = function () {
     var dataval = '';
     var dataString = '';
     var messageElement = '#userAliasInput';
-    var form = $('#__AjaxAntiForgeryForm');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
     dataval = $(messageElement).val();
     dataString = JSON.stringify({
         alias: dataval
@@ -25,7 +23,7 @@ var updateAlias = function () {
         data: dataString,
         dataType: "json",
         contentType: contentType,
-        headers: headers,
+        headers: getAntiForgeryToken(),
         success: function (response) {
             if (response.success) {
                 $('#userAliasModal').modal('hide');
@@ -39,4 +37,5 @@ var updateAlias = function () {
             alert("fail");
         }
     });
-};
+}
+window.updateAlias = updateAlias;

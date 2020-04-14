@@ -2,7 +2,7 @@
 
 <div class="chat-message @if(Model.IsReceived){<text>left</text>}else{<text>right</text>}">
     <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })">
-        <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.FromAppId, v=Model.FromProfileImgVersion})" alt="@Model.FromName">
+        <img class="message-avatar" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.FromAppId, v=Model.FromProfileImgVersion})" alt="@Model.FromName">
     </a>
     <div class="message">
         <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })"> @Model.FromName </a>

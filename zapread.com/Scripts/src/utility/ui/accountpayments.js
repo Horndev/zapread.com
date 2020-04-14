@@ -2,6 +2,8 @@
  * 
 */
 
+import Swal from 'sweetalert2';
+
 export function onGetInvoice(e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
@@ -69,14 +71,14 @@ export function onValidateInvoice(e) {
                 console.log('Withdraw Node:' + response.destination);
             }
             else {
-                swal("Error", response.message, "error");
+                Swal.fire("Error", response.message, "error");
             }
         },
         failure: function (response) {
-            swal("Error", response.message, "error");
+            Swal.fire("Error", response.message, "error");
         },
         error: function (response) {
-            swal("Error", response.message, "error");
+            Swal.fire("Error", response.message, "error");
         }
     });
 }

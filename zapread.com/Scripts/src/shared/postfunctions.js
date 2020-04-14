@@ -1,4 +1,7 @@
-﻿/* Functions for posts */
+﻿
+import Swal from 'sweetalert2';
+import { getAntiForgeryToken } from '../utility/antiforgery';
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
 
 /**
  * Dismiss messages an alerts
@@ -7,13 +10,13 @@
  * @returns {bool} : true on success
  */
 /* exported dismiss */
-var dismiss = function (t, id) {
+export function dismiss(t, id) {
     var url = "";
     if (t === 1) {
-        url = "/Messages/DismissAlert";
+        url = "/Messages/DismissAlert/";
     }
     else if (t === 0) {
-        url = "/Messages/DismissMessage";
+        url = "/Messages/DismissMessage/";
     }
     $.ajax({
         type: "POST",
@@ -57,13 +60,14 @@ var dismiss = function (t, id) {
         }
     });
     return false;
-};
+}
+window.dismiss = dismiss;
 
 /* exported stickyPost */
-var stickyPost = function (id) {
+export function stickyPost(id) {
     $.ajax({
         type: "POST",
-        url: "/Post/ToggleStickyPost",
+        url: "/Post/ToggleStickyPost/",
         data: JSON.stringify({ "id": id }),
         dataType: "json",
         contentType: "application/json; charset=utf-8",
@@ -76,21 +80,17 @@ var stickyPost = function (id) {
             alert("fail");
         }
     });
-};
+}
+window.stickyPost = stickyPost;
 
 /* exported nsfwPost */
-var nsfwPost = function (id) {
-    var form = $('#__AjaxAntiForgeryForm');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
-
+export function nsfwPost(id) {
     $.ajax({
         type: "POST",
         url: "/Post/ToggleNSFW",
         data: JSON.stringify({ "id": id }),
         dataType: "json",
-        headers: headers,
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         success: function (result) {
             if (result.success) {
@@ -98,129 +98,130 @@ var nsfwPost = function (id) {
                 if (result.IsNSFW) {
                     message = "Successfully marked post NSFW.";
                 }
-                swal(message, {
+                Swal.fire(message, {
                     icon: "success"
                 });
             }
         },
         failure: function (response) {
-            swal(response.message, {
+            Swal.fire(response.message, {
                 icon: "error"
             });
         },
         error: function (response) {
-            swal(response.message, {
+            Swal.fire(response.message, {
                 icon: "error"
             });
         }
     });
-};
+}
+window.nsfwPost = nsfwPost;
 
 /* exported showNSFW */
-var showNSFW = function (id) {
+export function showNSFW(id) {
     $("#nsfw_" + id).hide();
     $("#nsfwb_" + id).hide();
-};
+}
+window.showNSFW = showNSFW;
 
 /* exported deleteComment */
-var deleteComment = function (id) {
-    swal({
+export function deleteComment(id) {
+    Swal.fire({
         title: "Are you sure?",
         text: "Once deleted, you will not be able to recover this comment!",
         icon: "warning",
-        buttons: true,
-        dangerMode: true
+        showCancelButton: true
     }).then(function(willDelete) {
-        if (willDelete) {
-            $.post("/Comment/DeleteComment",
+        if (willDelete.value) {
+            $.post("/Comment/DeleteComment/",
             { "Id": id },
             function (data) {
                 if (data.Success) {
                     $('#comment_' + id.toString()).hide();
-                    swal("Deleted! Your comment has been deleted.", {
+                    Swal.fire("Deleted! Your comment has been deleted.", {
                         icon: "success"
                     });
                 }
                 else {
-                    swal("Error", "Error deleting comment.", "error");
+                    Swal.fire("Error", "Error deleting comment.", "error");
                 }
             });
         } else {
         console.log("cancelled delete");
         }
     });
-};
+}
+window.deleteComment = deleteComment;
 
 /* exported setPostLanguage */
-var setPostLanguage = function (id) {
-    swal({
+export function setPostLanguage(id) {
+    Swal.fire({
         text: 'Enter new language code',
-        content: "input",
-        button: {
-            text: "Ok",
-            closeModal: false
-        }
+        input: 'text',
+        inputValue: '',
+        showCancelButton: true
     }).then(function(name) {
-        if (!name) throw null;
-        $.post("/Post/ChangeLanguage",
-        { "postId": id, "newLanguage": name },
+        if (!name.value) throw null;
+        $.post("/Post/ChangeLanguage/",
+        { "postId": id, "newLanguage": name.value },
         function (data) {
             if (data.success) {
-                swal("Post language has been updated!", {
+                Swal.fire("Post language has been updated!", {
                     icon: "success"
                 });
             }
             else {
-                swal("Error", "Error: " + data.message, "error");
+                Swal.fire("Error", "Error: " + data.message, "error");
             }
         });
     }).catch (function(err) {
         if (err) {
-            swal("Error", "Error updating language.", "error");
+            Swal.fire("Error", "Error updating language.", "error");
         } else {
-            swal.stopLoading();
-            swal.close();
+            Swal.stopLoading();
+            Swal.close();
         }
     });
-};
+}
+window.setPostLanguage = setPostLanguage;
 
 /* exported deletePost */
-var deletePost = function (id) {
-    swal({
+export function deletePost(id) {
+    Swal.fire({
         title: "Are you sure?",
         text: "Once deleted, you will not be able to recover this post!",
         icon: "warning",
-        buttons: true,
-        dangerMode: true
+        showCancelButton: true
     }).then(function(willDelete) {
-        if (willDelete) {
-            $.post("/Post/DeletePost",
+        if (willDelete.value) {
+            $.post("/Post/DeletePost/",
             { "PostId": id },
             function (data) {
                 if (data.Success) {
                     $('#post_' + id.toString()).hide();
-                    swal("Deleted! Your post has been deleted.", {
+                    Swal.fire("Deleted! Your post has been deleted.", {
                         icon: "success"
                     });
                 }
                 else {
-                    swal("Error", "Error deleting post.", "error");
+                    Swal.fire("Error", "Error deleting post.", "error");
                 }
             });
         } else {
             console.log("cancelled delete");
         }
     });
-};
+}
+window.deletePost = deletePost;
 
 // For submitting comments (TODO: move this to own file)
 /* exported isCommenting */
 var isCommenting = false;
 
 /* exported submitCommentA */
-var submitCommentA = function (postId, commentId, isReply) {
+export function submitCommentA(postId, commentId, isReply) {
     if (!isCommenting) {
-        var action = "/Comment/AddComment";
+        var action = "/Comment/AddComment/";
         var dataval = '';
         var commentElement = '';
         var dataString = '';
@@ -240,8 +241,8 @@ var submitCommentA = function (postId, commentId, isReply) {
             $('#cs_' + postId.toString()).show();
             $('#bc_' + postId.toString()).prop('disabled', true);
         }
-        contentType = "application/json; charset=utf-8";
-        processData = false;
+        //contentType = "application/json; charset=utf-8";
+        //processData = false;
         isCommenting = true;
 
         $.ajax({
@@ -250,7 +251,7 @@ var submitCommentA = function (postId, commentId, isReply) {
             data: dataString,
             headers: getAntiForgeryToken(),
             dataType: "json",
-            contentType: contentType,
+            contentType: "application/json; charset=utf-8",
             success: function (result) {
                 isCommenting = false;
                 onAjaxCommentSuccessA(result);
@@ -262,10 +263,11 @@ var submitCommentA = function (postId, commentId, isReply) {
         });
     }
     return false;
-};
+}
+window.submitCommentA = submitCommentA;
 
 /* exported onAjaxCommentSuccessA */
-var onAjaxCommentSuccessA = function (result) {
+export function onAjaxCommentSuccessA(result) {
     $('#cs_' + result.PostId.toString()).hide();
     $('#csr_' + result.CommentId.toString()).hide();
     $('#bc_' + result.PostId.toString()).prop('disabled', false);
@@ -299,20 +301,20 @@ var onAjaxCommentSuccessA = function (result) {
             $("#wc_" + result.PostId.toString()).show();
         }
         $('.postTime').each(function (i, e) {
-            var datefn = dateFns.parse($(e).html());
-            // Adjust to local time
-            datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-            var date = dateFns.format(datefn, "DD MMM YYYY");
-            var time = dateFns.distanceInWordsToNow(datefn);
+            var datefn = parseISO($(e).html());
+            datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+            var date = format(datefn, "dd MMM yyyy");
+            var time = formatDistanceToNow(datefn, { addSuffix: false });
             $(e).html('<span>' + time + ' ago - ' + date + '</span>');
             $(e).css('display', 'inline');
             $(e).removeClass("postTime");
         });
     }
-};
+}
+window.onAjaxCommentSuccessA = onAjaxCommentSuccessA;
 
 /* exported dofeedback */
-var dofeedback = function () {
+export function dofeedback() {
     var msg = $('#feedbackText').val();
     var feebackLocation = window.location.href;
     $.ajax({
@@ -327,10 +329,11 @@ var dofeedback = function () {
 
     $('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
     $('.small-chat-box').toggleClass('active');
-};
+}
+window.dofeedback = dofeedback;
 
 /* exported OkButton */
-var OkButton = function (context) {
+export function OkButton(context) {
     var ui = $.summernote.ui;
 
     // create button
@@ -353,14 +356,15 @@ var OkButton = function (context) {
                         alert("Error updating comment");
                     }
                 });
-    isEditing = false;
+            isEditing = false;
+            }
+        });
+    return button.render();   // return button as jquery object
 }
-            });
-return button.render();   // return button as jquery object
-        };
+window.OkButton = OkButton;
 
 /* exported CancelButton */
-var CancelButton = function (context) {
+export function CancelButton(context) {
     var ui = $.summernote.ui;
     // create button
     var button = ui.button({
@@ -375,12 +379,13 @@ var CancelButton = function (context) {
         }
     });
     return button.render();   // return button as jquery object
-};
+}
+window.CancelButton = CancelButton;
 
 var editingId = -1;
 var isEditing = false;
 /* exported editComment */
-var editComment = function (id) {
+export function editComment(id) {
     if (!isEditing) {
         console.log("edit " + id.toString());
         var e = "#commentText_" + id.toString();
@@ -405,7 +410,7 @@ var editComment = function (id) {
                     var msg = JSON.stringify({ 'searchstr': keyword.toString() });
                     $.ajax({
                         async: true,
-                        url: '/Comment/GetMentions',
+                        url: '/Comment/GetMentions/',
                         type: 'POST',
                         contentType: "application/json; charset=utf-8",
                         dataType: 'json',
@@ -428,5 +433,6 @@ var editComment = function (id) {
     else {
         alert("You can only edit one comment at a time.  Save or Cancel your editing.");
     }
-};
+}
+window.editComment = editComment;
 

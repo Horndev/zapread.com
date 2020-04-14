@@ -2,7 +2,7 @@
  * 
  */
 import $ from 'jquery';
-import 'summernote/dist/summernote-bs4';
+import '../../summernote/dist/summernote-bs4';
 import 'summernote/dist/summernote-bs4.css';
 
 import { sendFile } from '../utility/sendfile';

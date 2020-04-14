@@ -18,6 +18,9 @@ import '../utility/ui/vote';
 import '../utility/ui/paymentsscan';
 import '../utility/ui/accountpayments';
 
+import './postfunctions';
+import './readmore';
+import './postui';
 //import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
 //import 'bootstrap-chosen/bootstrap-chosen.css';
 
@@ -38,6 +41,47 @@ Toastr.options.timeOut = 30000; // How long the toast will display without user 
 Toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
 
 window.Toastr = Toastr;
+
+export function copyToClipboard(e, elemId) {
+    $("#" + elemId).focus();
+    $("#" + elemId).select();
+    try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Copying text command was ' + msg);
+        $(e).html("<span class='fa fa-copy'></span> Copied");
+        setTimeout(function () { $(e).html("<span class='fa fa-copy'></span> Copy"); }, 10000);
+    } catch (err) {
+        console.log('Oops, unable to copy');
+    }
+}
+window.copyToClipboard = copyToClipboard;
+
+$(document).ready(function () {
+    // this could possibly be removed.
+    $.fn.extend({
+        placeCursorAtEnd: function () {
+            // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
+            if (this.length === 0) {
+                throw new Error("Cannot manipulate an element if there is no element!");
+            }
+            var el = this[0];
+            var range = document.createRange();
+            var sel = window.getSelection();
+            var childLength = el.childNodes.length;
+            if (childLength > 0) {
+                var lastNode = el.childNodes[childLength - 1];
+                var lastNodeChildren = lastNode.childNodes.length;
+                range.setStart(lastNode, lastNodeChildren);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+            return this;
+        }
+    });
+});
+
 
 $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {
     e.stopPropagation();

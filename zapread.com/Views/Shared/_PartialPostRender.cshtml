@@ -122,7 +122,7 @@
             @if (!Model.ViewerIgnoredUser)
             {
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Post.UserId.Name })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle userhint post-image-45" data-userid="@Model.Post.UserId.Id" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.Post.UserId.AppId, v = Convert.ToString(Model.Post.UserId.ProfileImage.Version) })" />
+                    <img class="img-circle userhint post-image-45" loading="lazy" width="45" height="45" data-userid="@Model.Post.UserId.Id" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.Post.UserId.AppId, v = Convert.ToString(Model.Post.UserId.ProfileImage.Version) })" />
                 </a>
             }
             <div class="media-body">
@@ -186,7 +186,7 @@
                             <div class="sk-bounce3"></div>
                         </div>
                         <a href="@Url.Action(actionName: "Index", controllerName: "Manage")" class="pull-left">
-                            <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30 })" />
+                            <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30 })" />
                         </a>
                         <div class="media-body">
                             <div class="row">

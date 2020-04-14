@@ -556,7 +556,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpGet]
         public ActionResult Edit(int postId)
         {
             if (!User.Identity.IsAuthenticated)

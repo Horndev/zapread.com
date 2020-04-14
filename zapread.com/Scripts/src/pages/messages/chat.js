@@ -3,13 +3,19 @@
  */
 import '../../shared/shared';
 import '../../realtime/signalr';
-import 'summernote/dist/summernote-bs4';
+import '../../../summernote/dist/summernote-bs4';
 import 'summernote/dist/summernote-bs4.css';
 import '../../utility/summernote/summernote-video-attributes';
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { updatePostTimes } from '../../utility/datetime/posttime';
 import '../../shared/sharedlast';
+
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+
+window.subMinutes = subMinutes;
+window.format = format;
+window.parseISO = parseISO;
+window.formatDistanceToNow = formatDistanceToNow;
 
 updatePostTimes();
 
