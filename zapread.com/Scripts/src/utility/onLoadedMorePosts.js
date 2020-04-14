@@ -1,58 +1,34 @@
 ﻿/*
  *
  */
-import { loaduserhover } from '../utility/userhover';
-import { loadgrouphover } from '../utility/grouphover';
+//import 'date-fns-1/dist/date_fns';
+import { loaduserhover } from './userhover';
+import { loadgrouphover } from './grouphover';
+import { updatePostTimes } from './datetime/posttime';
+import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
 
 export function onLoadedMorePosts() {
-    console.log('[DEBUG] onLoadedMorePosts');
+    //console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover
-    // --- new version
     var elements = document.querySelectorAll(".userhint");
     Array.prototype.forEach.call(elements, function (el, _i) {
         loaduserhover(el);
         el.classList.remove('userhint');
     });
-    
-    // old version
-    //    $('.userhint').each(function () {
-    //        $(this).mouseover(function () {
-    //            loaduserhover(this);
-    //        });
-    //    });
-    // ---
 
-    // ---
     elements = document.querySelectorAll(".grouphint");
     Array.prototype.forEach.call(elements, function (el, _i) {
         loadgrouphover(el);
         el.classList.remove('grouphint');
     });
 
-    // old version
-    //    $('.grouphint').each(function () {
-    //        $(this).mouseover(function () {
-    //            loadgrouphover(this);
-    //        });
-    //    });
-    // ---
-
     // show the read more
-    // --- new version
     elements = document.querySelectorAll(".post-box");
     Array.prototype.forEach.call(elements, function (el, _i) {
         if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
             el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
         }
     });
-
-    // old version
-    //$(".post-box").each(function (index, item) {
-    //    if ($(item).height() >= 800) {
-    //        $(item).find(".read-more-button").show();
-    //    }
-    //});
-    // --- ^^^
 
     // --- update impressions counts
     elements = document.querySelectorAll(".impression");
@@ -66,37 +42,8 @@ export function onLoadedMorePosts() {
         });
     });
 
-    // old version
-    //    $(".impression").each(function (ix, e) {
-    //        $(e).load($(e).data("url"));
-    //        $(e).removeClass("impression");
-    //    });
-    // ---
-
-
     // --- relative times
-    elements = document.querySelectorAll(".postTime");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        var datefn = dateFns.parse(el.innerHTML);
-        datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-        var date = dateFns.format(datefn, "DD MMM YYYY");
-        var time = dateFns.distanceInWordsToNow(datefn);
-        el.innerHTML = '<span>' + time + ' ago - ' + date + '</span>';
-        el.style.display = 'inline';
-        el.classList.remove('postTime');
-    });
-
-    //old version
-    //    $('.postTime').each(function (i, e) {
-    //        var datefn = dateFns.parse($(e).html());
-    //        // Adjust to local time
-    //        datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-    //        var date = dateFns.format(datefn, "DD MMM YYYY");
-    //        var time = dateFns.distanceInWordsToNow(datefn);
-    //        $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-    //        $(e).css('display', 'inline');
-    //        $(e).removeClass("postTime");
-    //    });
+    updatePostTimes();
     // ---
 
     // --- socials buttons

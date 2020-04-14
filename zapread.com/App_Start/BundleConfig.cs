@@ -32,30 +32,27 @@ namespace zapread.com
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-            // Shared view plugins together
-            bundles.Add(new ScriptBundle("~/bundles/plugins").Include(
-                        "~/Scripts/summernote/dist/summernote-bs4.js",          // Summernote WYSIWYG editor
-                        "~/Scripts/summernote-video-attributes.js",             // Summernote plugin
-                        "~/node_modules/sweetalert/dist/sweetalert.min.js",     // Sweet Alert
-                        "~/node_modules/jssocials/dist/jssocials.min.js",       // jsSocials - Social Shares
-                        "~/node_modules/toastr/build/toastr.min.js",            // toastr notification 
-                        "~/node_modules/date-fns-1/dist/date_fns.min.js"        // Time formatting
-                        ));
-
             // Shared scripts
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
-                        "~/Scripts/main.js",                                    // Custom for all
+                        //"~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-                        "~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                        //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-                        "~/Scripts/Utility/clipboard-element.js",               // For copy to clipboard
-                        "~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
-                        "~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
-                        "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
+                        "~/Scripts/Utility/clipboard-element.js"               // For copy to clipboard
+                        //"~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
+                        //"~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
+                        //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
+
+            // This script is imported after the auto-generated signalr hub.
+            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
+                        "~/Scripts/Realtime/signalr-initialize.js")
+                        .WithLastModifiedToken());
+
+            #region partial scripts
 
             // Partial script - summary statistics
             bundles.Add(new ScriptBundle("~/bundles/partial/summaryStatistics").Include(
@@ -102,146 +99,52 @@ namespace zapread.com
                         "~/Scripts/Manage/updateAlias.js")
                         .WithLastModifiedToken());
 
-            // Admin/Users scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/users").Include(
-                        "~/Scripts/Admin/users.js")
-                        .WithLastModifiedToken());
+            #endregion
 
-            // Manage/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/index").Include(
-                        "~/node_modules/dropzone/dist/min/dropzone.min.js",
-                        "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js",
-                        "~/Scripts/Manage/index.js",
-                        "~/Scripts/Achievements/achievementhover.js",
-                        "~/Scripts/dist/manage_index.js")
-                        .WithLastModifiedToken());
+            BundlePage(bundles, "account", "login");
+            BundlePage(bundles, "admin", "achievements");
+            BundlePage(bundles, "admin", "audit");
+            BundlePage(bundles, "admin", "icons");
+            BundlePage(bundles, "admin", "index");
+            BundlePage(bundles, "admin", "jobs");
+            BundlePage(bundles, "admin", "lightning");
+            BundlePage(bundles, "admin", "users");
+            BundlePage(bundles, "group", "detail");
+            BundlePage(bundles, "group", "index");
+            BundlePage(bundles, "group", "members");
+            BundlePage(bundles, "group", "new");
+            BundlePage(bundles, "home", "about");
+            BundlePage(bundles, "home", "faq");
+            BundlePage(bundles, "home", "install");
+            BundlePage(bundles, "home", "index");
+            BundlePage(bundles, "mailer", "default");
+            BundlePage(bundles, "manage", "apikeys");
+            BundlePage(bundles, "manage", "default");
+            BundlePage(bundles, "manage", "financial");
+            BundlePage(bundles, "manage", "index");
+            BundlePage(bundles, "messages", "alerts");
+            BundlePage(bundles, "messages", "all");
+            BundlePage(bundles, "messages", "chat");
+            BundlePage(bundles, "messages", "chats");
+            BundlePage(bundles, "messages", "index");
+            BundlePage(bundles, "post", "detail");
+            BundlePage(bundles, "post", "edit");
+            BundlePage(bundles, "post", "newpost");
+            BundlePage(bundles, "post", "postnotfound");
+            BundlePage(bundles, "user", "achievements");
+            BundlePage(bundles, "user", "index");
 
-            // Manage/Financial scripts
-            bundles.Add(new ScriptBundle("~/bundles/manage/financial").Include(
-                        "~/Scripts/Manage/financial.js")
-                        .WithLastModifiedToken());
+            //// User/{username}
+            //bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
+            //            "~/Scripts/Users/index.js",
+            //            "~/Scripts/dist/user_index.js")
+            //            .WithLastModifiedToken());
 
-            // User/{username}
-            bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-                        "~/Scripts/Users/index.js",
-                        "~/Scripts/dist/user_index.js")
-                        .WithLastModifiedToken());
-
-            // Home/Install scripts
-            bundles.Add(new ScriptBundle("~/bundles/admin/install").Include(
-                        "~/Scripts/Admin/install.js")
-                        .WithLastModifiedToken());
-
-            bundles.Add(new ScriptBundle("~/bundles/home/index").Include(
-                        "~/Scripts/dist/home_index.js",
-                        "~/Scripts/Home/index.js")
-                        .WithLastModifiedToken());
-
-            // Messages/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/index").Include(
-                        "~/Scripts/Messages/index.js")
-                        .WithLastModifiedToken());
-
-            // Messages/All scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/all").Include(
-                        "~/Scripts/Messages/all.js")
-                        .WithLastModifiedToken());
-
-            // Messages/Chat scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/chat").Include(
-                        "~/Scripts/Messages/chat-ui.js")
-                        .WithLastModifiedToken());
-
-            // Messages/Chats scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/chats").Include(
-                        "~/Scripts/Messages/chats.js")
-                        .WithLastModifiedToken());
-
-            // Messages/Alerts scripts
-            bundles.Add(new ScriptBundle("~/bundles/messages/alerts").Include(
-                        "~/Scripts/Messages/alerts.js")
-                        .WithLastModifiedToken());
-
-            // Post/Detail scripts
-            bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
-                        "~/Scripts/Posts/post-detail.js",
-                        "~/Scripts/dist/post_detail.js")
-                        .WithLastModifiedToken());
-
-            // Group/Index scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/index").Include(
-                        "~/Scripts/Groups/index.js")
-                        .WithLastModifiedToken());
-
-            // Group/New scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/new").Include(
-                        "~/Scripts/Groups/new.js")
-                        .WithLastModifiedToken());
-
-            // Group/GroupDetail scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/detail").Include(
-                        "~/Scripts/Groups/detail.js",
-                        "~/Scripts/dist/group_detail.js")
-                        .WithLastModifiedToken());
-
-            // Group/Members scripts
-            bundles.Add(new ScriptBundle("~/bundles/group/members").Include(
-                        "~/Scripts/Groups/members.js")
-                        .WithLastModifiedToken());
-
-            // User scripts
-            bundles.Add(new ScriptBundle("~/bundles/users").Include(
-                        "~/Scripts/Users/hover.js")
-                        .WithLastModifiedToken());
-
-            // User scripts
-            bundles.Add(new ScriptBundle("~/bundles/groups").Include(
-                        "~/Scripts/Groups/hover.js")
-                        .WithLastModifiedToken());
-
-            // Achievement scripts
-            bundles.Add(new ScriptBundle("~/bundles/achievements").Include(
-                        "~/Scripts/Achievements/achievementhover.js")
-                        .WithLastModifiedToken());
-
-            // Post/NewPost scripts
-            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
-                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
-                        .WithLastModifiedToken());
-
-            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
-                        "~/Scripts/Realtime/signalr-initialize.js")
-                        .WithLastModifiedToken());
-
-            // chosen scripts
-            bundles.Add(new ScriptBundle("~/plugins/chosen").Include(
-                      "~/node_modules/bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery.min.js"));
-
-            // chosen styles
-            bundles.Add(new StyleBundle("~/Content/plugins/chosen/chosenStyles").Include(
-                      "~/node_modules/bootstrap-chosen/bootstrap-chosen.css", new CssRewriteUrlTransform()));
-
-            // dropZone scripts
-            bundles.Add(new ScriptBundle("~/plugins/dropZone").Include(
-                      "~/node_modules/dropzone/dist/min/dropzone.min.js"));
-
-            // dropZone styles
-            bundles.Add(new StyleBundle("~/Content/plugins/dropzone/dropZoneStyles").Include(
-                      "~/node_modules/dropzone/dist/min/basic.min.css",
-                      "~/node_modules/dropzone/dist/min/dropzone.min.css"));
-
-            // Jquery ui
-            bundles.Add(new ScriptBundle("~/Content/plugins/css/jquery-ui").Include(
-                        "~/node_modules/jquery-ui-dist/jquery-ui.min.css"));
-
-            // Jquery
-            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/node_modules/jquery/dist/jquery.js",
-                        "~/node_modules/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
-                        "~/node_modules/jquery-ui-dist/jquery-ui.min.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/Scripts/jquery.validate*"));
+            //// Post/NewPost & Edit scripts
+            //bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
+            //            "~/Scripts/dist/post_edit.js",
+            //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
+            //            .WithLastModifiedToken());
 
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
@@ -252,11 +155,6 @@ namespace zapread.com
             bundles.Add(new StyleBundle("~/bundles/css/datatables").Include(
                       "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
                       "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
-
-            // Use the development version of Modernizr to develop with and learn from. Then, when you're
-            // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
-            bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
-                        "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/node_modules/popper.js/dist/umd/popper.min.js",
@@ -273,19 +171,9 @@ namespace zapread.com
             //bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
             //          "~/Content/bootstrap-tour.min.css"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/site.css",
-                      "~/Content/style/hover.css",
-                      "~/Content/style/roundlinks.css")
-                      .WithLastModifiedToken());
-
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
                       .WithLastModifiedToken());
-
-            // Sweet Alert
-            bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
-                        "~/node_modules/sweetalert/dist/sweetalert.min.js"));
 
             // jsSocials - Social Shares
             bundles.Add(new ScriptBundle("~/bundles/jssocials").Include(
@@ -302,14 +190,6 @@ namespace zapread.com
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/social").Include(
                       "~/Content/bootstrap-social.css"));
-
-            // toastr notification 
-            bundles.Add(new ScriptBundle("~/plugins/toastr").Include(
-                      "~/node_modules/toastr/build/toastr.min.js"));
-
-            // toastr notification styles
-            bundles.Add(new StyleBundle("~/Content/style/toastr").Include(
-                      "~/node_modules/toastr/build/toastr.min.css"));
 
             // SlimScroll
             bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(
@@ -349,6 +229,16 @@ namespace zapread.com
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = true;// false;
+        }
+
+        private static void BundlePage(BundleCollection bundles, string controller, string page)
+        {
+            bundles.Add(new ScriptBundle("~/bundles/" + controller + "/" + page).Include(
+                        "~/Scripts/dist/" + controller + "/" + page+".js")
+                        .WithLastModifiedToken());
+            bundles.Add(new StyleBundle("~/bundles/" + controller + "/" + page + "/css").Include(
+                        "~/Scripts/dist/" + controller + "/" + page + ".css")
+                        .WithLastModifiedToken());
         }
     }
 }

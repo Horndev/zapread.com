@@ -6,21 +6,16 @@
 }
 
 @section Styles {
-    @Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
-    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/bundles/user/index/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/dropZone")
-    @Scripts.Render("~/bundles/achievements")
-    @Scripts.Render("~/bundles/users")
-    @Scripts.Render("~/bundles/groups")
-    @Scripts.Render("~/bundles/users/index")
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
         var userId = @Model.UserId;
     </script>
+    @Scripts.Render("~/bundles/user/index")
 }
 
 @Html.Partial(partialViewName: "_PartialModalVote")                   @*This is the code for the modal dialog box to vote*@
@@ -33,7 +28,7 @@
     </div>
 </div>
 
-<div class="modal inmodal" id="ModalProfileImage" tabindex="-1" role="dialog" aria-hidden="true">
+@*<div class="modal inmodal" id="ModalProfileImage" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-header">
             <h5 class="modal-title">Update Profile Image</h5>
@@ -62,7 +57,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 <div class="wrapper wrapper-content">
     <div class="row animated fadeInRight">

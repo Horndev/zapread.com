@@ -4,11 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
-
     @RenderSection("Styles", required: false)
-    @Styles.Render("~/Content/bootstrap")
-    @Styles.Render("~/Content/font-awesome/css")
-    @Styles.Render("~/Content/css")
 </head>
 <body class="gray-bg">
     <div id="wrapper" class="@Html.PageClass()">

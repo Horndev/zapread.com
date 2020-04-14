@@ -1,2 +1,5 @@
 ﻿<div id="root"></div>
-@Scripts.Render("~/Scripts/dist/manage_apikeys.js")
+@section Styles {
+    @Styles.Render("~/bundles/manage/apikeys/css")  @*same css and scripts*@
+}
+@Scripts.Render("~/bundles/manage/apikeys")

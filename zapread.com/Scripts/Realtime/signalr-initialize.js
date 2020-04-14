@@ -12,15 +12,15 @@ $(document).ready(function () {
         if (typeof ChattingWithId !== 'undefined') {
             // Skip
         } else {
-            toastr.options.onclick = function () {
+            Toastr.options.onclick = function () {
                 console.log('clicked');
                 window.open(envelope.clickUrl, '_blank');
             };
 
             if (envelope.hasReason) {
-                toastr.success(envelope.message, envelope.reason);
+                Toastr.success(envelope.message, envelope.reason);
             } else {
-                toastr.success(envelope.message, 'Message Received');
+                Toastr.success(envelope.message, 'Message Received');
             }
         }
     };

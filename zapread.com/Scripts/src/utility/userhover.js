@@ -6,12 +6,10 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 import { postData } from './postData';
 
-// need to remove jquery here
-//var getAntiForgeryTokenValue = function () {
-//    var form = $('#__AjaxAntiForgeryForm');
-//    var token = $('input[name="__RequestVerificationToken"]', form).val();
-//    return token;
-//};
+import { follow } from './ui/follow';
+
+// Save to window globals (part of the user hover)
+window.follow = follow;
 
 export function loaduserhover(e) {
     e.removeAttribute('onmouseover');
