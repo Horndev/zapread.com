@@ -439,8 +439,15 @@ namespace zapread.com.Controllers
                 await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
 
                 // Send alerts to users subscribed to users
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                try
+                {
+                    var mailer = DependencyResolver.Current.GetService<MailerController>();
+                    await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                }
+                catch (Exception e)
+                {
+                    // noted.
+                }
 
                 return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
             }
@@ -549,7 +556,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpGet]
         public ActionResult Edit(int postId)
         {
             if (!User.Identity.IsAuthenticated)

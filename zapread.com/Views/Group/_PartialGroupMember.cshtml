@@ -51,7 +51,7 @@
         <a class="row" href="@Url.Action("Index", "User", new { username = Model.UserName})">
             <div class="col-sm-4">
                 <div class="text-center">
-                    <img alt="image" class="img-circle m-t-xs img-responsive" src="@Url.Action("UserImage", "Home", new {size = 100, UserId = Model.AppId})">
+                    <img alt="image" class="img-circle m-t-xs img-responsive" loading="lazy" width="100" height="100" src="@Url.Action("UserImage", "Home", new {size = 100, UserId = Model.AppId})">
                     @if (Model.IsModerator)
                     {
                         <div class="m-t-xs font-bold" style="color:darkcyan">Group Moderator</div>

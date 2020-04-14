@@ -1,6 +1,7 @@
 ﻿/*
  * 
  */
+import { getAntiForgeryTokenValue } from './antiforgery';
 
 export async function postData(url = '', data = {}) {
     // Default options are marked with *

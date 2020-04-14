@@ -97,7 +97,7 @@
                 </div>
             </div>
             <div class="social-feed-box-nb">
-                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore('@Model.Sort')" style="display:none;"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore({ sort: '@Model.Sort' })" style="display:none;"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
             </div>
 
             <div class="social-feed-box-nb">
@@ -111,13 +111,10 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/bundles/home/index/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/users")
-    @Scripts.Render("~/bundles/groups")
-
     <script type="text/javascript">
         var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";

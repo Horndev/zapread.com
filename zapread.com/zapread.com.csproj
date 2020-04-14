@@ -88,23 +88,23 @@
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.10.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.Web, Version=2.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.10.0\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    <Reference Include="Microsoft.AI.Web, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.13.1\lib\net45\Microsoft.AI.Web.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.WindowsServer, Version=2.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.10.0\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    <Reference Include="Microsoft.AI.WindowsServer, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.11.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.2.11.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.13.1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.2\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
@@ -118,8 +118,8 @@
     <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.5\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNetCore.Authentication, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNetCore.Authentication.2.0.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.dll</HintPath>
@@ -848,31 +848,103 @@
     <Content Include="Content\FFFFFF-0.png" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\images\fontawesome-webfont.svg" />
+    <Content Include="Content\images\header-profile.png" />
+    <Content Include="Content\images\shattered.png" />
+    <Content Include="Content\images\ui-icons_444444_256x240.png" />
+    <Content Include="Content\images\ui-icons_555555_256x240.png" />
+    <Content Include="Content\images\ui-icons_777620_256x240.png" />
+    <Content Include="Content\images\ui-icons_777777_256x240.png" />
+    <Content Include="Content\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
     <Content Include="Content\logo.png" />
-    <Content Include="Content\patterns\1.png" />
-    <Content Include="Content\patterns\2.png" />
-    <Content Include="Content\patterns\3.png" />
-    <Content Include="Content\patterns\4.png" />
-    <Content Include="Content\patterns\5.png" />
-    <Content Include="Content\patterns\6.png" />
-    <Content Include="Content\patterns\7.png" />
-    <Content Include="Content\patterns\congruent_pentagon.png" />
-    <Content Include="Content\patterns\header-profile-skin-1.png" />
-    <Content Include="Content\patterns\header-profile-skin-2.png" />
-    <Content Include="Content\patterns\header-profile-skin-3.png" />
-    <Content Include="Content\patterns\header-profile.png" />
-    <Content Include="Content\patterns\otis_redding.png" />
-    <Content Include="Content\patterns\shattered.png" />
-    <Content Include="Content\patterns\triangular.png" />
+    <Content Include="Scripts\dist\account\login.css" />
+    <Content Include="Scripts\dist\account\login.js" />
+    <Content Include="Scripts\dist\admin\achievements.css" />
+    <Content Include="Scripts\dist\admin\achievements.js" />
+    <Content Include="Scripts\dist\admin\audit.css" />
+    <Content Include="Scripts\dist\admin\audit.js" />
+    <Content Include="Scripts\dist\admin\icons.css" />
+    <Content Include="Scripts\dist\admin\icons.js" />
+    <Content Include="Scripts\dist\admin\index.css" />
+    <Content Include="Scripts\dist\admin\index.js" />
+    <Content Include="Scripts\dist\admin\jobs.css" />
+    <Content Include="Scripts\dist\admin\jobs.js" />
+    <Content Include="Scripts\dist\admin\lightning.css" />
+    <Content Include="Scripts\dist\admin\lightning.js" />
+    <Content Include="Scripts\dist\admin\users.css" />
+    <Content Include="Scripts\dist\admin\users.js" />
+    <Content Include="Scripts\dist\group\detail.css" />
+    <Content Include="Scripts\dist\group\detail.js" />
+    <Content Include="Scripts\dist\group\index.css" />
+    <Content Include="Scripts\dist\group\index.js" />
+    <Content Include="Scripts\dist\group\members.css" />
+    <Content Include="Scripts\dist\group\members.js" />
+    <Content Include="Scripts\dist\group\new.css" />
+    <Content Include="Scripts\dist\group\new.js" />
+    <Content Include="Scripts\dist\home\about.css" />
+    <Content Include="Scripts\dist\home\about.js" />
+    <Content Include="Scripts\dist\home\faq.css" />
+    <Content Include="Scripts\dist\home\faq.js" />
+    <Content Include="Scripts\dist\home\index.css" />
+    <Content Include="Scripts\dist\home\index.js" />
+    <Content Include="Scripts\dist\home\install.css" />
+    <Content Include="Scripts\dist\home\install.js" />
+    <Content Include="Scripts\dist\mailer\default.css" />
+    <Content Include="Scripts\dist\mailer\default.js" />
+    <Content Include="Scripts\dist\manage\apikeys.css" />
+    <Content Include="Scripts\dist\manage\apikeys.js" />
+    <Content Include="Scripts\dist\manage\default.css" />
+    <Content Include="Scripts\dist\manage\default.js" />
+    <Content Include="Scripts\dist\manage\financial.css" />
+    <Content Include="Scripts\dist\manage\financial.js" />
+    <Content Include="Scripts\dist\manage\index.css" />
+    <Content Include="Scripts\dist\manage\index.js" />
+    <Content Include="Scripts\dist\messages\alerts.css" />
+    <Content Include="Scripts\dist\messages\alerts.js" />
+    <Content Include="Scripts\dist\messages\all.css" />
+    <Content Include="Scripts\dist\messages\all.js" />
+    <Content Include="Scripts\dist\messages\chat.css" />
+    <Content Include="Scripts\dist\messages\chat.js" />
+    <Content Include="Scripts\dist\messages\chats.css" />
+    <Content Include="Scripts\dist\messages\chats.js" />
+    <Content Include="Scripts\dist\messages\index.css" />
+    <Content Include="Scripts\dist\messages\index.js" />
+    <Content Include="Scripts\dist\post\detail.css" />
+    <Content Include="Scripts\dist\post\detail.js" />
+    <Content Include="Scripts\dist\post\edit.css" />
+    <Content Include="Scripts\dist\post\edit.js" />
+    <Content Include="Scripts\dist\post\newpost.css" />
+    <Content Include="Scripts\dist\post\newpost.js" />
+    <Content Include="Scripts\dist\post\postnotfound.css" />
+    <Content Include="Scripts\dist\post\postnotfound.js" />
+    <Content Include="Scripts\dist\user\achievements.css" />
+    <Content Include="Scripts\dist\user\achievements.js" />
+    <Content Include="Scripts\dist\user\index.css" />
+    <Content Include="Scripts\dist\user\index.js" />
+    <Content Include="Scripts\src\css\patterns\1.png" />
+    <Content Include="Scripts\src\css\patterns\2.png" />
+    <Content Include="Scripts\src\css\patterns\3.png" />
+    <Content Include="Scripts\src\css\patterns\4.png" />
+    <Content Include="Scripts\src\css\patterns\5.png" />
+    <Content Include="Scripts\src\css\patterns\6.png" />
+    <Content Include="Scripts\src\css\patterns\7.png" />
+    <Content Include="Scripts\src\css\patterns\congruent_pentagon.png" />
+    <Content Include="Scripts\src\css\patterns\header-profile-skin-1.png" />
+    <Content Include="Scripts\src\css\patterns\header-profile-skin-2.png" />
+    <Content Include="Scripts\src\css\patterns\header-profile-skin-3.png" />
+    <Content Include="Scripts\src\css\patterns\header-profile.png" />
+    <Content Include="Scripts\src\css\patterns\otis_redding.png" />
+    <Content Include="Scripts\src\css\patterns\shattered.png" />
+    <Content Include="Scripts\src\css\patterns\triangular.png" />
     <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
-    <Content Include="Content\style\hover.css" />
-    <Content Include="Content\style\roundlinks.css" />
+    <Content Include="Scripts\src\css\hover.css" />
+    <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
     <Content Include="Content\vup.png" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
     <Content Include="node_modules\bootstrap-chosen\bootstrap-chosen.css" />
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite%402x.png" />
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite.png" />
@@ -932,7 +1004,6 @@
     <Content Include="node_modules\summernote\dist\summernote-bs4.min.js" />
     <Content Include="node_modules\summernote\dist\summernote.css" />
     <Content Include="node_modules\summernote\dist\summernote.min.js" />
-    <Content Include="node_modules\sweetalert\dist\sweetalert.min.js" />
     <Content Include="node_modules\toastr\build\toastr.min.css" />
     <Content Include="node_modules\toastr\build\toastr.min.js" />
     <Content Include="node_modules\truncate\truncate.js" />
@@ -964,6 +1035,10 @@
     <Content Include="Mvc.sitemap" />
     <Compile Include="DI\NinjectDependencyInjectionContainer.cs" />
     <Content Include=".babelrc" />
+    <Content Include="Content\fonts\summernote.eot" />
+    <Content Include="Content\fonts\summernote.ttf" />
+    <Content Include="Content\fonts\summernote.woff" />
+    <Content Include="Content\fonts\summernote.woff2" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -971,88 +1046,91 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\Achievements\achievementhover.js" />
-    <Content Include="Scripts\Admin\install.js" />
-    <Content Include="Scripts\Admin\users.js" />
-    <Content Include="Scripts\bootstrap-tour.min.js" />
-    <Content Include="Scripts\dist\group_detail.js" />
-    <Content Include="Scripts\dist\home_index.js" />
-    <Content Include="Scripts\dist\index.js" />
-    <Content Include="Scripts\dist\manage_apikeys.js" />
-    <Content Include="Scripts\dist\manage_index.js" />
-    <Content Include="Scripts\dist\post_detail.js" />
-    <Content Include="Scripts\dist\user_index.js" />
-    <Content Include="Scripts\Groups\adminbar.js" />
-    <Content Include="Scripts\Groups\detail.js" />
-    <Content Include="Scripts\Groups\editIcon.js" />
-    <Content Include="Scripts\Groups\hover.js" />
-    <Content Include="Scripts\Groups\index.js" />
-    <Content Include="Scripts\Groups\members.js" />
-    <Content Include="Scripts\Groups\new.js" />
-    <Content Include="Scripts\Groups\tags.js" />
-    <Content Include="Scripts\Groups\userRoles.js" />
-    <Content Include="Scripts\Home\index.js" />
-    <Content Include="Scripts\Lightning\payments-scan.js" />
-    <Content Include="Scripts\Lightning\vote-payments-ui.js" />
-    <Content Include="Scripts\Manage\financial.js" />
-    <Content Include="Scripts\Manage\updateAlias.js" />
-    <Content Include="Scripts\Messages\alerts.js" />
-    <Content Include="Scripts\Messages\all.js" />
-    <Content Include="Scripts\Messages\chat-ui.js" />
-    <Content Include="Scripts\Messages\chats.js" />
-    <Content Include="Scripts\Messages\index.js" />
-    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\pages\group\editicon.js" />
+    <Content Include="Scripts\src\pages\group\tags.js" />
+    <Content Include="Scripts\src\pages\group\userroles.js" />
+    <Content Include="Scripts\src\pages\post\newpost.js" />
+    <Content Include="Scripts\src\pages\post\postnotfound.js" />
+    <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\utility\editor\posteditor.js" />
+    <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
+    <Content Include="Scripts\src\pages\manage\updatealias.js" />
     <Content Include="Scripts\Partial\messageCompose.js" />
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\Partial\topnavbar.js" />
     <Content Include="Scripts\Partial\vote.js" />
-    <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.min.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="Scripts\Lightning\account-payments-ui.js" />
-    <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\Manage\index.js" />
-    <Content Include="Scripts\Posts\post-editor.js" />
-    <Content Include="Scripts\Posts\post-functions.js" />
-    <Content Include="Scripts\Posts\post-initialize.js" />
-    <Content Include="Scripts\Posts\post-ui.js" />
-    <Content Include="Scripts\Posts\quotable.js" />
-    <Content Include="Scripts\Posts\readmore.js" />
+    <Content Include="Scripts\src\utility\ui\accountpayments.js" />
+    <Content Include="Scripts\src\shared\postfunctions.js" />
+    <Content Include="Scripts\src\shared\postui.js" />
+    <Content Include="Scripts\src\shared\readmore.js" />
     <Content Include="Scripts\read-more.js" />
-    <Content Include="Scripts\respond.js" />
-    <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\src\comment\initCommentInput.js" />
+    <Content Include="Scripts\src\comment\loadmorecomments.js" />
+    <Content Include="Scripts\src\comment\replycomment.js" />
+    <Content Include="Scripts\src\comment\writecomment.js" />
     <Content Include="Scripts\src\components\page-heading.js" />
-    <Content Include="Scripts\src\group\detail.js" />
-    <Content Include="Scripts\src\home\globals.js" />
-    <Content Include="Scripts\src\home\index.js" />
+    <Content Include="Scripts\src\css\Site.css" />
+    <Content Include="Scripts\src\pages\group\index.js" />
+    <Content Include="Scripts\src\pages\group\members.js" />
+    <Content Include="Scripts\src\pages\group\new.js" />
+    <Content Include="Scripts\src\pages\home\faq.js" />
+    <Content Include="Scripts\src\pages\home\globals.js" />
+    <Content Include="Scripts\src\pages\home\index.js" />
     <Content Include="Scripts\src\index.js" />
-    <Content Include="Scripts\src\manage\apikeys.js" />
-    <Content Include="Scripts\src\manage\index.js" />
-    <Content Include="Scripts\src\manage\keystable.js" />
-    <Content Include="Scripts\src\post\detail.js" />
-    <Content Include="Scripts\src\user\index.js" />
+    <Content Include="Scripts\src\pages\manage\apikeys.js" />
+    <Content Include="Scripts\src\pages\manage\index.js" />
+    <Content Include="Scripts\src\pages\manage\financial.js" />
+    <Content Include="Scripts\src\pages\manage\keystable.js" />
+    <Content Include="Scripts\src\pages\account\login.js" />
+    <Content Include="Scripts\src\pages\admin\achievements.js" />
+    <Content Include="Scripts\src\pages\admin\audit.js" />
+    <Content Include="Scripts\src\pages\admin\icons.js" />
+    <Content Include="Scripts\src\pages\admin\index.js" />
+    <Content Include="Scripts\src\pages\admin\jobs.js" />
+    <Content Include="Scripts\src\pages\admin\lightning.js" />
+    <Content Include="Scripts\src\pages\admin\users.js" />
+    <Content Include="Scripts\src\pages\group\detail.js" />
+    <Content Include="Scripts\src\pages\home\about.js" />
+    <Content Include="Scripts\src\pages\home\install.js" />
+    <Content Include="Scripts\src\pages\mailer\default.js" />
+    <Content Include="Scripts\src\pages\manage\default.js" />
+    <Content Include="Scripts\src\pages\messages\alerts.js" />
+    <Content Include="Scripts\src\pages\messages\all.js" />
+    <Content Include="Scripts\src\pages\messages\chat.js" />
+    <Content Include="Scripts\src\pages\messages\chats.js" />
+    <Content Include="Scripts\src\pages\messages\index.js" />
+    <Content Include="Scripts\src\pages\post\detail.js" />
+    <Content Include="Scripts\src\pages\post\edit.js" />
+    <Content Include="Scripts\src\realtime\signalr.js" />
+    <Content Include="Scripts\src\shared\shared.js" />
+    <Content Include="Scripts\src\shared\sharedlast.js" />
+    <Content Include="Scripts\src\pages\user\index.js" />
+    <Content Include="Scripts\src\utility\achievementhover.js" />
+    <Content Include="Scripts\src\utility\antiforgery.js" />
+    <Content Include="Scripts\src\utility\appinsights.js" />
+    <Content Include="Scripts\src\utility\datetime\posttime.js" />
     <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
     <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\quotable\quotable.js" />
+    <Content Include="Scripts\src\utility\sendfile.js" />
+    <Content Include="Scripts\src\utility\ui\follow.js" />
+    <Content Include="Scripts\src\utility\ui\joingroup.js" />
+    <Content Include="Scripts\src\utility\ui\leavegroup.js" />
+    <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
-    <Content Include="Scripts\summernote-video-attributes.js" />
+    <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Scripts\summernote\dist\summernote.css" />
-    <Content Include="Scripts\Users\hover.js" />
-    <Content Include="Scripts\Users\index.js" />
-    <Content Include="Scripts\Utility\clipboard-element.js" />
-    <Content Include="Scripts\Utility\zr-loadmore.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1094,7 +1172,6 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
-    <Content Include="Views\Manage\_PartialFinance.cshtml" />
     <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
     <Content Include="Views\Shared\_PartialModalVote.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
@@ -1184,7 +1261,6 @@
     <Content Include="Views\Feed\Index.cshtml" />
     <Content Include="Views\Mailer\NewCommentReply.cshtml" />
     <Content Include="Views\Mailer\NewChat.cshtml" />
-    <Content Include="Views\Home\React.cshtml" />
     <Content Include="Views\SwashbuckleMVC\Index.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
   </ItemGroup>
@@ -1501,11 +1577,6 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.1.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.1.0\build\Microsoft.Net.Compilers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.Web.2.10.0\build\Microsoft.ApplicationInsights.Web.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.Web.2.10.0\build\Microsoft.ApplicationInsights.Web.targets'))" />
     <Error Condition="!Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.props'))" />
     <Error Condition="!Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
@@ -1513,16 +1584,21 @@
     <Error Condition="!Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets'))" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>npm run build</PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.10.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.10.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.10.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.Web.2.10.0\build\Microsoft.ApplicationInsights.Web.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.Web.2.10.0\build\Microsoft.ApplicationInsights.Web.targets')" />
   <Import Project="..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0-preview2-19525-03\build\EntityFramework.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

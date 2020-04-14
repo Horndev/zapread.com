@@ -6,22 +6,6 @@
     List<string> included = new List<string>();
 }
 
-@section Styles {
-    @Styles.Render("~/Content/plugins/dropzone/dropZoneStyles")
-    @Styles.Render("~/Content/plugins/chosen/chosenStyles")
-    @Styles.Render("~/Content/style/jssocials")
-}
-
-@section Scripts {
-    @Scripts.Render("~/bundles/users")
-    @Scripts.Render("~/bundles/groups")
-    @Scripts.Render("~/bundles/manage/index")
-    <script type="text/javascript">
-        var ub = @Model.UserBalance;
-        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-    </script>
-}
-
 @Html.Partial(partialViewName: "_PartialModalVote")                     @*This is the code for the modal dialog box to vote*@
 @Html.Partial(partialViewName: "_PartialModalUpdateUserAlias")          @*This is the code for the modal dialog box to update username*@
 
@@ -549,3 +533,16 @@
         </div>
     </div>
 </div>
+
+
+@section Styles {
+    @Styles.Render("~/bundles/manage/index/css")
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var ub = @Model.UserBalance;
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
+    @Scripts.Render("~/bundles/manage/index")
+}

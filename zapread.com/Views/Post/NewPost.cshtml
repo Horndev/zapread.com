@@ -7,7 +7,14 @@
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>New Post in <span id="postGroupActive">@if (Model.Post.Group != null) { @Model.Post.Group.GroupName } else {<text>Community</text>}</span></h2>
+        <h2>
+            New Post in <span id="postGroupActive">
+                @if (Model.Post.Group != null)
+                {@Model.Post.Group.GroupName }
+            else
+            {<text>Community</text>}
+            </span>
+        </h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
@@ -123,16 +130,12 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/plugins/summernoteStyles")
-    @Styles.Render("~/bundles/css/datatables")
+    @Styles.Render("~/bundles/post/newpost/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/selectize")
-    @Scripts.Render("~/bundles/datatables")
-    @Scripts.Render("~/bundles/post/edit")
-
-<script type="text/javascript">
-    var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
-</script>
+    <script type="text/javascript">
+        var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
+    </script>
+    @Scripts.Render("~/bundles/post/newpost")
 }

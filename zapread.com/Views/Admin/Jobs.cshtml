@@ -132,100 +132,10 @@
     </div>
 </div>
 
+@section Styles {
+    @Styles.Render("~/bundles/admin/jobs/css")
+}
+
 @section Scripts {
-    <script type="text/javascript">
-        // Setup a job
-        var setupJob = function (j) {
-            var msg = JSON.stringify({
-                jobid: j
-            });
-            var form = $('#__AjaxAntiForgeryForm');
-            var token = $('input[name="__RequestVerificationToken"]', form).val();
-            var headers = {};
-            headers['__RequestVerificationToken'] = token;
-
-            $.ajax({
-                async: true,
-                type: "POST",
-                url: "/Admin/Jobs/Install/",
-                data: msg,
-                headers: headers,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        alert("Successfully started " + j);
-                    }
-                },
-                failure: function (response) {
-                    alert("Failure.");
-                },
-                error: function (response) {
-                    alert("Error.");
-                }
-            });
-        };
-
-        var removeJob = function (j) {
-            var msg = JSON.stringify({
-                jobid: j
-            });
-            var form = $('#__AjaxAntiForgeryForm');
-            var token = $('input[name="__RequestVerificationToken"]', form).val();
-            var headers = {};
-            headers['__RequestVerificationToken'] = token;
-
-            $.ajax({
-                async: true,
-                type: "POST",
-                url: "/Admin/Jobs/Remove/",
-                data: msg,
-                headers: headers,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        alert("Successfully removed " + j);
-                    }
-                },
-                failure: function (response) {
-                    alert("Failure.");
-                },
-                error: function (response) {
-                    alert("Error.");
-                }
-            });
-        };
-
-        var runJob = function (j) {
-            var msg = JSON.stringify({
-                jobid: j
-            });
-            var form = $('#__AjaxAntiForgeryForm');
-            var token = $('input[name="__RequestVerificationToken"]', form).val();
-            var headers = {};
-            headers['__RequestVerificationToken'] = token;
-
-            $.ajax({
-                async: true,
-                type: "POST",
-                url: "/Admin/Jobs/Run/",
-                data: msg,
-                headers: headers,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        alert("Successfully triggered " + j);
-                    }
-                },
-                failure: function (response) {
-                    alert("Failure.");
-                },
-                error: function (response) {
-                    alert("Error.");
-                }
-            });
-        };
-    </script>
+    @Scripts.Render("~/bundles/admin/jobs")
 }

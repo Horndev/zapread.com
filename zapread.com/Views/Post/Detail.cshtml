@@ -47,13 +47,10 @@
 }
 
 @section Styles {
-    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/bundles/post/detail/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/users")
-    @Scripts.Render("~/bundles/groups")
-    @Scripts.Render("~/bundles/post/detail")
     <script type="text/javascript">
         var ub = 0;
         var IsAuthenticated = @if (Request.IsAuthenticated) { <text>true</text> } else { <text>false</text> };
@@ -61,4 +58,5 @@
         var detailPostVote = @if (ViewBag.vote != null) { <text>@ViewBag.vote</text>} else { <text>0</text> };
         var showVoteDialog = @if (ViewBag.showVote != null && ViewBag.showVote) { <text>true</text> } else { <text>false</text> };
     </script>
+    @Scripts.Render("~/bundles/post/detail")
 }

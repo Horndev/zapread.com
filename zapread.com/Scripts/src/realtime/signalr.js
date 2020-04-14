@@ -1,0 +1,5 @@
+﻿/*
+ * 
+ */
+
+import "signalr/jquery.signalR";

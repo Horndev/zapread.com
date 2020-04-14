@@ -152,17 +152,14 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/Content/plugins/selectize")
-    @Styles.Render("~/Content/style/jssocials")
+    @Styles.Render("~/bundles/group/detail/css")
 }
 
 @section Scripts {
-    @Scripts.Render("~/plugins/selectize")
-    @Scripts.Render("~/bundles/group/detail")
-
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
         var groupId = @Model.GroupId;
     </script>
+    @Scripts.Render("~/bundles/group/detail")
 }

@@ -983,8 +983,13 @@ namespace zapread.com.Controllers
             return Json(new { success = true });
         }
 
-        // Query the DB for users which are a member of the group starting with the prefix
-        // This method can only be called by a group admin
+        /// <summary>
+        /// Query the DB for users which are a member of the group starting with the prefix
+        /// This method can only be called by a group admin
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]

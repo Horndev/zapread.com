@@ -94,7 +94,7 @@
                 @if (!isIgnoredUser && !Model.IsDeleted)
                 {
                     <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName.Trim() })">
-                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" style="margin-bottom: 10px;" />
+                        <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" style="margin-bottom: 10px;" />
                     </a>
                 }
                 <div class="media-body" style="display:inline;">

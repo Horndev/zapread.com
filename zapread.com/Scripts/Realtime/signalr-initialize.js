@@ -12,15 +12,15 @@ $(document).ready(function () {
         if (typeof ChattingWithId !== 'undefined') {
             // Skip
         } else {
-            toastr.options.onclick = function () {
+            Toastr.options.onclick = function () {
                 console.log('clicked');
                 window.open(envelope.clickUrl, '_blank');
             };
 
             if (envelope.hasReason) {
-                toastr.success(envelope.message, envelope.reason);
+                Toastr.success(envelope.message, envelope.reason);
             } else {
-                toastr.success(envelope.message, 'Message Received');
+                Toastr.success(envelope.message, 'Message Received');
             }
         }
     };
@@ -30,11 +30,15 @@ $(document).ready(function () {
             if (envelope.reason === ChattingWithId) {
                 $("#endMessages").append(envelope.message);
                 $('.postTime').each(function (i, e) {
-                    var datefn = dateFns.parse($(e).html());
-                    // Adjust to local time
-                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-                    var date = dateFns.format(datefn, "DD MMM YYYY");
-                    var time = dateFns.distanceInWordsToNow(datefn);
+                    //var datefn = dateFns.parse($(e).html());
+                    //// Adjust to local time
+                    //datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    //var date = dateFns.format(datefn, "DD MMM YYYY");
+                    //var time = dateFns.distanceInWordsToNow(datefn);
+                    var datefn = parseISO($(e).html());
+                    datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+                    var date = format(datefn, "dd MMM yyyy");
+                    var time = formatDistanceToNow(datefn, { addSuffix: false });
                     $(e).html('<span>' + time + ' ago - ' + date + '</span>');
                     $(e).css('display', 'inline');
                     $(e).removeClass("postTime");
