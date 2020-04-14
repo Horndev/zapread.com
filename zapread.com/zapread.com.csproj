@@ -1047,10 +1047,10 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <Content Include="Scripts\Groups\adminbar.js" />
-    <Content Include="Scripts\Groups\editIcon.js" />
-    <Content Include="Scripts\Groups\tags.js" />
-    <Content Include="Scripts\Groups\userRoles.js" />
+    <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\pages\group\editicon.js" />
+    <Content Include="Scripts\src\pages\group\tags.js" />
+    <Content Include="Scripts\src\pages\group\userroles.js" />
     <Content Include="Scripts\src\pages\post\newpost.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
@@ -1271,6 +1271,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Scripts\Groups\" />
     <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />

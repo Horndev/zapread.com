@@ -1,25 +1,24 @@
 ﻿//
 // script used in _PartialGroupAdminBar.cshtml
+import Swal from 'sweetalert2';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
 
-var changeShortDesc = function (groupId) {
-    swal({
+export function changeShortDesc(groupId) {
+    Swal.fire({
         text: 'Enter new group description',
-        content: "input",
-        button: {
-            text: "Ok",
-            closeModal: false
-        }
+        input: 'text',
+        inputValue: '',
+        showCancelButton: true
     })
     .then(desc => {
-        if (!desc) throw null;
-        var headers = getAntiForgeryToken();
+        if (!desc.value) throw null;
         $.ajax({
             async: true,
             url: "/Group/ChangeShortDesc/",//"@Url.Action("ChangeShortDesc", "Group")",
             type: "POST",
             dataType: "json",
-            data: { "groupId": groupId, "newDesc": desc },
-            headers: headers,
+            data: { "groupId": groupId, "newDesc": desc.value },
+            headers: getAntiForgeryToken(),
             success: function (data) {
                 if (data.success) {
                     swal("Your group short description has been updated!", {
@@ -34,51 +33,50 @@ var changeShortDesc = function (groupId) {
     })
     .catch(err => {
         if (err) {
-            swal("Error", "Error updating group short description.", "error");
+            Swal.fire("Error", "Error updating group short description.", "error");
         } else {
-            swal.stopLoading();
-            swal.close();
+            Swal.stopLoading();
+            Swal.close();
         }
     });
-};
+}
+window.changeShortDesc = changeShortDesc;
 
-var changeName = function (groupId) {
-    swal({
+export function changeName(groupId) {
+    Swal.fire({
         text: 'Enter new group name',
-        content: "input",
-        button: {
-            text: "Ok",
-            closeModal: false
-        }
+        input: 'text',
+        inputValue: '',
+        showCancelButton: true
     })
     .then(name => {
-        if (!name) throw null;
-        var headers = getAntiForgeryToken();
+        if (!name.value) throw null;
         $.ajax({
             async: true,
             url: "/Group/ChangeName/",//"@Url.Action("ChangeName", "Group")",
             type: "POST",
             dataType: "json",
-            data: { "groupId": groupId, "newName": name },
-            headers: headers,
+            data: { "groupId": groupId, "newName": name.value },
+            headers: getAntiForgeryToken(),
             success: function (data) {
                 if (data.success) {
-                    swal("Your group name has been updated!", {
+                    Swal.fire("Your group name has been updated!", {
                         icon: "success",
                     });
                 }
                 else {
-                    swal("Error", "Error updating group name: " + data.message, "error");
+                    Swal.fire("Error", "Error updating group name: " + data.message, "error");
                 }
             }
         });
     })
     .catch(err => {
         if (err) {
-            swal("Error", "Error updating group name.", "error");
+            Swal.fire("Error", "Error updating group name.", "error");
         } else {
-            swal.stopLoading();
-            swal.close();
+            Swal.stopLoading();
+            Swal.close();
         }
     });
-};
+}
+window.changeName = changeName;

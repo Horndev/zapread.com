@@ -1,6 +1,8 @@
 ﻿//
 // script for _PartialGroupEditTags.cshtml
 
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+
 $(document).ready(function () {
     $('#tagsel').selectize({
         plugins: ['restore_on_backspace', 'remove_button'],
@@ -27,14 +29,13 @@ $(document).ready(function () {
 $('#GroupTagSaveChanges').click(function () {
     var gid = groupId;
     var tags = $('#tagsel').val();
-    var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
         url: "/Group/UpdateGrouptags/",
         type: "POST",
         dataType: "json",
         data: { groupId: gid, tags: tags },
-        headers: headers,
+        headers: getAntiForgeryToken(),
         success: function (data) {
             alert('Update successful.');
             $('#GAdminEditTagModal').modal('hide');

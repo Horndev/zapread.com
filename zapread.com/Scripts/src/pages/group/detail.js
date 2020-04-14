@@ -16,6 +16,10 @@ import { replyComment } from '../../comment/replycomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { loadmore } from '../../utility/loadmore';
+import './userroles';
+import './tags';
+import './adminbar';
+import './editicon';
 import '../../shared/sharedlast';
 
 // Make global (called from html)

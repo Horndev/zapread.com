@@ -1,5 +1,7 @@
 ﻿//
 // script for _PartialGroupEditIcon.cshtml
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import Swal from 'sweetalert2';
 
 $(document).ready(function () {
     $('#select-icon').selectize({
@@ -26,29 +28,28 @@ $(document).ready(function () {
 $('#GroupIconSaveChanges').click(function () {
     var gid = groupId;
     var groupIcon = $('#select-icon').val();
-    var headers = getAntiForgeryToken();
     $.ajax({
         async: true,
         url: "/Group/Icon/Update/",
         type: "POST",
         dataType: "json",
         data: { groupId: gid, icon: groupIcon },
-        headers: headers,
+        headers: getAntiForgeryToken(),
         success: function (response) {
             if (response.success) {
-                swal("Group icon update successful", {
+                Swal.fire("Group icon update successful", {
                     icon: "success"
                 });
                 $('#GAdminEditIconModal').modal('hide');
             } else {
-                swal("Error", "Error: " + response.message, "error");
+                Swal.fire("Error", "Error: " + response.message, "error");
             }
         },
         failure: function (response) {
-            swal("Error", "Failure: " + response.message, "error");
+            Swal.fire("Error", "Failure: " + response.message, "error");
         },
         error: function (response) {
-            swal("Error", "Error: " + response.message, "error");
+            Swal.fire("Error", "Error: " + response.message, "error");
         }
     });
 });

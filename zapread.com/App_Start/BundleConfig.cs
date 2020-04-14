@@ -70,9 +70,9 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             // Partial script - group edit tags
-            bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
-                        "~/Scripts/Groups/tags.js")
-                        .WithLastModifiedToken());
+            //bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
+            //            "~/Scripts/Groups/tags.js")
+            //            .WithLastModifiedToken());
 
             // Partial script - group admin bar
             bundles.Add(new ScriptBundle("~/bundles/partial/group/adminbar").Include(
@@ -80,9 +80,9 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             // Partial script - group user Roles
-            bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
-                        "~/Scripts/Groups/userRoles.js")
-                        .WithLastModifiedToken());
+            //bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
+            //            "~/Scripts/Groups/userRoles.js")
+            //            .WithLastModifiedToken());
 
             // Partial script - group edit icon
             bundles.Add(new ScriptBundle("~/bundles/partial/group/editIcon").Include(
