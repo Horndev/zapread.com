@@ -36,16 +36,21 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/shared").Include(
                         //"~/Scripts/main.js",                                    // Custom for all
                         "~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-                                                                                //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
+                        //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
                         "~/Scripts/Posts/readmore.js",                          // Fade out posts and show read more button
                         "~/Scripts/Posts/post-functions.js",                    // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
                         "~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-                        "~/Scripts/Utility/clipboard-element.js",               // For copy to clipboard
-                        "~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
-                        "~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
-                        "~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
+                        "~/Scripts/Utility/clipboard-element.js"               // For copy to clipboard
+                        //"~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
+                        //"~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
+                        //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
                         ).WithLastModifiedToken());
+
+            // This script is imported after the auto-generated signalr hub.
+            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
+                        "~/Scripts/Realtime/signalr-initialize.js")
+                        .WithLastModifiedToken());
 
             #region partial scripts
 
@@ -124,27 +129,24 @@ namespace zapread.com
             BundlePage(bundles, "messages", "chats");
             BundlePage(bundles, "messages", "index");
 
+            BundlePage(bundles, "post", "detail");
+            BundlePage(bundles, "post", "edit");
+
             // User/{username}
             bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
                         "~/Scripts/Users/index.js",
                         "~/Scripts/dist/user_index.js")
                         .WithLastModifiedToken());
 
-            // Post/NewPost & Edit scripts
-            bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
-                        "~/Scripts/dist/post_edit.js",
-                        "~/Scripts/Posts/post-editor.js")                       // For the post editing
-                        .WithLastModifiedToken());
-            // Post/NewPost & Edit styles
-            bundles.Add(new StyleBundle("~/bundles/post/edit/css").Include(
-                          "~/Scripts/dist/post_edit.css")
-                          .WithLastModifiedToken());
-
-            // Post/Detail scripts
-            bundles.Add(new ScriptBundle("~/bundles/post/detail").Include(
-                        "~/Scripts/Posts/post-detail.js",
-                        "~/Scripts/dist/post_detail.js")
-                        .WithLastModifiedToken());
+            //// Post/NewPost & Edit scripts
+            //bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
+            //            "~/Scripts/dist/post_edit.js",
+            //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
+            //            .WithLastModifiedToken());
+            //// Post/NewPost & Edit styles
+            //bundles.Add(new StyleBundle("~/bundles/post/edit/css").Include(
+            //              "~/Scripts/dist/post_edit.css")
+            //              .WithLastModifiedToken());
 
             // User scripts
             bundles.Add(new ScriptBundle("~/bundles/users").Include(
@@ -161,9 +163,7 @@ namespace zapread.com
                         "~/Scripts/Achievements/achievementhover.js")
                         .WithLastModifiedToken());
 
-            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
-                        "~/Scripts/Realtime/signalr-initialize.js")
-                        .WithLastModifiedToken());
+
 
 
             // dropZone scripts

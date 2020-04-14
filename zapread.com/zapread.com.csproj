@@ -1047,19 +1047,17 @@
     <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\tags.js" />
     <Content Include="Scripts\Groups\userRoles.js" />
-    <Content Include="Scripts\Lightning\payments-scan.js" />
-    <Content Include="Scripts\Lightning\vote-payments-ui.js" />
+    <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\Manage\updateAlias.js" />
     <Content Include="Scripts\Partial\messageCompose.js" />
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\Partial\topnavbar.js" />
     <Content Include="Scripts\Partial\vote.js" />
-    <Content Include="Scripts\Posts\post-detail.js" />
     <Content Include="Scripts\Realtime\signalr-initialize.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.js" />
     <Content Include="Scripts\jquery.signalR-2.4.0.min.js" />
-    <Content Include="Scripts\Lightning\account-payments-ui.js" />
+    <Content Include="Scripts\src\utility\ui\accountpayments.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\Posts\post-editor.js" />
     <Content Include="Scripts\Posts\post-functions.js" />
@@ -1102,8 +1100,8 @@
     <Content Include="Scripts\src\pages\messages\chat.js" />
     <Content Include="Scripts\src\pages\messages\chats.js" />
     <Content Include="Scripts\src\pages\messages\index.js" />
-    <Content Include="Scripts\src\post\detail.js" />
-    <Content Include="Scripts\src\post\edit.js" />
+    <Content Include="Scripts\src\pages\post\detail.js" />
+    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
@@ -1121,6 +1119,7 @@
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
+    <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
     <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
@@ -1267,6 +1266,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Scripts\Lightning\" />
     <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />

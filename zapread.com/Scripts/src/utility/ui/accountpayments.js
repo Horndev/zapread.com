@@ -2,7 +2,7 @@
  * 
 */
 
-var onGetInvoice = function (e) {
+export function onGetInvoice(e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
     var amount = $("#depositValueAmount").val();
@@ -45,9 +45,10 @@ var onGetInvoice = function (e) {
             $("#lightningTransactionInvoiceResult").show();
         }
     });
-};
+}
+window.onGetInvoice = onGetInvoice;
 
-var onValidateInvoice = function (e) {
+export function onValidateInvoice(e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
     headers = getAntiForgeryToken();
     $.ajax({
@@ -78,13 +79,14 @@ var onValidateInvoice = function (e) {
             swal("Error", response.message, "error");
         }
     });
-};
+}
+window.onValidateInvoice = onValidateInvoice;
 
 /**
  * Validates invoice before payment
  * @param {any} e element clicked
  */
-var onPayInvoice = function (e) {
+export function onPayInvoice(e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
     $("#btnPayLNWithdraw").attr("disabled", "disabled");
     headers = getAntiForgeryToken();
@@ -141,25 +143,27 @@ var onPayInvoice = function (e) {
             $("#lightningTransactionInvoiceResult").show();
         }
     });
-};
+}
+window.onPayInvoice = onPayInvoice;
 
 /**
  * Resets the LN deposit/withdraw invoice
  * @param {any} e button element which clicked
  */
-var onCancelDepositWithdraw = function (e) {
+export function onCancelDepositWithdraw(e) {
     $("#btnCheckLNDeposit").hide();
     $("#doLightningTransactionBtn").show();
     $("#lightningTransactionInvoiceResult").hide();
     $("#lightningDepositQR").hide();
     $("#lightningDepositInvoice").hide();
-};
+}
+window.onCancelDepositWithdraw = onCancelDepositWithdraw;
 
 /**
  * Check if the LN invoice was paid
  * @param {any} e Element calling the function
  */
-var checkInvoicePaid = function (e) {
+export function checkInvoicePaid(e) {
     var invoice = $("#" + $(e).data('invoice-element')).val();
     $("#" + $(e).data('spin-element')).show();
 
@@ -196,9 +200,10 @@ var checkInvoicePaid = function (e) {
             alert(response.message);
         }
     });
-};
+}
+window.checkInvoicePaid = checkInvoicePaid;
 
-var switchWithdraw = function () {
+export function switchWithdraw() {
     $('#doLightningTransactionBtn').hide();
     $('#btnCheckLNDeposit').hide();
     $('#btnVerifyLNWithdraw').show();
@@ -208,9 +213,10 @@ var switchWithdraw = function () {
     $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
     $("#lightningTransactionInvoiceResult").addClass("bg-muted");
     $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
-};
+}
+window.switchWithdraw = switchWithdraw;
 
-var switchDeposit = function () {
+export function switchDeposit() {
     $('#doLightningTransactionBtn').show();
     $('#btnCheckLNDeposit').hide();
     $('#btnPayLNWithdraw').hide();
@@ -218,4 +224,5 @@ var switchDeposit = function () {
     $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
     $("#lightningTransactionInvoiceResult").addClass("bg-muted");
     $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
-};
+}
+window.switchDeposit = switchDeposit;

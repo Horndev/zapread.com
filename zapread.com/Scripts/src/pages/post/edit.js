@@ -2,7 +2,7 @@
  * 
  */
 
-import '../shared/shared';
+import '../../shared/shared';
 
 import 'selectize';
 import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
@@ -12,10 +12,10 @@ import 'datatables.net-scroller-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
 
-import '../realtime/signalr';
+import '../../realtime/signalr';
 
-import { getAntiForgeryToken } from '../utility/antiforgery';
-import { sendFile } from '../utility/sendfile';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import { sendFile } from '../../utility/sendfile';
 
 var knownGroups = [''];
 var gid = 1;

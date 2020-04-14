@@ -1,6 +1,6 @@
 ﻿
 // This function is called when a user clicks the button to either pay with balance or invoice
-var onVote = function (e) {
+export function onVote(e) {
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
     var memo = "ZapRead.com";
@@ -53,10 +53,11 @@ var onVote = function (e) {
             doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
         }
     }
-};
+}
+window.onVote = onVote;
 
 // This function gets an invoice and displays it to the user
-var updateVoteInvoice = function (msg) {
+export function updateVoteInvoice(msg) {
     $.ajax({
         type: "POST",
         url: "/Lightning/GetDepositInvoice/",
@@ -98,19 +99,21 @@ var updateVoteInvoice = function (msg) {
             $("#voteDepositInvoiceFooter").show();
         }
     });
-};
+}
+window.updateVoteInvoice = updateVoteInvoice;
 
-var onCancelVote = function (e) {
+export function onCancelVote(e) {
     $('#voteOkButton').show();
     $('#btnCheckLNVote').hide();
     $("#voteDepositInvoiceFooter").hide();
     $("#voteDepositQR").hide();
     $("#voteDepositInvoice").hide();
-};
+}
+window.onCancelVote = onCancelVote;
 
 // User pressed vote button
 // - Use modal dialog to set amount and handle LN transactions if needed
-var vote = function (id, d, t, b, o) {
+export function vote(id, d, t, b, o) {
     // id : the identifier for the item being voted on
     // d  : the direction of the vote
     // t  : the type of item voted on.  (2 = comment)
@@ -118,7 +121,7 @@ var vote = function (id, d, t, b, o) {
     isTip = false;
     var userBalance = 0;
     var voteCost = parseInt($('#voteValueAmount').val());
-    
+
     /* Configure vote parameters */
     userVote.b = ub;
     userVote.id = id;
@@ -153,9 +156,10 @@ var vote = function (id, d, t, b, o) {
             $("#voteOkButton").html('Get Invoice');
         }
     });
-};
+}
+window.vote = vote;
 
-var doVote = function (id, d, t, amount, tx) {
+export function doVote(id, d, t, amount, tx) {
     // id : the identifier for the item being voted on
     // d  : the direction of the vote
     // t  : the type of item voted on.  (2 = comment)
@@ -196,12 +200,12 @@ var doVote = function (id, d, t, amount, tx) {
                 icon.removeClass('fa-spin');
                 icon.addClass('fa-chevron-up');
                 icon.css('color', '');
-                del = Number(response.delta);
-                if (del === 1) {
+                var delta = Number(response.delta);
+                if (delta === 1) {
                     $(uid + id.toString()).removeClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }
-                else if (del === 0) {
+                else if (delta === 0) {
                     $(uid + id.toString()).addClass("text-muted");
                     $(did + id.toString()).addClass("text-muted");
                 }
@@ -230,3 +234,4 @@ var doVote = function (id, d, t, amount, tx) {
         }
     });
 }
+window.doVote = doVote;

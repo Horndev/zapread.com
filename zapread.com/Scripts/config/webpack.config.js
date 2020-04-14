@@ -30,8 +30,8 @@ module.exports = {
         messages_chat:  "./Scripts/src/pages/messages/chat.js",
         messages_chats: "./Scripts/src/pages/messages/chats.js",
         messages_index: "./Scripts/src/pages/messages/index.js",
-        post_detail:    "./Scripts/src/post/detail.js",
-        post_edit:      "./Scripts/src/post/edit.js",
+        post_detail:    "./Scripts/src/pages/post/detail.js",
+        post_edit:      "./Scripts/src/pages/post/edit.js",
         user_index:     "./Scripts/src/user/index.js"
     },
     output: {

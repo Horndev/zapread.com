@@ -1,4 +1,6 @@
-﻿var scan = function () {
+﻿
+
+export function scan() {
     jQuery.getScript('https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js', function () {
         jQuery.getScript('/Scripts/instascan.min.js', function () {
             let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
@@ -20,4 +22,5 @@
             $("#preview").show();
         }, true);
     }, true);
-};
+}
+window.scan = scan;

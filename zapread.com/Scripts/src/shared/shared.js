@@ -14,6 +14,10 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 
+import '../utility/ui/vote';
+import '../utility/ui/paymentsscan';
+import '../utility/ui/accountpayments';
+
 //import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
 //import 'bootstrap-chosen/bootstrap-chosen.css';
 

@@ -1,4 +1,14 @@
-﻿/**/
+﻿/*
+ * 
+ */
+import '../../shared/shared';
+import '../../realtime/signalr';
+import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
+import { initCommentInput } from '../../comment/initCommentInput';
+import '../../shared/sharedlast';
+
+// 
+onLoadedMorePosts();
 
 $(document).ready(function () {
     // Show the comment input box
@@ -22,8 +32,7 @@ $(document).ready(function () {
 
                 // Show vote modal - vote for comment
                 vote(commentId, detailPostVote, 2, 100, el);
-            } else if (hash)
-            {
+            } else if (hash) {
                 // Bad anchor
                 alert('Error voting');
             } else {
