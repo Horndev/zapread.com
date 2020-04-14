@@ -14,7 +14,7 @@ export function addposts(data, callback) {
 
 export function loadmore(options) {
     if (typeof options === 'undefined') {
-        options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 10 };
+        options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 10, userId: -1 };
     }
     if (typeof options.url === 'undefined') {
         options.url = '/Home/InfiniteScroll/';
@@ -25,12 +25,15 @@ export function loadmore(options) {
     if (typeof options.sort === 'undefined') {
         options.sort = 'Score';
     }
+    if (typeof options.userId === 'undefined') {
+        options.userId = -1;
+    }
     if (!inProgress) {
         inProgress = true;
         document.querySelectorAll('#loadmore').item(0).style.display = '';
         document.querySelectorAll('#btnLoadmore').item(0).disabled = true;
 
-        postData(options.url, { "BlockNumber": options.blocknumber, "sort": options.sort })
+        postData(options.url, { "BlockNumber": options.blocknumber, "sort": options.sort, "userId": options.userId })
             .then((data) => {
                 document.querySelectorAll('#loadmore').item(0).style.display = 'none';  // $('#loadmore').hide();
                 document.querySelectorAll('#btnLoadmore').item(0).disabled = false;     // $('#btnLoadmore').prop('disabled', false);

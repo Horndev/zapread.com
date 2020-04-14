@@ -33,7 +33,9 @@ module.exports = {
         post_detail:    "./Scripts/src/pages/post/detail.js",
         post_edit:      "./Scripts/src/pages/post/edit.js",
         post_newpost:   "./Scripts/src/pages/post/newpost.js",
-        user_index:     "./Scripts/src/user/index.js"
+        post_postnotfound: "./Scripts/src/pages/post/postnotfound.js",
+        user_achievements: "./Scripts/src/pages/user/achievements.js",
+        user_index:     "./Scripts/src/pages/user/index.js"
     },
     output: {
         path: path.resolve(__dirname, "../dist"),

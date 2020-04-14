@@ -122,55 +122,29 @@ namespace zapread.com
             BundlePage(bundles, "manage", "default");
             BundlePage(bundles, "manage", "financial");
             BundlePage(bundles, "manage", "index");
-
             BundlePage(bundles, "messages", "alerts");
             BundlePage(bundles, "messages", "all");
             BundlePage(bundles, "messages", "chat");
             BundlePage(bundles, "messages", "chats");
             BundlePage(bundles, "messages", "index");
-
             BundlePage(bundles, "post", "detail");
             BundlePage(bundles, "post", "edit");
             BundlePage(bundles, "post", "newpost");
+            BundlePage(bundles, "post", "postnotfound");
+            BundlePage(bundles, "user", "achievements");
+            BundlePage(bundles, "user", "index");
 
-            // User/{username}
-            bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-                        "~/Scripts/Users/index.js",
-                        "~/Scripts/dist/user_index.js")
-                        .WithLastModifiedToken());
+            //// User/{username}
+            //bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
+            //            "~/Scripts/Users/index.js",
+            //            "~/Scripts/dist/user_index.js")
+            //            .WithLastModifiedToken());
 
             //// Post/NewPost & Edit scripts
             //bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
             //            "~/Scripts/dist/post_edit.js",
             //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
             //            .WithLastModifiedToken());
-
-            // User scripts
-            bundles.Add(new ScriptBundle("~/bundles/users").Include(
-                        "~/Scripts/Users/hover.js")
-                        .WithLastModifiedToken());
-
-            // User scripts
-            bundles.Add(new ScriptBundle("~/bundles/groups").Include(
-                        "~/Scripts/Groups/hover.js")
-                        .WithLastModifiedToken());
-
-            // Achievement scripts
-            bundles.Add(new ScriptBundle("~/bundles/achievements").Include(
-                        "~/Scripts/Achievements/achievementhover.js")
-                        .WithLastModifiedToken());
-
-
-
-
-            // dropZone scripts
-            bundles.Add(new ScriptBundle("~/plugins/dropZone").Include(
-                      "~/node_modules/dropzone/dist/min/dropzone.min.js"));
-
-            // dropZone styles
-            bundles.Add(new StyleBundle("~/Content/plugins/dropzone/dropZoneStyles").Include(
-                      "~/node_modules/dropzone/dist/min/basic.min.css",
-                      "~/node_modules/dropzone/dist/min/dropzone.min.css"));
 
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
@@ -197,19 +171,9 @@ namespace zapread.com
             //bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
             //          "~/Content/bootstrap-tour.min.css"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/site.css",
-                      "~/Content/style/hover.css",
-                      "~/Content/style/roundlinks.css")
-                      .WithLastModifiedToken());
-
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
                       .WithLastModifiedToken());
-
-            // Sweet Alert
-            bundles.Add(new ScriptBundle("~/bundles/sweetalert").Include(
-                        "~/node_modules/sweetalert/dist/sweetalert.min.js"));
 
             // jsSocials - Social Shares
             bundles.Add(new ScriptBundle("~/bundles/jssocials").Include(

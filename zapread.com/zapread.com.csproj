@@ -916,6 +916,10 @@
     <Content Include="Scripts\dist\post\edit.js" />
     <Content Include="Scripts\dist\post\newpost.css" />
     <Content Include="Scripts\dist\post\newpost.js" />
+    <Content Include="Scripts\dist\post\postnotfound.css" />
+    <Content Include="Scripts\dist\post\postnotfound.js" />
+    <Content Include="Scripts\dist\user\achievements.css" />
+    <Content Include="Scripts\dist\user\achievements.js" />
     <Content Include="Scripts\dist\user\index.css" />
     <Content Include="Scripts\dist\user\index.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
@@ -1043,13 +1047,13 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <Content Include="Scripts\bootstrap-tour.min.js" />
     <Content Include="Scripts\Groups\adminbar.js" />
     <Content Include="Scripts\Groups\editIcon.js" />
-    <Content Include="Scripts\Groups\hover.js" />
     <Content Include="Scripts\Groups\tags.js" />
     <Content Include="Scripts\Groups\userRoles.js" />
     <Content Include="Scripts\src\pages\post\newpost.js" />
+    <Content Include="Scripts\src\pages\post\postnotfound.js" />
+    <Content Include="Scripts\src\pages\user\achievements.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\Manage\updateAlias.js" />
@@ -1108,7 +1112,7 @@
     <Content Include="Scripts\src\realtime\signalr.js" />
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
-    <Content Include="Scripts\src\user\index.js" />
+    <Content Include="Scripts\src\pages\user\index.js" />
     <Content Include="Scripts\src\utility\achievementhover.js" />
     <Content Include="Scripts\src\utility\antiforgery.js" />
     <Content Include="Scripts\src\utility\appinsights.js" />
@@ -1130,8 +1134,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Scripts\summernote\dist\summernote.css" />
-    <Content Include="Scripts\Users\hover.js" />
-    <Content Include="Scripts\Users\index.js" />
     <Content Include="Scripts\Utility\clipboard-element.js" />
     <Content Include="Scripts\Utility\zr-loadmore.js" />
     <Content Include="Web.config" />
@@ -1269,7 +1271,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
-    <Folder Include="Scripts\Lightning\" />
     <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
