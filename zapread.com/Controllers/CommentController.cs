@@ -442,11 +442,11 @@ namespace zapread.com.Controllers
             commentText = Encoding.Unicode.GetString(bytes);
 
             var sanitizer = new Ganss.XSS.HtmlSanitizer(
-                allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-right", "width" },
-                allowedCssClasses: new[] { "badge", "badge-info", "userhint", "blockquote", "img-fluid" });
+                allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-right", "width" }
+                //allowedCssClasses: new[] { "badge", "badge-info", "userhint", "blockquote", "img-fluid" }
+                );
 
             sanitizer.AllowedTags.Remove("button");
-
             sanitizer.AllowedAttributes.Add("class");
             sanitizer.AllowedAttributes.Remove("id");
 

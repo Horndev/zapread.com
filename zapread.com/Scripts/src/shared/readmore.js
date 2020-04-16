@@ -1,4 +1,4 @@
-﻿var $el, $ps, $up, totalHeight;
+﻿var $el, $ps, $up, totalHeight, $p;
 
 export function readMoreButton(e) {
     totalHeight = 0;
