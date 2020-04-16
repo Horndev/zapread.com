@@ -65,10 +65,12 @@ namespace zapread.com.Tests.Selenium
             //query.Submit();
             Console.WriteLine(driver.Title);
             Assert.AreEqual("Log in", driver.Title);
-            driver.FindElement(By.Id("UserName")).SendKeys("BSTest");
-            driver.FindElement(By.Id("Password")).SendKeys("Testing123");
+            driver.FindElement(By.Id("UserName")).SendKeys(ConfigurationManager.AppSettings.Get("testuser"));
+            driver.FindElement(By.Id("Password")).SendKeys(ConfigurationManager.AppSettings.Get("testpassword"));
             driver.FindElement(By.XPath("//button[contains(text(),'Login')]")).Click();
             Console.WriteLine(driver.Title);
+            //var usermenuShown = driver.FindElement(By.Id("AuthedUserMenu")).Displayed;
+            //Assert.IsTrue(usermenuShown);
             driver.Quit();
         }
     }
