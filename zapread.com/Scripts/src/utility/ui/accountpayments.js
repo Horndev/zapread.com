@@ -4,6 +4,8 @@
 
 import Swal from 'sweetalert2';
 
+import { getAntiForgeryToken } from '../antiforgery';
+
 export function onGetInvoice(e) {
     $("#btnCheckLNDeposit").show();
     $("#doLightningTransactionBtn").hide();
@@ -52,12 +54,11 @@ window.onGetInvoice = onGetInvoice;
 
 export function onValidateInvoice(e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
-    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: "/Lightning/ValidatePaymentRequest",
         data: JSON.stringify({ request: invoice.toString() }),
-        headers: headers,
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
@@ -91,12 +92,11 @@ window.onValidateInvoice = onValidateInvoice;
 export function onPayInvoice(e) {
     var invoice = $("#lightningWithdrawInvoiceInput").val();
     $("#btnPayLNWithdraw").attr("disabled", "disabled");
-    headers = getAntiForgeryToken();
     $.ajax({
         type: "POST",
         url: "/Lightning/SubmitPaymentRequest",
         data: JSON.stringify({ request: invoice.toString() }),
-        headers: headers,
+        headers: getAntiForgeryToken(),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
