@@ -1,4 +1,6 @@
 ﻿
+import { getAntiForgeryToken } from '../antiforgery';
+
 // This function is called when a user clicks the button to either pay with balance or invoice
 export function onVote(e) {
     var userBalance = userVote.b;
@@ -235,3 +237,80 @@ export function doVote(id, d, t, amount, tx) {
     });
 }
 window.doVote = doVote;
+
+
+// User tip
+// user = name of user
+// uid = id of user
+export function tip(user, uid) {
+    isTip = true;
+    $('#voteModalTitle').html("Tip " + user);
+    $.get("/Account/Balance", function (data, status) {
+        $('#userVoteBalance').html(data.balance);
+        userBalance = parseFloat(data.balance);
+        $(".userBalanceValue").each(function (i, e) {
+            $(e).html(data.balance);
+        });
+        userVote.id = uid;
+
+        /* This is done here prior to showing */
+        if (userVote.amount > userBalance) {
+            $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
+            $("#voteDepositInvoiceFooter").removeClass("bg-success");
+            $("#voteDepositInvoiceFooter").removeClass("bg-error");
+            $("#voteDepositInvoiceFooter").addClass("bg-info");
+            $("#voteOkButton").html('Get Invoice');
+        }
+        else {
+            $('#voteDepositInvoiceFooter').html("Click tip to confirm.");
+            $("#voteDepositInvoiceFooter").removeClass("bg-success");
+            $("#voteDepositInvoiceFooter").removeClass("bg-error");
+            $("#voteDepositInvoiceFooter").addClass("bg-info");
+            $("#voteOkButton").html('Tip');
+        }
+
+        /* Prepare vote modal without an invoice, and show it.*/
+        $("#voteDepositQR").hide();
+        $("#voteDepositInvoice").hide();
+        $('#voteModal').modal('show');
+    });
+}
+window.tip = tip;
+
+// id : the user receiving the tip
+// amount : the amount of the tip
+// tx : txid if the tip is anonymous
+export function doTip(id, amount, tx) {
+    var data = JSON.stringify({ 'id': id, 'amount': parseInt(amount), 'tx': tx });
+    var url = '/Manage/TipUser/';
+    var headers = getAntiForgeryToken();
+    console.log(data);
+    $.ajax({
+        data: data.toString(),
+        type: 'POST',
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: headers,
+        success: function (response) {
+            if (response.Result === "Success") {
+                $('#voteModal').modal('hide');
+                // Update user balance displays
+                $.get("/Account/Balance", function (data, status) {
+                    $(".userBalanceValue").each(function (i, e) {
+                        $(e).html(data.balance);
+                    });
+                });
+            }
+            else {
+                $("#voteDepositInvoiceFooter").removeClass("bg-success");
+                $("#voteDepositInvoiceFooter").removeClass("bg-info");
+                $("#voteDepositInvoiceFooter").addClass("bg-error");
+                $("#voteDepositInvoiceFooter").html(Result.Message);
+                $("#voteDepositInvoiceFooter").show();
+            }
+        }
+    });
+    isTip = false;
+}
+window.doTip = doTip;
