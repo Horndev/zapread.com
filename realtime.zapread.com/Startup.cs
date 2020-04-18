@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using realtime.zapread.com.Hubs;
 
 namespace realtime.zapread.com
 {
@@ -24,7 +25,9 @@ namespace realtime.zapread.com
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,13 +38,18 @@ namespace realtime.zapread.com
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseAuthorization();
 
+            app.UseMvc();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NotificationHub>("/notificationHub");
             });
         }
     }

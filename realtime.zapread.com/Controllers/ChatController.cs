@@ -19,14 +19,21 @@ namespace realtime.zapread.com.Controllers
         }
 
         [HttpGet]
-        [Route("api/[controller]")]
+        [Route("api/chat")]
         public string Get()
         {
             return "This endpoint manages zapread.com chats.";
         }
 
+        [HttpGet]
+        [Route("api/chat/test")]
+        public string Test()
+        {
+            return "!";
+        }
+
         [HttpPost]
-        [Route("api/[controller]/send")]
+        [Route("api/chat/send")]
         public string SendMessage(string message)
         {
             return message;
