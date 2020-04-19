@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:4794",
+      "applicationUrl": "http://localhost:47941",
       "sslPort": 0
     }
   },
@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "",
+      "launchUrl": "ws/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,8 +20,8 @@
     "realtime.zapread.com": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "",
-      "applicationUrl": "http://localhost:5000",
+      "launchUrl": "ws/",
+      "applicationUrl": "http://localhost:50001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

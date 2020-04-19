@@ -8,8 +8,8 @@ namespace realtime.zapread.com.Controllers
 {
     public class HomeController : Controller
     {
-        [Route("")]
-        [Route("home/index")]
+        //[Route("")]
+        [Route("ws/")]
         public IActionResult Index()
         {
             return View();

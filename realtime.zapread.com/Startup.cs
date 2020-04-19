@@ -27,6 +27,7 @@ namespace realtime.zapread.com
         {
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
+
             services.AddSignalR();
         }
 
@@ -37,6 +38,15 @@ namespace realtime.zapread.com
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // Middleware to allow cross origin connections
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("https://zapread.com", "http://localhost:27543")
+                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST")
+                    .AllowCredentials();
+            });
 
             app.UseStaticFiles();
 

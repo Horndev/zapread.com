@@ -439,6 +439,7 @@
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\PostController.cs" />
+    <Compile Include="API\StreamController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -808,6 +809,7 @@
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
