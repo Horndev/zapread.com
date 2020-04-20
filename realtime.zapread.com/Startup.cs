@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,10 +28,28 @@ namespace realtime.zapread.com
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+              .AddCookie(options =>
+              {
+                  options.Cookie.HttpOnly = true;
+                  options.Cookie.SecurePolicy = false ? CookieSecurePolicy.Always : CookieSecurePolicy.None;
+                  options.Cookie.SameSite = SameSiteMode.Lax;
+                  options.Cookie.Name = "ZapreadUserAuth";
+                  options.Cookie.Domain = ".zapread.com";
+              });
+
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
+                options.HttpOnly = HttpOnlyPolicy.None;
+                options.Secure = true//_environment.IsDevelopment()
+                  ? CookieSecurePolicy.None : CookieSecurePolicy.Always;
+            });
+
             services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllers();
 
-            services.AddSignalR();
+            services.AddSignalR(options => options.ClientTimeoutInterval=TimeSpan.FromMinutes(1));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,9 +70,10 @@ namespace realtime.zapread.com
             });
 
             app.UseStaticFiles();
-
             app.UseRouting();
 
+            app.UseCookiePolicy();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMvc();

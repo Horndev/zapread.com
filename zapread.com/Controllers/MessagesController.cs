@@ -946,7 +946,7 @@ namespace zapread.com.Controllers
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
                     // Send stream update
-                    NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
+                    await NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     // Send stream update popup
                     NotificationService.SendPrivateMessage(cleanContent, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));

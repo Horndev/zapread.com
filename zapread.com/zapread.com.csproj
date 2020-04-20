@@ -1091,6 +1091,7 @@
     <Content Include="Scripts\src\pages\post\newpost.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\utility\chat\onchatreceived.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />

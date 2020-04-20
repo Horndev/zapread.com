@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +14,36 @@ namespace realtime.zapread.com.Hubs
             await Clients.All.SendAsync("ReceiveMessage", userId, message);
         }
 
+        public async Task SendMessage(string fromUserId, string toUserId, string message)
+        {
+            await Clients.Group(groupName: toUserId).SendAsync("SendUserChat", message, fromUserId);
+        }
+
+        // In the future I would like to have cross-subdomain cookie sharing with .NET 4.7 and .NET Core for authentication.  
+        //  It is possible but not implemented yet in this project.
         public override async Task OnConnectedAsync()
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "SignalR Users");
+            var httpContext = Context.GetHttpContext();
+            var tokenValue = httpContext.Request.Query["a"];
 
-            await Clients.All.SendAsync("ReceiveMessage", "A", "message from server: connected!");
+            await Groups.AddToGroupAsync(Context.ConnectionId, tokenValue);
+
+            await Clients.All.SendAsync("ReceiveMessage", tokenValue, "connected!");
+
+            // Notify ZapRead stream:   api/v1/stream/notify/connected/{userAppId}
+            RestClient client = new RestClient("http://localhost:27543/api/v1/");
+            await client.ExecuteAsync(
+                new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                .AddUrlSegment("userAppId", tokenValue));
 
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
+            //await Groups.RemoveFromGroupAsync(Context.ConnectionId, "");
+            //var c = Context;
+
             await base.OnDisconnectedAsync(exception);
         }
     }

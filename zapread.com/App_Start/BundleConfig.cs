@@ -231,7 +231,7 @@ namespace zapread.com
 
         private static void BundlePage(BundleCollection bundles, string controller, string page)
         {
-            bundles.Add(new ScriptBundle("~/bundles/" + controller + "/" + page).Include(
+            bundles.Add(new Bundle("~/bundles/" + controller + "/" + page).Include(
                         "~/Scripts/dist/" + controller + "/" + page+".js")
                         .WithLastModifiedToken());
             bundles.Add(new StyleBundle("~/bundles/" + controller + "/" + page + "/css").Include(

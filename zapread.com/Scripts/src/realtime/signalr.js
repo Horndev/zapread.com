@@ -1,16 +1,21 @@
-﻿/*
+﻿/**
  * 
  */
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
-//import "signalr/jquery.signalR";
+//import "signalr/jquery.signalR";  // Got rid of this!
 import * as signalR from "@microsoft/signalr";
-import Swal from 'sweetalert2'
 
-function connectStream(url, token) {
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${url}/notificationHub?a=${token}`) // Connect using quthorization token (unique to client)
+import { onchatreceived } from '../utility/chat/onchatreceived'
+
+var connection;
+
+function connectStream(url) {
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl(url) // Connect using authorization token (unique to client)
         .build();
+
+    connection.on("SendUserChat", onchatreceived);
 
     console.log('connecting...');
     connection.start().then(function () {
@@ -18,6 +23,8 @@ function connectStream(url, token) {
     }).catch(function (err) {
         return console.error(err.toString());
     });
+
+    window.connection = connection; // Is this needed?
 }
 
 async function getstream() {
@@ -25,42 +32,11 @@ async function getstream() {
     const json = await response.json();
     if (json.success) {
         const url = json.url;
-        connectStream(url, "ABC123");
+        connectStream(url);
     } else {
-        Swal.fire({
-            icon: "error",
-            title: `Error revoking key: ${json.message}`
-        });
+        console.log("Streaming connection not established.");
     }
 }
 
+// execute connection as soon as loaded
 getstream();
-
-//import { hubConnection } from 'signalr-no-jquery';
-
-//const connection = hubConnection("/signalr", { useDefaultPath: false });
-//const hubProxy = connection.createHubProxy('notificationHub');
-
-//// add hub listeners here.
-////SendUserMessage
-////NotifyInvoicePaid
-
-//hubProxy.on('SendUserMessage', function (message) {
-//    console.log(JSON.stringify(message));
-//});
-
-
-//console.log('connecting signalr...');
-//connection.start({ waitForPageLoad: false},
-//    function () {
-//        var cn = this;
-//        window.addEventListener("beforeunload", function () {
-//            cn.stop();
-//        });
-//    })
-//    .done(function () {
-//        console.log("Hub Connected!, transport = " + hubProxy.transport.name);
-//    })
-//    .fail(function () {
-//        console.log("Could not Connect!");
-//    });
