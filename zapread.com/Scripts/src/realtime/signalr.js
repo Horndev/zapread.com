@@ -6,7 +6,9 @@ navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mo
 //import "signalr/jquery.signalR";  // Got rid of this!
 import * as signalR from "@microsoft/signalr";
 
-import { onchatreceived } from '../utility/chat/onchatreceived'
+import { onchatreceived } from './chat/onchatreceived'
+import { onusermessage } from './notification/onusermessage'
+import { onpayment } from './notification/onpayment'
 
 var connection;
 
@@ -15,7 +17,10 @@ function connectStream(url) {
         .withUrl(url) // Connect using authorization token (unique to client)
         .build();
 
-    connection.on("SendUserChat", onchatreceived);
+    // Connect message handlers
+    connection.on("UserChat", onchatreceived);
+    connection.on("Payment", onpayment);
+    connection.on("UserMessage", onusermessage);
 
     console.log('connecting...');
     connection.start().then(function () {

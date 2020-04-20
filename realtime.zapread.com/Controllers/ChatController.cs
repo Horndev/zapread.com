@@ -41,7 +41,7 @@ namespace realtime.zapread.com.Controllers
         [Route("api/chat/send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatMessage message)
         {
-            await _hub.Clients.Group(groupName: message.toUserId).SendAsync("SendUserChat", message.HTMLString, message.fromUserId);
+            await _hub.Clients.Group(groupName: message.toUserId).SendAsync("UserChat", message.HTMLString, message.fromUserId);
 
             return Ok();
         }

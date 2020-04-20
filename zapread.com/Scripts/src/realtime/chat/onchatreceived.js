@@ -2,7 +2,7 @@
  * Handle chat messages being received
  **/
 
-import { updatePostTimes } from '../datetime/posttime'
+import { updatePostTimes } from '../../utility/datetime/posttime'
 
 /**
  * Handle a chat message recieved from another user
