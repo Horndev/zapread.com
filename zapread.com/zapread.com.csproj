@@ -865,6 +865,8 @@
     <Content Include="Content\FFFFFF-0.png" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\images\chosen-sprite%402x.png" />
+    <Content Include="Content\images\chosen-sprite.png" />
     <Content Include="Content\images\fontawesome-webfont.svg" />
     <Content Include="Content\images\header-profile.png" />
     <Content Include="Content\images\shattered.png" />
