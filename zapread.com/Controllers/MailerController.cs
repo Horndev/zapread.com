@@ -238,7 +238,7 @@ namespace zapread.com.Controllers
                 ViewBag.Message = subject;
                 string HTMLString = RenderViewToString("NewChat", vm);
 
-                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
+                //await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
             }
             return true;
         }

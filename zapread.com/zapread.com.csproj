@@ -118,12 +118,6 @@
     <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.3\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.4.1\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.1\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
     </Reference>
@@ -439,6 +433,7 @@
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\PostController.cs" />
+    <Compile Include="API\StreamController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -808,6 +803,7 @@
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
@@ -846,7 +842,6 @@
     <Compile Include="Models\User\UserLinkViewModel.cs" />
     <Compile Include="Models\User\UserViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Hubs\NotificationHub.cs" />
     <Compile Include="Services\AchievementsService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
@@ -944,22 +939,9 @@
     <Content Include="Scripts\dist\user\achievements.js" />
     <Content Include="Scripts\dist\user\index.css" />
     <Content Include="Scripts\dist\user\index.js" />
-    <Content Include="Scripts\jquery-3.5.0.js" />
-    <Content Include="Scripts\jquery-3.5.0.min.js" />
-    <Content Include="Scripts\jquery-3.5.0.slim.js" />
-    <Content Include="Scripts\jquery-3.5.0.slim.min.js" />
-    <Content Include="Scripts\jquery-3.5.0.slim.min.map" />
-    <Content Include="Scripts\jquery-3.5.0.min.map" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.signalR-2.4.1.js" />
-    <Content Include="Scripts\jquery.signalR-2.4.1.min.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -987,12 +969,6 @@
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite%402x.png" />
     <Content Include="node_modules\bootstrap-chosen\chosen-sprite.png" />
     <Content Include="node_modules\bootstrap-chosen\dist\chosen.jquery-1.4.2\chosen.jquery.min.js" />
-    <Content Include="node_modules\bootstrap-tour\build\css\bootstrap-tour-standalone.min.css" />
-    <Content Include="node_modules\bootstrap-tour\build\css\bootstrap-tour.css" />
-    <Content Include="node_modules\bootstrap-tour\build\css\bootstrap-tour.min.css" />
-    <Content Include="node_modules\bootstrap-tour\build\js\bootstrap-tour-standalone.min.js" />
-    <Content Include="node_modules\bootstrap-tour\build\js\bootstrap-tour.js" />
-    <Content Include="node_modules\bootstrap-tour\build\js\bootstrap-tour.min.js" />
     <Content Include="node_modules\bootstrap\dist\css\bootstrap.min.css" />
     <Content Include="node_modules\bootstrap\dist\js\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">
@@ -1033,27 +1009,15 @@
     <Content Include="node_modules\jssocials\dist\jssocials-theme-flat.css" />
     <Content Include="node_modules\jssocials\dist\jssocials.css" />
     <Content Include="node_modules\jssocials\dist\jssocials.min.js" />
-    <Content Include="node_modules\popper.js\dist\umd\popper.min.js" />
     <Content Include="node_modules\selectize-bootstrap4-theme\dist\css\selectize.bootstrap4.css" />
     <Content Include="node_modules\selectize\dist\css\selectize.css" />
     <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
-    <Content Include="node_modules\summernote\dist\summernote-bs4.css" />
-    <Content Include="node_modules\summernote\dist\summernote-bs4.js" />
-    <Content Include="node_modules\summernote\dist\summernote-bs4.min.js" />
-    <Content Include="node_modules\summernote\dist\summernote.css" />
-    <Content Include="node_modules\summernote\dist\summernote.min.js" />
-    <Content Include="node_modules\toastr\build\toastr.min.css" />
-    <Content Include="node_modules\toastr\build\toastr.min.js" />
-    <Content Include="node_modules\truncate\truncate.js" />
     <Content Include="package.json" />
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.eot" />
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.ttf" />
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff" />
     <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff2" />
     <Content Include="node_modules\font-awesome\fonts\FontAwesome.otf" />
-    <Content Include="node_modules\summernote\dist\font\summernote.eot" />
-    <Content Include="node_modules\summernote\dist\font\summernote.ttf" />
-    <Content Include="node_modules\summernote\dist\font\summernote.woff" />
     <Content Include="plugins\font\summernote.eot" />
     <Content Include="plugins\font\summernote.ttf" />
     <Content Include="plugins\font\summernote.woff" />
@@ -1089,6 +1053,10 @@
     <Content Include="Scripts\src\pages\post\newpost.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\realtime\chat\onchatreceived.js" />
+    <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
+    <Content Include="Scripts\src\realtime\notification\onpayment.js" />
+    <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
@@ -1096,13 +1064,11 @@
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\Partial\topnavbar.js" />
     <Content Include="Scripts\Partial\vote.js" />
-    <Content Include="Scripts\Realtime\signalr-initialize.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\src\utility\ui\accountpayments.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
     <Content Include="Scripts\src\shared\readmore.js" />
-    <Content Include="Scripts\read-more.js" />
     <Content Include="Scripts\src\comment\initCommentInput.js" />
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
@@ -1157,6 +1123,7 @@
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
+    <Content Include="Scripts\src\utility\ui\updateuserbalance.js" />
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />

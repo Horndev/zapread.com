@@ -15,7 +15,7 @@ namespace zapread.com
 
             ConfigureAuth(app);
 
-            app.MapSignalR();
+            //app.MapSignalR();
 
             var options = new DashboardOptions
             {

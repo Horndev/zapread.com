@@ -1,10 +1,11 @@
-﻿/* Code backing _PartialModalLNTransaction.cshtml
- * 
-*/
+﻿/** 
+ * Code backing _PartialModalLNTransaction.cshtml
+ **/
 
 import Swal from 'sweetalert2';
 
 import { getAntiForgeryToken } from '../antiforgery';
+import { oninvoicepaid } from '../payments/oninvoicepaid'
 
 export function onGetInvoice(e) {
     $("#btnCheckLNDeposit").show();
@@ -184,7 +185,8 @@ export function checkInvoicePaid(e) {
             $("#" + $(e).data('spin-element')).hide();
             if (response.success) {
                 if (response.result === true) {
-                    handleInvoicePaid(response);
+                    oninvoicepaid(response.invoice, response.balance, response.txid);
+                    //handleInvoicePaid(response);
                     // Payment has been successfully made
                     console.log('Payment confirmed');
                 }
