@@ -98,3 +98,5 @@ packages/
 /node_modules/p-finally/
 /node_modules/p-is-promise/
 /node_modules/require-directory/
+/realtime.zapread.com/node_modules/
+/realtime.zapread.com/wwwroot/js/

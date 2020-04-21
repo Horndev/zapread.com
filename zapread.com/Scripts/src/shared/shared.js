@@ -24,23 +24,22 @@ import './postui';
 //import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
 //import 'bootstrap-chosen/bootstrap-chosen.css';
 
-// Toastr requires jquery (boo!) [TODO: replace toastr]
-import * as Toastr from 'toastr';
-import 'toastr/build/toastr.css';
+// Toastr requires jquery (boo!) [Done: now using tata.js]
+//import * as Toastr from 'toastr';
+//import 'toastr/build/toastr.css';
 
 //import './sharedlast';
 
-Toastr.options.closeMethod = 'fadeOut';
-Toastr.options.closeDuration = 700;
-Toastr.options.positionClass = 'toast-bottom-right';
-Toastr.options.closeEasing = 'swing';
-Toastr.options.closeButton = true;
-Toastr.options.hideMethod = 'slideUp';
-Toastr.options.progressBar = true;
-Toastr.options.timeOut = 30000; // How long the toast will display without user interaction
-Toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
-
-window.Toastr = Toastr;
+//Toastr.options.closeMethod = 'fadeOut';
+//Toastr.options.closeDuration = 700;
+//Toastr.options.positionClass = 'toast-bottom-right';
+//Toastr.options.closeEasing = 'swing';
+//Toastr.options.closeButton = true;
+//Toastr.options.hideMethod = 'slideUp';
+//Toastr.options.progressBar = true;
+//Toastr.options.timeOut = 30000; // How long the toast will display without user interaction
+//Toastr.options.extendedTimeOut = 60000; // How long the toast will display after a user hovers over it
+//window.Toastr = Toastr;
 
 export function copyToClipboard(e, elemId) {
     $("#" + elemId).focus();

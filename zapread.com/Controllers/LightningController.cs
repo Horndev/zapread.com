@@ -1,7 +1,6 @@
 ﻿using LightningLib.lndrpc;
 using LightningLib.lndrpc.Exceptions;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Concurrent;
 using System.Data.Entity;
@@ -12,7 +11,6 @@ using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
-using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
@@ -80,7 +78,7 @@ namespace zapread.com.Controllers
                     {
                         // TODO: check if invoice listeners are running - start if not running
                         // Use the standard receiving logic to send real time notification to clients
-                        NotifyClientsInvoicePaid(inv);
+                        await NotifyClientsInvoicePaid(inv).ConfigureAwait(true);
                         return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
                     }
                 }
@@ -238,7 +236,9 @@ namespace zapread.com.Controllers
                 {
                     var listener = lndClient.GetListener();
                     lndTransactionListeners.TryAdd(listener.ListenerId, listener);           // keep alive while we wait for payment
-                    listener.InvoicePaid += NotifyClientsInvoicePaid;                        // handle payment message
+                    listener.InvoicePaid += 
+                        async (invoice) => await NotifyClientsInvoicePaid(invoice)
+                                                    .ConfigureAwait(true);                   // handle payment message
                     listener.StreamLost += OnListenerLost;                                   // stream lost
                     var a = new Task(() => listener.Start());                                // listen for payment
                     a.Start();
@@ -257,7 +257,7 @@ namespace zapread.com.Controllers
         }
 
         // We have received asynchronous notification that a lightning invoice has been paid
-        private static void NotifyClientsInvoicePaid(Invoice invoice)
+        private async static Task NotifyClientsInvoicePaid(Invoice invoice)
         {
             // Check if the invoice received was paid.  LND also sends updates 
             // for new invoices to the invoice stream.  We want to listen for settled invoices here.
@@ -274,7 +274,7 @@ namespace zapread.com.Controllers
                 // this function, we only care about settled invoices.
                 return;
             }
-            var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            
 
             // Update LN transaction status in db
             using (ZapContext db = new ZapContext())
@@ -330,10 +330,16 @@ namespace zapread.com.Controllers
                 }
 
                 t.IsSettled = invoice.settled.Value;
-                db.SaveChanges();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 // Send live signal to listening clients on websockets/SignalR
-                context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
+                //var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+                //context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
+                await NotificationService.SendPaymentNotification(
+                    user == null ? "" : user.AppId,
+                    invoice: invoice.payment_request, 
+                    userBalance: userBalance, 
+                    txid: t.Id).ConfigureAwait(true);
             }
         }
 
