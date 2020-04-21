@@ -15,12 +15,16 @@ var connection;
 function connectStream(url) {
     connection = new signalR.HubConnectionBuilder()
         .withUrl(url) // Connect using authorization token (unique to client)
+        .configureLogging(signalR.LogLevel.Warning)
         .build();
 
     // Connect message handlers
     connection.on("UserChat", onchatreceived);
     connection.on("Payment", onpayment);
     connection.on("UserMessage", onusermessage);
+    connection.on("ReceiveMessage", function (userId, message) {
+        // Don't handle this yet.
+    });
 
     console.log('connecting...');
     connection.start().then(function () {

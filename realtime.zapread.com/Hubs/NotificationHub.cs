@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,13 @@ namespace realtime.zapread.com.Hubs
 {
     public class NotificationHub : Hub
     {
+        private readonly IConfiguration Configuration;
+
+        public NotificationHub(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
         public async Task SendUserChat(string userId, string message, string reason, string clickUrl)
         {
             await Clients.All.SendAsync("ReceiveMessage", userId, message);
@@ -33,10 +41,26 @@ namespace realtime.zapread.com.Hubs
                 await Clients.All.SendAsync("ReceiveMessage", tokenValue, "connected!");
 
                 // Notify ZapRead stream:   api/v1/stream/notify/connected/{userAppId}
-                RestClient client = new RestClient("http://localhost:27543/api/v1/");
-                await client.ExecuteAsync(
-                    new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
-                    .AddUrlSegment("userAppId", tokenValue));
+                var productionUrl = Configuration["ZapReadServer:Production"];
+                var devUrl = Configuration["ZapReadServer:Development"];
+
+                try
+                {
+                    RestClient client = new RestClient(productionUrl + "/api/v1/");
+                    await client.ExecuteAsync(
+                        new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                        .AddUrlSegment("userAppId", tokenValue));
+                }
+                catch { }
+
+                try
+                {
+                    RestClient client = new RestClient(devUrl + "/api/v1/");
+                    await client.ExecuteAsync(
+                        new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                        .AddUrlSegment("userAppId", tokenValue));
+                }
+                catch { }
             }
             await base.OnConnectedAsync();
         }
