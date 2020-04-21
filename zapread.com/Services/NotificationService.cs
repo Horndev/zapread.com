@@ -9,6 +9,38 @@ namespace zapread.com.Services
 {
     public class NotificationService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="invoice"></param>
+        /// <param name="userBalance"></param>
+        /// <param name="txid"></param>
+        /// <returns></returns>
+        public async static Task SendPaymentNotification(string userId, string invoice, double userBalance, int txid)
+        {
+            //var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            //context.Clients.All.NotifyInvoicePaid(new { invoice = i.PaymentRequest, balance = userBalance, txid = i.Id });
+
+            var url = ConfigurationManager.AppSettings.Get("wshost");
+            url = url + "/api/";
+            RestClient client = new RestClient(url);
+            var request = (new RestRequest("payment/complete", Method.POST) { RequestFormat = DataFormat.Json })
+                .AddJsonBody(new
+                {
+                    toUserId = userId,
+                    invoice,
+                    balance = userBalance,
+                    txid,
+                });
+
+            var response = await client.ExecuteAsync(request).ConfigureAwait(true);
+            if (response.IsSuccessful)
+            {
+                // Good!
+            }
+        }
+
         public async static Task SendIncomeNotification(double amount, string userId, string reason, string clickUrl)
         {
             string message = "You just earned " + amount.ToString("0.##", CultureInfo.InvariantCulture) + " Satoshi.";

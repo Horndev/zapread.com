@@ -1102,7 +1102,6 @@
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\Partial\topnavbar.js" />
     <Content Include="Scripts\Partial\vote.js" />
-    <Content Include="Scripts\Realtime\signalr-initialize.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\src\utility\ui\accountpayments.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
@@ -1163,6 +1162,7 @@
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
+    <Content Include="Scripts\src\utility\ui\updateuserbalance.js" />
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />

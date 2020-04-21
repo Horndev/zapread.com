@@ -26,16 +26,18 @@ namespace realtime.zapread.com.Hubs
             var httpContext = Context.GetHttpContext();
             var tokenValue = httpContext.Request.Query["a"];
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, tokenValue);
+            if (tokenValue.Count > 0)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, tokenValue);
 
-            await Clients.All.SendAsync("ReceiveMessage", tokenValue, "connected!");
+                await Clients.All.SendAsync("ReceiveMessage", tokenValue, "connected!");
 
-            // Notify ZapRead stream:   api/v1/stream/notify/connected/{userAppId}
-            RestClient client = new RestClient("http://localhost:27543/api/v1/");
-            await client.ExecuteAsync(
-                new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
-                .AddUrlSegment("userAppId", tokenValue));
-
+                // Notify ZapRead stream:   api/v1/stream/notify/connected/{userAppId}
+                RestClient client = new RestClient("http://localhost:27543/api/v1/");
+                await client.ExecuteAsync(
+                    new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                    .AddUrlSegment("userAppId", tokenValue));
+            }
             await base.OnConnectedAsync();
         }
 

@@ -113,7 +113,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult VerifyInvoices()
+        public async Task<ActionResult> VerifyInvoices()
         {
             LndRpcClient lndClient;
             using (var db = new ZapContext())
@@ -159,7 +159,6 @@ namespace zapread.com.Controllers
                                 // Trigger any async listeners
                                 if (use == TransactionUse.UserDeposit)
                                 {
-                                    var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
                                     var user = i.User;
                                     double userBalance = 0.0;
 
@@ -181,7 +180,7 @@ namespace zapread.com.Controllers
                                     }
 
                                     // Notify clients the invoice was paid.
-                                    context.Clients.All.NotifyInvoicePaid(new { invoice = i.PaymentRequest, balance = userBalance, txid = i.Id });
+                                    await NotificationService.SendPaymentNotification(user.AppId, i.PaymentRequest, userBalance, i.Id).ConfigureAwait(true);
                                 }
                                 else if (use == TransactionUse.Tip)
                                 {

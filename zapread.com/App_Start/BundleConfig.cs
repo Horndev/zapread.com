@@ -45,11 +45,6 @@ namespace zapread.com
             //            //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
             //            ).WithLastModifiedToken());
 
-            // This script is imported after the auto-generated signalr hub.
-            bundles.Add(new ScriptBundle("~/bundles/realtime").Include(
-                        "~/Scripts/Realtime/signalr-initialize.js")
-                        .WithLastModifiedToken());
-
             #region partial scripts
 
             // Partial script - summary statistics

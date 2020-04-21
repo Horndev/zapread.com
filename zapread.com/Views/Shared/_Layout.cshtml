@@ -40,11 +40,5 @@
     @RenderSection("scripts", required: false)  @*Handler for local scripts*@
     @Html.RenderPartialViewScripts()            @*Scripts used in any partial views (include once only)*@
     @Html.RenderScripts()                       @*Render Forloop.HtmlHelpers*@
-    @*@Scripts.Render("~/bundles/shared")*@
-    @if (User.Identity.IsAuthenticated)
-    {
-        @*<script src="~/signalr/hubs"></script>
-        @Scripts.Render("~/bundles/realtime")*@
-    }
 </body>
 </html>
