@@ -19,7 +19,6 @@ using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
-using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.Database;

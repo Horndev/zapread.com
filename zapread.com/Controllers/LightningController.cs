@@ -1,7 +1,6 @@
 ﻿using LightningLib.lndrpc;
 using LightningLib.lndrpc.Exceptions;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Concurrent;
 using System.Data.Entity;
@@ -12,7 +11,6 @@ using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
-using zapread.com.Hubs;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;

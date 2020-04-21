@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNet.SignalR;
-using RestSharp;
+﻿using RestSharp;
 using System.Configuration;
 using System.Globalization;
 using System.Threading.Tasks;
-using zapread.com.Hubs;
 
 namespace zapread.com.Services
 {
