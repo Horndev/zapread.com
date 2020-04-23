@@ -7,6 +7,11 @@
  *
 */
 
+.ibox-content-commentreply.ibox-content {
+    border-style: none;
+    background-color: #f9f9f9;
+}
+
 .post-username {
     font-size: 14px;
     font-weight: 600;

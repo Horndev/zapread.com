@@ -806,6 +806,7 @@
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
+    <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\Group.cs" />
@@ -962,6 +963,7 @@
     <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
+    <Content Include="Scripts\src\css\quill\quillcustom.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
     <Content Include="Content\vup.png" />
@@ -1058,6 +1060,7 @@
     <Content Include="Scripts\src\realtime\chat\onchatreceived.js" />
     <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
+    <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />

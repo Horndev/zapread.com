@@ -15,6 +15,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
+using zapread.com.Models.Comments;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 
@@ -44,9 +45,13 @@ namespace zapread.com.Controllers
             public string CommentContent { get; set; }
 
             public int PostId { get; set; }
+
             public int CommentId { get; set; }
+
             public bool IsReply { get; set; }
+
             public bool IsDeleted { get; set; }
+
             public bool IsTest { get; set; }
         }
 
@@ -66,16 +71,32 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// This method returns the partial HTML view for a comment input box.
+        /// </summary>
+        /// <param name="id">The comment for which the reply input is intended for.</param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<PartialViewResult> GetInputBox(int id)
+        [Route("Comment/GetInputBox/{commentId}")]
+        public async Task<PartialViewResult> GetInputBox(int commentId)
         {
             Response.AddHeader("X-Frame-Options", "DENY");
             using (var db = new ZapContext())
             {
-                Comment comment = await db.Comments
-                    .Include(cmt => cmt.Post)
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
-                return PartialView("_PartialCommentReplyInput", comment);
+                var userAppId = User.Identity.GetUserId();
+                var userProvileVer = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ProfileImage.Version)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var commentVm = new CommentReplyInputViewModel()
+                {
+                    CommentId = commentId,
+                    UserAppId = userAppId,
+                    ProfileImageVersion = userProvileVer
+                };
+
+                return PartialView("_PartialCommentReplyInput", commentVm);
             }
         }
 
@@ -158,14 +179,14 @@ namespace zapread.com.Controllers
             if (c == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { Success = false, Message = "Invalid parameter." });
+                return Json(new { success = false, Message = "Invalid parameter." });
             }
 
             // Check for empty comment
             if (c.CommentContent.Replace(" ", "") == "<p><br></p>")
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { Success = false, Message = "Empty comment." });
+                return Json(new { success = false, Message = "Empty comment." });
             }
 
             var userAppId = User.Identity.GetUserId();
@@ -180,7 +201,7 @@ namespace zapread.com.Controllers
                 if (user == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { Success = false, Message = "User not found in DB." });
+                    return Json(new { success = false, Message = "User not found in DB." });
                 }
 
                 var post = await db.Posts
@@ -191,7 +212,7 @@ namespace zapread.com.Controllers
                 if (post == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { Success = false, Message = "Post not found in DB." });
+                    return Json(new { success = false, Message = "Post not found in DB." });
                 }
 
                 Comment parent = null;
@@ -278,6 +299,7 @@ namespace zapread.com.Controllers
                     viewName: "_PartialCommentRenderVm", 
                     model: new PostCommentsViewModel() 
                     { 
+                        PostId = c.PostId,
                         StartVisible = true, 
                         CommentId = comment.CommentId,
                         IsReply = comment.IsReply,
@@ -310,6 +332,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// [ ] TODO: update the view model
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="commentId"></param>
+        /// <param name="nestLevel"></param>
+        /// <param name="rootshown"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> LoadMoreComments(int postId, int? commentId, int? nestLevel, string rootshown)
         {
