@@ -66,7 +66,8 @@ module.exports = {
             },
             {
                 use: {
-                    loader: "babel-loader"
+                    loader: "babel-loader",
+                    options: { cacheDirectory: true}
                 },
                 test: /\.js$/,
                 exclude: /node_modules/ //excludes node_modules folder from being transpiled by babel. We do this because it's a waste of resources to do so.

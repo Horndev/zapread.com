@@ -7,6 +7,10 @@ import { loadgrouphover } from './grouphover';
 import { updatePostTimes } from './datetime/posttime';
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
 
+/**
+ * 
+ * [X] Native JS implementation
+ **/
 export function onLoadedMorePosts() {
     //console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover

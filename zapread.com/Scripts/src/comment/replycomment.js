@@ -15,16 +15,23 @@ import 'quill-mention'
 import ImageResize from 'quill-image-resize-module';
 Quill.register('modules/imageResize', ImageResize);
 
-//import { ImageUpload } from 'quill-image-upload';
-//Quill.register('modules/imageUpload', ImageUpload);
+import { ImageUpload } from 'quill-image-upload';
+Quill.register('modules/imageUpload', ImageUpload);
 
-//import QuillImageDropAndPaste from 'quill-image-drop-and-paste'
-//Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
+//import ImageRotate from "quill-image-rotate-module";
+//Quill.register("modules/imageRotate", ImageRotate);
+
+import AutoLinks from 'quill-auto-links';
+Quill.register('modules/autoLinks', AutoLinks);
+
+import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
+Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
 
 import { getAntiForgeryToken } from '../utility/antiforgery';
 import { postData } from '../utility/postData';
-import { applyHoverToChildren } from '../utility/userhover'
-import { sendFile } from '../utility/sendfile';
+import { applyHoverToChildren } from '../utility/userhover';
+import { updatePostTimes } from '../utility/datetime/posttime';
+//import { sendFile } from '../utility/sendfile';
 
 var icons = Quill.import('ui/icons');
 icons['submit'] = '<i class="fa fa-save"></i> Submit';
@@ -75,30 +82,36 @@ export async function replyComment(commentId, postId) {
     }).then(function () {
         var quill = new Quill('#editor-container_' + commentId.toString(), {
             modules: {
-                //imageUpload: {
-                //    url: '', // server url. If the url is empty then the base64 returns
-                //    method: 'POST', // change query method, default 'POST'
-                //    name: 'image', // custom form name
-                //    withCredentials: true, // withCredentials
-                //    headers: getAntiForgeryToken(), // add custom headers, example { token: 'your-token'}
-                //    //csrf: { token: 'token', hash: '' }, // add custom CSRF
-                //    //customUploader: () => { }, // add custom uploader
-                //    // personalize successful callback and call next function to insert new url to the editor
-                //    callbackOK: (serverResponse, next) => {
-                //        next(serverResponse);
-                //    },
-                //    // personalize failed callback
-                //    callbackKO: serverError => {
-                //        alert(serverError);
-                //    },
-                //    // optional
-                //    // add callback when a image have been chosen
-                //    checkBeforeSend: (file, next) => {
-                //        console.log(file);
-                //        next(file); // go back to component and send to the server
-                //    }
-                //},
+                imageUpload: {
+                    url: '/Img/UploadImage/', // server url. If the url is empty then the base64 returns
+                    method: 'POST', // change query method, default 'POST'
+                    name: 'file', // custom form name
+                    withCredentials: true, // withCredentials
+                    headers: getAntiForgeryToken(), // add custom headers, example { token: 'your-token'}
+                    //csrf: { token: 'token', hash: '' }, // add custom CSRF
+                    //customUploader: () => { }, // add custom uploader
+                    // personalize successful callback and call next function to insert new url to the editor
+                    callbackOK: (serverResponse, insertURL) => {
+                        insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
+                    },
+                    // personalize failed callback
+                    callbackKO: serverError => {
+                        alert(serverError);
+                    },
+                    // optional
+                    // add callback when a image have been chosen
+                    checkBeforeSend: (file, next) => {
+                        console.log(file);
+                        next(file); // go back to component and send to the server
+                    }
+                },
+                imageDropAndPaste: {
+                    // add an custom image handler
+                    handler: imageHandler
+                },
+                autoLinks: true,
                 imageResize: {},
+                //imageRotate: {},
                 mention: {
                     minChars: 1,
                     onSelect: function onSelect(item, insertItem) {
@@ -106,7 +119,7 @@ export async function replyComment(commentId, postId) {
                         insertItem(item);
                     },
                     allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
-                    mentionDenotationChars: ["@"/*, "#"*/],
+                    mentionDenotationChars: ["@"],
                     source: async function (searchTerm, renderList) {
                         const matchedUsers = await suggestUsers(searchTerm);
                         renderList(matchedUsers);
@@ -117,6 +130,57 @@ export async function replyComment(commentId, postId) {
             placeholder: 'Write a comment...',
             theme: 'snow'
         });
+
+        /**
+        * Do something to our dropped or pasted image
+        * @param.imageDataUrl {string} - image's dataURL
+        * @param.type {string} - image's mime type
+        * @param.imageData {object} - provided more functions to handle the image
+        *   - imageData.toBlob() {function} - convert image to a BLOB Object
+        *   - imageData.toFile(filename) {function} - convert image to a File Object
+        *   - imageData.minify(options) {function)- minify the image, return a promise
+        *      - options.maxWidth {number} - specify the max width of the image, default is 800
+        *      - options.maxHeight {number} - specify the max width of the image, default is 800
+        *      - options.quality {number} - specify the quality of the image, default is 0.8
+        */
+        function imageHandler(imageDataUrl, type, imageData) {
+            var filename = 'pastedImage.png'
+            var file = imageData.toFile(filename)
+
+            // generate a form data
+            var fd = new FormData()
+            fd.append('file', file)
+
+            // upload image
+            //postData('/Img/UploadImage/')
+            const xhr = new XMLHttpRequest();
+            // init http query
+            xhr.open('POST', '/Img/UploadImage/', true);
+            // add custom headers
+            var headers = getAntiForgeryToken();
+            for (var index in headers) {
+                xhr.setRequestHeader(index, headers[index]);
+            }
+
+            // listen callback
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var index = (quill.getSelection() || {}).index || quill.getLength();
+                    if (index) {
+                        quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
+                    } else {
+                        console.log({
+                            code: xhr.status,
+                            type: xhr.statusText,
+                            body: xhr.responseText
+                        });
+                    }
+                };
+            }
+
+            xhr.send(fd);
+        }
 
         // configure toolbar
         var toolbar = quill.getModule('toolbar');
@@ -160,6 +224,8 @@ export async function replyComment(commentId, postId) {
                     // If user inserted any at mentions - they become hoverable.
                     applyHoverToChildren(commentsEl, '.userhint');
 
+                    // Format timestamp
+                    updatePostTimes();
                     // [ ] TODO: Make new comment quotable
                 } else {
                     // handle error
