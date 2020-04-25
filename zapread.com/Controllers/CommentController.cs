@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -68,6 +69,33 @@ namespace zapread.com.Controllers
                     .ToList();
 
                 return Json(new { users });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchstr"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [Route("Comment/Mentions")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "Executed on SQL server")]
+        public async Task<JsonResult> Mentions(string searchstr)
+        {
+            using (var db = new ZapContext())
+            {
+                var users = await db.Users
+                    .Where(u => u.Name.StartsWith(searchstr))
+                    .Select(u => new {
+                        id = u.Id,
+                        value = u.Name 
+                    })
+                    .Take(10)
+                    .ToListAsync().ConfigureAwait(true);
+
+                return Json(new { success=true, users });
             }
         }
 

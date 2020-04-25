@@ -2,7 +2,7 @@
  *
  */
 //import 'date-fns-1/dist/date_fns';
-import { loaduserhover } from './userhover';
+import { applyHoverToChildren } from './userhover';
 import { loadgrouphover } from './grouphover';
 import { updatePostTimes } from './datetime/posttime';
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
@@ -10,13 +10,14 @@ import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
 export function onLoadedMorePosts() {
     //console.log('[DEBUG] onLoadedMorePosts');
     // User mention hover
-    var elements = document.querySelectorAll(".userhint");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        loaduserhover(el);
-        el.classList.remove('userhint');
-    });
+    applyHoverToChildren(document, ".userhint");
+    //var elements = document.querySelectorAll(".userhint");
+    //Array.prototype.forEach.call(elements, function (el, _i) {
+    //    loaduserhover(el);
+    //    el.classList.remove('userhint');
+    //});
 
-    elements = document.querySelectorAll(".grouphint");
+    var elements = document.querySelectorAll(".grouphint");
     Array.prototype.forEach.call(elements, function (el, _i) {
         loadgrouphover(el);
         el.classList.remove('grouphint');

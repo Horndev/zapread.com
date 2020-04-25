@@ -96,11 +96,11 @@
                     {
                         @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserName = Model.UserName, IsIgnored = isIgnoredUser })
                     }
-                    <small>
+                    <small style="display: inline-block;">
                         -@if (Model.IsReply)
-                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> </text> }
+                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
                     else
-                    { <text> commented </text>}
+                    { <text> commented&nbsp; </text>}
                     </small><small class="postTime text-muted">@Model.TimeStamp.Value.ToString("o")</small>
                     @if (Model.TimeStampEdited != null)
                     {

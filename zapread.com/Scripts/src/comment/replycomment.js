@@ -10,29 +10,39 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import '../css/quill/quillcustom.css'; // Some custom overrides
 
+import 'quill-mention'
+//import 'quill-mention/dist/quill.mention.css'  // Not importing since the styles are in quillcustom.css
+
 import { postData } from '../utility/postData';
+import { applyHoverToChildren } from '../utility/userhover'
 import { sendFile } from '../utility/sendfile';
 
 var icons = Quill.import('ui/icons');
 icons['submit'] = '<i class="fa fa-save"></i> Submit';
 icons['cancel'] = '<i class="fa fa-times"></i> Cancel';
 
-var toolbarOptions = [
-    ['submit','cancel'],
-    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-    ['blockquote', 'code-block'],
-    //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-    //[{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-    //[{ 'direction': 'rtl' }],                         // text direction
-    //[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-    //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-    //[{ 'font': [] }],
-    //[{ 'align': [] }],
-    ['clean']                                         // remove formatting button
-];
+var toolbarOptions = {
+    container: [
+        ['submit', 'cancel'],
+        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+        ['blockquote', 'code-block'],
+        //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+        //[{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+        //[{ 'direction': 'rtl' }],                         // text direction
+        //[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+        //[{ 'font': [] }],
+        //[{ 'align': [] }],
+        ['clean']                                         // remove formatting button
+    ],
+    handlers: {
+        'cancel': function () { },  //dummy - will be updated
+        'submit': function () { }   //dummy - will be updated
+    }
+};
 
 export async function replyComment(commentId, postId) {
     var el = document.getElementById('c_reply_' + commentId.toString());
@@ -44,6 +54,23 @@ export async function replyComment(commentId, postId) {
     }).then(function () {
         var quill = new Quill('#editor-container_' + commentId.toString(), {
             modules: {
+                mention: {
+                    minChars: 1,
+                    //renderItem: function renderItem(item) {
+                    //    console.log('renderItem');
+                    //    return `<span class='userhint'>${item.value}</span>`;//"".concat(item.value);
+                    //},
+                    onSelect: function onSelect(item, insertItem) {
+                        item.value = `<span class='userhint'>${item.value}</span>`;
+                        insertItem(item);
+                    },
+                    allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+                    mentionDenotationChars: ["@"/*, "#"*/],
+                    source: async function (searchTerm, renderList) {
+                        const matchedUsers = await suggestUsers(searchTerm);
+                        renderList(matchedUsers);
+                    }
+                },
                 toolbar: toolbarOptions
             },
             placeholder: 'Write a comment...',
@@ -67,7 +94,7 @@ export async function replyComment(commentId, postId) {
         cancelButton.addEventListener('click', function () {
             // remove the editor
             var replyEl = document.getElementById('c_reply_' + commentId.toString());
-            replyEl.parentNode.removeChild(replyEl);
+            replyEl.innerHTML = '';//.parentNode.removeChild(replyEl);
         });
 
         // submit button clicked
@@ -96,6 +123,9 @@ export async function replyComment(commentId, postId) {
                     var commentsEl = document.getElementById('rcomments_' + commentId.toString());
                     commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML;
 
+                    // If user inserted any at mentions - they become hoverable.
+                    applyHoverToChildren(commentsEl, '.userhint');
+
                     // [ ] TODO: Make new comment quotable
 
                 } else {
@@ -110,6 +140,16 @@ export async function replyComment(commentId, postId) {
             });
         });
     });
+}
+
+
+export async function suggestUsers(searchTerm) {
+    var matchedUsers = [];
+    var data = await postData("/Comment/Mentions/", {
+        searchstr: searchTerm.toString() // not sure if toString is needed here...
+    });
+    matchedUsers = data.users;
+    return matchedUsers;
 }
 
 function showCommentLoadingById(id) {
