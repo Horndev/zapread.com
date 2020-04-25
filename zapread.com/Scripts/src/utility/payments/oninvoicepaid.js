@@ -9,6 +9,8 @@ import { updateuserbalance } from '../ui/updateuserbalance'
 /**
  * Handle notification that an invoice was paid for either an 
  * anonymous vote action, or deposit.
+ * 
+ * [X] Native JS implementation
  *
  * @param {string} invoice The invoice string
  * @param {string} balance New user's balance (if deposit)

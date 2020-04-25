@@ -1,7 +1,6 @@
 ﻿/*
  * 
  */
-//import $ from 'jquery';
 import '../../summernote/dist/summernote-bs4';
 import 'summernote/dist/summernote-bs4.css';
 import Swal from 'sweetalert2';
@@ -13,6 +12,16 @@ import '../css/quill/quillcustom.css'; // Some custom overrides
 import 'quill-mention'
 //import 'quill-mention/dist/quill.mention.css'  // Not importing since the styles are in quillcustom.css
 
+import ImageResize from 'quill-image-resize-module';
+Quill.register('modules/imageResize', ImageResize);
+
+//import { ImageUpload } from 'quill-image-upload';
+//Quill.register('modules/imageUpload', ImageUpload);
+
+//import QuillImageDropAndPaste from 'quill-image-drop-and-paste'
+//Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
+
+import { getAntiForgeryToken } from '../utility/antiforgery';
 import { postData } from '../utility/postData';
 import { applyHoverToChildren } from '../utility/userhover'
 import { sendFile } from '../utility/sendfile';
@@ -34,6 +43,7 @@ var toolbarOptions = {
         //[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
         //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+        ['link', 'image' /*,'video'*/ /*,'formula'*/],          // add's image support
         //[{ 'font': [] }],
         //[{ 'align': [] }],
         ['clean']                                         // remove formatting button
@@ -44,6 +54,17 @@ var toolbarOptions = {
     }
 };
 
+/**
+ * Handle the loading of the comment reply into the DOM, and creation of
+ * the text editor, submission, toolbars, etc.
+ * 
+ * @example <XX onclick="replyComment(1,5);" \>
+ *
+ * [X] Native JS implementation
+ *
+ * @param {number} commentId The invoice string
+ * @param {number} postId New user's balance (if deposit)
+ **/
 export async function replyComment(commentId, postId) {
     var el = document.getElementById('c_reply_' + commentId.toString());
     el.style.display = '';
@@ -54,12 +75,32 @@ export async function replyComment(commentId, postId) {
     }).then(function () {
         var quill = new Quill('#editor-container_' + commentId.toString(), {
             modules: {
+                //imageUpload: {
+                //    url: '', // server url. If the url is empty then the base64 returns
+                //    method: 'POST', // change query method, default 'POST'
+                //    name: 'image', // custom form name
+                //    withCredentials: true, // withCredentials
+                //    headers: getAntiForgeryToken(), // add custom headers, example { token: 'your-token'}
+                //    //csrf: { token: 'token', hash: '' }, // add custom CSRF
+                //    //customUploader: () => { }, // add custom uploader
+                //    // personalize successful callback and call next function to insert new url to the editor
+                //    callbackOK: (serverResponse, next) => {
+                //        next(serverResponse);
+                //    },
+                //    // personalize failed callback
+                //    callbackKO: serverError => {
+                //        alert(serverError);
+                //    },
+                //    // optional
+                //    // add callback when a image have been chosen
+                //    checkBeforeSend: (file, next) => {
+                //        console.log(file);
+                //        next(file); // go back to component and send to the server
+                //    }
+                //},
+                imageResize: {},
                 mention: {
                     minChars: 1,
-                    //renderItem: function renderItem(item) {
-                    //    console.log('renderItem');
-                    //    return `<span class='userhint'>${item.value}</span>`;//"".concat(item.value);
-                    //},
                     onSelect: function onSelect(item, insertItem) {
                         item.value = `<span class='userhint'>${item.value}</span>`;
                         insertItem(item);
@@ -81,13 +122,6 @@ export async function replyComment(commentId, postId) {
         var toolbar = quill.getModule('toolbar');
         // rename container id to allow multiple comment boxes (UX)
         toolbar.container.id = toolbar.container.id + '_' + commentId.toString()
-
-        //toolbar.addHandler('submit', function () {
-        //    console.log('submit')
-        //});
-        //toolbar.addHandler('cancel', function () {
-        //    console.log('cancel')
-        //});
 
         // cancel button clicked
         var cancelButton = document.querySelector('.ql-cancel');
@@ -127,7 +161,6 @@ export async function replyComment(commentId, postId) {
                     applyHoverToChildren(commentsEl, '.userhint');
 
                     // [ ] TODO: Make new comment quotable
-
                 } else {
                     // handle error
                 }
