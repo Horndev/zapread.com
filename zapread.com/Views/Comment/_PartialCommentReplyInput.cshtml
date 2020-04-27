@@ -1,9 +1,7 @@
-﻿@using Microsoft.AspNet.Identity;
-@using zapread.com.Helpers;
-@model zapread.com.Models.Comments.CommentReplyInputViewModel
+﻿@model zapread.com.Models.Comments.CommentReplyInputViewModel
 
-<div  class="social-footer">
-    <div id="sc_@Model.CommentId.ToString()" class="social-comment" style="margin-left: 0px;">
+<div class="social-footer">
+    <div id="s_c@(Model.CommentId.ToString())" class="social-comment" style="margin-left: 0px;">
         <div class="ibox-content no-padding ibox-content-commentreply">
             <div class="sk-spinner sk-spinner-three-bounce">
                 <div class="sk-bounce1"></div>
@@ -21,7 +19,7 @@
                         <div class="ql-content" id="content-container_@Model.CommentId.ToString()">
                             @*<div id="toolbar-container_@Model.CommentId.ToString()">
                             </div>*@
-                            <div id="editor-container_@Model.CommentId.ToString()"></div>
+                            <div id="editor-container_c@(Model.CommentId.ToString())"></div>
                         </div>
                         @*<div class="ibox-content no-padding">
                             <div class="c_input wrapper p-md" id="cr_input_@Model.CommentId.ToString()"></div>

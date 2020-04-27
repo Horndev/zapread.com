@@ -1,7 +1,8 @@
 ﻿/*
  *
  */
-//import 'date-fns-1/dist/date_fns';
+import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';
+
 import { applyHoverToChildren } from './userhover';
 import { loadgrouphover } from './grouphover';
 import { updatePostTimes } from './datetime/posttime';
@@ -25,6 +26,12 @@ export function onLoadedMorePosts() {
     Array.prototype.forEach.call(elements, function (el, _i) {
         loadgrouphover(el);
         el.classList.remove('grouphint');
+    });
+
+    // activate dropdown (done manually using bootstrap.native)
+    elements = document.querySelectorAll(".dropdown-toggle");
+    Array.prototype.forEach.call(elements, function (el, _i) {
+        var dropdownInit = new bsn.Dropdown(el);
     });
 
     // show the read more
@@ -85,10 +92,6 @@ export function onLoadedMorePosts() {
     Array.prototype.forEach.call(elements, function (el, _i) {
         el.classList.remove('pop');
     });
-    // old version
-    //    $(".pop").each(function () {
-    //        $(this).removeClass("pop");
-    //    });
 
     // Make post quotable
     makePostsQuotable();     // TODO: remove jquery

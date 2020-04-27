@@ -17,7 +17,7 @@
         {
             <div class="pull-right social-action dropdown" @if (Model.IsReply) { <text> style="left:15px;" </text> }>
                 <a id="cid_@Model.CommentId"></a><button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
-                <ul class="dropdown-menu ift-xs">
+                <ul class="dropdown-menu dropdown-menu-right ift-xs" style="left: auto;">
                     @if (isIgnoredUser)
                     {
                         <li>
@@ -108,7 +108,7 @@
                         <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
                     }
                     <div class="row">
-                        <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-commentid="@Model.CommentId">
+                        <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
                             @if (isIgnoredUser)
                             {
                                 <span><br /></span>
@@ -134,7 +134,7 @@
                         <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId,@Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
                     </div>
                 }
-                <div id="c_reply_@Model.CommentId" style="display: none"></div>@*This is the element where the comment box will render*@
+                <div id="reply_c@(Model.CommentId)" style="display: none;"></div>@*This is the element where the comment box will render*@
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{
                         var subcomments = Model.CommentVms.Where(c => c.IsReply).Where(c => c.ParentCommentId == Model.CommentId);

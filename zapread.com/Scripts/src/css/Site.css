@@ -90,7 +90,7 @@
 
 .post-box {
     max-height: 800px;
-    position: relative;
+    position: relative;  /*This is needed to correctly calculate size of post for read-more*/
     overflow: hidden;
 }
 
@@ -6894,6 +6894,7 @@ table.shoping-cart-table {
 
 .social-comment {
     margin-top: 15px;
+    min-height: 70px;
 }
 
     .social-comment textarea {

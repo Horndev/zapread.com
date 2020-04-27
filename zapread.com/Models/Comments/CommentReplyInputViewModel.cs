@@ -12,6 +12,7 @@ namespace zapread.com.Models.Comments
     {
         public Int64 CommentId { get; set; }
 
+        public int PostId { get; set; }
         public string UserAppId { get; set; }
 
         public int ProfileImageVersion { get; set; }

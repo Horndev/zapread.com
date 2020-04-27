@@ -4,9 +4,9 @@
 
 import '../../shared/shared';
 import '../../realtime/signalr';
-import '../../../summernote/dist/summernote-bs4';
-import 'summernote/dist/summernote-bs4.css';
-import '../../utility/summernote/summernote-video-attributes';
+//import '../../../summernote/dist/summernote-bs4';
+//import 'summernote/dist/summernote-bs4.css';
+//import '../../utility/summernote/summernote-video-attributes';
 
 import Dropzone from 'dropzone';
 import 'dropzone/dist/basic.css';

@@ -114,7 +114,7 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            CodeMirror: 'codemirror',
+            //CodeMirror: 'codemirror',
             'window.Quill': 'quill',     // because of quill-image-resize-module
             'Quill': 'quill'
         }),

@@ -128,6 +128,35 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns the server-rendered HTML for a reply view to comment on a post
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Comment/PostReply/{postId}")]
+        public async Task<PartialViewResult> PostComment(int postId)
+        {
+            Response.AddHeader("X-Frame-Options", "DENY");
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+                var userProvileVer = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ProfileImage.Version)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var vm = new CommentReplyInputViewModel()
+                {
+                    PostId = postId,
+                    UserAppId = userAppId,
+                    ProfileImageVersion = userProvileVer
+                };
+
+                return PartialView("_PartialPostReplyInput", vm);
+            }
+        }
+
         [HttpGet]
         public ActionResult GetUserMentions()
         {

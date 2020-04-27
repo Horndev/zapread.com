@@ -3,9 +3,9 @@
  */
 import '../../shared/shared';
 import '../../realtime/signalr';
-import '../../../summernote/dist/summernote-bs4';
-import 'summernote/dist/summernote-bs4.css';
-import '../../utility/summernote/summernote-video-attributes';
+//import '../../../summernote/dist/summernote-bs4';
+//import 'summernote/dist/summernote-bs4.css';
+//import '../../utility/summernote/summernote-video-attributes';
 import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
 import { addposts, loadmore} from '../../utility/loadmore';
@@ -33,7 +33,7 @@ request.onload = function () {
         if (response.success) {
             // Insert posts
             document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
-            addposts(response, onLoadedMorePosts); //TODO: zrOnLoadedMorePosts uses jquery
+            addposts(response, onLoadedMorePosts); // [ ] TODO: zrOnLoadedMorePosts uses jquery
             document.querySelectorAll('#btnLoadmore').item(0).style.display = ''; //$('#btnLoadmore').show();
         } else {
             // Did not work

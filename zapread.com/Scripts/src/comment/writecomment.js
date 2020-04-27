@@ -1,7 +1,11 @@
-﻿/*
+﻿/**
  * 
- */
-import { initCommentInput } from './initCommentInput';
+ **/
+//import { initCommentInput } from './initCommentInput';
+import { postData } from '../utility/postData';
+import { applyHoverToChildren } from '../utility/userhover';
+import { updatePostTimes } from '../utility/datetime/posttime';
+import { makeQuillComment } from './utility/makeQuillComment';
 
 /**
  * @name writeComment
@@ -13,17 +17,63 @@ import { initCommentInput } from './initCommentInput';
  * 
  * Does not require jQuery.
  *
- * @param {Element} el - the value to convert
- * @returns {Boolean} the parsed date in the local time zone
+ * @param {number} postId - the post being commented on
+ * @returns {Boolean} false to stop default action
  */
-export function writeComment(el) {
-    var id = el.getAttribute('data-postid');    //var id = $(e).data("postid");
-    //console.log('writeComment id: ' + id.toString());
-    initCommentInput(id);
-    el.style.display = 'none';                  //$(e).hide();
-    document.querySelectorAll('.note-statusbar').item(0).style.display = 'none';        //$(".note-statusbar").css("display", "none");
-    var replyElement = document.querySelectorAll('#preply_' + id.toString()).item(0);   //$('#preply_' + id.toString()).slideDown(200);
-    replyElement.style.display = '';
+export async function writeComment(postId, content) {
+    //var postId = el.getAttribute('data-postid');    // This is the post being commented on
+    var boxEl = document.getElementById('reply_p' + postId.toString());
+    var url = '/Comment/PostReply/' + postId.toString() + '/';
+    fetch(url).then(data => data.text()).then(data => {
+        boxEl.innerHTML = data
+    }).then(function () {
+        // initialize
+        boxEl.style.display = '';   // Make visible
+        document.getElementById('wc_' + postId.toString()).style.display = 'none';      // Hide the comment button
+
+        makeQuillComment({
+            content: content,
+            selector: '#editor-container_p' + postId.toString(),
+            uid: '_p' + postId.toString(),
+            cancelCallback: function () {
+                // remove the editor
+                var replyEl = document.getElementById('reply_p' + postId.toString());
+                replyEl.innerHTML = '';//.parentNode.removeChild(replyEl);
+                document.getElementById('wc_' + postId.toString()).style.display = '';      // Show the comment button
+            },
+            preSubmitCallback: function () { },
+            onSubmitSuccess: function (data) {
+                // remove the editor
+                var replyEl = document.getElementById('reply_p' + postId.toString());
+                replyEl.parentNode.removeChild(replyEl);
+                document.getElementById('wc_' + postId.toString()).style.display = '';      // Show the comment button
+                // and replace with HTML
+                var commentsEl = document.getElementById('comments_' + postId.toString());
+                commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML;
+                // If user inserted any at mentions - they become hoverable.
+                applyHoverToChildren(commentsEl, '.userhint');
+                // Format timestamp
+                updatePostTimes();
+                // [ ] TODO: Make new comment quotable
+            },
+            submitCallback: function (commentHTML) {
+                // Submit comment
+                return postData("/Comment/AddComment/", {
+                    CommentContent: commentHTML,
+                    CommentId: -1,
+                    PostId: postId,
+                    IsReply: false
+                });
+            }
+        });
+
+        //////  OLD SUMMERNOTE VERSION
+        //initCommentInput(postId);
+        //document.querySelectorAll('.note-statusbar').item(0).style.display = 'none';
+        //var replyElement = document.querySelectorAll('#preply_' + postId.toString()).item(0);   //$('#preply_' + id.toString()).slideDown(200);
+        //replyElement.style.display = '';
+    });
+
     return false;
 }
 window.writeComment = writeComment;

@@ -3,9 +3,9 @@
  */
 import '../../shared/shared';
 import '../../realtime/signalr';
-import '../../../summernote/dist/summernote-bs4';
-import 'summernote/dist/summernote-bs4.css';
-import '../../utility/summernote/summernote-video-attributes';
+//import '../../../summernote/dist/summernote-bs4';
+//import 'summernote/dist/summernote-bs4.css';
+//import '../../utility/summernote/summernote-video-attributes';
 
 import Swal from 'sweetalert2';
 import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';

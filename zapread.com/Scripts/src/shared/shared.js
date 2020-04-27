@@ -50,30 +50,30 @@ export function copyToClipboard(e, elemId) {
 }
 window.copyToClipboard = copyToClipboard;
 
-$(document).ready(function () {
-    // this could possibly be removed.
-    $.fn.extend({
-        placeCursorAtEnd: function () {
-            // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
-            if (this.length === 0) {
-                throw new Error("Cannot manipulate an element if there is no element!");
-            }
-            var el = this[0];
-            var range = document.createRange();
-            var sel = window.getSelection();
-            var childLength = el.childNodes.length;
-            if (childLength > 0) {
-                var lastNode = el.childNodes[childLength - 1];
-                var lastNodeChildren = lastNode.childNodes.length;
-                range.setStart(lastNode, lastNodeChildren);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
-            return this;
-        }
-    });
-});
+//$(document).ready(function () {
+//    // this could possibly be removed.
+//    $.fn.extend({
+//        placeCursorAtEnd: function () {
+//            // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
+//            if (this.length === 0) {
+//                throw new Error("Cannot manipulate an element if there is no element!");
+//            }
+//            var el = this[0];
+//            var range = document.createRange();
+//            var sel = window.getSelection();
+//            var childLength = el.childNodes.length;
+//            if (childLength > 0) {
+//                var lastNode = el.childNodes[childLength - 1];
+//                var lastNodeChildren = lastNode.childNodes.length;
+//                range.setStart(lastNode, lastNodeChildren);
+//                range.collapse(true);
+//                sel.removeAllRanges();
+//                sel.addRange(range);
+//            }
+//            return this;
+//        }
+//    });
+//});
 
 
 $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {
@@ -154,11 +154,13 @@ $.ajax({
     }
 });
 
+$('[data-toggle="tooltip"]').tooltip();
+
 //$(".pop").each(function () {
 //    $(this).removeClass("pop");
 //});
 
-//$('[data-toggle="tooltip"]').tooltip();
+
 
 // This loads all async partial views on page [I don't think there are any]
 //$(".partialContents").each(function (index, item) {

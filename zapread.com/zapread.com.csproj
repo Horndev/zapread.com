@@ -945,6 +945,8 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\src\comment\editComment.js" />
+    <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -964,6 +966,7 @@
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
     <Content Include="Content\vup.png" />
@@ -1205,7 +1208,7 @@
     <Content Include="Scripts\summernote\dist\font\summernote.eot" />
     <Content Include="Scripts\summernote\dist\font\summernote.ttf" />
     <Content Include="Scripts\summernote\dist\font\summernote.woff" />
-    <Content Include="Views\Shared\_PartialCommentReplyInput.cshtml" />
+    <Content Include="Views\Comment\_PartialCommentReplyInput.cshtml" />
     <Content Include="Views\Messages\Index.cshtml" />
     <Content Include="Views\Messages\_UnreadMessages.cshtml" />
     <Content Include="Views\Messages\_PartialRecentAlerts.cshtml" />
@@ -1269,10 +1272,10 @@
     <Content Include="Views\Shared\DisplayTemplates\MetaRobotsHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\MenuHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CanonicalHelperModel.cshtml" />
+    <Content Include="Views\Comment\_PartialPostReplyInput.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
-    <Folder Include="Views\Comment\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />

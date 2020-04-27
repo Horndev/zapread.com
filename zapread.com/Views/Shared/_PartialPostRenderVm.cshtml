@@ -11,7 +11,7 @@
         </button>
         <div class="pull-right social-action dropdown">
             <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
-            <ul class="dropdown-menu m-t-xs">
+            <ul class="dropdown-menu dropdown-menu-right m-t-xs" style="left: auto;">
                 <li>
                     <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
                 </li>
@@ -174,37 +174,10 @@
         </div>
         @if (Request.IsAuthenticated)
         {
-            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(this);" data-postid="@Model.PostId">
+            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
                 <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
             </div>
-            <div id=@("preply_" + @Model.PostId.ToString()) class="social-footer" style="display: none"}>
-                <div id="pc_@Model.PostId.ToString()" class="social-comment">
-                    <div class="ibox-content no-padding ibox-comment" style="background-color:inherit">
-                        <div class="sk-spinner sk-spinner-three-bounce">
-                            <div class="sk-bounce1"></div>
-                            <div class="sk-bounce2"></div>
-                            <div class="sk-bounce3"></div>
-                        </div>
-                        <a href="@Url.Action(actionName: "Index", controllerName: "Manage")" class="pull-left">
-                            <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30 })" />
-                        </a>
-                        <div class="media-body">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="ibox-content no-padding">
-                                        <div class="@("c_input_" + @Model.PostId.ToString()) wrapper p-md" id="c_input_@Model.PostId.ToString()"></div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-auto">
-                                    <div class="btn-group-vertical">
-                                        <button id="bc_@Model.PostId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.PostId.ToString(), 0, false)">Submit <i id="cs_@Model.PostId.ToString()" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="reply_p@(Model.PostId.ToString())" style="display: none;"></div>@*This is where the post reply comment input will be inserted.*@
         }
         <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
             @if (Model.CommentVms.Any())
