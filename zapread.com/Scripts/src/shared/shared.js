@@ -19,7 +19,7 @@ import "jquery-ui-dist/jquery-ui.min.css";
  * Here, we use Bootstrap.native, which does not require jQuery.  It is much lighter, and supports
  * up to version 4.  The Bootstrap css is imported from the bootstrap distribution.
  **/
-//import 'bootstrap';
+import 'bootstrap';
 import 'bootstrap.native/dist/bootstrap-native-v4'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
