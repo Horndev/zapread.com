@@ -19,6 +19,7 @@ import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
+import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
 import { loadmore } from '../../utility/loadmore';
@@ -29,6 +30,7 @@ import '../../shared/sharedlast';
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
+window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 
 // Wrapper for load more

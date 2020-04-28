@@ -13,8 +13,6 @@ import $ from 'jquery';
 import "jquery-ui-dist/jquery-ui";
 import "jquery-ui-dist/jquery-ui.min.css";
 
-//import 'popper.js';
-
 /**
  * Bootstrap
  * 
@@ -50,32 +48,6 @@ export function copyToClipboard(e, elemId) {
 }
 window.copyToClipboard = copyToClipboard;
 
-//$(document).ready(function () {
-//    // this could possibly be removed.
-//    $.fn.extend({
-//        placeCursorAtEnd: function () {
-//            // Places the cursor at the end of a contenteditable container (should also work for textarea / input)
-//            if (this.length === 0) {
-//                throw new Error("Cannot manipulate an element if there is no element!");
-//            }
-//            var el = this[0];
-//            var range = document.createRange();
-//            var sel = window.getSelection();
-//            var childLength = el.childNodes.length;
-//            if (childLength > 0) {
-//                var lastNode = el.childNodes[childLength - 1];
-//                var lastNodeChildren = lastNode.childNodes.length;
-//                range.setStart(lastNode, lastNodeChildren);
-//                range.collapse(true);
-//                sel.removeAllRanges();
-//                sel.addRange(range);
-//            }
-//            return this;
-//        }
-//    });
-//});
-
-
 $("ul.dropdown-menu").on("click", "[data-keepOpenOnClick]", function (e) {
     e.stopPropagation();
 });
@@ -101,33 +73,6 @@ $('.close-link').on('click', function () {
     var content = $(this).closest('div.ibox');
     content.remove();
 });
-
-//$(".pop").popover({
-//    trigger: "manual",
-//    html: true,
-//    sanitize: false,
-//    animation: false
-//})
-//    .on("mouseenter", function () {
-//        var _this = this;
-//        setTimeout(function () {
-
-//            $(this).popover("show");
-//            $('[data-toggle="tooltip"]').tooltip();
-//            $(".popover").addClass("tooltip-hover");
-//            $(".popover").on("mouseleave", function () {
-//                $(_this).popover('hide');
-//            });
-//        }, 1000);
-//    })
-//    .on("mouseleave", function () {
-//        var _this = this;
-//        setTimeout(function () {
-//            if (!$(".popover:hover").length) {
-//                $(_this).popover("hide");
-//            }
-//        }, 300);
-//    });
 
 // TODO - move into section specifically for loading the top bar.
 $.ajax({
@@ -155,17 +100,3 @@ $.ajax({
 });
 
 $('[data-toggle="tooltip"]').tooltip();
-
-//$(".pop").each(function () {
-//    $(this).removeClass("pop");
-//});
-
-
-
-// This loads all async partial views on page [I don't think there are any]
-//$(".partialContents").each(function (index, item) {
-//    var url = $(item).data("url");
-//    if (url && url.length > 0) {
-//        $(item).load(url);
-//    }
-//});

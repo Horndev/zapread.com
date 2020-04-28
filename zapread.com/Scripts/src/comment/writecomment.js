@@ -1,7 +1,6 @@
 ﻿/**
  * 
  **/
-//import { initCommentInput } from './initCommentInput';
 import { postData } from '../utility/postData';
 import { applyHoverToChildren } from '../utility/userhover';
 import { updatePostTimes } from '../utility/datetime/posttime';
@@ -69,12 +68,6 @@ export async function writeComment(postId, content) {
                 });
             }
         });
-
-        //////  OLD SUMMERNOTE VERSION
-        //initCommentInput(postId);
-        //document.querySelectorAll('.note-statusbar').item(0).style.display = 'none';
-        //var replyElement = document.querySelectorAll('#preply_' + postId.toString()).item(0);   //$('#preply_' + id.toString()).slideDown(200);
-        //replyElement.style.display = '';
     });
 
     return false;

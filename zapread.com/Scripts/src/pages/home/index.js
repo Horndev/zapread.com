@@ -1,11 +1,9 @@
-﻿/*
+﻿/**
  * 
- */
+ **/
+
 import '../../shared/shared';
 import '../../realtime/signalr';
-//import '../../../summernote/dist/summernote-bs4';
-//import 'summernote/dist/summernote-bs4.css';
-//import '../../utility/summernote/summernote-video-attributes';
 import Swal from 'sweetalert2';
 const Globals = require('./globals').default;
 import { addposts, loadmore} from '../../utility/loadmore';

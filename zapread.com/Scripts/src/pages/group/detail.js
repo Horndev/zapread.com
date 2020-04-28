@@ -13,6 +13,7 @@ import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
+import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { loadmore } from '../../utility/loadmore';
@@ -25,6 +26,7 @@ import '../../shared/sharedlast';
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
+window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 
 export function grouploadmore() {

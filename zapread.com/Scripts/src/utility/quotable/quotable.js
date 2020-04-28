@@ -10,8 +10,6 @@ import 'tippy.js/themes/light-border.css';
 
 import '../../css/quotable.css'
 
-import { initCommentInput } from '../../comment/initCommentInput';
-
 var selectionText;
 var selectionMarker;
 var markerId;
