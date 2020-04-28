@@ -193,7 +193,7 @@ namespace zapread.com.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { Success = false });
+                return Json(new { success = false });
             }
 
             var userId = User.Identity.GetUserId();
@@ -203,11 +203,11 @@ namespace zapread.com.Controllers
                 var comment = db.Comments.FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
                 if (comment == null)
                 {
-                    return Json(new { Success = false, message = "Comment not found." });
+                    return Json(new { success = false, message = "Comment not found." });
                 }
                 if (comment.UserId.AppId != userId)
                 {
-                    return Json(new { Success = false, message = "User does not have rights to edit comment." });
+                    return Json(new { success = false, message = "User does not have rights to edit comment." });
                 }
                 comment.Text = SanitizeCommentXSS(c.CommentContent);
                 comment.TimeStampEdited = DateTime.UtcNow;
@@ -218,7 +218,7 @@ namespace zapread.com.Controllers
             {
                 HTMLString = "",
                 c.PostId,
-                Success = true,
+                success = true,
             });
         }
 

@@ -84,7 +84,7 @@ button.ql-cancel {
 .ql-toolbar, .ql-toolbar.ql-snow {
     background-color: #f3f3f4;
     border-radius: 10px 10px 0px 0px;
-    border: 0px;
+    /*border: 0px;*/
 }
 
 .ql-container, .ql-container.ql-snow {
@@ -94,13 +94,16 @@ button.ql-cancel {
 /* Created to put border around content input*/
 .ql-content {
     border-radius: 10px;
-    border: 1px solid;
-    border-color: #ccc;
+    /*border: 1px solid;
+    border-color: #ccc;*/
 }
 
 .ql-editor {
     background-color: #fff;
     border-radius: 0px 0px 10px 10px;
+    height: auto;
+    border: 1px solid;
+    border-color: #ccc;
 }
 
 .ql-snow.ql-toolbar button {

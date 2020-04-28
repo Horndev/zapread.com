@@ -43,7 +43,7 @@ export function makeCommentsQuotable() {
     });
 }
 
-function makeQuotable(e, isPost) {
+export function makeQuotable(e, isPost) {
     // Trigger when mouse is released (i.e. possible selection made)
     e.addEventListener("mouseup", function () {
         var selection = getSelected();

@@ -52,7 +52,7 @@ icons['submit'] = '<i class="fa fa-save"></i> Submit';
 icons['cancel'] = '<i class="fa fa-times"></i> Cancel';
 
 export function makeQuillComment(options) {
-    var quill = new Quill(options.selector, {
+    var quill = new Quill('#'+options.selector, {
         modules: {
             imageUpload: {
                 url: '/Img/UploadImage/', // server url. If the url is empty then the base64 returns
@@ -175,14 +175,18 @@ export function makeQuillComment(options) {
     var submitButton = document.querySelector('.ql-submit');
     submitButton.addEventListener('click', function () {
         options.preSubmitCallback();
-        showCommentLoadingById('s' + options.uid);
+        if (options.showloading) {
+            showCommentLoadingById('s' + options.uid);
+        }
 
         //This is the container element for the comment HTML
-        var contentEl = document.getElementById('editor-container' + options.uid).querySelectorAll('.ql-editor').item(0);
+        var contentEl = document.getElementById(options.selector/*'editor-container' + options.uid*/).querySelectorAll('.ql-editor').item(0);
         var commentHTML = contentEl.innerHTML;
 
         options.submitCallback(commentHTML).then((data) => {
-            hideCommentLoadingById('s' + options.uid);
+            if (options.showloading) {
+                hideCommentLoadingById('s' + options.uid);
+            }
             if (data.success) {
                 options.onSubmitSuccess(data);
             } else {

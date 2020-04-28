@@ -27,7 +27,7 @@
                     @if (!Model.IsDeleted)
                     {
                         <li>
-                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.CommentId);"><i class="fa fa-reply"></i> Reply</button>
+                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.CommentId,@Model.PostId);"><i class="fa fa-reply"></i> Reply</button>
                         </li>
                     }
                     @if (User.Identity.Name == Model.UserName)
@@ -108,24 +108,25 @@
                         <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
                     }
                     <div class="row">
-                        <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
-                            @if (isIgnoredUser)
-                            {
-                                <span><br /></span>
-                            }
-                            else
-                            {
-                                if (Model.IsDeleted)
+                        <div class="col">
+                            <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
+                                @if (isIgnoredUser)
                                 {
-                                    @*<span><br /></span>*@@*<div>deleted</div><br />*@
+                                    <span><br /></span>
                                 }
                                 else
                                 {
-                                    <div>@Html.Raw(Model.Text)</div>
+                                    if (Model.IsDeleted)
+                                    {
+                                        @*<span><br /></span>*@@*<div>deleted</div><br />*@
+                                    }
+                                    else
+                                    {
+                                        <div>@Html.Raw(Model.Text)</div>
+                                    }
                                 }
-                            }
+                            </div>
                         </div>
-
                     </div>
                 </div>
                 @if (Request.IsAuthenticated && !Model.IsDeleted) // Show the response div

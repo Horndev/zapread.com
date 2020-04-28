@@ -6,6 +6,7 @@ import { postData } from '../utility/postData';
 import { applyHoverToChildren } from '../utility/userhover';
 import { updatePostTimes } from '../utility/datetime/posttime';
 import { makeQuillComment } from './utility/makeQuillComment';
+import { makeCommentsQuotable } from '../utility/quotable/quotable';
 
 /**
  * @name writeComment
@@ -33,7 +34,8 @@ export async function writeComment(postId, content) {
 
         makeQuillComment({
             content: content,
-            selector: '#editor-container_p' + postId.toString(),
+            showloading: true,
+            selector: 'editor-container_p' + postId.toString(),
             uid: '_p' + postId.toString(),
             cancelCallback: function () {
                 // remove the editor
@@ -54,7 +56,8 @@ export async function writeComment(postId, content) {
                 applyHoverToChildren(commentsEl, '.userhint');
                 // Format timestamp
                 updatePostTimes();
-                // [ ] TODO: Make new comment quotable
+                // Make new comment quotable
+                makeCommentsQuotable();
             },
             submitCallback: function (commentHTML) {
                 // Submit comment

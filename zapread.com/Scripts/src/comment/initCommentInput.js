@@ -1,7 +1,7 @@
 ﻿/*
  * 
  */
-import $ from 'jquery';
+//import $ from 'jquery';
 //import '../../summernote/dist/summernote-bs4';
 //import 'summernote/dist/summernote-bs4.css';
 

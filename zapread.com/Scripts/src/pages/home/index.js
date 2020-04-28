@@ -12,12 +12,14 @@ import { addposts, loadmore} from '../../utility/loadmore';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
+import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
+window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 window.loadmore = loadmore;
 
