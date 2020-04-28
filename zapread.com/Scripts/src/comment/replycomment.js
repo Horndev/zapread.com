@@ -1,52 +1,69 @@
-﻿/*
+﻿/**
+ * Handle user click on reply to comment
+ **/
+
+import { postData } from '../utility/postData';
+import { applyHoverToChildren } from '../utility/userhover';
+import { updatePostTimes } from '../utility/datetime/posttime';
+import { makeQuillComment } from './utility/makeQuillComment';
+import { makeCommentsQuotable } from '../utility/quotable/quotable';
+
+/**
+ * Handle the loading of the comment reply into the DOM, and creation of
+ * the text editor, submission, toolbars, etc.
  * 
- */
-import $ from 'jquery';
-import '../../summernote/dist/summernote-bs4';
-import 'summernote/dist/summernote-bs4.css';
+ * @example <XX onclick="replyComment(1,5);" \>
+ *
+ * [X] Native JS implementation
+ *
+ * @param {number} commentId the comment id
+ * @param {number} postId 
+ **/
+export async function replyComment(commentId, postId, content) {
+    var el = document.getElementById('reply_c' + commentId.toString());
+    el.style.display = '';
 
-import { sendFile } from '../utility/sendfile';
-
-export function replyComment(id) {
-    $('#c_reply_' + id.toString()).toggle('show');
-    $('#c_reply_' + id.toString()).load('/Comment/GetInputBox' + "/" + id.toString(), function () {
-        $(".c_input").summernote({
-            callbacks: {
-                onImageUpload: function (files) {
-                    sendFile(files[0], this);
-                }
+    var url = '/Comment/GetInputBox' + "/" + commentId.toString();
+    fetch(url).then(data => data.text()).then(data => {
+        el.innerHTML = data
+    }).then(function () {
+        makeQuillComment({
+            content: content,
+            showloading: true,
+            selector: 'editor-container_c' + commentId.toString(),
+            uid: '_c' + commentId.toString(),
+            cancelCallback: function () {
+                // remove the editor
+                var replyEl = document.getElementById('reply_c' + commentId.toString());
+                replyEl.innerHTML = '';//.parentNode.removeChild(replyEl);
             },
-            focus: false,
-            placeholder: 'Write comment...',
-            disableDragAndDrop: true,
-            toolbar: [['style', ['style']], ['para', ['ul', 'ol', 'paragraph']], 'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-            minHeight: 60,
-            maxHeight: 300,
-            hint: {
-                match: /\B@(\w*)$/,
-                search: function (keyword, callback) {
-                    if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-                    $.ajax({
-                        async: true,
-                        url: '/Comment/GetMentions',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        data: msg,
-                        error: function () {
-                            callback();
-                        },
-                        success: function (res) {
-                            callback(res.users);
-                        }
-                    });
-                },
-                content: function (item) {
-                    return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
-                }
+            preSubmitCallback: function () { },
+            onSubmitSuccess: function (data) {
+                // remove the editor
+                var replyEl = document.getElementById('reply_c' + commentId.toString());
+                replyEl.parentNode.removeChild(replyEl);
+                // and replace with HTML
+                var commentsEl = document.getElementById('rcomments_' + commentId.toString());
+                commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML;
+                // If user inserted any at mentions - they become hoverable.
+                applyHoverToChildren(commentsEl, '.userhint');
+                // Format timestamp
+                updatePostTimes();
+                // Make new comment quotable
+                makeCommentsQuotable();
+            },
+            submitCallback: function (commentHTML) {
+                // Submit comment
+                return postData("/Comment/AddComment/", {
+                    CommentContent: commentHTML,
+                    CommentId: commentId,
+                    PostId: postId,
+                    IsReply: true
+                });
             }
         });
-        $(".note-statusbar").css("display", "none");
     });
+
+    return false;
 }
+window.replyComment = replyComment;

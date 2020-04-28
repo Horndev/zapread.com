@@ -94,6 +94,7 @@ namespace zapread.com.Helpers
                         ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
+                            PostId = p.PostId,
                             CommentId = c.CommentId,
                             Text = c.Text,
                             Score = c.Score,
@@ -143,6 +144,7 @@ namespace zapread.com.Helpers
                         ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
+                            PostId = p.PostId,
                             CommentId = c.CommentId,
                             Text = c.Text,
                             Score = c.Score,
@@ -297,6 +299,7 @@ namespace zapread.com.Helpers
                     ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                     CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                     {
+                        PostId = p.PostId,
                         CommentId = c.CommentId,
                         Text = c.Text,
                         Score = c.Score,

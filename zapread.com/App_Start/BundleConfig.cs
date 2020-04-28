@@ -149,20 +149,11 @@ namespace zapread.com
                       "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
                       "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
 
-            bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                        "~/node_modules/popper.js/dist/umd/popper.min.js",
-                        "~/node_modules/bootstrap/dist/js/bootstrap.min.js",
-                        //"~/Scripts/bootstrap-tour.min.js",
-                        "~/Scripts/respond.js"));
-
             bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
                       "~/node_modules/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
 
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
-
-            //bundles.Add(new StyleBundle("~/Content/bootstrap-tour").Include(
-            //          "~/Content/bootstrap-tour.min.css"));
 
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
@@ -187,18 +178,6 @@ namespace zapread.com
             // SlimScroll
             bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(
                       "~/node_modules/jquery-slimscroll/jquery.slimscroll.min.js"));
-
-            // summernote styles
-            bundles.Add(new StyleBundle("~/plugins/summernoteStyles").Include(
-                      "~/node_modules/summernote/dist/summernote.css",
-                      "~/node_modules/summernote/dist/summernote-bs4.css")
-                      .WithLastModifiedToken());
-
-            // summernote 
-            bundles.Add(new ScriptBundle("~/plugins/summernote").Include(
-                      "~/Scripts/summernote/dist/summernote-bs4.js",
-                      "~/Scripts/summernote-video-attributes.js")
-                      .WithLastModifiedToken());
 
             // selectize 
             bundles.Add(new ScriptBundle("~/plugins/selectize").Include(

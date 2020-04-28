@@ -219,99 +219,99 @@ window.deletePost = deletePost;
 var isCommenting = false;
 
 /* exported submitCommentA */
-export function submitCommentA(postId, commentId, isReply) {
-    if (!isCommenting) {
-        var action = "/Comment/AddComment/";
-        var dataval = '';
-        var commentElement = '';
-        var dataString = '';
-        if (isReply) {
-            $('#sc_' + commentId.toString()).children('.ibox-content').addClass('sk-loading');
-            commentElement = '#cr_input_' + commentId.toString();
-            dataval = $(commentElement).summernote('code');
-            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-            $('#csr_' + commentId.toString()).show();
-            $('#bcr_' + commentId.toString()).prop('disabled', true);
-        }
-        else {
-            $('#pc_' + postId.toString()).children('.ibox-content').addClass('sk-loading');
-            commentElement = '#c_input_' + postId.toString();
-            dataval = $(commentElement).summernote('code');
-            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-            $('#cs_' + postId.toString()).show();
-            $('#bc_' + postId.toString()).prop('disabled', true);
-        }
-        //contentType = "application/json; charset=utf-8";
-        //processData = false;
-        isCommenting = true;
+//export function submitCommentA(postId, commentId, isReply) {
+//    if (!isCommenting) {
+//        var action = "/Comment/AddComment/";
+//        var dataval = '';
+//        var commentElement = '';
+//        var dataString = '';
+//        if (isReply) {
+//            $('#sc_' + commentId.toString()).children('.ibox-content').addClass('sk-loading');
+//            commentElement = '#cr_input_' + commentId.toString();
+//            dataval = $(commentElement).summernote('code');
+//            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
+//            $('#csr_' + commentId.toString()).show();
+//            $('#bcr_' + commentId.toString()).prop('disabled', true);
+//        }
+//        else {
+//            $('#pc_' + postId.toString()).children('.ibox-content').addClass('sk-loading');
+//            commentElement = '#c_input_' + postId.toString();
+//            dataval = $(commentElement).summernote('code');
+//            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
+//            $('#cs_' + postId.toString()).show();
+//            $('#bc_' + postId.toString()).prop('disabled', true);
+//        }
+//        //contentType = "application/json; charset=utf-8";
+//        //processData = false;
+//        isCommenting = true;
 
-        $.ajax({
-            type: "POST",
-            url: action,
-            data: dataString,
-            headers: getAntiForgeryToken(),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: function (result) {
-                isCommenting = false;
-                onAjaxCommentSuccessA(result);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                isCommenting = false;
-                alert("fail");
-            }
-        });
-    }
-    return false;
-}
-window.submitCommentA = submitCommentA;
+//        $.ajax({
+//            type: "POST",
+//            url: action,
+//            data: dataString,
+//            headers: getAntiForgeryToken(),
+//            dataType: "json",
+//            contentType: "application/json; charset=utf-8",
+//            success: function (result) {
+//                isCommenting = false;
+//                onAjaxCommentSuccessA(result);
+//            },
+//            error: function (jqXHR, textStatus, errorThrown) {
+//                isCommenting = false;
+//                alert("fail");
+//            }
+//        });
+//    }
+//    return false;
+//}
+//window.submitCommentA = submitCommentA;
 
 /* exported onAjaxCommentSuccessA */
-export function onAjaxCommentSuccessA(result) {
-    $('#cs_' + result.PostId.toString()).hide();
-    $('#csr_' + result.CommentId.toString()).hide();
-    $('#bc_' + result.PostId.toString()).prop('disabled', false);
-    $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
-    $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
-    $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
-    $('#comments_' + result.PostId.toString()).show();
-    if (!result.success) {
-        if (result.IsReply) {
-            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-            $('#cr_input_' + result.CommentId.toString()).hide();
-            $('#c_reply_' + result.CommentId.toString()).remove();
-        }
-        else {
-            $('#c_input_' + result.PostId.toString()).summernote('reset');
-        }
-        alert(result.message);
-    } else {
-        if (result.IsReply) {
-            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-            $('#cr_input_' + result.CommentId.toString()).hide();
-            $('#c_reply_' + result.CommentId.toString()).remove();
-            $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
-        }
-        else {
-            $('#preply_' + result.PostId.toString()).hide();
-            $('#c_input_' + result.PostId.toString()).summernote('reset');
-            $("#comments_" + result.PostId.toString()).prepend(result.HTMLString);
-            $("#wc_" + result.PostId.toString()).show();
-        }
-        $('.postTime').each(function (i, e) {
-            var datefn = parseISO($(e).html());
-            datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
-            var date = format(datefn, "dd MMM yyyy");
-            var time = formatDistanceToNow(datefn, { addSuffix: false });
-            $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-            $(e).css('display', 'inline');
-            $(e).removeClass("postTime");
-        });
-    }
-}
-window.onAjaxCommentSuccessA = onAjaxCommentSuccessA;
+//export function onAjaxCommentSuccessA(result) {
+//    $('#cs_' + result.PostId.toString()).hide();
+//    $('#csr_' + result.CommentId.toString()).hide();
+//    $('#bc_' + result.PostId.toString()).prop('disabled', false);
+//    $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
+//    $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
+//    $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
+//    $('#comments_' + result.PostId.toString()).show();
+//    if (!result.success) {
+//        if (result.IsReply) {
+//            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
+//            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
+//            $('#cr_input_' + result.CommentId.toString()).hide();
+//            $('#c_reply_' + result.CommentId.toString()).remove();
+//        }
+//        else {
+//            $('#c_input_' + result.PostId.toString()).summernote('reset');
+//        }
+//        alert(result.message);
+//    } else {
+//        if (result.IsReply) {
+//            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
+//            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
+//            $('#cr_input_' + result.CommentId.toString()).hide();
+//            $('#c_reply_' + result.CommentId.toString()).remove();
+//            $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
+//        }
+//        else {
+//            $('#preply_' + result.PostId.toString()).hide();
+//            $('#c_input_' + result.PostId.toString()).summernote('reset');
+//            $("#comments_" + result.PostId.toString()).prepend(result.HTMLString);
+//            $("#wc_" + result.PostId.toString()).show();
+//        }
+//        $('.postTime').each(function (i, e) {
+//            var datefn = parseISO($(e).html());
+//            datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+//            var date = format(datefn, "dd MMM yyyy");
+//            var time = formatDistanceToNow(datefn, { addSuffix: false });
+//            $(e).html('<span>' + time + ' ago - ' + date + '</span>');
+//            $(e).css('display', 'inline');
+//            $(e).removeClass("postTime");
+//        });
+//    }
+//}
+//window.onAjaxCommentSuccessA = onAjaxCommentSuccessA;
 
 /* exported dofeedback */
 export function dofeedback() {
@@ -331,108 +331,4 @@ export function dofeedback() {
     $('.small-chat-box').toggleClass('active');
 }
 window.dofeedback = dofeedback;
-
-/* exported OkButton */
-export function OkButton(context) {
-    var ui = $.summernote.ui;
-
-    // create button
-    var button = ui.button({
-        contents: '<i class="fa fa-save"/> Save',
-        tooltip: false,
-        click: function () {
-            var e = "#commentText_" + editingId.toString();
-            $(e).summernote('destroy');
-            var content = $(e).html();
-            var msg = { "CommentContent": content.trim(), "CommentId": editingId };
-            console.log(msg);
-            $.post("/Comment/UpdateComment",
-            msg,
-                function (data) {
-                    if (data.Success) {
-                        console.log('update comment successful.');
-                    }
-                    else {
-                        alert("Error updating comment");
-                    }
-                });
-            isEditing = false;
-            }
-        });
-    return button.render();   // return button as jquery object
-}
-window.OkButton = OkButton;
-
-/* exported CancelButton */
-export function CancelButton(context) {
-    var ui = $.summernote.ui;
-    // create button
-    var button = ui.button({
-        contents: '<i class="fa fa-times"/> Cancel',
-        tooltip: false,
-        click: function () {
-            var e = "#commentText_" + editingId.toString();
-            $(e).summernote('reset');
-            // This returns the editor to normal state
-            $(e).summernote('destroy');
-            isEditing = false;
-        }
-    });
-    return button.render();   // return button as jquery object
-}
-window.CancelButton = CancelButton;
-
-var editingId = -1;
-var isEditing = false;
-/* exported editComment */
-export function editComment(id) {
-    if (!isEditing) {
-        console.log("edit " + id.toString());
-        var e = "#commentText_" + id.toString();
-        editingId = id;
-        $(e).summernote({
-            focus: true,
-            disableDragAndDrop: true,
-            toolbar: [
-                ['okbutton', ['ok']],
-                ['cancelbutton', ['cancel']],
-                'bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'
-            ],
-            buttons: {
-                ok: OkButton,
-                cancel: CancelButton
-            },
-            height: 100,
-            hint: {
-                match: /\B@(\w*)$/,
-                search: function (keyword, callback) {
-                    if (!keyword.length) return callback();
-                    var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-                    $.ajax({
-                        async: true,
-                        url: '/Comment/GetMentions/',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        data: msg,
-                        error: function () {
-                            callback();
-                        },
-                        success: function (res) {
-                            callback(res.users);
-                        }
-                    });
-                },
-                content: function (item) {
-                    return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
-                }
-            }
-        });
-        isEditing = true;
-    }
-    else {
-        alert("You can only edit one comment at a time.  Save or Cancel your editing.");
-    }
-}
-window.editComment = editComment;
 

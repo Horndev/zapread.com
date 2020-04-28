@@ -5,17 +5,24 @@ import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 import { postData } from './postData';
-
 import { follow } from './ui/follow';
 
 // Save to window globals (part of the user hover)
 window.follow = follow;
 
+export function applyHoverToChildren(el, selector) {
+    var elements = el.querySelectorAll(selector);
+    Array.prototype.forEach.call(elements, function (el, _i) {
+        loaduserhover(el);
+        el.classList.remove('userhint');
+    });
+}
+
 export function loaduserhover(e) {
     e.removeAttribute('onmouseover');
     var userid = e.getAttribute('data-userid');
     var username = e.innerHTML.trim().replace('@', '');
-    if (typeof userid === 'undefined') {
+    if (typeof userid === 'undefined' || userid === null) {
         userid = -1;
     }
 
@@ -42,7 +49,8 @@ export function loaduserhover(e) {
             } else {
                 //console.log('fetching...');
                 instance._isFetching = true;
-                postData('/User/Hover/', { 'userId': userid, 'username': username })
+                var hoverdata = { 'userId': userid, 'username': username };
+                postData('/User/Hover/', hoverdata)
                     .then((data) => {
                         instance.setContent(data.HTMLString);
                         instance._src = true;

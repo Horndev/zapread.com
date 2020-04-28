@@ -4,22 +4,20 @@
 import '../../shared/shared';
 import '../../realtime/signalr';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
-import { initCommentInput } from '../../comment/initCommentInput';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
+import { editComment } from '../../comment/editcomment';
 import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
+window.editComment = editComment;
 
 // 
 onLoadedMorePosts();
 
 $(document).ready(function () {
-    // Show the comment input box
-    initCommentInput(detailPostId);
-
     // This opens up the vote modal if user clicked to vote (on incomming)
     if (showVoteDialog) {
         document.addEventListener("voteReady", function (e) {
