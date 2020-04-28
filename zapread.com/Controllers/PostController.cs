@@ -645,6 +645,7 @@ namespace zapread.com.Controllers
                         ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
+                            PostId = p.PostId,
                             CommentId = c.CommentId,
                             Text = c.Text,
                             Score = c.Score,

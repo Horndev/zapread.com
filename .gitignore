@@ -100,3 +100,4 @@ packages/
 /node_modules/require-directory/
 /realtime.zapread.com/node_modules/
 /realtime.zapread.com/wwwroot/js/
+/zapread.com/Scripts/dist/

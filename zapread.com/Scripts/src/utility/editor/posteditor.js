@@ -189,7 +189,7 @@ export function changeGroup() {
                 source: function (request, response) {
                     $.ajax({
                         async: true,
-                        url: "/Group/GetGroups",
+                        url: "/Group/GetGroups/",
                         type: "POST",
                         dataType: "json",
                         data: { prefix: request.term },

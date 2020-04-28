@@ -5,10 +5,6 @@
 @model zapread.com.Models.PostCommentsViewModel
 
 @{
-    //if (Model.Comment.UserId == null)
-    //{
-    //    Model.Comment.UserId = new zapread.com.Models.Database.User() { Id = -1, Name="Anonymous" };
-    //}
     var isIgnoredUser = Model.ViewerIgnoredUser;//Model.ViewerIgnoredUsers != null ? Model.ViewerIgnoredUsers.Contains(Model.Comment.UserId.Id) : false;
 }
 
@@ -21,7 +17,7 @@
         {
             <div class="pull-right social-action dropdown" @if (Model.IsReply) { <text> style="left:15px;" </text> }>
                 <a id="cid_@Model.CommentId"></a><button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
-                <ul class="dropdown-menu ift-xs">
+                <ul class="dropdown-menu dropdown-menu-right ift-xs" style="left: auto;">
                     @if (isIgnoredUser)
                     {
                         <li>
@@ -31,7 +27,7 @@
                     @if (!Model.IsDeleted)
                     {
                         <li>
-                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.CommentId);"><i class="fa fa-reply"></i> Reply</button>
+                            <button class="btn btn-link btn-sm" onclick="replyComment(@Model.CommentId,@Model.PostId);"><i class="fa fa-reply"></i> Reply</button>
                         </li>
                     }
                     @if (User.Identity.Name == Model.UserName)
@@ -54,10 +50,8 @@
                 </ul>
             </div>
         }
-
         <div class="@if (Model.IsReply) { <text>social-footer-reply</text> } else { <text>social-footer</text> }">
             <div class=@if (Model.IsReply) { <text>" "</text> } else { <text>"social-comment"</text> }>
-
                 @if (Request.IsAuthenticated && !Model.IsDeleted)
                 {
                     <div class="vote-actions" @if (isIgnoredUser) { <text> style="display: none" </text> }>
@@ -72,11 +66,7 @@
                 }
                 else if (Model.IsDeleted)
                 {
-                    @*<div class="vote-actions">
-                        <i class="fa fa-minus"> </i>
-                        <div>@Model.Score</div>
-                        <i class="fa fa-minus"> </i>
-                    </div>*@
+                    @*Don't show score of deleted comments*@
                 }
                 else
                 {
@@ -106,11 +96,11 @@
                     {
                         @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserName = Model.UserName, IsIgnored = isIgnoredUser })
                     }
-                    <small>
+                    <small style="display: inline-block;">
                         -@if (Model.IsReply)
-                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> </text> }
+                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
                     else
-                    { <text> commented </text>}
+                    { <text> commented&nbsp; </text>}
                     </small><small class="postTime text-muted">@Model.TimeStamp.Value.ToString("o")</small>
                     @if (Model.TimeStampEdited != null)
                     {
@@ -118,34 +108,34 @@
                         <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
                     }
                     <div class="row">
-                        <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-commentid="@Model.CommentId">
-                            @if (isIgnoredUser)
-                            {
-                                <span><br /></span>
-                            }
-                            else
-                            {
-                                if (Model.IsDeleted)
+                        <div class="col">
+                            <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
+                                @if (isIgnoredUser)
                                 {
-                                    @*<span><br /></span>*@@*<div>deleted</div><br />*@
+                                    <span><br /></span>
                                 }
                                 else
                                 {
-                                    <div>@Html.Raw(Model.Text)</div>
+                                    if (Model.IsDeleted)
+                                    {
+                                        @*<span><br /></span>*@@*<div>deleted</div><br />*@
+                                    }
+                                    else
+                                    {
+                                        <div>@Html.Raw(Model.Text)</div>
+                                    }
                                 }
-                            }
+                            </div>
                         </div>
-
                     </div>
                 </div>
                 @if (Request.IsAuthenticated && !Model.IsDeleted) // Show the response div
                 {
                     <div style="position: relative;margin-left: 8px;top: -25px;height: 0px;">
-                        <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                        <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId,@Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
                     </div>
                 }
-                <div id="c_reply_@Model.CommentId" style="display: none">
-                </div>
+                <div id="reply_c@(Model.CommentId)" style="display: none;"></div>@*This is the element where the comment box will render*@
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{
                         var subcomments = Model.CommentVms.Where(c => c.IsReply).Where(c => c.ParentCommentId == Model.CommentId);
@@ -173,6 +163,7 @@
                                 UserAppId = cmt.UserAppId,
                                 ViewerUpvoted = cmt.ViewerUpvoted,
                                 ViewerDownvoted = cmt.ViewerDownvoted,
+                                PostId = cmt.PostId,
                             };
                             @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
                         }

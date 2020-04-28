@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,6 +16,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
+using zapread.com.Models.Comments;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 
@@ -44,9 +46,13 @@ namespace zapread.com.Controllers
             public string CommentContent { get; set; }
 
             public int PostId { get; set; }
+
             public int CommentId { get; set; }
+
             public bool IsReply { get; set; }
+
             public bool IsDeleted { get; set; }
+
             public bool IsTest { get; set; }
         }
 
@@ -66,16 +72,88 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchstr"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [Route("Comment/Mentions")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "Executed on SQL server")]
+        public async Task<JsonResult> Mentions(string searchstr)
+        {
+            using (var db = new ZapContext())
+            {
+                var users = await db.Users
+                    .Where(u => u.Name.StartsWith(searchstr))
+                    .Select(u => new {
+                        id = u.Id,
+                        value = u.Name 
+                    })
+                    .Take(10)
+                    .ToListAsync().ConfigureAwait(true);
+
+                return Json(new { success=true, users });
+            }
+        }
+
+        /// <summary>
+        /// This method returns the partial HTML view for a comment input box.
+        /// </summary>
+        /// <param name="id">The comment for which the reply input is intended for.</param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<PartialViewResult> GetInputBox(int id)
+        [Route("Comment/GetInputBox/{commentId}")]
+        public async Task<PartialViewResult> GetInputBox(int commentId)
         {
             Response.AddHeader("X-Frame-Options", "DENY");
             using (var db = new ZapContext())
             {
-                Comment comment = await db.Comments
-                    .Include(cmt => cmt.Post)
-                    .FirstOrDefaultAsync(cmt => cmt.CommentId == id);
-                return PartialView("_PartialCommentReplyInput", comment);
+                var userAppId = User.Identity.GetUserId();
+                var userProvileVer = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ProfileImage.Version)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var commentVm = new CommentReplyInputViewModel()
+                {
+                    CommentId = commentId,
+                    UserAppId = userAppId,
+                    ProfileImageVersion = userProvileVer
+                };
+
+                return PartialView("_PartialCommentReplyInput", commentVm);
+            }
+        }
+
+        /// <summary>
+        /// Returns the server-rendered HTML for a reply view to comment on a post
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Comment/PostReply/{postId}")]
+        public async Task<PartialViewResult> PostComment(int postId)
+        {
+            Response.AddHeader("X-Frame-Options", "DENY");
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+                var userProvileVer = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ProfileImage.Version)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var vm = new CommentReplyInputViewModel()
+                {
+                    PostId = postId,
+                    UserAppId = userAppId,
+                    ProfileImageVersion = userProvileVer
+                };
+
+                return PartialView("_PartialPostReplyInput", vm);
             }
         }
 
@@ -110,12 +188,19 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public ActionResult UpdateComment(NewComment c)
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { Success = false });
+                return Json(new { success = false });
             }
 
             var userId = User.Identity.GetUserId();
@@ -125,11 +210,11 @@ namespace zapread.com.Controllers
                 var comment = db.Comments.FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
                 if (comment == null)
                 {
-                    return Json(new { Success = false, message = "Comment not found." });
+                    return Json(new { success = false, message = "Comment not found." });
                 }
                 if (comment.UserId.AppId != userId)
                 {
-                    return Json(new { Success = false, message = "User does not have rights to edit comment." });
+                    return Json(new { success = false, message = "User does not have rights to edit comment." });
                 }
                 comment.Text = SanitizeCommentXSS(c.CommentContent);
                 comment.TimeStampEdited = DateTime.UtcNow;
@@ -140,7 +225,7 @@ namespace zapread.com.Controllers
             {
                 HTMLString = "",
                 c.PostId,
-                Success = true,
+                success = true,
             });
         }
 
@@ -158,14 +243,14 @@ namespace zapread.com.Controllers
             if (c == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { Success = false, Message = "Invalid parameter." });
+                return Json(new { success = false, Message = "Invalid parameter." });
             }
 
             // Check for empty comment
             if (c.CommentContent.Replace(" ", "") == "<p><br></p>")
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { Success = false, Message = "Empty comment." });
+                return Json(new { success = false, Message = "Empty comment." });
             }
 
             var userAppId = User.Identity.GetUserId();
@@ -180,7 +265,7 @@ namespace zapread.com.Controllers
                 if (user == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { Success = false, Message = "User not found in DB." });
+                    return Json(new { success = false, Message = "User not found in DB." });
                 }
 
                 var post = await db.Posts
@@ -191,7 +276,7 @@ namespace zapread.com.Controllers
                 if (post == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { Success = false, Message = "Post not found in DB." });
+                    return Json(new { success = false, Message = "Post not found in DB." });
                 }
 
                 Comment parent = null;
@@ -278,6 +363,7 @@ namespace zapread.com.Controllers
                     viewName: "_PartialCommentRenderVm", 
                     model: new PostCommentsViewModel() 
                     { 
+                        PostId = c.PostId,
                         StartVisible = true, 
                         CommentId = comment.CommentId,
                         IsReply = comment.IsReply,
@@ -310,6 +396,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// [ ] TODO: update the view model
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="commentId"></param>
+        /// <param name="nestLevel"></param>
+        /// <param name="rootshown"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> LoadMoreComments(int postId, int? commentId, int? nestLevel, string rootshown)
         {

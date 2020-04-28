@@ -63,7 +63,7 @@ namespace realtime.zapread.com
             // Middleware to allow cross origin connections
             app.UseCors(builder =>
             {
-                builder.WithOrigins("https://zapread.com", "http://localhost:27543")
+                builder.WithOrigins("https://www.zapread.com", "https://zapread.com", "http://localhost:27543")
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST")
                     .AllowCredentials();

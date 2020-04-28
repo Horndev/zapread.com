@@ -66,7 +66,8 @@ module.exports = {
             },
             {
                 use: {
-                    loader: "babel-loader"
+                    loader: "babel-loader",
+                    options: { cacheDirectory: true}
                 },
                 test: /\.js$/,
                 exclude: /node_modules/ //excludes node_modules folder from being transpiled by babel. We do this because it's a waste of resources to do so.
@@ -113,7 +114,9 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            CodeMirror: 'codemirror'
+            //CodeMirror: 'codemirror',
+            'window.Quill': 'quill',     // because of quill-image-resize-module
+            'Quill': 'quill'
         }),
         new MiniCssExtractPlugin({
             moduleFilename: (chunk) => `${chunk.name.split('_')[0]}/${chunk.name.split('_')[1]}.css`

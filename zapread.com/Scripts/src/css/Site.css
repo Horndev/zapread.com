@@ -7,6 +7,11 @@
  *
 */
 
+.ibox-content-commentreply.ibox-content {
+    border-style: none;
+    background-color: #f9f9f9;
+}
+
 .post-username {
     font-size: 14px;
     font-weight: 600;
@@ -85,7 +90,7 @@
 
 .post-box {
     max-height: 800px;
-    position: relative;
+    position: relative;  /*This is needed to correctly calculate size of post for read-more*/
     overflow: hidden;
 }
 
@@ -6874,12 +6879,12 @@ table.shoping-cart-table {
     padding-right: 0;
 }
     .social-footer-reply .social-comment img {
-        width: 32px;
+        /*width: 32px;*/  /*removed since images are set width anyway for lazy loading*/
         margin-right: 10px;
     }
 
     .social-footer .social-comment img {
-        width: 32px;
+        /*width: 32px;*/ /*removed since images are set width anyway for lazy loading*/
         margin-right: 10px;
     }
 
@@ -6889,6 +6894,7 @@ table.shoping-cart-table {
 
 .social-comment {
     margin-top: 15px;
+    min-height: 70px;
 }
 
     .social-comment textarea {

@@ -174,7 +174,7 @@
         </div>
         @if (Request.IsAuthenticated)
         {
-            <div id="wc_@Model.Post.PostId.ToString()" onclick="writeComment(this);" data-postid="@Model.Post.PostId">
+            <div id="wc_@Model.Post.PostId.ToString()" onclick="writeComment(@Model.Post.PostId);">
                 <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.Post.Comments.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
             </div>
             <div id=@("preply_" + @Model.Post.PostId.ToString()) class="social-footer" @if (Model.NumComments < 1) { <text> style="display: none" </text> }>
