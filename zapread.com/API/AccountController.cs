@@ -10,6 +10,7 @@ using System.Web.Http;
 using zapread.com.Database;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.Account.Transactions;
 using zapread.com.Models.Database;
 
 namespace zapread.com.API
@@ -131,6 +132,67 @@ namespace zapread.com.API
                 return new ZapReadResponse()
                 {
                     success = true,
+                };
+            }
+        }
+
+        /// <summary>
+        /// Query account lightning transaction history
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Authorize]
+        [Route("api/v1/account/transactions/lightning")]
+        public async Task<LightningTransactionsPageResponse> LNHistory(DataTableParameters dataTableParameters)
+        {
+            if (dataTableParameters == null)
+            {
+                return new LightningTransactionsPageResponse() { success = false };
+            }
+
+            var userId = User.Identity.GetUserId();
+
+            using (var db = new ZapContext())
+            {
+                var values = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.LNTransactions)
+                    .OrderByDescending(t => t.TimestampCreated)
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length)
+                    .Select(t => new
+                    {
+                        t.Id,
+                        Time = t.TimestampCreated,
+                        Type = t.IsDeposit,
+                        t.Amount,
+                        t.Memo,
+                        t.IsSettled,
+                        t.IsLimbo,
+                    })
+                    .ToListAsync().ConfigureAwait(true);
+
+                int numrec = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .SelectMany(u => u.LNTransactions)
+                    .CountAsync().ConfigureAwait(true);
+
+                return new LightningTransactionsPageResponse()
+                {
+                    draw = dataTableParameters.Draw,
+                    recordsTotal = numrec,
+                    recordsFiltered = numrec,
+                    data = values.Select(v => new LightningTransactionsInfo()
+                    {
+                        Id = v.Id,
+                        Time = v.Time == null ? "" : v.Time.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Type = v.Type,
+                        Amount = v.Amount,
+                        Memo = v.Memo,
+                        IsSettled = v.IsSettled,
+                        IsLimbo = v.IsLimbo,
+                    })
                 };
             }
         }

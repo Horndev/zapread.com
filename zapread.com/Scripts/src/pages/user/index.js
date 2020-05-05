@@ -2,6 +2,7 @@
  * 
  **/
 import '../../shared/shared';
+import '../../utility/ui/vote';
 import '../../realtime/signalr';
 
 import Swal from 'sweetalert2';
