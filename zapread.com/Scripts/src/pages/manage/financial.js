@@ -9,13 +9,11 @@
  * 
  */
 
-import '../../shared/shared';
-import '../../realtime/signalr';
-
-import React, { useCallback, useEffect, useState } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-
-import ReactDOM from 'react-dom';
+import '../../shared/shared';                                           // [✓]
+import '../../realtime/signalr';                                        // [✓]
+import React, { useCallback, useEffect, useState } from 'react';        // [✓]
+import { Container, Row, Col } from 'react-bootstrap';                  // [✓]
+import ReactDOM from 'react-dom';                                       // [✓]
 import PageHeading from '../../components/page-heading';
 import FinancialSummaryBox from './Components/FinancialSummaryBox';
 import LightningTable from './Components/LightningTable';

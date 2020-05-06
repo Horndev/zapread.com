@@ -9,45 +9,88 @@ import { Container, Row, Col, ButtonGroup, Button } from 'react-bootstrap';
 import { postJson } from '../../../utility/postData';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
-export default function SpendingTable(props) {
+
+export default function ChatsTable(props) {
     const [data, setData] = useState([]);
     const [numRecords, setNumRecords] = useState(0);
 
-    const dataURL = "/Manage/GetSpendingEvents/";
+    const dataURL = "/Messages/GetChatsTable/";
 
     const columns = [
-        { dataField: 'Time', text: 'Time' },
-        { dataField: 'Type', text: 'Type', formatter: typeFormatter },
-        { dataField: 'Amount', text: 'Amount' }];
+        { dataField: 'From', text: 'From', formatter: fromFormatter },
+        { dataField: 'LastMessage', text: 'Last Activity' },
+        //{ dataField: 'IsRead', text: 'Status' },
+        { dataField: 'Status', text: 'Conversation', formatter: conversationFormatter }];
 
-    function typeFormatter(cell, row) {
-        var URL = "/";
-        if (row.Type === "Post") {
-            URL = "/Post/Detail/" + row.TypeId + "/";
-        } else if (row.Type === "Comment") {
-            URL = "/Post/Detail/" + row.TypeId + "/";
-        } else if (row.Type === "Group") {
-            URL = "/Group/GroupDetail/" + row.TypeId + "/";
-        }
-
+    function conversationFormatter(cell, row) {
         return (
-            <a href={URL}> {row.Type} </a>
+            <span>{row.IsRead}, {row.Status} </span>
         );
     }
 
-    useEffect(() => {
-        async function getData() {
-            await postJson(dataURL, {
-                Start: 0,
-                Length: props.pageSize,
-            }).then((response) => {
-                var newData = response.data;
-                setData(newData);
-                setNumRecords(response.recordsTotal);
-            });
+    function fromFormatter(cell, row) {
+        return (
+            //"<div style='display:inline-block;white-space: nowrap;'>
+            //<img class='img-circle' src='/Home/UserImage/?UserID=" + encodeURIComponent(data.FromID) + "&size=30' />
+            //<a target='_blank' href='/user/" + encodeURIComponent(data.From) + "/''> " + data.From + "</a></div>";
+
+            //   /user/${encodeURIComponent(row.From)}/
+
+            //  /Messages/Chat/" + encodeURIComponent(data.From) + "/
+            <div style={{
+                display: "inline-block",
+                whiteSpace: "nowrap"
+            }}>
+                <a className="post-username" target="_blank" href={`/Messages/Chat/${row.From}/`}>
+                    <img
+                        className="img-circle"
+                        style={{paddingRight: "10px"}}
+                        src={`/Home/UserImage/?UserID=${encodeURIComponent(row.FromID)}&size=30`}
+                    />
+                {row.From}</a>
+            </div>
+        );
+    }
+
+    const rowEvents = {
+        onClick: (e, row, rowIndex) => {
+            var win = window.open(`/Messages/Chat/${encodeURIComponent(row.From)}/`, '_blank');
+            win.focus();
+            //console.log(e);
+            //console.log(row);
+            //console.log(`clicked on row with index: ${rowIndex}`);
+        }//,
+        //onMouseEnter: (e, row, rowIndex) => {
+        //    console.log(`enter on row with index: ${rowIndex}`);
+        //}
+    };
+
+    const rowClasses = (row, rowIndex) => {
+        let classes = null;
+
+        //console.log(row);
+
+        if (row.IsRead !== "Read") {
+            classes = 'table-success';
         }
 
-        getData();
+        return classes;
+    };
+
+    async function getData(page, sizePerPage) {
+        await postJson(dataURL, {
+            Start: (page - 1) * sizePerPage,
+            Length: props.pageSize,
+            Columns: [{ Name: "LastMessage" }, { Name: "From" }],
+            Order: [{ Column: 0, Dir: "dsc" }] //asc
+        }).then((response) => {
+            setData(response.data);
+            setNumRecords(response.recordsTotal);
+        });
+    }
+
+    useEffect(() => {
+        getData(1, props.pageSize);
     }, []);
 
     const options = {
@@ -56,13 +99,7 @@ export default function SpendingTable(props) {
         custom: true,
         totalSize: numRecords,
         onPageChange: (page, sizePerPage) => {
-            postJson(dataURL, {
-                Start: (page - 1) * sizePerPage,
-                Length: props.pageSize,
-            }).then((response) => {
-                setData(response.data);
-                setNumRecords(response.recordsTotal);
-            });
+            getData(page, sizePerPage)
         }
     };
 
@@ -94,6 +131,8 @@ export default function SpendingTable(props) {
                                                         keyField="Id"
                                                         data={data}
                                                         columns={columns}
+                                                        rowEvents={rowEvents} 
+                                                        rowClasses={rowClasses}
                                                         onTableChange={handleTableChange}
                                                         {...paginationTableProps}
                                                     />

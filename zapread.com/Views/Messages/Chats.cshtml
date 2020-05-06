@@ -3,42 +3,7 @@
     ViewBag.Title = "Chats";
 }
 
-<div class="wrapper border-bottom white-bg page-heading">
-    <div class="col-lg-10">
-        <br />
-        <h2>Messages</h2>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/Messages/">Messages</a></li>
-            <li class="breadcrumb-item active">Chats</li>
-        </ol>
-    </div>
-    <div class="col-lg-2">
-    </div>
-</div>
-
-<div class="wrapper wrapper-content">
-    <div class="row">
-        <div class="col-lg-2">
-        </div>
-        <div class="col-lg-8">
-            <div class="ibox-content no-padding" style="margin-bottom: 50px;">
-                <table id="usersTable" class="table table-striped" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>From</th>
-                            <th>Status</th>
-                            <th>Conversation</th>
-                            <th>LastMessage</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+<div id="root"></div>
 
 @section Styles {
     @Styles.Render("~/bundles/messages/chats/css")
@@ -47,3 +12,41 @@
 @section Scripts {
     @Scripts.Render("~/bundles/messages/chats")
 }
+
+@*<div class="wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <br />
+            <h2>Messages</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/Messages/">Messages</a></li>
+                <li class="breadcrumb-item active">Chats</li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-2">
+            </div>
+            <div class="col-lg-8">
+                <div class="ibox-content no-padding" style="margin-bottom: 50px;">
+                    <table id="usersTable" class="table table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>From</th>
+                                <th>Status</th>
+                                <th>Conversation</th>
+                                <th>LastMessage</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>*@
+

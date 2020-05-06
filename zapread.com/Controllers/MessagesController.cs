@@ -117,21 +117,29 @@ namespace zapread.com.Controllers
                 var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
 
                 var sorts = dataTableParameters.Order;
-                foreach (var s in sorts)
+
+                if (sorts == null)
                 {
-                    if (s.Dir == "asc")
+                    pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
+                }
+                else
+                {
+                    foreach (var s in sorts)
                     {
-                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
-                        else if (dataTableParameters.Columns[s.Column].Name == "From")
-                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
-                    }
-                    else
-                    {
-                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
-                        else if (dataTableParameters.Columns[s.Column].Name == "From")
-                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                        if (s.Dir == "asc")
+                        {
+                            if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                                pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                            else if (dataTableParameters.Columns[s.Column].Name == "From")
+                                pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
+                        }
+                        else
+                        {
+                            if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                                pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
+                            else if (dataTableParameters.Columns[s.Column].Name == "From")
+                                pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                        }
                     }
                 }
 
