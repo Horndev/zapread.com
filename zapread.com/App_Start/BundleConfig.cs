@@ -53,14 +53,14 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             // Partial script - top navbar
-            bundles.Add(new ScriptBundle("~/bundles/partial/topnavbar").Include(
-                        "~/Scripts/Partial/topnavbar.js")
-                        .WithLastModifiedToken());
+            //bundles.Add(new ScriptBundle("~/bundles/partial/topnavbar").Include(
+            //            "~/Scripts/Partial/topnavbar.js")
+            //            .WithLastModifiedToken());
 
-            // Partial script - vote modal
-            bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
-                        "~/Scripts/Partial/vote.js")
-                        .WithLastModifiedToken());
+            //// Partial script - vote modal
+            //bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
+            //            "~/Scripts/Partial/vote.js")
+            //            .WithLastModifiedToken());
 
             // Partial script - group edit tags
             //bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(

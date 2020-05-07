@@ -1,11 +1,14 @@
 ﻿/** 
  * Code backing _PartialModalLNTransaction.cshtml
+ * 
+ * [  ] Does not use jQuery
+ * 
  **/
 
-import Swal from 'sweetalert2';
-
-import { getAntiForgeryToken } from '../antiforgery';
-import { oninvoicepaid } from '../payments/oninvoicepaid'
+import Swal from 'sweetalert2';                                 // [✓]
+import { getAntiForgeryToken } from '../antiforgery';           // [✓]
+import { oninvoicepaid } from '../payments/oninvoicepaid'       // [  ]
+import { postJson } from '../postData';                         // [✓]
 
 export function onGetInvoice(e) {
     $("#btnCheckLNDeposit").show();
@@ -164,12 +167,16 @@ window.onCancelDepositWithdraw = onCancelDepositWithdraw;
 
 /**
  * Check if the LN invoice was paid
+ * 
+ * [  ]
+ * 
  * @param {any} e Element calling the function
  */
-export function checkInvoicePaid(e) {
-    var invoice = $("#" + $(e).data('invoice-element')).val();
-    $("#" + $(e).data('spin-element')).show();
-
+export function checkInvoicePaid(e) {    
+    var invoice = document.getElementById(e.getAttribute("data-invoice-element")).value; //var invoice = $("#" + $(e).data('invoice-element')).val();
+    var spinElId = e.getAttribute("data-spin-element");
+    document.getElementById(spinElId).style.display = ""; //$("#" + $(e).data('spin-element')).show();
+    
     var postData = JSON.stringify({
         "invoice": invoice.toString(),
         "isDeposit": true
@@ -207,26 +214,40 @@ export function checkInvoicePaid(e) {
 }
 window.checkInvoicePaid = checkInvoicePaid;
 
+/**
+ * User clicked the tab to switch the dialog to withdraw funds
+ * 
+ * [✓] does not use jQuery
+ * 
+ **/
 export function switchWithdraw() {
-    $('#doLightningTransactionBtn').hide();
-    $('#btnCheckLNDeposit').hide();
-    $('#btnVerifyLNWithdraw').show();
-    $("#lightningTransactionInvoiceResult").show();
-    $("#lightningDepositQR").hide();
-    $("#lightningDepositInvoice").hide();
-    $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
-    $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-    $("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
+    document.getElementById("doLightningTransactionBtn").style.display = "none"; //$('#doLightningTransactionBtn').hide();
+    document.getElementById("btnCheckLNDeposit").style.display = "none"; //$('#btnCheckLNDeposit').hide();
+    document.getElementById("btnVerifyLNWithdraw").style.display = ""; //$('#btnVerifyLNWithdraw').show();
+    document.getElementById("lightningTransactionInvoiceResult").style.display = ""; //$("#lightningTransactionInvoiceResult").show();
+    document.getElementById("lightningDepositQR").style.display = "none"; //$("#lightningDepositQR").hide();
+    document.getElementById("lightningDepositInvoice").style.display = "none"; //$("#lightningDepositInvoice").hide();
+    var resultFooter = document.getElementById("lightningTransactionInvoiceResult");
+    resultFooter.classList.remove("bg-info", "bg-error", "bg-success"); //$("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
+    resultFooter.classList.add("bg-muted"); //$("#lightningTransactionInvoiceResult").addClass("bg-muted");
+    resultFooter.innerHTML = "Paste invoice to withdraw"; //$("#lightningTransactionInvoiceResult").html("Paste invoice to withdraw");
 }
 window.switchWithdraw = switchWithdraw;
 
+/**
+ * User clicked the tab to switch the dialog to withdraw funds
+ *
+ * [✓] does not use jQuery
+ *
+ **/
 export function switchDeposit() {
-    $('#doLightningTransactionBtn').show();
-    $('#btnCheckLNDeposit').hide();
-    $('#btnPayLNWithdraw').hide();
-    $('#btnVerifyLNWithdraw').hide();
-    $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
-    $("#lightningTransactionInvoiceResult").addClass("bg-muted");
-    $("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
+    document.getElementById("doLightningTransactionBtn").style.display = ""; //$('#doLightningTransactionBtn').show();
+    document.getElementById("btnCheckLNDeposit").style.display = "none"; //$('#btnCheckLNDeposit').hide();
+    document.getElementById("btnPayLNWithdraw").style.display = "none"; //$('#btnPayLNWithdraw').hide();
+    document.getElementById("btnVerifyLNWithdraw").style.display = "none"; //$('#btnVerifyLNWithdraw').hide();
+    var resultFooter = document.getElementById("lightningTransactionInvoiceResult");
+    resultFooter.classList.remove("bg-info", "bg-error", "bg-success"); //$("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-success");
+    resultFooter.classList.add("bg-muted"); //$("#lightningTransactionInvoiceResult").addClass("bg-muted");
+    resultFooter.innerHTML = "Specify deposit amount to deposit and get invoice"; //$("#lightningTransactionInvoiceResult").html("Specify deposit amount to deposit and get invoice.");
 }
 window.switchDeposit = switchDeposit;

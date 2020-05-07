@@ -55,13 +55,13 @@
     padding-left: 16px;
 }
 
-button.ql-submit:hover {
+button.ql-send:hover {
     background-color: #18a689 !important;
     border-color: #18a689 !important;
     color: #fff !important;
 }
 
-button.ql-submit {
+button.ql-send {
     min-width: 90px;
     font-size: 14px;
     color: green;
@@ -83,7 +83,7 @@ button.ql-cancel {
 
 .ql-toolbar, .ql-toolbar.ql-snow {
     background-color: #f3f3f4;
-    border-radius: 10px 10px 0px 0px;
+    border-radius: 0px 0px 0px 0px;
     /*border: 0px;*/
 }
 
@@ -94,13 +94,18 @@ button.ql-cancel {
 /* Created to put border around content input*/
 .ql-content {
     border-radius: 10px;
+    background-color: transparent;
     /*border: 1px solid;
     border-color: #ccc;*/
 }
 
+.footer {
+    display: none;
+}
+
 .ql-editor {
     background-color: #fff;
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 10px 10px 0px 0px;
     height: auto;
     border: 1px solid;
     border-color: #ccc;

@@ -20,7 +20,7 @@
 
 @Html.Partial(partialViewName: "_PartialModalVote")                   @*This is the code for the modal dialog box to vote*@
 
-@Html.Partial(partialViewName: "_PartialModalMessageCompose")         @*This is the code for the modal dialog box to send a message*@
+@*@Html.Partial(partialViewName: "_PartialModalMessageCompose")*@         @*This is the code for the modal dialog box to send a message*@
 
 <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
@@ -113,15 +113,15 @@
                         </div>
                         <div class="user-button">
                             <div class="row">
-                                <div class="col-md-4">
+                                @*<div class="col-md-4">
                                     <a id="sendPrivateMessage" href="#" data-toggle="modal" data-target="#messageComposeModal" class="btn btn-primary btn-sm btn-block">
                                         <i class="fa fa-envelope"></i> Message
                                     </a>
-                                </div>
-                                <div class="col-md-4">
+                                </div>*@
+                                <div class="col-lg-6">
                                     <button type="button" class="btn btn-default btn-sm btn-block" onclick="tip('@Model.UserName', @Model.UserId);"><i class="fa fa-bolt"></i> Send a tip</button>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-lg-6">
                                     @if (Request.IsAuthenticated)
                                     {
                                         if (Model.IsFollowing)
@@ -142,7 +142,7 @@
                         </div>
                         <div class="user-button">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-lg-6">
                                     @if (Request.IsAuthenticated)
                                     {
                                         <a href="@Url.Action("Chat", "Messages", new { username = Model.UserName })" class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </a>
@@ -152,9 +152,9 @@
                                         <button disabled class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </button>
                                     }
                                 </div>
-                                <div class="col-md-4">
-                                </div>
-                                <div class="col-md-4">
+                                @*<div class="col-md-4">
+                                </div>*@
+                                <div class="col-lg-6">
                                     @if (Request.IsAuthenticated)
                                     {
                                         if (Model.IsIgnoring)

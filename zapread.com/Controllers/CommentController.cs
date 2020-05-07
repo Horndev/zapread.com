@@ -486,6 +486,7 @@ namespace zapread.com.Controllers
 
                     var vm = new PostCommentsViewModel
                     {
+                        PostId = postId,
                         NestLevel = nestLevel ?? 1,
                         Comment = cmt,
                         Comments = postComments,

@@ -361,7 +361,7 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GetEarningsSum(string days)
         {
             double amount = 0.0;
-            int numDays = Convert.ToInt32(days);
+            int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             double totalAmount = 0.0;
             try
             {
@@ -374,13 +374,13 @@ namespace zapread.com.Controllers
                         .Where(u => u.AppId == uid)
                         .SelectMany(u => u.EarningEvents)
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)   // Filter for time
-                        .SumAsync(tx => tx.Amount);
+                        .SumAsync(tx => tx.Amount).ConfigureAwait(true);
 
                     totalAmount = await db.Users
                         .Include(i => i.EarningEvents)
                         .Where(u => u.AppId == uid)
                         .SelectMany(u => u.EarningEvents)
-                        .SumAsync(tx => tx.Amount);
+                        .SumAsync(tx => tx.Amount).ConfigureAwait(true);
 
                     amount = sum;
                 }
@@ -393,17 +393,24 @@ namespace zapread.com.Controllers
                 amount = 0.0;
             }
 
-            string value = amount.ToString("0.##");
-            string total = totalAmount.ToString("0.##");
+            string value = amount.ToString("0.##", CultureInfo.InvariantCulture);
+            string total = totalAmount.ToString("0.##", CultureInfo.InvariantCulture);
             return Json(new { value, total }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="days"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetLNFlow/{days?}")]
         public async Task<ActionResult> GetLNFlow(string days)
         {
             double amount = 0.0;
-            int numDays = Convert.ToInt32(days);
+            double balance = await GetUserBalance().ConfigureAwait(true);
+            double limboBalance = await GetUserLimboBalance().ConfigureAwait(true);
+            int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             try
             {
                 using (var db = new ZapContext())
@@ -416,7 +423,7 @@ namespace zapread.com.Controllers
                         .SelectMany(u => u.LNTransactions)
                         .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
                         .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount })
-                        .SumAsync(tx => tx.amt);
+                        .SumAsync(tx => tx.amt).ConfigureAwait(true);
 
                     amount = sum;
                 }
@@ -428,8 +435,13 @@ namespace zapread.com.Controllers
                 // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
                 amount = 0.0;
             }
-            string value = amount.ToString("0.##");
-            return Json(new { value }, JsonRequestBehavior.AllowGet);
+            string value = amount.ToString("0.##", CultureInfo.InvariantCulture);
+            return Json(new 
+            { 
+                value, 
+                total = balance.ToString("0.##", CultureInfo.InvariantCulture),
+                limbo = limboBalance.ToString("0.##", CultureInfo.InvariantCulture),
+            }, JsonRequestBehavior.AllowGet);
         }
 
         /* Identity aspects*/

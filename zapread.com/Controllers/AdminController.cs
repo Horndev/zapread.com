@@ -21,6 +21,7 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
+using zapread.com.Models.API.Account;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 
@@ -1354,7 +1355,10 @@ namespace zapread.com.Controllers
                 if (db.LightningTransactions.Any())
                 {
                     LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
-                    LNwth = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                    var settledWithdraws = db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).ToList();
+                    var sumSettledWithdraws = settledWithdraws.Sum(t => t.Amount);
+
+                    LNwth = Convert.ToDouble(sumSettledWithdraws) / 100000000.0;
                     LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
                 }
 
