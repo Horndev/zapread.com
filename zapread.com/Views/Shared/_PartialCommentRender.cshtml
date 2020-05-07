@@ -153,6 +153,7 @@
                         {
                             var vm = new PostCommentsViewModel
                             {
+                                PostId = Model.PostId,
                                 NestLevel = Model.NestLevel + 1,
                                 Comment = cmt,
                                 ParentComment = Model.Comment,
