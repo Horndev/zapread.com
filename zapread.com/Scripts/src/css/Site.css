@@ -6869,7 +6869,7 @@ table.shoping-cart-table {
     border-top: 2px solid #999;
     padding: 10px 15px;
     background: #f9f9f9;
-    border-radius: 10px;
+    border-radius: 0px 0px 10px 10px;
 }
 .social-footer-reply {
     border-top: 1px solid #e7eaec;

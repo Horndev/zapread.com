@@ -4,15 +4,15 @@
 
 //import '../../shared/shared';
 
-import 'bootstrap';                                                         // still requires jquery :(
-import 'bootstrap/dist/css/bootstrap.min.css';                 // [✓]
-import 'font-awesome/css/font-awesome.min.css';                // [✓]
-import '../../utility/ui/paymentsscan';                        // [  ]
-import '../../utility/ui/accountpayments';                     // [  ]
-import '../../shared/postfunctions';                           // [✓]
-import '../../shared/readmore';                                // [✓]
-import '../../shared/postui';                                  // [✓]
-import '../../shared/topnavbar';                               // [✓]
+import 'bootstrap';                                             // [X]            // still requires jquery :(
+import 'bootstrap/dist/css/bootstrap.min.css';                  // [✓]
+import 'font-awesome/css/font-awesome.min.css';                 // [✓]
+import '../../utility/ui/paymentsscan';                         // [  ]
+import '../../utility/ui/accountpayments';                      // [  ]
+import '../../shared/postfunctions';                            // [✓]
+import '../../shared/readmore';                                 // [✓]
+import '../../shared/postui';                                   // [✓]
+import '../../shared/topnavbar';                                // [✓]
 import "jquery-ui-dist/jquery-ui";                              // [X]
 import "jquery-ui-dist/jquery-ui.min.css";                      // [X]
 
