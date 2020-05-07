@@ -898,7 +898,10 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <param name="content"></param>
+        /// <param name="isChat"></param>
         /// <returns></returns>
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> SendMessage(int id, string content, bool? isChat)
         {
             var userId = User.Identity.GetUserId();
@@ -907,11 +910,11 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     var sender = await db.Users
-                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                        .Where(u => u.AppId == userId).FirstOrDefaultAsync().ConfigureAwait(true);
 
                     var receiver = await db.Users
                         .Include("Messages")
-                        .Where(u => u.Id == id).FirstOrDefaultAsync();
+                        .Where(u => u.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
 
                     if (sender == null || receiver == null)
                     {
@@ -934,7 +937,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Messages.Add(msg);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     // Live update to any listeners
                     string HTMLString = "";

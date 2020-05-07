@@ -1,4 +1,6 @@
-﻿/*
+﻿/**
+ * 
+ * [✓] does not use jQuery
  * 
  */
 

@@ -1,5 +1,8 @@
 ﻿/**
  *  List of chats going on with user
+ *  
+ *  // [✓] does not use jQuery
+ *  
  */
 
 import '../../shared/shared';                                               // [✓]

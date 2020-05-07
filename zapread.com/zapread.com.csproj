@@ -968,6 +968,7 @@
     <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
+    <Content Include="Scripts\src\css\quill\quillchat.css" />
     <Content Include="Scripts\src\css\quill\quillcustom.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />

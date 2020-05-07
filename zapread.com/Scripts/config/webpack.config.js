@@ -114,14 +114,11 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-            //CodeMirror: 'codemirror',
             'window.Quill': 'quill',     // because of quill-image-resize-module
             'Quill': 'quill'
         }),
         new MiniCssExtractPlugin({
             moduleFilename: (chunk) => `${chunk.name.split('_')[0]}/${chunk.name.split('_')[1]}.css`
-            //filename: '[name].css',
-            //chunkFilename: '[id].css'
         })
     ]
 };
