@@ -16,13 +16,10 @@
     </div>
 </div>
 
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight" style="display:flex;flex-direction: column-reverse;">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox ">
-                <div class="ibox-content">
-                    Your private chats with @Model.OtherUser.Name
-                </div>
+            <div class="ibox " style="margin-bottom: 1px;">  @*The margin 1px is needed to keep scroll locked on bottom*@
             </div>
         </div>
     </div>
@@ -53,44 +50,57 @@
                                 }
                                 <div id="endMessages"></div>
                             </div>
-                            <div class="chat-discussion" style="height:200px;">
-                                <br /><br />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row" style="position: fixed; bottom:15px; width: 100%">
-        <div class="col-lg-3">
-        </div>
-        <div class="col-lg-6">
-            <div class="ibox chat-view">
-                <div class="row">
-                    <div class="col-md-12 ">
-                        <div class="chatReply ibox-content">
-                            <div class="sk-spinner sk-spinner-three-bounce">
-                                <div class="sk-bounce1"></div>
-                                <div class="sk-bounce2"></div>
-                                <div class="sk-bounce3"></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="chat-message-form">
-                                        <div class="m_input wrapper p-md" id="message_input"></div>
-                                    </div>
-                                    <div class="chat-message-form">
-                                        <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                            <div id ="chatReply" class="ibox-content" style="background-color: transparent;border-style: none;">
+                                <div class="sk-spinner sk-spinner-three-bounce">
+                                    <div class="sk-bounce1"></div>
+                                    <div class="sk-bounce2"></div>
+                                    <div class="sk-bounce3"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="chat-message-form" style="background-color: #eee;">
+                                            @*<div class="m_input wrapper p-md" id="message_input"></div>*@
+                                            <div class="ql-content" id="content-container" style="display: flex;flex-direction: column-reverse; ">
+                                                <div id="editor-container" data-userid="@Model.OtherUser.Id"></div>
+                                            </div>
+                                        </div>
+                                        @*<div class="chat-message-form">
+                                                <button id="btnMessageSend" type="button" class="btn btn-primary" onclick="sendMessage(@Model.OtherUser.Id);">Send</button>
+                                            </div>*@
                                     </div>
                                 </div>
                             </div>
+                            @*<div class="chat-discussion" style="height:200px;">
+                                    <br /><br />
+                                </div>*@
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    Your private chats with @Model.OtherUser.Name
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<div class="row" style="position: fixed; bottom:15px; width: 100%">
+            <div class="col-lg-3">
+            </div>
+            <div class="col-lg-6">
+                <div class="ibox chat-view">
+                    <div class="row">
+                        <div class="col-md-12 ">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
 </div>
 
 @section Styles {

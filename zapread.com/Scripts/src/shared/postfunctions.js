@@ -1,15 +1,23 @@
-﻿
+﻿/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ */
+
 import Swal from 'sweetalert2';
 import { getAntiForgeryToken } from '../utility/antiforgery';
 import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+import { postJson } from '../utility/postData';                             // [✓]
 
 /**
  * Dismiss messages an alerts
+ * 
+ * [✓] does not use jQuery
+ * 
  * @param {any} t  : type (1 = alert)
  * @param {any} id : object id
  * @returns {bool} : true on success
  */
-/* exported dismiss */
 export function dismiss(t, id) {
     var url = "";
     if (t === 1) {
@@ -18,113 +26,138 @@ export function dismiss(t, id) {
     else if (t === 0) {
         url = "/Messages/DismissMessage/";
     }
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: JSON.stringify({ "id": id }),
-        dataType: "json",
-        contentType: "application/json; charset=utf-8",
-        success: function (result) {
+
+    postJson(url, { "id": id })
+        .then((result) => {
             if (result.Result === "Success") {
                 // Hide post
                 if (t === 1) {
                     if (id === -1) { // Dismissed all
-                        $('[id^="a_"]').hide();
-                        $('[id^="a1_"]').hide();
-                        $('[id^="a2_"]').hide();
+                        //$('[id^="a_"]').hide();
+                        //$('[id^="a1_"]').hide();
+                        //$('[id^="a2_"]').hide();
+                        //Array.prototype.forEach.call(document.querySelectorAll('[id^="a_"]'), function (e, _i) {
+                        //    e.style.display = 'none';
+                        //});
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="a1_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="a2_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
                     } else {
-                        $('#a_' + id).hide();
-                        $('#a1_' + id).hide();
-                        $('#a2_' + id).hide();
+                        //$('#a_' + id).hide();
+                        //$('#a1_' + id).hide();
+                        //$('#a2_' + id).hide();
+                        //document.getElementById("a_" + id).style.display = 'none';
+                        document.getElementById("a1_" + id).style.display = 'none';
+                        document.getElementById("a2_" + id).style.display = 'none';
                     }
-                    var urla = $("#unreadAlerts").data("url");
-                    $("#unreadAlerts").load(urla);
+
+                    //var urla = $("#unreadAlerts").data("url");
+                    //$("#unreadAlerts").load(urla);
+                    var url = document.getElementById("unreadAlerts").getAttribute('data-url');
+                    fetch(url).then(function (response) {
+                        return response.text();
+                    }).then(function (html) {
+                        document.getElementById("unreadAlerts").innerHTML = html;
+                    });
                 }
                 else {
                     if (id === -1) { // Dismissed all
-                        $('[id^="m_"]').hide();
-                        $('[id^="m1_"]').hide();
-                        $('[id^="m2_"]').hide();
+                        //$('[id^="m_"]').hide();
+                        //$('[id^="m1_"]').hide();
+                        //$('[id^="m2_"]').hide();
+                        //Array.prototype.forEach.call(document.querySelectorAll('[id^="m_"]'), function (e, _i) {
+                        //    e.style.display = 'none';
+                        //});
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="m1_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="m2_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
                     } else {
-                        $('#m_' + id).hide();
-                        $('#m1_' + id).hide();
-                        $('#m2_' + id).hide();
+                        //$('#m_' + id).hide();
+                        //$('#m1_' + id).hide();
+                        //$('#m2_' + id).hide();
+                        //document.getElementById("m_" + id).style.display = 'none';
+                        document.getElementById("m1_" + id).style.display = 'none';
+                        document.getElementById("m2_" + id).style.display = 'none';
                     }
-                    var urlm = $("#unreadMessages").data("url");
-                    $("#unreadMessages").load(urlm);
+                    //var urlm = $("#unreadMessages").data("url");
+                    //$("#unreadMessages").load(urlm);
+                    var urlm = document.getElementById("unreadMessages").getAttribute('data-url');
+                    fetch(urlm).then(function (response) {
+                        return response.text();
+                    }).then(function (html) {
+                        document.getElementById("unreadMessages").innerHTML = html;
+                    });
                 }
             }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("fail");
-        }
-    });
+        });
     return false;
 }
 window.dismiss = dismiss;
 
-/* exported stickyPost */
+/**
+ * User clicks to sticky a post
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function stickyPost(id) {
-    $.ajax({
-        type: "POST",
-        url: "/Post/ToggleStickyPost/",
-        data: JSON.stringify({ "id": id }),
-        dataType: "json",
-        contentType: "application/json; charset=utf-8",
-        success: function (result) {
-            if (result.Result === "Success") {
-                alert("Post successfully toggled Sticky.");
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("fail");
+    postJson("/Post/ToggleStickyPost/", { "id": id })
+    .then((result) => {
+        if (result.Result === "Success") {
+            alert("Post successfully toggled Sticky.");
         }
     });
 }
 window.stickyPost = stickyPost;
 
-/* exported nsfwPost */
+/**
+ * Toggle if a post is NSFW
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function nsfwPost(id) {
-    $.ajax({
-        type: "POST",
-        url: "/Post/ToggleNSFW",
-        data: JSON.stringify({ "id": id }),
-        dataType: "json",
-        headers: getAntiForgeryToken(),
-        contentType: "application/json; charset=utf-8",
-        success: function (result) {
-            if (result.success) {
-                var message = "Successfully removed NSFW flag from post.";
-                if (result.IsNSFW) {
-                    message = "Successfully marked post NSFW.";
-                }
-                Swal.fire(message, {
-                    icon: "success"
-                });
+    postJson("/Post/ToggleNSFW/", { "id": id })
+    .then((result) => {
+        if (result.success) {
+            var message = "Successfully removed NSFW flag from post.";
+            if (result.IsNSFW) {
+                message = "Successfully marked post NSFW.";
             }
-        },
-        failure: function (response) {
-            Swal.fire(response.message, {
-                icon: "error"
-            });
-        },
-        error: function (response) {
-            Swal.fire(response.message, {
-                icon: "error"
+            Swal.fire(message, {
+                icon: "success"
             });
         }
     });
 }
 window.nsfwPost = nsfwPost;
 
-/* exported showNSFW */
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function showNSFW(id) {
-    $("#nsfw_" + id).hide();
-    $("#nsfwb_" + id).hide();
+    document.getElementById("nsfw_" + id).style.display = "none"; // $("#nsfw_" + id).hide();
+    document.getElementById("nsfwb_" + id).style.display = "none"; // $("#nsfwb_" + id).hide();
 }
 window.showNSFW = showNSFW;
 
-/* exported deleteComment */
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function deleteComment(id) {
     Swal.fire({
         title: "Are you sure?",
@@ -133,9 +166,8 @@ export function deleteComment(id) {
         showCancelButton: true
     }).then(function(willDelete) {
         if (willDelete.value) {
-            $.post("/Comment/DeleteComment/",
-            { "Id": id },
-            function (data) {
+            postJson("/Comment/DeleteComment/", { "Id": id })
+            .then((data) => {
                 if (data.Success) {
                     $('#comment_' + id.toString()).hide();
                     Swal.fire("Deleted! Your comment has been deleted.", {
@@ -146,6 +178,19 @@ export function deleteComment(id) {
                     Swal.fire("Error", "Error deleting comment.", "error");
                 }
             });
+            //$.post("/Comment/DeleteComment/",
+            //{ "Id": id },
+            //function (data) {
+            //    if (data.Success) {
+            //        $('#comment_' + id.toString()).hide();
+            //        Swal.fire("Deleted! Your comment has been deleted.", {
+            //            icon: "success"
+            //        });
+            //    }
+            //    else {
+            //        Swal.fire("Error", "Error deleting comment.", "error");
+            //    }
+            //});
         } else {
         console.log("cancelled delete");
         }
@@ -153,7 +198,12 @@ export function deleteComment(id) {
 }
 window.deleteComment = deleteComment;
 
-/* exported setPostLanguage */
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function setPostLanguage(id) {
     Swal.fire({
         text: 'Enter new language code',
@@ -162,9 +212,8 @@ export function setPostLanguage(id) {
         showCancelButton: true
     }).then(function(name) {
         if (!name.value) throw null;
-        $.post("/Post/ChangeLanguage/",
-        { "postId": id, "newLanguage": name.value },
-        function (data) {
+        postJson("/Post/ChangeLanguage/", { "postId": id, "newLanguage": name.value })
+        .then((data) => {
             if (data.success) {
                 Swal.fire("Post language has been updated!", {
                     icon: "success"
@@ -174,6 +223,19 @@ export function setPostLanguage(id) {
                 Swal.fire("Error", "Error: " + data.message, "error");
             }
         });
+
+        //$.post("/Post/ChangeLanguage/",
+        //{ "postId": id, "newLanguage": name.value },
+        //function (data) {
+        //    if (data.success) {
+        //        Swal.fire("Post language has been updated!", {
+        //            icon: "success"
+        //        });
+        //    }
+        //    else {
+        //        Swal.fire("Error", "Error: " + data.message, "error");
+        //    }
+        //});
     }).catch (function(err) {
         if (err) {
             Swal.fire("Error", "Error updating language.", "error");
@@ -185,7 +247,13 @@ export function setPostLanguage(id) {
 }
 window.setPostLanguage = setPostLanguage;
 
-/* exported deletePost */
+/**
+ * 
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ */
 export function deletePost(id) {
     Swal.fire({
         title: "Are you sure?",
@@ -194,9 +262,8 @@ export function deletePost(id) {
         showCancelButton: true
     }).then(function(willDelete) {
         if (willDelete.value) {
-            $.post("/Post/DeletePost/",
-            { "PostId": id },
-            function (data) {
+            postJson("/Post/DeletePost/", { "PostId": id })
+            .then((data) => {
                 if (data.Success) {
                     $('#post_' + id.toString()).hide();
                     Swal.fire("Deleted! Your post has been deleted.", {
@@ -207,6 +274,20 @@ export function deletePost(id) {
                     Swal.fire("Error", "Error deleting post.", "error");
                 }
             });
+
+            //$.post("/Post/DeletePost/",
+            //{ "PostId": id },
+            //function (data) {
+            //    if (data.Success) {
+            //        $('#post_' + id.toString()).hide();
+            //        Swal.fire("Deleted! Your post has been deleted.", {
+            //            icon: "success"
+            //        });
+            //    }
+            //    else {
+            //        Swal.fire("Error", "Error deleting post.", "error");
+            //    }
+            //});
         } else {
             console.log("cancelled delete");
         }
@@ -218,117 +299,32 @@ window.deletePost = deletePost;
 /* exported isCommenting */
 var isCommenting = false;
 
-/* exported submitCommentA */
-//export function submitCommentA(postId, commentId, isReply) {
-//    if (!isCommenting) {
-//        var action = "/Comment/AddComment/";
-//        var dataval = '';
-//        var commentElement = '';
-//        var dataString = '';
-//        if (isReply) {
-//            $('#sc_' + commentId.toString()).children('.ibox-content').addClass('sk-loading');
-//            commentElement = '#cr_input_' + commentId.toString();
-//            dataval = $(commentElement).summernote('code');
-//            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-//            $('#csr_' + commentId.toString()).show();
-//            $('#bcr_' + commentId.toString()).prop('disabled', true);
-//        }
-//        else {
-//            $('#pc_' + postId.toString()).children('.ibox-content').addClass('sk-loading');
-//            commentElement = '#c_input_' + postId.toString();
-//            dataval = $(commentElement).summernote('code');
-//            dataString = JSON.stringify({ CommentContent: dataval, PostId: postId, CommentId: commentId, IsReply: isReply });
-//            $('#cs_' + postId.toString()).show();
-//            $('#bc_' + postId.toString()).prop('disabled', true);
-//        }
-//        //contentType = "application/json; charset=utf-8";
-//        //processData = false;
-//        isCommenting = true;
-
-//        $.ajax({
-//            type: "POST",
-//            url: action,
-//            data: dataString,
-//            headers: getAntiForgeryToken(),
-//            dataType: "json",
-//            contentType: "application/json; charset=utf-8",
-//            success: function (result) {
-//                isCommenting = false;
-//                onAjaxCommentSuccessA(result);
-//            },
-//            error: function (jqXHR, textStatus, errorThrown) {
-//                isCommenting = false;
-//                alert("fail");
-//            }
-//        });
-//    }
-//    return false;
-//}
-//window.submitCommentA = submitCommentA;
-
-/* exported onAjaxCommentSuccessA */
-//export function onAjaxCommentSuccessA(result) {
-//    $('#cs_' + result.PostId.toString()).hide();
-//    $('#csr_' + result.CommentId.toString()).hide();
-//    $('#bc_' + result.PostId.toString()).prop('disabled', false);
-//    $('#bcr_' + result.CommentId.toString()).prop('disabled', false);
-//    $('#pc_' + result.PostId.toString()).children('.ibox-content').removeClass('sk-loading');
-//    $('#sc_' + result.CommentId.toString()).children('.ibox-content').removeClass('sk-loading');
-//    $('#comments_' + result.PostId.toString()).show();
-//    if (!result.success) {
-//        if (result.IsReply) {
-//            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-//            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-//            $('#cr_input_' + result.CommentId.toString()).hide();
-//            $('#c_reply_' + result.CommentId.toString()).remove();
-//        }
-//        else {
-//            $('#c_input_' + result.PostId.toString()).summernote('reset');
-//        }
-//        alert(result.message);
-//    } else {
-//        if (result.IsReply) {
-//            $('#cr_input_' + result.CommentId.toString()).summernote('reset');
-//            $('#cr_input_' + result.CommentId.toString()).summernote('destroy');
-//            $('#cr_input_' + result.CommentId.toString()).hide();
-//            $('#c_reply_' + result.CommentId.toString()).remove();
-//            $("#rcomments_" + result.CommentId.toString()).prepend(result.HTMLString);
-//        }
-//        else {
-//            $('#preply_' + result.PostId.toString()).hide();
-//            $('#c_input_' + result.PostId.toString()).summernote('reset');
-//            $("#comments_" + result.PostId.toString()).prepend(result.HTMLString);
-//            $("#wc_" + result.PostId.toString()).show();
-//        }
-//        $('.postTime').each(function (i, e) {
-//            var datefn = parseISO($(e).html());
-//            datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
-//            var date = format(datefn, "dd MMM yyyy");
-//            var time = formatDistanceToNow(datefn, { addSuffix: false });
-//            $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-//            $(e).css('display', 'inline');
-//            $(e).removeClass("postTime");
-//        });
-//    }
-//}
-//window.onAjaxCommentSuccessA = onAjaxCommentSuccessA;
-
-/* exported dofeedback */
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ **/
 export function dofeedback() {
     var msg = $('#feedbackText').val();
     var feebackLocation = window.location.href;
-    $.ajax({
-        url: "/Home/SendFeedback",
-        type: "POST",
-        dataType: "json",
-        data: { msg: msg, loc: feebackLocation },
-        success: function (data) {
-            alert('Feedback successfully sent.  Thank you!');
-        }
-    });
 
-    $('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
-    $('.small-chat-box').toggleClass('active');
+    postJson("/Home/SendFeedback/", { msg: msg, loc: feebackLocation })
+        .then((data) => {
+            alert('Feedback successfully sent.  Thank you!');
+        });
+
+    //$.ajax({
+    //    url: "/Home/SendFeedback",
+    //    type: "POST",
+    //    dataType: "json",
+    //    data: { msg: msg, loc: feebackLocation },
+    //    success: function (data) {
+    //        alert('Feedback successfully sent.  Thank you!');
+    //    }
+    //});
+
+    //$('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
+    //$('.small-chat-box').toggleClass('active');
 }
 window.dofeedback = dofeedback;
 

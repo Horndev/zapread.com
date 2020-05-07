@@ -141,10 +141,10 @@
                 @if (Request.IsAuthenticated && !Model.Comment.IsDeleted) // Show the response div
                 {
                     <div style="position: relative;margin-left: 8px;top: -25px;height: 0px;">
-                        <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                        <a href="javascript:void(0);" onclick="replyComment(@Model.Comment.CommentId, @Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
                     </div>
                 }
-                <div id="c_reply_@Model.Comment.CommentId" style="display: none">
+                <div id="reply_c@(Model.Comment.CommentId)" style="display: none">
                 </div>
                 <div id=@("rcomments_" + @Model.Comment.CommentId.ToString())>
                     @{
@@ -153,6 +153,7 @@
                         {
                             var vm = new PostCommentsViewModel
                             {
+                                PostId = Model.PostId,
                                 NestLevel = Model.NestLevel + 1,
                                 Comment = cmt,
                                 ParentComment = Model.Comment,

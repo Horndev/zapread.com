@@ -1,7 +1,83 @@
-﻿
-import { getAntiForgeryToken } from '../antiforgery';
+﻿/**
+ * User vote functions - controlling modal and ui interface
+ * 
+ * [✓] Does not use jQuery
+ * 
+ **/
+import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
+import { getAntiForgeryTokenValue } from '../antiforgery';          // [✓]
+import { postJson } from '../postData';                             // [✓]
+import { ready } from '../ready';                                   // [✓]
 
-// This function is called when a user clicks the button to either pay with balance or invoice
+/**
+ * [✓]
+ **/
+function createNewEvent(eventName) {
+    var event;
+    if (typeof Event === 'function') {
+        event = new Event(eventName);
+    } else {
+        event = document.createEvent('Event');
+        event.initEvent(eventName, true, true);
+    }
+    return event;
+}
+
+var userVote = { id: 0, d: 0, t: 0, amount: 1, tx: 0, b: 0 };
+var userTip = { username: "", amount: 1 };
+var isTip = false;
+var voteReadyEvent = createNewEvent('voteReady');//new Event('voteReady');
+
+window.userVote = userVote;
+window.userTip = userTip;
+window.isTip = isTip;
+window.voteReadyEvent = voteReadyEvent;
+
+ready(function () {
+    var userdefaultvote = '1';
+    document.getElementById('payAmount').innerHTML = userdefaultvote;
+    document.getElementById('voteValueAmount').value = userdefaultvote;
+
+    var userBalance = window.userVote.b;
+    document.getElementById('userVoteBalance').innerHTML = userBalance;
+
+    // If the user updates the amount
+    var voteInput = document.getElementById('voteValueAmount');
+    voteInput.addEventListener('input', function () {
+        var amt = this.value;//$(this).val();
+        window.userVote.amount = amt;
+        window.userTip.amount = amt;
+        if (parseInt(window.userVote.amount) > parseInt(window.userVote.b)) {
+            document.getElementById('voteDepositInvoiceFooter').innerHTML = 'Please pay lightning invoice.';
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+            document.getElementById("voteOkButton").innerHTML = 'Get Invoice';
+        }
+        else {
+            if (isTip) {
+                document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
+                document.getElementById("voteOkButton").innerHTML = 'Tip';
+            }
+            else {
+                document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
+                document.getElementById("voteOkButton").innerHTML = 'Vote';
+            }
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+        }
+    });
+    document.dispatchEvent(voteReadyEvent);
+});
+
+/**
+ * This function is called when a user clicks the button to either pay with balance or invoice
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} e
+ */
 export function onVote(e) {
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
@@ -24,20 +100,18 @@ export function onVote(e) {
         console.log('Anonymous vote.');
     }
 
-    var msg = JSON.stringify({
-        "amount": userVote.amount.toString(),
-        "memo": memo,
-        "anon": isanon,
-        "use": depositUse,
-        "useId": userVote.id,
-        "useAction": userVote.d    // direction of vote 0=down; 1=up
-    });
-
     if (parseInt(userVote.amount) > parseInt(userBalance)) {
         // Not enough funds - ask for invoice
-        updateVoteInvoice(msg);
-        $('#voteOkButton').hide();
-        $('#btnCheckLNVote').show();
+        updateVoteInvoice({
+            "amount": userVote.amount.toString(),
+            "memo": memo,
+            "anon": isanon,
+            "use": depositUse,
+            "useId": userVote.id,
+            "useAction": userVote.d    // direction of vote 0=down; 1=up
+        });
+        document.getElementById('voteOkButton').style.display = "none"; // hide
+        document.getElementById('btnCheckLNVote').style.display = "";   // show
     }
     else {
         if (isTip) {
@@ -47,74 +121,80 @@ export function onVote(e) {
             /* Set chevron spinning */
             //console.log('doVote');
             //console.log(userVote);
-            var icon = $(userVote.o).find('i');
-            icon.removeClass('fa-chevron-up');
-            icon.addClass('fa-circle-o-notch');
-            icon.addClass('fa-spin');
-            icon.css('color', 'darkcyan');
+            
+            var icon = userVote.o.querySelectorAll('i').item(0);    //var icon = $(userVote.o).find('i');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-circle-o-notch');
+            icon.classList.add('fa-spin');
+            icon.style.color = 'darkcyan';
             doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
         }
     }
 }
 window.onVote = onVote;
 
-// This function gets an invoice and displays it to the user
+/**
+ * This function gets an invoice and displays it to the user
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} msg
+ */
 export function updateVoteInvoice(msg) {
-    $.ajax({
-        type: "POST",
-        url: "/Lightning/GetDepositInvoice/",
-        data: msg,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            $("#voteDepositInvoiceInput").val(response.Invoice);
-            $("#voteDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-            $("#voteDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-            $("#lnDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-error");
-            $("#voteDepositInvoiceFooter").addClass("bg-info");
-            $("#voteDepositInvoiceFooter").html("Please pay invoice.");
-            $("#voteDepositInvoiceFooter").show();
-            $("#voteDepositQR").show();
-            $("#voteDepositInvoice").show();
-            $('#voteModal').modal('show');
+    postJson("/Lightning/GetDepositInvoice/", msg)
+    .then((response) => {
+        console.log(response);
+        document.getElementById("voteDepositInvoiceInput").value = response.Invoice;//.val(response.Invoice);
+        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+        document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+        document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
+        document.getElementById("voteDepositInvoiceFooter").style.display = '';
+        document.getElementById("voteDepositQR").style.display = '';
+        document.getElementById("voteDepositInvoice").style.display = '';
 
-            // Start backup polling to see if it gets paid
-            //setTimeout(function () {
-            //    checkInvoicePaid(response.Id);
-            //}, 5000);
-        },
-        failure: function (response) {
-            //alert("failure " + JSON.stringify(response));
-            $("#voteDepositInvoiceFooter").html("Failed to generate invoice");
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").addClass("bg-error");
-            $("#voteDepositInvoiceFooter").show();
-        },
-        error: function (response) {
-            //alert("error " + JSON.stringify(response));
-            $("#voteDepositInvoiceFooter").html("Error generating invoice");
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-info");
-            $("#voteDepositInvoiceFooter").addClass("bg-error");
-            $("#voteDepositInvoiceFooter").show();
-        }
+        showVoteModal(); //$('#voteModal').modal('show');
+    })
+    .catch((error) => {
+        console.log(error);
+        document.getElementById("voteDepositInvoiceFooter").innerHTML = "Error generating invoice";
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+        document.getElementById("voteDepositInvoiceFooter").style.display = '';
     });
 }
 window.updateVoteInvoice = updateVoteInvoice;
 
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} e
+ */
 export function onCancelVote(e) {
-    $('#voteOkButton').show();
-    $('#btnCheckLNVote').hide();
-    $("#voteDepositInvoiceFooter").hide();
-    $("#voteDepositQR").hide();
-    $("#voteDepositInvoice").hide();
+    document.getElementById('voteOkButton').style.display = '';
+    document.getElementById('btnCheckLNVote').style.display = 'none';
+    document.getElementById("voteDepositInvoiceFooter").style.display = 'none';
+    document.getElementById("voteDepositQR").style.display = 'none';
+    document.getElementById("voteDepositInvoice").style.display = 'none';
 }
 window.onCancelVote = onCancelVote;
 
-// User pressed vote button
-// - Use modal dialog to set amount and handle LN transactions if needed
+/**
+ * User pressed vote button
+ * - Use modal dialog to set amount and handle LN transactions if needed
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id
+ * @param {any} d
+ * @param {any} t
+ * @param {any} b
+ * @param {any} o
+ */
 export function vote(id, d, t, b, o) {
     // id : the identifier for the item being voted on
     // d  : the direction of the vote
@@ -122,7 +202,7 @@ export function vote(id, d, t, b, o) {
     // o  : the object calling vote
     isTip = false;
     var userBalance = 0;
-    var voteCost = parseInt($('#voteValueAmount').val());
+    var voteCost = parseInt(document.getElementById('voteValueAmount').value);  // $('#voteValueAmount').val()
 
     /* Configure vote parameters */
     userVote.b = ub;
@@ -134,183 +214,253 @@ export function vote(id, d, t, b, o) {
     userVote.amount = voteCost;
 
     /* Prepare vote modal without an invoice, and show it.*/
-    $('#voteModalTitle').html("Vote");
-    $('#userVoteBalance').html("...");
-    $("#voteDepositInvoiceFooter").removeClass("bg-success");
-    $("#voteDepositInvoiceFooter").removeClass("bg-error");
-    $("#voteDepositInvoiceFooter").addClass("bg-info");
-    $("#voteOkButton").html('Vote');
-    $('#voteDepositInvoiceFooter').html("Click vote to confirm.");
-    $("#voteDepositQR").hide();
-    $("#voteDepositInvoice").hide();
-    $('#voteModal').modal('show');
+    document.getElementById('voteModalTitle').innerHTML = "Vote";//$('#voteModalTitle').html("Vote");
+    document.getElementById('userVoteBalance').innerHTML = "...";//$('#userVoteBalance').html("...");
+    document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-success");//$("#voteDepositInvoiceFooter").removeClass("bg-success");
+    document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-error");//$("#voteDepositInvoiceFooter").removeClass("bg-error");
+    document.getElementById('voteDepositInvoiceFooter').classList.add("bg-info");//$("#voteDepositInvoiceFooter").addClass("bg-info");
+    document.getElementById('voteOkButton').innerHTML = "Vote";//$("#voteOkButton").html('Vote');
+    document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";//$('#voteDepositInvoiceFooter').html("Click vote to confirm.");
+    document.getElementById('voteDepositQR').style.display = 'none';//$("#voteDepositQR").hide();
+    document.getElementById('voteDepositInvoice').style.display = 'none';//$("#voteDepositInvoice").hide();
 
-    $.get("/Account/Balance", function (data, status) {
-        $('#userVoteBalance').html(data.balance);
-        userBalance = parseFloat(data.balance);
-        $(".userBalanceValue").each(function (i, e) {
-            $(e).html(data.balance);
-        });
-
+    showVoteModal(); // $('#voteModal').modal('show');
+    refreshUserBalance().then((userBalance) => {
         /* This is done here prior to showing */
         if (userVote.amount > userBalance) {
-            $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
-            $("#voteOkButton").html('Get Invoice');
+            document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";//$('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
+            document.getElementById('voteOkButton').innerHTML = "Get Invoice";//$("#voteOkButton").html('Get Invoice');
         }
     });
+    
 }
 window.vote = vote;
 
+/**
+ * [✓]
+ **/
+async function refreshUserBalance() {
+    return fetch('/Account/Balance/', {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        mode: 'same-origin', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            '__RequestVerificationToken': getAntiForgeryTokenValue()
+        }
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        document.getElementById('userVoteBalance').innerHTML = data.balance;//$('#userVoteBalance').html(data.balance);
+
+        if (typeof userBalance !== 'undefined') {
+            userBalance = parseFloat(data.balance);
+        } else if (Object.prototype.hasOwnProperty.call(window, "userBalance")) {
+            window.userBalance = parseFloat(data.balance);
+        } else {
+            window.userBalance = parseFloat(data.balance);
+        }
+
+        if (Object.prototype.hasOwnProperty.call(window, "userVote")) {
+            window.userVote.b = parseFloat(data.balance);
+        }
+
+        var elements = document.querySelectorAll(".userBalanceValue");
+        Array.prototype.forEach.call(elements, function (el, _i) {
+            el.innerHTML = data.balance;
+        });
+
+        return data.balance;
+    });
+}
+
+/**
+ * [✓]
+ **/
+function showVoteModal() {
+    if (document.getElementById('voteModal').hasOwnProperty('hasOwnProperty')) {
+        document.getElementById('voteModal').Modal.show();
+    } else {
+        var voteModalEl = document.getElementById('voteModal');
+        var voteModal = new Modal(voteModalEl);//.Modal;
+        voteModal.show();
+    }
+}
+
+/**
+ * [✓]
+ **/
+function hideVoteModal() {
+    var voteModalEl = document.getElementById('voteModal');
+    var voteModal = voteModalEl.Modal;//new Modal(voteModalEl);//.Modal;
+    voteModal.hide();
+}
+
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id      the identifier for the item being voted on
+ * @param {any} d       the direction of the vote
+ * @param {any} t       the type of item voted on.  (2 = comment)
+ * @param {any} amount  the size of the vote
+ * @param {any} tx
+ */
 export function doVote(id, d, t, amount, tx) {
-    // id : the identifier for the item being voted on
-    // d  : the direction of the vote
-    // t  : the type of item voted on.  (2 = comment)
-    // amount : the size of the vote
-    var val = Number($('#sVote_' + id.toString()).html());
-    var data = JSON.stringify({ 'Id': id, 'd': d, 'a': amount, 'tx': tx });
+    //var val;// = Number(document.getElementById('sVote_' + id.toString()).innerHTML);//$('#sVote_' + id.toString()).html());
+    var body = { 'Id': id, 'd': d, 'a': amount, 'tx': tx };
     var voteurl = '/Vote/Post';
-    var uid = '#uVote_';    // element for up arrow
-    var did = '#dVote_';
-    var sid = '#sVote_';    // element for score
+    var uid = 'uVote_';    // element for up arrow
+    var did = 'dVote_';
+    var sid = 'sVote_';    // element for score
 
     if (t === 2) {
         voteurl = '/Vote/Comment';
-        uid = '#uVotec_';
-        did = '#dVotec_';
-        sid = '#sVotec_';
+        uid = 'uVotec_';
+        did = 'dVotec_';
+        sid = 'sVotec_';
     }
 
-    $('#voteModal').modal('hide');
+    hideVoteModal();//$('#voteModal').modal('hide');
 
-    var form = $('#__AjaxAntiForgeryFormVote');
-    var token = $('input[name="__RequestVerificationToken"]', form).val();
-    var headers = {};
-    headers['__RequestVerificationToken'] = token;
+    fetch(voteurl, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'same-origin', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            '__RequestVerificationToken': getAntiForgeryTokenValue()
+        },
+        body: JSON.stringify(body)
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        if (data.result === "success") {
+            var icon = userVote.o.querySelectorAll('i').item(0);
+            //var icon = $(userVote.o).find('i');
+            icon.classList.remove('fa-circle-o-notch');
+            icon.classList.remove('fa-spin');
+            icon.classList.add('fa-chevron-up');
+            icon.style.color = '';//('color', '');
 
-    // Do vote
-    $.ajax({
-        data: data.toString(),
-        type: 'POST',
-        url: voteurl,
-        headers: headers,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response.result === "success") {
-                var icon = $(userVote.o).find('i');
-                icon.removeClass('fa-circle-o-notch');
-                icon.removeClass('fa-spin');
-                icon.addClass('fa-chevron-up');
-                icon.css('color', '');
-                var delta = Number(response.delta);
-                if (delta === 1) {
-                    $(uid + id.toString()).removeClass("text-muted");
-                    $(did + id.toString()).addClass("text-muted");
-                }
-                else if (delta === 0) {
-                    $(uid + id.toString()).addClass("text-muted");
-                    $(did + id.toString()).addClass("text-muted");
-                }
-                else {
-                    $(did + id.toString()).removeClass("text-muted");
-                    $(uid + id.toString()).addClass("text-muted");
-                }
-                val = response.scoreStr;
-                $(sid + id.toString()).html(val.toString());
-
-                // Update user balance displays
-                $.get("/Account/Balance", function (data, status) {
-                    $(".userBalanceValue").each(function (i, e) {
-                        $(e).html(data.balance);
-                    });
-                });
+            var delta = Number(data.delta);
+            if (delta === 1) {
+                document.getElementById(uid + id.toString()).classList.remove("text-muted");
+                document.getElementById(did + id.toString()).classList.add("text-muted");
+            }
+            else if (delta === 0) {
+                document.getElementById(uid + id.toString()).classList.add("text-muted");
+                document.getElementById(did + id.toString()).classList.add("text-muted");
             }
             else {
-                $('#voteModal').modal('show');
-                $("#voteDepositInvoiceFooter").removeClass("bg-success");
-                $("#voteDepositInvoiceFooter").removeClass("bg-info");
-                $("#voteDepositInvoiceFooter").addClass("bg-error");
-                $("#voteDepositInvoiceFooter").html(response.message);
-                $("#voteDepositInvoiceFooter").show();
+                document.getElementById(did + id.toString()).classList.remove("text-muted");
+                document.getElementById(uid + id.toString()).classList.add("text-muted");
             }
+            var val = data.scoreStr;
+            document.getElementById(sid + id.toString()).innerHTML = val.toString();
+
+            refreshUserBalance();
+        }
+        else {
+            showVoteModal();
+
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
+            document.getElementById("voteDepositInvoiceFooter").style.display = '';
         }
     });
 }
 window.doVote = doVote;
 
-
-// User tip
-// user = name of user
-// uid = id of user
+/**
+ * User tip
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} user name of user
+ * @param {any} uid  id of user
+ */
 export function tip(user, uid) {
     isTip = true;
-    $('#voteModalTitle').html("Tip " + user);
-    $.get("/Account/Balance", function (data, status) {
-        $('#userVoteBalance').html(data.balance);
-        userBalance = parseFloat(data.balance);
-        $(".userBalanceValue").each(function (i, e) {
-            $(e).html(data.balance);
-        });
+    document.getElementById('voteModalTitle').innerHTML = "Tip " + user;
+
+    refreshUserBalance().then((userBalance) => {
+        document.getElementById('userVoteBalance').innerHTML = userBalance;
         userVote.id = uid;
 
         /* This is done here prior to showing */
         if (userVote.amount > userBalance) {
-            $('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-error");
-            $("#voteDepositInvoiceFooter").addClass("bg-info");
-            $("#voteOkButton").html('Get Invoice');
+            document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+            document.getElementById("voteOkButton").innerHTML = "Get Invoice";
         }
         else {
-            $('#voteDepositInvoiceFooter').html("Click tip to confirm.");
-            $("#voteDepositInvoiceFooter").removeClass("bg-success");
-            $("#voteDepositInvoiceFooter").removeClass("bg-error");
-            $("#voteDepositInvoiceFooter").addClass("bg-info");
-            $("#voteOkButton").html('Tip');
+            document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+            document.getElementById("voteOkButton").innerHTML = "Tip";
         }
 
         /* Prepare vote modal without an invoice, and show it.*/
-        $("#voteDepositQR").hide();
-        $("#voteDepositInvoice").hide();
-        $('#voteModal').modal('show');
+        document.getElementById("voteDepositQR").style.display = "none";
+        document.getElementById("voteDepositInvoice").style.display = "none";
+        
+        showVoteModal();
     });
 }
 window.tip = tip;
 
-// id : the user receiving the tip
-// amount : the amount of the tip
-// tx : txid if the tip is anonymous
+/**
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} id      the user receiving the tip
+ * @param {any} amount  the amount of the tip
+ * @param {any} tx      txid if the tip is anonymous
+ */
 export function doTip(id, amount, tx) {
-    var data = JSON.stringify({ 'id': id, 'amount': parseInt(amount), 'tx': tx });
-    var url = '/Manage/TipUser/';
-    var headers = getAntiForgeryToken();
-    console.log(data);
-    $.ajax({
-        data: data.toString(),
-        type: 'POST',
-        url: url,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: headers,
-        success: function (response) {
-            if (response.Result === "Success") {
-                $('#voteModal').modal('hide');
-                // Update user balance displays
-                $.get("/Account/Balance", function (data, status) {
-                    $(".userBalanceValue").each(function (i, e) {
-                        $(e).html(data.balance);
-                    });
-                });
-            }
-            else {
-                $("#voteDepositInvoiceFooter").removeClass("bg-success");
-                $("#voteDepositInvoiceFooter").removeClass("bg-info");
-                $("#voteDepositInvoiceFooter").addClass("bg-error");
-                $("#voteDepositInvoiceFooter").html(Result.Message);
-                $("#voteDepositInvoiceFooter").show();
-            }
+    var body = { 'id': id, 'amount': parseInt(amount), 'tx': tx };
+
+    fetch('/Manage/TipUser/', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'same-origin', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json',
+            '__RequestVerificationToken': getAntiForgeryTokenValue()
+        },
+        body: JSON.stringify(body)
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        if (data.success) {
+            hideVoteModal();
+
+            refreshUserBalance();
+        }
+        else {
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").innerHTML = data.Message;
+            document.getElementById("voteDepositInvoiceFooter").class.display = '';
         }
     });
+
     isTip = false;
 }
 window.doTip = doTip;

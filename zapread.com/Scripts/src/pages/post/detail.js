@@ -2,6 +2,7 @@
  * 
  */
 import '../../shared/shared';
+import '../../utility/ui/vote';
 import '../../realtime/signalr';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';

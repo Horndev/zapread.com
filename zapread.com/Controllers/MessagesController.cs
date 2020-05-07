@@ -14,6 +14,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
+using zapread.com.Models.API.Account;
 using zapread.com.Models.Database;
 using zapread.com.Models.Messages;
 using zapread.com.Services;
@@ -116,21 +117,29 @@ namespace zapread.com.Controllers
                 var pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
 
                 var sorts = dataTableParameters.Order;
-                foreach (var s in sorts)
+
+                if (sorts == null)
                 {
-                    if (s.Dir == "asc")
+                    pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
+                }
+                else
+                {
+                    foreach (var s in sorts)
                     {
-                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
-                        else if (dataTableParameters.Columns[s.Column].Name == "From")
-                            pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
-                    }
-                    else
-                    {
-                        if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
-                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
-                        else if (dataTableParameters.Columns[s.Column].Name == "From")
-                            pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                        if (s.Dir == "asc")
+                        {
+                            if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                                pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.TimeStamp ?? DateTime.UtcNow);
+                            else if (dataTableParameters.Columns[s.Column].Name == "From")
+                                pageUserChatsQ = pageUserChatsQS.OrderBy(q => q.other);
+                        }
+                        else
+                        {
+                            if (dataTableParameters.Columns[s.Column].Name == "LastMessage")
+                                pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.TimeStamp);
+                            else if (dataTableParameters.Columns[s.Column].Name == "From")
+                                pageUserChatsQ = pageUserChatsQS.OrderByDescending(q => q.other);
+                        }
                     }
                 }
 
@@ -889,7 +898,10 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <param name="content"></param>
+        /// <param name="isChat"></param>
         /// <returns></returns>
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> SendMessage(int id, string content, bool? isChat)
         {
             var userId = User.Identity.GetUserId();
@@ -898,11 +910,11 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     var sender = await db.Users
-                        .Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                        .Where(u => u.AppId == userId).FirstOrDefaultAsync().ConfigureAwait(true);
 
                     var receiver = await db.Users
                         .Include("Messages")
-                        .Where(u => u.Id == id).FirstOrDefaultAsync();
+                        .Where(u => u.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
 
                     if (sender == null || receiver == null)
                     {
@@ -925,7 +937,7 @@ namespace zapread.com.Controllers
                     };
 
                     receiver.Messages.Add(msg);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
 
                     // Live update to any listeners
                     string HTMLString = "";

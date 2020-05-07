@@ -1,31 +1,33 @@
-﻿var $el, $ps, $up, totalHeight, $p;
+﻿/**
+ * 
+ * [✓] Does not use jQuery
+ * 
+ */
 
+/**
+ * 
+ * [✓] Does not use jQuery
+ * 
+ * @param {any} e
+ */
 export function readMoreButton(e) {
-    totalHeight = 0;
-
-    $el = $(e);
-    $p = $el.parent();
-    $up = $p.parent();
-    $ps = $up.find(".post-content");
+    var totalHeight = 0;
+    var el = e;
+    var p = el.parentElement;//.parent();
+    var up = p.parentElement;//.parent();
 
     // measure how tall inside should be by adding together heights of all inside paragraphs (except read-more paragraph)
-    $ps.each(function () {
-        totalHeight += $(this).outerHeight();
+    var ps = up.querySelectorAll(".post-content");
+    Array.prototype.forEach.call(ps, function (e, _i) {
+        totalHeight += e.offsetHeight;//$(this).outerHeight();
     });
-    //console.log(totalHeight);
 
-    $up
-        .css({
-            // Set height to prevent instant jumpdown when max height is removed
-            "height": $up.height(),
-            "max-height": 9999
-        })
-        .animate({
-            "height": totalHeight
-        });
+    up.style.height = totalHeight.toString() + "px";
+    up.style.maxHeight = "9999px";
 
     // fade out read-more
-    $p.fadeOut();
+    //p.fadeOut();
+    p.style.display = '';
 
     // prevent jump-down
     return false;

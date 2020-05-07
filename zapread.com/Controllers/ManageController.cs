@@ -18,6 +18,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
+using zapread.com.Models.API.Account;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 
@@ -100,7 +101,7 @@ namespace zapread.com.Controllers
                         t.IsSettled,
                         t.IsLimbo,
                     })
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 int numrec = await db.Users
                     .Where(u => u.AppId == userId)
@@ -181,6 +182,11 @@ namespace zapread.com.Controllers
             return "";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -204,6 +210,7 @@ namespace zapread.com.Controllers
                     .Take(dataTableParameters.Length)
                     .Select(t => new
                     {
+                        t.Id,
                         TimeValue = t.TimeStamp.Value,
                         t.Amount,
                         t.Type,
@@ -239,6 +246,7 @@ namespace zapread.com.Controllers
                 //Format data
                 var data = pageData.Select(t => new
                 {
+                    Id = t.Id,
                     Time = t.TimeValue.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     t.Amount,
                     Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
@@ -332,7 +340,7 @@ namespace zapread.com.Controllers
             if (amount == null || amount.Value < 1)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success=false, Result = "Failure", Message = "Invalid amount" });
+                return Json(new { success = false, Result = "Failure", Message = "Invalid amount" });
             }
             
             using (var db = new ZapContext())
@@ -355,7 +363,7 @@ namespace zapread.com.Controllers
                     var userId = User.Identity.GetUserId();
                     if (userId == null)
                     {
-                        return Json(new { Result = "Failure", Message = "User not found." });
+                        return Json(new { success = false, Result = "Failure", Message = "User not found." });
                     }
 
                     var user = await db.Users
@@ -368,7 +376,7 @@ namespace zapread.com.Controllers
                     if (user.Funds.Balance < amount)
                     {
                         Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        return Json(new { Result = "Failure", Message = "Not enough funds." });
+                        return Json(new { success = false, Result = "Failure", Message = "Not enough funds." });
                     }
 
                     // All requirements are met - make payment
@@ -443,7 +451,7 @@ namespace zapread.com.Controllers
                         });
                     }
 
-                    return Json(new { Result = "Success" });
+                    return Json(new { success = true, Result = "Success" });
                 }
                 else
                 {
@@ -493,7 +501,7 @@ namespace zapread.com.Controllers
                                 Name = "ZapRead.com Notify"
                             });
                     }
-                    return Json(new { Result = "Success" });
+                    return Json(new { success = true, Result = "Success" });
                 }
             }
         }

@@ -3,6 +3,7 @@
  */
 
 import '../../shared/shared';
+import '../../utility/ui/vote';
 import '../../realtime/signalr';
 //import '../../../summernote/dist/summernote-bs4';
 //import 'summernote/dist/summernote-bs4.css';

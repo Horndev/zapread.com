@@ -2,6 +2,7 @@
  * 
  */
 import '../../shared/shared';
+import '../../utility/ui/vote';
 import '../../realtime/signalr';
 //import '../../../summernote/dist/summernote-bs4';
 //import 'summernote/dist/summernote-bs4.css';
@@ -70,47 +71,3 @@ window.toggleIgnore = toggleIgnore;
 var BlockNumber = 10;
 var NoMoreData = false;
 var inProgress = false;
-
-//export function loadmore() {
-//    if (!inProgress) {
-//        inProgress = true;
-//        $('#loadmore').show();
-//        $('#btnLoadmore').prop('disabled', true);
-//        $.ajax({
-//            async: true,
-//            data: JSON.stringify({ "id": groupId, "BlockNumber": BlockNumber, "sort": "New" }),
-//            type: 'POST',
-//            url: "/Group/InfiniteScroll/",
-//            contentType: "application/json; charset=utf-8",
-//            dataType: "json",
-//            headers: getAntiForgeryToken(),
-//            success: function (response) {
-//                if (response.Success) {
-//                    $('#loadmore').hide();
-//                    $('#btnLoadmore').prop('disabled', false);
-//                    BlockNumber = BlockNumber + 10;
-//                    NoMoreData = response.NoMoreData;
-//                    $("#posts").append(response.HTMLString);
-//                    inProgress = false;
-
-//                    // Wait for new posts to be added then tidy up.
-
-//                    // New version using a callback
-//                    //addposts(response, zrOnLoadedMorePosts);
-//                    $("#posts").append(response.HTMLString);
-//                    zrOnLoadedMorePosts();
-
-//                    // old version with jquery
-//                    //$.when(addposts(response), $.ready).then(function () {
-//                    //    zrOnLoadedMorePosts();
-//                    //});
-
-//                    if (NoMoreData) {
-//                        $('#showmore').hide();
-//                    }
-//                }
-//            }
-//        });
-//    }
-//}
-//window.loadmore = loadmore;
