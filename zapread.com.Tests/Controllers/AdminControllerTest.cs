@@ -19,7 +19,7 @@ namespace zapread.com.Tests.Controllers
     public class AdminControllerTest
     {
         [TestMethod]
-        public void TestGetPostStats()
+        public void TestAdminGetPostStats()
         {
             // Arrange
             AdminController controller = CreateAdminController_LoggedIn();
@@ -32,7 +32,7 @@ namespace zapread.com.Tests.Controllers
         }
 
         [TestMethod]
-        public void TestIcons()
+        public void TestAdminIcons()
         {
             // Arrange
             AdminController controller = CreateAdminController_LoggedIn();
@@ -77,7 +77,7 @@ namespace zapread.com.Tests.Controllers
         }
 
         [TestMethod]
-        public void TestIndex()
+        public void TestAdminIndex()
         {
             // Arrange
             AdminController controller = CreateAdminController_LoggedIn();
