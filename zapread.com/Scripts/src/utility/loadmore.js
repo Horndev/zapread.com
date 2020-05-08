@@ -37,7 +37,7 @@ export function loadmore(options) {
             .then((data) => {
                 document.querySelectorAll('#loadmore').item(0).style.display = 'none';  // $('#loadmore').hide();
                 document.querySelectorAll('#btnLoadmore').item(0).disabled = false;     // $('#btnLoadmore').prop('disabled', false);
-                BlockNumber = BlockNumber + 10;
+                window.BlockNumber = window.BlockNumber + 10;
                 NoMoreData = data.NoMoreData;
                 inProgress = false;
                 addposts(data, onLoadedMorePosts);

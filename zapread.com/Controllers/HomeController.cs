@@ -75,9 +75,8 @@ namespace zapread.com.Controllers
 
                 try
                 {
-
                     // The image hash is based on the user UID
-                    var r = RoboHash.Net.RoboHash.Create(UserAppId);
+                    var r = RoboHash.Net.RoboHash.Create(Guid.NewGuid().ToString());
 
                     var Rand = new Random();
 
@@ -119,11 +118,17 @@ namespace zapread.com.Controllers
                         {
                             Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                             byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                            UserImage img = new UserImage() { Image = DBdata, Version = user.ProfileImage.Version + 1};
+                            UserImage img = new UserImage() {
+                                ContentType = "image/png",
+                                Image = DBdata,
+                                XSize = 1024,
+                                YSize = 1024,
+                                Version = user.ProfileImage.Version + 1};
                             user.ProfileImage = img;
                             await db.SaveChangesAsync().ConfigureAwait(false);
+                            return Json(new { success = true, version = img.Version });
                         }
-                        return Json(new { success = true, result = "Success" });
+                        return Json(new { success = false, message = "User not found" });
                     }
                 }
                 catch (Exception e)
@@ -140,9 +145,9 @@ namespace zapread.com.Controllers
         /// <param name="size"></param>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        [OutputCache(Duration = 3600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 3600, VaryByParam = "v;r", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
-        public async Task<ActionResult> UserImage(int? size, string UserId, string v)
+        public async Task<ActionResult> UserImage(int? size, string UserId, string v, string r)
         {
             if (size == null) size = 100;
             if (UserId != null)
@@ -157,47 +162,68 @@ namespace zapread.com.Controllers
                 }
             }
 
+            int ver = -1;
+            try
+            {
+                ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
+            }
+            catch (FormatException fe)
+            {
+                //
+            }
+
             // Check for image in DB
             using (var db = new ZapContext())
             {
+                var imgq = db.Images.Where(im => im.UserAppId == UserId && im.XSize == size);
+                if (ver > -1)
+                {
+                    imgq = imgq.Where(im => im.Version == ver);
+                }
                 // Fetch image from image cache
-                var i = await db.Images
-                    .Where(im => im.UserAppId == UserId && im.XSize == size)
-                    .Select(im => new { im.Image })
+                var i = await imgq
+                    .Select(im => new { im.Image, im.ContentType })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
-                if (i != null && i.Image != null)
+                if (r == null && i != null && i.Image != null)
                 {
                     // https://code.msdn.microsoft.com/How-to-save-Image-to-978a7b0b
                     var ms = new MemoryStream(i.Image);
-                    return new FileStreamResult(ms, "image/png");
+                    return new FileStreamResult(ms, i.ContentType ?? "image/png");
                 }
                 else
                 {
                     // Check if non size-cached version exists
-                    i = await db.Users
-                    .Where(u => u.AppId == UserId)
-                    .Select(u => new { u.ProfileImage.Image })
+                    var uimq = db.Users.Where(u => u.AppId == UserId);
+                    if (ver > -1)
+                    { 
+                        uimq = uimq.Where(u => u.ProfileImage.Version == ver);
+                    }
+                    i = await uimq
+                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType})
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (i != null && i.Image != null)
                     {
-                        // Load and convert image size
+                        // Load and convert image size to size requested
                         using (var ms = new MemoryStream(i.Image))
                         {
                             Image png = Image.FromStream(ms);
                             using (Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size))
                             {
                                 byte[] data = thumb.ToByteArray(ImageFormat.Png);
-
+                                if (ver < 0)
+                                {
+                                    ver = 0;
+                                }
                                 db.Images.Add(new Models.UserImage()
                                 {
                                     ContentType = "image/png",
                                     Image = data,
                                     UserAppId = UserId,
-                                    Version = 0,
+                                    Version = ver,
                                     XSize = size.Value,
                                     YSize = size.Value,
                                 });
@@ -223,8 +249,8 @@ namespace zapread.com.Controllers
                 var imagesPath = Server.MapPath("~/bin");
                 RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
                     basePath: imagesPath);
-                var r = RoboHash.Net.RoboHash.Create(UserId);
-                using (var image = r.Render(
+                var rh = RoboHash.Net.RoboHash.Create(UserId);
+                using (var image = rh.Render(
                     set: null,
                     backgroundSet: RoboHash.Net.RoboConsts.Any,
                     color: null,

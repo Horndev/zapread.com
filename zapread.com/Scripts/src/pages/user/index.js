@@ -1,19 +1,22 @@
 ﻿/**
+ * User information page
+ * 
+ * 
  * 
  **/
 import '../../shared/shared';
-import '../../utility/ui/vote';
+import '../../utility/ui/vote';                                                     // [✓]
 import '../../realtime/signalr';
 
 import Swal from 'sweetalert2';
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
-import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
-import { writeComment } from '../../comment/writecomment';
-import { replyComment } from '../../comment/replycomment';
-import { editComment } from '../../comment/editcomment';
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';       // [✓]
+import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';                // [✓]
+import { writeComment } from '../../comment/writecomment';                          // [✓]
+import { replyComment } from '../../comment/replycomment';                          // [✓]
+import { editComment } from '../../comment/editcomment';                            // [✓]
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
-import { loadmore } from '../../utility/loadmore';
+import { loadmore } from '../../utility/loadmore';                                  // [✓]
 import '../../shared/sharedlast';
 
 // Make global (called from html)
@@ -23,18 +26,22 @@ window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 window.loadachhover = loadachhover;
 
-// Wrapper for load more
+/**
+ * Wrapper for loadmore
+ * 
+ * [✓] Native JS
+ * 
+ **/
 export function userloadmore() {
     loadmore({
         url: '/User/InfiniteScroll/',
-        blocknumber: BlockNumber,
+        blocknumber: window.BlockNumber,
         sort: "New",
         userId: userId
     });
 }
 window.userloadmore = userloadmore;
 
-// 
 onLoadedMorePosts();
 
 //Dropzone.options.dropzoneForm = {

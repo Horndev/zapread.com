@@ -1,13 +1,24 @@
-﻿/*
+﻿/**
+ * Scripts for User Management
  * 
  */
 
-import '../../shared/shared';
-import '../../utility/ui/vote';
-import '../../realtime/signalr';
-//import '../../../summernote/dist/summernote-bs4';
-//import 'summernote/dist/summernote-bs4.css';
-//import '../../utility/summernote/summernote-video-attributes';
+//import '../../shared/shared';
+
+import 'bootstrap';                                             // [X]            // still requires jquery :(
+import 'bootstrap/dist/css/bootstrap.min.css';                  // [✓]
+import 'font-awesome/css/font-awesome.min.css';                 // [✓]
+import '../../utility/ui/paymentsscan';                         // [  ]
+import '../../utility/ui/accountpayments';                      // [  ]
+import '../../shared/postfunctions';                            // [✓]
+import '../../shared/readmore';                                 // [✓]
+import '../../shared/postui';                                   // [✓]
+import '../../shared/topnavbar';                                // [✓]
+import "jquery-ui-dist/jquery-ui";                              // [X]
+import "jquery-ui-dist/jquery-ui.min.css";                      // [X]
+
+import '../../utility/ui/vote';                                                 // [✓]
+import '../../realtime/signalr';                                                // [✓]
 
 import Dropzone from 'dropzone';
 import 'dropzone/dist/basic.css';
@@ -16,7 +27,7 @@ import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
 import 'bootstrap-chosen/bootstrap-chosen.css';
 
 import Swal from 'sweetalert2';
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
@@ -34,7 +45,9 @@ window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 
-// Wrapper for load more
+/**
+ * Wrapper for load more
+ **/
 export function manageloadmore() {
     loadmore({
         url: '/Manage/InfiniteScroll/',
@@ -64,35 +77,35 @@ Dropzone.options.dropzoneForm = {
         });
         this.on("success", function (file, response) {
             if (response.success) {
-                // Reload images
-                $('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
-                $(".user-image-30").each(function () {
-                    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
-                });
-                $(".post-image-45").each(function () {
-                    // Refreshes post user images
-                    var src = $(this).attr('src');
-                    $(this).attr("src", src + "&r=" + new Date().getTime());
-                });
-                $(".user-image-15").each(function () {
-                    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
-                });
-                Swal.fire("Your profile image has been updated!", {
-                    icon: "success"
-                });
-                // This doesn't seem to be working properly :(
-                $('.cuadro_intro_hover').each(function () {
-                    $(this).css('position', 'absolute');
-                    $(this).css('position', 'relative');
-                });
+                updateImagesOnPage(response.version); // Reload images
             } else {
                 // Did not work
-                Swal.fire("Error updating image: " + data.message, "error");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Image Update Error',
+                    text: "Error updating image: " + response.message
+                })
             }
         });
     },
     dictDefaultMessage: "<strong>Drop user image here or click to upload</strong>"
 };
+
+function updateImagesOnPage(ver) {
+    document.getElementById("userImageLarge").setAttribute("src", "/Home/UserImage/?size=500&v=" + ver); //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&v=" + response.version);
+    var elements = document.querySelectorAll(".user-image-30");
+    Array.prototype.forEach.call(elements, function (el, _i) {
+        el.setAttribute("src", "/Home/UserImage/?size=30&v=" + ver);
+    });
+    elements = document.querySelectorAll(".user-image-45");
+    Array.prototype.forEach.call(elements, function (el, _i) {
+        el.setAttribute("src", "/Home/UserImage/?size=45&v=" + ver);
+    });
+    elements = document.querySelectorAll(".user-image-15");
+    Array.prototype.forEach.call(elements, function (el, _i) {
+        el.setAttribute("src", "/Home/UserImage/?size=15&v=" + ver);
+    });
+}
 
 $(document).ready(function () {
     $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
@@ -173,8 +186,6 @@ export function generateRobot(set) {
     var headers = {};
     headers['__RequestVerificationToken'] = token;
 
-    console.log('generateRobot ' + set);
-
     $.ajax({
         async: true,
         data: JSON.stringify({ "set": set }),
@@ -186,26 +197,53 @@ export function generateRobot(set) {
         success: function (response) {
             if (response.success) {
                 // Reload images
-                $('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
-                $(".user-image-30").each(function () {
-                    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
-                });
-                $(".user-image-15").each(function () {
-                    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
-                });
-                Swal.fire("Your profile image has been updated!", {
-                    icon: "success"
-                });
+                updateImagesOnPage(response.version);
+                //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&v=" + response.version);
+
+                //$(".user-image-30").each(function () {
+                //    $(this).attr("src", "/Home/UserImage/?size=30&v=" + response.version);
+                //});
+
+                //$(".user-image-45").each(function () {
+                //    // Refreshes post user images
+                //    $(this).attr("src", "/Home/UserImage/?size=45&v=" + response.version);
+                //});
+
+                //$(".user-image-15").each(function () {
+                //    $(this).attr("src", "/Home/UserImage/?size=15&v=" + response.version);
+                //});
+                //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
+                //$(".user-image-30").each(function () {
+                //    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
+                //});
+                //$(".user-image-15").each(function () {
+                //    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
+                //});
+                //Swal.fire("Your profile image has been updated!", {
+                //    icon: "success"
+                //});
             } else {
                 // Did not work
-                Swal.fire("Error", "Error updating image: " + data.message, "error");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Image Update Error',
+                    text: "Error updating image: " + response.message
+                })
             }
         },
         failure: function (response) {
-            Swal.fire("Error", "Failure updating image: " + response.message, "error");
+            Swal.fire({
+                icon: 'error',
+                title: 'Image Update Error',
+                text: "Error updating image: " + response.message
+            })
         },
         error: function (response) {
-            Swal.fire("Error", "Error updating image: " + response.message, "error");
+            Swal.fire({
+                icon: 'error',
+                title: 'Image Update Error',
+                text: "Error updating image: " + response.message
+            })
         }
     });
     return false; // Prevent jump to top of page
