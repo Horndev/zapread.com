@@ -888,7 +888,7 @@ namespace zapread.com.Controllers
                         newHeight = Convert.ToInt32(Convert.ToDouble(max_wh) / ar);
                     }
 
-                    var bmp = new Bitmap((int)max_wh, (int)max_wh);
+                    var bmp = new Bitmap(max_wh, max_wh);
                     var graph = Graphics.FromImage(bmp);
                     var brush = new SolidBrush(Color.Transparent);
 
@@ -900,11 +900,18 @@ namespace zapread.com.Controllers
                     byte[] data = bmp.ToByteArray(ImageFormat.Png);
 
                     var user = db.Users.First(u => u.AppId == userId);
-                    UserImage i = new UserImage() { Image = data, Version = user.ProfileImage.Version + 1 };
+                    UserImage i = new UserImage() { 
+                        ContentType = "image/png",
+                        Image = data, 
+                        Version = user.ProfileImage.Version + 1 };
                     user.ProfileImage = i;
                     await db.SaveChangesAsync().ConfigureAwait(false);
+                    return Json(new { success = true, result = "success", version = i.Version });
                 }
-                return Json(new { success = true, result = "success" });
+                else
+                {
+                    return Json(new { success = false, message = "Image not received by server" });
+                }
             }
         }
 

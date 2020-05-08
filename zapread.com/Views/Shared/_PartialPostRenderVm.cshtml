@@ -122,7 +122,7 @@
             @if (!Model.ViewerIgnoredUser)
             {
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle post-image-45" loading="lazy" width="45" height="45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+                    <img class="img-circle post-image-45@(Model.UserAppId == User.Identity.GetUserId() ? " user-image-45":"")" loading="lazy" width="45" height="45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
                 </a>
             }
             <div class="media-body">
