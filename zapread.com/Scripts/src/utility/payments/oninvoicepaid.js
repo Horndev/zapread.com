@@ -1,16 +1,17 @@
 ﻿/**
  * Handle invoicepayment being received
  * 
- * [ ] TODO: Remove all jQuery
+ * [✓] Native JS
  **/
 
-import { updateuserbalance } from '../ui/updateuserbalance'
+import { updateuserbalance } from '../ui/updateuserbalance'         // [✓]
+import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
 
 /**
  * Handle notification that an invoice was paid for either an 
  * anonymous vote action, or deposit.
  * 
- * [X] Native JS implementation
+ * [✓] Native JS implementation
  *
  * @param {string} invoice The invoice string
  * @param {string} balance New user's balance (if deposit)
@@ -55,7 +56,8 @@ export async function oninvoicepaid(invoice, balance, txid) {
 
         await updateuserbalance(); // update UI
 
-        $('#depositModal').modal('hide'); // [ ] TODO: remove jquery here
+        //$('#depositModal').modal('hide'); 
+        hidePaymentModal();
 
         if (typeof lightningTable !== 'undefined') {
             try {
@@ -87,6 +89,19 @@ export async function oninvoicepaid(invoice, balance, txid) {
 
         document.getElementById("voteOkButton").style.display = '';
         document.getElementById("btnCheckLNVote").style.display = 'none';
+    }
+}
+
+/**
+ * [✓]
+ **/
+function hidePaymentModal() {
+    if (Object.prototype.hasOwnProperty.call(document.getElementById('paymentsModal'), "Modal")) {
+        document.getElementById('paymentsModal').Modal.hide();
+    } else {
+        var ModalEl = document.getElementById('paymentsModal');
+        var ModalObj = new Modal(ModalEl);//.Modal;
+        ModalObj.hide();
     }
 }
 

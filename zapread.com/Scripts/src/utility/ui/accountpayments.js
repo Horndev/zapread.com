@@ -1,174 +1,181 @@
 ﻿/** 
  * Code backing _PartialModalLNTransaction.cshtml
  * 
- * [  ] Does not use jQuery
+ * [✓] Native JS
  * 
  **/
 
-import Swal from 'sweetalert2';                                 // [✓]
-import { getAntiForgeryToken } from '../antiforgery';           // [✓]
-import { oninvoicepaid } from '../payments/oninvoicepaid'       // [  ]
-import { postJson } from '../postData';                         // [✓]
+import Swal from 'sweetalert2';                                     // [✓]
+import { getAntiForgeryToken } from '../antiforgery';               // [✓]
+import { oninvoicepaid } from '../payments/oninvoicepaid'           // [✓]
+import { postJson } from '../postData';                             // [✓]
+import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
+import { refreshUserBalance } from '../refreshUserBalance';         // [✓]
 
+/**
+ * Set up the deposit invoice and UI (QR code)
+ * 
+ * [✓] Native JS
+ * 
+ * @param {Element} e
+ */
 export function onGetInvoice(e) {
-    $("#btnCheckLNDeposit").show();
-    $("#doLightningTransactionBtn").hide();
-    var amount = $("#depositValueAmount").val();
-    var memo = 'ZapRead.com deposit';
-    var msg = JSON.stringify({
+    document.getElementById("btnCheckLNDeposit").style.display = '';
+    document.getElementById("doLightningTransactionBtn").style.display = 'none';
+    var amount = document.getElementById("depositValueAmount").value;
+    postJson("/Lightning/GetDepositInvoice/", {
         "amount": amount.toString(),
-        "memo": memo,
+        "memo": 'ZapRead.com deposit',
         "anon": '0',
         "use": "userDeposit",
         "useId": -1,           // undefined
         "useAction": -1        // undefined
-    });
-    $.ajax({
-        type: "POST",
-        url: "/Lightning/GetDepositInvoice/",
-        data: msg,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            $("#lightningDepositInvoiceInput").val(response.Invoice);
-            $("#lightningDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
-            $("#lightningDepositQR").attr("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-error bg-muted");
-            $("#lightningTransactionInvoiceResult").addClass("bg-info");
-            $("#lightningTransactionInvoiceResult").html("Please pay invoice to complete your deposit.");
-            $("#lightningTransactionInvoiceResult").show();
-            $("#lightningDepositQR").show();
-            $("#lightningDepositInvoice").show();
-        },
-        failure: function (response) {
-            $("#lightningTransactionInvoiceResult").html("Failed to generate invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-            $("#lightningTransactionInvoiceResult").addClass("bg-error");
-            $("#lightningTransactionInvoiceResult").show();
-        },
-        error: function (response) {
-            $("#lightningTransactionInvoiceResult").html("Error generating invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-info bg-muted");
-            $("#lightningTransactionInvoiceResult").addClass("bg-error");
-            $("#lightningTransactionInvoiceResult").show();
-        }
+    })
+    .then((response) => {
+        document.getElementById("lightningDepositInvoiceInput").value = response.Invoice;
+        document.getElementById("lightningDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
+        document.getElementById("lightningDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+        document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-success", "bg-error", "bg-muted");
+        document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-info");
+        document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Please pay invoice to complete your deposit";
+        document.getElementById("lightningTransactionInvoiceResult").style.display = '';
+        document.getElementById("lightningDepositQR").style.display = '';
+        document.getElementById("lightningDepositInvoice").style.display = '';
+    })
+    .catch((error) => {
+        document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Failed to generate invoice";
+        document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-success", "bg-error", "bg-muted");
+        document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-error");
+        document.getElementById("lightningTransactionInvoiceResult").style.display = '';
     });
 }
 window.onGetInvoice = onGetInvoice;
 
+/**
+ * Submit the deposit invoice and validate the contents
+ * 
+ * [✓] Native JS
+ * 
+ * @param {Element} e
+ */
 export function onValidateInvoice(e) {
-    var invoice = $("#lightningWithdrawInvoiceInput").val();
-    $.ajax({
-        type: "POST",
-        url: "/Lightning/ValidatePaymentRequest",
-        data: JSON.stringify({ request: invoice.toString() }),
-        headers: getAntiForgeryToken(),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                $('#lightningInvoiceAmount').val(response.num_satoshis);
-                $('#confirmWithdraw').show();
-                $('#btnPayLNWithdraw').hide();
-                $('#btnVerifyLNWithdraw').hide();
-                $('#btnPayLNWithdraw').show();
-                $("#lightningTransactionInvoiceResult").html("Verify amount and click Withdraw");
-                console.log('Withdraw Node:' + response.destination);
-            }
-            else {
-                Swal.fire("Error", response.message, "error");
-            }
-        },
-        failure: function (response) {
-            Swal.fire("Error", response.message, "error");
-        },
-        error: function (response) {
+    var invoice = document.getElementById("lightningWithdrawInvoiceInput").value;//$("#lightningWithdrawInvoiceInput").val();
+    postJson("/Lightning/ValidatePaymentRequest/", {
+        request: invoice.toString()
+    })
+    .then((response) => {
+        if (response.success) {
+            document.getElementById("lightningInvoiceAmount").value = response.num_satoshis;//$('#lightningInvoiceAmount').val(response.num_satoshis);
+            document.getElementById("confirmWithdraw").style.display = '';//$('#confirmWithdraw').show();
+            document.getElementById("btnPayLNWithdraw").style.display = 'none';//$('#btnPayLNWithdraw').hide();
+            document.getElementById("btnVerifyLNWithdraw").style.display = 'none';//$('#btnVerifyLNWithdraw').hide();
+            document.getElementById("btnPayLNWithdraw").style.display = '';//$('#btnPayLNWithdraw').show();
+            document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Verify amount and click Withdraw";//$("#lightningTransactionInvoiceResult").html("Verify amount and click Withdraw");
+            console.log('Withdraw Node:' + response.destination);
+        }
+        else {
             Swal.fire("Error", response.message, "error");
         }
+    })
+    .catch((error) => {
+        Swal.fire("Error", error, "error");
     });
 }
 window.onValidateInvoice = onValidateInvoice;
 
 /**
  * Validates invoice before payment
+ * 
+ * [✓] Native JS
+ * 
  * @param {any} e element clicked
  */
 export function onPayInvoice(e) {
-    var invoice = $("#lightningWithdrawInvoiceInput").val();
-    $("#btnPayLNWithdraw").attr("disabled", "disabled");
-    $.ajax({
-        type: "POST",
-        url: "/Lightning/SubmitPaymentRequest",
-        data: JSON.stringify({ request: invoice.toString() }),
-        headers: getAntiForgeryToken(),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            $("#btnPayLNWithdraw").removeAttr("disabled");
-            $('#btnVerifyLNWithdraw').show();
-            $("#btnPayLNWithdraw").hide();
-            $('#confirmWithdraw').hide();
-            if (response.Result === "success") {
-                $("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
-                $("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-muted");
-                $("#lightningTransactionInvoiceResult").addClass("bg-success");
-                $("#lightningTransactionInvoiceResult").show();
-                $('#withdrawModal').modal('hide');
-                $.get("/Account/Balance", function (data, status) {
-                    $(".userBalanceValue").each(function (i, e) {
-                        $(e).html(data.balance);
-                    });
-                });
-                $('#depositModal').modal('hide');
-            }
-            else {
-                $("#lightningTransactionInvoiceResult").html(response.Result);
-                $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-                $("#lightningTransactionInvoiceResult").addClass("bg-error");
-                $("#lightningTransactionInvoiceResult").show();
-            }
-        },
-        failure: function (response) {
-            $("#btnPayLNWithdraw").removeAttr("disabled");
-            $('#btnVerifyLNWithdraw').show();
-            $("#btnPayLNWithdraw").hide();
-            $('#confirmWithdraw').hide();
-            $("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success");
-            $("#lightningTransactionInvoiceResult").addClass("bg-error");
-            $("#lightningTransactionInvoiceResult").show();
-        },
-        error: function (response) {
-            $("#btnPayLNWithdraw").removeAttr("disabled");
-            $('#btnVerifyLNWithdraw').show();
-            $("#btnPayLNWithdraw").hide();
-            $('#confirmWithdraw').hide();
-            $("#lightningTransactionInvoiceResult").html("Error receiving invoice");
-            $("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-            $("#lightningTransactionInvoiceResult").addClass("bg-error");
-            $("#lightningTransactionInvoiceResult").show();
+    var invoice = document.getElementById("lightningWithdrawInvoiceInput").value;//$("#lightningWithdrawInvoiceInput").val();
+    document.getElementById("btnPayLNWithdraw").disabled = true;//$("#btnPayLNWithdraw").attr("disabled", "disabled");
+
+    postJson("/Lightning/SubmitPaymentRequest/", {
+        request: invoice.toString()
+    })
+    .then((response) => {
+        document.getElementById("btnPayLNWithdraw").disabled = false;//$("#btnPayLNWithdraw").removeAttr("disabled");
+        document.getElementById("btnVerifyLNWithdraw").style.display = '';//$('#btnVerifyLNWithdraw').show();
+        document.getElementById("btnPayLNWithdraw").style.display = 'none';//$("#btnPayLNWithdraw").hide();
+        document.getElementById("confirmWithdraw").style.display = 'none';//$('#confirmWithdraw').hide();
+        if (response.success) {
+            document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Payment successfully sent";//$("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
+            document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-error", "bg-muted");//$("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-muted");
+            document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-success");//$("#lightningTransactionInvoiceResult").addClass("bg-success");
+            document.getElementById("lightningTransactionInvoiceResult").style.display = '';//$("#lightningTransactionInvoiceResult").show();
+            refreshUserBalance();
+            hidePaymentModal();//$('#depositModal').modal('hide');
         }
+        else {
+            document.getElementById("lightningTransactionInvoiceResult").innerHTML = response.Result;//$("#lightningTransactionInvoiceResult").html(response.Result);
+            document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-success", "bg-muted");//$("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
+            document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-error");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
+            document.getElementById("lightningTransactionInvoiceResult").style.display = '';
+        }
+    })
+    .catch((error) => {
+        document.getElementById("btnPayLNWithdraw").disabled = false;//$("#btnPayLNWithdraw").removeAttr("disabled");
+        document.getElementById("btnVerifyLNWithdraw").style.display = '';//$('#btnVerifyLNWithdraw').show();
+        document.getElementById("btnPayLNWithdraw").style.display = 'none';//$("#btnPayLNWithdraw").hide();
+        document.getElementById("confirmWithdraw").style.display = 'none';//$('#confirmWithdraw').hide();
+        document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Failed to receive invoice";//$("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
+        document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-success");//$("#lightningTransactionInvoiceResult").removeClass("bg-success");
+        document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-error");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
+        document.getElementById("lightningTransactionInvoiceResult").style.display = '';//$("#lightningTransactionInvoiceResult").show();
     });
 }
 window.onPayInvoice = onPayInvoice;
 
 /**
+ * [✓]
+ **/
+function showPaymentModal() {
+    if (Object.prototype.hasOwnProperty.call(document.getElementById('paymentsModal'), "Modal")) {
+        document.getElementById('paymentsModal').Modal.show();
+    } else {
+        var ModalEl = document.getElementById('paymentsModal');
+        var ModalObj = new Modal(ModalEl);//.Modal;
+        ModalObj.show();
+    }
+}
+
+/**
+ * [✓]
+ **/
+function hidePaymentModal() {
+    if (Object.prototype.hasOwnProperty.call(document.getElementById('paymentsModal'), "Modal")) {
+        document.getElementById('paymentsModal').Modal.hide();
+    } else {
+        var ModalEl = document.getElementById('paymentsModal');
+        var ModalObj = new Modal(ModalEl);//.Modal;
+        ModalObj.hide();
+    }
+}
+
+/**
  * Resets the LN deposit/withdraw invoice
+ * 
+ * [✓] Native JS
+ * 
  * @param {any} e button element which clicked
  */
 export function onCancelDepositWithdraw(e) {
-    $("#btnCheckLNDeposit").hide();
-    $("#doLightningTransactionBtn").show();
-    $("#lightningTransactionInvoiceResult").hide();
-    $("#lightningDepositQR").hide();
-    $("#lightningDepositInvoice").hide();
+    document.getElementById("btnCheckLNDeposit").style.display = 'none';//$("#btnCheckLNDeposit").hide();
+    document.getElementById("doLightningTransactionBtn").style.display = '';//$("#doLightningTransactionBtn").show();
+    document.getElementById("lightningTransactionInvoiceResult").style.display = 'none';//$("#lightningTransactionInvoiceResult").hide();
+    document.getElementById("lightningDepositQR").style.display = 'none';//$("#lightningDepositQR").hide();
+    document.getElementById("lightningDepositInvoice").style.display = 'none';//$("#lightningDepositInvoice").hide();
 }
 window.onCancelDepositWithdraw = onCancelDepositWithdraw;
 
 /**
  * Check if the LN invoice was paid
  * 
- * [  ]
+ * [✓] Native JS
  * 
  * @param {any} e Element calling the function
  */
@@ -176,40 +183,28 @@ export function checkInvoicePaid(e) {
     var invoice = document.getElementById(e.getAttribute("data-invoice-element")).value; //var invoice = $("#" + $(e).data('invoice-element')).val();
     var spinElId = e.getAttribute("data-spin-element");
     document.getElementById(spinElId).style.display = ""; //$("#" + $(e).data('spin-element')).show();
-    
-    var postData = JSON.stringify({
-        "invoice": invoice.toString(),
-        "isDeposit": true
-    });
 
-    $.ajax({
-        type: "POST",
-        url: "/Lightning/CheckPayment/",
-        data: postData,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            $("#" + $(e).data('spin-element')).hide();
-            if (response.success) {
-                if (response.result === true) {
-                    oninvoicepaid(response.invoice, response.balance, response.txid);
-                    //handleInvoicePaid(response);
-                    // Payment has been successfully made
-                    console.log('Payment confirmed');
-                }
+    postJson("/Lightning/CheckPayment/", {
+        invoice: invoice.toString(),
+        isDeposit: true
+    })
+    .then((response) => {
+        document.getElementById(spinElId).style.display = "none";//$("#" + $(e).data('spin-element')).hide();
+        if (response.success) {
+            if (response.result === true) {
+                oninvoicepaid(response.invoice, response.balance, response.txid);
+                //handleInvoicePaid(response);
+                // Payment has been successfully made
+                console.log('Payment confirmed');
             }
-            else {
-                alert(response.message);
-            }
-        },
-        failure: function (response) {
-            $("#" + $(e).data('spin-element')).hide();
-            alert(response.message);
-        },
-        error: function (response) {
-            $("#" + $(e).data('spin-element')).hide();
+        }
+        else {
             alert(response.message);
         }
+    })
+    .catch((error) => {
+        document.getElementById(spinElId).style.display = "none";//$("#" + $(e).data('spin-element')).hide();
+        alert(response.message);
     });
 }
 window.checkInvoicePaid = checkInvoicePaid;

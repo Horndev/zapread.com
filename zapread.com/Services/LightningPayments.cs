@@ -85,7 +85,7 @@ namespace zapread.com.Services
 
             if (decoded == null || decoded.destination == null)
             {
-                return new { Result = "Error decoding invoice." };
+                return new { success = false, Result = "Error decoding invoice." };
             }
 
             using (var db = new ZapContext())
@@ -102,7 +102,7 @@ namespace zapread.com.Services
                 // Check if user has sufficient balance
                 if (user.Funds.Balance < Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture))
                 {
-                    return new { Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.", CultureInfo.CurrentCulture) + ", invoice is for " + decoded.num_satoshis + "." };
+                    return new { success = false, Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.", CultureInfo.CurrentCulture) + ", invoice is for " + decoded.num_satoshis + "." };
                 }
 
                 SendPaymentResponse paymentresult = null;
@@ -153,7 +153,7 @@ namespace zapread.com.Services
                 else
                 {
                     //double request!
-                    return new { Result = "Please click only once.  Payment already in processing." };
+                    return new { success = false, Result = "Please click only once.  Payment already in processing." };
                 }
 
                 // If we are at this point, we are now checking the status of the payment.
@@ -207,7 +207,7 @@ namespace zapread.com.Services
 
                         t.ErrorMessage = "Error validating payment.";
                         db.SaveChanges();
-                        return new { Result = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
+                        return new { success = false, Result = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
                     }
                 }
 
@@ -229,7 +229,7 @@ namespace zapread.com.Services
                         Name = "zapread.com Exception",
                         Subject = "User withdraw error 7",
                     });
-                    return new { Result = "Error: " + paymentresult.error };
+                    return new { success = false, Result = "Error: " + paymentresult.error };
                 }
 
                 // The LND node returned an error
@@ -265,7 +265,7 @@ namespace zapread.com.Services
                 }
 
                 db.SaveChanges();
-                return new { Result = "success", Fees = 0 };
+                return new { success = true, Result = "success", Fees = 0, userBalance = user.Funds.Balance };
             }
         }
 
@@ -289,7 +289,7 @@ namespace zapread.com.Services
                     Subject = "LightningPayments error - User withdraw error 5",
                 }, "Notify"));
 
-            return new { Result = "Error: " + paymentresult.payment_error };
+            return new { success = false, Result = "Error: " + paymentresult.payment_error };
         }
 
         private static object HandleClientRestException(string request, string userId, ZapContext db, User user, LNTransaction t, string responseStr, RestException e)
@@ -312,7 +312,7 @@ namespace zapread.com.Services
 
             t.ErrorMessage = "Error executing payment.";
             db.SaveChanges();
-            return new { Result = "Error executing payment." };
+            return new { success = false, Result = "Error executing payment." };
         }
 
         private static object HandleUserIsNull()
@@ -328,7 +328,7 @@ namespace zapread.com.Services
                 }, "Notify"));
 
             // Don't reveal information that user doesn't exist
-            return new { Result = "Error processing request." };
+            return new { success = false, Result = "Error processing request." };
         }
 
         private static object HandleLndClientIsNull()
@@ -343,7 +343,7 @@ namespace zapread.com.Services
                     Subject = "LightningPayments error - lndClient is null",
                 }, "Notify"));
 
-            return new { Result = "Lightning Node error." };
+            return new { success = false, Result = "Lightning Node error." };
         }
 
         private static User GetUserFromDB(string userId, ZapContext db)

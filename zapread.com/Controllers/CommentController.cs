@@ -411,7 +411,7 @@ namespace zapread.com.Controllers
             {
                 var post = await db.Posts
                     .Include(p => p.Comments)
-                    .FirstOrDefaultAsync(p => p.PostId == postId);
+                    .FirstOrDefaultAsync(p => p.PostId == postId).ConfigureAwait(true);
 
                 if (post == null)
                 {
@@ -421,16 +421,16 @@ namespace zapread.com.Controllers
                 var comment = await db.Comments
                     .Include(c => c.Post)
                     .Include(c => c.Post.Comments)
-                    .FirstOrDefaultAsync(c => c.CommentId == commentId);
+                    .FirstOrDefaultAsync(c => c.CommentId == commentId).ConfigureAwait(true);
 
                 if (comment == null && commentId != null)
                 {
                     return HttpNotFound("Comment not found");
                 }
 
-                var userId = User.Identity.GetUserId();
+                //var userId = User.Identity.GetUserId();
 
-                var shown = rootshown.Split(';').Select(s => Convert.ToInt64(s)).ToList();
+                var shown = rootshown.Split(';').Select(s => Convert.ToInt64(s, CultureInfo.InvariantCulture)).ToList();
 
                 // these are the comments we will show
                 var commentIds = post.Comments.Where(c => !shown.Contains(c.CommentId))
@@ -457,7 +457,7 @@ namespace zapread.com.Controllers
                     .Include(p => p.Comments.Select(c => c.UserId))
                     .Where(p => p.PostId == postId)
                     .SelectMany(p => p.Comments)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(true);
 
                 string CommentHTMLString = "";
 
@@ -472,7 +472,7 @@ namespace zapread.com.Controllers
                     .Include(c => c.VotesDown)
                     .Include(c => c.Parent)
                     .Include(c => c.Parent.UserId)
-                    .FirstOrDefaultAsync(c => c.CommentId == cid);
+                    .FirstOrDefaultAsync(c => c.CommentId == cid).ConfigureAwait(true);
 
                     if (cmt == null)
                     {
@@ -484,17 +484,44 @@ namespace zapread.com.Controllers
                         });
                     }
 
-                    var vm = new PostCommentsViewModel
-                    {
-                        PostId = postId,
-                        NestLevel = nestLevel ?? 1,
-                        Comment = cmt,
-                        Comments = postComments,
-                        ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
-                        StartVisible = cmt.Score >= 0,
-                    };
+                    //var vm = new PostCommentsViewModel
+                    //{
+                    //    PostId = postId,
+                    //    NestLevel = nestLevel ?? 1,
+                    //    Comment = cmt,
+                    //    Comments = postComments,
+                    //    ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
+                    //    StartVisible = cmt.Score >= 0,
+                    //};
 
-                    CommentHTMLString += RenderPartialViewToString("_PartialCommentRender", vm);
+                    // Render the comment to be inserted to HTML
+                    string aCommentHTMLString = RenderPartialViewToString(
+                        viewName: "_PartialCommentRenderVm",
+                        model: new PostCommentsViewModel()
+                        {
+                            PostId = postId,
+                            StartVisible = true,
+                            CommentId = cmt.CommentId,
+                            IsReply = cmt.IsReply,
+                            IsDeleted = cmt.IsDeleted,
+                            CommentVms = new List<PostCommentsViewModel>(),
+                            NestLevel = 0,
+                            ParentUserId = comment == null ? 0 : comment.UserId.Id,
+                            UserId = cmt.UserId.Id,
+                            Score = cmt.Score,
+                            ParentUserName = comment == null ? "" : comment.UserId.Name,
+                            ProfileImageVersion = cmt.UserId.ProfileImage.Version,
+                            Text = cmt.Text,
+                            TimeStamp = cmt.TimeStamp,
+                            TimeStampEdited = cmt.TimeStampEdited,
+                            UserAppId = cmt.UserId.AppId,
+                            UserName = cmt.UserId.Name,
+                            ViewerDownvoted = false,
+                            ViewerIgnoredUser = false,
+                            ParentCommentId = comment == null ? 0 : comment.CommentId,
+                        });
+
+                    CommentHTMLString += aCommentHTMLString;// RenderPartialViewToString("_PartialCommentRender", vm);
                     shown.Add(cmt.CommentId);
                 }
 

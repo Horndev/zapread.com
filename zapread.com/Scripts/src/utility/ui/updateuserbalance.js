@@ -1,5 +1,8 @@
 ﻿/**
  * Get the account balance and update all UI elements with new value
+ * 
+ * [✓] Native JS
+ * 
  **/
 
 export async function updateuserbalance() {
@@ -9,11 +12,4 @@ export async function updateuserbalance() {
     Array.prototype.forEach.call(elements, function (el, _i) {
         el.innerHTML = json.balance;
     });
-
-    // Old jquery way
-    //$.get("/Account/Balance", function (data, status) {
-    //    $(".userBalanceValue").each(function (i, e) {
-    //        $(e).html(data.balance);
-    //    });
-    //});
 }

@@ -1,7 +1,7 @@
 ﻿/**
  * Common shared imports across ZapRead
  * 
- * [✓] Does not use jQuery
+ * [✓] Native JS
  * [  ] Todo - remove all code and dependencies using jQuery so we can remove it.
  * 
  **/
@@ -19,7 +19,7 @@ import 'bootstrap.native/dist/bootstrap-native-v4'  // [✓]
 import 'bootstrap/dist/css/bootstrap.min.css';      // [✓]
 import 'font-awesome/css/font-awesome.min.css';     // [✓]
 import '../utility/ui/paymentsscan';                // [  ]
-import '../utility/ui/accountpayments';             // [  ]
+import '../utility/ui/accountpayments';             // [✓]
 import './postfunctions';                           // [✓]
 import './readmore';                                // [✓]
 import './postui';                                  // [✓]
