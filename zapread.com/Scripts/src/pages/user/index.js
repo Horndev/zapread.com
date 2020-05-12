@@ -1,9 +1,11 @@
 ﻿/**
  * User information page
  * 
- * 
+ * [ ] Uses jQuery
  * 
  **/
+import $ from 'jquery';
+
 import '../../shared/shared';
 import '../../utility/ui/vote';                                                     // [✓]
 import '../../realtime/signalr';
@@ -17,6 +19,11 @@ import { editComment } from '../../comment/editcomment';                        
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
 import { loadmore } from '../../utility/loadmore';                                  // [✓]
+
+import '../../shared/postfunctions';                                        // [✓]
+import '../../shared/readmore';                                             // [✓]
+import '../../shared/postui';                                               // [✓]
+
 import '../../shared/sharedlast';
 
 // Make global (called from html)
@@ -43,22 +50,6 @@ export function userloadmore() {
 window.userloadmore = userloadmore;
 
 onLoadedMorePosts();
-
-//Dropzone.options.dropzoneForm = {
-//    paramName: "file", // The name that will be used to transfer the file
-//    maxFilesize: 5, // MB
-//    acceptedFiles: "image/*",
-//    maxFiles: 1,
-//    addRemoveLinks: true,
-//    init: function () {
-//        this.on("addedfile", function () {
-//            if (this.files[1] !== null) {
-//                this.removeFile(this.files[0]);
-//            }
-//        });
-//    },
-//    dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
-//};
 
 export function toggleUserIgnore(id) {
     joinurl = "/User/ToggleIgnore/";

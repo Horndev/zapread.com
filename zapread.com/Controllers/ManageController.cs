@@ -69,11 +69,6 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public PartialViewResult WithdrawModal()
-        {
-            return PartialView("_PartialModalWithdraw");
-        }
-
         [Route("Manage/APIKeys/")]
         public ActionResult APIKeys()
         {

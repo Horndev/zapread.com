@@ -1,8 +1,7 @@
 ﻿/**
  * Common shared imports across ZapRead
  * 
- * [✓] Does not use jQuery
- * [  ] Todo - remove all code and dependencies using jQuery so we can remove it.
+ * [✓] Native JS
  * 
  **/
 
@@ -18,11 +17,8 @@ import '../utility/appinsights';                    // [✓]
 import 'bootstrap.native/dist/bootstrap-native-v4'  // [✓]
 import 'bootstrap/dist/css/bootstrap.min.css';      // [✓]
 import 'font-awesome/css/font-awesome.min.css';     // [✓]
-import '../utility/ui/paymentsscan';                // [  ]
-import '../utility/ui/accountpayments';             // [  ]
-import './postfunctions';                           // [✓]
-import './readmore';                                // [✓]
-import './postui';                                  // [✓]
+import '../utility/ui/paymentsscan';                // [✓]
+import '../utility/ui/accountpayments';             // [✓]
 import './topnavbar';                               // [✓]
 
 /**
@@ -46,7 +42,6 @@ export function copyToClipboard(e, elemId) {
 }
 window.copyToClipboard = copyToClipboard;
 
-// [✓] no jQuery
 var elements = document.querySelectorAll("ul.dropdown-menu");
 Array.prototype.forEach.call(elements, function (el, _i) {
     //console.log('add keepOpenOnClick');
@@ -100,6 +95,3 @@ Array.prototype.forEach.call(elements, function (el, _i) {
         content.remove();
     });
 });
-
-// [ ] TODO - verify replaced with boostrap native tooltip
-//$('[data-toggle="tooltip"]').tooltip();

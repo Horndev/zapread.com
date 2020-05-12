@@ -1,6 +1,8 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
+
 import '../../shared/shared';
 import '../../realtime/signalr';
 import 'datatables.net-bs4';

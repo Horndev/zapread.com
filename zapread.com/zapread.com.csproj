@@ -1074,9 +1074,11 @@
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
     <Content Include="Scripts\src\shared\topnavbar.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
+    <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ready.js" />
+    <Content Include="Scripts\src\utility\refreshUserBalance.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
@@ -1205,7 +1207,6 @@
     <Content Include="Views\Group\_PartialGroupEditTags.cshtml" />
     <Content Include="Views\Admin\_PartialSiteAdminBar.cshtml" />
     <Content Include="Views\Manage\Financial.cshtml" />
-    <Content Include="Views\Manage\_PartialModalWithdraw.cshtml" />
     <Content Include="Views\Home\Feedback.cshtml" />
     <Content Include="Views\Admin\Icons.cshtml" />
     <Content Include="Views\Group\_PartialGroupEditIcon.cshtml" />
@@ -1213,7 +1214,6 @@
     <Content Include="Views\Group\DoPayouts.cshtml" />
     <Content Include="Views\Group\Members.cshtml" />
     <Content Include="Views\Group\_PartialGroupMember.cshtml" />
-    <Content Include="Views\Shared\_PartialCommentRender.cshtml" />
     <Content Include="Scripts\summernote\dist\font\summernote.eot" />
     <Content Include="Scripts\summernote\dist\font\summernote.ttf" />
     <Content Include="Scripts\summernote\dist\font\summernote.woff" />

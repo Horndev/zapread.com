@@ -1,19 +1,25 @@
 ﻿/**
  * 
+ * [✓] Native JS
  **/
 
-import '../../shared/shared';
-import '../../utility/ui/vote';
-import '../../realtime/signalr';
-import Swal from 'sweetalert2';
-const Globals = require('./globals').default;
-import { addposts, loadmore} from '../../utility/loadmore';
-import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
-import { writeComment } from '../../comment/writecomment';
-import { replyComment } from '../../comment/replycomment';
-import { editComment } from '../../comment/editcomment';
-import { loadMoreComments } from '../../comment/loadmorecomments';
-import '../../shared/sharedlast';
+import '../../shared/shared';                                               // [✓]
+import '../../utility/ui/vote';                                             // [✓]
+import '../../realtime/signalr';                                            // [✓]
+import Swal from 'sweetalert2';                                             // [✓]
+const Globals = require('./globals').default;                               // [✓]  
+import { addposts, loadmore } from '../../utility/loadmore';                // [✓]
+import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';        // [✓]
+import { writeComment } from '../../comment/writecomment';                  // [✓]
+import { replyComment } from '../../comment/replycomment';                  // [✓]
+import { editComment } from '../../comment/editcomment';                    // [✓]
+import { loadMoreComments } from '../../comment/loadmorecomments';          // [✓]
+
+import '../../shared/postfunctions';                                        // [✓]
+import '../../shared/readmore';                                             // [✓]
+import '../../shared/postui';                                               // [✓]
+
+import '../../shared/sharedlast';                                           // [✓]
 
 // Make global (called from html)
 window.writeComment = writeComment;
@@ -35,7 +41,7 @@ request.onload = function () {
             // Insert posts
             document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
             addposts(response, onLoadedMorePosts); // [ ] TODO: zrOnLoadedMorePosts uses jquery
-            document.querySelectorAll('#btnLoadmore').item(0).style.display = ''; //$('#btnLoadmore').show();
+            document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
         } else {
             // Did not work
             Swal.fire("Error", "Error loading posts: " + response.message, "error");

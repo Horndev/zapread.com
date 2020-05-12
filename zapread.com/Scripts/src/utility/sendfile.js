@@ -1,6 +1,7 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
 
 export function sendFile(file, el) {
     var data = new FormData();

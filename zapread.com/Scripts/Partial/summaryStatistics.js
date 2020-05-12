@@ -1,6 +1,8 @@
 ﻿//
 // scripts for _partialSummaryStatistics.cshtml
 
+import $ from 'jquery';
+
 $(document).ready(function () {
     $.get("/Admin/GetPostStats/", function (data, status) {
         stats = data;

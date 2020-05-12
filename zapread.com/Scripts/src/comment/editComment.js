@@ -1,12 +1,13 @@
 ﻿/**
  * 
+ * [✓] Native JS
  **/
 
-import { postData } from '../utility/postData';
-import { applyHoverToChildren } from '../utility/userhover';
-import { updatePostTimes } from '../utility/datetime/posttime';
-import { makeQuillComment } from './utility/makeQuillComment';
-import { makeCommentsQuotable } from '../utility/quotable/quotable';
+import { postData } from '../utility/postData';                         // [✓]
+import { applyHoverToChildren } from '../utility/userhover';            // [✓]
+import { updatePostTimes } from '../utility/datetime/posttime';         // [✓]
+import { makeQuillComment } from './utility/makeQuillComment';          // [✓]
+import { makeCommentsQuotable } from '../utility/quotable/quotable';    // [✓]
 
 var editingId;
 var isEditing = false;

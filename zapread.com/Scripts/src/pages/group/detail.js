@@ -1,6 +1,8 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
+
 import '../../shared/shared';
 import '../../utility/ui/vote';
 import '../../realtime/signalr';
@@ -18,6 +20,11 @@ import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { loadmore } from '../../utility/loadmore';
+
+import '../../shared/postfunctions';                                        // [✓]
+import '../../shared/readmore';                                             // [✓]
+import '../../shared/postui';                                               // [✓]
+
 import './userroles';
 import './tags';
 import './adminbar';

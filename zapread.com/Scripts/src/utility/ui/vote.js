@@ -145,23 +145,22 @@ export function updateVoteInvoice(msg) {
     .then((response) => {
         console.log(response);
         document.getElementById("voteDepositInvoiceInput").value = response.Invoice;//.val(response.Invoice);
-        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
         document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
         document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
         document.getElementById("voteDepositInvoiceFooter").style.display = '';
         document.getElementById("voteDepositQR").style.display = '';
         document.getElementById("voteDepositInvoice").style.display = '';
-
+    })
+    .then(() => {
         showVoteModal(); //$('#voteModal').modal('show');
     })
     .catch((error) => {
         console.log(error);
         document.getElementById("voteDepositInvoiceFooter").innerHTML = "Error generating invoice";
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
         document.getElementById("voteDepositInvoiceFooter").style.display = '';
     });
@@ -281,7 +280,7 @@ async function refreshUserBalance() {
  * [✓]
  **/
 function showVoteModal() {
-    if (document.getElementById('voteModal').hasOwnProperty('hasOwnProperty')) {
+    if (Object.prototype.hasOwnProperty.call(document.getElementById('voteModal'), "Modal")) {
         document.getElementById('voteModal').Modal.show();
     } else {
         var voteModalEl = document.getElementById('voteModal');
