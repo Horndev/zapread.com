@@ -428,7 +428,10 @@ namespace zapread.com.Controllers
                     return HttpNotFound("Comment not found");
                 }
 
-                //var userId = User.Identity.GetUserId();
+                if (rootshown == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "rootshown missing");
+                }
 
                 var shown = rootshown.Split(';').Select(s => Convert.ToInt64(s, CultureInfo.InvariantCulture)).ToList();
 
@@ -439,13 +442,6 @@ namespace zapread.com.Controllers
                     .ThenByDescending(c => c.TimeStamp)
                     .Select(c => c.CommentId)
                     .ToList();
-
-                //.Include(p => p.Group)
-                //        .Include(p => p.Comments)
-                //        .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                //        .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                //        .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                //        .Include(p => p.Comments.Select(cmt => cmt.UserId))
 
                 // All the comments related to this post
                 var postComments = await db.Posts
@@ -484,16 +480,6 @@ namespace zapread.com.Controllers
                         });
                     }
 
-                    //var vm = new PostCommentsViewModel
-                    //{
-                    //    PostId = postId,
-                    //    NestLevel = nestLevel ?? 1,
-                    //    Comment = cmt,
-                    //    Comments = postComments,
-                    //    ViewerIgnoredUsers = new List<int>(),// Model.ViewerIgnoredUsers
-                    //    StartVisible = cmt.Score >= 0,
-                    //};
-
                     // Render the comment to be inserted to HTML
                     string aCommentHTMLString = RenderPartialViewToString(
                         viewName: "_PartialCommentRenderVm",
@@ -521,7 +507,7 @@ namespace zapread.com.Controllers
                             ParentCommentId = comment == null ? 0 : comment.CommentId,
                         });
 
-                    CommentHTMLString += aCommentHTMLString;// RenderPartialViewToString("_PartialCommentRender", vm);
+                    CommentHTMLString += aCommentHTMLString;
                     shown.Add(cmt.CommentId);
                 }
 
@@ -529,7 +515,7 @@ namespace zapread.com.Controllers
                 {
                     success = true,
                     shown = String.Join(";", shown),
-                    hasMore = commentIds.Count() > 3,
+                    hasMore = commentIds.Count > 3,
                     HTMLString = CommentHTMLString
                 });
             }
