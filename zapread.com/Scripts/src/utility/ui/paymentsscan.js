@@ -1,13 +1,20 @@
-﻿
+﻿/**
+ * 
+ */
 
+import { getScript } from '../getScript';       // [✓]
+
+/**
+ * [✓] Native JS
+ **/
 export function scan() {
-    jQuery.getScript('https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js', function () {
-        jQuery.getScript('/Scripts/instascan.min.js', function () {
+    getScript('https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.4.0/adapter.min.js', function () {
+        getScript('/Scripts/instascan.min.js', function () {
             let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
             scanner.addListener('scan', function (content) {
                 console.log(content);
-                $('#lightningWithdrawInvoiceInput').val(content);
-                $("#preview").hide();
+                document.getElementById("lightningWithdrawInvoiceInput").value = content;// $('#lightningWithdrawInvoiceInput').val(content);
+                document.getElementById("preview").style.display = "none";//$("#preview").hide();
                 scanner.stop();
             });
             Instascan.Camera.getCameras().then(function (cameras) {
@@ -19,7 +26,7 @@ export function scan() {
             }).catch(function (e) {
                 console.error(e);
             });
-            $("#preview").show();
+            document.getElementById("preview").style.display = '';//$("#preview").show();
         }, true);
     }, true);
 }

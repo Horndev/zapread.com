@@ -3,7 +3,7 @@
  */
 import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';               // [✓]
 
-import { applyHoverToChildren } from './userhover';
+import { applyHoverToChildren } from './userhover';                             // [✓]
 import { loadgrouphover } from './grouphover';
 import { updatePostTimes } from './datetime/posttime';
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';

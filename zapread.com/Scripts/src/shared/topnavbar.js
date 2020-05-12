@@ -4,7 +4,6 @@
  * [✓] TODO remove jQuery
  * 
  **/
-// 
 
 //import $ from 'jquery';
 //import "jquery-ui-dist/jquery-ui";
@@ -17,26 +16,6 @@ import { postJson } from '../utility/postData';                     // [✓]
 //var toggleChat; // global function for quotable.  TODO: fix
 var ub = 0;
 window.ub = ub;
-
-// Used for caching scripts when loaded on-demand.
-var LoadedScripts = new Array();
-window.LoadedScripts = LoadedScripts;
-
-////jQuery.getScript = function (url, callback, cache) {
-////    if ($.inArray(url, LoadedScripts) > -1) {
-////        callback();
-////    }
-////    else {
-////        LoadedScripts.push(url);
-////        jQuery.ajax({
-////            type: "GET",
-////            url: url,
-////            success: callback,
-////            dataType: "script",
-////            cache: cache
-////        });
-////    }
-////};
 
 ready(function () {
     refreshUserBalance();

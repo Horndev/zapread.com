@@ -1,10 +1,12 @@
 ﻿/**
- * Load more posts 
+ * Load more posts
+ * 
+ * [✓] Native JS
  */
 
-import { postData } from './postData';
+import { postData } from './postData';                      // [✓]  
 import { onLoadedMorePosts } from './onLoadedMorePosts';
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';                             // [✓]
 
 export function addposts(data, callback) {
     document.querySelectorAll('#posts').item(0).innerHTML += data.HTMLString; //.appendChild(data);

@@ -1074,6 +1074,7 @@
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
     <Content Include="Scripts\src\shared\topnavbar.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
+    <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
     <Content Include="Scripts\src\utility\ready.js" />

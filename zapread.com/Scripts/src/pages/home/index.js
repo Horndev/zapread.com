@@ -2,12 +2,12 @@
  * 
  **/
 
-import '../../shared/shared';
+import '../../shared/shared';                                               // [✓]
 import '../../utility/ui/vote';
-import '../../realtime/signalr';
-import Swal from 'sweetalert2';
-const Globals = require('./globals').default;
-import { addposts, loadmore} from '../../utility/loadmore';
+import '../../realtime/signalr';                                            // [✓]
+import Swal from 'sweetalert2';                                             // [✓]
+const Globals = require('./globals').default;                               // [✓]  
+import { addposts, loadmore } from '../../utility/loadmore';                // [✓]
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
