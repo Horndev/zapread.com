@@ -14,6 +14,11 @@ import { writeComment } from '../../comment/writecomment';                  // [
 import { replyComment } from '../../comment/replycomment';                  // [✓]
 import { editComment } from '../../comment/editcomment';                    // [✓]
 import { loadMoreComments } from '../../comment/loadmorecomments';          // [✓]
+
+import '../../shared/postfunctions';                                        // [✓]
+import '../../shared/readmore';                                             // [✓]
+import '../../shared/postui';                                               // [✓]
+
 import '../../shared/sharedlast';                                           // [✓]
 
 // Make global (called from html)
