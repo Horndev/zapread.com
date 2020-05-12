@@ -4,6 +4,7 @@
  * [  ] Native JS
  * 
  */
+import $ from 'jquery';
 
 import { getAntiForgeryToken } from '../../utility/antiforgery';    // [✓]
 

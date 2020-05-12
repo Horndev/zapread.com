@@ -3,6 +3,7 @@
  **/
 
 //import '../../shared/shared';
+import $ from 'jquery'; //yuck
 
 import 'bootstrap';                                             // [X]            // still requires jquery :(
 import 'bootstrap/dist/css/bootstrap.min.css';                  // [✓]

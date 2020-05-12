@@ -1,5 +1,7 @@
 ﻿//
 // script for _PartialGroupEditIcon.cshtml
+import $ from 'jquery';
+
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import Swal from 'sweetalert2';
 

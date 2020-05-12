@@ -1,12 +1,13 @@
-﻿/*
+﻿/**
  *
+ * [✓] Native JS
  */
 import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';               // [✓]
 
 import { applyHoverToChildren } from './userhover';                             // [✓]
-import { loadgrouphover } from './grouphover';
-import { updatePostTimes } from './datetime/posttime';
-import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';
+import { loadgrouphover } from './grouphover';                                  // [✓]
+import { updatePostTimes } from './datetime/posttime';                          // [✓]
+import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
 
 /**
  * 
@@ -81,8 +82,8 @@ export function onLoadedMorePosts() {
     });
 
     // Make post quotable
-    makePostsQuotable();     // TODO: remove jquery
+    makePostsQuotable();
 
     // Make comments quotable
-    makeCommentsQuotable();  // TODO: remove jquery
+    makeCommentsQuotable();
 }

@@ -4,6 +4,8 @@
  * 
  * 
  **/
+import $ from 'jquery';
+
 import '../../shared/shared';
 import '../../utility/ui/vote';                                                     // [✓]
 import '../../realtime/signalr';

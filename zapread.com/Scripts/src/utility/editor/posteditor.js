@@ -1,6 +1,7 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
 
 import Swal from 'sweetalert2';
 import { getAntiForgeryToken } from '../antiforgery';

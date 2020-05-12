@@ -1,6 +1,8 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
+
 import '../../shared/shared';
 import '../../realtime/signalr';
 import 'datatables.net-bs4';
@@ -11,6 +13,13 @@ import 'selectize/dist/js/standalone/selectize';
 import 'selectize/dist/css/selectize.css';
 import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
+
+import { joinGroup } from '../../utility/ui/joingroup';                 // [✓]
+import { leaveGroup } from '../../utility/ui/leavegroup';               // [✓]
+
+// Save to window globals (part of the group hover)
+window.joinGroup = joinGroup;
+window.leaveGroup = leaveGroup;
 
 import '../../shared/sharedlast';
 

@@ -54,8 +54,8 @@ export function follow(uid, s, e) {
             alert(response.message);
         }
     })
-    //.catch((error) => {
-    //    console.log('follow error');
-    //});
+    .catch((error) => {
+        console.log('follow error ' + error);
+    });
     return false;
 }
