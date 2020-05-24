@@ -10,3 +10,10 @@
 [submodule "Microsoft.Owin.Security.ApiKey"]
 	path = Microsoft.Owin.Security.ApiKey
 	url = https://github.com/Horndev/Microsoft.Owin.Security.ApiKey.git
+[submodule "quill-image-resize-module"]
+	path = ./zapread.com/zapread.com/Scripts/src/quill-image-resize-module
+	url = https://github.com/Horndev/quill-image-resize-module.git
+	branch = master
+[submodule "zapread.com/Scripts/src/quill-image-resize-module"]
+	path = zapread.com/Scripts/src/quill-image-resize-module
+	url = https://github.com/Horndev/quill-image-resize-module.git

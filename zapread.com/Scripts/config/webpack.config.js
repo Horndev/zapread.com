@@ -3,6 +3,7 @@ const path = require("path");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+    mode: 'development',
     entry: {
         account_login:  "./Scripts/src/pages/account/login.js",
         admin_achievements: "./Scripts/src/pages/admin/achievements.js",
@@ -73,7 +74,7 @@ module.exports = {
                 exclude: /node_modules/ //excludes node_modules folder from being transpiled by babel. We do this because it's a waste of resources to do so.
             },
             {
-                test: /\.(png|jpe?g|gif|svg)$/,
+                test: /\.(png|jpe?g|gif)$/,
                 use: [
                     {
                         loader: 'file-loader',
@@ -84,6 +85,12 @@ module.exports = {
                         }
                     }
                 ]
+            },
+            {
+                test: /\.svg$/,
+                use: [{
+                    loader: 'raw-loader'
+                }]
             },
             {
                 test: /\.(woff|woff2|ttf|otf|eot)$/,

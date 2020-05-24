@@ -163,18 +163,28 @@ namespace zapread.com.Controllers
             }
 
             int ver = -1;
-            try
-            {
-                ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException fe)
-            {
-                //
-            }
 
             // Check for image in DB
             using (var db = new ZapContext())
             {
+                try
+                {
+                    if (v != null)
+                    {
+                        ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        ver = await db.Images.Where(im => im.UserAppId == UserId)
+                            .Select(im => im.Version)
+                            .MaxAsync().ConfigureAwait(true);
+                    }
+                }
+                catch (FormatException fe)
+                {
+                    //
+                }
+
                 var imgq = db.Images.Where(im => im.UserAppId == UserId && im.XSize == size);
                 if (ver > -1)
                 {

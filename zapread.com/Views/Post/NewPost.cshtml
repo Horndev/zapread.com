@@ -1,10 +1,17 @@
-﻿@model zapread.com.Models.NewPostViewModel
+﻿<div id="root"></div>
 
-@{
-    ViewBag.Title = "New Post";
+@section Styles {
+    @Styles.Render("~/bundles/post/newpost/css")
 }
 
-<div class="wrapper border-bottom white-bg page-heading">
+@section Scripts {
+    <script type="text/javascript">
+        var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
+    </script>
+    @Scripts.Render("~/bundles/post/newpost")
+}
+
+@*<div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
         <h2>
@@ -127,15 +134,5 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
-@section Styles {
-    @Styles.Render("~/bundles/post/newpost/css")
-}
-
-@section Scripts {
-    <script type="text/javascript">
-        var gid = @if (Model.Post.Group != null) { @Model.Post.Group.GroupId } else { <text>1</text> };
-    </script>
-    @Scripts.Render("~/bundles/post/newpost")
-}

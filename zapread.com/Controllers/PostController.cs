@@ -56,14 +56,48 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
         }
 
-        // This is a data structure to return the list of draft posts to view in a client-side table
-        public class DataItem
+        /// <summary>
+        /// Fetch a draft post (by post ID)
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [Route("Post/Draft/Load")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
+        public async Task<ActionResult> GetDraft(int postId)
         {
-            public string Time { get; set; }
-            public string Title { get; set; }
-            public string Group { get; set; }
-            public string GroupId { get; set; }
-            public string PostId { get; set; }
+            var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Credentials failure" });
+            }
+            using (var db = new ZapContext())
+            {
+                var draftPost = await db.Posts
+                    .Where(p => p.UserId.AppId == userId)
+                    .Where(p => p.IsDraft == true)
+                    .Where(p => p.IsDeleted == false)
+                    .Where(p => p.PostId == postId)
+                    .Select(p => new { 
+                        p.PostId,
+                        p.Group.GroupId,
+                        p.PostTitle,
+                        p.Group.GroupName,
+                        p.Content
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (draftPost == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, message = "Draft post not found." });
+                }
+
+                return Json(new { success = true, draftPost });
+            }
         }
 
         /// <summary>
@@ -74,7 +108,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
-        public ActionResult GetDrafts(DataTableParameters dataTableParameters)
+        public async Task<ActionResult> GetDrafts(DataTableParameters dataTableParameters)
         {
             if (dataTableParameters == null)
             {
@@ -95,30 +129,36 @@ namespace zapread.com.Controllers
                 User u = db.Users
                         .Where(us => us.AppId == userId).First();
 
-                var draftPosts = db.Posts
+                var draftPostsQuery = db.Posts
                     .Where(p => p.UserId.Id == u.Id)
                     .Where(p => p.IsDraft == true)
-                    .Where(p => p.IsDeleted == false)
-                    .Include(p => p.Group)
+                    .Where(p => p.IsDeleted == false);
+
+                var drafts = await draftPostsQuery
                     .OrderByDescending(p => p.TimeStamp)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToList();
+                    .Select(t => new
+                    {
+                        t.TimeStamp,//.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
+                        t.PostTitle,
+                        t.Group.GroupName,
+                        t.Group.GroupId,
+                        t.PostId,
+                    })
+                    .ToListAsync().ConfigureAwait(true);
 
-                var values = draftPosts.Select(t => new DataItem()
+                int numrec = await draftPostsQuery
+                    .CountAsync().ConfigureAwait(true);
+
+                var values = drafts.Select(t => new
                 {
-                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Title = t.PostTitle,
-                    Group = t.Group.GroupName,
-                    GroupId = Convert.ToString(t.Group.GroupId),
-                    PostId = Convert.ToString(t.PostId),
-                }).ToList();
-
-                int numrec = db.Posts
-                    .Where(p => p.UserId.Id == u.Id)
-                    .Where(p => p.IsDraft == true)
-                    .Where(p => p.IsDeleted == false)
-                    .Count();
+                    TimeStamp = t.TimeStamp.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : "",
+                    t.PostTitle,
+                    t.GroupName,
+                    t.GroupId,
+                    t.PostId,
+                });
 
                 var ret = new
                 {
@@ -303,6 +343,136 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="groupId"></param>
+        /// <param name="content"></param>
+        /// <param name="postTitle"></param>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
+        [Route("Post/Submit")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft)
+        {
+            var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json(new { success = false, message = "Error finding user account." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users.Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
+
+                // Cleanup post HTML
+                HtmlDocument postDocument = new HtmlDocument();
+                postDocument.LoadHtml(content);
+
+                // Check links
+                var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
+                if (postLinks != null)
+                {
+                    foreach (var link in postLinks.ToList())
+                    {
+                        string url = link.GetAttributeValue("href", "");
+                        // replace links to embedded videos
+                        if (url.Contains("youtu.be"))
+                        {
+                            var uri = new Uri(url);
+                            string videoId = uri.Segments.Last();
+                            string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                            var newNode = HtmlNode.CreateNode(modElement);
+                            link.ParentNode.ReplaceChild(newNode, link);
+                        }
+                    }
+                }
+                string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
+
+                var postGroup = await db.Groups
+                    .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
+
+                Post post = null;
+                if (postId > 0)
+                {
+                    // Updated post
+                    post = await db.Posts
+                        .Include(pst => pst.UserId)
+                        .Where(pst => pst.PostId == postId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    // Ensure user owns this post (or is site admin)
+                    if (post.UserId.Id != user.Id && !User.IsInRole("Administrator"))
+                    {
+                        // Editing another user's post.
+                        Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        return Json(new { result = "failure", success = false, message = "User mismatch" });
+                    }
+
+                    post.PostTitle = postTitle == null ? "Post" : postTitle.CleanUnicode().SanitizeXSS();
+                    post.Group = postGroup;
+                    post.Content = contentStr;
+                    post.Language = "en";// p.Language ?? post.Language;
+
+                    if (post.IsDraft) // Post was or is draft - set timestamp.
+                    {
+                        post.TimeStamp = DateTime.UtcNow;
+                    }
+                    else // Post has been published, don't update timestamp, update edit timestamp.
+                    {
+                        post.TimeStampEdited = DateTime.UtcNow;
+                    }
+
+                    if (post.IsDraft && !isDraft) // Post was a draft, now published
+                    {
+                        post.IsDraft = isDraft;
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                        // We don't return yet - so notifications can be fired off.
+                    }
+                    else
+                    {
+                        post.IsDraft = isDraft;
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                        return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
+                    }
+                }
+                else
+                {
+                    // New post
+                    post = new Post()
+                    {
+                        Content = contentStr,
+                        UserId = user,
+                        TotalEarned = 0,
+                        IsDeleted = false,
+                        Score = 1,
+                        Group = postGroup,
+                        TimeStamp = DateTime.UtcNow,
+                        VotesUp = new List<User>() { user },
+                        PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS(),
+                        IsDraft = isDraft,
+                        Language = "en",//p.Language,
+                    };
+
+                    db.Posts.Add(post);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+
+                return Json(new { success = true, postId = post.PostId });
+            }
+        }
+
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]

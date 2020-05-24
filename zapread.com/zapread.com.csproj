@@ -870,7 +870,6 @@
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\images\chosen-sprite%402x.png" />
     <Content Include="Content\images\chosen-sprite.png" />
-    <Content Include="Content\images\fontawesome-webfont.svg" />
     <Content Include="Content\images\header-profile.png" />
     <Content Include="Content\images\shattered.png" />
     <Content Include="Content\images\ui-icons_444444_256x240.png" />
@@ -950,6 +949,7 @@
     </None>
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\css\components\input.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -969,6 +969,7 @@
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
+    <Content Include="Scripts\src\css\quill\quilledit.css" />
     <Content Include="Scripts\src\css\quill\quillcustom.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
@@ -1066,9 +1067,33 @@
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
+    <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
+    <Content Include="Scripts\src\pages\post\Components\Editor.js" />
+    <Content Include="Scripts\src\pages\post\Components\Input.js" />
     <Content Include="Scripts\src\pages\post\newpost.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\image-resize.min.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\ImageResize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Resize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\webpack.config.js" />
+    <Content Include="Scripts\src\quill\EmbedResponsive.js" />
+    <Content Include="Scripts\src\quill\image-upload.js" />
+    <Content Include="Scripts\src\quill\QuillImageDropAndPaste.js" />
+    <Content Include="Scripts\src\quill\StickyToolbar\quill-sticky-toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Resize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\VideoResize.js" />
+    <Content Include="Scripts\src\quill\VideoResponsive.js" />
     <Content Include="Scripts\src\realtime\chat\onchatreceived.js" />
     <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
@@ -1282,6 +1307,14 @@
     <Content Include="Views\Shared\DisplayTemplates\MenuHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CanonicalHelperModel.cshtml" />
     <Content Include="Views\Comment\_PartialPostReplyInput.cshtml" />
+    <Content Include="Scripts\src\quill-image-resize-module\.editorconfig" />
+    <Content Include="Scripts\src\quill-image-resize-module\.eslintrc" />
+    <Content Include="Scripts\src\quill-image-resize-module\.gitignore" />
+    <Content Include="Scripts\src\quill-image-resize-module\CHANGELOG.md" />
+    <Content Include="Scripts\src\quill-image-resize-module\LICENSE" />
+    <Content Include="Scripts\src\quill-image-resize-module\npm-shrinkwrap.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\package.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
