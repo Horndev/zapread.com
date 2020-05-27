@@ -376,11 +376,11 @@ namespace zapread.com.Controllers
                 }
                 else // Anonymous tip
                 {
-                    // Anonymous tip
                     vtx = await db.LightningTransactions
                         .FirstOrDefaultAsync(txn => txn.Id == tx)
                         .ConfigureAwait(true);
 
+                    // If trying to "re-use" an anonymous tip - fail it.
                     if (vtx == null || vtx.IsSpent == true)
                     {
                         Response.StatusCode = (int)HttpStatusCode.Forbidden;
