@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Globalization;
 using System.Linq;
 using zapread.com.Database;
@@ -70,84 +71,120 @@ namespace zapread.com.Services
         /// 
         /// </summary>
         /// <param name="request"></param>
-        /// <param name="userId"></param>
+        /// <param name="userAppId"></param>
         /// <param name="lndClient"></param>
         /// <returns></returns>
-        public object TryWithdrawal(string request, string userId, string ip, LndRpcClient lndClient)
+        public object TryWithdrawal(Models.LNTransaction request, string userAppId, string ip, LndRpcClient lndClient)
         {
+            if (request == null)
+            {
+                return new { success = false, Result = "Internal error." };
+            }
+
             if (lndClient == null)
             {
                 return HandleLndClientIsNull();
             }
-            
-            // Check if already paid // Check if payment request is ok
-            var decoded = lndClient.DecodePayment(request);
 
-            if (decoded == null || decoded.destination == null)
-            {
-                return new { success = false, Result = "Error decoding invoice." };
-            }
+            // Check if already paid // Check if payment request is ok
+            //var decoded = lndClient.DecodePayment(request);
+
+            //if (decoded == null || decoded.destination == null)
+            //{
+            //    return new { success = false, Result = "Error decoding invoice." };
+            //}
+
+            long FeePaid_Satoshi;   // This is used later if the invoice succeeds.
+            User user = null;
 
             using (var db = new ZapContext())
             {
-                User user = GetUserFromDB(userId, db);
+                // Check when user has made last LN transaction
+                var lasttx = db.LightningTransactions
+                    .Where(tx => tx.User.AppId == userAppId)            // This user
+                    .Where(tx => tx.Id != request.Id)                   // Not the one being processed now
+                    .OrderByDescending(tx => tx.TimestampCreated)       // Most recent
+                    .FirstOrDefault();
 
-                if (user == null)
+                if (lasttx != null && (DateTime.UtcNow - lasttx.TimestampCreated < TimeSpan.FromMinutes(5)))
+                {
+                    return new { success = false, Result = "Please wait 5 minutes between Lightning transaction requests." };
+                }
+
+                // Check if user has sufficient balance
+                var userFunds = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(usr => usr.Funds)
+                    .FirstOrDefault();
+
+                if (userFunds == null)
                 {
                     return HandleUserIsNull();
                 }
 
-                // Check all pending withdraw invoices and update balances before proceeding.
-
-                // Check if user has sufficient balance
-                if (user.Funds.Balance < Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture))
+                if (userFunds.IsWithdrawLocked)
                 {
-                    return new { success = false, Result = "Insufficient Funds. You have " + user.Funds.Balance.ToString("0.", CultureInfo.CurrentCulture) + ", invoice is for " + decoded.num_satoshis + "." };
+                    return new { success = false, Result = "User withdraw is locked.  Please contact an administrator." };
                 }
 
                 SendPaymentResponse paymentresult = null;
-                LNTransaction t = null;
                 string responseStr = "";
 
                 //all (should be) ok - make the payment
-                if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))  // This is to prevent flood attacks
+                if (WithdrawRequests.TryAdd(request.PaymentRequest, DateTime.UtcNow))  // This is to prevent flood attacks
                 {
-                    // Mark funds for withdraw as "in limbo" - will be resolved if verified as paid.
-                    user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
-                    user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
-
-                    //insert transaction record in db as pending
-                    t = new LNTransaction()
+                    // Check if user has sufficient balance
+                    if (userFunds.Balance < Convert.ToDouble(request.Amount, CultureInfo.InvariantCulture))
                     {
-                        IsSettled = false,
-                        Memo = (decoded.description ?? "Withdraw").SanitizeXSS(),
-                        HashStr = decoded.payment_hash,
-                        Amount = Convert.ToInt64(decoded.num_satoshis, CultureInfo.InvariantCulture),
-                        IsDeposit = false,
-                        TimestampSettled = DateTime.UtcNow,
-                        TimestampCreated = DateTime.UtcNow, //can't know
-                        PaymentRequest = request,
-                        FeePaid_Satoshi = 0,
-                        NodePubKey = decoded.destination,
-                        User = user,
-                        IsLimbo = true,
-                    };
-                    db.LightningTransactions.Add(t);
-                    db.SaveChanges();  // Synchronous to ensure balance is locked.
+                        return new
+                        {
+                            success = false,
+                            Result = "Insufficient Funds. You have "
+                                + userFunds.Balance.ToString("0.", CultureInfo.CurrentCulture)
+                                + ", invoice is for " + request.Amount.ToString(CultureInfo.CurrentCulture)
+                                + "."
+                        };
+                    }
 
-                    // Register polling listener (TODO)
+                    // Mark funds for withdraw as "in limbo" - will be resolved if verified as paid.
+                    userFunds.LimboBalance += Convert.ToDouble(request.Amount, CultureInfo.InvariantCulture);
+                    userFunds.Balance -= Convert.ToDouble(request.Amount, CultureInfo.InvariantCulture);
+
+                    // Funds are checked for optimistic concurrency here.  If the Balance has been updated,
+                    // we shouldn't proceed with the withdraw, so we will abort it.
+                    try
+                    {
+                        db.SaveChanges();  // Synchronous to ensure balance is locked.
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        // The balance has changed - don't do withdraw.
+
+                        // This may trigger if the user also gets funds added - such as a tip.
+                        // For now, we will fail the withdraw under any condition.
+                        // In the future, we may consider ignoring changes increasing balance.
+
+                        // Remove this request from the lock so the user can retry.
+                        WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTimeReset);
+
+                        return new { success = false, Result = "Failed. User balances changed during withdraw." };
+                    }
 
                     // Execute payment
                     try
                     {
-                        paymentresult = lndClient.PayInvoice(request, out responseStr);
+                        paymentresult = lndClient.PayInvoice(request.PaymentRequest, out responseStr);
                     }
                     catch (RestException e)
                     {
+                        user = db.Users
+                            .Where(u => u.AppId == userAppId)
+                            .FirstOrDefault();
+
                         // A RestException happens when there was an error with the LN node.
                         // At this point, the funds will remain in limbo until it is verified as paid by the 
                         //   periodic LNTransactionMonitor service.
-                        return HandleClientRestException(request, userId, db, user, t, responseStr, e);
+                        return HandleClientRestException(userAppId, request.Id, responseStr, e);
                     }
                 }
                 else
@@ -162,14 +199,16 @@ namespace zapread.com.Services
                     // Something went wrong.  Check if the payment went through
                     var payments = lndClient.GetPayments(include_incomplete: true);
 
-                    var pmt = payments.payments.Where(p => p.payment_hash == t.HashStr).FirstOrDefault();
+                    var pmt = payments.payments
+                        .Where(p => p.payment_hash == request.HashStr)
+                        .FirstOrDefault();
 
                     MailingService.Send(new UserEmailModel()
                     {
                         Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + t.HashStr
+                        Body = " Withdraw error: PayInvoice returned null result. \r\n hash: " + request.HashStr
                             + "\r\n recovered by getpayments: " + (pmt != null ? "true" : "false") + "\r\n invoice: "
-                            + request + "\r\n user: " + userId,
+                            + request + "\r\n user: " + userAppId,
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "User withdraw error 3",
@@ -191,7 +230,7 @@ namespace zapread.com.Services
                         {
                             Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
                             Body = " Withdraw error: payment error "
-                               + "\r\n user: " + userId + "\r\n username: " + user.Name
+                               + "\r\n user: " + userAppId + "\r\n username: " + user.Name
                                + "\r\n <br><br> response: " + responseStr,
                             Email = "",
                             Name = "zapread.com Exception",
@@ -202,12 +241,11 @@ namespace zapread.com.Services
                     {
                         // Not recovered - it will be cued for checkup later.  This could be caused by LND being "laggy"
                         // Reserve the user funds to prevent another withdraw
+
                         //user.Funds.LimboBalance += Convert.ToDouble(decoded.num_satoshis);
                         //user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
 
-                        t.ErrorMessage = "Error validating payment.";
-                        db.SaveChanges();
-                        return new { success = false, Result = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
+                        return HandlePaymentRecoveryFailed(userAppId, request.Id);
                     }
                 }
 
@@ -215,21 +253,7 @@ namespace zapread.com.Services
                 // TODO watch for this error, and if not found by June 2020 - delete this code
                 if (paymentresult.error != null && paymentresult.error != "")
                 {
-                    t.ErrorMessage = "Error: " + paymentresult.error;
-                    t.IsError = true;
-                    db.SaveChanges();
-
-                    MailingService.Send(new UserEmailModel()
-                    {
-                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Withdraw error: payment error "
-                               + "\r\n user: " + userId + "\r\n username: " + user.Name
-                               + "\r\n <br><br> response: " + responseStr,
-                        Email = "",
-                        Name = "zapread.com Exception",
-                        Subject = "User withdraw error 7",
-                    });
-                    return new { success = false, Result = "Error: " + paymentresult.error };
+                    return HandleLegacyPaymentRecoveryFailed(userAppId, request.Id, paymentresult, responseStr);
                 }
 
                 // The LND node returned an error
@@ -237,64 +261,191 @@ namespace zapread.com.Services
                 {
                     // Funds will remain in Limbo until failure verified by LNTransactionMonitor
                     // TODO: verify trust in this method - funds could be returned to user here.
-                    return HandleLNPaymentError(userId, db, user, paymentresult, t, responseStr);
+                    return HandleLNPaymentError(userAppId, request.Id, paymentresult, responseStr);
                 }
 
-                // Unblock this request since it was successful
-                WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
+                FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees, CultureInfo.InvariantCulture));
 
-                // should this be done here? Is there an async/sync check that payment was sent successfully?
+                // Unblock this request since it was successful
+                WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTime);
+            }
+
+            // We're going to start a new context as we are updating the Limbo Balance
+            using (var db = new ZapContext())
+            {
+                user = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefault();
 
                 // We have already subtracted the balance from the user account, since the payment was
                 // successful, we leave it subtracted from the account and we remove the balance from limbo.
+                bool saveFailed;
+                int attempts = 0;
 
-                //user.Funds.Balance -= Convert.ToDouble(decoded.num_satoshis);
-                user.Funds.LimboBalance -= Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
+                // Get an update-able entity for the transaction from the DB
+                var t = db.LightningTransactions
+                    .Where(tx => tx.Id == request.Id)
+                    .Where(tx => tx.User.AppId == userAppId)
+                    .FirstOrDefault();
 
-                //update transaction status in DB
-                t.IsSettled = true;
-                t.IsLimbo = false;
-
-                try
+                do
                 {
-                    t.FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees, CultureInfo.InvariantCulture));
-                }
-                catch
-                {
-                    t.FeePaid_Satoshi = 0;
-                }
+                    attempts++;
 
-                db.SaveChanges();
+                    if (attempts > 50)
+                    {
+                        // We REALLY should never get to this point.  If we're here, there is some strange
+                        // deadlock, or the user is being abusive and the funds will stay in Limbo.
+                    }
+
+                    saveFailed = false;
+
+                    user.Funds.LimboBalance -= Convert.ToDouble(request.Amount, CultureInfo.InvariantCulture);
+                    //update transaction status in DB
+                    t.IsSettled = true;
+                    t.IsLimbo = false;
+                    try
+                    {
+                        t.FeePaid_Satoshi = FeePaid_Satoshi;// (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees, CultureInfo.InvariantCulture));
+                    }
+                    catch
+                    {
+                        t.FeePaid_Satoshi = 0;
+                    }
+
+                    try
+                    { 
+                        db.SaveChanges();
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+                        foreach (var entry in ex.Entries)//.Single();
+                        {
+                            entry.Reload();
+                        }
+                    }
+                }
+                while (saveFailed);
+
                 return new { success = true, Result = "success", Fees = 0, userBalance = user.Funds.Balance };
             }
         }
 
-        private static object HandleLNPaymentError(string userId, ZapContext db, User user, SendPaymentResponse paymentresult, LNTransaction t, string responseStr)
+        private static object HandleLegacyPaymentRecoveryFailed(string userAppId, int txid, SendPaymentResponse paymentresult, string responseStr)
         {
-            // Save to database
-            t.ErrorMessage = "Error: " + paymentresult.payment_error;
-            t.IsError = true;
-            t.IsLimbo = false;
-            db.SaveChanges();
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefault();
 
-            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Withdraw error: payment error "
-                       + "\r\n user: " + userId + "\r\n username: " + user.Name
-                       + "\r\n <br><br> response: " + responseStr,
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "LightningPayments error - User withdraw error 5",
-                }, "Notify"));
+                var t = db.LightningTransactions
+                    .Where(tx => tx.Id == txid)
+                    .Where(tx => tx.User.AppId == userAppId)
+                    .FirstOrDefault();
 
-            return new { success = false, Result = "Error: " + paymentresult.payment_error };
+                t.ErrorMessage = "Error: " + paymentresult.error;
+                t.IsError = true;
+                db.SaveChanges();
+
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                    new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: payment error "
+                           + "\r\n user: " + userAppId + "\r\n username: " + user.Name
+                           + "\r\n <br><br> response: " + responseStr,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "User withdraw error 7",
+                    }, "Notify"));
+
+                return new { success = false, Result = "Error: " + paymentresult.error };
+            }
         }
 
-        private static object HandleClientRestException(string request, string userId, ZapContext db, User user, LNTransaction t, string responseStr, RestException e)
+        private static object HandlePaymentRecoveryFailed(string userAppId, int txid)
         {
-            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefault();
+
+                var t = db.LightningTransactions
+                    .Where(tx => tx.Id == txid)
+                    .Where(tx => tx.User.AppId == userAppId)
+                    .FirstOrDefault();
+
+                t.ErrorMessage = "Error validating payment.";
+                db.SaveChanges();
+
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                    new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: unknown error "
+                           + "\r\n user: " + userAppId + "\r\n username: " + user.Name
+                           + "\r\n <br><br> txid: " + txid.ToString(CultureInfo.InvariantCulture),
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "LightningPayments error - User withdraw error X",
+                    }, "Notify"));
+
+                return new { success = false, Result = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
+            }
+        }
+
+        private static object HandleLNPaymentError(string userAppId, int txid, SendPaymentResponse paymentresult, string responseStr)
+        {
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefault();
+
+                var t = db.LightningTransactions
+                    .Where(tx => tx.Id == txid)
+                    .Where(tx => tx.User.AppId == userAppId)
+                    .FirstOrDefault();
+
+                // Save to database
+                t.ErrorMessage = "Error: " + paymentresult.payment_error;
+                t.IsError = true;
+                t.IsLimbo = false;
+                db.SaveChanges();
+
+
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                    new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Withdraw error: payment error "
+                           + "\r\n user: " + userAppId + "\r\n username: " + user.Name
+                           + "\r\n <br><br> response: " + responseStr,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "LightningPayments error - User withdraw error 5",
+                    }, "Notify"));
+
+                return new { success = false, Result = "Error: " + paymentresult.payment_error };
+            }
+        }
+
+        private static object HandleClientRestException(string userAppId, int txid, string responseStr, RestException e)
+        {
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefault();
+
+                var t = db.LightningTransactions
+                    .Where(tx => tx.Id == txid)
+                    .Where(tx => tx.User.AppId == userAppId)
+                    .FirstOrDefault();
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
                 new UserEmailModel()
                 {
                     Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
@@ -302,17 +453,18 @@ namespace zapread.com.Services
                         + "\r\n message: " + e.Message
                         + "\r\n hash: " + t.HashStr
                         + "\r\n Content: " + e.Content
-                        + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + request
-                        + "\r\n user: " + userId + "\r\n username: " + user.Name
+                        + "\r\n HTTPStatus: " + e.StatusDescription + "\r\n invoice: " + t.PaymentRequest
+                        + "\r\n user: " + userAppId + "\r\n username: " + user.Name
                         + "\r\n <br><br> response: " + responseStr,
                     Email = "",
                     Name = "zapread.com Exception",
                     Subject = "LightningPayments error - User withdraw error 4",
                 }, "Notify"));
 
-            t.ErrorMessage = "Error executing payment.";
-            db.SaveChanges();
-            return new { success = false, Result = "Error executing payment." };
+                t.ErrorMessage = "Error executing payment.";
+                db.SaveChanges();
+                return new { success = false, Result = "Error executing payment." };
+            }
         }
 
         private static object HandleUserIsNull()
@@ -344,13 +496,6 @@ namespace zapread.com.Services
                 }, "Notify"));
 
             return new { success = false, Result = "Lightning Node error." };
-        }
-
-        private static User GetUserFromDB(string userId, ZapContext db)
-        {
-            return db.Users
-                                .Include(usr => usr.Funds)
-                                .FirstOrDefault(u => u.AppId == userId);
         }
     }
 }

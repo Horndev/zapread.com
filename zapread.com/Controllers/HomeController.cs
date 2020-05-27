@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -135,6 +136,171 @@ namespace zapread.com.Controllers
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     return Json(new { success = false, result = "Failure", message = "Endpoint error." });
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> TestAO()
+        {
+            System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO start" + Environment.NewLine);
+            using (var db = new ZapContext())
+            {
+                var firsta = db.Users
+                    .Select(u => u.Funds)
+                    .First();
+                System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO fetched " + firsta.Balance.ToString() + Environment.NewLine);
+                // simulate reading
+                firsta.Balance -= 100;
+                var balance = firsta.Balance;
+                System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO updated " + firsta.Balance.ToString() + Environment.NewLine);
+                // Simulate a process
+                Thread.Sleep(10 * 1000);
+
+                System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO saving " + firsta.Balance.ToString() + Environment.NewLine);
+                try
+                {
+                    db.SaveChanges();
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO saved " + firsta.Balance.ToString() + Environment.NewLine);
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                {
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO failed " + firsta.Balance.ToString() + Environment.NewLine);
+                    return Json(new { result = "testAO failed", balance }, JsonRequestBehavior.AllowGet);
+                }
+
+                System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestAO end" + Environment.NewLine);
+                return Json(new { result = "testAO done", balance }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> TestBO()
+        {
+            System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO start" + Environment.NewLine);
+            using (var db = new ZapContext())
+            {
+                int attempts = 0;
+                bool saveFailed;
+                Models.Database.Financial.UserFunds firsta = db.Users
+                    .Select(u => u.Funds)
+                    .First(); 
+                    
+                do
+                {
+                    attempts++;
+                    saveFailed = false;
+
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO fetched " + firsta.Balance.ToString() + " attempt " + attempts.ToString() + Environment.NewLine);
+                    firsta.Balance += 100;
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO updated " + firsta.Balance.ToString() + " attempt " + attempts.ToString() + Environment.NewLine);
+                
+                    // Simulate a process
+                    Thread.Sleep(10 * 1000);
+
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO saving " + firsta.Balance.ToString() + " attempt " + attempts.ToString() + Environment.NewLine);
+                
+                    try
+                    {
+                        db.SaveChanges();
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO saved " + firsta.Balance.ToString() + " attempt " + attempts.ToString() + Environment.NewLine);
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO end" + Environment.NewLine);
+                        return Json(new { result = "testBO done", firsta.Balance }, JsonRequestBehavior.AllowGet);
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestBO failed " + firsta.Balance.ToString() + " attempt " + attempts.ToString() + Environment.NewLine);
+
+                        // get the values in the DB to try again.
+                        var entry = ex.Entries.Single();
+                        entry.Reload();
+
+                        //var databaseValues = entry.GetDatabaseValues();
+                        //var databaseVersion = (Models.Database.Financial.UserFunds)databaseValues.ToObject();
+
+                        // Update to value in DB and attempt again
+                        //firsta.RowVersion = databaseVersion.RowVersion;
+                        //firsta.Balance = databaseVersion.Balance;
+                        //firsta.LimboBalance = databaseVersion.LimboBalance;                      
+
+                        //return Json(new { result = "testBO failed", firsta.Balance }, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+                while (saveFailed);
+                return Json(new { result = "testBO failed", firsta.Balance }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> TestA()
+        {
+            System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA start" + Environment.NewLine);
+            using (var db = new ZapContext())
+            {
+                using (var dbContextTransaction = db.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
+                {
+                    //
+                    var firsta = db.Users
+                        .Select(u => u.Funds)
+                        .First();
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA fetched " + firsta.Balance.ToString() + Environment.NewLine);
+                    // simulate reading
+                    firsta.Balance -= 100;
+                    var balance = firsta.Balance;
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA updated " + firsta.Balance.ToString() + Environment.NewLine);
+                    // Simulate a process
+                    Thread.Sleep(10 * 1000);
+
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA saving " + firsta.Balance.ToString() + Environment.NewLine);
+                    try
+                    {
+                        db.SaveChanges();
+                        dbContextTransaction.Commit();
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA saved " + firsta.Balance.ToString() + Environment.NewLine);
+                    }
+                    catch (System.Data.Entity.Core.EntityException e)
+                    {
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestA failed " + firsta.Balance.ToString() + Environment.NewLine);
+                        return Json(new { result = "testA failed", balance }, JsonRequestBehavior.AllowGet);
+                    }
+                                        
+                    return Json(new { result = "testA done", balance }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> TestB()
+        {
+            System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB start" + Environment.NewLine);
+            using (var db = new ZapContext())
+            {
+                using (var dbContextTransaction = db.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
+                {
+                    var firsta = db.Users
+                        .Select(u => u.Funds)
+                        .First();
+
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB fetched " + firsta.Balance.ToString() + Environment.NewLine);
+                    firsta.Balance += 100;
+
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB saving " + firsta.Balance.ToString() + Environment.NewLine);
+                    try
+                    {
+                        db.SaveChanges();
+                        dbContextTransaction.Commit();
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB saved " + firsta.Balance.ToString() + Environment.NewLine);
+                    }
+                    catch (System.Data.Entity.Core.EntityException e)
+                    {
+                        System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB failed " + firsta.Balance.ToString() + Environment.NewLine);
+                        return Json(new { result = "testB failed", firsta.Balance }, JsonRequestBehavior.AllowGet);
+                    }
+                    
+                    System.IO.File.AppendAllText(@"d:\file.txt", DateTime.UtcNow + " TestB end" + Environment.NewLine);
+                    return Json(new { result = "testB done", firsta.Balance }, JsonRequestBehavior.AllowGet);
                 }
             }
         }

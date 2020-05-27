@@ -790,6 +790,10 @@
     <Compile Include="Migrations\202004050040016_AddUserProcess.designer.cs">
       <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202005241907471_AddWithdrawTable.cs" />
+    <Compile Include="Migrations\202005241907471_AddWithdrawTable.designer.cs">
+      <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -811,6 +815,8 @@
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
+    <Compile Include="Models\Database\Financial\UserFunds.cs" />
+    <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
     <Compile Include="Models\Database\Post.cs" />
     <Compile Include="Models\Database\User.cs" />
@@ -1523,6 +1529,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202004050040016_AddUserProcess.resx">
       <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005241907471_AddWithdrawTable.resx">
+      <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -20,11 +20,11 @@ namespace zapread.com.Services
         /// <summary>
         /// Submit a request to make a Lightning Network withdrawal for a specified user.
         /// </summary>
-        /// <param name="request">LN invoice</param>
+        /// <param name="request">LN transaction request object</param>
         /// <param name="userId">account user ID for database lookup</param>
         /// <param name="ip">IP address of requestor (as can be determined)</param>
         /// <param name="lndClient">configured RPC client object</param>
         /// <returns>dynamic object (json serializable) indicating result</returns>
-        object TryWithdrawal(string request, string userId, string ip, LndRpcClient lndClient);
+        object TryWithdrawal(Models.LNTransaction request, string userId, string ip, LndRpcClient lndClient);
     }
 }
