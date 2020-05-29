@@ -7,8 +7,17 @@ using zapread.com.Database;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Manages background jobs related to user status
+    /// </summary>
     public class UserState
     {
+        /// <summary>
+        /// Checks if user is still online - if not, marks as offline.
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="name"></param>
+        /// <param name="t"></param>
         public void UserOffline(string appId, string name, DateTime t)
         {
             using (var db = new ZapContext())
