@@ -1,7 +1,12 @@
-﻿//
-// Partial Modal for update user alias
+﻿/**
+ * Partial Modal for update user alias
+ * 
+ * [  ] Native JS
+ * 
+ */
+import $ from 'jquery';
 
-import { getAntiForgeryToken } from '../../utility/antiforgery';
+import { getAntiForgeryToken } from '../../utility/antiforgery';    // [✓]
 
 export function updateAlias() {
     event.preventDefault();

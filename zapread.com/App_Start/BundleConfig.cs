@@ -88,9 +88,9 @@ namespace zapread.com
                         .WithLastModifiedToken());
 
             // Partial scripts - manage
-            bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
-                        "~/Scripts/Manage/updateAlias.js")
-                        .WithLastModifiedToken());
+            //bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
+            //            "~/Scripts/Manage/updateAlias.js")
+            //            .WithLastModifiedToken());
 
             #endregion
 

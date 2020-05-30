@@ -1,5 +1,6 @@
 ﻿//
 // script for _PartialGroupEditTags.cshtml
+import $ from 'jquery';
 
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 

@@ -55,7 +55,7 @@ ready(function () {
             document.getElementById("voteOkButton").innerHTML = 'Get Invoice';
         }
         else {
-            if (isTip) {
+            if (window.isTip) {
                 document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
                 document.getElementById("voteOkButton").innerHTML = 'Tip';
             }
@@ -82,7 +82,7 @@ export function onVote(e) {
     var userBalance = userVote.b;
     var depositUse = "userDeposit";
     var memo = "ZapRead.com";
-    if (isTip) {
+    if (window.isTip) {
         depositUse = "tip";
         memo = 'ZapRead.com ' + $('#voteModalTitle').html();
     } else if (userVote.t === 1) {
@@ -114,7 +114,7 @@ export function onVote(e) {
         document.getElementById('btnCheckLNVote').style.display = "";   // show
     }
     else {
-        if (isTip) {
+        if (window.isTip) {
             doTip(userVote.id, userVote.amount, null);
         }
         else {
@@ -143,25 +143,33 @@ window.onVote = onVote;
 export function updateVoteInvoice(msg) {
     postJson("/Lightning/GetDepositInvoice/", msg)
     .then((response) => {
-        console.log(response);
-        document.getElementById("voteDepositInvoiceInput").value = response.Invoice;//.val(response.Invoice);
-        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-        document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
-        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
-        document.getElementById("voteDepositInvoiceFooter").style.display = '';
-        document.getElementById("voteDepositQR").style.display = '';
-        document.getElementById("voteDepositInvoice").style.display = '';
+        if (response.success) {
 
+            console.log(response);
+            document.getElementById("voteDepositInvoiceInput").value = response.Invoice;//.val(response.Invoice);
+            document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
+            document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+            document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
+            document.getElementById("voteDepositInvoiceFooter").style.display = '';
+            document.getElementById("voteDepositQR").style.display = '';
+            document.getElementById("voteDepositInvoice").style.display = '';
+        }
+        else {
+            document.getElementById("voteDepositInvoiceFooter").innerHTML = response.message;
+            document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
+            document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+            document.getElementById("voteDepositInvoiceFooter").style.display = '';
+        }
+    })
+    .then(() => {
         showVoteModal(); //$('#voteModal').modal('show');
     })
     .catch((error) => {
         console.log(error);
         document.getElementById("voteDepositInvoiceFooter").innerHTML = "Error generating invoice";
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
         document.getElementById("voteDepositInvoiceFooter").style.display = '';
     });
@@ -200,7 +208,7 @@ export function vote(id, d, t, b, o) {
     // d  : the direction of the vote
     // t  : the type of item voted on.  (2 = comment)
     // o  : the object calling vote
-    isTip = false;
+    window.isTip = false;
     var userBalance = 0;
     var voteCost = parseInt(document.getElementById('voteValueAmount').value);  // $('#voteValueAmount').val()
 
@@ -281,7 +289,7 @@ async function refreshUserBalance() {
  * [✓]
  **/
 function showVoteModal() {
-    if (document.getElementById('voteModal').hasOwnProperty('hasOwnProperty')) {
+    if (Object.prototype.hasOwnProperty.call(document.getElementById('voteModal'), "Modal")) {
         document.getElementById('voteModal').Modal.show();
     } else {
         var voteModalEl = document.getElementById('voteModal');
@@ -341,7 +349,7 @@ export function doVote(id, d, t, amount, tx) {
         return response.json();
     })
     .then((data) => {
-        if (data.result === "success") {
+        if (data.success) {
             var icon = userVote.o.querySelectorAll('i').item(0);
             //var icon = $(userVote.o).find('i');
             icon.classList.remove('fa-circle-o-notch');
@@ -389,7 +397,7 @@ window.doVote = doVote;
  * @param {any} uid  id of user
  */
 export function tip(user, uid) {
-    isTip = true;
+    window.isTip = true;
     document.getElementById('voteModalTitle').innerHTML = "Tip " + user;
 
     refreshUserBalance().then((userBalance) => {
@@ -461,6 +469,6 @@ export function doTip(id, amount, tx) {
         }
     });
 
-    isTip = false;
+    window.isTip = false;
 }
 window.doTip = doTip;

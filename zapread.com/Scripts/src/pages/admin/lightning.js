@@ -1,6 +1,7 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
 
 import '../../shared/shared';
 import '../../realtime/signalr';

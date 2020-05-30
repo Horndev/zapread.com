@@ -1,13 +1,14 @@
-﻿/*
+﻿/**
+ * Load more posts
  * 
+ * [✓] Native JS
  */
 
-import { postData } from './postData';
+import { postData } from './postData';                      // [✓]  
 import { onLoadedMorePosts } from './onLoadedMorePosts';
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';                             // [✓]
 
 export function addposts(data, callback) {
-    //$("#posts").append(data.HTMLString);
     document.querySelectorAll('#posts').item(0).innerHTML += data.HTMLString; //.appendChild(data);
     callback();
 }
@@ -37,7 +38,7 @@ export function loadmore(options) {
             .then((data) => {
                 document.querySelectorAll('#loadmore').item(0).style.display = 'none';  // $('#loadmore').hide();
                 document.querySelectorAll('#btnLoadmore').item(0).disabled = false;     // $('#btnLoadmore').prop('disabled', false);
-                BlockNumber = BlockNumber + 10;
+                window.BlockNumber = window.BlockNumber + 10;
                 NoMoreData = data.NoMoreData;
                 inProgress = false;
                 addposts(data, onLoadedMorePosts);

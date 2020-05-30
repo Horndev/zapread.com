@@ -4,39 +4,18 @@
  * [✓] TODO remove jQuery
  * 
  **/
-// 
 
 //import $ from 'jquery';
 //import "jquery-ui-dist/jquery-ui";
 //import "jquery-ui-dist/jquery-ui.min.css";
 
-import { getAntiForgeryTokenValue } from '../utility/antiforgery';  // [✓]
+import { refreshUserBalance } from '../utility/refreshUserBalance'; // [✓]
 import { ready } from '../utility/ready';                           // [✓]
 import { postJson } from '../utility/postData';                     // [✓]
 
 //var toggleChat; // global function for quotable.  TODO: fix
 var ub = 0;
 window.ub = ub;
-
-// Used for caching scripts when loaded on-demand.
-var LoadedScripts = new Array();
-window.LoadedScripts = LoadedScripts;
-
-////jQuery.getScript = function (url, callback, cache) {
-////    if ($.inArray(url, LoadedScripts) > -1) {
-////        callback();
-////    }
-////    else {
-////        LoadedScripts.push(url);
-////        jQuery.ajax({
-////            type: "GET",
-////            url: url,
-////            success: callback,
-////            dataType: "script",
-////            cache: cache
-////        });
-////    }
-////};
 
 ready(function () {
     refreshUserBalance();
@@ -72,36 +51,6 @@ ready(function () {
     //    jQuery(this).on('keyup input', function () { resizeTextarea(this); }).removeAttr('data-autoresize');
     //});
 });
-
-async function refreshUserBalance() {
-    return fetch('/Account/Balance/', {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json',
-            '__RequestVerificationToken': getAntiForgeryTokenValue()
-        }
-    })
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        var ve = document.getElementById('userVoteBalance');
-        if (ve !== null) {
-            ve.innerHTML = data.balance;//$('#userVoteBalance').html(data.balance);
-        }
-
-        var elements = document.querySelectorAll(".userBalanceValue");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-            el.innerHTML = data.balance;
-        });
-
-        return data.balance;
-    });
-}
-
 
 // [X] TODO - move into section specifically for loading the top bar.
 postJson("/Messages/CheckUnreadChats/")

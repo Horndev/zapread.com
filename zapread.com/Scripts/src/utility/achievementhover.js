@@ -1,6 +1,7 @@
 ﻿/*
  * 
  */
+import $ from 'jquery';
 
 export function loadachhover(e) {
     $(e).removeAttr('onmouseover');

@@ -1,5 +1,6 @@
 ﻿//
 // script used in _PartialAddUserToGroupRoleForm.cshtml
+import $ from 'jquery';
 
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 

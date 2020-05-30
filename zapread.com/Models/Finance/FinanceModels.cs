@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Models
@@ -61,6 +62,8 @@ namespace zapread.com.Models
     {
         [Key]
         public int Id { get; set; }
+
+        public Guid WithdrawId { get; set; }
 
         public User User { get; set; }
 

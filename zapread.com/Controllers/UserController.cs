@@ -606,13 +606,21 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">id of user to follow</param>
+        /// <param name="s">setting 1 = follow; 0 = unfollow</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("SetFollowing")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public JsonResult SetFollowing(int id, int s)
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return Json(new { Result = "Failure", Message = "You must be logged in to perform this action." });
+                return Json(new { success = false, message = "You must be logged in to perform this action." });
             }
 
             var userId = User.Identity.GetUserId();
@@ -628,7 +636,7 @@ namespace zapread.com.Controllers
 
                 if (loggedInUser == null)
                 {
-                    return Json(new { Result = "Failure", Message = "Error finding logged in user." });
+                    return Json(new { success = false, message = "Error finding logged in user." });
                 }
 
                 User user = db.Users.Where(u => u.Id == id)
@@ -638,7 +646,12 @@ namespace zapread.com.Controllers
                 if (user == null)
                 {
                     // User doesn't exist.
-                    return Json(new { Result = "Failure", Message = "Error finding user." });
+                    return Json(new { success = false, message = "Error finding user." });
+                }
+
+                if (loggedInUser.Id == user.Id)
+                {
+                    return Json(new { success = false, message = "Can't follow yourself!" });
                 }
 
                 if (s == 0)
@@ -668,7 +681,7 @@ namespace zapread.com.Controllers
                 }
 
                 db.SaveChanges();
-                return Json(new { Result = "Success" });
+                return Json(new { success = true });
             }
         }
 
