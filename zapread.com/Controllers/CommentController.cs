@@ -18,6 +18,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Comments;
 using zapread.com.Models.Database;
+using zapread.com.Models.Database.Financial;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers

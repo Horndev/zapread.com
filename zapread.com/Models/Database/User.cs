@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using zapread.com.Models.Database.Financial;
 
 namespace zapread.com.Models.Database
 {
@@ -76,7 +77,11 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("Administrators")]
         public virtual ICollection<Group> GroupAdministration { get; set; }
+
         public ICollection<LNTransaction> LNTransactions { get; set; }
+
+        [InverseProperty("User")]
+        public ICollection<Financial.Withdraw> Withdraws { get; set; }
 
         public ICollection<APIKey> APIKeys { get; set; }
 

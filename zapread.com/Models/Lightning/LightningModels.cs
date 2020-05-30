@@ -7,5 +7,9 @@
         public string Result { get; set; }
 
         public int Id { get; set; }
+
+        public string message { get; set; }
+
+        public bool success { get; set; }
     }
 }

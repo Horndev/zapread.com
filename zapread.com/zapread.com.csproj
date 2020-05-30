@@ -790,6 +790,14 @@
     <Compile Include="Migrations\202004050040016_AddUserProcess.designer.cs">
       <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202005241907471_AddWithdrawTable.cs" />
+    <Compile Include="Migrations\202005241907471_AddWithdrawTable.designer.cs">
+      <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005302024335_addWithdrawGuid.cs" />
+    <Compile Include="Migrations\202005302024335_addWithdrawGuid.designer.cs">
+      <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -811,6 +819,8 @@
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
+    <Compile Include="Models\Database\Financial\UserFunds.cs" />
+    <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
     <Compile Include="Models\Database\Post.cs" />
     <Compile Include="Models\Database\User.cs" />
@@ -838,6 +848,7 @@
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
+    <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
@@ -856,6 +867,7 @@
     <Compile Include="Services\PayoutsService.cs" />
     <Compile Include="Services\ReputationService.cs" />
     <Compile Include="Services\UserState.cs" />
+    <Compile Include="Services\VoteService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1523,6 +1535,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202004050040016_AddUserProcess.resx">
       <DependentUpon>202004050040016_AddUserProcess.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005241907471_AddWithdrawTable.resx">
+      <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005302024335_addWithdrawGuid.resx">
+      <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

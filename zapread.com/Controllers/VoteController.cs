@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -8,23 +9,17 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Database.Financial;
+using zapread.com.Models.Posts;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for the /Vote route
+    /// </summary>
     public class VoteController : Controller
     {
-        /// <summary>
-        /// This is the REST call model
-        /// </summary>
-        public class Vote
-        {
-            public int Id { get; set; }
-            public int d { get; set; }
-            public int a { get; set; }
-            public int tx { get; set; }
-        }
-
         /// <summary>
         /// User voting on a post
         /// </summary>
@@ -37,536 +32,197 @@ namespace zapread.com.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { success = false, result = "error", message = "Invalid" });
+                return Json(new { success = false, message = "Invalid" });
             }
 
+            // Bad parameters check
             if (v == null || v.a < 1)
             {
-                return Json(new { success = false, result = "error", message = "Invalid" });
+                return Json(new { success = false, message = "Invalid" });
             }
 
-            var userId = User.Identity.GetUserId();
-
-            bool IsUserOwner = false;
-            bool IsUserAnonymous = false;
-
-            if (userId == null) // Anonymous vote
-            {
-                IsUserAnonymous = true;
-            }
-
+            // Do checks
             using (var db = new ZapContext())
             {
-                var website = await db.ZapreadGlobals.FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(true);
+                var postInfo = await db.Posts
+                    .Where(p => p.PostId == v.Id)
+                    .Select(p => new
+                    {
+                        p.Score,
+                        p.UserId.Reputation
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                User user = null;
+                var userAppId = User.Identity.GetUserId();
 
-                var post = await db.Posts
-                    .Include(p => p.VotesUp)
-                    .Include(p => p.VotesDown)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.Funds)
-                    .FirstOrDefaultAsync(p => p.PostId == v.Id).ConfigureAwait(true);
+                double scoreAdj = 0.0;
 
-                if (post == null)
-                {
-                    return Json(new { success = false, result = "error", message = "Invalid Post" });
-                }
-
-                if (userId == null)// Anonymous vote
+                if (userAppId == null) // Anonymous vote
                 {
                     // Check if vote tx has been claimed
-                    var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
+                    var txIsValid = await db.LightningTransactions
+                        .Where(tx => tx.Id == v.tx)
+                        .Select(tx => tx.IsSettled && !tx.IsSpent && tx.Amount >= v.a)
+                        .FirstOrDefaultAsync().ConfigureAwait(true); // bool default is false
 
-                    if (vtx == null || vtx.IsSpent == true)
+                    if (!txIsValid)
                     {
-                        return Json(new { success = false, result = "error", message = "No transaction to vote with" });
+                        return Json(new { success = false, message = "No transaction to vote with" });
                     }
 
-                    vtx.IsSpent = true;
-                    await db.SaveChangesAsync().ConfigureAwait(true);
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
+                        amount: v.a * (v.d == 1 ? 1 : -1),
+                        targetRep: v.d == 1 ? 0 : postInfo.Reputation,
+                        actorRep: 0);
                 }
                 else
                 {
-                    user = await db.Users
-                        .Include(usr => usr.Funds)
-                        .Include(usr => usr.EarningEvents)
-                        .Include(usr => usr.SpendingEvents)
-                        .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+                    var userInfo = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => new { 
+                            hasFunds = u.Funds.Balance > v.a,
+                            u.Reputation
+                        })
+                        .FirstOrDefaultAsync().ConfigureAwait(true); // bool default is false
 
-                    if (user == null)
+                    if (!userInfo.hasFunds)
                     {
-                        return Json(new { success = false, result = "error", message = "Invalid User" });
+                        return Json(new { success = false, message = "Error with requesting user." });
                     }
 
-                    if (user.Funds.Balance < v.a)
-                    {
-                        return Json(new { success = false, result = "error", message = "Insufficient Funds." });
-                    }
-
-                    user.Funds.Balance -= v.a;
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
+                        amount: v.a * (v.d == 1 ? 1 : -1),
+                        targetRep: v.d == 1 ? 0 : postInfo.Reputation,
+                        actorRep: userInfo.Reputation);
                 }
 
-                double userBalance = RecordSpendingEvent(v, user, post);
-                long authorRep = post.UserId.Reputation;
-                long userRep = 0;
-
-                if (v.d == 1) // Voted up
+                if (postInfo == null)
                 {
-                    if (user != null && post.VotesUp.Contains(user))
-                    {
-                        // Already voted - remove upvote?
-                        //post.VotesUp.Remove(user);
-                        //user.PostVotesUp.Remove(post);
-                        //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
-                        //return Json(new { result = "success", message = "Already Voted", delta = 0, score = post.Score, balance = user.Funds.Balance });
-                        userRep = user.Reputation;
-                    }
-                    else if (user != null)
-                    {
-                        post.VotesUp.Add(user);
-                        user.PostVotesUp.Add(post);
-                        userRep = user.Reputation;
-                    }
-
-                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, 0, userRep);
-                    post.Score += Convert.ToInt32(adj);// v.a;
-
-                    string ownerAppId = RecordPostIncome(v, ref IsUserOwner, IsUserAnonymous, user, post);
-
-                    RecordDistributions(v, website, post);
-
-                    try
-                    {
-                        await db.SaveChangesAsync().ConfigureAwait(true);
-                    }
-                    catch (Exception)
-                    {
-                        return Json(new { success = false, result = "error", message = "Error" });
-                    }
-
-                    NotificationService.SendIncomeNotification(0.6 * v.a, ownerAppId, "Post upvote", Url.Action("Detail", "Post", new { post.PostId }));
-
-                    return Json(new { success = true, result = "success", delta = 1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
+                    return Json(new { success = false, message = "Invalid Post" });
                 }
-                else
+
+                // All good - queue processing - this part is slower, so it will be done in a background job
+                // Return the optimistic result to the user to improve UI response
+                BackgroundJob.Enqueue<VoteService>(x => x.PostVote(
+                    userAppId,
+                    v.Id,       // postId
+                    v.a,        // amount
+                    v.d == 1,   // isUpvote
+                    v.tx        // txid
+                ));
+
+                // Note that this is actually going to be saved in the background job
+                // we are only sending the optimistic estimate here
+                var newScore = postInfo.Score + scoreAdj;
+
+                // Return quick results
+                return Json(new
                 {
-                    // Voted down
-                    if (user != null && post.VotesDown.Contains(user))
-                    {
-                        //post.VotesDown.Remove(user);
-                        //user.PostVotesDown.Remove(post);
-                        //post.Score = post.VotesUp.Count() - post.VotesDown.Count();
-                        //return Json(new { result = "success", message = "Already Voted", delta = 0, score = post.Score, balance = user.Funds.Balance });
-                        userRep = user.Reputation;
-                    }
-                    else if (user != null)
-                    {
-                        post.VotesDown.Add(user);
-                        user.PostVotesDown.Add(post);
-                        userRep = user.Reputation;
-                    }
-                    //post.VotesUp.Remove(user);
-                    //user.PostVotesUp.Remove(post);
-                    var adj = ReputationService.GetReputationAdjustedAmount(-1 * v.a, authorRep, userRep);
-
-                    post.Score += Convert.ToInt32(adj);// v.a;// post.VotesUp.Count() - post.VotesDown.Count();
-
-                    // Record and assign earnings
-                    // Related to post owner
-                    var webratio = 0.1;
-                    var comratio = 0.1;
-
-                    var owner = post.UserId;
-
-                    if (user != null && owner.Id == user.Id)
-                    {
-                        IsUserOwner = true;
-                    }
-
-                    if (!IsUserAnonymous && !IsUserOwner)
-                    {
-                        owner.Reputation -= v.a;
-                    }
-
-                    var postGroup = post.Group;
-                    if (postGroup != null)
-                    {
-                        postGroup.TotalEarnedToDistribute += 0.8 * v.a;
-                    }
-                    else
-                    {
-                        comratio += 0.8;
-                    }
-
-                    if (website != null)
-                    {
-                        // Will be distributed to all users
-                        website.CommunityEarnedToDistribute += comratio * v.a;
-
-                        // And to the website
-                        website.ZapReadTotalEarned += webratio * v.a;
-                        website.ZapReadEarnedBalance += webratio * v.a;
-                    }
-
-                    await db.SaveChangesAsync();
-                    return Json(new { success = true, result = "success", delta = -1, score = post.Score, balance = userBalance, scoreStr = post.Score.ToAbbrString() });
-                }
+                    success = true,
+                    delta = v.d == 1 ? 1 : -1,
+                    scoreStr = newScore.ToAbbrString()
+                });
             }
         }
 
-        private static string RecordPostIncome(Vote v, ref bool IsUserOwner, bool IsUserAnonymous, User user, Post post)
-        {
-            // Record and assign earnings
-            // Related to post owner
-            post.TotalEarned += 0.6 * v.a;
-
-            var ea = new EarningEvent()
-            {
-                Amount = 0.6 * v.a,
-                OriginType = 0,
-                TimeStamp = DateTime.UtcNow,
-                Type = 0,
-                OriginId = post.PostId,
-            };
-
-            var owner = post.UserId;
-
-            if (user != null && owner.Id == user.Id)
-            {
-                IsUserOwner = true;
-            }
-
-            if (owner != null)
-            {
-                // If user is not anonymous, and user is not owner, add reputation
-                if (!IsUserAnonymous && !IsUserOwner)
-                {
-                    owner.Reputation += v.a;
-                }
-
-                owner.EarningEvents.Add(ea);
-                owner.TotalEarned += 0.6 * v.a;
-
-                if (owner.Funds == null)
-                {
-                    owner.Funds = new UserFunds() { Balance = 0.6 * v.a, TotalEarned = 0.6 * v.a };
-                }
-                else
-                {
-                    owner.Funds.Balance += 0.6 * v.a;
-                }
-            }
-            else
-            {
-                ; // TODO: log this error
-            }
-            string ownerAppId = owner.AppId;
-            return ownerAppId;
-        }
-
-        private static void RecordDistributions(Vote v, ZapReadGlobals website, Post post)
-        {
-            var webratio = 0.1;     // Website income
-            var comratio = 0.1;     // Community pool
-            var postGroup = post.Group;
-            if (postGroup != null)
-            {
-                postGroup.TotalEarnedToDistribute += 0.2 * v.a;
-            }
-            else
-            {
-                // not in group - send to community
-                comratio += 0.2;
-            }
-
-            if (website != null)
-            {
-                // Will be distributed to all users
-                website.CommunityEarnedToDistribute += comratio * v.a;
-
-                // And to the website
-                website.ZapReadTotalEarned += webratio * v.a;
-                website.ZapReadEarnedBalance += webratio * v.a;
-            }
-            else
-            {
-                throw new Exception("Unable to load Zapread DB globals.");
-            }
-        }
-
-        private static double RecordSpendingEvent(Vote v, User user, Post post)
-        {
-            var spendingEvent = new SpendingEvent()
-            {
-                Amount = v.a,
-                Post = post,
-                TimeStamp = DateTime.UtcNow,
-            };
-
-            double userBalance = 0.0;
-            if (user != null)
-            {
-                userBalance = user.Funds.Balance;
-                user.SpendingEvents.Add(spendingEvent);
-            }
-
-            return userBalance;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> Comment(Vote v)
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { result = "error", message = "Invalid" });
+                return Json(new { success = false, message = "Invalid" });
             }
 
-            if (v.a < 1)
+            // Bad parameters check
+            if (v == null || v.a < 1)
             {
-                return Json(new { result = "error", message = "Invalid" });
+                return Json(new { success = false, message = "Invalid" });
             }
-
-            bool IsUserOwner = false;
-            bool IsUserAnonymous = false;
-
-            var userId = User.Identity.GetUserId();
-
-            if (userId == null)
-            {
-                IsUserAnonymous = true;
-            }
-
+            
+            // Here we will do some quick checks, answer the user, and queue the formal settlement
+            // in a batch queue.
             using (var db = new ZapContext())
             {
-                var comment = db.Comments
-                    .Include(c => c.VotesUp)
-                    .Include(c => c.VotesDown)
-                    .Include(c => c.UserId)
-                    .Include(c => c.UserId.Funds)
-                    .Include(c => c.Post)
-                    .FirstOrDefault(c => c.CommentId == v.Id);
+                var commentInfo = await db.Comments
+                    .Where(c => c.CommentId == v.Id)
+                    .Select(c => new {
+                        c.Score,
+                        c.UserId.Reputation
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                if (comment == null)
-                {
-                    return Json(new { result = "error", message = "Invalid Comment" });
-                }
+                var userAppId = User.Identity.GetUserId();
 
-                User user = null;
+                double scoreAdj = 0.0;
 
-                if (userId == null) // Anonymous vote
+                if (userAppId == null) // Anonymous vote
                 {
                     // Check if vote tx has been claimed
-                    var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == v.tx);
+                    var txIsValid = await db.LightningTransactions
+                        .Where(tx => tx.Id == v.tx)
+                        .Select(tx => tx.IsSettled && !tx.IsSpent && tx.Amount >= v.a)
+                        .FirstOrDefaultAsync().ConfigureAwait(true); // bool default is false
 
-                    if (vtx == null || vtx.IsSpent == true)
+                    if (!txIsValid)
                     {
-                        return Json(new { result = "error", message = "No transaction to vote with" });
+                        return Json(new { success = false, message = "No transaction to vote with" });
                     }
 
-                    vtx.IsSpent = true;
-                    await db.SaveChangesAsync();
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
+                        amount: v.a * (v.d == 1 ? 1 : -1),
+                        targetRep: v.d == 1 ? 0 : commentInfo.Reputation,
+                        actorRep: 0);
                 }
                 else
                 {
-                    user = db.Users
-                        .Include(usr => usr.Funds)
-                        .Include(usr => usr.EarningEvents)
-                        .FirstOrDefault(u => u.AppId == userId);
+                    var userInfo = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => new {
+                            hasFunds = u.Funds.Balance > v.a,
+                            u.Reputation
+                        })
+                        .FirstOrDefaultAsync().ConfigureAwait(true); // bool default is false
 
-                    if (user == null)
+                    if (!userInfo.hasFunds)
                     {
-                        return Json(new { result = "error", message = "Invalid User" });
+                        return Json(new { success = false, message = "Error with requesting user." });
                     }
 
-                    if (user.Funds.Balance < v.a)
-                    {
-                        return Json(new { result = "error", message = "Insufficient Funds." });
-                    }
-
-                    user.Funds.Balance -= v.a;
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
+                        amount: v.a * (v.d == 1 ? 1 : -1),
+                        targetRep: v.d == 1 ? 0 : commentInfo.Reputation,
+                        actorRep: userInfo.Reputation);
                 }
 
-                var spendingEvent = new SpendingEvent()
+                if (commentInfo == null)
                 {
-                    Amount = v.a,
-                    Comment = comment,
-                    TimeStamp = DateTime.UtcNow,
-                };
-
-                double userBalance = 0.0;
-                if (user != null)
-                {
-                    userBalance = user.Funds.Balance;
-                    user.SpendingEvents.Add(spendingEvent);
+                    return Json(new { success = false, message = "Invalid Comment" });
                 }
 
-                long authorRep = comment.UserId.Reputation;
-                long userRep = 0;
+                // All good - queue processing - this part is slower, so it will be done in a background job
+                // Return the optimistic result to the user to improve UI response
+                BackgroundJob.Enqueue<VoteService>(x => x.CommentVote(
+                    userAppId,
+                    v.Id,       // commentId
+                    v.a,        // amount
+                    v.d == 1,   // isUpvote
+                    v.tx        // txid
+                ));
 
-                if (v.d == 1)
-                {
-                    if (comment.VotesUp.Contains(user))
-                    {
-                        // Already voted
-                    }
-                    else if (user != null)
-                    {
-                        comment.VotesUp.Add(user);
-                        user.CommentVotesUp.Add(comment);
-                        userRep = user.Reputation;
-                    }
+                var newScore = commentInfo.Score + scoreAdj;
 
-                    var adj = ReputationService.GetReputationAdjustedAmount(v.a, 0, userRep);
-
-                    comment.Score += Convert.ToInt32(adj);// v.a;
-                    comment.TotalEarned += 0.6 * v.a;
-
-                    var ea = new Models.EarningEvent()
-                    {
-                        Amount = 0.6 * v.a,
-                        OriginType = 1,                                 // Comment
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,                                       // Direct earning
-                        OriginId = Convert.ToInt32(comment.CommentId),  // For linking back to comment
-                    };
-
-                    var webratio = 0.1;
-                    var comratio = 0.1;
-
-                    var owner = comment.UserId;
-
-                    if (user != null && user.Id == owner.Id)
-                    {
-                        IsUserOwner = true;
-                    }
-
-                    if (owner != null)
-                    {
-                        if (!IsUserAnonymous && !IsUserOwner)
-                        {
-                            owner.Reputation += v.a;
-                        }
-                        owner.EarningEvents.Add(ea);
-                        owner.TotalEarned += 0.6 * v.a;
-                        if (owner.Funds == null)
-                        {
-                            owner.Funds = new UserFunds() { Balance = 0.6 * v.a, TotalEarned = 0.6 * v.a };
-                        }
-                        else
-                        {
-                            owner.Funds.Balance += 0.6 * v.a;
-                        }
-                    }
-
-                    if (comment.Post != null)
-                    {
-                        var group = comment.Post.Group;
-                        if (group != null)
-                        {
-                            group.TotalEarnedToDistribute += 0.2 * v.a;
-                        }
-                        else
-                        {
-                            // not in group - send to community
-                            comratio += 0.2;
-                        }
-                    }
-                    else
-                    {
-                        comratio += 0.2;
-                    }
-
-                    var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
-
-                    if (website != null)
-                    {
-                        // Will be distributed to all users
-                        website.CommunityEarnedToDistribute += comratio * v.a;
-
-                        // And to the website
-                        website.ZapReadTotalEarned += webratio * v.a;
-                        website.ZapReadEarnedBalance += webratio * v.a;
-                    }
-                    try
-                    {
-                        await db.SaveChangesAsync();
-                    }
-                    catch (Exception)
-                    {
-                        return Json(new { result = "error", message = "Error" });
-                    }
-
-                    NotificationService.SendIncomeNotification(0.6 * v.a, owner.AppId, "Comment upvote", Url.Action("Detail", "Post", new { PostId = comment.Post.PostId }));
-
-                    return Json(new { result = "success", delta = 1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
-                }
-                else
-                {
-                    if (comment.VotesDown.Contains(user))
-                    {
-                        // Already voted
-                    }
-                    else if (user != null)
-                    {
-                        comment.VotesDown.Add(user);
-                        user.CommentVotesDown.Add(comment);
-                        userRep = user.Reputation;
-                    }
-
-                    var adj = ReputationService.GetReputationAdjustedAmount(-1 * v.a, authorRep, userRep);
-                    comment.Score += Convert.ToInt32(adj);// v.a;
-
-                    // Record and assign earnings
-                    // Related to post owner
-                    var webratio = 0.1;
-                    var comratio = 0.1;
-
-                    var owner = comment.UserId;
-
-                    if (user != null && user.Id == owner.Id)
-                    {
-                        IsUserOwner = true;
-                    }
-
-                    if (!IsUserAnonymous && !IsUserOwner)
-                    {
-                        owner.Reputation -= v.a;
-                    }
-
-                    if (comment.Post != null)
-                    {
-                        var postGroup = comment.Post.Group;
-                        if (postGroup != null)
-                        {
-                            postGroup.TotalEarnedToDistribute += 0.8 * v.a;
-                        }
-                        else
-                        {
-                            comratio += 0.8;
-                        }
-                    }
-                    else
-                    {
-                        comratio += 0.8;
-                    }
-
-                    var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
-
-                    if (website != null)
-                    {
-                        // Will be distributed to all users
-                        website.CommunityEarnedToDistribute += comratio * v.a;
-
-                        // And to the website
-                        website.ZapReadTotalEarned += webratio * v.a;
-                        website.ZapReadEarnedBalance += webratio * v.a;
-                    }
-
-                    await db.SaveChangesAsync();
-                    return Json(new { result = "success", delta = -1, score = comment.Score, balance = userBalance, scoreStr = comment.Score.ToAbbrString() });
-                }
+                return Json(new {
+                    success = true,
+                    delta = v.d == 1 ? 1 : -1, 
+                    scoreStr = newScore.ToAbbrString()
+                });
             }
         }
     }
