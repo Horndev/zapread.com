@@ -349,7 +349,7 @@ export function doVote(id, d, t, amount, tx) {
         return response.json();
     })
     .then((data) => {
-        if (data.result === "success") {
+        if (data.success) {
             var icon = userVote.o.querySelectorAll('i').item(0);
             //var icon = $(userVote.o).find('i');
             icon.classList.remove('fa-circle-o-notch');
