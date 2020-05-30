@@ -794,6 +794,10 @@
     <Compile Include="Migrations\202005241907471_AddWithdrawTable.designer.cs">
       <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202005302024335_addWithdrawGuid.cs" />
+    <Compile Include="Migrations\202005302024335_addWithdrawGuid.designer.cs">
+      <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1534,6 +1538,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202005241907471_AddWithdrawTable.resx">
       <DependentUpon>202005241907471_AddWithdrawTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005302024335_addWithdrawGuid.resx">
+      <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

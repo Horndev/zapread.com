@@ -287,6 +287,9 @@ namespace zapread.com.Controllers
                 return;
             }
 
+            // This is the amount which was paid - needed in case of 0 (any) value invoices
+            var amount = Convert.ToInt64(invoice.amt_paid_sat, CultureInfo.InvariantCulture);
+
             // Update LN transaction status in db
             using (ZapContext db = new ZapContext())
             {
@@ -304,6 +307,15 @@ namespace zapread.com.Controllers
                     t = tx.First();
                     t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
                     t.IsSettled = true;
+
+                    if (t.Amount != amount)
+                    {
+                        if (t.Amount == 0)
+                        {
+                            // This was a zero-invoice
+                            t.Amount = amount; // this will be saved to DB
+                        }
+                    }
                 }
                 else
                 {
@@ -315,7 +327,7 @@ namespace zapread.com.Controllers
                     {
                         IsSettled = invoice.settled.Value,
                         Memo = invoice.memo.SanitizeXSS(),
-                        Amount = Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture),
+                        Amount = amount,//Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture),
                         HashStr = invoice.r_hash,
                         IsDeposit = true,
                         TimestampSettled = settletime,
@@ -357,7 +369,7 @@ namespace zapread.com.Controllers
                             else
                             {
                                 // Update user balance - this is a deposit.
-                                userFunds.Balance += Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture);
+                                userFunds.Balance += amount;// Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture);
                                 userBalance = Math.Floor(userFunds.Balance);
                             }
                             try
@@ -438,11 +450,22 @@ namespace zapread.com.Controllers
                     LndRpcClient lndClient = GetLndClient();
 
                     // Decode invoice
-
                     var decoded = lndClient.DecodePayment(invoice);
 
                     if (decoded != null)
                     {
+                        double amount = Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
+
+                        if (amount < 1)
+                        {
+                            return Json(new { success = false, message = "Zero- or any-value invoices not supported" });
+                        }
+
+                        if (amount > 5000)
+                        {
+                            return Json(new { success = false, message = "Withdraws temporarily limited to 5000 Satoshi" });
+                        }
+
                         // Check user balance
                         var userFunds = await db.Users
                             .Where(u => u.AppId == userAppId)
@@ -457,8 +480,6 @@ namespace zapread.com.Controllers
                             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             return Json(new { success = false, message = "User not found in database." });
                         }
-
-                        double amount = Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
 
                         if (userFunds.Balance < amount)
                         {
@@ -484,6 +505,7 @@ namespace zapread.com.Controllers
                             FeePaid_Satoshi = 0,
                             NodePubKey = decoded.destination,
                             User = user,
+                            WithdrawId = Guid.NewGuid(),
                         };
                         db.LightningTransactions.Add(t);
                         await db.SaveChangesAsync().ConfigureAwait(true);
@@ -491,7 +513,7 @@ namespace zapread.com.Controllers
                         return Json(new
                         {
                             success = true,
-                            withdrawId = t.Id,
+                            withdrawId = t.WithdrawId,//.Id,
                             decoded.num_satoshis,
                             decoded.destination,
                         });
@@ -539,7 +561,7 @@ namespace zapread.com.Controllers
                     return Json(new
                     {
                         success = true,
-                        withdrawId = t.Id,
+                        withdrawId = t.WithdrawId,//t.Id,
                         num_satoshis = t.Amount,
                         destination = t.NodePubKey,
                     });
@@ -560,7 +582,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public ActionResult SubmitPaymentRequest(int withdrawId)//string request)
+        public ActionResult SubmitPaymentRequest(string withdrawId)//string request)
         {
             var userAppId = User.Identity.GetUserId();
 
@@ -572,8 +594,9 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
+                var wguid = new Guid(withdrawId);
                 var lntx = db.LightningTransactions
-                    .Where(tx => tx.Id == withdrawId)
+                    .Where(tx => tx.WithdrawId == wguid)
                     .Where(tx => tx.User.AppId == userAppId)
                     .AsNoTracking()
                     .FirstOrDefault();

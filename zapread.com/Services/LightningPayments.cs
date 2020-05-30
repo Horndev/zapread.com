@@ -86,14 +86,6 @@ namespace zapread.com.Services
                 return HandleLndClientIsNull();
             }
 
-            // Check if already paid // Check if payment request is ok
-            //var decoded = lndClient.DecodePayment(request);
-
-            //if (decoded == null || decoded.destination == null)
-            //{
-            //    return new { success = false, Result = "Error decoding invoice." };
-            //}
-
             long FeePaid_Satoshi;   // This is used later if the invoice succeeds.
             User user = null;
 
