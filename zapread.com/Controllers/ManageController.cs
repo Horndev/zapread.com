@@ -19,7 +19,9 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.Account.Transactions;
 using zapread.com.Models.Database;
+using zapread.com.Models.Database.Financial;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -341,9 +343,6 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var receiver = await db.Users
-                    .Include(usr => usr.Funds)
-                    .Include(usr => usr.EarningEvents)
-                    .Include(usr => usr.Settings)
                     .Where(u => u.Id == id)
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
@@ -353,151 +352,188 @@ namespace zapread.com.Controllers
                     return Json(new { success = false, Result = "Failure", Message = "User not found." });
                 }
 
-                if (tx == null)
+                string senderName = "anonymous";
+                bool saveAborted = false;
+                UserFunds userFunds = null;
+                LNTransaction vtx = null;
+
+                var userAppId = User.Identity.GetUserId();
+                if (tx == null) // Pay the user from the logged-in account balance
                 {
-                    var userId = User.Identity.GetUserId();
-                    if (userId == null)
+                    if (userAppId == null)
                     {
                         return Json(new { success = false, Result = "Failure", Message = "User not found." });
                     }
-
-                    var user = await db.Users
-                        .Include(usr => usr.Funds)
-                        .Include(usr => usr.SpendingEvents)
-                        .Where(u => u.AppId == userId)
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                    // Ensure user has the funds available.
-                    if (user.Funds.Balance < amount)
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        return Json(new { success = false, Result = "Failure", Message = "Not enough funds." });
-                    }
-
-                    // All requirements are met - make payment
-                    user.Funds.Balance -= amount.Value;
-                    receiver.Funds.Balance += amount.Value;
-
-                    // Add Earning Event
-
-                    var ea = new EarningEvent()
-                    {
-                        Amount = amount.Value,
-                        OriginType = 2,
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,
-                    };
-
-                    receiver.EarningEvents.Add(ea);
-
-                    var spendingEvent = new SpendingEvent()
-                    {
-                        Amount = amount.Value,
-                        TimeStamp = DateTime.UtcNow,
-                    };
-
-                    user.SpendingEvents.Add(spendingEvent);
+                    var userName = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => u.Name)
+                        .FirstAsync().ConfigureAwait(true);
 
                     // Notify receiver
-                    var alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "You received a tip!",
-                        Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a><br/> Amount: " + amount.ToString() + " Satoshi.",
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = receiver,
-                    };
-
-                    receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-
-                    try
-                    {
-                        if (receiver.Settings == null)
-                        {
-                            receiver.Settings = new UserSettings();
-                        }
-
-                        if (receiver.Settings.NotifyOnReceivedTip)
-                        {
-                            string receiverEmail = UserManager.FindById(receiver.AppId).Email;
-                            MailingService.Send(user: "Notify",
-                                message: new UserEmailModel()
-                                {
-                                    Subject = "You received a tip!",
-                                    Body = "From: " + user.Name + "<br/> Amount: " + amount.ToString() + " Satoshi.<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
-                                    Destination = receiverEmail,
-                                    Email = "",
-                                    Name = "ZapRead.com Notify"
-                                });
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        // Send an email.
-                        MailingService.Send(new UserEmailModel()
-                        {
-                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                            Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + userId,
-                            Email = "",
-                            Name = "zapread.com Exception",
-                            Subject = "Send NotifyOnReceivedTip error.",
-                        });
-                    }
-
-                    return Json(new { success = true, Result = "Success" });
+                    senderName = "<a href='"
+                        + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = userName })
+                        + "'>" + userName + "</a>";
                 }
-                else
+                else // Anonymous tip
                 {
-                    // Anonymous tip
+                    vtx = await db.LightningTransactions
+                        .FirstOrDefaultAsync(txn => txn.Id == tx)
+                        .ConfigureAwait(true);
 
-                    var vtx = await db.LightningTransactions.FirstOrDefaultAsync(txn => txn.Id == tx);
-
+                    // If trying to "re-use" an anonymous tip - fail it.
                     if (vtx == null || vtx.IsSpent == true)
                     {
                         Response.StatusCode = (int)HttpStatusCode.Forbidden;
                         return Json(new { Result = "Failure", Message = "Transaction not found" });
                     }
+                }
 
-                    vtx.IsSpent = true;
+                // Begin financial part
+                var receiverFunds = await db.Users
+                    .Where(u => u.Id == id)
+                    .Select(u => u.Funds)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                    receiver.Funds.Balance += amount.Value;// vtx.Amount;//amount;
+                if (tx == null)
+                {
+                    userFunds = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Funds)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+                }
 
-                    // Notify receiver
+                int attempts = 0;
+                bool saveFailed;
+                saveAborted = false;
+
+                do
+                {
+                    attempts++;
+                    saveFailed = false;
+
+                    if (attempts < 50)
+                    {
+                        if (tx == null) // Do this only if tip was from a logged-in user
+                        {
+                            // Ensure user has the funds available.
+                            if (userFunds.Balance < amount)
+                            {
+                                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                                return Json(new { success = false, Result = "Failure", Message = "Not enough funds." });
+                            }
+                            userFunds.Balance -= amount.Value;
+                        }
+                        
+                        receiverFunds.Balance += amount.Value;
+
+                        try
+                        {
+                            db.SaveChanges(); // synchronous
+                        }
+                        catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                        {
+                            saveFailed = true;
+                            foreach(var entry in ex.Entries)
+                            {
+                                entry.Reload();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        saveAborted = true;
+                    }
+                }
+                while (saveFailed);
+
+                if (saveAborted == false)
+                {
+                    if (tx == null)
+                    {
+                        // Add spending event
+                        db.Users.Where(u => u.AppId == userAppId)
+                        .Select(u => u.SpendingEvents)
+                        .First().Add(new SpendingEvent()
+                        {
+                            Amount = amount.Value,
+                            TimeStamp = DateTime.UtcNow,
+                        });
+                    }
+                    else // anonymous tip
+                    {
+                        vtx.IsSpent = true;
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                    }
+                }
+                else
+                {
+                    if (tx == null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.Conflict;
+                        return Json(new 
+                        { 
+                            success = false, 
+                            Result = "Failure", 
+                            Message = "Too many balance updates.  Please try again later." 
+                        });
+                    }
+                    else
+                    {
+                        // need to handle assignment of anonymous tx to user.
+                        // we don't want funds to be lost. This will be handled by 
+                        // cron process checking db sync with LND node.
+                    }
+                }
+
+                // Add Earning Event
+                db.Users.First(u => u.Id == id).EarningEvents.Add(new EarningEvent()
+                {
+                    Amount = amount.Value,
+                    OriginType = 2,
+                    TimeStamp = DateTime.UtcNow,
+                    Type = 0,
+                });
+
+                // Do notifications for the receiver
+                var receiverSettings = await db.Users
+                    .Where(u => u.Id == id)
+                    .Select(u => new {
+                        DoNotify = u.Settings == null ? false : u.Settings.NotifyOnReceivedTip
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (receiverSettings.DoNotify)
+                {
                     var alert = new UserAlert()
                     {
                         TimeStamp = DateTime.Now,
                         Title = "You received a tip!",
-                        Content = "From: anonymous <br/> Amount: " + amount.ToString() + " Satoshi.",
+                        Content = "From: " + senderName + " <br/> Amount: " + amount.ToString() + " Satoshi.",
                         IsDeleted = false,
                         IsRead = false,
                         To = receiver,
                     };
 
-                    receiver.Alerts.Add(alert);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
+                    db.Users.First(u => u.Id == id).Alerts.Add(alert);
 
-                    if (receiver.Settings == null)
-                    {
-                        receiver.Settings = new UserSettings();
-                    }
+                    string receiverEmail = UserManager.FindById(receiver.AppId).Email;
 
-                    if (receiver.Settings.NotifyOnReceivedTip)
-                    {
-                        string receiverEmail = UserManager.FindById(receiver.AppId).Email;
-                        MailingService.Send(user: "Notify",
-                            message: new UserEmailModel()
-                            {
-                                Subject = "You received a tip!",
-                                Body = "From: anonymous <br/> Amount: " + amount.ToString() + " Satoshi.<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
-                                Destination = receiverEmail,
-                                Email = "",
-                                Name = "ZapRead.com Notify"
-                            });
-                    }
-                    return Json(new { success = true, Result = "Success" });
+                    // queue for sending the email
+                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                        new UserEmailModel()
+                        {
+                            Destination = receiverEmail,
+                            Body = "From: " + senderName + " <br/> Amount: "
+                                + amount.ToString()
+                                + " Satoshi.<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
+                            Email = "",
+                            Name = "ZapRead.com Notify",
+                            Subject = "You received a tip!",
+                        }, "Notify"));
                 }
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+                return Json(new { success = true, Result = "Success" });
             }
         }
 

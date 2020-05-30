@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Database.Financial;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -49,53 +50,49 @@ namespace zapread.com.Controllers
         }
 
         /* Monetary aspects */
-        [AllowAnonymous]
-        public async Task<JsonResult> UserBalance()
-        {
-            Response.AddHeader("X-Frame-Options", "DENY");
-            string userId = "?";
-            try
-            {
-                if (!Request.IsAuthenticated)
-                {
-                    return Json(new { balance = 0 });
-                }
-
-                userId = User.Identity.GetUserId();
-
-                if (userId == null)
-                {
-                    return Json(new { balance = 0 });
-                }
-
-                using (var db = new ZapContext())
-                {
-                    var user = await db.Users
-                        .Include(usr => usr.Funds)
-                        .FirstOrDefaultAsync(u => u.AppId == userId);
-
-                    if (user == null)
-                    {
-                        return Json(new { balance = 0 });
-                    }
-
-                    return Json(new { balance = Math.Floor(user.Funds.Balance) });
-                }
-            }
-            catch (Exception e)
-            {
-                MailingService.Send(new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userId,
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "Account Controller error",
-                });
-
-                return Json(new { balance = 0 });
-            }
-        }
+        
+        // This is no longer used - remove    
+        //[AllowAnonymous]
+        //public async Task<JsonResult> UserBalance()
+        //{
+        //    Response.AddHeader("X-Frame-Options", "DENY");
+        //    string userId = "?";
+        //    try
+        //    {
+        //        if (!Request.IsAuthenticated)
+        //        {
+        //            return Json(new { balance = 0 });
+        //        }
+        //        userId = User.Identity.GetUserId();
+        //        if (userId == null)
+        //        {
+        //            return Json(new { balance = 0 });
+        //        }
+        //        using (var db = new ZapContext())
+        //        {
+        //            var user = await db.Users
+        //                .Include(usr => usr.Funds)
+        //                .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+        //            if (user == null)
+        //            {
+        //                return Json(new { balance = 0 });
+        //            }
+        //            return Json(new { balance = Math.Floor(user.Funds.Balance) });
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        MailingService.Send(new UserEmailModel()
+        //        {
+        //            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+        //            Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userId,
+        //            Email = "",
+        //            Name = "zapread.com Exception",
+        //            Subject = "Account Controller error",
+        //        });
+        //        return Json(new { balance = 0 });
+        //    }
+        //}
 
         private async Task EnsureUserExists(string userId, ZapContext db)
         {

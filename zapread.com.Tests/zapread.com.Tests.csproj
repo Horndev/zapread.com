@@ -254,6 +254,7 @@
     <Compile Include="Controllers\VoteControllerTests.cs" />
     <Compile Include="Database\LndConfigTest.cs" />
     <Compile Include="Helpers\NumbersTest.cs" />
+    <Compile Include="Lightning\LNPaymentTests.cs" />
     <Compile Include="Mailer\MailerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\HomeControllerTest.cs" />
