@@ -845,6 +845,7 @@
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
+    <Compile Include="Models\Messages\ChatsDataItem.cs" />
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />

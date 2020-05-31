@@ -24,11 +24,17 @@ using zapread.com.Services;
 namespace zapread.com.Controllers
 {
     //[RoutePrefix("{Type:regex(Post|post)}")]
+    /// <summary>
+    /// Controller for the /Post/ Route
+    /// </summary>
     public class PostController : Controller
     {
         private ApplicationRoleManager _roleManager;
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// Access for Owin user manager
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -41,6 +47,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Access for Owin roles manager
+        /// </summary>
         public ApplicationRoleManager RoleManager
         {
             get
@@ -52,11 +61,7 @@ namespace zapread.com.Controllers
                 _roleManager = value;
             }
         }
-        public class EditPostInfo
-        {
-            public int PostId { get; set; }
-        }
-
+        
         /// <summary>
         /// Fetch a draft post (by post ID)
         /// </summary>
@@ -172,6 +177,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets and updates post impressions count.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet, Route("Post/Impressions/{id}")]
         public async Task<PartialViewResult> Impressions(int? id)
         {
@@ -189,6 +199,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Only Admin or Mod user can make a post sticky in the group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> ToggleStickyPost(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -218,6 +235,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Admin or Mod can toggle a post as NSFW
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -292,7 +314,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                await EnsureUserExists(userId, db);
+                await EnsureUserExists(userId, db).ConfigureAwait(true);
                 var user = db.Users.Where(u => u.AppId == userId).First();
                 var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
                 var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
@@ -324,7 +346,7 @@ namespace zapread.com.Controllers
         {
             if (userId != null)
             {
-                if (db.Users.Where(u => u.AppId == userId).Count() == 0)
+                if (!db.Users.Where(u => u.AppId == userId).Any())
                 {
                     // no user entry
                     User u = new User()
@@ -351,7 +373,7 @@ namespace zapread.com.Controllers
         /// <param name="groupId"></param>
         /// <param name="content"></param>
         /// <param name="postTitle"></param>
-        /// <param name="groupName"></param>
+        /// <param name="isDraft"></param>
         /// <returns></returns>
         [Route("Post/Submit")]
         [HttpPost]
@@ -870,6 +892,11 @@ namespace zapread.com.Controllers
             public bool IsDraft { get; set; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON Header")]
@@ -956,6 +983,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="newLanguage"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult ChangeLanguage(int postId, string newLanguage)
         {
