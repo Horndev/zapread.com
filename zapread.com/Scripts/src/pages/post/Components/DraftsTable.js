@@ -78,6 +78,21 @@ export default function DraftsTable(props) {
         getData();
     }, []); // only on load
 
+    useEffect(() => {
+        async function getData() {
+            await postJson(dataURL, {
+                Start: 0,
+                Length: props.pageSize,
+            }).then((response) => {
+                var newData = response.data;
+                setData(newData);
+                setNumRecords(response.recordsTotal);
+            });
+        }
+
+        getData();
+    }, [props.numSaves]); // when numSaves changes
+
     const options = {
         paginationSize: 4,
         sizePerPage: props.pageSize,

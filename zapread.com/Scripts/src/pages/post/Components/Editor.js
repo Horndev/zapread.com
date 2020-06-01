@@ -64,6 +64,15 @@ class EmbedResponsive extends BlockEmbed {
 }
 Quill.register(EmbedResponsive);
 
+var FontAttributor = Quill.import('attributors/class/font');
+console.log(FontAttributor.whitelist);
+console.log(FontAttributor);
+FontAttributor.whitelist = [
+    'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
+        'open', 'roboto', 'tahoma', 'times', 'trebuchet', 'verdana'
+];
+Quill.register(FontAttributor, true);
+
 var icons = Quill.import('ui/icons');
 icons['submit'] = '<i class="fa fa-check"></i> Submit';
 icons['save'] = '<i class="fa fa-save"></i> Save';
@@ -87,17 +96,28 @@ export default class Editor extends React.Component {
             toolbar: {
                 container: [
                     ['submit', 'save'],
-                    [{ 'header': [1, 2, false] }],
+                    [{ 'header': [1, 2, 3, false] }],
                     ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
-                    [{ 'font': [] }],
+                    [{
+                        'font': [
+                            'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
+                            'open', 'roboto', 'tahoma', /*'times',*/ 'trebuchet', 'verdana'
+                        ] }],
                     [{ 'align': [] }],
                     [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
                     [{ color: [] }, { background: [] }],
                     ['link', 'image', 'video'],
                     ['clean']],
                 handlers: {
-                    'save': function () { },    //dummy - will be updated
-                    'submit': function () { }   //dummy - will be updated
+                    'save': function () {
+                        var self = this;
+                        self.props.onSaveDraft();
+                        //console.log('save clicked');
+                    },
+                    'submit': function () {
+                        
+                        console.log('submit clicked');
+                    }
             }},
             //videoResize: {
             //},

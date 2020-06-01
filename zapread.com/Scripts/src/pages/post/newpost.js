@@ -4,7 +4,7 @@
 
 import '../../shared/shared';                                           // [✓]
 import '../../realtime/signalr';                                        // [✓]
-import React, { useCallback, useEffect, useState, useRef } from 'react';           // [✓]
+import React, { useCallback, useEffect, useState, useRef } from 'react';// [✓]
 import { Container, Row, Col } from 'react-bootstrap';                  // [✓]
 import ReactDOM from 'react-dom';                                       // [✓]
 import Swal from 'sweetalert2';                                         // [✓]
@@ -41,6 +41,7 @@ function Page() {
         }).then((response) => {
             console.log(response);
             setPostId(response.postId);
+            setNumSaves(numSaves + 1);
         });
     }, [postTitle, postContent, postId, groupId]);
 
@@ -52,14 +53,16 @@ function Page() {
             showCancelButton: true
         }).then((willDelete) => {
             if (willDelete.value) {
-                postJson("/Post/Draft/Load/", {
+                postJson("/Post/Draft/Delete/", {
                     postId: postId,
                 }).then((response) => {
-                    console.log(response);
-                    setValue(response.draftPost.Content);   // set the editor content
-                    setPostId(postId);                      // this is the post we are now editing
-                    setGroupName(response.draftPost.GroupName);
-                    setPostTitle(response.draftPost.PostTitle);
+                    //console.log(response);
+                    if (response.success) {
+                        setNumSaves(numSaves + 1); // updates draft table
+                    }
+                    else {
+                        // ?
+                    }
                 });
             } else {
                 console.log("cancelled load");
@@ -78,26 +81,15 @@ function Page() {
                 postJson("/Post/Draft/Load/", {
                     postId: postId,
                 }).then((response) => {
-                    console.log(response);
-                    setValue(response.draftPost.Content);   // set the editor content
-                    setPostId(postId);                      // this is the post we are now editing
-                    setGroupName(response.draftPost.GroupName);
-                    setPostTitle(response.draftPost.PostTitle);
+                    //console.log(response);
+                    if (response.success) {
+                        setNumSaves(numSaves + 1);  // updates draft table
+                        setPostContent(response.draftPost.Content);   // set the editor content
+                        setPostId(postId);                      // this is the post we are now editing
+                        setGroupName(response.draftPost.GroupName);
+                        setPostTitle(response.draftPost.PostTitle);
+                    }
                 });
-
-                //var form = document.createElement('form');
-                //document.body.appendChild(form);
-                //form.method = 'post';
-                //form.action = "/Post/Edit/";
-                //var data = { 'PostId': postId };
-                //for (var name in data) {
-                //    var input = document.createElement('input');
-                //    input.type = 'hidden';
-                //    input.name = name;
-                //    input.value = data[name];
-                //    form.appendChild(input);
-                //}
-                //form.submit();
             } else {
                 console.log("cancelled load");
             }
@@ -135,6 +127,10 @@ function Page() {
                                 locked={false}
                                 active={false}
                             />
+                            <div style={{
+                                paddingLeft: "20px",
+                                marginTop: "15px"
+                            }}><i className="fa fa-language fa-2x"></i></div>
                         </div>
                     </Col>
                 </Row>
@@ -160,6 +156,7 @@ function Page() {
                     <Col lg={8}>
                         <DraftsTable
                             title="Your saved drafts"
+                            numSaves={numSaves}
                             onLoadPost={handleLoadPost}
                             onDeleteDraft={handleDeleteDraft}
                             pageSize={10} />

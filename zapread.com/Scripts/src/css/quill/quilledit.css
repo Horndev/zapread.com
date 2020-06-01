@@ -1,4 +1,72 @@
 ﻿
+
+/*(probably don't need the double quotes below)*/
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=arial]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=arial]::before {
+    content: 'Arial';
+    font-family: 'Arial', 'Helvetica';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=calibri]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=calibri]::before {
+    content: 'Calibri';
+    font-family: 'Calibri', sans-serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=roboto]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=roboto]::before {
+    content: 'Roboto';
+    font-family: 'Roboto', sans-serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="courier"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="courier"]::before {
+    content: 'Courier New';
+    font-family: 'Courier New';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=georgia]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=georgia]::before {
+    content: 'Georgia';
+    font-family: 'Georgia', sans-serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="lucida"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lucida"]::before {
+    content: 'Lucida Sans';
+    font-family: 'Lucida Sans Unicode', sans-serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="open"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="open"]::before {
+    content: 'Open Sans';
+    font-family: 'Open Sans', sans-serif;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=tahoma]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=tahoma]::before {
+    content: 'Tahoma';
+    font-family: 'Tahoma';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="times"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="times"]::before {
+    content: 'Times New Roman';
+    font-family: 'Times New Roman';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="trebuchet"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="trebuchet"]::before {
+    content: 'Trebuchet MS';
+    font-family: 'Trebuchet MS';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=verdana]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=verdana]::before {
+    content: 'Verdana';
+    font-family: 'Verdana', sans-serif;
+}
+
 /* Auto column width on drafts table */
 .react-bootstrap-table table {
     table-layout: auto !important;

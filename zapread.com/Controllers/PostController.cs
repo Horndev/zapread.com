@@ -107,6 +107,38 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// Delete a draft post
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [Route("Post/Draft/Delete")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
+        public async Task<ActionResult> DeleteDraft(int postId)
+        {
+            var userId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == postId).ConfigureAwait(false);
+
+                if (!User.IsInRole("Administrator"))
+                {
+                    if (post.UserId.AppId != userId)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                post.IsDeleted = true;
+                await db.SaveChangesAsync().ConfigureAwait(false);
+
+                return Json(new { success = true });
+            }
+        }
+
+        /// <summary>
         /// This method returns the drafts table on the post editing view.
         /// </summary>
         /// <param name="dataTableParameters"></param>

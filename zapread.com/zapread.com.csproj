@@ -984,6 +984,7 @@
     <Content Include="Scripts\src\css\quill\quillchat.css" />
     <Content Include="Scripts\src\css\quill\quilledit.css" />
     <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <Content Include="Scripts\src\css\quill\quillfont.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
