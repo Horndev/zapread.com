@@ -24,7 +24,7 @@
             padding: 24px 16px 8px 16px;
         }
 
-            .field.active input + label {
+            .field.active input + label, .field.active div + label {
                 top: 4px;
                 opacity: 1;
                 color: #18a689;
@@ -70,7 +70,7 @@
             color: rgba(255, 255, 255, 0.8);
         }*/
 
-        .field input + label {
+        .field input + label, .field div + label {
             position: absolute;
             top: 24px;
             left: 16px;
@@ -84,7 +84,7 @@
             transition: 0.1s all ease-in-out;
         }
 
-            .field input + label.error {
+            .field input + label.error, .field div + label.error {
                 color: #ec392f;
             }
 

@@ -962,6 +962,7 @@
     </None>
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1083,6 +1084,7 @@
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
+    <Content Include="Scripts\src\pages\post\Components\Picker.js" />
     <Content Include="Scripts\src\pages\post\Components\Input.js" />
     <Content Include="Scripts\src\pages\post\newpost.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />

@@ -11,6 +11,7 @@ import Swal from 'sweetalert2';                                         // [✓]
 import Input from './Components/Input';                                 // [✓]
 import Editor from './Components/Editor';                               // [✓]
 import DraftsTable from './Components/DraftsTable';                     // [✓]
+import Picker from './Components/Picker';                               // [✓]
 import { postJson } from '../../utility/postData';                      // [✓]
 import PageHeading from '../../components/page-heading';                // [✓]
 import '../../shared/sharedlast';                                       // [✓]
@@ -118,14 +119,10 @@ function Page() {
                             />
                         </div>
                         <div className="ibox-title">
-                            <Input
-                                id="groupTitle"
+                            <Picker
                                 label="Group"
                                 value={groupName}
                                 setValue={setGroupName}
-                                predicted="Community"
-                                locked={false}
-                                active={false}
                             />
                             <div style={{
                                 paddingLeft: "20px",
@@ -172,6 +169,17 @@ ReactDOM.render(
     <Page />
     , document.getElementById("root"));
 
+/*
+<Input
+    id="groupTitle"
+    label="Group"
+    value={groupName}
+    setValue={setGroupName}
+    predicted="Community"
+    locked={false}
+    active={false}
+/>
+*/
 
 ////import '../../shared/shared';
 //import $ from 'jquery'; //yuck
