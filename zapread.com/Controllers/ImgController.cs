@@ -15,6 +15,9 @@ using zapread.com.Models;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for images
+    /// </summary>
     public class ImgController : Controller
     {
         /// <summary>
@@ -70,7 +73,59 @@ namespace zapread.com.Controllers
             }
         }
 
-        // GET: Img
+        /// <summary>
+        /// Icon for a group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Img/Group/Icon/{groupId}")]
+        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        public async Task<ActionResult> GroupIcon(int groupId)
+        {
+            using (var db = new ZapContext())
+            {
+                int size = 30;
+                var i = await db.Groups
+                    .Where(g => g.GroupId == groupId)
+                    .Select(g => g.GroupImage)
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                if (i != null)
+                {
+                    using (var ims = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ims);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, size, size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        } 
+                    }
+                }
+                else
+                {
+                    // do we have a default image?
+                    i = await db.Images
+                        .Where(im => im.Image != null)
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
+                    using (var ims = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ims);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, size, size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get an image from the database
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [OutputCache(Duration = int.MaxValue, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
         public ActionResult Content(int id)

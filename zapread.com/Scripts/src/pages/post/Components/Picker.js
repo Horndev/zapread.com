@@ -8,14 +8,26 @@ import '../../../css/components/autosuggest.css'
 import '../../../css/components/input.css'
 
 // Imagine you have a list of languages that you'd like to autosuggest.
-const languages = [
+const groups = [
     {
-        name: 'C',
-        year: 1972
+        name: 'Community',
+        year: 1972,
+        img: '/Img/Group/Icon/1'
     },
     {
-        name: 'Elm',
-        year: 2012
+        name: 'Cats',
+        year: 1972,
+        img: '/Img/Group/Icon/4'
+    },
+    {
+        name: 'Lightning',
+        year: 1972,
+        img: '/Img/Group/Icon/2'
+    },
+    {
+        name: 'Bitcoin',
+        year: 2012,
+        img: '/Img/Group/Icon/3'
     }
 ];
 
@@ -24,7 +36,7 @@ const getSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
 
-    return inputLength === 0 ? [] : languages.filter(lang =>
+    return inputLength === 0 ? [] : groups.filter(lang =>
         lang.name.toLowerCase().slice(0, inputLength) === inputValue
     );
 };
@@ -35,11 +47,19 @@ const getSuggestions = value => {
 const getSuggestionValue = suggestion => suggestion.name;
 
 // Use your imagination to render suggestions.
-const renderSuggestion = suggestion => (
-    <div>
-        {suggestion.name}
-    </div>
-);
+function renderSuggestion(suggestion, { query }) {
+
+    return (
+        <div>
+            <img src={suggestion.img} width="30" height="30"></img>
+            <span style={{
+                paddingLeft: "10px"
+            }}>
+                {suggestion.name}
+            </span>
+        </div>
+    )
+};
 
 export default class Picker extends React.Component {
     constructor(props) {
@@ -55,8 +75,11 @@ export default class Picker extends React.Component {
             suggestions: [],
             active: (props.locked && props.active) || false,
             error: props.error || "",
-            label: props.label || "Label"
+            label: props.label || "Label",
+            isLoading: false
         };
+
+        this.lastRequestId = null;
     }
 
     componentDidUpdate(prevProps) {
@@ -67,6 +90,7 @@ export default class Picker extends React.Component {
         if (this.props.value !== prevValue) {
             this.setState({ value: this.props.value });
         }
+        console.log('picker updated value: ' + this.props.value)
     }
 
     onChange = (event, { newValue }) => {
@@ -76,12 +100,31 @@ export default class Picker extends React.Component {
         this.props.setValue(newValue);
     };
 
+    loadSuggestions(value) {
+        // Cancel the previous request
+        if (this.lastRequestId !== null) {
+            clearTimeout(this.lastRequestId);
+        }
+
+        this.setState({
+            isLoading: true
+        });
+
+        // Fake request
+        this.lastRequestId = setTimeout(() => {
+            this.setState({
+                suggestions: getSuggestions(value)
+            });
+        }, 1000);
+    }
+
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
     onSuggestionsFetchRequested = ({ value }) => {
-        this.setState({
-            suggestions: getSuggestions(value)
-        });
+        this.loadSuggestions(value);
+        //this.setState({
+        //    suggestions: getSuggestions(value)
+        //});
     };
 
     // Autosuggest will call this function every time you need to clear suggestions.
