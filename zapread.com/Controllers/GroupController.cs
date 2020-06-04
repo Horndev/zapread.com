@@ -1073,14 +1073,32 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("Group/GetGroups/{prefix}")]
-        public JsonResult GetGroups(string prefix)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Group/GetGroups")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<JsonResult> GetGroups(string prefix, int max)
         {
             using (var db = new ZapContext())
             {
-                var matched = db.Groups.Where(g => g.GroupName.StartsWith(prefix)).Select(g => new { g.GroupName, g.GroupId }).Take(30).ToList();
-                return Json(matched, JsonRequestBehavior.AllowGet);
+                var matched = await db.Groups
+                    .Where(g => g.GroupName.StartsWith(prefix))
+                    .Select(g => new 
+                    { 
+                        g.GroupName, 
+                        g.GroupId,
+                        ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId
+                    })
+                    .Take(max)
+                    .ToListAsync().ConfigureAwait(false);
+
+                return Json(matched);
             }
         }
 

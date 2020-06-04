@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Autosuggest from 'react-autosuggest';
+import { postJson } from '../../../utility/postData';
 import '../../../css/components/autosuggest.css'
 import '../../../css/components/input.css'
 
@@ -32,13 +33,25 @@ const groups = [
 ];
 
 // Teach Autosuggest how to calculate suggestions for any given input value.
-const getSuggestions = value => {
+async function getSuggestions(value) {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
 
-    return inputLength === 0 ? [] : groups.filter(lang =>
-        lang.name.toLowerCase().slice(0, inputLength) === inputValue
-    );
+    if (inputLength === 0) {
+        return [];
+    }
+
+    postJson("/Group/GetGroups/", {
+        prefix: inputValue,
+        max: 10
+    }).then((response) => {
+        console.log(response);
+        return response;
+    });
+
+    //return inputLength === 0 ? [] : groups.filter(lang =>
+    //    lang.name.toLowerCase().slice(0, inputLength) === inputValue
+    //);
 };
 
 // When suggestion is clicked, Autosuggest needs to populate the input
@@ -51,11 +64,11 @@ function renderSuggestion(suggestion, { query }) {
 
     return (
         <div>
-            <img src={suggestion.img} width="30" height="30"></img>
+            <img src={"/Img/Group/Icon/" + suggestion.ImageId} width="30" height="30"></img>
             <span style={{
                 paddingLeft: "10px"
             }}>
-                {suggestion.name}
+                {suggestion.GroupName}
             </span>
         </div>
     )
@@ -110,12 +123,28 @@ export default class Picker extends React.Component {
             isLoading: true
         });
 
-        // Fake request
-        this.lastRequestId = setTimeout(() => {
+        postJson("/Group/GetGroups/", {
+            prefix: value,
+            max: 10
+        }).then((response) => {
+            console.log(response);
+            //return response;
             this.setState({
-                suggestions: getSuggestions(value)
+                suggestions: response
             });
-        }, 1000);
+        });
+
+        //var newsegs = getSuggestions(value);
+
+        //console.log(newsegs);
+        //console.log(groups);
+
+        //this.setState({
+        //    suggestions: newsegs
+        //});
+        // Fake request
+        //this.lastRequestId = setTimeout(() => { 
+        //}, 1000);
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
