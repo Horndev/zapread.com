@@ -1077,6 +1077,7 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
+    <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
@@ -1090,7 +1091,7 @@
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
     <Content Include="Scripts\src\pages\post\Components\Picker.js" />
     <Content Include="Scripts\src\pages\post\Components\Input.js" />
-    <Content Include="Scripts\src\pages\post\newpost.js" />
+    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
@@ -1169,7 +1170,7 @@
     <Content Include="Scripts\src\pages\messages\chats.js" />
     <Content Include="Scripts\src\pages\messages\index.js" />
     <Content Include="Scripts\src\pages\post\detail.js" />
-    <Content Include="Scripts\src\pages\post\edit.js" />
+    <Content Include="Scripts\src\pages\post\edit_del.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
@@ -1232,7 +1233,6 @@
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
     <Content Include="Views\Shared\_ModalAboutMe.cshtml" />
-    <Content Include="Views\Post\NewPost.cshtml" />
     <Content Include="Views\Post\Edit.cshtml" />
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />

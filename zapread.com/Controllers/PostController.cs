@@ -334,8 +334,15 @@ namespace zapread.com.Controllers
             }
         }
 
-        [AllowAnonymous]
-        public async Task<ActionResult> NewPost(int? group)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Post/Edit/{postId?}")]
+        public async Task<ActionResult> Edit(int? postId, int? group)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -782,49 +789,49 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult Edit(int postId)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
-            }
+        //public ActionResult Edit(int postId)
+        //{
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+        //    }
 
-            var userId = User.Identity.GetUserId();
+        //    var userId = User.Identity.GetUserId();
 
-            using (var db = new ZapContext())
-            {
-                var user = db.Users.Where(u => u.AppId == userId).First();
-                var postVm = db.Posts
-                    .Where(p => p.PostId == postId)
-                    .Select(p => new PostViewModel()
-                    {
-                        GroupId = p.Group.GroupId,
-                        GroupName = p.Group.GroupName,
-                        UserId = p.UserId.Id,
-                        UserAppId = p.UserId.AppId,
-                        PostTitle = p.PostTitle,
-                        Content = p.Content,
-                        PostId = p.PostId,
-                    })
-                    .AsNoTracking()
-                    .FirstOrDefault();
+        //    using (var db = new ZapContext())
+        //    {
+        //        var user = db.Users.Where(u => u.AppId == userId).First();
+        //        var postVm = db.Posts
+        //            .Where(p => p.PostId == postId)
+        //            .Select(p => new PostViewModel()
+        //            {
+        //                GroupId = p.Group.GroupId,
+        //                GroupName = p.Group.GroupName,
+        //                UserId = p.UserId.Id,
+        //                UserAppId = p.UserId.AppId,
+        //                PostTitle = p.PostTitle,
+        //                Content = p.Content,
+        //                PostId = p.PostId,
+        //            })
+        //            .AsNoTracking()
+        //            .FirstOrDefault();
 
-                // Must own post, or be an Administrator to edit
-                if (postVm == null || (postVm.UserAppId != userId && !User.IsInRole("Administrator")))
-                {
-                    // TODO: If userId doesn't match - should throw more informative error.
-                    return RedirectToAction("Index", "Home");
-                }
-                return View(postVm);
-            }
-        }
+        //        // Must own post, or be an Administrator to edit
+        //        if (postVm == null || (postVm.UserAppId != userId && !User.IsInRole("Administrator")))
+        //        {
+        //            // TODO: If userId doesn't match - should throw more informative error.
+        //            return RedirectToAction("Index", "Home");
+        //        }
+        //        return View(postVm);
+        //    }
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="PostId"></param>
         /// <param name="vote">0 = downvote, 1 = upvote</param>
-        /// <param name="postTitle">Optonal string which is used in SEO</param>
+        /// <param name="postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("Post/Detail/{PostId?}/{postTitle?}")]

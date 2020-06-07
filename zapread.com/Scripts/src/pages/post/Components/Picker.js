@@ -8,30 +8,6 @@ import { postJson } from '../../../utility/postData';
 import '../../../css/components/autosuggest.css'
 import '../../../css/components/input.css'
 
-// Imagine you have a list of languages that you'd like to autosuggest.
-const groups = [
-    {
-        name: 'Community',
-        year: 1972,
-        img: '/Img/Group/Icon/1'
-    },
-    {
-        name: 'Cats',
-        year: 1972,
-        img: '/Img/Group/Icon/4'
-    },
-    {
-        name: 'Lightning',
-        year: 1972,
-        img: '/Img/Group/Icon/2'
-    },
-    {
-        name: 'Bitcoin',
-        year: 2012,
-        img: '/Img/Group/Icon/3'
-    }
-];
-
 // Teach Autosuggest how to calculate suggestions for any given input value.
 async function getSuggestions(value) {
     const inputValue = value.trim().toLowerCase();
@@ -48,16 +24,12 @@ async function getSuggestions(value) {
         console.log(response);
         return response;
     });
-
-    //return inputLength === 0 ? [] : groups.filter(lang =>
-    //    lang.name.toLowerCase().slice(0, inputLength) === inputValue
-    //);
 };
 
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.name;
+const getSuggestionValue = suggestion => suggestion.GroupName;
 
 // Use your imagination to render suggestions.
 function renderSuggestion(suggestion, { query }) {
@@ -73,6 +45,10 @@ function renderSuggestion(suggestion, { query }) {
         </div>
     )
 };
+
+function shouldRenderSuggestions() {
+    return true;
+}
 
 export default class Picker extends React.Component {
     constructor(props) {
@@ -133,18 +109,6 @@ export default class Picker extends React.Component {
                 suggestions: response
             });
         });
-
-        //var newsegs = getSuggestions(value);
-
-        //console.log(newsegs);
-        //console.log(groups);
-
-        //this.setState({
-        //    suggestions: newsegs
-        //});
-        // Fake request
-        //this.lastRequestId = setTimeout(() => { 
-        //}, 1000);
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
@@ -184,6 +148,7 @@ export default class Picker extends React.Component {
                     onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                     onSuggestionsClearRequested={this.onSuggestionsClearRequested}
                     getSuggestionValue={getSuggestionValue}
+                    shouldRenderSuggestions={shouldRenderSuggestions}
                     renderSuggestion={renderSuggestion}
                     inputProps={inputProps}
                 />

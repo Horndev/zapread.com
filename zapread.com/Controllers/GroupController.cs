@@ -1087,15 +1087,26 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var matched = await db.Groups
-                    .Where(g => g.GroupName.StartsWith(prefix))
-                    .Select(g => new 
-                    { 
-                        g.GroupName, 
+                var query = db.Groups
+                    .Select(g => new
+                    {
+                        g.GroupName,
                         g.GroupId,
-                        ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId
+                        ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
+                        numMembers = g.Members.Count,
                     })
-                    .Take(max)
+                    .Take(max);
+
+                if (String.IsNullOrEmpty(prefix))
+                {
+                    query.OrderByDescending(g => g.numMembers);
+                }
+                else
+                {
+                    query = query.Where(g => g.GroupName.StartsWith(prefix));
+                }
+
+                var matched = await query
                     .ToListAsync().ConfigureAwait(false);
 
                 return Json(matched);

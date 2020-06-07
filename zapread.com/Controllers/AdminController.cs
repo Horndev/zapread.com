@@ -286,7 +286,8 @@ namespace zapread.com.Controllers
             }
         }
 
-        public ActionResult GetIcons(DataTableParameters dataTableParameters)
+        [Route("Admin/Group/Icons/List")]
+        public ActionResult GetGroupIcons(DataTableParameters dataTableParameters)
         {
             using (var db = new ZapContext())
             {

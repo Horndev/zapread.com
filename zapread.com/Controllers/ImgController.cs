@@ -74,13 +74,86 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize]
+        [Route("Img/Group/DefaultIcon")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> SetDefaultGroupIcon(HttpPostedFileBase file)
+        {
+            if (file == null)
+            {
+                return Json(new { success = false, message = "no file" });
+            }
+
+            using (var db = new ZapContext())
+            {
+                if (file.ContentLength > 0)
+                {
+                    Image img = Image.FromStream(file.InputStream);
+
+                    byte[] data;
+                    string contentType = "image/jpeg";
+                    if (img.RawFormat.Equals(ImageFormat.Gif))
+                    {
+                        contentType = "image/gif";
+                    }
+                    else
+                    {
+
+                    }
+                    int maxwidth = 50;
+
+                    var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
+
+                    using (Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale)))
+                    {
+
+                        if (img.RawFormat.Equals(ImageFormat.Gif))
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Gif);
+                        }
+                        else
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Jpeg);
+                        }
+
+                        UserImage i = await db.Images
+                            .FirstOrDefaultAsync(im => im.ImageId == 1).ConfigureAwait(false);
+
+                        if (i == null)
+                        {
+                            i = new UserImage()
+                            {
+                                ImageId = 1
+                            };
+                            db.Images.Add(i);
+                        }
+
+                        i.ContentType = contentType;
+                        i.Image = data;
+
+                        await db.SaveChangesAsync().ConfigureAwait(false);
+                        return Json(new { result = "success", imgId = i.ImageId });
+
+                    }
+                }
+                return Json(new { success = false });
+            }
+        }
+
+        /// <summary>
         /// Icon for a group
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Img/Group/Icon/{groupId}")]
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        //[OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> GroupIcon(int groupId)
         {
             using (var db = new ZapContext())
@@ -106,8 +179,16 @@ namespace zapread.com.Controllers
                 {
                     // do we have a default image?
                     i = await db.Images
+                        .Where(im => im.ImageId == 1)
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                    if (i == null || i.Image == null)
+                    {
+                        i = await db.Images
                         .Where(im => im.Image != null)
                         .FirstOrDefaultAsync().ConfigureAwait(false);
+                    }
+
                     using (var ims = new MemoryStream(i.Image))
                     {
                         Image png = Image.FromStream(ims);
