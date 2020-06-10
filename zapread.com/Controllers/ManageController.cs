@@ -712,7 +712,7 @@ namespace zapread.com.Controllers
                     AchievementsViewModel = uavm,
                     Settings = userInfo.Settings,
                     Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
-                    KnownLanguages = GetLanguages(),
+                    KnownLanguages = LanguageHelpers.GetLanguages(),
                     Reputation = userInfo.Reputation,
                 };
 
@@ -720,22 +720,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static List<string> GetLanguages()
-        {
-            // List of languages known
-            var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
-
-            var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-            var languages = languagesEng.Concat(languagesNat).ToList();
-            return languages;
-        }
+        
 
         private void ValidateClaims(UserSettings userSettings)
         {

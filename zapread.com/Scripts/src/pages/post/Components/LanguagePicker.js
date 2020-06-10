@@ -29,17 +29,16 @@ import '../../../css/components/input.css'
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.GroupName;
+const getSuggestionValue = suggestion => suggestion.Name;
 
 // Use your imagination to render suggestions.
 function renderSuggestion(suggestion, { query }) {
     return (
         <div>
-            <img src={"/Img/Group/Icon/" + suggestion.GroupId} width="30" height="30"></img>
             <span style={{
                 paddingLeft: "10px"
             }}>
-                {suggestion.GroupName}
+                {suggestion.Name}
             </span>
         </div>
     )
@@ -49,7 +48,7 @@ function shouldRenderSuggestions() {
     return true;
 }
 
-export default class Picker extends React.Component {
+export default class LanguagePicker extends React.Component {
     constructor(props) {
         super(props);
 
@@ -98,7 +97,7 @@ export default class Picker extends React.Component {
             isLoading: true
         });
 
-        postJson("/Group/GetGroups/", {
+        postJson("/user/languages/", {
             prefix: value,
             max: 10
         }).then((response) => {
@@ -109,7 +108,7 @@ export default class Picker extends React.Component {
             });
 
             this.setState({
-                suggestions: response
+                suggestions: response.languages
             });
         });
     }
@@ -149,6 +148,7 @@ export default class Picker extends React.Component {
                     getSuggestionValue={getSuggestionValue}
                     shouldRenderSuggestions={shouldRenderSuggestions}
                     renderSuggestion={renderSuggestion}
+                    highlightFirstSuggestion={true}
                     inputProps={inputProps}
                 />
                 <label htmlFor={1} className={error && "error"}>
@@ -158,3 +158,5 @@ export default class Picker extends React.Component {
         );
     }
 }
+
+// placeholder = &#xf1ab

@@ -1092,7 +1092,7 @@ namespace zapread.com.Controllers
                     {
                         g.GroupName,
                         g.GroupId,
-                        ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
+                        //ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
                         numMembers = g.Members.Count,
                     })
                     .Take(max);

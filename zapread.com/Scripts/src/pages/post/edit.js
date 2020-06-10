@@ -12,6 +12,7 @@ import Input from './Components/Input';                                 // [✓]
 import Editor from './Components/Editor';                               // [✓]
 import DraftsTable from './Components/DraftsTable';                     // [✓]
 import Picker from './Components/Picker';                               // [✓]
+import LanguagePicker from './Components/LanguagePicker';
 import { postJson } from '../../utility/postData';                      // [✓]
 import PageHeading from '../../components/page-heading';                // [✓]
 import '../../shared/sharedlast';                                       // [✓]
@@ -22,6 +23,7 @@ function Page() {
     const [postId, setPostId] = useState(-1);
     const [groupId, setGroupId] = useState(1);
     const [groupName, setGroupName] = useState('');
+    const [postLanguage, setPostLanguage] = useState('English');
     const [postTitle, setPostTitle] = useState('');
 
     const handleSaveDraft = useCallback(() => {
@@ -126,8 +128,14 @@ function Page() {
                             />
                             <div style={{
                                 paddingLeft: "20px",
-                                marginTop: "15px"
-                            }}><i className="fa fa-language fa-2x"></i></div>
+                                display: "flex"
+                            }}>
+                                <LanguagePicker
+                                    label={"\uf1ab"}
+                                    value={postLanguage}
+                                    setValue={setPostLanguage}
+                                />
+                            </div>
                         </div>
                     </Col>
                 </Row>
@@ -170,6 +178,8 @@ ReactDOM.render(
     , document.getElementById("root"));
 
 /*
+ * <i className="fa fa-language fa-2x"></i>
+ * 
 <Input
     id="groupTitle"
     label="Group"

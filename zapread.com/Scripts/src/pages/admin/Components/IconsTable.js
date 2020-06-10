@@ -2,34 +2,51 @@
  * 
  **/
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory, { PaginationProvider, PaginationTotalStandalone, PaginationListStandalone } from 'react-bootstrap-table2-paginator';
 import { Container, Row, Col, ButtonGroup, Button } from 'react-bootstrap';
 import { postJson } from '../../../utility/postData';
-
+import { getAntiForgeryToken } from '../../../utility/antiforgery';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 export default function IconsTable(props) {
     const [data, setData] = useState([]);
     const [numRecords, setNumRecords] = useState(0);
+    const [updateImgId, setUpdateImgId] = useState(0);
+
+    const inputFile = useRef(null);
 
     const dataURL = "/Admin/Group/Icons/List/";
 
     const columns = [
-        { dataField: 'Icon', text: 'Icon' },
-        { dataField: 'Id', text: 'Action', formatter: actionFormatter }];
+        { dataField: 'IconId', text: 'Image', formatter: iconFormatter },
+        { dataField: 'Icon', text: 'FA-Icon' },
+        { dataField: 'GroupName', text: 'Group' },
+        { dataField: 'GroupId', text: 'Action', formatter: actionFormatter }];
+
+    function iconFormatter(cell, row) {
+        return (
+            <>
+                <img src={`/Img/Group/Icon/${row.GroupId}/`} />
+            </>
+        );
+    }
 
     function actionFormatter(cell, row) {
         return (
-            //if (data.Memo !== "") {
-            //    return "<a href='" + data.URL + "'>" + data.Type + " (" + data.Memo + ")" + "</a>";
-            //}
-            //return data.Type;
             <>
-                Action
+                <Button variant="outline-primary" onClick={(e) => updateIcon(row.GroupId, e)}>Update Icon</Button>{' '}
+                <Button variant="outline-danger">Remove Icon</Button>{' '}
             </>
         );
+    }
+
+    function updateIcon(id, e) {
+        console.log(e);
+        console.log(id);
+        setUpdateImgId(id);
+        inputFile.current.click();
     }
 
     useEffect(() => {
@@ -69,6 +86,38 @@ export default function IconsTable(props) {
         console.log('CurrentIndex: ' + currentIndex);
     }
 
+    function handleFileChange(selectorFiles)
+    {
+        //console.log("handleFileChange");
+        var file = selectorFiles[0];
+
+        var fd = new FormData()
+        fd.append('file', file)
+        const xhr = new XMLHttpRequest();
+
+        // updateImgId is from the react state
+        xhr.open('POST', '/Img/Group/Icon/' + updateImgId + '/', true);
+        var headers = getAntiForgeryToken();
+
+        for (var index in headers) {
+            xhr.setRequestHeader(index, headers[index]);
+        }
+
+        // listen callback
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                console.log(data.imgId);
+            };
+        }
+
+        xhr.send(fd);
+
+        
+        console.log(selectorFiles);
+        console.log(updateImgId);
+    }
+
     return (
         <div className="ibox float-e-margins">
             <div className="ibox-title">
@@ -78,6 +127,11 @@ export default function IconsTable(props) {
                 <Container fluid="md">
                     <Row>
                         <Col lg={12}>
+                            <input type='file' id='file'
+                                ref={inputFile}
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(e.target.files)}
+                                style={{ display: 'none' }} />
                             <div>
                                 <PaginationProvider pagination={paginationFactory(options)}>
                                     {
@@ -88,7 +142,7 @@ export default function IconsTable(props) {
                                                 <div>
                                                     <BootstrapTable
                                                         remote
-                                                        keyField="Id"
+                                                        keyField="GroupId"
                                                         data={data}
                                                         columns={columns}
                                                         onTableChange={handleTableChange}

@@ -112,7 +112,6 @@ namespace zapread.com.Controllers
 
                     using (Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale)))
                     {
-
                         if (img.RawFormat.Equals(ImageFormat.Gif))
                         {
                             data = thumb.ToByteArray(ImageFormat.Gif);
@@ -144,6 +143,81 @@ namespace zapread.com.Controllers
                 }
                 return Json(new { success = false });
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        [Route("Img/Group/Icon/{groupId}")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> SetGroupIcon([System.Web.Http.FromBody]HttpPostedFileBase file, int groupId)
+        {
+            if (file == null)
+            {
+                return Json(new { success = false, message = "no file" });
+            }
+
+            using (var db = new ZapContext())
+            {
+                if (file.ContentLength > 0)
+                {
+                    Image img = Image.FromStream(file.InputStream);
+
+                    byte[] data;
+                    string contentType = "image/jpeg";
+                    if (img.RawFormat.Equals(ImageFormat.Gif))
+                    {
+                        contentType = "image/gif";
+                    }
+                    else
+                    {
+
+                    }
+                    int maxwidth = 50;
+
+                    var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
+
+                    using (Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale)))
+                    {
+                        if (img.RawFormat.Equals(ImageFormat.Gif))
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Gif);
+                        }
+                        else
+                        {
+                            data = thumb.ToByteArray(ImageFormat.Jpeg);
+                        }
+
+                        UserImage i = await db.Groups
+                            .Where(g => g.GroupId == groupId)
+                            .Select(g => g.GroupImage)
+                            .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                        if (i == null)
+                        {
+                            i = new UserImage()
+                            {
+                            };
+                            var group = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId)
+                                .ConfigureAwait(false);
+                            group.GroupImage = i;
+                        }
+
+                        i.ContentType = contentType;
+                        i.Image = data;
+
+                        await db.SaveChangesAsync().ConfigureAwait(false);
+                        return Json(new { result = "success", imgId = i.ImageId });
+                    }
+                }
+            }
+
+            return Json(new { success = false, message = "" });
         }
 
         /// <summary>

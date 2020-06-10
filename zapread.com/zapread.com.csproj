@@ -481,6 +481,7 @@
     <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelpers.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
     <Compile Include="Helpers\QueryHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
@@ -1089,6 +1090,7 @@
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
+    <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
     <Content Include="Scripts\src\pages\post\Components\Picker.js" />
     <Content Include="Scripts\src\pages\post\Components\Input.js" />
     <Content Include="Scripts\src\pages\post\edit.js" />

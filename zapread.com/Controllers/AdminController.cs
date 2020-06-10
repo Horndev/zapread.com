@@ -286,31 +286,59 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Lists the icons used by groups
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
+        [HttpPost]
         [Route("Admin/Group/Icons/List")]
-        public ActionResult GetGroupIcons(DataTableParameters dataTableParameters)
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public async Task<ActionResult> SetGroupIcon(DataTableParameters dataTableParameters)
         {
+            if (dataTableParameters == null)
+            {
+                return Json(new { success = false });
+            }
+
             using (var db = new ZapContext())
             {
-                var icons = db.Icons.OrderByDescending(i => i.Id).Skip(dataTableParameters.Start).Take(dataTableParameters.Length)
-                    .ToList();
+                var iconsQuery = db.Groups
+                    .OrderBy(g => g.GroupId)
+                    .Select(g => new
+                    {
+                        g.GroupId,
+                        g.GroupName,
+                        g.Icon, // Legacy
+                        IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
+                    });
 
-                var values = icons.Select(i => new DataItem()
-                {
-                    Icon = i.Icon,
-                    Graphic = i.Icon,
-                    Id = i.Id,
-                }).ToList();
+                //.Skip(dataTableParameters.Start).Take(dataTableParameters.Length).ToListAsync().ConfigureAwait(false)
 
+                //db.Icons.OrderByDescending(i => i.Id).Skip(dataTableParameters.Start).Take(dataTableParameters.Length)
+                //.ToList();
 
-                int numrec = db.Icons.Count();
+                //var values = icons.Select(i => new DataItem()
+                //{
+                //    Icon = i.Icon,
+                //    Graphic = i.Icon,
+                //    Id = i.Id,
+                //}).ToList();
+
+                int numrec = iconsQuery.Count();
 
                 var ret = new
                 {
                     draw = dataTableParameters.Draw,
                     recordsTotal = numrec,
                     recordsFiltered = numrec,
-                    data = values
+                    data = await iconsQuery
+                        .Skip(dataTableParameters.Start)
+                        .Take(dataTableParameters.Length)
+                        .ToListAsync().ConfigureAwait(false)
                 };
+
                 return Json(ret);
             }
         }

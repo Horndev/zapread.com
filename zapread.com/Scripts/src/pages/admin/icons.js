@@ -4,7 +4,7 @@
 
 import '../../shared/shared';                                           // [✓]
 import '../../realtime/signalr';                                        // [✓]
-import React, { useCallback, useMemo, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PageHeading from '../../components/page-heading';
 import IconsTable from './Components/IconsTable';
@@ -92,7 +92,7 @@ function Page() {
 
     return (
         <div>
-            <PageHeading title="Manage API Keys" controller="Admin" method="Icons" function="Edit" />
+            <PageHeading title="ZapRead Icons" controller="Admin" method="Icons" function="Edit" />
             <div className="row">
                 <div className="col-lg-12">
                     <div className="wrapper wrapper-content animated fadeInUp">

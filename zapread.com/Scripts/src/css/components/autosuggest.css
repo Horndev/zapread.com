@@ -36,9 +36,10 @@
     position: absolute;
     top: 55px;
     width: 100%;
+    min-width: 250px;
     border: 1px solid #aaa;
     background-color: #fff;
-    font-family: G"otham SSm A", "Gotham SSm B", sans-serif; 
+    font-family: G"otham SSm A", "Gotham SSm B", sans-serif;
     font-weight: 300;
     font-size: 16px;
     border-bottom-left-radius: 4px;
