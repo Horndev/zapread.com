@@ -92,6 +92,7 @@ export default class Editor extends React.Component {
             'link', 'image', 'video'
         ]
 
+        var self = this;
         this.modules = {
             toolbar: {
                 container: [
@@ -110,13 +111,12 @@ export default class Editor extends React.Component {
                     ['clean']],
                 handlers: {
                     'save': function () {
-                        var self = this;
+                        console.log('save clicked');
                         self.props.onSaveDraft();
-                        //console.log('save clicked');
                     },
                     'submit': function () {
-                        
                         console.log('submit clicked');
+                        self.props.onSubmitPost();
                     }
             }},
             //videoResize: {

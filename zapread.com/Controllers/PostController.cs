@@ -418,7 +418,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft)
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, string language)
         {
             var userId = User.Identity.GetUserId();
 

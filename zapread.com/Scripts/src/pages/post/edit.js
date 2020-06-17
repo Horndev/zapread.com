@@ -27,26 +27,24 @@ function Page() {
     const [postTitle, setPostTitle] = useState('');
 
     const handleSaveDraft = useCallback(() => {
-        console.log({
+        var msg = {
             postId: postId,
             groupId: groupId,
             content: postContent,
             postTitle: postTitle,
+            language: postLanguage,
             isDraft: true
-        });
+        };
 
-        postJson("/Post/Submit/", {
-            postId: postId,
-            groupId: groupId,
-            content: postContent,
-            postTitle: postTitle,
-            isDraft: true
-        }).then((response) => {
+        console.log(msg);
+
+        postJson("/Post/Submit/", msg)
+        .then((response) => {
             console.log(response);
             setPostId(response.postId);
             setNumSaves(numSaves + 1);
         });
-    }, [postTitle, postContent, postId, groupId]);
+    }, [postTitle, postContent, postLanguage, postId, groupId]);
 
     function handleDeleteDraft(postId) {
         Swal.fire({
@@ -98,6 +96,30 @@ function Page() {
             }
         });
     }
+
+    const handleSubmitPost = useCallback(() => {
+        console.log("submit post");
+        var msg = {
+            postId: postId,
+            groupId: groupId,
+            content: postContent,
+            postTitle: postTitle,
+            language: postLanguage,
+            isDraft: false
+        };
+
+        console.log(msg);
+
+        postJson("/Post/Submit/", msg)
+        .then((response) => {
+            console.log(response);
+
+            // Navigate to the new post
+            var newPostUrl = "/Post/Detail";
+            newPostUrl = newPostUrl + '/' + response.postId;
+            window.location.replace(newPostUrl);
+        });
+    }, [postTitle, postContent, postLanguage, postId, groupId]);
 
     return (
         <div>
@@ -151,7 +173,7 @@ function Page() {
                             value={postContent}
                             setValue={setPostContent}
                             onSaveDraft={handleSaveDraft}
-                            onSubmitPost={() => { console.log('submit post') }}
+                            onSubmitPost={handleSubmitPost}
                         />
                     </Col>
                 </Row>
