@@ -1092,7 +1092,7 @@
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
     <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
     <Content Include="Scripts\src\pages\post\Components\Picker.js" />
-    <Content Include="Scripts\src\pages\post\Components\Input.js" />
+    <Content Include="Scripts\src\Components\Input\Input.js" />
     <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
@@ -1340,7 +1340,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
-    <Folder Include="Scripts\src\Components\Input\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />

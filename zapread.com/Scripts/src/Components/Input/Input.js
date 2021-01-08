@@ -1,9 +1,9 @@
 ﻿/**
- * Fancy input 
+ * Fancy input with label remaining on component moving to the top once populated.
  **/
 
 import React from "react";
-import '../../../css/components/input/input.css'
+import '../../css/components/input/input.css'
 
 export default class Input extends React.Component {
     constructor(props) {
