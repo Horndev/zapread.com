@@ -3,7 +3,7 @@
  **/
 
 import React from "react";
-import '../../../css/components/input.css'
+import '../../../css/components/input/input.css'
 
 export default class Input extends React.Component {
     constructor(props) {

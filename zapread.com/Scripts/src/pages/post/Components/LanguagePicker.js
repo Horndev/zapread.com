@@ -6,27 +6,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { postJson } from '../../../utility/postData';
 import '../../../css/components/autosuggest.css'
-import '../../../css/components/input.css'
-
-// Teach Autosuggest how to calculate suggestions for any given input value.
-//async function getSuggestions(value) {
-//    const inputValue = value.trim().toLowerCase();
-//    const inputLength = inputValue.length;
-
-//    if (inputLength === 0) {
-//        return [];
-//    }
-
-//    postJson("/Group/GetGroups/", {
-//        prefix: inputValue,
-//        max: 10
-//    }).then((response) => {
-//        console.log(response);
-//        return response;
-//    });
-//};
+import '../../../css/components/input/input.css'
 
 // When suggestion is clicked, Autosuggest needs to populate the input
+// based on the clicked suggestion. Teach Autosuggest how to calculate the
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
 const getSuggestionValue = suggestion => suggestion.Name;
@@ -131,7 +114,7 @@ export default class LanguagePicker extends React.Component {
 
         // Autosuggest will pass through all these props to the input.
         const inputProps = {
-            placeholder: label,//'Type a programming language',
+            placeholder: label,
             value,
             onChange: this.onChange
         };

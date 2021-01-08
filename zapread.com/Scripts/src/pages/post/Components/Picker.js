@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Autosuggest from 'react-autosuggest';
 import { postJson } from '../../../utility/postData';
 import '../../../css/components/autosuggest.css'
-import '../../../css/components/input.css'
+import '../../../css/components/input/input.css'
 
 // Teach Autosuggest how to calculate suggestions for any given input value.
 //async function getSuggestions(value) {

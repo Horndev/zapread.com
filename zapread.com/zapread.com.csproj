@@ -968,7 +968,7 @@
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
     <Content Include="Scripts\src\css\components\autosuggest.css" />
-    <Content Include="Scripts\src\css\components\input.css" />
+    <Content Include="Scripts\src\css\components\input\input.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1140,7 +1140,7 @@
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
-    <Content Include="Scripts\src\components\page-heading.js" />
+    <Content Include="Scripts\src\Components\page-heading.js" />
     <Content Include="Scripts\src\css\Site.css" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
@@ -1340,6 +1340,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Scripts\src\Components\Input\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
