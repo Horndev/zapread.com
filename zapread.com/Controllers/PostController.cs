@@ -353,31 +353,31 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                await EnsureUserExists(userId, db).ConfigureAwait(true);
-                var user = db.Users.Where(u => u.AppId == userId).First();
-                var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
-                var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
-                var post = new Post()
-                {
-                    Content = "",
-                    UserId = user,
-                    Group = postGroup,// ?? communityGroup,
-                    Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
-                };
+                //await EnsureUserExists(userId, db).ConfigureAwait(true);
+                //var user = db.Users.Where(u => u.AppId == userId).First();
+                //var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
+                //var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
+                //var post = new Post()
+                //{
+                //    Content = "",
+                //    UserId = user,
+                //    Group = postGroup,// ?? communityGroup,
+                //    Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
+                //};
 
                 // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+                //var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                //    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                //    .Select(g => g.First())
+                //    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
 
-                var vm = new NewPostViewModel()
-                {
-                    Post = post,
-                    Languages = languages,
-                };
+                //var vm = new NewPostViewModel()
+                //{
+                //    Post = post,
+                //    Languages = languages,
+                //};
 
-                return View(vm);
+                return View();
             }
         }
 
@@ -461,6 +461,8 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
 
                 Post post = null;
+
+                string postLanguage = LanguageHelpers.NameToISO(language);
                 if (postId > 0)
                 {
                     // Updated post
@@ -480,7 +482,7 @@ namespace zapread.com.Controllers
                     post.PostTitle = postTitle == null ? "Post" : postTitle.CleanUnicode().SanitizeXSS();
                     post.Group = postGroup;
                     post.Content = contentStr;
-                    post.Language = "en";// p.Language ?? post.Language;
+                    post.Language = postLanguage ?? post.Language;
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -519,7 +521,7 @@ namespace zapread.com.Controllers
                         VotesUp = new List<User>() { user },
                         PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS(),
                         IsDraft = isDraft,
-                        Language = "en",//p.Language,
+                        Language = postLanguage,
                     };
 
                     db.Posts.Add(post);
