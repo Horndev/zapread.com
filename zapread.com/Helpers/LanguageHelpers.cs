@@ -37,5 +37,22 @@ namespace zapread.com.Helpers
 
             return languagesEng;
         }
+
+        /// <summary>
+        /// Convert a string language name to 2 letter ISO
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string NameToISO(string name)
+        {
+            var cult = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                .FirstOrDefault(ci => ci.Name.ToUpperInvariant() == name.ToUpperInvariant() || ci.NativeName.ToUpperInvariant() == name.ToUpperInvariant());
+
+            if (cult == null)
+            {
+                return "";
+            }
+            return cult.TwoLetterISOLanguageName;
+        }
     }
 }
