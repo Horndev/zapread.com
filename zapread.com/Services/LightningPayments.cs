@@ -78,7 +78,7 @@ namespace zapread.com.Services
         {
             if (request == null)
             {
-                return new { success = false, Result = "Internal error." };
+                return new { success = false, message = "Internal error." };
             }
 
             if (lndClient == null)
@@ -100,7 +100,7 @@ namespace zapread.com.Services
 
                 if (lasttx != null && (DateTime.UtcNow - lasttx.TimestampCreated < TimeSpan.FromMinutes(5)))
                 {
-                    return new { success = false, Result = "Please wait 5 minutes between Lightning transaction requests." };
+                    return new { success = false, message = "Please wait 5 minutes between Lightning transaction requests." };
                 }
 
                 // Check if user has sufficient balance
@@ -116,7 +116,7 @@ namespace zapread.com.Services
 
                 if (userFunds.IsWithdrawLocked)
                 {
-                    return new { success = false, Result = "User withdraw is locked.  Please contact an administrator." };
+                    return new { success = false, message = "User withdraw is locked.  Please contact an administrator." };
                 }
 
                 SendPaymentResponse paymentresult = null;
@@ -131,7 +131,7 @@ namespace zapread.com.Services
                         return new
                         {
                             success = false,
-                            Result = "Insufficient Funds. You have "
+                            message = "Insufficient Funds. You have "
                                 + userFunds.Balance.ToString("0.", CultureInfo.CurrentCulture)
                                 + ", invoice is for " + request.Amount.ToString(CultureInfo.CurrentCulture)
                                 + "."
@@ -159,7 +159,7 @@ namespace zapread.com.Services
                         // Remove this request from the lock so the user can retry.
                         WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTimeReset);
 
-                        return new { success = false, Result = "Failed. User balances changed during withdraw." };
+                        return new { success = false, message = "Failed. User balances changed during withdraw." };
                     }
 
                     // Execute payment
@@ -182,7 +182,7 @@ namespace zapread.com.Services
                 else
                 {
                     //double request!
-                    return new { success = false, Result = "Please click only once.  Payment already in processing." };
+                    return new { success = false, message = "Please click only once.  Payment already in processing." };
                 }
 
                 // If we are at this point, we are now checking the status of the payment.
@@ -320,7 +320,7 @@ namespace zapread.com.Services
                 }
                 while (saveFailed);
 
-                return new { success = true, Result = "success", Fees = 0, userBalance = user.Funds.Balance };
+                return new { success = true, message = "success", Fees = 0, userBalance = user.Funds.Balance };
             }
         }
 
@@ -353,7 +353,7 @@ namespace zapread.com.Services
                         Subject = "User withdraw error 7",
                     }, "Notify"));
 
-                return new { success = false, Result = "Error: " + paymentresult.error };
+                return new { success = false, message = "Error: " + paymentresult.error };
             }
         }
 
@@ -385,7 +385,7 @@ namespace zapread.com.Services
                         Subject = "LightningPayments error - User withdraw error X",
                     }, "Notify"));
 
-                return new { success = false, Result = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
+                return new { success = false, message = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
             }
         }
 
@@ -421,7 +421,7 @@ namespace zapread.com.Services
                         Subject = "LightningPayments error - User withdraw error 5",
                     }, "Notify"));
 
-                return new { success = false, Result = "Error: " + paymentresult.payment_error };
+                return new { success = false, message = "Error: " + paymentresult.payment_error };
             }
         }
 
@@ -455,7 +455,7 @@ namespace zapread.com.Services
 
                 t.ErrorMessage = "Error executing payment.";
                 db.SaveChanges();
-                return new { success = false, Result = "Error executing payment." };
+                return new { success = false, message = "Error executing payment." };
             }
         }
 
@@ -472,7 +472,7 @@ namespace zapread.com.Services
                 }, "Notify"));
 
             // Don't reveal information that user doesn't exist
-            return new { success = false, Result = "Error processing request." };
+            return new { success = false, message = "Error processing request." };
         }
 
         private static object HandleLndClientIsNull()
@@ -487,7 +487,7 @@ namespace zapread.com.Services
                     Subject = "LightningPayments error - lndClient is null",
                 }, "Notify"));
 
-            return new { success = false, Result = "Lightning Node error." };
+            return new { success = false, message = "Lightning Node error." };
         }
     }
 }
