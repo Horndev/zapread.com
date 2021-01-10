@@ -7,7 +7,7 @@ import ReactQuill, { Quill } from 'react-quill';                        // [✓]
 import Delta from 'quill-delta';
 import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
 import 'react-quill/dist/quill.snow.css';                               // [✓]
-import '../../../css/quill/quilledit.css'
+import '../../../css/quill/quilledit.css';                              // [✓]
 
 //import '../../../quill/StickyToolbar/quill-sticky-toolbar';
 import ImageResize from '../../../quill-image-resize-module';          // [✓] Import from source

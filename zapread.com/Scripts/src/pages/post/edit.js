@@ -1,5 +1,5 @@
 ﻿/**
- * 
+ * Page for editing a post
  **/
 
 import '../../shared/shared';                                           // [✓]
@@ -12,7 +12,7 @@ import Input from '../../Components/Input/Input';                       // [✓]
 import Editor from './Components/Editor';                               // [✓]
 import DraftsTable from './Components/DraftsTable';                     // [✓]
 import Picker from './Components/Picker';                               // [✓]
-import LanguagePicker from './Components/LanguagePicker';
+import LanguagePicker from './Components/LanguagePicker';               // [✓]
 import { postJson } from '../../utility/postData';                      // [✓]
 import PageHeading from '../../components/page-heading';                // [✓]
 import '../../shared/sharedlast';                                       // [✓]
@@ -25,26 +25,32 @@ function Page() {
     const [groupName, setGroupName] = useState('');
     const [postLanguage, setPostLanguage] = useState('English');
     const [postTitle, setPostTitle] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleSaveDraft = useCallback(() => {
-        var msg = {
-            postId: postId,
-            groupId: groupId,
-            content: postContent,
-            postTitle: postTitle,
-            language: postLanguage,
-            isDraft: true
-        };
+        if (!isSaving) {
+            setIsSaving(true);  // Lock the saving so the post submit doesn't get called twice
 
-        console.log(msg);
+            var msg = {
+                postId: postId,
+                groupId: groupId,
+                content: postContent,
+                postTitle: postTitle,
+                language: postLanguage,
+                isDraft: true
+            };
 
-        postJson("/Post/Submit/", msg)
-        .then((response) => {
-            console.log(response);
-            setPostId(response.postId);
-            setNumSaves(numSaves + 1);
-        });
-    }, [postTitle, postContent, postLanguage, postId, groupId]);
+            console.log(msg);
+
+            postJson("/Post/Submit/", msg)
+                .then((response) => {
+                    console.log(response);
+                    setPostId(response.postId);
+                    setNumSaves(numSaves + 1);
+                    setIsSaving(false);         // Release the saving lock
+                });
+        }
+    }, [postTitle, postContent, postLanguage, postId, groupId]);    // Save the draft if any of these variables update
 
     function handleDeleteDraft(postId) {
         Swal.fire({

@@ -1,7 +1,7 @@
 ﻿@using zapread.com.Helpers
 
 <div class="white-bg">
-    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav" @*style="max-height: 64px;"*@>
+    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav" @*style="max-height: 65px;"*@>
         <div id="goHome">
             <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
             @*<span class="navbar-text" style="color:darkgreen;font-weight: 900;">
@@ -137,9 +137,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="        padding-top: 15px;
-        padding-bottom: 0px
-">
+                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" @*style="padding-top: 15px;padding-bottom: 0px"*@>
                             <i class="fa fa-comments"></i>
                         </a>
                     </li>

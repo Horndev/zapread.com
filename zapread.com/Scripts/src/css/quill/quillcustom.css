@@ -1,4 +1,17 @@
 ﻿
+/*Comments*/
+
+/* This style sets the comment input editor to not be too large as is the default quill style*/
+.ql-comment .ql-editor {
+    min-height: 20px;
+}
+
+.ql-container, .ql-comment.ql-container.ql-snow {
+    border: 0px;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 .ql-mention-list-container {
     width: 270px;
     border: 1px solid #f0f0f0;
@@ -122,6 +135,34 @@ button.ql-cancel {
     margin-right: 2px;
     margin-top: 2px;
     border-radius: 3px;
+}
+
+.ql-snow code,
+.ql-snow pre {
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.ql-snow .pre {
+    white-space: pre-wrap;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding: 5px 10px;
+}
+
+.ql-snow code {
+    font-size: 85%;
+    padding: 2px 4px;
+}
+
+.ql-snow pre.ql-syntax {
+    background-color: #23241f;
+    color: #f8f8f2;
+    overflow: visible;
+}
+
+.ql-snow img {
+    max-width: 100%;
 }
 
 /*Not sure why this icon isn't properly aligned.  This seems to fix it.*/
