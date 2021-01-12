@@ -7,6 +7,7 @@ import '../../realtime/signalr';                                        // [✓]
 import React, { useCallback, useEffect, useState, useRef } from 'react';// [✓]
 import { Container, Row, Col } from 'react-bootstrap';                  // [✓]
 import ReactDOM from 'react-dom';                                       // [✓]
+import { useLocation, BrowserRouter as Router } from 'react-router-dom';
 import Swal from 'sweetalert2';                                         // [✓]
 import Input from '../../Components/Input/Input';                       // [✓]
 import Editor from './Components/Editor';                               // [✓]
@@ -17,6 +18,10 @@ import { postJson } from '../../utility/postData';                      // [✓]
 import PageHeading from '../../components/page-heading';                // [✓]
 import '../../shared/sharedlast';                                       // [✓]
 
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
+
 function Page() {
     const [postContent, setPostContent] = useState('');
     const [numSaves, setNumSaves] = useState(0);
@@ -26,6 +31,19 @@ function Page() {
     const [postLanguage, setPostLanguage] = useState('English');
     const [postTitle, setPostTitle] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    let query = useQuery();
+
+    useEffect(() => {
+        let qpostId = query.get("postId");
+        if (qpostId != null & qpostId > 0 & !isLoaded) {
+            setIsLoaded(true);
+            console.log("Editing: ", qpostId)
+            setPostId(qpostId);
+            loadPost(qpostId, false);
+        }
+    }, [query]); // Fire once
 
     const handleSaveDraft = useCallback(() => {
         if (!isSaving) {
@@ -77,6 +95,22 @@ function Page() {
         });
     }
 
+    function loadPost(postId, isDraft) {
+        postJson("/Post/Draft/Load/", {
+            postId: postId,
+            isDraft: isDraft,
+        }).then((response) => {
+            //console.log(response);
+            if (response.success) {
+                setNumSaves(numSaves + 1);  // updates draft table
+                setPostContent(response.draftPost.Content);   // set the editor content
+                setPostId(postId);                      // this is the post we are now editing
+                setGroupName(response.draftPost.GroupName);
+                setPostTitle(response.draftPost.PostTitle);
+            }
+        });
+    }
+
     function handleLoadPost(postId) {
         Swal.fire({
             title: "Are you sure?",
@@ -85,18 +119,7 @@ function Page() {
             showCancelButton: true
         }).then((willLoad) => {
             if (willLoad.value) {
-                postJson("/Post/Draft/Load/", {
-                    postId: postId,
-                }).then((response) => {
-                    //console.log(response);
-                    if (response.success) {
-                        setNumSaves(numSaves + 1);  // updates draft table
-                        setPostContent(response.draftPost.Content);   // set the editor content
-                        setPostId(postId);                      // this is the post we are now editing
-                        setGroupName(response.draftPost.GroupName);
-                        setPostTitle(response.draftPost.PostTitle);
-                    }
-                });
+                loadPost(postId, true);
             } else {
                 console.log("cancelled load");
             }
@@ -202,7 +225,9 @@ function Page() {
 }
 
 ReactDOM.render(
-    <Page />
+    <Router>
+        <Page path="/post/edit" />
+    </Router>
     , document.getElementById("root"));
 
 /*

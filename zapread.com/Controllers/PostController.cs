@@ -71,7 +71,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
-        public async Task<ActionResult> GetDraft(int postId)
+        public async Task<ActionResult> GetDraft(int postId, bool isDraft = true)
         {
             var userId = User.Identity.GetUserId();
 
@@ -84,7 +84,7 @@ namespace zapread.com.Controllers
             {
                 var draftPost = await db.Posts
                     .Where(p => p.UserId.AppId == userId)
-                    .Where(p => p.IsDraft == true)
+                    .Where(p => p.IsDraft == isDraft)
                     .Where(p => p.IsDeleted == false)
                     .Where(p => p.PostId == postId)
                     .Select(p => new { 
