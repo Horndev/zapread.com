@@ -154,7 +154,7 @@
         <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
             <div class="row">
                 <div class="col">
-                    <div class="post-quotable post-content @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userid="@Model.UserId">
+                    <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userid="@Model.UserId">
                         <div @if (!Model.IsDetailView) { <text> class="post-content ql-container ql-snow" </text> }>
                             @Html.Raw(Model.Content)
                         </div>
