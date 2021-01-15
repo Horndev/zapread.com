@@ -1,4 +1,10 @@
 ﻿
+/* Display Styles */
+
+.read-more-button a {
+    color: white;
+}
+
 /*Comments*/
 
 /* This style sets the comment input editor to not be too large as is the default quill style*/
