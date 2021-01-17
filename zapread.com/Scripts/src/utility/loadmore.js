@@ -5,7 +5,7 @@
  */
 
 import { postData } from './postData';                      // [✓]  
-import { onLoadedMorePosts } from './onLoadedMorePosts';
+import { onLoadedMorePosts } from './onLoadedMorePosts';    // [✓]  
 import Swal from 'sweetalert2';                             // [✓]
 
 export function addposts(data, callback) {
@@ -15,13 +15,13 @@ export function addposts(data, callback) {
 
 export function loadmore(options) {
     if (typeof options === 'undefined') {
-        options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 10, userId: -1 };
+        options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 1, userId: -1 };
     }
     if (typeof options.url === 'undefined') {
         options.url = '/Home/InfiniteScroll/';
     }
     if (typeof options.blocknumber === 'undefined') {
-        options.blocknumber = 10;
+        options.blocknumber = window.BlockNumber;
     }
     if (typeof options.sort === 'undefined') {
         options.sort = 'Score';
