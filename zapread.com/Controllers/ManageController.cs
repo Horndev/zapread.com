@@ -694,6 +694,7 @@ namespace zapread.com.Controllers
                     HasPassword = HasPassword(),
                     UserName = userInfo.Name,
                     UserAppId = userInfo.AppId,
+                    UserId = userInfo.Id,
                     UserProfileImageVersion = userInfo.Version,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),

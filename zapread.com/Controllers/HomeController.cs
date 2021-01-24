@@ -918,7 +918,7 @@ namespace zapread.com.Controllers
 
                 var postquery = await GetPostsQuery(db, sort, user != null ? user.Id : 0).ConfigureAwait(true);
 
-                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber * BlockSize, BlockSize, postquery, user).ConfigureAwait(true);
+                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, postquery, user).ConfigureAwait(true);
 
                 string PostsHTMLString = "";
 

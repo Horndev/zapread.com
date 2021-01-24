@@ -20,8 +20,8 @@ import '../../shared/topnavbar';                                // [✓]
 import "jquery-ui-dist/jquery-ui";                              // [X]
 import "jquery-ui-dist/jquery-ui.min.css";                      // [X]
 
-import '../../utility/ui/vote';                                                 // [✓]
-import '../../realtime/signalr';                                                // [✓]
+import '../../utility/ui/vote';                                 // [✓]
+import '../../realtime/signalr';                                // [✓]
 
 import Dropzone from 'dropzone';
 import 'dropzone/dist/basic.css';
@@ -47,15 +47,19 @@ window.writeComment = writeComment;
 window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
+window.BlockNumber = 10;  //Infinite Scroll starts from second block
+window.NoMoreData = false;
+window.inProgress = false;
 
 /**
  * Wrapper for load more
  **/
-export function manageloadmore() {
+export function manageloadmore(userId) {
     loadmore({
-        url: '/Manage/InfiniteScroll/',
-        blocknumber: BlockNumber,
-        sort: "New"
+        url: '/User/InfiniteScroll/',
+        blocknumber: window.BlockNumber,
+        sort: "New",
+        userId: userId
     });
 }
 window.loadmore = manageloadmore;
@@ -279,9 +283,7 @@ export function settingToggle(e) {
 }
 window.settingToggle = settingToggle;
 
-window.BlockNumber = 1;  //Infinite Scroll starts from second block
-window.NoMoreData = false;
-window.inProgress = false;
+
 
 //export function loadmore() {
 //    if (!inProgress) {

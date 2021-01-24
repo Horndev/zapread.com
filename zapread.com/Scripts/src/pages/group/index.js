@@ -4,7 +4,7 @@
 import $ from 'jquery';
 
 import '../../shared/shared';
-import '../../realtime/signalr';
+import '../../realtime/signalr';                                        // [✓]
 import 'datatables.net-bs4';
 import 'datatables.net-scroller-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
@@ -12,8 +12,7 @@ import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
 import 'selectize/dist/js/standalone/selectize';
 import 'selectize/dist/css/selectize.css';
 import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
-import { getAntiForgeryToken } from '../../utility/antiforgery';
-
+import { getAntiForgeryToken } from '../../utility/antiforgery';        // [✓]
 import { joinGroup } from '../../utility/ui/joingroup';                 // [✓]
 import { leaveGroup } from '../../utility/ui/leavegroup';               // [✓]
 

@@ -37,14 +37,19 @@ window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 
-export function grouploadmore() {
+export function grouploadmore(groupId) {
+    console.log("Loading more ", groupId)
     loadmore({
         url: '/Group/InfiniteScroll/',
-        blocknumber: BlockNumber,
-        sort: "New"
+        blocknumber: window.BlockNumber,
+        sort: "Score",
+        groupId: groupId
     });
 }
 window.loadmore = grouploadmore;
+window.BlockNumber = 10;  //Infinite Scroll starts from second block
+window.NoMoreData = false;
+window.inProgress = false;
 
 onLoadedMorePosts();
 

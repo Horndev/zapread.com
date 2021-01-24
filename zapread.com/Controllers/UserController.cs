@@ -637,14 +637,15 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                User user = await db.Users.AsNoTracking()
+                User user = await db
+                    .Users.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
 
-                List <GroupStats> groups = await db.Groups.AsNoTracking()
-                        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .ToListAsync().ConfigureAwait(true);
+                //List <GroupStats> groups = await db.Groups.AsNoTracking()
+                //        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                //        .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)

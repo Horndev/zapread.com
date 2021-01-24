@@ -29,12 +29,15 @@ export function loadmore(options) {
     if (typeof options.userId === 'undefined') {
         options.userId = -1;
     }
+    if (typeof options.groupId === 'undefined') {
+        options.groupId = -1;
+    }
     if (!inProgress) {
         inProgress = true;
         document.querySelectorAll('#loadmore').item(0).style.display = '';
         document.querySelectorAll('#btnLoadmore').item(0).disabled = true;
 
-        postData(options.url, { "BlockNumber": options.blocknumber, "sort": options.sort, "userId": options.userId })
+        postData(options.url, { "BlockNumber": options.blocknumber, "sort": options.sort, "userId": options.userId, "groupId": options.groupId })
             .then((data) => {
                 document.querySelectorAll('#loadmore').item(0).style.display = 'none';  // $('#loadmore').hide();
                 document.querySelectorAll('#btnLoadmore').item(0).disabled = false;     // $('#btnLoadmore').prop('disabled', false);

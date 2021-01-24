@@ -359,10 +359,17 @@ namespace zapread.com.Controllers
             return Json(new { success = true, result = "success" });
         }
 
+        /// <summary>
+        /// Load more posts for the group detail view
+        /// </summary>
+        /// <param name="BlockNumber"></param>
+        /// <param name="groupId"></param>
+        /// <param name="sort"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public async Task<ActionResult> InfiniteScroll(int id, int BlockNumber, string sort)
+        public async Task<ActionResult> InfiniteScroll(int BlockNumber, int groupId, string sort)
         {
             int BlockSize = 10;
 
@@ -373,23 +380,23 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
-                string PostsHTMLString = "";
-                List<int> viewerIgnoredUsers = new List<int>();
+                //List<int> viewerIgnoredUsers = new List<int>();
 
-                if (user != null && user.IgnoringUsers != null)
-                {
-                    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
-                }
+                //if (user != null && user.IgnoringUsers != null)
+                //{
+                //    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
+                //}
 
                 int userId = user == null ? 0 : user.Id;
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db, user);
 
-                var postquery = QueryHelpers.OrderPostsByNew(validposts, id, true);
+                var postquery = QueryHelpers.OrderPostsByNew(validposts, groupId, true);
 
-                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber * BlockSize, BlockSize, postquery, user).ConfigureAwait(true);
+                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, postquery, user).ConfigureAwait(true);
 
                 // Render each post HTML
+                string PostsHTMLString = "";
                 foreach (var pvm in postsVm)
                 {
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", pvm);
