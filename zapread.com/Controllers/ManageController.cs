@@ -529,7 +529,10 @@ namespace zapread.com.Controllers
                             Email = "",
                             Name = "ZapRead.com Notify",
                             Subject = "You received a tip!",
-                        }, "Notify"));
+                        }, 
+                        "Notify", // account
+                        true // useSSL
+                        ));
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
@@ -1028,7 +1031,7 @@ namespace zapread.com.Controllers
             string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
                 id: user.Id,
                 userName: cleanName,
-                oldUserName: oldName);
+                oldUserName: oldName).ConfigureAwait(true);
 
             string userEmail = aspUser.Email;
 
@@ -1041,7 +1044,10 @@ namespace zapread.com.Controllers
                     Email = "",
                     Name = "zapread.com",
                     Subject = subject,
-                }, "Notify"));
+                }, 
+                "Notify", // account
+                true // useSSL
+                ));
         }
 
         [HttpPost]

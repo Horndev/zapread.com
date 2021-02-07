@@ -43,6 +43,11 @@ namespace zapread.com.Controllers
             return "";
         }
 
+        /// <summary>
+        /// Returns the image for the achievement specified by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> AchievementImage(string id)
         {
@@ -52,19 +57,24 @@ namespace zapread.com.Controllers
                 int imgid = Convert.ToInt32(id);
                 int size = 20;
                 var i = await db.Achievements
-                    .FirstOrDefaultAsync(a => a.Id == imgid);
+                    .FirstOrDefaultAsync(a => a.Id == imgid).ConfigureAwait(true);
 
                 if (i.Image != null)
                 {
-                    Image png = Image.FromStream(new MemoryStream(i.Image));
-                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
-                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
-                    return File(data, "image/png");
+                    using (MemoryStream ms = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ms);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        }
+                    }
                 }
                 else
                 {
                     i = await db.Achievements
-                        .FirstOrDefaultAsync(a => a.Id == 1);
+                        .FirstOrDefaultAsync(a => a.Id == 1).ConfigureAwait(true);
                     Image png = Image.FromStream(new MemoryStream(i.Image));
                     Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);

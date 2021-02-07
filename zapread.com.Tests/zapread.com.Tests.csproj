@@ -264,6 +264,7 @@
     <Compile Include="Services\ReputationTest.cs" />
     <Compile Include="Services\TransactionMonitorTest.cs" />
     <Compile Include="Services\SanitizationTest.cs" />
+    <Compile Include="Services\MailingServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

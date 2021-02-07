@@ -733,7 +733,7 @@ namespace zapread.com.Controllers
                             Email = "",
                             Name = "zapread.com",
                             Subject = subject,
-                        }, "Notify"));
+                        }, "Notify", true));
                 }
             }
             await db.SaveChangesAsync().ConfigureAwait(true);
