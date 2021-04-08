@@ -1,4 +1,9 @@
-﻿<div id="root"></div>
+﻿@model zapread.com.Models.UserViewModel
+@{
+    ViewBag.Title = "User Financial";
+}
+
+<div id="root"></div>
 
 @section Styles {
     @Styles.Render("~/bundles/manage/financial/css")
@@ -10,12 +15,6 @@
     </script>
     @Scripts.Render("~/bundles/manage/financial")
 }
-
-@*@model zapread.com.Models.UserViewModel
-
-    @{
-        ViewBag.Title = "User Financial";
-    }
 
     <div class="wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
