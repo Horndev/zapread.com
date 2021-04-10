@@ -525,7 +525,7 @@ namespace zapread.com.Controllers
                             Destination = receiverEmail,
                             Body = "From: " + senderName + " <br/> Amount: "
                                 + amount.ToString()
-                                + " Satoshi.<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
+                                + " Satoshi.<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
                             Email = "",
                             Name = "ZapRead.com Notify",
                             Subject = "You received a tip!",
