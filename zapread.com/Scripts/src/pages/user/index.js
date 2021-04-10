@@ -52,7 +52,7 @@ window.userloadmore = userloadmore;
 onLoadedMorePosts();
 
 export function toggleUserIgnore(id) {
-    joinurl = "/User/ToggleIgnore/";
+    var joinurl = "/User/ToggleIgnore/";
     var data = JSON.stringify({ 'id': id });
     $.ajax({
         data: data.toString(),
