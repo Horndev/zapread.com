@@ -150,7 +150,7 @@ $("#postGroup").autocomplete({
                 gid = knownGroups[knownGroups.findIndex(function (i) { return i.GroupName === gn; })].GroupId;
                 $('#postGroupActive').html(gn);
                 $('#groupLink').html(gn);
-                $('#groupLink').attr('href', '@Url.Action("GroupDetail", "Group")' + '?id=' + gid.toString());
+                $('#groupLink').attr('href', '/Group/GroupDetail/' + gid.toString());
             }
             else {
                 $("#postGroup").addClass('is-invalid');
