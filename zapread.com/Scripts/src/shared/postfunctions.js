@@ -25,6 +25,9 @@ export function dismiss(t, id) {
     }
     else if (t === 0) {
         url = "/Messages/DismissMessage/";
+        if (id === -1) {
+            document.getElementById("topChat").style.color="";
+        }
     }
 
     postJson(url, { "id": id })
