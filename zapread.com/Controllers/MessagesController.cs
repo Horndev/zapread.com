@@ -536,6 +536,10 @@ namespace zapread.com.Controllers
                         Id = 0,
                         AppId = ""
                     };
+                } else {
+                    if (otherUser.Id == userId) { // disallow chatting with yourself
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
 
                 return View(vm);
