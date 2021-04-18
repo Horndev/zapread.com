@@ -47,7 +47,7 @@ export async function writeComment(postId, content) {
             onSubmitSuccess: function (data) {
                 // remove the editor
                 var replyEl = document.getElementById('reply_p' + postId.toString());
-                replyEl.parentNode.removeChild(replyEl);
+                replyEl.innerHTML = '';//.parentNode.removeChild(replyEl);
                 document.getElementById('wc_' + postId.toString()).style.display = '';      // Show the comment button
                 // and replace with HTML
                 var commentsEl = document.getElementById('comments_' + postId.toString());
