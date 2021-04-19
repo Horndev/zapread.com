@@ -351,7 +351,7 @@ namespace zapread.com.Services
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "User withdraw error 7",
-                    }, "Notify"));
+                    }, "Notify", true));
 
                 return new { success = false, message = "Error: " + paymentresult.error };
             }
@@ -383,7 +383,7 @@ namespace zapread.com.Services
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "LightningPayments error - User withdraw error X",
-                    }, "Notify"));
+                    }, "Notify", true));
 
                 return new { success = false, message = "Error validating payment.  Funds will be held until confirmed or invoice expires." };
             }
@@ -419,7 +419,7 @@ namespace zapread.com.Services
                         Email = "",
                         Name = "zapread.com Exception",
                         Subject = "LightningPayments error - User withdraw error 5",
-                    }, "Notify"));
+                    }, "Notify", true));
 
                 return new { success = false, message = "Error: " + paymentresult.payment_error };
             }
@@ -451,7 +451,7 @@ namespace zapread.com.Services
                     Email = "",
                     Name = "zapread.com Exception",
                     Subject = "LightningPayments error - User withdraw error 4",
-                }, "Notify"));
+                }, "Notify", true));
 
                 t.ErrorMessage = "Error executing payment.";
                 db.SaveChanges();
@@ -469,7 +469,7 @@ namespace zapread.com.Services
                     Email = "",
                     Name = "zapread.com Monitoring",
                     Subject = "LightningPayments error - user is null",
-                }, "Notify"));
+                }, "Notify", true));
 
             // Don't reveal information that user doesn't exist
             return new { success = false, message = "Error processing request." };
@@ -485,7 +485,7 @@ namespace zapread.com.Services
                     Email = "",
                     Name = "zapread.com Monitoring",
                     Subject = "LightningPayments error - lndClient is null",
-                }, "Notify"));
+                }, "Notify", true));
 
             return new { success = false, message = "Lightning Node error." };
         }

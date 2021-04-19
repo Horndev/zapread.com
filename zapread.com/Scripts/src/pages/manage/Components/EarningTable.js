@@ -29,7 +29,6 @@ export default function EarningTable(props) {
             //return data.Type;
             <>
                 {row.Memo !== "" ? <a href={row.URL}> {row.Type} <> (</> {row.Memo} <>)</> </a> : <span> { row.Type } </span>} 
-                
             </>
         );
     }

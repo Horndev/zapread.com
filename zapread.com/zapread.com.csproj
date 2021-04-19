@@ -432,6 +432,7 @@
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
+    <Compile Include="API\GroupsController.cs" />
     <Compile Include="API\PostController.cs" />
     <Compile Include="API\StreamController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -813,11 +814,12 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
-    <Compile Include="Models\API\Account\DataTableParameters.cs" />
+    <Compile Include="Models\API\DataTables\DataTableParameters.cs" />
     <Compile Include="Models\API\Account\Transactions\LightningTransactionsPageResponse.cs" />
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
@@ -969,6 +971,7 @@
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
+    <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1080,6 +1083,8 @@
     <Content Include="Scripts\config\webpack.config.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
+    <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
@@ -1341,6 +1346,7 @@
   <ItemGroup>
     <Folder Include="Images\" />
     <Folder Include="Views\Finance\" />
+    <Folder Include="Views\Groups\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
     <Folder Include="Views\Vote\" />

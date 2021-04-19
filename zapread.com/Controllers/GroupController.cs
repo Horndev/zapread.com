@@ -14,7 +14,7 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
-using zapread.com.Models.API.Account;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.GroupViews;
 
@@ -37,6 +37,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns the data for the groups index table, which lists all the groups
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost, Route("Group/GetGroupsTable")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -96,7 +101,7 @@ namespace zapread.com.Controllers
                     NumMembers = g.numMembers,
                     NumPosts = g.numPosts,
                     Tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>(),
-                    Icon = g.Icon != null ? "fa-" + g.Icon : "fa-bolt",
+                    Icon = g.Icon != null ? "fa-" + g.Icon : null, // "fa-bolt",  // NOTE: this is legacy, and will eventually be replaced.  All new groups will have image icons.
                     Level = g.Tier,
                     Progress = GetGroupProgress(g.TotalEarned, g.TotalEarnedToDistribute, g.Tier),
                     IsMember = g.IsMember,

@@ -22,6 +22,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Admin;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Services;
 

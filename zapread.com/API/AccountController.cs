@@ -11,6 +11,7 @@ using zapread.com.Database;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 
 namespace zapread.com.API
