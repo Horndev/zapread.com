@@ -624,7 +624,7 @@ namespace zapread.com.Controllers
                 }
 
                 var pst = db.Posts
-                    .Where(p => p.PostId == PostId)
+                    .Where(p => p.PostId == PostId && !p.IsDraft && !p.IsDeleted)
                     .Select(p => new PostViewModel()
                     {
                         PostTitle = p.PostTitle,
