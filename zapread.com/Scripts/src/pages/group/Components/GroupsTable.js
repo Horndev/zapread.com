@@ -27,11 +27,13 @@ export default function GroupsTable(props) {
     isAscending: false
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageFiltered, setCurrentPageFiltered] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(props.pageSize);
   const [maxPage, setMaxPage] = useState(1);
 
   const onFilter = useCallback(text => {
     setFilter(text);
+    setCurrentPage(1);
   }, []);
 
   const onSort = useCallback(nextProp => {
@@ -60,7 +62,7 @@ export default function GroupsTable(props) {
   useEffect(
     () => {
       async function getData() {
-        // pass along filter?
+        // pass along filter
         var start = (currentPage - 1) * rowsPerPage;
         var query = {
           Start: start,
@@ -69,7 +71,7 @@ export default function GroupsTable(props) {
         if (filter != "") {
           query.Search = { Value: filter };
         }
-        //console.log(query);
+        console.log(query);
         await postJson("/api/v1/groups/list/", query).then(response => {
           var newData = response.data;
           //console.log(newData);
@@ -81,40 +83,19 @@ export default function GroupsTable(props) {
       console.log("[debug] call getData");
       getData();
     },
-    //[]
-    [filter, sortedProp, currentPage, rowsPerPage]
+    [sortedProp, filter, currentPage, rowsPerPage]
   );
 
   const classes = {
     table: "table table-hover",
-    theadCol: "group-table-head", //"display:none;",
-    //  css`
-    //  .table-datatable__root & {
-    //    &.sortable:hover {
-    //      background: pink;
-    //    }
-    //  }
-    //`,
-    tbodyRow: "",
-    //  css`
-    //  &:nth-of-type(even) {
-    //    background: #eaeaea;
-    //  }
-    //`,
+    theadCol: "group-table-head",
+    //tbodyRow: "",
     paginationOptsFormText: ""
-    //css`
-    //  &:first-of-type {
-    //    margin-right: 8px;
-    //  }
-    //  &:last-of-type {
-    //    margin-left: 8px;
-    //  }
-    //`,
   };
 
   const header = [
     {
-      title: "",
+      title: "Id",
       prop: "Id",
       sortable: false,
       filterable: false,
@@ -123,7 +104,6 @@ export default function GroupsTable(props) {
       },
       cellProps: { className: "project-status" },
       cell: row => {
-        const key = row.Key;
         if (row.Icon != null) {
           return (
             <>
@@ -145,7 +125,34 @@ export default function GroupsTable(props) {
       prop: "Name",
       sortable: true,
       filterable: true,
-      cellProps: { className: "project-title" }
+      //cellProps: { className: "project-title" }, // [TODO] Not sure why this is not being applied to td
+      cell: data => {
+        return (
+          <>
+            <div className="project-title">
+              <a href={`/Group/GroupDetail/${data.Id}`}> {data.Name} </a>
+              {data.IsAdmin && (
+                <i
+                  className="fa fa-gavel text-primary"
+                  data-toggle="tooltip"
+                  data-placement="right"
+                  title="Administrator"
+                />
+              )}
+              {data.IsMod && (
+                <i
+                  className="fa fa-gavel text-success"
+                  data-toggle="tooltip"
+                  data-placement="right"
+                  title="Moderator"
+                />
+              )}
+              <br />
+              <small>Created {data.CreatedddMMMYYYY} </small>
+            </div>
+          </>
+        );
+      }
     },
     {
       title: "Tags",
@@ -168,6 +175,8 @@ export default function GroupsTable(props) {
             ) : (
               <> </>
             )}
+            <br />
+            <small>Tags</small>
           </>
         );
       }

@@ -96,7 +96,8 @@ namespace zapread.com.API
                 {
                     success = true,
                     draw = dataTableParameters.Draw,
-                    recordsTotal = await db.Groups.CountAsync().ConfigureAwait(false),
+                    recordsTotal = await groupsQ.CountAsync().ConfigureAwait(false),
+                    //await db.Groups.CountAsync().ConfigureAwait(false),
                     recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false),
                     data = values
                 };
@@ -115,6 +116,13 @@ namespace zapread.com.API
             return user;
         }
 
+        /// <summary>
+        /// Returns the progress of the group to get to the next tier
+        /// </summary>
+        /// <param name="TotalEarned"></param>
+        /// <param name="TotalEarnedToDistribute"></param>
+        /// <param name="Tier"></param>
+        /// <returns></returns>
         protected static int GetGroupProgress(double TotalEarned, double TotalEarnedToDistribute, double Tier)
         {
             var e = TotalEarned + TotalEarnedToDistribute;
