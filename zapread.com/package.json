@@ -13,7 +13,7 @@
     "bootstrap-chosen": "1.4.2",
     "bootstrap.native": "2.0.27",
     "bootstrap.native-loader": "2.0.0",
-    "codemirror": "5.52.2",
+    "codemirror": "5.58.2",
     "css-loader": "3.5.1",
     "datatables.net-bs4": "1.10.19",
     "datatables.net-scroller-bs4": "1.5.1",
