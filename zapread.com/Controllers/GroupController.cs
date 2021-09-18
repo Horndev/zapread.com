@@ -1125,17 +1125,25 @@ namespace zapread.com.Controllers
             }
         }
 
-        [HttpGet]
-        public JsonResult GroupExists(string gn)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
+        [Route("Group/CheckExists/")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        public JsonResult GroupExists(string groupName)
         {
             using (var db = new ZapContext())
             {
-                var matched = db.Groups.Where(g => g.GroupName == gn).FirstOrDefault();
+                var matched = db.Groups.Where(g => g.GroupName == groupName).FirstOrDefault();
                 if (matched != null)
                 {
-                    return Json(new { exists = true }, JsonRequestBehavior.AllowGet);
+                    return Json(new { exists = true, success = true }, JsonRequestBehavior.AllowGet);
                 }
-                return Json(new { exists = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { exists = false, success = true }, JsonRequestBehavior.AllowGet);
             }
         }
 

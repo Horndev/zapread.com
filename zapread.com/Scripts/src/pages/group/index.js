@@ -3,18 +3,12 @@
  *
  * [✓] No javascript
  */
-//import $ from 'jquery';
+
 import "../../shared/shared";
 import "../../realtime/signalr";
 
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useEffect,
-  useState
-} from "react";
-import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
+import React from "react";
+import { Row, Col } from "react-bootstrap";
 import ReactDOM from "react-dom";
 import PageHeading from "../../components/page-heading";
 import GroupsTable from "./Components/GroupsTable";

@@ -2,134 +2,137 @@
  * 
  */
 
-import '../../shared/shared';                                           // [✓]
-import '../../realtime/signalr';                                        // [✓]
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import PageHeading from '../../components/page-heading';
-import IconsTable from './Components/IconsTable';
-import { useDropzone } from 'react-dropzone'
-import { getAntiForgeryToken } from '../../utility/antiforgery';
-import '../../shared/sharedlast';                                       // [✓]
+import "../../shared/shared"; // [✓]
+import "../../realtime/signalr"; // [✓]
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState
+} from "react";
+import ReactDOM from "react-dom";
+import PageHeading from "../../components/page-heading";
+import IconsTable from "./Components/IconsTable";
+import { useDropzone } from "react-dropzone";
+import { getAntiForgeryToken } from "../../utility/antiforgery";
+import "../../shared/sharedlast"; // [✓]
 
 const baseStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '20px',
-    borderWidth: 2,
-    borderRadius: 2,
-    borderColor: '#eeeeee',
-    borderStyle: 'dashed',
-    backgroundColor: '#fafafa',
-    color: '#bdbdbd',
-    outline: 'none',
-    transition: 'border .24s ease-in-out'
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out"
 };
 
 const activeStyle = {
-    borderColor: '#2196f3'
+  borderColor: "#2196f3"
 };
 
 const acceptStyle = {
-    borderColor: '#00e676'
+  borderColor: "#00e676"
 };
 
 const rejectStyle = {
-    borderColor: '#ff1744'
+  borderColor: "#ff1744"
 };
 
 function Page() {
-    const onDrop = useCallback(acceptedFiles => {
-        console.log(acceptedFiles);
+  const onDrop = useCallback(acceptedFiles => {
+    console.log(acceptedFiles);
 
-        var file = acceptedFiles[0];
+    var file = acceptedFiles[0];
 
-        var fd = new FormData()
-        fd.append('file', file)
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/Img/Group/DefaultIcon/', true);
-        var headers = getAntiForgeryToken();
+    var fd = new FormData();
+    fd.append("file", file);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/Img/Group/DefaultIcon/", true);
+    var headers = getAntiForgeryToken();
 
-        for (var index in headers) {
-            xhr.setRequestHeader(index, headers[index]);
-        }
+    for (var index in headers) {
+      xhr.setRequestHeader(index, headers[index]);
+    }
 
-        // listen callback
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
-                console.log(data.imgId);
-            };
-        }
+    // listen callback
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+        console.log(data.imgId);
+      }
+    };
 
-        xhr.send(fd);
+    xhr.send(fd);
+  }, []);
 
-    }, [])
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject
+  } = useDropzone({
+    accept: "image/*",
+    onDrop: onDrop
+  });
 
-    const {
-        getRootProps,
-        getInputProps,
-        isDragActive,
-        isDragAccept,
-        isDragReject } = useDropzone(
-            {
-                accept: 'image/*',
-                onDrop: onDrop
-            });
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {})
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
 
-    const style = useMemo(() => ({
-        ...baseStyle,
-        ...(isDragActive ? activeStyle : {}),
-        ...(isDragAccept ? acceptStyle : {}),
-        ...(isDragReject ? rejectStyle : {})
-    }), [
-        isDragActive,
-        isDragReject,
-        isDragAccept
-    ]);
-
-    return (
-        <div>
-            <PageHeading title="ZapRead Icons" controller="Admin" method="Icons" function="Edit" />
-            <div className="row">
-                <div className="col-lg-12">
-                    <div className="wrapper wrapper-content animated fadeInUp">
-                        <div className="ibox">
-                            <div className="ibox-content">
-                                
-                            </div>
-                            <div className="ibox-content">
-                                <h1>Default Group Icon</h1>
-                                <div {...getRootProps({ style })}>
-                                    <input {...getInputProps()} />
-                                    {
-                                        isDragActive ?
-                                            <p>Drop the file here ...</p> :
-                                            <p>Drag and drop a file here, or click to select file</p>
-                                    }
-                                </div>
-
-                                <span>
-                                    Default Group Icon:
-                                </span>
-                                <img src="/Img/Group/Icon/0" />
-                            </div>
-                            <div className="ibox-content">
-                                <IconsTable title="Group Icons" pageSize={20}/>
-                            </div>
-                        </div>
-                    </div>
+  return (
+    <div>
+      <PageHeading
+        title="ZapRead Icons"
+        controller="Admin"
+        method="Icons"
+        function="Edit"
+      />
+      <div className="row">
+        <div className="col-lg-12">
+          <div className="wrapper wrapper-content animated fadeInUp">
+            <div className="ibox">
+              <div className="ibox-content" />
+              <div className="ibox-content">
+                <h1>Default Group Icon</h1>
+                <div {...getRootProps({ style })}>
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p>Drop the file here ...</p>
+                  ) : (
+                    <p>Drag and drop a file here, or click to select file</p>
+                  )}
                 </div>
+
+                <span>Default Group Icon:</span>
+                <img src="/Img/Group/Icon/0" />
+              </div>
+              <div className="ibox-content">
+                <IconsTable title="Group Icons" pageSize={20} />
+              </div>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
-ReactDOM.render(
-    <Page />
-    , document.getElementById("root"));
+ReactDOM.render(<Page />, document.getElementById("root"));
 
 //import $ from 'jquery';
 

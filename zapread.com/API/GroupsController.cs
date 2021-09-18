@@ -107,6 +107,15 @@ namespace zapread.com.API
             
         }
 
+        public async Task<AddGroupResponse> Add()
+        {
+
+            return new AddGroupResponse()
+            {
+                success = true
+            };
+        }
+
         private async Task<User> GetCurrentUser(ZapContext db)
         {
             var userId = User.Identity.GetUserId();
