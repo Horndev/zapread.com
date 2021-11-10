@@ -5,8 +5,8 @@ using System.Web;
 
 namespace zapread.com.Models.API.Groups
 {
-    public class AddGroupResponse : ZapReadResponse
+    public class CheckExistsGroupParameters
     {
-        public int GroupId { get; set; }
+        public string GroupName { get; set; }
     }
 }

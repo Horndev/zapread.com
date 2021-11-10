@@ -7,7 +7,7 @@ import "../../shared/shared";
 import "../../realtime/signalr";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Row, Col, Form, Button } from "react-bootstrap";
+import { Row, Col, Form, Button, Container } from "react-bootstrap";
 import ReactDOM from "react-dom";
 import PageHeading from "../../components/page-heading";
 import { MultiSelect, SimpleSelect } from "react-selectize";
@@ -68,27 +68,45 @@ function Page() {
     //}
     setValidated(true);
 
-    // Check if group is valid
-    postJson("/Group/CheckExists/", {
-      groupName: groupName
-    }).then(response => {
-      if (response.success) {
-        if (response.exists) {
-          setGroupNameValid(false);
-          setGroupNameError("This group already exists");
-          return true;
-        } else {
-          setGroupNameValid(true);
-          setGroupNameError("");
-          return false;
-        }
-      }
-    });
+    var tagstring = tags.map(t => t.value).join(";");
 
-    // If everything is valid - submit for group creation
-    if (groupNameValid) {
-      console.log("valid group name");
-    }
+    // Check if group is valid
+    postJson("/api/v1/groups/checkexists/", {
+      GroupName: groupName
+    })
+      .then(response => {
+        if (response.success) {
+          if (response.exists) {
+            setGroupNameValid(false);
+            setGroupNameError("This group already exists");
+            return false;
+          } else {
+            setGroupNameValid(true);
+            setGroupNameError("");
+            return true;
+          }
+        }
+      })
+      .then(isvalid => {
+        // If everything is valid - submit for group creation
+        if (isvalid) {
+          console.log("valid group name");
+          var newGroupData = {
+            GroupName: groupName,
+            ImageId: imageId,
+            Tags: tagstring,
+            Language: language
+          };
+          postJson("/api/v1/groups/add/", newGroupData).then(response => {
+            console.log(response);
+            if (response.success) {
+              // Go to new group
+              console.log("groups add success");
+              window.location.href = "/Group/GroupDetail/" + response.GroupId;
+            }
+          });
+        }
+      });
   }
 
   function handleFileChange(selectorFiles) {
@@ -125,8 +143,6 @@ function Page() {
    * @param {any} e
    */
   function updateIcon(id, e) {
-    //console.log(e);
-    //console.log(id);
     inputFile.current.click();
   }
 
@@ -193,9 +209,24 @@ function Page() {
                   <Form.Group>
                     <Form.Label>Icon</Form.Label>
                     <Form.Row>
+                      {/*
+                       * <div class="container-fluid">
+                       * <div class="row align-items-center">
+                       * <div class="col-md-auto">
+                       *  <input type="file" id="file" accept="image" style="display: none;">
+                       *  <img src="/Img/Group/IconById/0/?s=100">
+                       * </div>
+                       * <div class="col-md-auto">
+                       * </div>
+                       * <div class="col">
+                       *  <button type="button" class="btn btn-outline-primary btn-sm" style="margin-top: 10px;margin-bottom: 10px;">Change Icon</button>
+                       * </div>
+                       * </div>
+                       * </div>
+                       **/}
                       <Container fluid>
-                        <Row>
-                          <Col xs="auto" sm="auto">
+                        <Row className="align-items-center">
+                          <Col xs="auto" sm="auto" md="auto">
                             <input
                               type="file"
                               id="file"
@@ -204,13 +235,14 @@ function Page() {
                               onChange={e => handleFileChange(e.target.files)}
                               style={{ display: "none" }}
                             />
+                            <img
+                              src={`/Img/Group/IconById/${imageId}/?s=100`}
+                            />
                           </Col>
-                          <Col
-                            xs={{ span: 2, offset: 1 }}
-                            sm={{ span: 2, offset: 1 }}
-                          >
+                          <Col xs="auto" sm="auto" md="auto">
                             {/*This shows the image which the group will be assigned*/}
-                            <img src={`/Img/Group/IconById/${imageId}/?s=50`} />
+                          </Col>
+                          <Col>
                             <Button
                               size="sm"
                               variant="outline-primary"

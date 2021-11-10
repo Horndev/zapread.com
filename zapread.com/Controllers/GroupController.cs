@@ -1126,26 +1126,26 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        /// This method can be removed
         /// </summary>
         /// <param name="groupName"></param>
         /// <returns></returns>
-        [Route("Group/CheckExists/")]
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public JsonResult GroupExists(string groupName)
-        {
-            using (var db = new ZapContext())
-            {
-                var matched = db.Groups.Where(g => g.GroupName == groupName).FirstOrDefault();
-                if (matched != null)
-                {
-                    return Json(new { exists = true, success = true }, JsonRequestBehavior.AllowGet);
-                }
-                return Json(new { exists = false, success = true }, JsonRequestBehavior.AllowGet);
-            }
-        }
+        //[Route("Group/CheckExists/")]
+        //[HttpPost]
+        //[ValidateJsonAntiForgeryToken]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
+        //public JsonResult GroupExists(string groupName)
+        //{
+        //    using (var db = new ZapContext())
+        //    {
+        //        var matched = db.Groups.Where(g => g.GroupName == groupName).FirstOrDefault();
+        //        if (matched != null)
+        //        {
+        //            return Json(new { exists = true, success = true, message = "This method is deprecated, use api call instead" }, JsonRequestBehavior.AllowGet);
+        //        }
+        //        return Json(new { exists = false, success = true, message = "This method is deprecated, use api call instead" }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
 
         [HttpGet]
         public PartialViewResult GetGroupTags(int groupId)

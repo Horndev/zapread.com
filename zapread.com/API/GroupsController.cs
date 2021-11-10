@@ -12,6 +12,7 @@ using zapread.com.Models.Database;
 using System.Globalization;
 using zapread.com.Models.API.Groups;
 using System.Web.Http;
+using zapread.com.Helpers;
 
 namespace zapread.com.API
 {
@@ -107,13 +108,105 @@ namespace zapread.com.API
             
         }
 
-        public async Task<AddGroupResponse> Add()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/checkexists")]
+        public async Task<CheckExistsGroupResponse> CheckExists(CheckExistsGroupParameters p)
         {
-
-            return new AddGroupResponse()
+            using (var db = new ZapContext())
             {
-                success = true
-            };
+                bool exists = await GroupExists(p.GroupName.CleanUnicode(), db).ConfigureAwait(true);
+                return new CheckExistsGroupResponse() { exists = exists, success = true };
+            }
+        }
+
+        private static async Task<bool> GroupExists(string GroupName, ZapContext db)
+        {
+            Group matched = await db.Groups.Where(g => g.GroupName == GroupName).FirstOrDefaultAsync().ConfigureAwait(true);
+            if (matched != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/add")]
+        public async Task<AddGroupResponse> Add(AddGroupParameters newGroup)
+        {
+            if (newGroup == null)
+            {
+                // use this to return status code
+                // https://www.tutorialsteacher.com/webapi/action-method-return-type-in-web-api
+                return new AddGroupResponse()
+                {
+                    success = false
+                };
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Ensure not a duplicate group!
+                var cleanName = newGroup.GroupName.CleanUnicode();
+                bool exists = await GroupExists(cleanName, db).ConfigureAwait(true);
+                if (exists)
+                {
+                    return new AddGroupResponse() { success = false };
+                }
+
+                var user = await GetCurrentUser(db).ConfigureAwait(true);
+                var icon = await GetGroupIcon(newGroup.ImageId, db).ConfigureAwait(true);
+
+                Group g = new Group()
+                {
+                    GroupName = cleanName,
+                    TotalEarned = 0.0,
+                    TotalEarnedToDistribute = 0.0,
+                    Moderators = new List<User>(),
+                    Members = new List<User>(),
+                    Administrators = new List<User>(),
+                    Tags = newGroup.Tags,
+                    Icon = null, //m.Icon,  // This field is now depricated - will be removed
+                    GroupImage = icon,
+                    CreationDate = DateTime.UtcNow,
+                    DefaultLanguage = newGroup.Language,
+                };
+
+                g.Members.Add(user);
+                g.Moderators.Add(user);
+                g.Administrators.Add(user);
+
+                db.Groups.Add(g);
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return new AddGroupResponse()
+                {
+                    success = true,
+                    GroupId = g.GroupId
+                };
+            }
+        }
+
+        private static async Task<Models.UserImage> GetGroupIcon(int ImageId, ZapContext db)
+        {
+            var icon = await db.Images.Where(im => im.ImageId == ImageId).FirstOrDefaultAsync().ConfigureAwait(true);
+
+            if (icon == null || icon.Image == null)
+            {
+                // Image 1 is usually the default
+                icon = await db.Images.Where(im => im.ImageId == 1).FirstOrDefaultAsync().ConfigureAwait(true);
+                if (icon == null || icon.Image == null)
+                {
+                    // Get any icon
+                    icon = await db.Images.Where(im => im.Image != null).FirstOrDefaultAsync().ConfigureAwait(true);
+                }
+            }
+
+            return icon;
         }
 
         private async Task<User> GetCurrentUser(ZapContext db)

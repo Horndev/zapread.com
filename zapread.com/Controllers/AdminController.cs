@@ -1384,12 +1384,14 @@ namespace zapread.com.Controllers
                 }
                 if (db.LightningTransactions.Any())
                 {
-                    LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                    var txsSettledDeposited = db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).ToList();
+                    var LNdeposits = txsSettledDeposited.Count < 1 ? 0.0 : txsSettledDeposited.Sum(t => t.Amount);
+                    LNdep = Convert.ToDouble(LNdeposits) / 100000000.0;
                     var settledWithdraws = db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).ToList();
-                    var sumSettledWithdraws = settledWithdraws.Sum(t => t.Amount);
-
+                    var sumSettledWithdraws = settledWithdraws.Count < 1 ? 0.0 : settledWithdraws.Sum(t => t.Amount);
                     LNwth = Convert.ToDouble(sumSettledWithdraws) / 100000000.0;
-                    LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
+                    var txsSettled = db.LightningTransactions.Where(t => t.IsSettled).ToList();
+                    LNfee = Convert.ToDouble(txsSettled.Count < 1 ? 0.0 : txsSettled.Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
                 }
 
                 // Calculate post and comment stats.

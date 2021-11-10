@@ -1,5 +1,9 @@
 ﻿/*
+ * Admin Panel Icons
  * 
+ * [ ] Set the default group icon
+ * [ ] Change a group icon
+ * [ ] Remove group icon
  */
 
 import "../../shared/shared"; // [✓]
@@ -12,6 +16,7 @@ import React, {
   useState
 } from "react";
 import ReactDOM from "react-dom";
+import { Row, Col, Form, Button, Container } from "react-bootstrap";
 import PageHeading from "../../components/page-heading";
 import IconsTable from "./Components/IconsTable";
 import { useDropzone } from "react-dropzone";
@@ -47,14 +52,66 @@ const rejectStyle = {
 };
 
 function Page() {
-  const onDrop = useCallback(acceptedFiles => {
-    console.log(acceptedFiles);
+  const [imageId, setImageId] = useState(0); // This is the image used for the group
 
-    var file = acceptedFiles[0];
+  const inputFile = useRef(null); // Used for selecting image file
+
+  //const onDrop = useCallback(acceptedFiles => {
+  //  console.log(acceptedFiles);
+
+  //  var file = acceptedFiles[0];
+
+  //  var fd = new FormData();
+  //  fd.append("file", file);
+  //  const xhr = new XMLHttpRequest();
+  //  xhr.open("POST", "/Img/Group/DefaultIcon/", true);
+  //  var headers = getAntiForgeryToken();
+
+  //  for (var index in headers) {
+  //    xhr.setRequestHeader(index, headers[index]);
+  //  }
+
+  //  // listen callback
+  //  xhr.onload = () => {
+  //    if (xhr.status === 200) {
+  //      var data = JSON.parse(xhr.responseText);
+  //      console.log(data.imgId);
+  //    }
+  //  };
+
+  //  xhr.send(fd);
+  //}, []);
+
+  //const {
+  //  getRootProps,
+  //  getInputProps,
+  //  isDragActive,
+  //  isDragAccept,
+  //  isDragReject
+  //} = useDropzone({
+  //  accept: "image/*",
+  //  onDrop: onDrop
+  //});
+
+  //const style = useMemo(
+  //  () => ({
+  //    ...baseStyle,
+  //    ...(isDragActive ? activeStyle : {}),
+  //    ...(isDragAccept ? acceptStyle : {}),
+  //    ...(isDragReject ? rejectStyle : {})
+  //  }),
+  //  [isDragActive, isDragReject, isDragAccept]
+  //);
+
+  function handleFileChange(selectorFiles) {
+    var file = selectorFiles[0];
 
     var fd = new FormData();
     fd.append("file", file);
     const xhr = new XMLHttpRequest();
+
+    // updateImgId is from the react state
+    //xhr.open("POST", "/Img/Group/Icon/-1/", true);
     xhr.open("POST", "/Img/Group/DefaultIcon/", true);
     var headers = getAntiForgeryToken();
 
@@ -67,32 +124,22 @@ function Page() {
       if (xhr.status === 200) {
         var data = JSON.parse(xhr.responseText);
         console.log(data.imgId);
+        setImageId(data.imgId); // This is the new image id which the user just uploaded
       }
     };
 
+    // Execute the request
     xhr.send(fd);
-  }, []);
+  }
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragAccept,
-    isDragReject
-  } = useDropzone({
-    accept: "image/*",
-    onDrop: onDrop
-  });
-
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {})
-    }),
-    [isDragActive, isDragReject, isDragAccept]
-  );
+  /**
+   * initializes the user to select an icon to upload for the group image
+   * @param {any} id
+   * @param {any} e
+   */
+  function updateIcon(id, e) {
+    inputFile.current.click();
+  }
 
   return (
     <div>
@@ -109,17 +156,44 @@ function Page() {
               <div className="ibox-content" />
               <div className="ibox-content">
                 <h1>Default Group Icon</h1>
-                <div {...getRootProps({ style })}>
-                  <input {...getInputProps()} />
-                  {isDragActive ? (
-                    <p>Drop the file here ...</p>
-                  ) : (
-                    <p>Drag and drop a file here, or click to select file</p>
-                  )}
-                </div>
 
-                <span>Default Group Icon:</span>
-                <img src="/Img/Group/Icon/0" />
+                <Row className="align-items-center">
+                  <Col xs="auto" sm="auto" md="auto">
+                    <input
+                      type="file"
+                      id="file"
+                      ref={inputFile}
+                      accept="image"
+                      onChange={e => handleFileChange(e.target.files)}
+                      style={{ display: "none" }}
+                    />
+                    <img src={`/Img/Group/IconById/${imageId}/?s=100`} />
+                    {/*<img src="/Img/Group/Icon/0" />*/}
+                  </Col>
+                  <Col xs="auto" sm="auto" md="auto">
+                    {/*This shows the image which the group will be assigned*/}
+                  </Col>
+                  <Col>
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      onClick={e => updateIcon(-1, e)}
+                    >
+                      Change Icon
+                    </Button>
+                  </Col>
+                </Row>
+
+                {/*<div {...getRootProps({ style })}>*/}
+                {/*  <input {...getInputProps()} />*/}
+                {/*  {isDragActive ? (*/}
+                {/*    <p>Drop the file here ...</p>*/}
+                {/*  ) : (*/}
+                {/*    <p>Drag and drop a file here, or click to select file</p>*/}
+                {/*  )}*/}
+                {/*</div>*/}
+                {/*<span>Default Group Icon:</span>*/}
+                {/*<img src="/Img/Group/Icon/0" />*/}
               </div>
               <div className="ibox-content">
                 <IconsTable title="Group Icons" pageSize={20} />

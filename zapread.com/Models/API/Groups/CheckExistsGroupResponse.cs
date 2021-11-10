@@ -5,8 +5,8 @@ using System.Web;
 
 namespace zapread.com.Models.API.Groups
 {
-    public class AddGroupResponse : ZapReadResponse
+    public class CheckExistsGroupResponse : ZapReadResponse
     {
-        public int GroupId { get; set; }
+        public bool exists { get; set; }
     }
 }
