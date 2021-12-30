@@ -16,11 +16,6 @@ import { postJson } from "../../utility/postData";
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
 
-//import "selectize/dist/js/standalone/selectize";
-//import "selectize/dist/css/selectize.css";
-//import "selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css";
-//import Swal from "sweetalert2";
-
 import "../../shared/sharedlast";
 
 function Page() {
@@ -38,7 +33,7 @@ function Page() {
   // Async load languages for options
   useEffect(() => {
     async function getLanguages() {
-      const response = await fetch("/api/v1/core/langages/list/");
+      const response = await fetch("/api/v1/core/languages/list/");
       const json = await response.json();
       const newData = json.Languages;
       setLanguages(
@@ -68,7 +63,7 @@ function Page() {
     //}
     setValidated(true);
 
-    var tagstring = tags.map(t => t.value).join(";");
+    var tagstring = tags.map(t => t.value).join(",");
 
     // Check if group is valid
     postJson("/api/v1/groups/checkexists/", {
@@ -95,7 +90,7 @@ function Page() {
             GroupName: groupName,
             ImageId: imageId,
             Tags: tagstring,
-            Language: language
+            Language: language !== null ? language.value : "en"
           };
           postJson("/api/v1/groups/add/", newGroupData).then(response => {
             console.log(response);
@@ -265,7 +260,7 @@ function Page() {
                       placeholder="Select the group default language"
                       options={languages}
                       value={defaultLanguage()}
-                      onValueChange={option => {
+                        onValueChange={option => {
                         setLanguage(option);
                         console.log(option);
                       }}

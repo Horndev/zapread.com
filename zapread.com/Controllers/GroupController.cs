@@ -152,7 +152,7 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             var user = await db.Users
                 .Include(u => u.Settings)
-                .FirstOrDefaultAsync(u => u.AppId == userId);
+                .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
             return user;
         }
 
@@ -166,14 +166,14 @@ namespace zapread.com.Controllers
                 var user = await db.Users
                     .Include(u => u.Settings)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.AppId == userId);
+                    .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
 
                 var group = await db.Groups
                     .Include(g => g.Members)
                     .Include(g => g.Moderators)
                     .Include(g => g.Administrators)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.GroupId == id);
+                    .FirstOrDefaultAsync(g => g.GroupId == id).ConfigureAwait(true);
 
                 List<GroupMemberViewModel> groupMembers = new List<GroupMemberViewModel>();
 
@@ -244,7 +244,7 @@ namespace zapread.com.Controllers
                 g.Administrators.Add(u);
                 u.GroupAdministration.Add(g);
 
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
             return Json(new { success = true, result = "success" });
         }
@@ -282,7 +282,7 @@ namespace zapread.com.Controllers
                 g.Administrators.Remove(u);
                 u.GroupAdministration.Remove(g);
 
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
             return Json(new { success = true, result = "success" });
         }
@@ -320,7 +320,7 @@ namespace zapread.com.Controllers
                 g.Moderators.Add(u);
                 u.GroupModeration.Add(g);
 
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
             return Json(new { success = true, result = "success" });
         }
@@ -506,7 +506,7 @@ namespace zapread.com.Controllers
                 DateTime t = DateTime.Now;
                 var group = await db.Groups
                    .AsNoTracking()
-                   .FirstOrDefaultAsync(g => g.GroupId == id);
+                   .FirstOrDefaultAsync(g => g.GroupId == id).ConfigureAwait(true);
 
                 if (sort == "Score")
                 {
@@ -545,7 +545,7 @@ namespace zapread.com.Controllers
                         .Where(p => !p.IsDraft)
                         .Where(p => p.Group.GroupId == group.GroupId)
                         .Skip(start)
-                        .Take(count).ToListAsync();
+                        .Take(count).ToListAsync().ConfigureAwait(true);
                     return sposts;
                 }
                 //if (sort == "New")
@@ -567,7 +567,7 @@ namespace zapread.com.Controllers
                     .Where(p => !p.IsDraft)
                     .Where(p => p.Group.GroupId == group.GroupId)
                     .Skip(start)
-                    .Take(count).ToListAsync();
+                    .Take(count).ToListAsync().ConfigureAwait(true);
                 return posts;
                 //}
             }
@@ -900,14 +900,14 @@ namespace zapread.com.Controllers
                 var uid = User.Identity.GetUserId();
                 var user = await db.Users
                     .AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 if (user == null)
                 {
                     return Json(new { result = "error", success = false, message = "User not authorized." });
                 }
 
-                var g = await db.Groups.SingleOrDefaultAsync(grp => grp.GroupId == groupId);
+                var g = await db.Groups.SingleOrDefaultAsync(grp => grp.GroupId == groupId).ConfigureAwait(true);
                 if (g == null)
                 {
                     return Json(new { result = "error", success = false, message = "Group not found in database." });
@@ -1229,6 +1229,35 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <returns></returns>
         public ActionResult New()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+            }
+            using (var db = new ZapContext())
+            {
+                NewGroupViewModel vm = new NewGroupViewModel();
+                vm.Icons = db.Icons.Select(i => i.Icon).ToList();
+
+                // List of languages known
+                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+                    .Select(g => g.First())
+                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+
+                vm.Language = "en";
+                vm.Languages = languages;
+
+                return View(vm);
+            }
+        }
+
+        // GET: Group/Edit
+        /// <summary>
+        /// Edit settings for an existing group
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Edit()
         {
             if (!User.Identity.IsAuthenticated)
             {

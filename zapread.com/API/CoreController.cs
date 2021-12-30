@@ -18,10 +18,9 @@ namespace zapread.com.API
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dataTableParameters"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/core/langages/list")]
+        [Route("api/v1/core/languages/list")]
         public GetLanguagesResponse GetLanguages()
         {
             try

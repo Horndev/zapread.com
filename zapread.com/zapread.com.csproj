@@ -841,7 +841,11 @@
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\GroupInfo.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupResponse .cs" />
     <Compile Include="Models\API\Groups\AddGroupResponse.cs" />
     <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
@@ -1111,6 +1115,7 @@
     <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
     <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
+    <Content Include="Scripts\src\pages\group\edit.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
@@ -1156,6 +1161,7 @@
     <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
     <Content Include="Scripts\src\utility\editor\posteditor.js" />
+    <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
@@ -1215,7 +1221,6 @@
     <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
-    <Content Include="Scripts\src\utility\postData.js" />
     <Content Include="Scripts\src\utility\quotable\quotable.js" />
     <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
@@ -1368,6 +1373,7 @@
     <Content Include="Scripts\src\quill-image-resize-module\npm-shrinkwrap.json" />
     <Content Include="Scripts\src\quill-image-resize-module\package.json" />
     <Content Include="Scripts\src\quill-image-resize-module\README.md" />
+    <Content Include="Views\Group\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

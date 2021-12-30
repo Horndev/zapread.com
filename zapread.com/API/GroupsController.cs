@@ -119,17 +119,25 @@ namespace zapread.com.API
         {
             using (var db = new ZapContext())
             {
-                bool exists = await GroupExists(p.GroupName.CleanUnicode(), db).ConfigureAwait(true);
+                var groupIdCheck = -1;
+                if (p.GroupId.HasValue)
+                {
+                    groupIdCheck = p.GroupId.Value;
+                }
+                bool exists = await GroupExists(p.GroupName.CleanUnicode(), groupIdCheck, db).ConfigureAwait(true);
                 return new CheckExistsGroupResponse() { exists = exists, success = true };
             }
         }
 
-        private static async Task<bool> GroupExists(string GroupName, ZapContext db)
+        private static async Task<bool> GroupExists(string GroupName, int groupId, ZapContext db)
         {
             Group matched = await db.Groups.Where(g => g.GroupName == GroupName).FirstOrDefaultAsync().ConfigureAwait(true);
             if (matched != null)
             {
-                return true;
+                if (matched.GroupId != groupId)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -152,7 +160,7 @@ namespace zapread.com.API
             {
                 // Ensure not a duplicate group!
                 var cleanName = newGroup.GroupName.CleanUnicode();
-                bool exists = await GroupExists(cleanName, db).ConfigureAwait(true);
+                bool exists = await GroupExists(cleanName, -1, db).ConfigureAwait(true);
                 if (exists)
                 {
                     return new AddGroupResponse() { success = false };
@@ -173,7 +181,7 @@ namespace zapread.com.API
                     Icon = null, //m.Icon,  // This field is now depricated - will be removed
                     GroupImage = icon,
                     CreationDate = DateTime.UtcNow,
-                    DefaultLanguage = newGroup.Language,
+                    DefaultLanguage = newGroup.Language == null ? "en" : newGroup.Language, // Ensure value
                 };
 
                 g.Members.Add(user);
@@ -188,6 +196,130 @@ namespace zapread.com.API
                     success = true,
                     GroupId = g.GroupId
                 };
+            }
+        }
+
+        /// <summary>
+        /// Loads the information on a specified group
+        /// </summary>
+        /// <param name="groupInfo"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/load")]
+        public async Task<LoadGroupResponse> Load(LoadGroupParameters groupInfo)
+        {
+            // validate
+            if (groupInfo == null)
+            {
+                return new LoadGroupResponse() { success = false };
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            if (groupInfo.groupId == 0)
+            {
+                return new LoadGroupResponse() { success = false };
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            using (var db = new ZapContext())
+            {
+                var reqGroupQ = await db.Groups
+                    .Where(g => g.GroupId == groupInfo.groupId)
+                    .Select(g => new
+                    {
+                        g.GroupId,
+                        g.DefaultLanguage,
+                        g.GroupName,
+                        g.GroupImage.ImageId,
+                        g.Tags
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (reqGroupQ == null)
+                {
+                    //Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return new LoadGroupResponse() { success = false, message = "Group not found." };
+                }
+
+                // Convert to GroupInfo object for return
+                var reqGroup = new GroupInfo()
+                {
+                    Id = reqGroupQ.GroupId,
+                    DefaultLanguage = reqGroupQ.DefaultLanguage == null ? "en" : reqGroupQ.DefaultLanguage,
+                    Name = reqGroupQ.GroupName,
+                    IconId = reqGroupQ.ImageId,
+                    Tags = reqGroupQ.Tags != null ? reqGroupQ.Tags.Split(',').ToList() : new List<string>(),
+                };
+                    
+
+                return new LoadGroupResponse() { success = true, group = reqGroup };
+            }
+
+
+            return new LoadGroupResponse()
+            {
+                success = false
+            };
+        }
+
+        [AcceptVerbs("PUT")]
+        [Route("api/v1/groups/update")]
+        public async Task<IHttpActionResult> Update(UpdateGroupParameters existingGroup)
+        {
+            // validate
+            if (existingGroup == null)
+            {
+                return BadRequest();
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await GetCurrentUser(db).ConfigureAwait(true);
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == existingGroup.GroupId)
+                    .Include(gr => gr.Administrators)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (group == null)
+                {
+                    return BadRequest("Group not found");
+                }
+
+                if (!group.Administrators.Select(a => a.AppId).Contains(user.AppId))
+                {
+                    return Unauthorized();
+                }
+
+                var cleanName = existingGroup.GroupName.CleanUnicode();
+                bool exists = await GroupExists(cleanName, existingGroup.GroupId, db).ConfigureAwait(true);
+
+                if (exists)
+                {
+                    return BadRequest("Group with that name already exists.");
+                }
+
+                // Make updates
+                var icon = await GetGroupIcon(existingGroup.ImageId, db).ConfigureAwait(true);
+
+                if (icon == null)
+                {
+                    return BadRequest("Icon not found");
+                }
+
+                group.DefaultLanguage = existingGroup.Language == null ? "en" : existingGroup.Language; // Ensure value
+                group.Tags = existingGroup.Tags;
+                
+                group.GroupName = cleanName;
+                group.GroupImage = icon;
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new AddGroupResponse()
+                {
+                    success = true,
+                    GroupId = group.GroupId
+                });
             }
         }
 
