@@ -835,7 +835,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the audit page for the specified user
+        /// </summary>
+        /// <param name="username">Plain-text username</param>
+        /// <returns></returns>
         // GET: Admin/Audit/{username}
+        [HttpGet]
         [Route("Admin/Audit/{username}")]
         public ActionResult Audit(string username)
         {

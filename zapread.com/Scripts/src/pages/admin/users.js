@@ -50,7 +50,7 @@ $(document).ready(function () {
                 "name": 'Name',
                 "orderable": false,
                 "mRender": function (data, _type, _row) {
-                    return "<img class='img-circle user-image-30' src='/Home/UserImage/?size=30&UserId=" + data.AppId + "' /> <a class='post-username userhint' data-userid='" + data.Id + "' target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a>";
+                    return "<img class='img-circle user-image-30' src='/Home/UserImage/?size=30&UserId=" + data.AppId + "' /> <a class='post-username userhint' data-userid='" + data.Id + "' target='_blank' href='/user/" + encodeURIComponent(data.UserName) + "'>" + data.UserName + "</a> <a target='_blank' href='/Admin/Audit/" + encodeURIComponent(data.UserName) + "'> -A- </a>";
                 }
             },
             {
