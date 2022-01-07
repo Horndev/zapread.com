@@ -59,7 +59,7 @@ namespace zapread.com.API
                         g.TotalEarned,
                         g.TotalEarnedToDistribute,
                         g.CreationDate,
-                        g.Icon,
+                        Icon = g.GroupImage == null ? g.Icon : null, // Only if GroupImage doesn't exist
                         g.Tier,
                         IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
                     }).AsNoTracking();
@@ -230,7 +230,7 @@ namespace zapread.com.API
                         g.GroupId,
                         g.DefaultLanguage,
                         g.GroupName,
-                        g.GroupImage.ImageId,
+                        ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId,
                         g.Tags
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
@@ -253,12 +253,6 @@ namespace zapread.com.API
 
                 return new LoadGroupResponse() { success = true, group = reqGroup };
             }
-
-
-            return new LoadGroupResponse()
-            {
-                success = false
-            };
         }
 
         [AcceptVerbs("PUT")]

@@ -39,7 +39,7 @@ function Page() {
               </div>
               <div className="ibox-content">
                 <div className="project-list">
-                  <GroupsTable pageSize={2} />
+                  <GroupsTable pageSize={20} />
                 </div>
               </div>
             </div>
