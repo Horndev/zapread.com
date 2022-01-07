@@ -419,7 +419,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, string language)
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, string language)
         {
             var userId = User.Identity.GetUserId();
 
@@ -484,6 +484,7 @@ namespace zapread.com.Controllers
                     post.Group = postGroup;
                     post.Content = contentStr;
                     post.Language = postLanguage ?? post.Language;
+                    post.IsNSFW = isNSFW;
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -523,6 +524,7 @@ namespace zapread.com.Controllers
                         PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS(),
                         IsDraft = isDraft,
                         Language = postLanguage,
+                        IsNSFW = isNSFW,
                     };
 
                     db.Posts.Add(post);

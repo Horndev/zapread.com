@@ -5,9 +5,9 @@
 import '../../shared/shared';                                           // [✓]
 import '../../realtime/signalr';                                        // [✓]
 import React, { useCallback, useEffect, useState, useRef } from 'react';// [✓]
-import { Container, Row, Col } from 'react-bootstrap';                  // [✓]
+import { Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';       // [✓]
 import ReactDOM from 'react-dom';                                       // [✓]
-import { useLocation, BrowserRouter as Router } from 'react-router-dom';
+import { useLocation, BrowserRouter as Router } from 'react-router-dom';// [✓]
 import Swal from 'sweetalert2';                                         // [✓]
 import Input from '../../Components/Input/Input';                       // [✓]
 import Editor from './Components/Editor';                               // [✓]
@@ -32,7 +32,8 @@ function Page() {
     const [postTitle, setPostTitle] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
-
+    const [postNSFW, setPostNSFW] = useState(false);
+    
     let query = useQuery();
 
     useEffect(() => {
@@ -55,7 +56,8 @@ function Page() {
                 content: postContent,
                 postTitle: postTitle,
                 language: postLanguage,
-                isDraft: true
+                isDraft: true,
+                isNSFW: postNSFW
             };
 
             console.log(msg);
@@ -68,7 +70,7 @@ function Page() {
                     setIsSaving(false);         // Release the saving lock
                 });
         }
-    }, [postTitle, postContent, postLanguage, postId, groupId]);    // Save the draft if any of these variables update
+    }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);    // Save the draft if any of these variables update
 
     function handleDeleteDraft(postId) {
         Swal.fire({
@@ -100,11 +102,10 @@ function Page() {
             postId: postId,
             isDraft: isDraft,
         }).then((response) => {
-            //console.log(response);
             if (response.success) {
-                setNumSaves(numSaves + 1);  // updates draft table
-                setPostContent(response.draftPost.Content);   // set the editor content
-                setPostId(postId);                      // this is the post we are now editing
+                setNumSaves(numSaves + 1);                  // updates draft table
+                setPostContent(response.draftPost.Content); // set the editor content
+                setPostId(postId);                          // this is the post we are now editing
                 setGroupName(response.draftPost.GroupName);
                 setPostTitle(response.draftPost.PostTitle);
             }
@@ -126,6 +127,11 @@ function Page() {
         });
     }
 
+    function handleNSFWChange(evt) {
+        console.log("handleNSFWChange", evt);
+        setPostNSFW(evt.target.checked);
+    }
+
     const handleSubmitPost = useCallback(() => {
         console.log("submit post");
         var msg = {
@@ -134,7 +140,8 @@ function Page() {
             content: postContent,
             postTitle: postTitle,
             language: postLanguage,
-            isDraft: false
+            isDraft: false,
+            isNSFW: postNSFW
         };
 
         console.log(msg);
@@ -148,7 +155,7 @@ function Page() {
             newPostUrl = newPostUrl + '/' + response.postId;
             window.location.replace(newPostUrl);
         });
-    }, [postTitle, postContent, postLanguage, postId, groupId]);
+    }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);
 
     return (
         <div>
@@ -187,6 +194,16 @@ function Page() {
                                     setValue={setPostLanguage}
                                 />
                             </div>
+                        </div>
+                        <div className="ibox-title" style={{ display: "flex" }}>
+                            {/*<Form>*/}
+                            {/*    <Form.Group controlId="formBasicCheckbox">*/}
+                            <Form.Check type="checkbox" label="Mark post Not Safe For Work (NSFW)"
+                                checked={postNSFW}
+                                onChange={e => setPostNSFW(e.target.checked)}
+                            />
+                            {/*    </Form.Group>*/}
+                            {/*</Form>*/}
                         </div>
                     </Col>
                 </Row>

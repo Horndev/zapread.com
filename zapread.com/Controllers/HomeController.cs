@@ -479,7 +479,7 @@ namespace zapread.com.Controllers
                 {
                     p,
                     // Includes the sum of absolute value of comment scores
-                    cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                    cScore = p.Comments.Count > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
                 })
                 .Select(p => new
                 {
@@ -530,7 +530,7 @@ namespace zapread.com.Controllers
             {
                 userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
 
-                if (userLanguages.Count() == 0)
+                if (userLanguages.Count == 0)
                 {
                     userLanguages.Add("en");
                 }

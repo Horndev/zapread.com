@@ -12,6 +12,7 @@ using zapread.com.Models.Database;
 using System.Globalization;
 using zapread.com.Models.API.Groups;
 using System.Web.Http;
+using zapread.com.Helpers;
 
 namespace zapread.com.API
 {
@@ -58,7 +59,7 @@ namespace zapread.com.API
                         g.TotalEarned,
                         g.TotalEarnedToDistribute,
                         g.CreationDate,
-                        g.Icon,
+                        Icon = g.GroupImage == null ? g.Icon : null, // Only if GroupImage doesn't exist
                         g.Tier,
                         IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
                     }).AsNoTracking();
@@ -105,6 +106,233 @@ namespace zapread.com.API
                 return ret;
             }
             
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/checkexists")]
+        public async Task<CheckExistsGroupResponse> CheckExists(CheckExistsGroupParameters p)
+        {
+            using (var db = new ZapContext())
+            {
+                var groupIdCheck = -1;
+                if (p.GroupId.HasValue)
+                {
+                    groupIdCheck = p.GroupId.Value;
+                }
+                bool exists = await GroupExists(p.GroupName.CleanUnicode(), groupIdCheck, db).ConfigureAwait(true);
+                return new CheckExistsGroupResponse() { exists = exists, success = true };
+            }
+        }
+
+        private static async Task<bool> GroupExists(string GroupName, int groupId, ZapContext db)
+        {
+            Group matched = await db.Groups.Where(g => g.GroupName == GroupName).FirstOrDefaultAsync().ConfigureAwait(true);
+            if (matched != null)
+            {
+                if (matched.GroupId != groupId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/add")]
+        public async Task<AddGroupResponse> Add(AddGroupParameters newGroup)
+        {
+            if (newGroup == null)
+            {
+                // use this to return status code
+                // https://www.tutorialsteacher.com/webapi/action-method-return-type-in-web-api
+                return new AddGroupResponse()
+                {
+                    success = false
+                };
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Ensure not a duplicate group!
+                var cleanName = newGroup.GroupName.CleanUnicode();
+                bool exists = await GroupExists(cleanName, -1, db).ConfigureAwait(true);
+                if (exists)
+                {
+                    return new AddGroupResponse() { success = false };
+                }
+
+                var user = await GetCurrentUser(db).ConfigureAwait(true);
+                var icon = await GetGroupIcon(newGroup.ImageId, db).ConfigureAwait(true);
+
+                Group g = new Group()
+                {
+                    GroupName = cleanName,
+                    TotalEarned = 0.0,
+                    TotalEarnedToDistribute = 0.0,
+                    Moderators = new List<User>(),
+                    Members = new List<User>(),
+                    Administrators = new List<User>(),
+                    Tags = newGroup.Tags,
+                    Icon = null, //m.Icon,  // This field is now depricated - will be removed
+                    GroupImage = icon,
+                    CreationDate = DateTime.UtcNow,
+                    DefaultLanguage = newGroup.Language == null ? "en" : newGroup.Language, // Ensure value
+                };
+
+                g.Members.Add(user);
+                g.Moderators.Add(user);
+                g.Administrators.Add(user);
+
+                db.Groups.Add(g);
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return new AddGroupResponse()
+                {
+                    success = true,
+                    GroupId = g.GroupId
+                };
+            }
+        }
+
+        /// <summary>
+        /// Loads the information on a specified group
+        /// </summary>
+        /// <param name="groupInfo"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/load")]
+        public async Task<LoadGroupResponse> Load(LoadGroupParameters groupInfo)
+        {
+            // validate
+            if (groupInfo == null)
+            {
+                return new LoadGroupResponse() { success = false };
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            if (groupInfo.groupId == 0)
+            {
+                return new LoadGroupResponse() { success = false };
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            using (var db = new ZapContext())
+            {
+                var reqGroupQ = await db.Groups
+                    .Where(g => g.GroupId == groupInfo.groupId)
+                    .Select(g => new
+                    {
+                        g.GroupId,
+                        g.DefaultLanguage,
+                        g.GroupName,
+                        ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId,
+                        g.Tags
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (reqGroupQ == null)
+                {
+                    //Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return new LoadGroupResponse() { success = false, message = "Group not found." };
+                }
+
+                // Convert to GroupInfo object for return
+                var reqGroup = new GroupInfo()
+                {
+                    Id = reqGroupQ.GroupId,
+                    DefaultLanguage = reqGroupQ.DefaultLanguage == null ? "en" : reqGroupQ.DefaultLanguage,
+                    Name = reqGroupQ.GroupName,
+                    IconId = reqGroupQ.ImageId,
+                    Tags = reqGroupQ.Tags != null ? reqGroupQ.Tags.Split(',').ToList() : new List<string>(),
+                };
+                    
+
+                return new LoadGroupResponse() { success = true, group = reqGroup };
+            }
+        }
+
+        [AcceptVerbs("PUT")]
+        [Route("api/v1/groups/update")]
+        public async Task<IHttpActionResult> Update(UpdateGroupParameters existingGroup)
+        {
+            // validate
+            if (existingGroup == null)
+            {
+                return BadRequest();
+                //throw new ArgumentNullException(nameof(groupInfo));
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await GetCurrentUser(db).ConfigureAwait(true);
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == existingGroup.GroupId)
+                    .Include(gr => gr.Administrators)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (group == null)
+                {
+                    return BadRequest("Group not found");
+                }
+
+                if (!group.Administrators.Select(a => a.AppId).Contains(user.AppId))
+                {
+                    return Unauthorized();
+                }
+
+                var cleanName = existingGroup.GroupName.CleanUnicode();
+                bool exists = await GroupExists(cleanName, existingGroup.GroupId, db).ConfigureAwait(true);
+
+                if (exists)
+                {
+                    return BadRequest("Group with that name already exists.");
+                }
+
+                // Make updates
+                var icon = await GetGroupIcon(existingGroup.ImageId, db).ConfigureAwait(true);
+
+                if (icon == null)
+                {
+                    return BadRequest("Icon not found");
+                }
+
+                group.DefaultLanguage = existingGroup.Language == null ? "en" : existingGroup.Language; // Ensure value
+                group.Tags = existingGroup.Tags;
+                
+                group.GroupName = cleanName;
+                group.GroupImage = icon;
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new AddGroupResponse()
+                {
+                    success = true,
+                    GroupId = group.GroupId
+                });
+            }
+        }
+
+        private static async Task<Models.UserImage> GetGroupIcon(int ImageId, ZapContext db)
+        {
+            var icon = await db.Images.Where(im => im.ImageId == ImageId).FirstOrDefaultAsync().ConfigureAwait(true);
+
+            if (icon == null || icon.Image == null)
+            {
+                // Image 1 is usually the default
+                icon = await db.Images.Where(im => im.ImageId == 1).FirstOrDefaultAsync().ConfigureAwait(true);
+                if (icon == null || icon.Image == null)
+                {
+                    // Get any icon
+                    icon = await db.Images.Where(im => im.Image != null).FirstOrDefaultAsync().ConfigureAwait(true);
+                }
+            }
+
+            return icon;
         }
 
         private async Task<User> GetCurrentUser(ZapContext db)

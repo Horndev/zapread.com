@@ -28,17 +28,30 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// MVC Controller for Admin Page
+    /// </summary>
     [Authorize(Roles = "Administrator")]
     public class AdminController : Controller
     {
+        private const string errorUnableToLoadDBWebsite = "Unable to load website settings.";
+
         private ApplicationUserManager _userManager;
         private ApplicationRoleManager _roleManager;
 
+        /// <summary>
+        /// Empty Constructor
+        /// </summary>
         public AdminController()
         {
             // Empty constructor
         }
 
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="roleManager"></param>
         public AdminController(ApplicationUserManager userManager, ApplicationRoleManager roleManager)
         {
             UserManager = userManager;
@@ -53,11 +66,17 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
-                var votes = await db.SpendingEvents.Take(100).ToListAsync();
+                var votes = await db.SpendingEvents.Take(100).ToListAsync().ConfigureAwait(true);
                 return View();
             }
         }
 
+        /// <summary>
+        /// Grants admin rights to a user
+        /// </summary>
+        /// <param name="adminKey"></param>
+        /// <param name="grantUser"></param>
+        /// <returns></returns>
         [AllowAnonymous] // Needed since we are doing this during install
         [HttpPost, Route("Admin/Install/GrantAdmin"), ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> GrantAdmin(string adminKey, string grantUser)
@@ -81,13 +100,13 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync();
 
                 // Ensure the role exists
-                if (!(await RoleManager.RoleExistsAsync("Administrator")))
+                if (!(await RoleManager.RoleExistsAsync("Administrator").ConfigureAwait(true)))
                 {
                     // role does not exist
                     var createResult = await RoleManager.CreateAsync(new Microsoft.AspNet.Identity.EntityFramework.IdentityRole()
                     {
                         Name = "Administrator"
-                    });
+                    }).ConfigureAwait(true);
 
                     if (!createResult.Succeeded)
                     {
@@ -95,7 +114,7 @@ namespace zapread.com.Controllers
                     }
                 }
 
-                var addResult = await this.UserManager.AddToRoleAsync(u.AppId, "Administrator");
+                var addResult = await UserManager.AddToRoleAsync(u.AppId, "Administrator").ConfigureAwait(true);
 
                 if (!addResult.Succeeded)
                 {
@@ -237,6 +256,11 @@ namespace zapread.com.Controllers
         #endregion
 
         #region Icons
+        
+        /// <summary>
+        /// Icons view
+        /// </summary>
+        /// <returns>View</returns>
         public ActionResult Icons()
         {
             return View();
@@ -364,7 +388,7 @@ namespace zapread.com.Controllers
                         a.Name,
                         a.Description,
                         a.Value,
-                        Awarded = a.Awarded.Count(),
+                        Awarded = a.Awarded.Count,
                     })
                     .OrderByDescending(i => i.Id)
                     .Skip(dataTableParameters.Start).Take(dataTableParameters.Length);
@@ -406,19 +430,25 @@ namespace zapread.com.Controllers
                 }
 
                 a.Description = description;
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return Json(new { success = true });
             }
         }
 
+        /// <summary>
+        /// Update the name of an achievement in the database
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Achievements/Name/Update")]
         public async Task<JsonResult> AdminUpdateAchievementName(int id, string name)
         {
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -426,19 +456,25 @@ namespace zapread.com.Controllers
                 }
 
                 a.Name = name;
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return Json(new { success = true });
             }
         }
 
+        /// <summary>
+        /// Grant an achievement to a user by username
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Achievements/Grant")]
         public async Task<JsonResult> AdminGrantAchievement(int id, string username)
         {
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -447,7 +483,7 @@ namespace zapread.com.Controllers
 
                 var user = await db.Users
                     .Include(u => u.Achievements)
-                    .FirstOrDefaultAsync(i => i.Name == username);
+                    .FirstOrDefaultAsync(i => i.Name == username).ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -464,12 +500,18 @@ namespace zapread.com.Controllers
                 user.Achievements.Add(ua);
 
                 //a.Name = name;
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return Json(new { success = true });
             }
         }
 
+        /// <summary>
+        /// Upload an image for a given achievement
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Achievements/Upload")]
         public JsonResult AdminUploadAchievementImage(HttpPostedFileBase file, string id)
         {
@@ -541,7 +583,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
-                    .FirstOrDefaultAsync(ac => ac.Id == id);
+                    .FirstOrDefaultAsync(ac => ac.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -559,18 +601,23 @@ namespace zapread.com.Controllers
                     a.Description = description;
                     a.Value = value;
                 }
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return Json(new { success = true });
             }
         }
 
+        /// <summary>
+        /// Remove an achievement from the database
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<ActionResult> DeleteAchievement(int id)
         {
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -578,7 +625,7 @@ namespace zapread.com.Controllers
                 }
 
                 db.Achievements.Remove(a);
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return Json(new { success = true });
             }
@@ -679,6 +726,11 @@ namespace zapread.com.Controllers
             .ToList();
         }
 
+        /// <summary>
+        /// Get the user Balance
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         // GET Admin/UserBalance
         [Route("Admin/UserBalance/{username}")]
         public async Task<JsonResult> UserBalance(string username)
@@ -693,7 +745,7 @@ namespace zapread.com.Controllers
 
                 var user = await db.Users.Where(u => u.Name.Trim() == username.Trim())
                     .Include(usr => usr.Funds)
-                    .AsNoTracking().SingleOrDefaultAsync();
+                    .AsNoTracking().SingleOrDefaultAsync().ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -705,6 +757,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the user's Limbo balance
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("Admin/UserLimboBalance/{username}")]
         public async Task<JsonResult> UserLimboBalance(string username)
         {
@@ -718,7 +775,7 @@ namespace zapread.com.Controllers
 
                 var user = await db.Users.Where(u => u.Name.Trim() == username.Trim())
                     .Include(usr => usr.Funds)
-                    .AsNoTracking().SingleOrDefaultAsync();
+                    .AsNoTracking().SingleOrDefaultAsync().ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -732,6 +789,12 @@ namespace zapread.com.Controllers
 
         #region audit
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [Route("Admin/Audit/Transaction/{id}")]
         public ActionResult AuditTransaction(int id)
         {
@@ -748,7 +811,7 @@ namespace zapread.com.Controllers
 
                 if (website == null)
                 {
-                    throw new Exception("Unable to load website settings.");
+                    throw new Exception(errorUnableToLoadDBWebsite);
                 }
 
                 LndRpcClient lndClient = new LndRpcClient(
@@ -772,7 +835,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the audit page for the specified user
+        /// </summary>
+        /// <param name="username">Plain-text username</param>
+        /// <returns></returns>
         // GET: Admin/Audit/{username}
+        [HttpGet]
         [Route("Admin/Audit/{username}")]
         public ActionResult Audit(string username)
         {
@@ -851,7 +920,7 @@ namespace zapread.com.Controllers
                     id = t.Id,
                 }).ToList();
 
-                int numrec = user.LNTransactions.Count();
+                int numrec = user.LNTransactions.Count;
 
                 var ret = new
                 {
@@ -888,7 +957,7 @@ namespace zapread.com.Controllers
                     Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
                 }).ToList();
 
-                int numrec = u.EarningEvents.Count();
+                int numrec = u.EarningEvents.Count;
 
                 var ret = new
                 {
@@ -938,7 +1007,7 @@ namespace zapread.com.Controllers
                             "")),
                 }).ToList();
 
-                int numrec = u.SpendingEvents.Count();
+                int numrec = u.SpendingEvents.Count;
 
                 var ret = new
                 {
@@ -1384,12 +1453,14 @@ namespace zapread.com.Controllers
                 }
                 if (db.LightningTransactions.Any())
                 {
-                    LNdep = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).Sum(t => t.Amount)) / 100000000.0;
+                    var txsSettledDeposited = db.LightningTransactions.Where(t => t.IsSettled && t.IsDeposit).ToList();
+                    var LNdeposits = txsSettledDeposited.Count < 1 ? 0.0 : txsSettledDeposited.Sum(t => t.Amount);
+                    LNdep = Convert.ToDouble(LNdeposits) / 100000000.0;
                     var settledWithdraws = db.LightningTransactions.Where(t => t.IsSettled && !t.IsDeposit).ToList();
-                    var sumSettledWithdraws = settledWithdraws.Sum(t => t.Amount);
-
+                    var sumSettledWithdraws = settledWithdraws.Count < 1 ? 0.0 : settledWithdraws.Sum(t => t.Amount);
                     LNwth = Convert.ToDouble(sumSettledWithdraws) / 100000000.0;
-                    LNfee = Convert.ToDouble(db.LightningTransactions.Where(t => t.IsSettled).Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
+                    var txsSettled = db.LightningTransactions.Where(t => t.IsSettled).ToList();
+                    LNfee = Convert.ToDouble(txsSettled.Count < 1 ? 0.0 : txsSettled.Sum(t => t.FeePaid_Satoshi ?? 0)) / 100000000.0;
                 }
 
                 // Calculate post and comment stats.
@@ -1652,7 +1723,7 @@ namespace zapread.com.Controllers
                 {
                     if (g.Administrators.Contains(u))
                     {
-                        if (g.Administrators.Count() == 1)
+                        if (g.Administrators.Count == 1)
                         {
                             // do not remove last admin
                             return Json(new { success = true, message = "Unable to remove last administrator from group" });

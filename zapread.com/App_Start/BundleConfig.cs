@@ -103,6 +103,7 @@ namespace zapread.com
             BundlePage(bundles, "admin", "lightning");
             BundlePage(bundles, "admin", "users");
             BundlePage(bundles, "group", "detail");
+            BundlePage(bundles, "group", "edit");
             BundlePage(bundles, "group", "index");
             BundlePage(bundles, "group", "members");
             BundlePage(bundles, "group", "new");

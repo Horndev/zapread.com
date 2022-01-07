@@ -7,6 +7,10 @@
  *
 */
 
+.react-selectize.dropdown-menu {
+    display: block;
+}
+
 .ibox-content-commentreply.ibox-content {
     border-style: none;
     background-color: #f9f9f9;

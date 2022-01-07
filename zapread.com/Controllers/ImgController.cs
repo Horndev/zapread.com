@@ -208,18 +208,29 @@ namespace zapread.com.Controllers
                             .Select(g => g.GroupImage)
                             .FirstOrDefaultAsync().ConfigureAwait(false);
 
+                        // No group or no image for group
                         if (i == null)
                         {
                             i = new UserImage()
                             {
                             };
-                            var group = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId)
-                                .ConfigureAwait(false);
-                            group.GroupImage = i;
+
+                            if (groupId > 0)
+                            {
+                                var group = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId)
+                                    .ConfigureAwait(false);
+                                group.GroupImage = i;
+                            }
                         }
 
                         i.ContentType = contentType;
                         i.Image = data;
+
+                        // New image
+                        if (groupId < 1)
+                        {
+                            db.Images.Add(i);
+                        }
 
                         await db.SaveChangesAsync().ConfigureAwait(false);
                         return Json(new { result = "success", imgId = i.ImageId });
@@ -257,6 +268,61 @@ namespace zapread.com.Controllers
                             byte[] data = thumb.ToByteArray(ImageFormat.Png);
                             return File(data, "image/png");
                         } 
+                    }
+                }
+                else
+                {
+                    // do we have a default image?
+                    i = await db.Images
+                        .Where(im => im.ImageId == 1)
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                    if (i == null || i.Image == null)
+                    {
+                        i = await db.Images
+                        .Where(im => im.Image != null)
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
+                    }
+
+                    using (var ims = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ims);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, size, size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets an icon from the database by it's image id
+        /// </summary>
+        /// <param name="imageId"></param>
+        /// <param name="s">image size in pixels</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Img/Group/IconById/{imageId}")]
+        public async Task<ActionResult> GroupIconById(int imageId, int? s)
+        {
+            using (var db = new ZapContext())
+            {
+                int size = s ?? 30;
+                var i = await db.Images
+                    .Where(g => g.ImageId == imageId)
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                if (i != null)
+                {
+                    using (var ims = new MemoryStream(i.Image))
+                    {
+                        Image png = Image.FromStream(ims);
+                        using (Bitmap thumb = ImageExtensions.ResizeImage(png, size, size))
+                        {
+                            byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                            return File(data, "image/png");
+                        }
                     }
                 }
                 else
