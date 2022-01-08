@@ -9,19 +9,19 @@ namespace zapread.com.Tests.Services
     public class MailingServiceTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestMailingServiceSend()
         {
-            var res = MailingService.SendAsync(user: "Accounts", useSSL: true,
-                message: new UserEmailModel()
-                {
-                    Destination = "horn@zapread.com",
-                    Body = "test message",
-                    Email = "",
-                    Name = "zapread.com",
-                    Subject = "email subject",
-                });
+            //var res = MailingService.SendAsync(user: "Accounts", useSSL: true,
+            //    message: new UserEmailModel()
+            //    {
+            //        Destination = "horn@zapread.com",
+            //        Body = "test message",
+            //        Email = "",
+            //        Name = "zapread.com",
+            //        Subject = "email subject",
+            //    });
 
-            var asyncres = res.Result;
+            //var asyncres = res.Result;
 
             Assert.IsTrue(true);
         }
