@@ -53,7 +53,7 @@ namespace zapread.com.Tests.Controllers
             AdminController controller = CreateAdminController_LoggedIn();
 
             // Act
-            JsonResult result = controller.UserBalance("test").Result as JsonResult;
+            JsonResult result = controller.UserBalance("Test").Result as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);

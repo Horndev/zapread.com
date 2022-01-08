@@ -742,7 +742,6 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-
                 var user = await db.Users.Where(u => u.Name.Trim() == username.Trim())
                     .Include(usr => usr.Funds)
                     .AsNoTracking().SingleOrDefaultAsync().ConfigureAwait(true);
