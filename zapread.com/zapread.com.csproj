@@ -948,6 +948,8 @@
     <Content Include="Scripts\dist\admin\users.js" />
     <Content Include="Scripts\dist\group\detail.css" />
     <Content Include="Scripts\dist\group\detail.js" />
+    <Content Include="Scripts\dist\group\edit.css" />
+    <Content Include="Scripts\dist\group\edit.js" />
     <Content Include="Scripts\dist\group\index.css" />
     <Content Include="Scripts\dist\group\index.js" />
     <Content Include="Scripts\dist\group\members.css" />
@@ -986,8 +988,6 @@
     <Content Include="Scripts\dist\post\detail.js" />
     <Content Include="Scripts\dist\post\edit.css" />
     <Content Include="Scripts\dist\post\edit.js" />
-    <Content Include="Scripts\dist\post\newpost.css" />
-    <Content Include="Scripts\dist\post\newpost.js" />
     <Content Include="Scripts\dist\post\postnotfound.css" />
     <Content Include="Scripts\dist\post\postnotfound.js" />
     <Content Include="Scripts\dist\user\achievements.css" />
