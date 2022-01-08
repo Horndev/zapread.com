@@ -1,12 +1,7 @@
 ﻿/**
  * Financial page
  * 
- * [X] React
- * [ ] does not use jQuery
- *      [X] internally
- *      [X] signalr
- *      [ ] shared
- * 
+ * [✓] Native JS
  */
 
 import '../../shared/shared';                                           // [✓]
@@ -14,12 +9,12 @@ import '../../realtime/signalr';                                        // [✓]
 import React, { useCallback, useEffect, useState } from 'react';        // [✓]
 import { Container, Row, Col } from 'react-bootstrap';                  // [✓]
 import ReactDOM from 'react-dom';                                       // [✓]
-import PageHeading from '../../components/page-heading';
-import FinancialSummaryBox from './Components/FinancialSummaryBox';
-import LightningTable from './Components/LightningTable';
-import EarningTable from './Components/EarningTable';
-import SpendingTable from './Components/SpendingTable';
-import '../../shared/sharedlast';
+import PageHeading from '../../components/page-heading';                // [✓]
+import FinancialSummaryBox from './Components/FinancialSummaryBox';     // [✓]
+import LightningTable from './Components/LightningTable';               // [✓]
+import EarningTable from './Components/EarningTable';                   // [✓]
+import SpendingTable from './Components/SpendingTable';                 // [✓]
+import '../../shared/sharedlast';                                       // [✓]
 
 function Page() {
 

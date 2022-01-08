@@ -265,7 +265,10 @@ namespace zapread.com.Controllers
 
                 if (user == null)
                 {
-                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    if (Response != null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
                     return Json(new { success = false, Message = "User not found in DB." });
                 }
 
@@ -276,7 +279,10 @@ namespace zapread.com.Controllers
 
                 if (post == null)
                 {
-                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    if (Response != null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
                     return Json(new { success = false, Message = "Post not found in DB." });
                 }
 

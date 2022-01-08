@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import Quill from 'quill';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
+import '../../css/quill/quilledit.css';                              // [✓]
 import '../../css/quill/quillcustom.css'; // Some custom overrides
 
 import { getAntiForgeryToken } from '../../utility/antiforgery';

@@ -15,7 +15,7 @@ namespace zapread.com.Services
             return header + body + footer;
         }
 
-        public bool SendEmail(string emailTo, string subject, string body, string user = "Accounts")
+        public bool SendEmail(string emailTo, string subject, string body, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
@@ -44,13 +44,13 @@ namespace zapread.com.Services
                 smtp.Credentials = credential;
                 smtp.Host = emailhost;
                 smtp.Port = emailport;
-                smtp.EnableSsl = false;
+                smtp.EnableSsl = useSSL;
                 smtp.Send(mmessage);
             }
             return true;
         }
 
-        public bool SendI(UserEmailModel message, string user = "Accounts")
+        public bool SendI(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
@@ -79,13 +79,13 @@ namespace zapread.com.Services
                 smtp.Credentials = credential;
                 smtp.Host = emailhost;
                 smtp.Port = emailport;
-                smtp.EnableSsl = false;
+                smtp.EnableSsl = useSSL;
                 smtp.Send(mmessage);
             }
             return true;
         }
 
-        public static bool Send(UserEmailModel message, string user = "Accounts")
+        public static bool Send(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
@@ -114,7 +114,7 @@ namespace zapread.com.Services
                 smtp.Credentials = credential;
                 smtp.Host = emailhost;
                 smtp.Port = emailport;
-                smtp.EnableSsl = false;
+                smtp.EnableSsl = useSSL;
                 smtp.Send(mmessage);
             }
             return true;
@@ -133,7 +133,7 @@ namespace zapread.com.Services
             });
         }
 
-        public static async Task<bool> SendAsync(UserEmailModel message, string user = "Accounts")
+        public static async Task<bool> SendAsync(UserEmailModel message, string user = "Accounts", bool useSSL = true)
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
@@ -162,8 +162,8 @@ namespace zapread.com.Services
                 smtp.Credentials = credential;
                 smtp.Host = emailhost;
                 smtp.Port = emailport;
-                smtp.EnableSsl = false;
-                await smtp.SendMailAsync(mmessage);
+                smtp.EnableSsl = useSSL;
+                await smtp.SendMailAsync(mmessage).ConfigureAwait(true);
             }
             return true;
         }

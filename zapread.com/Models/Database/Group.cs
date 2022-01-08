@@ -49,5 +49,15 @@ namespace zapread.com.Models.Database
 
         // Posts in this group are in this language by default
         public string DefaultLanguage { get; set; }
+
+        /// <summary>
+        /// Image which can be used instead of an icon to represent the group
+        /// </summary>
+        public UserImage GroupImage { get; set; }
+
+        /// <summary>
+        /// Group can add a background image over the header.
+        /// </summary>
+        public UserImage GroupHeaderImage { get; set; }
     }
 }

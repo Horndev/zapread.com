@@ -19,7 +19,17 @@ namespace zapread.com.Tests.Controllers
             var context = new Mock<HttpContextBase>();
 
             var identity = new GenericIdentity("test");
-            identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "f752739e-8d58-4bf5-a140-fc225cc5ebdb")); //test user
+
+            // If using local DB, the user id is different
+            var dbconnection = System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"];
+
+            var appid = "f752739e-8d58-4bf5-a140-fc225cc5ebdb";
+            if (dbconnection == "ZapreadLocal")
+            {
+                appid = "96b762df-5fb3-43ff-ba55-7da1fc9750c8";
+            }
+
+            identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", appid)); //test user
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 

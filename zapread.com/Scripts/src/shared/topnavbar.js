@@ -17,6 +17,97 @@ import { postJson } from '../utility/postData';                     // [✓]
 var ub = 0;
 window.ub = ub;
 
+/**
+ * Dismiss messages and alerts
+ * 
+ * [✓] does not use jQuery
+ * 
+ * @param {any} t  : type (1 = alert)
+ * @param {any} id : object id
+ * @returns {bool} : true on success
+ */
+export function dismiss(t, id) {
+    var url = "";
+    if (t === 1) {
+        url = "/Messages/DismissAlert/";
+    }
+    else if (t === 0) {
+        url = "/Messages/DismissMessage/";
+    }
+
+    postJson(url, { "id": id })
+        .then((result) => {
+            if (result.Result === "Success") {
+                // Hide post
+                if (t === 1) {
+                    if (id === -1) { // Dismissed all
+                        //$('[id^="a_"]').hide();
+                        //$('[id^="a1_"]').hide();
+                        //$('[id^="a2_"]').hide();
+                        //Array.prototype.forEach.call(document.querySelectorAll('[id^="a_"]'), function (e, _i) {
+                        //    e.style.display = 'none';
+                        //});
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="a1_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="a2_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                    } else {
+                        //$('#a_' + id).hide();
+                        //$('#a1_' + id).hide();
+                        //$('#a2_' + id).hide();
+                        //document.getElementById("a_" + id).style.display = 'none';
+                        document.getElementById("a1_" + id).style.display = 'none';
+                        document.getElementById("a2_" + id).style.display = 'none';
+                    }
+
+                    //var urla = $("#unreadAlerts").data("url");
+                    //$("#unreadAlerts").load(urla);
+                    var url = document.getElementById("unreadAlerts").getAttribute('data-url');
+                    fetch(url).then(function (response) {
+                        return response.text();
+                    }).then(function (html) {
+                        document.getElementById("unreadAlerts").innerHTML = html;
+                    });
+                }
+                else {
+                    if (id === -1) { // Dismissed all
+                        //$('[id^="m_"]').hide();
+                        //$('[id^="m1_"]').hide();
+                        //$('[id^="m2_"]').hide();
+                        //Array.prototype.forEach.call(document.querySelectorAll('[id^="m_"]'), function (e, _i) {
+                        //    e.style.display = 'none';
+                        //});
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="m1_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                        Array.prototype.forEach.call(document.querySelectorAll('[id^="m2_"]'), function (e, _i) {
+                            e.style.display = 'none';
+                        });
+                    } else {
+                        //$('#m_' + id).hide();
+                        //$('#m1_' + id).hide();
+                        //$('#m2_' + id).hide();
+                        //document.getElementById("m_" + id).style.display = 'none';
+                        document.getElementById("m1_" + id).style.display = 'none';
+                        document.getElementById("m2_" + id).style.display = 'none';
+                    }
+                    //var urlm = $("#unreadMessages").data("url");
+                    //$("#unreadMessages").load(urlm);
+                    var urlm = document.getElementById("unreadMessages").getAttribute('data-url');
+                    fetch(urlm).then(function (response) {
+                        return response.text();
+                    }).then(function (html) {
+                        document.getElementById("unreadMessages").innerHTML = html;
+                    });
+                }
+            }
+        });
+    return false;
+}
+window.dismiss = dismiss;
+
 ready(function () {
     refreshUserBalance();
 

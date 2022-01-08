@@ -193,7 +193,7 @@ namespace zapread.com.Services
             // Check who has the criteria
             var newUsersAchieved = db.Users
                 .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Comments.Count() > 0);
+                .Where(u => u.Comments.Count > 0);
 
             return newUsersAchieved;
         }
@@ -207,7 +207,7 @@ namespace zapread.com.Services
             // Check who has the criteria
             var newUsersAchieved = db.Users
                 .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Followers.Count() > 0);
+                .Where(u => u.Followers.Count > 0);
 
             return newUsersAchieved;
         }
@@ -221,7 +221,7 @@ namespace zapread.com.Services
             // Check who has the criteria
             var newUsersAchieved = db.Users
                 .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Following.Count() > 0);
+                .Where(u => u.Following.Count > 0);
 
             return newUsersAchieved;
         }
@@ -235,7 +235,7 @@ namespace zapread.com.Services
             // Check who has the criteria
             var newUsersAchieved = db.Users
                 .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Posts.Count() > 0);
+                .Where(u => u.Posts.Count > 0);
 
             return newUsersAchieved;
         }

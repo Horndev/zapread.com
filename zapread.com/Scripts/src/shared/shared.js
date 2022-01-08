@@ -21,6 +21,8 @@ import '../utility/ui/paymentsscan';                // [✓]
 import '../utility/ui/accountpayments';             // [✓]
 import './topnavbar';                               // [✓]
 
+import '../css/quill/quillfont.css';
+
 /**
  * 
  * @param {any} e
