@@ -20,6 +20,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
 using zapread.com.Services;
@@ -529,7 +530,10 @@ namespace zapread.com.Controllers
                             Email = "",
                             Name = "ZapRead.com Notify",
                             Subject = "You received a tip!",
-                        }, "Notify"));
+                        }, 
+                        "Notify", // account
+                        true // useSSL
+                        ));
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
@@ -694,6 +698,7 @@ namespace zapread.com.Controllers
                     HasPassword = HasPassword(),
                     UserName = userInfo.Name,
                     UserAppId = userInfo.AppId,
+                    UserId = userInfo.Id,
                     UserProfileImageVersion = userInfo.Version,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
@@ -712,7 +717,7 @@ namespace zapread.com.Controllers
                     AchievementsViewModel = uavm,
                     Settings = userInfo.Settings,
                     Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
-                    KnownLanguages = GetLanguages(),
+                    KnownLanguages = LanguageHelpers.GetLanguages(),
                     Reputation = userInfo.Reputation,
                 };
 
@@ -720,22 +725,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static List<string> GetLanguages()
-        {
-            // List of languages known
-            var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
-
-            var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-            var languages = languagesEng.Concat(languagesNat).ToList();
-            return languages;
-        }
+        
 
         private void ValidateClaims(UserSettings userSettings)
         {
@@ -1042,7 +1032,7 @@ namespace zapread.com.Controllers
             string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
                 id: user.Id,
                 userName: cleanName,
-                oldUserName: oldName);
+                oldUserName: oldName).ConfigureAwait(true);
 
             string userEmail = aspUser.Email;
 
@@ -1055,7 +1045,10 @@ namespace zapread.com.Controllers
                     Email = "",
                     Name = "zapread.com",
                     Subject = subject,
-                }, "Notify"));
+                }, 
+                "Notify", // account
+                true // useSSL
+                ));
         }
 
         [HttpPost]

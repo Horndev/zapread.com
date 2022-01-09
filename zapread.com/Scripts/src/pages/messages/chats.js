@@ -13,12 +13,6 @@ import ReactDOM from 'react-dom';                                           // [
 import PageHeading from '../../components/page-heading';                    // [✓]
 import ChatsTable from './Components/ChatsTable';                           // [✓]
 
-//import 'datatables.net-bs4';
-//import 'datatables.net-scroller-bs4';
-//import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
-//import 'datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css';
-
-//import { getAntiForgeryToken } from '../../utility/antiforgery';
 import '../../shared/sharedlast';
 
 function Page() {

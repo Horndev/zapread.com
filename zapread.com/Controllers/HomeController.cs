@@ -164,18 +164,28 @@ namespace zapread.com.Controllers
             }
 
             int ver = -1;
-            try
-            {
-                ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException fe)
-            {
-                //
-            }
 
             // Check for image in DB
             using (var db = new ZapContext())
             {
+                try
+                {
+                    if (v != null)
+                    {
+                        ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        ver = await db.Images.Where(im => im.UserAppId == UserId)
+                            .Select(im => im.Version)
+                            .MaxAsync().ConfigureAwait(true);
+                    }
+                }
+                catch (FormatException fe)
+                {
+                    //
+                }
+
                 var imgq = db.Images.Where(im => im.UserAppId == UserId && im.XSize == size);
                 if (ver > -1)
                 {
@@ -351,6 +361,46 @@ namespace zapread.com.Controllers
             }
         }
 
+        protected async Task<IQueryable<Post>> GetPostsQuery(ZapContext db, string sort = "Score", int userId = 0)
+        {
+            //Modified reddit-like algorithm
+            /*epoch = datetime(1970, 1, 1)
+
+            def epoch_seconds(date):
+                td = date - epoch
+                return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
+
+            def score(ups, downs):
+                return ups - downs
+
+            def hot(ups, downs, date):
+                s = score(ups, downs)
+                order = log(max(abs(s), 1), 10)
+                sign = 1 if s > 0 else -1 if s < 0 else 0
+                seconds = epoch_seconds(date) - 1134028003
+                return round(sign * order + seconds / 45000, 7)*/
+
+            List<string> userLanguages = GetUserLanguages();
+
+            DateTime t = DateTime.Now;
+
+            var user = await db.Users
+                .Include(usr => usr.Settings)
+                .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+
+            IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
+
+            switch (sort)
+            {
+                case "Score":
+                    return QueryHelpers.OrderPostsByScore(validposts);
+                case "Active":
+                    return QueryHelpers.OrderPostsByActive(validposts);
+                default:
+                    return QueryHelpers.OrderPostsByNew(validposts);
+            }
+        }
+
         [Obsolete]
         private static async Task<List<Post>> QueryPostsByNew(int start, int count, IQueryable<Post> validposts)
         {
@@ -429,7 +479,7 @@ namespace zapread.com.Controllers
                 {
                     p,
                     // Includes the sum of absolute value of comment scores
-                    cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                    cScore = p.Comments.Count > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
                 })
                 .Select(p => new
                 {
@@ -480,7 +530,7 @@ namespace zapread.com.Controllers
             {
                 userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
 
-                if (userLanguages.Count() == 0)
+                if (userLanguages.Count == 0)
                 {
                     userLanguages.Add("en");
                 }
@@ -847,7 +897,15 @@ namespace zapread.com.Controllers
             return userId;
         }
 
+        /// <summary>
+        /// Returns the next set of posts, rendered to HTML
+        /// </summary>
+        /// <param name="BlockNumber">The starting block</param>
+        /// <param name="sort">How the posts are sorted</param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Validated in JSON header")]
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
@@ -856,29 +914,22 @@ namespace zapread.com.Controllers
             {
                 var uid = User.Identity.GetUserId();
                 var user = await db.Users.AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
-                var posts = await GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
+                var postquery = await GetPostsQuery(db, sort, user != null ? user.Id : 0).ConfigureAwait(true);
+
+                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, postquery, user).ConfigureAwait(true);
 
                 string PostsHTMLString = "";
 
-                foreach (var p in posts)
+                foreach (var p in postsVm)
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    };
-
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
                 return Json(new
                 {
-                    NoMoreData = posts.Count < BlockSize,
+                    NoMoreData = postsVm.Count < BlockSize,
                     HTMLString = PostsHTMLString,
                 });
             }

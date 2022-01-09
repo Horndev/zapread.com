@@ -24,7 +24,7 @@
 </head>
 <body class="top-navigation gray-bg">
     @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
-    <div id="wrapper" class="@Html.PageClass()">
+    <div @*id="wrapper"*@ class="@Html.PageClass()">
         <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
             @Html.Partial("_TopNavbar")
             @if (User != null && User.IsInRole("Administrator"))

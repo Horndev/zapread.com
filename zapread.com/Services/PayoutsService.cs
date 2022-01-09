@@ -56,8 +56,8 @@ namespace zapread.com.Services
                         .Where(p => !p.IsDraft)
                         .ToList();
 
-                    var numPostsOld = sitePostsOld.Count();
-                    var numPostsNew = sitePostsRecent.Count();
+                    var numPostsOld = sitePostsOld.Count;
+                    var numPostsNew = sitePostsRecent.Count;
 
                     var newFrac = numPostsOld == 0 ? 1.0 : 0.5;
                     var oldFrac = numPostsOld == 0 ? 0.0 : 0.5;
@@ -206,8 +206,8 @@ namespace zapread.com.Services
                             .Where(p => !p.IsDraft)
                             .ToList();
 
-                        var numPostsOld = groupPostsOld.Count();
-                        var numPostsNew = groupPostsRecent.Count();
+                        var numPostsOld = groupPostsOld.Count;
+                        var numPostsNew = groupPostsRecent.Count;
 
                         var newFrac = numPostsOld == 0 ? 1.0 : 0.5;
                         var oldFrac = numPostsOld == 0 ? 0.0 : 0.5;

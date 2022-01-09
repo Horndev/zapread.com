@@ -25,7 +25,7 @@ namespace zapread.com.API
         /// Refresh check if user is online.  This is needed sometimes when the DB is out of sync.
         ///   Requires Administator role.
         /// </summary>
-        /// <param name="userid">User ID to check</param>
+        /// <param name="userId">User ID to check</param>
         /// <returns>success={true|false}</returns>
         [Route("api/v1/admin/checkonline/{userId}")]
         [AcceptVerbs("GET")]

@@ -15,16 +15,23 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Messages;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for Messages/ route
+    /// </summary>
     public class MessagesController : Controller
     {
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// User Manager to access Owin users and properties.
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -41,6 +48,7 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
         public ActionResult Chats()
         {
             if (!User.Identity.IsAuthenticated)
@@ -51,11 +59,21 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult All()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Alerts()
         {
             return View();
@@ -181,16 +199,12 @@ namespace zapread.com.Controllers
             }
         }
 
-        public class ChatsDataItem
-        {
-            public string Status { get; set; }
-            public string IsRead { get; set; }
-            public string Type { get; set; }
-            public string From { get; set; }
-            public string FromID { get; set; }
-            public string LastMessage { get; set; }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="include_alerts"></param>
+        /// <param name="include_content"></param>
+        /// <returns></returns>
         [HttpGet]
         [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Unread(bool? include_alerts, bool? include_content)

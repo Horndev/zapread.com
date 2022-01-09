@@ -53,9 +53,9 @@ export default function LightningTable(props) {
         custom: true,
         totalSize: numRecords,
         onPageChange: (page, sizePerPage) => {
-            console.log('Page change!!!');
-            console.log('Newest size per page:' + sizePerPage);
-            console.log('Newest page:' + page);
+            //console.log('Page change!!!');
+            //console.log('Newest size per page:' + sizePerPage);
+            //console.log('Newest page:' + page);
             postJson("/api/v1/account/transactions/lightning/", {
                 Start: (page-1) * sizePerPage,
                 Length: props.pageSize,
