@@ -32,7 +32,7 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {
-                    el.setAttribute("onclick", "follow(uid,0);");//$('#sublink').attr("onclick", "follow(uid,0);");
+                    el.setAttribute("onclick", "follow(" + uid + ",0, this);");//$('#sublink').attr("onclick", "follow(uid,0);");
                 }
             } else { // Un-subscribed
                 if (e.classList.contains("hover-follow")) {//$(e).hasClass('hover-follow')) {
@@ -46,7 +46,7 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {
-                    el.setAttribute("onclick", "follow(uid,1);");//$('#sublink').attr("onclick", "follow(uid,1);");
+                    el.setAttribute("onclick", "follow(" + uid + ",1, this);");//$('#sublink').attr("onclick", "follow(uid,1);");
                 }
             }
         }
