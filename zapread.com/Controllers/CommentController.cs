@@ -707,7 +707,7 @@ namespace zapread.com.Controllers
                     message: new UserEmailModel()
                     {
                         Subject = "New mention in comment",
-                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='http://www.zapread.com'>zapread.com</a>",
+                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='https://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='https://www.zapread.com'>zapread.com</a>",
                         Destination = mentionedEmail,
                         Email = "",
                         Name = "ZapRead.com Notify"
