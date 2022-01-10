@@ -21,7 +21,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robohash.Net.Tests", "RoboH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Owin.Security.ApiKey", "Microsoft.Owin.Security.ApiKey\src\Microsoft.Owin.Security.ApiKey\Microsoft.Owin.Security.ApiKey.csproj", "{E09682CB-8E40-41DD-B36C-7FEC758958C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "realtime.zapread.com", "realtime.zapread.com\realtime.zapread.com.csproj", "{2217068A-E96C-45D5-B78D-C1352EDAEC86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "realtime.zapread.com", "realtime.zapread.com\realtime.zapread.com.csproj", "{2217068A-E96C-45D5-B78D-C1352EDAEC86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zapread.com-core", "zapread.com-core\zapread.com-core.csproj", "{B3562C9A-D124-4B7A-81FA-BA77606B7E36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +92,12 @@ Global
 		{2217068A-E96C-45D5-B78D-C1352EDAEC86}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2217068A-E96C-45D5-B78D-C1352EDAEC86}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{2217068A-E96C-45D5-B78D-C1352EDAEC86}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

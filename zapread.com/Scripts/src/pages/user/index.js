@@ -32,14 +32,17 @@ window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 window.loadachhover = loadachhover;
-
+window.toggleUserIgnore = toggleUserIgnore;
+window.BlockNumber = 10;                        // Infinite Scroll starts from second block
+window.NoMoreData = false;
+window.inProgress = false;
 /**
  * Wrapper for loadmore
  * 
  * [✓] Native JS
  * 
  **/
-export function userloadmore() {
+export function userloadmore(userId) {
     loadmore({
         url: '/User/InfiniteScroll/',
         blocknumber: window.BlockNumber,
@@ -47,7 +50,7 @@ export function userloadmore() {
         userId: userId
     });
 }
-window.userloadmore = userloadmore;
+window.loadmore = userloadmore;
 
 onLoadedMorePosts();
 
@@ -73,7 +76,3 @@ export function toggleUserIgnore(id) {
     });
     return false;
 }
-window.toggleUserIgnore = toggleUserIgnore;
-window.BlockNumber = 10;                        // Infinite Scroll starts from second block
-window.NoMoreData = false;
-window.inProgress = false;

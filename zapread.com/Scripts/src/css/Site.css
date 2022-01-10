@@ -7,6 +7,10 @@
  *
 */
 
+.react-selectize.dropdown-menu {
+    display: block;
+}
+
 .ibox-content-commentreply.ibox-content {
     border-style: none;
     background-color: #f9f9f9;
@@ -295,8 +299,8 @@ h5 {
 }
 
 .navbar-top-links li a {
-    padding: 20px 0;
-    min-height: 50px;
+    padding: 10px 0;
+    /*min-height: 50px;*/
 }
 
 .dropdown-menu {

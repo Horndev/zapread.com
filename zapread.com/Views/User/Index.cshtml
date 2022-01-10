@@ -20,8 +20,6 @@
 
 @Html.Partial(partialViewName: "_PartialModalVote")                   @*This is the code for the modal dialog box to vote*@
 
-@*@Html.Partial(partialViewName: "_PartialModalMessageCompose")*@         @*This is the code for the modal dialog box to send a message*@
-
 <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         @Html.Partial(partialViewName: "_ModalAboutMe", model: @Model.AboutMe)
@@ -95,11 +93,11 @@
                                     {
                                         if (Model.IsFollowing)
                                         {
-                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
+                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0,this)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
                                         }
                                         else
                                         {
-                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
+                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1,this)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
                                         }
                                     }
                                     else
@@ -219,7 +217,7 @@
                         }
                     </div>
                     <div>
-                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="userloadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                     </div>
                 </div>
             </div>

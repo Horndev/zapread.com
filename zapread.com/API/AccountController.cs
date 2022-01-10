@@ -11,6 +11,7 @@ using zapread.com.Database;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 
 namespace zapread.com.API
@@ -20,6 +21,8 @@ namespace zapread.com.API
     /// </summary>
     public class AccountController : ApiController
     {
+        private const string errorAPIKeyNotFound = "API Key not found.";
+
         /// <summary>
         /// Generate a new API key assigned to the authorized user.
         /// </summary>
@@ -121,7 +124,7 @@ namespace zapread.com.API
                     return new ZapReadResponse()
                     {
                         success = false,
-                        message = "API Key not found.",
+                        message = errorAPIKeyNotFound,
                     };
                 }
 

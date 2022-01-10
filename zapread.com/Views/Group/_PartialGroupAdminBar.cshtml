@@ -21,95 +21,96 @@
                     <h2>
                         Group Actions
                     </h2>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditTags" data-toggle="modal" data-target="#GAdminEditTagModal">Edit Tags</button>
-                            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditIcon" data-toggle="modal" data-target="#GAdminEditIconModal">Edit Icon</button>
-                        </div>
-                    </div>
+                    <a class="btn btn-link btn-sm" href="/Group/Edit?groupId=@ViewBag.groupId"><i class="fa fa-edit"></i> Edit</a>
+                    <!--<div class="row">
+        <div class="col-lg-12">
+            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditTags" data-toggle="modal" data-target="#GAdminEditTagModal">Edit Tags</button>
+            <button class="btn btn-sm btn-primary btn-outline" id="GAdminEditIcon" data-toggle="modal" data-target="#GAdminEditIconModal">Edit Icon</button>
+        </div>
+    </div>
 
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="ibox float-e-margins">
-                                <div class="ibox-title bg-danger">
-                                    <h5>Group User Roles</h5>
-                                    <div class="ibox-tools">
-                                        <a class="collapse-link">
-                                            <i class="fa fa-chevron-up"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="ibox-content">
-                                    @{Html.RenderAction("AdminAddUserToGroupRoleForm", "Group", new { groupId = ViewBag.groupId });}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="ibox float-e-margins">
-                                <div class="ibox-title bg-danger">
-                                    <h5>Group Settings</h5>
-                                    <div class="ibox-tools">
-                                        <a class="collapse-link">
-                                            <i class="fa fa-chevron-up"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="ibox-content">
-                                    @if (Model.Tier >= 2)
-                                    {
-                                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeShortDesc(@Model.GroupId);">Set Group Short Description</button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="">Unlocked at Tier 2</button>
-                                    }
-                                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeName(@Model.GroupId);">Change Group Name</button>
-                                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="alert('Not yet implemented.');" disabled>Delete Group</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="ibox float-e-margins">
-                                <div class="ibox-title bg-danger">
-                                    <h5>Group Themes</h5>
-                                    <div class="ibox-tools">
-                                        <a class="collapse-link">
-                                            <i class="fa fa-chevron-up"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="ibox-content">
-                                    <h1 class="no-margins">Not yet implemented.</h1>
-                                    @*<div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
-                                        <small>BTC User Withdraws</small>*@
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="ibox float-e-margins">
-                                <div class="ibox-title bg-danger">
-                                    <h5>Group Achievements</h5>
-                                    <div class="ibox-tools">
-                                        <a class="collapse-link">
-                                            <i class="fa fa-chevron-up"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="ibox-content">
-                                    <h1 class="no-margins">Not yet implemented.</h1>
-                                    @*<div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i></div>
-                                        <small>Up + Down</small>*@
-                                </div>
-                            </div>
-                        </div>
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title bg-danger">
+                    <h5>Group User Roles</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
                     </div>
+                </div>
+                <div class="ibox-content">
+                    @{Html.RenderAction("AdminAddUserToGroupRoleForm", "Group", new { groupId = ViewBag.groupId });}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title bg-danger">
+                    <h5>Group Settings</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    @if (Model.Tier >= 2)
+                    {
+                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeShortDesc(@Model.GroupId);">Set Group Short Description</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="">Unlocked at Tier 2</button>
+                    }
+                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="changeName(@Model.GroupId);">Change Group Name</button>
+                    <button class="btn btn-sm btn-outline btn-primary btn-block" onclick="alert('Not yet implemented.');" disabled>Delete Group</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title bg-danger">
+                    <h5>Group Themes</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">Not yet implemented.</h1>-->
+                    @*<div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
+        <small>BTC User Withdraws</small>*@
+                    <!--</div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title bg-danger">
+                <h5>Group Achievements</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">Not yet implemented.</h1>-->
+                    @*<div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i></div>
+        <small>Up + Down</small>*@
+                    <!--</div>
+            </div>
+        </div>
+    </div>-->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="GAdminEditTagModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+@*<div class="modal fade" id="GAdminEditTagModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -167,9 +168,9 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
-@using (var context = Html.BeginScriptContext())
+@*@using (var context = Html.BeginScriptContext())
 {
     context.AddScriptFile("~/bundles/partial/group/adminbar");
-}
+}*@

@@ -1,9 +1,26 @@
-﻿/*
+﻿/**
  * 
- */
+ **/
+
 import $ from 'jquery';
 
-import '../../shared/shared';
+//import '../../shared/shared';
+import '../../utility/appinsights';                    // [✓]
+
+/**
+ * Bootstrap
+ * 
+ * Here, we use Bootstrap.native, which does not require jQuery.  It is much lighter, and supports
+ * up to version 4.  The Bootstrap css is still imported from the bootstrap distribution.
+ **/
+import 'bootstrap';
+//import 'bootstrap.native/dist/bootstrap-native-v4'  // [✓]
+import 'bootstrap/dist/css/bootstrap.min.css';      // [✓]
+import 'font-awesome/css/font-awesome.min.css';     // [✓]
+import '../../utility/ui/paymentsscan';                // [✓]
+//import '../../utility/ui/accountpayments';             // [✓]
+import '../../shared/topnavbar';                               // [✓]
+
 import '../../realtime/signalr';
 import 'datatables.net-bs4';
 import 'datatables.net-scroller-bs4';

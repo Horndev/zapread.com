@@ -15,7 +15,9 @@ namespace zapread.com.Models
         public int NumUses { get; set; }
 
         public string Lib { get; set; }
+
         public int ImageSize { get; set; }
+
         public byte[] Image { get; set; }
     }
 

@@ -1,9 +1,11 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -25,17 +27,28 @@ namespace zapread.com.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public UserController()
         {
             // Empty constructor
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
         public UserController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationSignInManager SignInManager
         {
             get
@@ -48,6 +61,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -208,6 +224,64 @@ namespace zapread.com.Controllers
 
                 return activityposts;
             }
+        }
+
+        /// <summary>
+        /// Gets the list of language options for the user
+        /// </summary>
+        /// <returns></returns>
+        [Route("languages")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> Languages(string prefix, int max)
+        {
+            // First we check what the browser is claiming to support
+            List<string> userLanguages;
+
+            try
+            {
+                userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
+
+                if (userLanguages.Count == 0)
+                {
+                    userLanguages.Add("en");
+                }
+            }
+            catch
+            {
+                userLanguages = new List<string>() { "en" };
+            }
+
+            var knownLanguages = LanguageHelpers.GetLanguages();
+
+            // The first entries should be the user languages
+
+            var userLangs = knownLanguages.Select(kl => kl.Split(':'))
+                .Where(kl => userLanguages.Contains(kl[0]));
+
+            var otherLangs = knownLanguages.Select(kl => kl.Split(':'))
+                .Where(kl => !userLanguages.Contains(kl[0]));
+
+            var query = userLangs.Concat(otherLangs)
+                .DistinctBy(kl => kl[0] + kl[1]);
+
+            if (String.IsNullOrEmpty(prefix))
+            {
+                
+            }
+            else
+            {
+                query = query.Where(kl => kl[1].ToLowerInvariant().StartsWith(prefix.ToLowerInvariant()));
+            }
+                
+            var languages = query.Select(kl => new
+                {
+                    Name = kl[1],
+                    iso = kl[0]
+                })
+                .Take(max);
+
+            return Json(new { languages });
         }
 
         [HttpPost]
@@ -563,14 +637,15 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                User user = await db.Users.AsNoTracking()
+                User user = await db
+                    .Users.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
 
-                List <GroupStats> groups = await db.Groups.AsNoTracking()
-                        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .ToListAsync().ConfigureAwait(true);
+                //List <GroupStats> groups = await db.Groups.AsNoTracking()
+                //        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                //        .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)
