@@ -93,11 +93,11 @@
                                     {
                                         if (Model.IsFollowing)
                                         {
-                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
+                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0,this)"><i class="fa fa-user"></i> <span id="subBtnText">UnSubscribe</span> </a>
                                         }
                                         else
                                         {
-                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
+                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1,this)"><i class="fa fa-user"></i> <span id="subBtnText">Subscribe</span></a>
                                         }
                                     }
                                     else
