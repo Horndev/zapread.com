@@ -1119,6 +1119,9 @@
     <Content Include="Scripts\config\webpack.config.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\pages\group\Components\CollapseBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
     <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
     <Content Include="Scripts\src\pages\group\edit.js" />

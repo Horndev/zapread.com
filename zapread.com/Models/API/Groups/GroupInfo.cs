@@ -7,6 +7,11 @@ namespace zapread.com.Models.API.Groups
         public int Id { get; set; }
         public string CreatedddMMMYYYY { get; set; }
         public string Name { get; set; }
+
+        /// <summary>
+        /// A short description of the group
+        /// </summary>
+        public string ShortDescription { get; set; }
         public List<string> Tags { get; set; }
         public string Icon { get; set; }
 

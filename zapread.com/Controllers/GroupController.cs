@@ -20,6 +20,9 @@ using zapread.com.Models.GroupViews;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for the /Group path
+    /// </summary>
     public class GroupController : Controller
     {
         // GET: Group
@@ -697,6 +700,11 @@ namespace zapread.com.Controllers
             return 10;
         }
 
+        /// <summary>
+        /// View posts in a group.
+        /// </summary>
+        /// <param name="id">Group id</param>
+        /// <returns></returns>
         [HttpGet]
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Group", DynamicNodeProvider = "zapread.com.DI.GroupsDetailsProvider, zapread.com")]
         public async Task<ActionResult> GroupDetail(int? id)

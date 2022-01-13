@@ -223,6 +223,15 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
+                var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
+                int userId = 0;
+                if (userAppId != null)
+                {
+                    userId = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .Select(u => u.Id).FirstOrDefaultAsync().ConfigureAwait(true);
+                }
+
                 var reqGroupQ = await db.Groups
                     .Where(g => g.GroupId == groupInfo.groupId)
                     .Select(g => new
@@ -231,7 +240,13 @@ namespace zapread.com.API
                         g.DefaultLanguage,
                         g.GroupName,
                         ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId,
-                        g.Tags
+                        g.Tags,
+                        g.ShortDescription,
+                        NumMembers = g.Members.Count,
+                        NumPosts = g.Posts.Count,
+                        IsMember = g.Members.Select(m => m.Id).Contains(userId),
+                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId)
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (reqGroupQ == null)
@@ -248,8 +263,12 @@ namespace zapread.com.API
                     Name = reqGroupQ.GroupName,
                     IconId = reqGroupQ.ImageId,
                     Tags = reqGroupQ.Tags != null ? reqGroupQ.Tags.Split(',').ToList() : new List<string>(),
+                    ShortDescription = reqGroupQ.ShortDescription,
+                    NumMembers = reqGroupQ.NumMembers,
+                    IsAdmin = reqGroupQ.IsAdmin,
+                    IsMod = reqGroupQ.IsModerator,
+                    IsMember = reqGroupQ.IsMember,
                 };
-                    
 
                 return new LoadGroupResponse() { success = true, group = reqGroup };
             }
