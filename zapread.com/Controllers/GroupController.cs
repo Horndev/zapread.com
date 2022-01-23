@@ -1400,7 +1400,7 @@ namespace zapread.com.Controllers
                     }
                     db.SaveChanges();
                 }
-                return Json(new { result = "success", added });
+                return Json(new { success=true, result = "success", added });
             }
         }
 

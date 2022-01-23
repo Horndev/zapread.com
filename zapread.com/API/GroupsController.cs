@@ -39,7 +39,7 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var search = dataTableParameters.Search;
-                
+
                 // We need to know the user making the call (if any) so we know if they are a member of the group or not
                 User user = await GetCurrentUser(db).ConfigureAwait(true);
                 int userid = user != null ? user.Id : 0;
@@ -105,7 +105,7 @@ namespace zapread.com.API
 
                 return ret;
             }
-            
+
         }
 
         /// <summary>
@@ -115,17 +115,29 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/checkexists")]
-        public async Task<CheckExistsGroupResponse> CheckExists(CheckExistsGroupParameters p)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
+        public async Task<IHttpActionResult> CheckExists(CheckExistsGroupParameters p)
         {
+            if (p == null)
+            {
+                return BadRequest();
+            }
+
             using (var db = new ZapContext())
             {
                 var groupIdCheck = -1;
+
                 if (p.GroupId.HasValue)
                 {
                     groupIdCheck = p.GroupId.Value;
                 }
+                else
+                {
+                    return BadRequest();
+                }
+
                 bool exists = await GroupExists(p.GroupName.CleanUnicode(), groupIdCheck, db).ConfigureAwait(true);
-                return new CheckExistsGroupResponse() { exists = exists, success = true };
+                return Ok(new CheckExistsGroupResponse() { exists = exists, success = true });
             }
         }
 
@@ -142,6 +154,11 @@ namespace zapread.com.API
             return false;
         }
 
+        /// <summary>
+        /// Add a new group
+        /// </summary>
+        /// <param name="newGroup"></param>
+        /// <returns>AddGroupResponse</returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/add")]
         public async Task<AddGroupResponse> Add(AddGroupParameters newGroup)
@@ -200,6 +217,55 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// Get posts from the group
+        /// </summary>
+        /// <param name="req">query parameters</param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/posts")]
+        public async Task<IHttpActionResult> GetPosts(GetGroupPostsParameters req)
+        {
+            if (req == null)
+            {
+                return BadRequest();
+            }
+
+            if (req.groupId < 1)
+            {
+                return BadRequest();
+            }
+
+            int BlockSize = req.blockSize ?? 10;
+
+            int BlockNumber = req.blockNumber ?? 0;
+
+            var userAppId = User.Identity.GetUserId();
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+
+                int userId = user == null ? 0 : user.Id;
+
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db,
+                    user: null);
+
+                var groupPosts = QueryHelpers.OrderPostsByNew(validposts, req.groupId, true);
+
+                var response = new GetGroupPostsResponse()
+                {
+                    HasMorePosts = groupPosts.Count() >= 10,
+                    Posts = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, groupPosts, user, userId: userId).ConfigureAwait(true),
+                    success = true,
+                };
+
+                return Ok(response);
+            }
+        }
+
+        /// <summary>
         /// Loads the information on a specified group
         /// </summary>
         /// <param name="groupInfo"></param>
@@ -225,11 +291,19 @@ namespace zapread.com.API
             {
                 var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
                 int userId = 0;
+                var groupId = groupInfo.groupId;
+                var isIgnoring = false;
                 if (userAppId != null)
                 {
-                    userId = await db.Users
+                    var userInfo = await db.Users
                         .Where(u => u.AppId == userAppId)
-                        .Select(u => u.Id).FirstOrDefaultAsync().ConfigureAwait(true);
+                        .Select(u => new { 
+                            u.Id,
+                            IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(groupId),
+                        }).FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    userId = userInfo.Id;
+                    isIgnoring = userInfo.IsIgnored;
                 }
 
                 var reqGroupQ = await db.Groups
@@ -242,11 +316,14 @@ namespace zapread.com.API
                         ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId,
                         g.Tags,
                         g.ShortDescription,
+                        g.Tier,
+                        Earned = g.TotalEarned + g.TotalEarnedToDistribute,
                         NumMembers = g.Members.Count,
                         NumPosts = g.Posts.Count,
                         IsMember = g.Members.Select(m => m.Id).Contains(userId),
                         IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId)
+                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (reqGroupQ == null)
@@ -268,12 +345,25 @@ namespace zapread.com.API
                     IsAdmin = reqGroupQ.IsAdmin,
                     IsMod = reqGroupQ.IsModerator,
                     IsMember = reqGroupQ.IsMember,
+                    IsIgnoring = isIgnoring,
+                    Level = reqGroupQ.Tier,
+                    Earned = Convert.ToUInt64(reqGroupQ.Earned),
                 };
 
-                return new LoadGroupResponse() { success = true, group = reqGroup };
+                return new LoadGroupResponse() { 
+                    success = true, 
+                    group = reqGroup, 
+                    IsLoggedIn = User.Identity.GetUserId() != null, 
+                    UserName = User.Identity.Name
+                };
             }
         }
 
+        /// <summary>
+        /// Update a group parameters (Admin action)
+        /// </summary>
+        /// <param name="existingGroup"></param>
+        /// <returns></returns>
         [AcceptVerbs("PUT")]
         [Route("api/v1/groups/update")]
         public async Task<IHttpActionResult> Update(UpdateGroupParameters existingGroup)

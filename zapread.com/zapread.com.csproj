@@ -504,6 +504,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
     <Compile Include="Helpers\HTMLRenderHelpers.cs" />
@@ -847,6 +848,8 @@
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
     <Compile Include="Models\API\Groups\GroupInfo.cs" />
@@ -1003,8 +1006,10 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\src\comment\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\Components\VoteModal.js" />
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
@@ -1123,6 +1128,7 @@
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
+    <Content Include="Scripts\src\pages\group\Components\IgnoreButton.js" />
     <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
     <Content Include="Scripts\src\pages\group\edit.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
@@ -1138,6 +1144,10 @@
     <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
     <Content Include="Scripts\src\pages\post\Components\Picker.js" />
     <Content Include="Scripts\src\Components\Input\Input.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostAuthorName.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostView.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostList.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostVoteButtons.js" />
     <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />

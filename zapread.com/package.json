@@ -61,7 +61,7 @@
     "react-addons-css-transition-group": "^15.6.0",
     "react-addons-shallow-compare": "^15.6.0",
     "react-autosuggest": "10.0.2",
-    "react-bootstrap": "1.0.0",
+    "react-bootstrap": "1.6.4",
     "react-bootstrap-table-next": "4.0.1",
     "react-bootstrap-table2-paginator": "2.1.2",
     "react-bs-datatable": "2.1.2",

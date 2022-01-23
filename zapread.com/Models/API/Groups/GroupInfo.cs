@@ -24,9 +24,10 @@ namespace zapread.com.Models.API.Groups
         public int Progress { get; set; }
         public bool IsMember { get; set; }
         public bool IsLoggedIn { get; set; }
-        //public List<User> Members { get; set; }
+        public ulong Earned { get; set; }
         public bool IsMod { get; set; }
         public bool IsAdmin { get; set; }
+        public bool IsIgnoring { get; set; }
 
         public string DefaultLanguage { get; set; }
     }
