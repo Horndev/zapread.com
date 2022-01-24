@@ -97,7 +97,7 @@ namespace zapread.com.Controllers
 
                 var u = await db.Users
                     .Where(usr => usr.Name == grantUser)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 // Ensure the role exists
                 if (!(await RoleManager.RoleExistsAsync("Administrator").ConfigureAwait(true)))
@@ -832,6 +832,13 @@ namespace zapread.com.Controllers
 
                 return Json(new { });
             }
+        }
+
+        [HttpGet]
+        [Route("Admin/Accounting")]
+        public ActionResult Accounting()
+        {
+            return View();
         }
 
         /// <summary>

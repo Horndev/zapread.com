@@ -7,6 +7,7 @@ module.exports = {
   entry: {
     account_login:  "./Scripts/src/pages/account/login.js",
     admin_achievements: "./Scripts/src/pages/admin/achievements.js",
+    admin_accounting: "./Scripts/src/pages/admin/accounting.js",
     admin_audit:    "./Scripts/src/pages/admin/audit.js",
     admin_icons:    "./Scripts/src/pages/admin/icons.js",
     admin_index:    "./Scripts/src/pages/admin/index.js",

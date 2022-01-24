@@ -335,6 +335,9 @@ namespace zapread.com.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
         {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return Json(new { success = false, Result = "Failure", Message = "Tips Disabled" });
+
             if (amount == null || amount.Value < 1)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;

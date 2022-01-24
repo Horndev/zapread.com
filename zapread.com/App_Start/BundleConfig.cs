@@ -96,6 +96,7 @@ namespace zapread.com
 
             BundlePage(bundles, "account", "login");
             BundlePage(bundles, "admin", "achievements");
+            BundlePage(bundles, "admin", "accounting");
             BundlePage(bundles, "admin", "audit");
             BundlePage(bundles, "admin", "icons");
             BundlePage(bundles, "admin", "index");
