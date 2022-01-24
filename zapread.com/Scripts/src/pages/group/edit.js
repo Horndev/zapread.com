@@ -1,14 +1,14 @@
 ﻿/*
  * Group/Edit
  * 
- * [ ] No jquery
+ * [✓] No jquery
  */
 import "../../shared/shared";                                            // [✓]
 import "../../realtime/signalr";                                         // [✓]
 import React, { useCallback, useEffect, useState, useRef } from 'react'; // [✓]
 import { Row, Col, Form, Button, Container } from "react-bootstrap";     // [✓]
 import ReactDOM from "react-dom";                                        // [✓]
-import { useLocation, BrowserRouter as Router } from 'react-router-dom';
+import { useLocation, BrowserRouter as Router } from 'react-router-dom'; // [✓]
 import PageHeading from "../../components/page-heading";
 import { MultiSelect, SimpleSelect } from "react-selectize";
 import { getAntiForgeryToken } from "../../utility/antiforgery";

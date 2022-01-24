@@ -135,6 +135,7 @@
                         <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId,@Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
                     </div>
                 }
+
                 <div id="reply_c@(Model.CommentId)" style="display: none;"></div>@*This is the element where the comment box will render*@
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{

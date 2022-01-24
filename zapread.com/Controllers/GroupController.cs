@@ -20,6 +20,9 @@ using zapread.com.Models.GroupViews;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for the /Group path
+    /// </summary>
     public class GroupController : Controller
     {
         // GET: Group
@@ -697,6 +700,11 @@ namespace zapread.com.Controllers
             return 10;
         }
 
+        /// <summary>
+        /// View posts in a group.
+        /// </summary>
+        /// <param name="id">Group id</param>
+        /// <returns></returns>
         [HttpGet]
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Group", DynamicNodeProvider = "zapread.com.DI.GroupsDetailsProvider, zapread.com")]
         public async Task<ActionResult> GroupDetail(int? id)
@@ -1104,10 +1112,13 @@ namespace zapread.com.Controllers
                     {
                         g.GroupName,
                         g.GroupId,
+                        g.Tags,
+                        g.TotalEarned,
+                        g.TotalEarnedToDistribute,
+                        Icon = g.Icon != null ? "fa-" + g.Icon : null,
                         //ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
                         numMembers = g.Members.Count,
-                    })
-                    .Take(max);
+                    });
 
                 if (String.IsNullOrEmpty(prefix))
                 {
@@ -1115,10 +1126,13 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    query = query.Where(g => g.GroupName.StartsWith(prefix));
+#pragma warning disable CA1304 // Specify CultureInfo
+                    query = query.Where(g => g.GroupName.ToLower().Contains(prefix.ToLower()) || g.Tags.ToLower().Contains(prefix.ToLower()))
+#pragma warning restore CA1304 // Specify CultureInfo
+                        .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute); 
                 }
 
-                var matched = await query
+                var matched = await query.Take(max)
                     .ToListAsync().ConfigureAwait(false);
 
                 return Json(matched);
@@ -1392,7 +1406,7 @@ namespace zapread.com.Controllers
                     }
                     db.SaveChanges();
                 }
-                return Json(new { result = "success", added });
+                return Json(new { success=true, result = "success", added });
             }
         }
 
