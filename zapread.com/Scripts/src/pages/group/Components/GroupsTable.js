@@ -71,7 +71,7 @@ export default function GroupsTable(props) {
         if (filter != "") {
           query.Search = { Value: filter };
         }
-        console.log(query);
+        //console.log(query);
         await postJson("/api/v1/groups/list/", query).then(response => {
           var newData = response.data;
           //console.log(newData);
@@ -80,7 +80,7 @@ export default function GroupsTable(props) {
           setMaxPage(Math.ceil(response.recordsTotal / props.pageSize));
         });
       }
-      console.log("[debug] call getData");
+      //console.log("[debug] call getData");
       getData();
     },
     [sortedProp, filter, currentPage, rowsPerPage]

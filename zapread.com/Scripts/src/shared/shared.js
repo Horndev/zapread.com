@@ -67,10 +67,10 @@ Array.prototype.forEach.call(elements, function (el, _i) {
     el.addEventListener("click", function (e) {
         var ibox = el.closest('div.ibox');
         if (el.getAttribute('data-id') !== null) {
-            ibox = document.getElementById(el.getAttribute('data-id'));//$('#' + $(this).data('id'));
+            ibox = document.getElementById(el.getAttribute('data-id'));
         }
-        var button = el.querySelectorAll('i').item(0);//$(this).find('i');
-        var content = ibox.querySelectorAll('.ibox-content').item(0);//.children('.ibox-content');
+        var button = el.querySelectorAll('i').item(0);
+        var content = ibox.querySelectorAll('.ibox-content').item(0);
         if (content.style.display !== 'block') {
             content.style.display = 'block';
         } else {
@@ -84,7 +84,7 @@ Array.prototype.forEach.call(elements, function (el, _i) {
             event.initEvent('resize', true, false);
             ibox.dispatchEvent(event);
             var mp = ibox.querySelectorAll('[id^=map-]').item(0);
-            if (mp !== null) { mp.dispatchEvent(event); }//.resize();
+            if (mp !== null) { mp.dispatchEvent(event); }
         }, 50);
     });
 });

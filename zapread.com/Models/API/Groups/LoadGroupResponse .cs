@@ -11,5 +11,9 @@ namespace zapread.com.Models.API.Groups
         public int groupId { get; set; }
 
         public GroupInfo group { get; set; }
+
+        public bool IsLoggedIn { get; set; }
+
+        public string UserName { get; set; }
     }
 }

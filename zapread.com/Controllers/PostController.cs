@@ -414,12 +414,15 @@ namespace zapread.com.Controllers
         /// <param name="content"></param>
         /// <param name="postTitle"></param>
         /// <param name="isDraft"></param>
+        /// <param name="isNSFW"></param>
+        /// <param name="postQuietly"></param>
+        /// <param name="language"></param>
         /// <returns></returns>
         [Route("Post/Submit")]
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, string language)
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, bool postQuietly, string language)
         {
             var userId = User.Identity.GetUserId();
 
@@ -529,6 +532,20 @@ namespace zapread.com.Controllers
 
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    if (!postQuietly)
+                    {
+                        // Send alerts to users subscribed to users
+                        try
+                        {
+                            var mailer = DependencyResolver.Current.GetService<MailerController>();
+                            await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                        }
+                        catch (Exception e)
+                        {
+                            // noted.
+                        }
+                    }
                 }
 
                 return Json(new { success = true, postId = post.PostId });
@@ -697,6 +714,12 @@ namespace zapread.com.Controllers
                 .Include("Alerts")
                 .Include("Settings")
                 .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
+
+            //testing - only email self
+            //var followUsers = db.Users
+            //    .Include("Alerts")
+            //    .Include("Settings")
+            //    .Where(u => u.Id == user.Id).ToList();
 
             mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
             string subject = "New post by user you are following: " + user.Name;

@@ -267,7 +267,7 @@ namespace zapread.com.Helpers
             return sposts;
         }
 
-        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<Post> postquery, User user = null, int userId = 0)
+        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<Post> postquery, User user = null, int userId = 0, int numComments = 3)
         {
             if (user != null)
             {

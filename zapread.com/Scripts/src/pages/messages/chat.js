@@ -8,6 +8,7 @@
 import '../../shared/shared';                                                   // [✓]
 import '../../realtime/signalr';                                                // [✓]
 import Quill from 'quill';                                                      // [✓]
+import DOMPurify from 'dompurify';
 import 'quill/dist/quill.core.css'                                              // [✓]
 import 'quill/dist/quill.snow.css'                                              // [✓]
 import '../../css/quill/quillchat.css'; // Some custom overrides                // [✓]
@@ -193,7 +194,7 @@ export function sendMessage(id) {
     console.log('send to ' + id);
 
     var contentEl = document.getElementById('editor-container').querySelectorAll('.ql-editor').item(0);
-    var commentHTML = contentEl.innerHTML;
+    var commentHTML = DOMPurify.sanitize(contentEl.innerHTML);
 
     if (commentHTML === "<p><br></p>" || commentHTML.replace(" ", "") === "<p></p>") {
         // don't send empty!
