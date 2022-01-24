@@ -124,7 +124,7 @@ namespace zapread.com.API
                     return new ZapReadResponse()
                     {
                         success = false,
-                        message = errorAPIKeyNotFound,
+                        message = Properties.Resources.ErrorAPIKeyNotFound,
                     };
                 }
 

@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "member", Target = "~M:zapread.com.API.GroupsController.List(zapread.com.Models.API.DataTables.DataTableParameters)~System.Threading.Tasks.Task{zapread.com.Models.API.Groups.ListGroupsResponse}")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:zapread.com.API.AdminController.CheckOnline(System.Int32)~System.Threading.Tasks.Task{zapread.com.Models.API.ZapReadResponse}")]

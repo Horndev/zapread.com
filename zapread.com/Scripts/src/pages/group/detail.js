@@ -5,12 +5,10 @@
 import '../../shared/shared';       // [✓]
 import '../../realtime/signalr';    // [✓]
 
-import React, { useCallback, useEffect, useState, useRef } from 'react'; // [✓]
-import { Row, Col, Form, Button, Container } from "react-bootstrap";     // [✓]
+import React, { useEffect, useState } from 'react'; // [✓]
 import ReactDOM from "react-dom";                                        // [✓]
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom'; // [✓]
 import { postJson } from "../../utility/postData";
-import { loadmore } from "../../utility/loadmore";
 
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";

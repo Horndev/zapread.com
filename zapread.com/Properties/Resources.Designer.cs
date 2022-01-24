@@ -61,6 +61,15 @@ namespace zapread.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to API Key not found..
+        /// </summary>
+        internal static string ErrorAPIKeyNotFound {
+            get {
+                return ResourceManager.GetString("ErrorAPIKeyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Group with that name already exists..
         /// </summary>
         internal static string ErrorGroupDuplicate {
@@ -84,6 +93,15 @@ namespace zapread.com.Properties {
         internal static string ErrorIconNotFound {
             get {
                 return ResourceManager.GetString("ErrorIconNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not yet implemented..
+        /// </summary>
+        internal static string ErrorNotImplemented {
+            get {
+                return ResourceManager.GetString("ErrorNotImplemented", resourceCulture);
             }
         }
     }

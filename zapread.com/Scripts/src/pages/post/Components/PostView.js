@@ -109,7 +109,7 @@ export default function PostView(props) {
 
   return (
     <>
-      <div className="social-feed-box" id={" post_" + post.PostId}>
+      <div className="social-feed-box" id={"post_" + post.PostId}>
         <button className="pull-left btn btn-sm btn-link" style={{
           display: "flex",
           paddingLeft: "4px"
