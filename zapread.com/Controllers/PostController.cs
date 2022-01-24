@@ -438,35 +438,13 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
 
                 // Cleanup post HTML
-                HtmlDocument postDocument = new HtmlDocument();
-                postDocument.LoadHtml(content);
+                string contentStr = CleanContent(content);
 
-                // Check links
-                var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
-                if (postLinks != null)
-                {
-                    foreach (var link in postLinks.ToList())
-                    {
-                        string url = link.GetAttributeValue("href", "");
-                        // replace links to embedded videos
-                        if (url.Contains("youtu.be"))
-                        {
-                            var uri = new Uri(url);
-                            string videoId = uri.Segments.Last();
-                            string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
-                            var newNode = HtmlNode.CreateNode(modElement);
-                            link.ParentNode.ReplaceChild(newNode, link);
-                        }
-                    }
-                }
-                string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
-
-                var postGroup = await db.Groups
-                    .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
-
-                Post post = null;
+                var postGroup = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
 
                 string postLanguage = LanguageHelpers.NameToISO(language);
+
+                Post post = null;
                 if (postId > 0)
                 {
                     // Updated post
@@ -552,160 +530,31 @@ namespace zapread.com.Controllers
             }
         }
 
-        /// <summary>
-        /// Deprecated
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
+        private static string CleanContent(string content)
         {
-            var userId = User.Identity.GetUserId();
+            HtmlDocument postDocument = new HtmlDocument();
+            postDocument.LoadHtml(content);
 
-            if (userId == null)
+            // Check links
+            var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
+            if (postLinks != null)
             {
-                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                return Json(new { result = "failure", success = false, message = "Error finding user account." });
+                foreach (var link in postLinks.ToList())
+                {
+                    string url = link.GetAttributeValue("href", "");
+                    // replace links to embedded videos
+                    if (url.Contains("youtu.be"))
+                    {
+                        var uri = new Uri(url);
+                        string videoId = uri.Segments.Last();
+                        string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                        var newNode = HtmlNode.CreateNode(modElement);
+                        link.ParentNode.ReplaceChild(newNode, link);
+                    }
+                }
             }
-
-            if (p == null)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { result = "failure", success = false, message = "Parameter error." });
-            }
-
-            using (var db = new ZapContext())
-            {
-                var user = await db.Users.Where(u => u.AppId == userId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
-
-                // Cleanup post HTML
-                HtmlDocument postDocument = new HtmlDocument();
-                postDocument.LoadHtml(p.Content);
-                var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
-                if (postImages != null)
-                {
-                    foreach (var item in postImages)
-                    {
-                        // ensure images have the img-fluid class
-                        if (!item.HasClass("img-fluid"))
-                        {
-                            item.AddClass("img-fluid");
-                        }
-                    }
-                }
-
-                // Check links
-                var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
-                if (postLinks != null)
-                {
-                    foreach (var link in postLinks.ToList())
-                    {
-                        string url = link.GetAttributeValue("href", "");
-                        // replace links to embedded videos
-                        if (url.Contains("youtu.be"))
-                        {
-                            var uri = new Uri(url);
-                            string videoId = uri.Segments.Last();
-                            string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
-                            var newNode = HtmlNode.CreateNode(modElement);
-                            link.ParentNode.ReplaceChild(newNode, link);
-                        }
-                    }
-                }
-                string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
-                var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
-
-                Post post = null;
-                if (p.PostId > 0)
-                {
-                    // Updated post
-                    post = db.Posts
-                        .Include(pst => pst.UserId)
-                        .Where(pst => pst.PostId == p.PostId).FirstOrDefault();
-
-                    // Ensure user owns this post (or is site admin)
-                    if (post.UserId.Id != user.Id && !User.IsInRole("Administrator"))
-                    {
-                        // Editing another user's post.
-                        Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        return Json(new { result = "failure", success = false, message = "User mismatch" });
-                    }
-
-                    post.PostTitle = p.Title == null ? "Post" : p.Title.CleanUnicode().SanitizeXSS();
-                    post.Group = postGroup;
-                    post.Content = contentStr;
-                    post.Language = p.Language ?? post.Language;
-
-                    if (post.IsDraft) // Post was or is draft - set timestamp.
-                    {
-                        post.TimeStamp = DateTime.UtcNow;
-                    }
-                    else // Post has been published, don't update timestamp, update edit timestamp.
-                    {
-                        post.TimeStampEdited = DateTime.UtcNow;
-                    }
-
-                    if (post.IsDraft && !p.IsDraft) // Post was a draft, now published
-                    {
-                        post.IsDraft = p.IsDraft;
-                        await db.SaveChangesAsync().ConfigureAwait(true);
-                        // We don't return yet - so notifications can be fired off.
-                    }
-                    else
-                    {
-                        post.IsDraft = p.IsDraft;
-                        await db.SaveChangesAsync().ConfigureAwait(true);
-                        return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
-                    }
-                }
-                else
-                {
-                    // New post
-                    post = new Post()
-                    {
-                        Content = contentStr,
-                        UserId = user,
-                        TotalEarned = 0,
-                        IsDeleted = false,
-                        Score = 1,
-                        Group = postGroup,
-                        TimeStamp = DateTime.UtcNow,
-                        VotesUp = new List<User>() { user },
-                        PostTitle = p.Title == null ? "" : p.Title.CleanUnicode().SanitizeXSS(),
-                        IsDraft = p.IsDraft,
-                        Language = p.Language,
-                    };
-
-                    db.Posts.Add(post);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-                }
-
-                bool quiet = false;  // Used when debugging
-
-                if (p.IsDraft || quiet) // Don't send any alerts
-                {
-                    return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
-                }
-
-                // Send alerts to users subscribed to group
-                await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
-
-                // Send alerts to users subscribed to users
-                try
-                {
-                    var mailer = DependencyResolver.Current.GetService<MailerController>();
-                    await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
-                }
-                catch (Exception e)
-                {
-                    // noted.
-                }
-
-                return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
-            }
+            string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
+            return contentStr;
         }
 
         private async Task AlertUsersNewPost(ZapContext db, User user, Post post, MailerController mailer)
@@ -786,7 +635,7 @@ namespace zapread.com.Controllers
                 };
                 u.Alerts.Add(alert);
             }
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
         public class DeletePostMsg
@@ -816,43 +665,6 @@ namespace zapread.com.Controllers
                 //return RedirectToAction("Index", "Home");
             }
         }
-
-        //public ActionResult Edit(int postId)
-        //{
-        //    if (!User.Identity.IsAuthenticated)
-        //    {
-        //        return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
-        //    }
-
-        //    var userId = User.Identity.GetUserId();
-
-        //    using (var db = new ZapContext())
-        //    {
-        //        var user = db.Users.Where(u => u.AppId == userId).First();
-        //        var postVm = db.Posts
-        //            .Where(p => p.PostId == postId)
-        //            .Select(p => new PostViewModel()
-        //            {
-        //                GroupId = p.Group.GroupId,
-        //                GroupName = p.Group.GroupName,
-        //                UserId = p.UserId.Id,
-        //                UserAppId = p.UserId.AppId,
-        //                PostTitle = p.PostTitle,
-        //                Content = p.Content,
-        //                PostId = p.PostId,
-        //            })
-        //            .AsNoTracking()
-        //            .FirstOrDefault();
-
-        //        // Must own post, or be an Administrator to edit
-        //        if (postVm == null || (postVm.UserAppId != userId && !User.IsInRole("Administrator")))
-        //        {
-        //            // TODO: If userId doesn't match - should throw more informative error.
-        //            return RedirectToAction("Index", "Home");
-        //        }
-        //        return View(postVm);
-        //    }
-        //}
 
         /// <summary>
         /// 

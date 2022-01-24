@@ -21,8 +21,6 @@ namespace zapread.com.API
     /// </summary>
     public class AccountController : ApiController
     {
-        private const string errorAPIKeyNotFound = "API Key not found.";
-
         /// <summary>
         /// Generate a new API key assigned to the authorized user.
         /// </summary>

@@ -321,7 +321,6 @@ namespace zapread.com.API
                         IsMember = g.Members.Select(m => m.Id).Contains(userId),
                         IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
                         IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (reqGroupQ == null)
