@@ -2,11 +2,8 @@
  * A Single Post
  */
 
-import React, { useCallback, useEffect, useState, createRef } from "react";
-import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
-import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';               // [✓]
-
-import { postJson } from "../../../utility/postData";                 // [✓]
+import React, { useEffect, useState, createRef } from "react";
+import { Dropdown } from "react-bootstrap";
 import { readMoreButton } from "../../../shared/readmore";            // [✓]
 import { deletePost } from "../../../shared/postfunctions";           // [✓]
 import { ready } from '../../../utility/ready';                       // [✓]
@@ -14,9 +11,7 @@ import { applyHoverToChildren } from '../../../utility/userhover';    // [✓]
 import { loadgrouphover } from '../../../utility/grouphover';         // [✓]
 import { updatePostTimes } from '../../../utility/datetime/posttime'; // [✓]
 import { writeComment } from '../../../comment/writecomment'          // [✓]
-import { setPostLanguage } from "../../../shared/postfunctions";      // [✓]
-import { stickyPost } from "../../../shared/postfunctions";           // [✓]
-
+import { setPostLanguage, nsfwPost, stickyPost } from "../../../shared/postfunctions";      // [✓]
 import PostAuthorName from "./PostAuthorName";
 import PostVoteButtons from "./PostVoteButtons";
 import CommentsView from "../../../comment/CommentsView";
@@ -25,12 +20,14 @@ export default function PostView(props) {
   const [post, setPost] = useState(props.post);
   const [isVisible, setIsVisible] = useState(true);
   const [isIgnored, setIsIgnored] = useState(true);
+  const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMod, setIsMod] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [impressions, setImpressions] = useState(0);
 
   const postContentRef = createRef();
   const readMoreButtonRef = createRef();
@@ -42,44 +39,48 @@ export default function PostView(props) {
       setPost(props.post);
       setIsIgnored(props.post.ViewerIgnoredUser);
       setIsLoggedIn(props.isLoggedIn);
+      setIsMod(props.isGroupMod);
+
+      if (window.UserName == props.post.UserName) {
+        setIsAuthor(true);
+      }
+
+      if (window.IsAdmin) {
+        setIsSiteAdmin(true);
+      }
+
+      async function loadImpressions() {
+        const url = "/Post/Impressions/" + props.post.PostId
+        await fetch(url)
+          .then(function (response) {
+            return response.text();
+          })
+          .then(function (html) {
+            setImpressions(html);
+          });
+      }
+
+      loadImpressions();
     },
-    [props.post, props.isLoggedIn]
+    [props.post, props.isLoggedIn, props.isGroupMod]
   );
 
   useEffect(() => {
     if (!isInitialized) {
 
       ready(function () {
-        // activate dropdown (done manually using bootstrap.native)
-        var elements = document.querySelectorAll(".dropdown-toggle");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-          var dropdownInit = new bsn.Dropdown(el);
-        });
 
-        elements = document.querySelectorAll(".pop");
+        var elements = document.querySelectorAll(".pop");
         Array.prototype.forEach.call(elements, function (el, _i) {
           el.classList.remove('pop');
         });
 
-        //applyHoverToChildren(postContentRef.current, ".userhint");
         applyHoverToChildren(document, ".userhint");
 
         elements = document.querySelectorAll(".grouphint");
         Array.prototype.forEach.call(elements, function (el, _i) {
           loadgrouphover(el);
           el.classList.remove('grouphint');
-        });
-
-        // --- update impressions counts
-        elements = document.querySelectorAll(".impression");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-          var url = el.getAttribute('data-url');
-          fetch(url).then(function (response) {
-            return response.text();
-          }).then(function (html) {
-            el.innerHTML = html;
-            el.classList.remove('impression');
-          });
         });
 
         // --- relative times
@@ -117,92 +118,74 @@ export default function PostView(props) {
           <i className="fa fa-minus-square togglebutton" ref={toggleVisibleIconRef}></i>
         </button>
 
-        <div className="pull-right social-action dropdown">
-          <button data-toggle="dropdown" className="dropdown-toggle btn-white"></button>
-          <ul className="dropdown-menu dropdown-menu-right m-t-xs" style={{ left: "auto" }}>
-            <li>
+        <Dropdown className="pull-right social-action">
+          <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white"></Dropdown.Toggle>
+          <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
+            <Dropdown.Item as="li" disabled={true}>
               <button className="btn btn-link btn-sm">
-                <i className="fa fa-eye"></i> <span className="impression" data-url={"/Post/Impressions/" + post.PostId}></span> Impression(s)
+                <i className="fa fa-eye"></i>&nbsp;{impressions}&nbsp;Impression(s)
               </button>
-            </li>
-            {post.ViewerIgnoredUser ? (
-              <li>
-                <button className="btn btn-link btn-sm" onClick={() => { alert("not yet implemented"); }}>
-                  <i className="fa fa-eye"></i> Show Post
+            </Dropdown.Item>
+            { post.ViewerIgnoredUser ? (
+              <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa fa-eye"></i>&nbsp;Show Post
                 </button>
-              </li>
+              </Dropdown.Item>
+            ) : (<></>) }
+            {isMod ? (
+              <Dropdown.Item as="li" onClick={() => { stickyPost(post.PostId); }}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa fa-map-pin"></i> Toggle Group Sitcky
+                </button>
+              </Dropdown.Item>
             ) : (<></>)}
-
-            {isAdmin | isAuthor ? (
-              <>
-                <li>
-                  <a className="btn btn-link btn-sm" href={"/Post/Edit?postId=" + post.PostId}><i className="fa fa-edit"></i> Edit</a>
-                </li>
-                <li>
-                  <button className="btn btn-link btn-sm" type="submit" onClick={() => {
-                    deletePost(post.PostId);
-                  }}><i className="fa fa-times"></i> Delete</button>
-                </li>
-              </>
-            ) : (<></>)}
-
-            <li>
+            {isSiteAdmin || isAdmin ? (<>
+              <Dropdown.Item as="li" onClick={() => { setPostLanguage(post.PostId); }}>
+                <button className="btn btn-link btn-sm" type="submit" >
+                  <i className="fa fa-times"></i>&nbsp;Set Language (Admin)
+                </button>
+              </Dropdown.Item>
+            </>) : (<></>) }
+            {isSiteAdmin || isAuthor ? (<>
+              <Dropdown.Item as="li" onClick={() => {
+                location.href = "/Post/Edit?postId=" + post.PostId;
+              }}>
+                <button className="btn btn-link btn-sm" role="button">
+                  <i className="fa fa-edit"></i>&nbsp;Edit
+                </button>
+              </Dropdown.Item>
+              <Dropdown.Item as="li" onClick={() => { deletePost(post.PostId);}}>
+                <button className="btn btn-link btn-sm" type="submit">
+                  <i className="fa fa-times"></i>&nbsp;Delete
+                </button>
+              </Dropdown.Item>
+            </>) : (<></>) }
+            {isMod || isAdmin || isAuthor ? (<>
+              <Dropdown.Item as="li" onClick={() => { nsfwPost(post.PostId); }}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa fa-exclamation-triangle"></i> Toggle NSFW
+                </button>
+              </Dropdown.Item>
+              <Dropdown.Item as="li" onClick={() => { nsfwPost(post.PostId); }}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa fa-exclamation-triangle"></i> Toggle Explicit
+                </button>
+              </Dropdown.Item>
+            </>) : (<>
+              <Dropdown.Item as="li" onClick={() => { alert("Not yet implemented.  Feature coming soon."); }}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa fa-exclamation-triangle"></i> Report NSFW
+                </button>
+              </Dropdown.Item>
+            </>)}
+            <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
               <button className="btn btn-link btn-sm" type="submit">
                 <i className="fa fa-flag"></i> Report Spam
               </button>
-            </li>
-
-            {isAdmin ? (
-              <li>
-                <button className="btn btn-link btn-sm" type="submit" onClick={() => {
-                  setPostLanguage(post.PostId);
-                }}>
-                  <i className="fa fa-times"></i> Set Language (Admin)
-                </button>
-              </li>
-            ) : (<></>)}
-
-            {isMod | isAdmin | isAuthor ? (
-              <>
-                <li>
-                  <button className="btn btn-link btn-sm" onClick={() => {
-                    //"nsfwPost(@Model.PostId)"
-                  }}>
-                    <i className="fa fa-exclamation-triangle"></i> Toggle NSFW
-                  </button>
-                </li>
-                <li>
-                  <button className="btn btn-link btn-sm" onClick={() => {
-                    //nsfwPost(@Model.PostId)"
-                  }}>
-                    <i className="fa fa-exclamation-triangle"></i> Toggle Explicit
-                  </button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <button className="btn btn-link btn-sm" onClick={() => {
-                    alert("Not yet implemented.  Feature coming soon.");
-                  }}>
-                    <i className="fa fa-exclamation-triangle"></i> Report NSFW
-                  </button>
-                </li>
-              </>
-            )}
-
-            {isMod ? (
-              <li>
-                <button className="btn btn-link btn-sm" onClick={() => {
-                  stickyPost(post.PostId);
-                }}>
-                  <i className="fa fa-map-pin"></i> Toggle Group Sitcky
-                </button>
-              </li>
-            ) : (<></>)}
-
-          </ul>
-        </div>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
 
         <div className="social-avatar" style={{ paddingBottom: "15px" }}>
           <PostVoteButtons postId={post.PostId} postScore={post.Score} viewerUpvoted={post.ViewerUpvoted} viewerDownvoted={post.ViewerDownvoted} />
@@ -303,11 +286,8 @@ export default function PostView(props) {
         ) : (<></>)}
 
         <div className="social-comment-box" id={"comments_" + post.PostId}>
-
           <CommentsView comments={post.CommentVms} isLoggedIn={props.isLoggedIn} postId={post.PostId}/>
-
         </div>
-
       </div >
     </>
   );

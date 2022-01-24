@@ -13,5 +13,10 @@
 }
 
 @section Scripts {
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        var IsAdmin = "@(User != null && User.IsInRole("Administrator"))" == "True";    
+    </script>
+
     @Scripts.Render("~/bundles/group/detail")
 }

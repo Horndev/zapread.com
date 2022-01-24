@@ -5,8 +5,6 @@
 import React, { useCallback, useEffect, useState, createRef } from "react";
 import { Container, Row, Col, ButtonGroup, Button, Dropdown } from "react-bootstrap";
 
-import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';               // [✓]
-
 import { toggleComment } from "../shared/postui";               // [✓]
 import { replyComment } from "../comment/replycomment";         // [✓]
 import { ready } from '../utility/ready';                       // [✓]
@@ -283,7 +281,6 @@ export default function CommentsView(props) {
           {hasMoreComments ? (<><br />More comments</>) : (<></>)}
         </>
       ) : (<></>)}
-
 
       {/* new comments appear below this line */}
       <div className="insertComments" id={"mc_" + postId}></div>

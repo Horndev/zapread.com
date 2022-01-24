@@ -1,10 +1,8 @@
 ﻿/*
  * View a group posts
  */
-//import $ from 'jquery';
 
 import '../../shared/shared';       // [✓]
-//import '../../utility/ui/vote';     // [✓]
 import '../../realtime/signalr';    // [✓]
 
 import React, { useCallback, useEffect, useState, useRef } from 'react'; // [✓]
@@ -20,35 +18,12 @@ import GroupModBar from "./Components/GroupModBar";
 import PostList from "../post/Components/PostList";
 import VoteModal from "../../Components/VoteModal";
 
-//import '../../../summernote/dist/summernote-bs4';
-//import 'summernote/dist/summernote-bs4.css';
-//import '../../utility/summernote/summernote-video-attributes';
-//import Swal from 'sweetalert2';
-
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
-
-//import 'selectize/dist/js/standalone/selectize';
-//import 'selectize/dist/css/selectize.css';
-//import 'selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css';
-
-//import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
-//import { writeComment } from '../../comment/writecomment';
-//import { replyComment } from '../../comment/replycomment';
-//import { editComment } from '../../comment/editcomment';
-//import { loadMoreComments } from '../../comment/loadmorecomments';
-//import { getAntiForgeryToken } from '../../utility/antiforgery';
-//import { loadmore } from '../../utility/loadmore';
 
 import '../../shared/postfunctions';                                        // [✓]
 import '../../shared/readmore';                                             // [✓]
 import '../../shared/postui';                                               // [✓]
-
-//import './userroles';
-//import './tags';
-//import './adminbar';
-//import './editicon';
-
 import '../../shared/sharedlast';                                           // [✓]
 
 function useQuery() {
@@ -167,7 +142,7 @@ function Page() {
               </button>
             </div>
 
-            <PostList posts={posts} isLoggedIn={isLoggedIn}/>
+            <PostList posts={posts} isLoggedIn={isLoggedIn} isGroupMod={isGroupMod}/>
 
             {hasMorePosts ? (
               <div className="social-feed-box-nb" id="showmore">

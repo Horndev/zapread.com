@@ -25,7 +25,7 @@ export default function PostList(props) {
   return (
     <>
       {posts.map((post, index) => (
-        <PostView key={post.PostId} post={post} isLoggedIn={isLoggedIn}/>
+        <PostView key={post.PostId} post={post} isLoggedIn={isLoggedIn} isGroupMod={props.isGroupMod}/>
         ))}
     </>
   );
