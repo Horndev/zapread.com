@@ -12,6 +12,8 @@ import { updatePostTimes } from '../utility/datetime/posttime'; // [✓]
 import { vote } from "../utility/ui/vote";                      // [✓]
 import { editComment } from "./editcomment";                    // [✓]
 import { deleteComment } from "../shared/postfunctions";        // [✓]
+import { makeQuotable } from "../utility/quotable/quotable";    // [✓]
+import { applyHoverToChildren } from '../utility/userhover';             // [✓]
 
 function Comment(props) {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -25,6 +27,8 @@ function Comment(props) {
   const dropdownButtonRef = createRef();
   const upVoteRef = createRef();
   const downVoteRef = createRef();
+  const commentTextRef = createRef();
+  const commentRootRef = createRef();
 
   useEffect(
     () => {
@@ -38,9 +42,17 @@ function Comment(props) {
 
       setChildComments(thisChildComments);
       if (!isInitialized) {
+
+        var commentElement = commentTextRef.current; // save a ref to use in ready function
+        var commentRootElement = commentRootRef.current;
+
         ready(function () {
-          // --- relative times
-          updatePostTimes();
+          updatePostTimes();  // --- relative times
+
+          makeQuotable(commentElement, false);
+          commentElement.classList.remove("comment-quotable");
+
+          applyHoverToChildren(commentRootElement,".userhint")
         });
         setIsInitialized(true);
       }
@@ -50,7 +62,9 @@ function Comment(props) {
 
   return (
     <>
-      <div className="media-body" id={"comment_" + props.comment.CommentId} style={{ minHeight: "24px" }}>
+      <div className="media-body" id={"comment_" + props.comment.CommentId}
+        ref={commentRootRef}
+        style={{ minHeight: "24px" }}>
         <button ref={toggleButtonRef}
           className={"btn btn-sm btn-link " + (startVisible ? "pull-left" : "") + " comment-toggle"}
           style={{ display: "flex", "paddingLeft": "4px" }} onClick={(e) => { toggleComment(toggleButtonRef.current, 0); }
@@ -189,6 +203,7 @@ function Comment(props) {
                 <div className="row">
                   <div className="col">
                     <div className="ql-comment comment-quotable"
+                      ref={commentTextRef}
                       id={"commentText_" + props.comment.CommentId}
                       style={{ position: "relative" }}
                       data-postid={props.comment.PostId}

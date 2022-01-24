@@ -12,6 +12,7 @@ import { loadgrouphover } from '../../../utility/grouphover';         // [✓]
 import { updatePostTimes } from '../../../utility/datetime/posttime'; // [✓]
 import { writeComment } from '../../../comment/writecomment'          // [✓]
 import { setPostLanguage, nsfwPost, stickyPost } from "../../../shared/postfunctions";      // [✓]
+import { makeQuotable } from "../../../utility/quotable/quotable";
 import PostAuthorName from "./PostAuthorName";
 import PostVoteButtons from "./PostVoteButtons";
 import CommentsView from "../../../comment/CommentsView";
@@ -68,6 +69,8 @@ export default function PostView(props) {
   useEffect(() => {
     if (!isInitialized) {
 
+      var postElement = postContentRef.current; // save a ref to use in ready function
+
       ready(function () {
         var elements = document.querySelectorAll(".pop");
         Array.prototype.forEach.call(elements, function (el, _i) {
@@ -90,6 +93,9 @@ export default function PostView(props) {
           readMoreButtonRef.current.style.display = "initial";
         }
 
+        // Make post quotable
+        makeQuotable(postElement, true);
+        postElement.classList.remove("post-quotable");
       });
 
       setIsInitialized(true);
