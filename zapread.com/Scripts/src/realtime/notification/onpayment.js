@@ -12,6 +12,6 @@ import { oninvoicepaid } from '../../utility/payments/oninvoicepaid'
  * @param {number} txid The transaction identifier, which is primarily used for anonymous votes.
  **/
 export function onpayment(invoice, balance, txid) {
-    // Here, we forward to the ui handler
-    oninvoicepaid(invoice, balance, txid);
+  // Here, we forward to the ui handler
+  oninvoicepaid(invoice, balance, txid);
 }

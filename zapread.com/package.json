@@ -25,6 +25,7 @@
     "date-fns-1": "1.29.0",
     "dayjs": "1.8.16",
     "dayjs-calendar": "1.0.1",
+    "dompurify": "2.3.4",
     "dropzone": "5.7.0",
     "expose-loader": "0.7.5",
     "file-loader": "6.0.0",
