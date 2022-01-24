@@ -69,7 +69,6 @@ export default function PostView(props) {
     if (!isInitialized) {
 
       ready(function () {
-
         var elements = document.querySelectorAll(".pop");
         Array.prototype.forEach.call(elements, function (el, _i) {
           el.classList.remove('pop');
@@ -206,7 +205,6 @@ export default function PostView(props) {
               )}
             </a>
             <div className="vote-info" style={{ marginLeft: "110px" }}>
-              {/*<PostAuthorName userId={post.UserId} userName={post.UserName} isIgnored={post.ViewerIgnoredUser} />*/}
 
               <a className="post-username userhint" data-userid={post.UserId}
                 href={"/User/" + post.UserName}>
@@ -218,18 +216,14 @@ export default function PostView(props) {
                   <i className="fa fa-map-pin" style={{ color: "lightgreen" }}></i>
                 </span>
               ) : (<></>)}
-
               &nbsp;posted in&nbsp;
-
               <a className="post-groupname grouphint" data-groupid={post.GroupId} href={
                 "/Group/Detail/" + post.GroupId
                 //"@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new {id = Model.GroupId})"
               } style={{ fontSize: "small", display: "inline" }}>
                 {post.GroupName}
               </a>
-
               {" "}
-
               <small className="postTime text-muted" style={{ display: "none" }}>
                 {post.TimeStamp}
               </small>

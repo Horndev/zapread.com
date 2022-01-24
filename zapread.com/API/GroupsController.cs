@@ -257,7 +257,7 @@ namespace zapread.com.API
                 var response = new GetGroupPostsResponse()
                 {
                     HasMorePosts = groupPosts.Count() >= 10,
-                    Posts = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, groupPosts, user, userId: userId).ConfigureAwait(true),
+                    Posts = await QueryHelpers.QueryPostsVm(start: BlockNumber*BlockSize, count: BlockSize, postquery: groupPosts, user: user, userId: userId).ConfigureAwait(true),
                     success = true,
                 };
 
@@ -269,22 +269,20 @@ namespace zapread.com.API
         /// Loads the information on a specified group
         /// </summary>
         /// <param name="groupInfo"></param>
-        /// <returns></returns>
+        /// <returns>LoadGroupResponse</returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/load")]
-        public async Task<LoadGroupResponse> Load(LoadGroupParameters groupInfo)
+        public async Task<IHttpActionResult> Load(LoadGroupParameters groupInfo)
         {
             // validate
             if (groupInfo == null)
             {
-                return new LoadGroupResponse() { success = false };
-                //throw new ArgumentNullException(nameof(groupInfo));
+                return BadRequest();
             }
 
             if (groupInfo.groupId == 0)
             {
-                return new LoadGroupResponse() { success = false };
-                //throw new ArgumentNullException(nameof(groupInfo));
+                return BadRequest();
             }
 
             using (var db = new ZapContext())
@@ -328,8 +326,7 @@ namespace zapread.com.API
 
                 if (reqGroupQ == null)
                 {
-                    //Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    return new LoadGroupResponse() { success = false, message = "Group not found." };
+                    return NotFound();
                 }
 
                 // Convert to GroupInfo object for return
@@ -350,12 +347,12 @@ namespace zapread.com.API
                     Earned = Convert.ToUInt64(reqGroupQ.Earned),
                 };
 
-                return new LoadGroupResponse() { 
+                return Ok(new LoadGroupResponse() { 
                     success = true, 
                     group = reqGroup, 
                     IsLoggedIn = User.Identity.GetUserId() != null, 
                     UserName = User.Identity.Name
-                };
+                });
             }
         }
 
@@ -386,7 +383,7 @@ namespace zapread.com.API
 
                 if (group == null)
                 {
-                    return BadRequest("Group not found");
+                    return BadRequest(Properties.Resources.ErrorGroupNotFound);
                 }
 
                 if (!group.Administrators.Select(a => a.AppId).Contains(user.AppId))
@@ -399,7 +396,7 @@ namespace zapread.com.API
 
                 if (exists)
                 {
-                    return BadRequest("Group with that name already exists.");
+                    return BadRequest(Properties.Resources.ErrorGroupDuplicate);
                 }
 
                 // Make updates
@@ -407,7 +404,7 @@ namespace zapread.com.API
 
                 if (icon == null)
                 {
-                    return BadRequest("Icon not found");
+                    return BadRequest(Properties.Resources.ErrorIconNotFound);
                 }
 
                 group.DefaultLanguage = existingGroup.Language == null ? "en" : existingGroup.Language; // Ensure value

@@ -200,10 +200,8 @@ function Comment(props) {
                     </div>
                   </div>
                 </div>
-
               </div>
 
-              {/*@if (Request.IsAuthenticated && !Model.IsDeleted) // Show the response div*/}
               {props.isLoggedIn && !props.comment.IsDeleted ? (
                 <div style={{ position: "relative", marginLeft: "8px", top: "-25px", height: "0px" }}>
                   <a role="button" onClick={
@@ -288,7 +286,6 @@ export default function CommentsView(props) {
       {
         // <div onClick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div>
       }
-
 
     </>
   );
