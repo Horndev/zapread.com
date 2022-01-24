@@ -1112,10 +1112,13 @@ namespace zapread.com.Controllers
                     {
                         g.GroupName,
                         g.GroupId,
+                        g.Tags,
+                        g.TotalEarned,
+                        g.TotalEarnedToDistribute,
+                        Icon = g.Icon != null ? "fa-" + g.Icon : null,
                         //ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
                         numMembers = g.Members.Count,
-                    })
-                    .Take(max);
+                    });
 
                 if (String.IsNullOrEmpty(prefix))
                 {
@@ -1123,10 +1126,13 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    query = query.Where(g => g.GroupName.StartsWith(prefix));
+#pragma warning disable CA1304 // Specify CultureInfo
+                    query = query.Where(g => g.GroupName.ToLower().Contains(prefix.ToLower()) || g.Tags.ToLower().Contains(prefix.ToLower()))
+#pragma warning restore CA1304 // Specify CultureInfo
+                        .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute); 
                 }
 
-                var matched = await query
+                var matched = await query.Take(max)
                     .ToListAsync().ConfigureAwait(false);
 
                 return Json(matched);

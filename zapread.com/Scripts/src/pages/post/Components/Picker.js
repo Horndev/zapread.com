@@ -34,14 +34,18 @@ const getSuggestionValue = suggestion => suggestion.GroupName;
 // Use your imagination to render suggestions.
 function renderSuggestion(suggestion, { query }) {
     return (
-        <div>
-            <img src={"/Img/Group/Icon/" + suggestion.GroupId} width="30" height="30"></img>
-            <span style={{
-                paddingLeft: "10px"
-            }}>
-                {suggestion.GroupName}
-            </span>
-        </div>
+      <div>
+        {suggestion.Icon != null ? (<>
+          <div className="forum-icon" style={{ marginRight: "0px"} }>
+            <i className={"fa " + suggestion.Icon} style={{ marginTop: "0px" }}/>
+          </div>
+        </>) : (<img src={"/Img/Group/Icon/" + suggestion.GroupId} width="30" height="30"></img>)}
+        <span style={{
+            paddingLeft: "10px"
+        }}>
+            {suggestion.GroupName}
+        </span>
+      </div>
     )
 };
 
