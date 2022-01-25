@@ -50,5 +50,26 @@ namespace zapread.com.API
                 return new ZapReadResponse() { success = true };
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/accounting/{year}/{month}")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator,APIUser")]
+        public async Task<IHttpActionResult> GetAccountingSummary(int year, int month)
+        {
+            using (var db = new ZapContext())
+            {
+                var startDate = DateTime.Parse("1 January 2022");
+                
+                //var transactions = db.
+            }
+
+            return Ok();
+        }
     }
 }

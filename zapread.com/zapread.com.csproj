@@ -1396,6 +1396,7 @@
     <Content Include="Scripts\src\quill-image-resize-module\package.json" />
     <Content Include="Scripts\src\quill-image-resize-module\README.md" />
     <Content Include="Views\Group\Edit.cshtml" />
+    <Content Include="Views\Admin\Accounting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
