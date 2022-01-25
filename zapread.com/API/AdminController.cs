@@ -59,7 +59,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [Route("api/v1/admin/accounting/{year}/{month}")]
         [AcceptVerbs("GET")]
-        [Authorize(Roles = "Administrator,APIUser")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IHttpActionResult> GetAccountingSummary(int year, int month)
         {
             using (var db = new ZapContext())

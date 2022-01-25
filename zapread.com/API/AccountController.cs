@@ -32,6 +32,10 @@ namespace zapread.com.API
         public async Task<APIKeyResponse> RequestAPIKey(string roles)
         {
             var userAppId = User.Identity.GetUserId();
+
+            // Only an administrator can grant Administrator
+            roles = ""; //only grant APIUser
+
             using (var db = new ZapContext())
             {
                 string apiRoles = "APIUser";

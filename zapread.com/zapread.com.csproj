@@ -946,6 +946,8 @@
     <Content Include="Content\logos.png" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
+    <Content Include="Scripts\dist\admin\accounting.css" />
+    <Content Include="Scripts\dist\admin\accounting.js" />
     <Content Include="Scripts\dist\admin\achievements.css" />
     <Content Include="Scripts\dist\admin\achievements.js" />
     <Content Include="Scripts\dist\admin\audit.css" />
