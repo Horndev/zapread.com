@@ -75,7 +75,8 @@ function Page() {
         postTitle: postTitle,
         language: postLanguage,
         isDraft: true,
-        isNSFW: postNSFW
+        isNSFW: postNSFW,
+        postQuietly: postQuietly
       };
 
       console.log(msg);
