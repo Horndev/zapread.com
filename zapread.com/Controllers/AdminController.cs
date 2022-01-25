@@ -1113,6 +1113,9 @@ namespace zapread.com.Controllers
         [HttpPost, Route("Admin/Lightning/Update")]
         public async Task<ActionResult> LightningUpdate(string LnMainnetHost, string LnPubkey, string LnMainnetMacaroonAdmin, string LnMainnetMacaroonInvoice, string LnMainnetMacaroonRead)
         {
+            // Verify user role
+
+
             using (var db = new ZapContext())
             {
                 var g = await db.ZapreadGlobals.Where(gl => gl.Id == 1)
