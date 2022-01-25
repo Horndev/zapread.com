@@ -486,6 +486,21 @@ namespace zapread.com.Controllers
                     {
                         post.IsDraft = isDraft;
                         await db.SaveChangesAsync().ConfigureAwait(true);
+
+                        if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
+                        {
+                            // Send alerts to users subscribed to users
+                            try
+                            {
+                                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                                await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                            }
+                            catch (Exception e)
+                            {
+                                // noted.
+                            }
+                        }
+
                         return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
                 }
@@ -511,7 +526,7 @@ namespace zapread.com.Controllers
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
 
-                    if (!postQuietly)
+                    if (!isDraft && !postQuietly)
                     {
                         // Send alerts to users subscribed to users
                         try
