@@ -38,7 +38,6 @@ namespace zapread.com
         /// <param name="bundles"></param>
         public static void RegisterBundles(BundleCollection bundles)
         {
-
             #region partial scripts
 
             // Partial script - summary statistics
