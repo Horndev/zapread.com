@@ -70,6 +70,15 @@ namespace zapread.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to load website settings..
+        /// </summary>
+        internal static string ErrorDatabaseNoWebsiteSettings {
+            get {
+                return ResourceManager.GetString("ErrorDatabaseNoWebsiteSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Group with that name already exists..
         /// </summary>
         internal static string ErrorGroupDuplicate {
@@ -102,6 +111,24 @@ namespace zapread.com.Properties {
         internal static string ErrorNotImplemented {
             get {
                 return ResourceManager.GetString("ErrorNotImplemented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error during community distribution.  Total to distribute is negative..
+        /// </summary>
+        internal static string MailErrorCommunityDistributionMessage {
+            get {
+                return ResourceManager.GetString("MailErrorCommunityDistributionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Community payout error.
+        /// </summary>
+        internal static string MailErrorCommunityDistributionMessageTitle {
+            get {
+                return ResourceManager.GetString("MailErrorCommunityDistributionMessageTitle", resourceCulture);
             }
         }
     }

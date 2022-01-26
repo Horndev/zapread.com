@@ -120,6 +120,9 @@
   <data name="ErrorAPIKeyNotFound" xml:space="preserve">
     <value>API Key not found.</value>
   </data>
+  <data name="ErrorDatabaseNoWebsiteSettings" xml:space="preserve">
+    <value>Unable to load website settings.</value>
+  </data>
   <data name="ErrorGroupDuplicate" xml:space="preserve">
     <value>Group with that name already exists.</value>
   </data>
@@ -131,5 +134,11 @@
   </data>
   <data name="ErrorNotImplemented" xml:space="preserve">
     <value>Not yet implemented.</value>
+  </data>
+  <data name="MailErrorCommunityDistributionMessage" xml:space="preserve">
+    <value>Error during community distribution.  Total to distribute is negative.</value>
+  </data>
+  <data name="MailErrorCommunityDistributionMessageTitle" xml:space="preserve">
+    <value>Community payout error</value>
   </data>
 </root>

@@ -27,23 +27,17 @@ namespace zapread.com
         }
     }
 
-    public class BundleConfig
+    /// <summary>
+    /// This is the configuration for script bundling.  This is now actually done by webpack, but is relayed through here.
+    /// </summary>
+    public static class BundleConfig
     {
-        // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bundles"></param>
         public static void RegisterBundles(BundleCollection bundles)
         {
-            // Shared scripts
-            //bundles.Add(new ScriptBundle("~/bundles/shared").Include(
-            //            //"~/Scripts/main.js",                                    // Custom for all
-            //            //"~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-            //            //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
-            //            //"~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
-            //            //"~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-            //            "~/Scripts/Utility/clipboard-element.js"               // For copy to clipboard
-            //            //"~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
-            //            //"~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
-            //            //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
-            //            ).WithLastModifiedToken());
 
             #region partial scripts
 

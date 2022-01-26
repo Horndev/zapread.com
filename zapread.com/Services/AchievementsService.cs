@@ -186,6 +186,9 @@ namespace zapread.com.Services
     }
     public class FirstComment : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First Comment"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -200,6 +203,9 @@ namespace zapread.com.Services
     }
     public class FirstFollowed : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First Followed"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -214,6 +220,9 @@ namespace zapread.com.Services
     }
     public class FirstFollowing : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First Following"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -228,6 +237,9 @@ namespace zapread.com.Services
     }
     public class FirstPost : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First Post"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -240,10 +252,23 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// Describes an achievement
+    /// </summary>
     public interface IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Method which provides the query parameters for users which should receive this achievement
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         IQueryable<User> GetNewUsers(ZapContext db, Achievement dba);
 
     }

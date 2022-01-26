@@ -2,8 +2,18 @@
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Service to manage the adjustment to vote scores based on reputation
+    /// </summary>
     public static class ReputationService
     {
+        /// <summary>
+        /// Get the reputation adjustment as a function of amount transacted in Satoshi, and the participant reputations.
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="targetRep"></param>
+        /// <param name="actorRep"></param>
+        /// <returns></returns>
         public static double GetReputationAdjustedAmount(Int64 amount, Int64 targetRep, Int64 actorRep)
         {
             var vs = 1;

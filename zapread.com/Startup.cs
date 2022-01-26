@@ -6,8 +6,15 @@ using System.Web;
 [assembly: OwinStartupAttribute(typeof(zapread.com.Startup))]
 namespace zapread.com
 {
+    /// <summary>
+    /// Startup configuration for application
+    /// </summary>
     public partial class Startup
     {
+        /// <summary>
+        /// Main configuration injection
+        /// </summary>
+        /// <param name="app"></param>
         public void Configuration(IAppBuilder app)
         {
             // Set DB used by Hangfire
