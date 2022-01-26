@@ -9,8 +9,15 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Service to manage payouts of funds collected to distribute.
+    /// </summary>
     public class PayoutsService
     {
+        /// <summary>
+        /// Payout to entire community
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void CommunityPayout()
         {
             int maxDistributions = 1000;    // Per run
@@ -23,7 +30,7 @@ namespace zapread.com.Services
 
                 if (website == null)
                 {
-                    throw new Exception("Unable to load website settings.");
+                    throw new Exception(Properties.Resources.ErrorDatabaseNoWebsiteSettings);
                 }
 
                 Dictionary<int, double> payoutUserAmount = new Dictionary<int, double>();
@@ -36,8 +43,8 @@ namespace zapread.com.Services
                     toDistribute = 0;
 
                     Services.MailingService.SendErrorNotification(
-                        title: "Community payout error",
-                        message: "Error during community distribution.  Total to distribute is negative.");
+                        title: Properties.Resources.MailErrorCommunityDistributionMessageTitle,
+                        message: Properties.Resources.MailErrorCommunityDistributionMessage);
                 }
 
                 var numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
@@ -168,6 +175,9 @@ namespace zapread.com.Services
             website.TotalEarnedCommunity += distributed;
         }
 
+        /// <summary>
+        /// Pay out accumulated funds in groups
+        /// </summary>
         public void GroupsPayout()
         {
             int maxDistributions = 1000;    // Per group

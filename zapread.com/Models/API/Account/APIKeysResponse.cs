@@ -6,6 +6,9 @@ using System.Web;
 
 namespace zapread.com.Models.API.Account
 {
+    /// <summary>
+    /// Response to keys request
+    /// </summary>
     public class APIKeysResponse: ZapReadResponse
     {
         /// <summary>

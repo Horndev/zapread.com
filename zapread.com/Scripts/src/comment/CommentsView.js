@@ -159,11 +159,11 @@ function Comment(props) {
               )}
 
               {props.comment.IsDeleted || isIgnoredUser ? (<></>) : (<>
-                <a href={"/User/" + encodeURIComponent(props.comment.UserName)}>
+                <a href={"/User/" + encodeURIComponent(props.comment.UserName) + "/"}>
                   <img className={
                     "img-circle user-image-30"
                   } loading="lazy" width="30" height="30" src={
-                    "/Home/UserImage/?size=30&UserId=" + encodeURIComponent(props.comment.UserAppId) + "&v=" + props.comment.UserProfileImageVersion
+                    "/Home/UserImage/?size=30&UserId=" + encodeURIComponent(props.comment.UserAppId) + "&v=" + props.comment.ProfileImageVersion
                   } style={{ marginBottom: "10px" }} />
                 </a>
               </>)}
@@ -172,7 +172,7 @@ function Comment(props) {
                 {props.comment.IsDeleted ? (<>&nbsp;deleted&nbsp;</>) : (
                   <>
                     <a className="post-username userhint" data-userid={props.comment.UserId} href={
-                      "/User/" + encodeURIComponent(props.comment.ParentUserName)
+                      "/User/" + encodeURIComponent(props.comment.UserName) + "/"
                     }>
                       {props.comment.isIgnoredUser ? (<>&nbsp;(Ignored)&nbsp;</>) : (<>&nbsp;{props.comment.UserName}&nbsp;</>)}
                     </a>
@@ -184,7 +184,7 @@ function Comment(props) {
                     <>
                       &nbsp;replied to&nbsp;
                       <a className="userhint" data-userid={props.comment.ParentCommentId} href={
-                        "/User/" + encodeURIComponent(props.comment.ParentUserName)
+                        "/User/" + encodeURIComponent(props.comment.ParentUserName) + "/"
                         //"@Url.Action(actionName: " Index", controllerName: "User", routeValues: new {username = Model.ParentUserName.Trim()})"
                       }>
                         @{props.comment.ParentUserName}&nbsp;
