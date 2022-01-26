@@ -842,6 +842,7 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\API\Admin\APIAdminAccountingSummaryResponse.cs" />
     <Compile Include="Models\API\Core\GetLanguagesResponse.cs" />
     <Compile Include="Models\API\DataTables\DataTableParameters.cs" />
     <Compile Include="Models\API\Account\Transactions\LightningTransactionsPageResponse.cs" />
@@ -877,8 +878,8 @@
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
-    <Compile Include="Models\Finance\CurrencyModels.cs" />
-    <Compile Include="Models\Finance\FinanceModels.cs" />
+    <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
+    <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupStats.cs" />
@@ -1402,6 +1403,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Models\Finance\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Groups\" />
     <Folder Include="Views\Img\" />

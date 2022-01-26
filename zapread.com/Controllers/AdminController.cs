@@ -1436,7 +1436,11 @@ namespace zapread.com.Controllers
 
         #region Admin Panel
 
-        // GET: Admin
+        /// <summary>
+        /// Main Admin Panel 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Index()
         {
             if (!User.Identity.IsAuthenticated)
@@ -1773,6 +1777,9 @@ namespace zapread.com.Controllers
 
         #endregion
 
+        /// <summary>
+        /// Property filter for OWIN user manager
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -1785,6 +1792,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Property filter for OWIN Role Manager
+        /// </summary>
         public ApplicationRoleManager RoleManager
         {
             get

@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Web;
 using zapread.com.Database;
 using zapread.com.Models.Database;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Service for managing user achievements
+    /// </summary>
     public class AchievementsService
     {
-        public static List<IAchievementCriteria> Achievements = new List<IAchievementCriteria>()
+        /// <summary>
+        /// List of the available achievements
+        /// </summary>
+        public static readonly List<IAchievementCriteria> Achievements = new List<IAchievementCriteria>()
         {
             new FirstPost(),
             new FirstFollowing(),
@@ -26,6 +30,9 @@ namespace zapread.com.Services
             new ThousandImpressions(),
         };
 
+        /// <summary>
+        /// Check the database for any new achievements and award them
+        /// </summary>
         public void CheckAchievements()
         {
             using (var db = new ZapContext())
@@ -61,19 +68,25 @@ namespace zapread.com.Services
                     }
 
                     // Apply db updates to users
-                    foreach(var ukvp in uas)
+                    foreach (var ukvp in uas)
                     {
                         ukvp.Key.Achievements.Add(ukvp.Value);
                     }
-                    
+
                     db.SaveChanges();
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Post received 1000 impressions
+    /// </summary>
     public class ThousandImpressions : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "1,000 Impressions"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -86,8 +99,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FiveHunderedImpressions : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "500 Impressions"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -100,8 +120,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class HunderedImpressions : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "100 Impressions"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -114,8 +141,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstLNWithdraw : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First LN Withdraw"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -128,8 +162,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstLNDeposit : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "First LN Deposit"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -142,8 +183,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class HunderedThousandReputation : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "100,000 Reputation"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -156,8 +204,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class TenThousandReputation : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "10,000 Reputation"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -170,8 +225,15 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class OneThousandReputation : IAchievementCriteria
     {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
         public string Name { get => "1000 Reputation"; }
 
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
@@ -184,6 +246,10 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstComment : IAchievementCriteria
     {
         /// <summary>
@@ -201,6 +267,10 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstFollowed : IAchievementCriteria
     {
         /// <summary>
@@ -218,6 +288,10 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstFollowing : IAchievementCriteria
     {
         /// <summary>
@@ -235,6 +309,10 @@ namespace zapread.com.Services
             return newUsersAchieved;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class FirstPost : IAchievementCriteria
     {
         /// <summary>
