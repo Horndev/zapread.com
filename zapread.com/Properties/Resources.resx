@@ -135,6 +135,12 @@
   <data name="ErrorNotImplemented" xml:space="preserve">
     <value>Not yet implemented.</value>
   </data>
+  <data name="ErrorVoteFinanceUpdateBalance" xml:space="preserve">
+    <value>User funds spent before finished applying to vote.</value>
+  </data>
+  <data name="ErrorVoteFinanceUpdateBalanceHardFail" xml:space="preserve">
+    <value>Unable to save financials after 50 attempts.</value>
+  </data>
   <data name="MailErrorCommunityDistributionMessage" xml:space="preserve">
     <value>Error during community distribution.  Total to distribute is negative.</value>
   </data>

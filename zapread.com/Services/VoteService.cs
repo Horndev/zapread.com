@@ -20,6 +20,8 @@ namespace zapread.com.Services
             UserFunds from, 
             UserFunds to, 
             Group group, 
+            int originType,
+            int originId,
             double amountFrom, 
             double amountTo, 
             double amountGroup,
@@ -42,6 +44,13 @@ namespace zapread.com.Services
                 website.CommunityEarnedToDistribute += amountCommunity;
                 website.ZapReadTotalEarned += amountZapread;
                 website.ZapReadEarnedBalance += amountZapread;
+                website.EarningEvents.Add(new EarningEvent() { 
+                    Type = 3, //website
+                    Amount = amountZapread,
+                    TimeStamp = DateTime.UtcNow,
+                    OriginType = originType,
+                    OriginId = originId,
+                });
 
                 int attempts = 0;
                 bool saveFailed;
@@ -56,7 +65,7 @@ namespace zapread.com.Services
                         {
                             if (from.Balance < amountFrom)
                             {
-                                throw new Exception("User funds spent before finished applying to vote.");
+                                throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalance);
                             }
                             from.Balance -= amountFrom;
                         }
@@ -79,7 +88,7 @@ namespace zapread.com.Services
                     }
                     else
                     {
-                        throw new Exception("Unable to save financials after 50 attempts.");
+                        throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalanceHardFail);
                     }
                 }
                 while (saveFailed);
@@ -150,6 +159,8 @@ namespace zapread.com.Services
                     from: isAnonymous ? null    : fromFunds,
                     to:   isUpvote    ? toFunds : null,
                     group: post.Group,
+                    originType: 0,
+                    originId: post.PostId,
                     amountFrom: amount,
                     amountTo: isUpvote      ? 0.6 * amount   : 0,
                     amountGroup: isUpvote   ? 0.2 * amount   : 0.8 * amount,
@@ -296,6 +307,8 @@ namespace zapread.com.Services
                     from: isAnonymous ? null : fromFunds,
                     to: isUpvote ? toFunds : null,
                     group: comment.Post.Group,
+                    originType: 1,
+                    originId: Convert.ToInt32(comment.CommentId),
                     amountFrom: amount,
                     amountTo: isUpvote ? 0.6 * amount : 0,
                     amountGroup: isUpvote ? 0.2 * amount : 0.8 * amount,

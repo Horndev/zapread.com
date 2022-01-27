@@ -832,6 +832,10 @@
     <Compile Include="Migrations\202006021408393_addGroupImage.designer.cs">
       <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202201270152510_global_earning_spending.cs" />
+    <Compile Include="Migrations\202201270152510_global_earning_spending.designer.cs">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
@@ -1656,6 +1660,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202006021408393_addGroupImage.resx">
       <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202201270152510_global_earning_spending.resx">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
