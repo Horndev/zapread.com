@@ -32,6 +32,11 @@ namespace zapread.com.Services
             {
                 var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
 
+                if (website == null)
+                {
+                    throw new Exception(message: Properties.Resources.ErrorDatabaseNoWebsiteSettings);
+                }
+
                 if (group == null)
                 {
                     website.CommunityEarnedToDistribute += amountGroup;
