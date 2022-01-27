@@ -23,22 +23,37 @@ namespace zapread.com.Models
         // type?
     }
 
+    /// <summary>
+    /// Describes an earning by user or entity
+    /// </summary>
     public class EarningEvent
     {
         [Key]
         public int Id { get; set; }
 
-        // 0=direct, 1=group, 2=community
+        /// <summary>
+        /// 0=direct, 1=group, 2=community, 3=website
+        /// </summary>
         public int Type { get; set; }
 
-        // 0=post, 1=comment, 3=tip
+        /// <summary>
+        /// 0=post, 1=comment, 3=tip
+        /// </summary>
         public int OriginType { get; set; }
 
-        // This is the post or comment identifier
+        /// <summary>
+        /// This is the post or comment identifier
+        /// </summary>
         public int OriginId { get; set; }
 
+        /// <summary>
+        /// Amount in Satoshi
+        /// </summary>
         public double Amount { get; set; }
 
+        /// <summary>
+        /// Timestamp of event
+        /// </summary>
         public DateTime? TimeStamp { get; set; }
     }
 
@@ -58,6 +73,9 @@ namespace zapread.com.Models
         VoteUp = 1,
     }
 
+    /// <summary>
+    /// Records a lightning network transaction
+    /// </summary>
     public class LNTransaction
     {
         [Key]

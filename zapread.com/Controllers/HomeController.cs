@@ -559,7 +559,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var zapreadGlobals = await db.ZapreadGlobals
-                    .SingleOrDefaultAsync(i => i.Id == 1);
+                    .SingleOrDefaultAsync(i => i.Id == 1).ConfigureAwait(true);
 
                 // This is run only the first time the app is launched in the database.
                 // The global entry should only be created once in the database.
@@ -577,6 +577,8 @@ namespace zapread.com.Controllers
                         ZapReadTotalEarned = 0.0,
                         ZapReadTotalWithdrawn = 0.0,
                         LNWithdraws = new List<LNTransaction>(),
+                        EarningEvents = new List<EarningEvent>(),
+                        SpendingEvents = new List<SpendingEvent>(),
                     });
 
                     
@@ -607,6 +609,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// User does not want to continue tour - make note in cookie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Obsolete("This endpoint is not used and will be retired in a future version.")]
         [HttpPost]
         public async Task<JsonResult> DismissTour(int id)
         {

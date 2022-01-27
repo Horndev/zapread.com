@@ -115,6 +115,24 @@ namespace zapread.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User funds spent before finished applying to vote..
+        /// </summary>
+        internal static string ErrorVoteFinanceUpdateBalance {
+            get {
+                return ResourceManager.GetString("ErrorVoteFinanceUpdateBalance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to save financials after 50 attempts..
+        /// </summary>
+        internal static string ErrorVoteFinanceUpdateBalanceHardFail {
+            get {
+                return ResourceManager.GetString("ErrorVoteFinanceUpdateBalanceHardFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error during community distribution.  Total to distribute is negative..
         /// </summary>
         internal static string MailErrorCommunityDistributionMessage {

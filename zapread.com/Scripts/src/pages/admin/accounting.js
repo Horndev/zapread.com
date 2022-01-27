@@ -5,12 +5,15 @@
 import '../../shared/shared';
 import '../../realtime/signalr';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactDOM from "react-dom";
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
 
-import { Tabs, Tab } from 'react-bootstrap'
+import { Tabs, Tab, Button } from 'react-bootstrap'
 import Spreadsheet from "react-spreadsheet";
+import Picker from 'react-month-picker'
+
+import "react-month-picker/css/month-picker.css";
 
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
@@ -23,15 +26,38 @@ function useQuery() {
 
 function Page() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [monthYear, setMonthYear] = useState({ year: 2022, month: 1 });
 
   let query = useQuery();
+  let pickAMonth = useRef();
 
-  const data = [
-    [{ value: "Day" },         { value: "# Transactions" }, { value: "Volume (Sat)" }, { value: "Fees (Sat)" } ],
-    [{ value: "23 Jan 2022" }, { value: "152" }, { value: "10000" }, { value: "1000" }],
-    [{ value: "24 Jan 2022" }, { value: "189" }, { value: "50000" }, { value: "5000" }],
-    [{ value: "Total" },       { value: "xxxx" }, { value: "xxxx" }, { value: "xxxx" }],
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const seeddata = [
+    [{ value: "Day" }, { value: "# Transactions" }, { value: "Volume (Sat)" }, { value: "Fees (Sat)" }],
   ];
+
+  const [data, setData] = useState(seeddata);
+
+  const handleMYOnChange = (year, month) => {
+    setMonthYear({ year: year, month: month });
+  };
+
+  const handleMYOnClose = (value) => {
+    setMonthYear(value);
+  };
+
+  useEffect(() => {
+    async function getRevenue() {
+      await fetch(`/api/v1/admin/accounting/${monthYear.year}/${monthYear.month}/`) // api/v1/admin/accounting/{year}/{month}
+        .then(response => response.json())
+        .then(json => {
+          var adata = json.data.map(i => i.Cells)
+          setData(adata);
+        });
+    }
+    getRevenue();
+  }, [monthYear]);
 
   useEffect(() => {
     async function initialize() {
@@ -60,7 +86,7 @@ function Page() {
         </div>
       </div>
 
-      <div className="wrapper wrapper-content ">
+      <div className="wrapper wrapper-content white-bg">
         <div className="row">
           <div className="col-sm-2"></div>
           <div className="col-lg-8">
@@ -71,18 +97,29 @@ function Page() {
             <Tabs defaultActiveKey="overview" id="accounting-tabs-views">
               <Tab eventKey="overview" title="Overview">
                 <p>
-                  [Select month]
+                  TODO
                 </p>
               </Tab>
               <Tab eventKey="revenue" title="Revenue">
-                <p>
-                  [Select month]
-                </p>
+                <div>
+                  <Picker
+                    ref={pickAMonth}
+                    years={5}
+                    value={monthYear}
+                    lang={months}
+                    onChange={handleMYOnChange}
+                    onDismiss={handleMYOnClose}
+                  />
+                  <Button onClick={() => {
+                    pickAMonth.current.show();
+                  }}>{months[monthYear.month - 1]}-{monthYear.year}</Button>
+                </div>
+                <br />
                 <Spreadsheet data={data} />
               </Tab>
               <Tab eventKey="transactions" title="Transactions">
                 <p>
-                  [Select month]
+                  TODO
                 </p>
               </Tab>
             </Tabs>
