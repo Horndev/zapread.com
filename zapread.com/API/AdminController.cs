@@ -64,12 +64,91 @@ namespace zapread.com.API
         {
             using (var db = new ZapContext())
             {
-                var startDate = DateTime.Parse("1 January 2022");
-                
-                //var transactions = db.
-            }
+                var website = await db.ZapreadGlobals
+                    .Include(z => z.EarningEvents)
+                    .FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(false);
 
-            return Ok();
+                var startDate = new DateTime(year: year, month: month, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Utc);
+
+                var transactionsByday = website.EarningEvents.Where(e => e.TimeStamp.Value.Year == year && e.TimeStamp.Value.Month == month )
+                    .OrderBy(e => e.TimeStamp)
+                    .GroupBy(e => e.TimeStamp.Value.Day)
+                    .Select(e => new
+                    {
+                        day = e.Key,
+                        total = e.Sum(v => v.Amount),
+                        average = e.Average(v => v.Amount),
+                        count = e.Count(),
+                        posts = e.Count(v => v.OriginType == 0),
+                        comments = e.Count(v => v.OriginType == 1),
+                    })
+                    .ToList();
+
+                var header = new Row() { Cells = new List<Cell>() };
+                header.Cells.Add(new Cell() { value = "Year" });
+                header.Cells.Add(new Cell() { value = "Month" });
+                header.Cells.Add(new Cell() { value = "Day" });
+                header.Cells.Add(new Cell() { value = "Earned" });
+                header.Cells.Add(new Cell() { value = "Transactions" });
+                header.Cells.Add(new Cell() { value = "Average Earned" });
+                header.Cells.Add(new Cell() { value = "Posts" });
+                header.Cells.Add(new Cell() { value = "Comments" });
+
+                AccountingSummaryResponse response = new AccountingSummaryResponse() { data = new List<Row>() };
+
+                response.data.Add(header);
+
+                double totalEarned = 0;
+                double totalEvents = 0;
+                double totalPosts = 0;
+                double totalComments = 0;
+                foreach (var transaction in transactionsByday)
+                {                   
+                    var row = new Row() { Cells = new List<Cell>() };
+                    row.Cells.Add(new Cell() { value = year });
+                    row.Cells.Add(new Cell() { value = month });
+                    row.Cells.Add(new Cell() { value = transaction.day });
+                    row.Cells.Add(new Cell() { value = transaction.total });
+                    row.Cells.Add(new Cell() { value = transaction.count });
+                    row.Cells.Add(new Cell() { value = transaction.average });
+                    row.Cells.Add(new Cell() { value = transaction.posts });
+                    row.Cells.Add(new Cell() { value = transaction.comments });
+                    response.data.Add(row);
+                    totalEarned += transaction.total;
+                    totalEvents += transaction.count;
+                    totalPosts += transaction.posts;
+                    totalComments += transaction.comments;
+                }
+
+                var footer = new Row() { Cells = new List<Cell>() };
+                footer.Cells.Add(new Cell() { value = "Total:" });
+                footer.Cells.Add(new Cell() { value = "" });
+                footer.Cells.Add(new Cell() { value = "" });
+                footer.Cells.Add(new Cell() { value = totalEarned });
+                footer.Cells.Add(new Cell() { value = totalEvents });
+                footer.Cells.Add(new Cell() { value = "" });
+                footer.Cells.Add(new Cell() { value = totalPosts });
+                footer.Cells.Add(new Cell() { value = totalComments });
+
+                response.data.Add(footer);
+
+                return Ok(response);
+            }
+        }
+
+        private class AccountingSummaryResponse : ZapReadResponse
+        {
+            public List<Row> data;
+        }
+
+        private class Row
+        {
+            public List<Cell> Cells { get; set; }
+        }
+
+        private class Cell
+        {
+            public object value { get; set; }
         }
     }
 }
