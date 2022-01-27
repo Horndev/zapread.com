@@ -52,6 +52,47 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// Get status of current assets (total Zapread assets on Node + liquidity)
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/admin/accounting/summary")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GetAccountingSummary()
+        {
+            using (var db = new ZapContext())
+            {
+                var website = await db.ZapreadGlobals
+                    .Include(z => z.EarningEvents)
+                    .FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(false);
+
+                if (website == null)
+                {
+                    return InternalServerError();
+                }
+
+                return Ok();
+            }
+        }
+
+        /// <summary>
+        /// Get status of current assets (total Zapread assets on Node + liquidity)
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/accounting/assets/{year}/{month}")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GetAccountingAssets(int year, int month)
+        {
+            using (var db = new ZapContext())
+            {
+                return Ok();
+            }
+        }
+
+        /// <summary>
         /// Get a summary of the accounting liabilities (user balances)
         /// </summary>
         /// <param name="year"></param>
@@ -138,6 +179,11 @@ namespace zapread.com.API
                 var website = await db.ZapreadGlobals
                     .Include(z => z.EarningEvents)
                     .FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(false);
+
+                if (website == null)
+                {
+                    return InternalServerError();
+                }
 
                 var startDate = new DateTime(year: year, month: month, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Utc);
 
