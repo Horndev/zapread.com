@@ -117,6 +117,16 @@ function Page() {
                 <br />
                 <Spreadsheet data={data} />
               </Tab>
+              <Tab eventKey="liabilities" title="Liabilities">
+                <p>
+                  TODO
+                </p>
+              </Tab>
+              <Tab eventKey="assets" title="Assets">
+                <p>
+                  TODO
+                </p>
+              </Tab>
               <Tab eventKey="transactions" title="Transactions">
                 <p>
                   TODO
