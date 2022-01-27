@@ -1134,6 +1134,7 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
+    <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\pages\group\Components\CollapseBar.js" />
