@@ -52,15 +52,86 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// Get a summary of the accounting liabilities (user balances)
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/accounting/liability/{year}/{month}")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GetAccountingLiability(int year, int month)
+        {
+            using (var db = new ZapContext())
+            {
+                try
+                {
+
+                    var q = await db.Users.Where(u => u.Funds != null).Select(u => u.Funds)
+                        .GroupBy(u => u.IsWithdrawLocked)
+                        .Select(g => new
+                        {
+                            isWithdrawLocked = g.Key,
+                            balance = g.Sum(f => f.Balance),
+                            limbo = g.Sum(f => f.LimboBalance),
+                            count = g.Count()
+                        }).ToListAsync().ConfigureAwait(false);
+
+                    var header = new Row() { Cells = new List<Cell>() };
+                    header.Cells.Add(new Cell() { value = "Account Type" });
+                    header.Cells.Add(new Cell() { value = "User Count" });
+                    header.Cells.Add(new Cell() { value = "Balance (Sat)" });
+                    header.Cells.Add(new Cell() { value = "Limbo (Sat)" });
+                    header.Cells.Add(new Cell() { value = "Total (Sat)" });
+
+                    AccountingSummaryResponse response = new AccountingSummaryResponse() { data = new List<Row>() };
+                    response.data.Add(header);
+
+                    double totalUsers = 0;
+                    double totalBalance = 0;
+                    double totalLimbo = 0;
+                    foreach (var entry in q)
+                    {
+                        var row = new Row() { Cells = new List<Cell>() };
+                        row.Cells.Add(new Cell() { value = entry.isWithdrawLocked ? "Locked" : "Normal" });
+                        row.Cells.Add(new Cell() { value = entry.count });
+                        row.Cells.Add(new Cell() { value = entry.balance });
+                        row.Cells.Add(new Cell() { value = entry.limbo });
+                        row.Cells.Add(new Cell() { value = entry.balance+entry.limbo });
+                        response.data.Add(row);
+                        totalUsers += entry.count;
+                        totalBalance += entry.balance;
+                        totalLimbo += entry.limbo;
+                    }
+
+                    var footer = new Row() { Cells = new List<Cell>() };
+                    footer.Cells.Add(new Cell() { value = "Total:" });
+                    footer.Cells.Add(new Cell() { value = totalUsers });
+                    footer.Cells.Add(new Cell() { value = totalBalance });
+                    footer.Cells.Add(new Cell() { value = totalLimbo });
+                    footer.Cells.Add(new Cell() { value = totalBalance+ totalLimbo });
+
+                    response.data.Add(footer);
+
+                    return Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="year"></param>
         /// <param name="month"></param>
         /// <returns></returns>
-        [Route("api/v1/admin/accounting/{year}/{month}")]
+        [Route("api/v1/admin/accounting/revenue/daily/{year}/{month}")]
         [AcceptVerbs("GET")]
         [Authorize(Roles = "Administrator")]
-        public async Task<IHttpActionResult> GetAccountingSummary(int year, int month)
+        public async Task<IHttpActionResult> GetAccountingRevenueByDay(int year, int month)
         {
             using (var db = new ZapContext())
             {
@@ -126,7 +197,7 @@ namespace zapread.com.API
                 footer.Cells.Add(new Cell() { value = "" });
                 footer.Cells.Add(new Cell() { value = totalEarned });
                 footer.Cells.Add(new Cell() { value = totalEvents });
-                footer.Cells.Add(new Cell() { value = "" });
+                footer.Cells.Add(new Cell() { value = totalEvents > 0 ? totalEarned / totalEvents : 0 });
                 footer.Cells.Add(new Cell() { value = totalPosts });
                 footer.Cells.Add(new Cell() { value = totalComments });
 
