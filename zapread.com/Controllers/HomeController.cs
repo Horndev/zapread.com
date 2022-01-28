@@ -150,7 +150,11 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> UserImage(int? size, string UserId, string v, string r)
         {
-            if (size == null) size = 100;
+            if (!size.HasValue)
+            {
+                size = 100;
+            }
+
             if (UserId != null)
             {
                 // use the value passed
@@ -191,9 +195,10 @@ namespace zapread.com.Controllers
                 {
                     imgq = imgq.Where(im => im.Version == ver);
                 }
+
                 // Fetch image from image cache
                 var i = await imgq
-                    .Select(im => new { im.Image, im.ContentType })
+                    .Select(im => new { im.Image, im.ContentType, im.Version })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -207,12 +212,15 @@ namespace zapread.com.Controllers
                 {
                     // Check if non size-cached version exists
                     var uimq = db.Users.Where(u => u.AppId == UserId);
-                    if (ver > -1)
-                    { 
-                        uimq = uimq.Where(u => u.ProfileImage.Version == ver);
-                    }
+
+                    //if (ver > -1)
+                    //{ 
+                    //    uimq = uimq.Where(u => u.ProfileImage.Version == ver);
+                    //}
+
+                    // This is the most recent (current) user image
                     i = await uimq
-                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType})
+                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType, u.ProfileImage.Version})
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -234,7 +242,7 @@ namespace zapread.com.Controllers
                                     ContentType = "image/png",
                                     Image = data,
                                     UserAppId = UserId,
-                                    Version = ver,
+                                    Version = i.Version,//ver, // Not using requested version (this could lead to a bug)
                                     XSize = size.Value,
                                     YSize = size.Value,
                                 });

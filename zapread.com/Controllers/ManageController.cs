@@ -877,6 +877,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates the user profile image
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
@@ -925,7 +930,10 @@ namespace zapread.com.Controllers
 
                     var user = db.Users.First(u => u.AppId == userId);
                     UserImage i = new UserImage() { 
+                        UserAppId = user.AppId,
                         ContentType = "image/png",
+                        XSize = max_wh,
+                        YSize = max_wh,
                         Image = data, 
                         Version = user.ProfileImage.Version + 1 };
                     user.ProfileImage = i;

@@ -47,7 +47,7 @@ function Page() {
 
     let qgroupId = query.get("groupId");
     if (qgroupId != null & qgroupId > 0 & !isLoaded) {
-      console.log("Group: ", qgroupId)
+      //console.log("Group: ", qgroupId)
       setGroupId(qgroupId);
       postJson("/api/v1/groups/load/", {
         groupId: qgroupId
@@ -79,7 +79,7 @@ function Page() {
         postQuietly: postQuietly
       };
 
-      console.log(msg);
+      //console.log(msg);
 
       postJson("/Post/Submit/", msg)
         .then((response) => {
@@ -147,12 +147,12 @@ function Page() {
   }
 
   function handleNSFWChange(evt) {
-    console.log("handleNSFWChange", evt);
+    //console.log("handleNSFWChange", evt);
     setPostNSFW(evt.target.checked);
   }
 
   const handleSubmitPost = useCallback(() => {
-    console.log("submit post");
+    //console.log("submit post");
     var msg = {
       postId: postId,
       groupId: groupId,
@@ -164,11 +164,11 @@ function Page() {
       postQuietly: postQuietly
     };
 
-    console.log(msg);
+    //console.log(msg);
 
     postJson("/Post/Submit/", msg)
       .then((response) => {
-        console.log(response);
+        //console.log(response);
 
         // Navigate to the new post
         var newPostUrl = "/Post/Detail";
