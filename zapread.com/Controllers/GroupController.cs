@@ -318,13 +318,13 @@ namespace zapread.com.Controllers
                 var alert = new UserAlert()
                 {
                     TimeStamp = DateTime.Now,
-                    Title = "You're a mod for " + g.GroupName + " now!",
-                    Content = "You have been added as moderator for <a href=\"/Group/GroupDetail/" + g.GroupId + "/\">" + g.GroupName + "</a>.",
+                    Title = "You are now a moderator of " + g.GroupName + "!",
+                    Content = "You have been granted moderator privaleges for <a href=\"/Group/GroupDetail/" + g.GroupId + "/\">" + g.GroupName + "</a>.",
                     IsDeleted = false,
                     IsRead = false,
                     To = u,
                 };
-                db.Users.First(u => u.Id == id).Alerts.Add(alert);
+                u.Alerts.Add(alert);
 
                 await db.SaveChangesAsync();
             }
