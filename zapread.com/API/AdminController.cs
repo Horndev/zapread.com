@@ -107,7 +107,6 @@ namespace zapread.com.API
             {
                 try
                 {
-
                     var q = await db.Users.Where(u => u.Funds != null).Select(u => u.Funds)
                         .GroupBy(u => u.IsWithdrawLocked)
                         .Select(g => new
