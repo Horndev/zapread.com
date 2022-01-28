@@ -954,6 +954,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> UpdateUserAlias(string alias)
         {
             try
@@ -965,7 +966,7 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                ; // Todo - fixup unit test
+                // This will happen with unit test - should fix it.
             }
 
             string cleanName = alias.CleanUnicode().Trim().SanitizeXSS();

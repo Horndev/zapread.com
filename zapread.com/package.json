@@ -63,7 +63,7 @@
     "react-addons-shallow-compare": "^15.6.0",
     "react-autosuggest": "10.1.0",
     "react-bootstrap": "1.6.4",
-    "react-bootstrap-table-next": "4.0.1",
+    "react-bootstrap-table-next": "4.0.3",
     "react-bootstrap-table2-paginator": "2.1.2",
     "react-bs-datatable": "2.1.2",
     "react-dom": "^16.13.1",
@@ -86,10 +86,10 @@
     "sweetalert2": "9.10.9",
     "sweetalert2-react-content": "3.0.1",
     "tata-js": "0.1.5",
-    "tippy.js": "6.1.1",
+    "tippy.js": "6.3.7",
     "truncate": "2.0.1",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
+    "webpack": "4.46.0",
+    "webpack-cli": "4.9.2",
     "webrtc-adapter": "7.1.1"
   }
 }
