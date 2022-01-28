@@ -37,7 +37,8 @@ function Page() {
     [{ value: "Day" }, { value: "# Transactions" }, { value: "Volume (Sat)" }, { value: "Fees (Sat)" }],
   ];
 
-  const [data, setData] = useState(seeddata);
+  const [revenueData, setRevenueData] = useState(seeddata);
+  const [liabilityData, setLiabilityData] = useState(seeddata);
 
   const handleMYOnChange = (year, month) => {
     setMonthYear({ year: year, month: month });
@@ -47,15 +48,25 @@ function Page() {
     setMonthYear(value);
   };
 
+  async function getLiability() {
+    await fetch(`/api/v1/admin/accounting/liability/${monthYear.year}/${monthYear.month}/`)
+      .then(response => response.json())
+      .then(json => {
+        var adata = json.data.map(i => i.Cells)
+        setLiabilityData(adata);
+      });
+  }
+
+  async function getRevenue() {
+    await fetch(`/api/v1/admin/accounting/revenue/daily/${monthYear.year}/${monthYear.month}/`) // api/v1/admin/accounting/{year}/{month}
+      .then(response => response.json())
+      .then(json => {
+        var adata = json.data.map(i => i.Cells)
+        setRevenueData(adata);
+      });
+  }
+
   useEffect(() => {
-    async function getRevenue() {
-      await fetch(`/api/v1/admin/accounting/${monthYear.year}/${monthYear.month}/`) // api/v1/admin/accounting/{year}/{month}
-        .then(response => response.json())
-        .then(json => {
-          var adata = json.data.map(i => i.Cells)
-          setData(adata);
-        });
-    }
     getRevenue();
   }, [monthYear]);
 
@@ -63,6 +74,7 @@ function Page() {
     async function initialize() {
       if (!isLoaded) {
         setIsLoaded(true);
+        getLiability();
       }
     }
     initialize();
@@ -93,7 +105,10 @@ function Page() {
             <div className="social-feed-box-nb">
               <span></span>
             </div>
-
+            <Button onClick={() => {
+              getRevenue();
+              getLiability();
+            }}>Refresh</Button>
             <Tabs defaultActiveKey="overview" id="accounting-tabs-views">
               <Tab eventKey="overview" title="Overview">
                 <p>
@@ -113,9 +128,17 @@ function Page() {
                   <Button onClick={() => {
                     pickAMonth.current.show();
                   }}>{months[monthYear.month - 1]}-{monthYear.year}</Button>
+                  
                 </div>
-                <br />
-                <Spreadsheet data={data} />
+                <Spreadsheet data={revenueData} />
+              </Tab>
+              <Tab eventKey="liabilities" title="Liabilities">
+                <Spreadsheet data={liabilityData} />
+              </Tab>
+              <Tab eventKey="assets" title="Assets">
+                <p>
+                  TODO
+                </p>
               </Tab>
               <Tab eventKey="transactions" title="Transactions">
                 <p>
