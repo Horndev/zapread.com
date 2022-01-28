@@ -1,9 +1,10 @@
 ﻿const webpack = require("webpack");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
-  mode: "development",
+  mode: "production",//"development",
   entry: {
     account_login:  "./Scripts/src/pages/account/login.js",
     admin_achievements: "./Scripts/src/pages/admin/achievements.js",
@@ -47,6 +48,13 @@ module.exports = {
       return subpath + "/" + filename + ".js";
     }
   },
+  //optimization: {
+  //  minimizer: [
+  //    // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
+  //    // `...`,
+  //    new CssMinimizerPlugin(),
+  //  ],
+  //},
   module: {
     rules: [
       {
@@ -110,16 +118,10 @@ module.exports = {
       },
       {
         test: require.resolve("jquery"),
-        use: [
-          {
-            loader: "expose-loader",
-            options: "jQuery"
-          },
-          {
-            loader: "expose-loader",
-            options: "$"
-          }
-        ]
+        loader: "expose-loader",
+        options: {
+          exposes: ["$", "jQuery"]
+        }
       }
     ]
   },
