@@ -72,7 +72,7 @@ function Page() {
         postJson("/api/v1/groups/load/", {
             groupId: groupId
         }).then((response) => {
-            console.log(response);
+            //console.log(response);
             if (response.success) {
                 var groupLanguage = languageOptions.length > 0 ? languageOptions.find(o => o.value === response.group.DefaultLanguage) : { label: "", value: response.group.DefaultLanguage };
                 setLanguage(groupLanguage);

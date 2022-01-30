@@ -460,6 +460,7 @@
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\CoreController.cs" />
     <Compile Include="API\GroupsController.cs" />
+    <Compile Include="API\MessagesController.cs" />
     <Compile Include="API\PostController.cs" />
     <Compile Include="API\StreamController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -1189,9 +1190,12 @@
     <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
     <Content Include="Scripts\src\shared\topnavbar.js" />
+    <Content Include="Scripts\src\utility\patchData.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
+    <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\deleteData.js" />
     <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
