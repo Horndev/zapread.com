@@ -21,7 +21,9 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/core/languages/list")]
+#pragma warning disable CA1822 // Mark members as static
         public GetLanguagesResponse GetLanguages()
+#pragma warning restore CA1822 // Mark members as static
         {
             try
             {

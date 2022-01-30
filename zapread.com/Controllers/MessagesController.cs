@@ -451,35 +451,36 @@ namespace zapread.com.Controllers
         // GET: Messages
         public ActionResult Index()
         {
-            var userId = User.Identity.GetUserId();
-            if (userId == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            //var userId = User.Identity.GetUserId();
+            //if (userId == null)
+            //{
+            //    return RedirectToAction("Index", "Home");
+            //}
 
-            using (var db = new ZapContext())
-            {
-                var user = db.Users
-                    .Include("Alerts")
-                    .Include("Messages")
-                    .Include("Alerts.PostLink")
-                    .Include("Messages.PostLink")
-                    .Include("Messages.From")
-                    .Where(u => u.AppId == userId).First();
+            //using (var db = new ZapContext())
+            //{
+            //    var user = db.Users
+            //        .Include("Alerts")
+            //        .Include("Messages")
+            //        .Include("Alerts.PostLink")
+            //        .Include("Messages.PostLink")
+            //        .Include("Messages.From")
+            //        .Where(u => u.AppId == userId).First();
 
-                var messages = user.Messages
-                    .Where(m => !m.IsRead && !m.IsDeleted).ToList();
+            //    var messages = user.Messages
+            //        .Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
-                var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).ToList();
+            //    var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
-                var vm = new MessagesViewModel()
-                {
-                    Messages = messages,
-                    Alerts = alerts,
-                };
+            //    var vm = new MessagesViewModel()
+            //    {
+            //        Messages = messages,
+            //        Alerts = alerts,
+            //    };
 
-                return View(vm);
-            }
+            //    return View(vm);
+            //}
+            return View();
         }
 
         [Route("Messages/LoadOlder")]
@@ -877,7 +878,7 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include("Messages")
                         .Where(u => u.AppId == userId)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     if (user == null)
                     {
@@ -891,7 +892,7 @@ namespace zapread.com.Controllers
                         {
                             a.IsDeleted = true;
                         }
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { Result = "Success" });
                     }
 
@@ -903,7 +904,7 @@ namespace zapread.com.Controllers
                     }
 
                     msg.IsDeleted = true;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                     return Json(new { Result = "Success" });
                 }
             }
