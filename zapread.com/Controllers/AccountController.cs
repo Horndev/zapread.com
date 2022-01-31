@@ -490,11 +490,22 @@ namespace zapread.com.Controllers
 
         //
         // POST: /Account/Login
+        /// <summary>
+        /// Login
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            if (model == null)
+            {
+                return RedirectToAction("Login");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -503,14 +514,14 @@ namespace zapread.com.Controllers
             SignInStatus result;
 
             // Add administrator user impersonation code here (for debug)
-            string userNameToImpersonate = null;//"USERTOIMPERSONATE";
+            string userNameToImpersonate = null;//null; //"USERTOIMPERSONATE";
             if (userNameToImpersonate != null)
             {
                 var userToImpersonate = await UserManager
-                .FindByNameAsync(userNameToImpersonate);
+                    .FindByNameAsync(userNameToImpersonate).ConfigureAwait(true);
                 var identityToImpersonate = await UserManager
                     .CreateIdentityAsync(userToImpersonate,
-                        DefaultAuthenticationTypes.ApplicationCookie);
+                        DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
                 var authenticationManager = HttpContext.GetOwinContext().Authentication;
                 authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
                 authenticationManager.SignIn(new AuthenticationProperties()
@@ -528,17 +539,17 @@ namespace zapread.com.Controllers
                     userName: model.UserName,
                     password: model.Password,
                     isPersistent: model.RememberMe,
-                    shouldLockout: false);
+                    shouldLockout: false).ConfigureAwait(true);
             }
 
             switch (result)
             {
                 case SignInStatus.Success:
                     {
-                        var userId = await UserManager.FindByNameAsync(model.UserName);//User.Identity.GetUserId();
+                        var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true);//User.Identity.GetUserId();
                         using (var db = new ZapContext())
                         {
-                            await EnsureUserExists(userId.Id, db);
+                            await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
 
                             // Apply claims
                             var u = db.Users
@@ -548,7 +559,7 @@ namespace zapread.com.Controllers
 
                             var identity = await UserManager
                                 .CreateIdentityAsync(userId,
-                                DefaultAuthenticationTypes.ApplicationCookie);
+                                DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
 
                             identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
 

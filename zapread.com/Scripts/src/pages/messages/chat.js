@@ -40,22 +40,13 @@ var toolbarOptions = {
     container: [
         ['send'],
         ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        ['blockquote'/*, 'code-block'*/],
-        //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        ['blockquote'],
         [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-        //[{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-        //[{ 'direction': 'rtl' }],                         // text direction
-        //[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        ['link', 'image' /*,'video'*/ /*,'formula'*/],          // add's image support
-        //[{ 'font': [] }],
-        //[{ 'align': [] }],
+        ['link', 'image'],          // add's image support
         ['clean']                                         // remove formatting button
     ],
     handlers: {
-    //    'cancel': function () { },  //dummy - will be updated
         'save': function () { }   //dummy - will be updated
     }
 };
@@ -63,7 +54,6 @@ var toolbarOptions = {
 var icons = Quill.import('ui/icons');
 icons['send'] = 'Send <i class="fa fa-paper-plane"></i>';
 
-//$(document).ready(function () {
 ready(function () {
     var quill = new Quill("#editor-container", {
         modules: {
