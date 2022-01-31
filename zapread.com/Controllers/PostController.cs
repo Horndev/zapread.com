@@ -20,6 +20,7 @@ using zapread.com.Models.API.Account;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
+using zapread.com.Models.Posts;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -354,6 +355,13 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
+                var userInfo = await db.Users.Where(u => u.AppId == userId)
+                    .Select(u => new
+                    {
+                        u.Reputation,
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+
+
                 //await EnsureUserExists(userId, db).ConfigureAwait(true);
                 //var user = db.Users.Where(u => u.AppId == userId).First();
                 //var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
@@ -378,7 +386,7 @@ namespace zapread.com.Controllers
                 //    Languages = languages,
                 //};
 
-                return View();
+                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation });
             }
         }
 

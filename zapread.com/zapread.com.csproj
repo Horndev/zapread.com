@@ -900,6 +900,7 @@
     <Compile Include="Models\Messages\ChatsDataItem.cs" />
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
+    <Compile Include="Models\Posts\PostEditViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />

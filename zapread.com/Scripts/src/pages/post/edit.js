@@ -155,56 +155,63 @@ function Page() {
     setPostNSFW(evt.target.checked);
   }
 
+  async function doSubmit() {
+    //console.log("submit post");
+    var msg = {
+      postId: postId,
+      groupId: groupId,
+      content: postContent,
+      postTitle: postTitle,
+      language: postLanguage,
+      isDraft: false,
+      isNSFW: postNSFW,
+      postQuietly: postQuietly
+    };
+    //console.log(msg);
+    await postJson("/Post/Submit/", msg)
+      .then((response) => {
+        //console.log(response);
+        var newPostUrl = "/Post/Detail";
+        newPostUrl = newPostUrl + '/' + response.postId;
+        window.location.replace(newPostUrl);  // Navigate to the new post
+      });
+  }
+
   const handleSubmitPost = useCallback(() => {
-    RSwal.fire({
-      title: <p>Verify you are human</p>,
-      showCancelButton: true,
-      html:
-        <>
-          <div>
-            <LoadCanvasTemplate />
-            <input type="text" id="captcha" className="swal2-input" />
-          </div>
-        </>,
-      didOpen: () => {
-        loadCaptchaEnginge(6);
-      }
-    }).then((result) => {
-
-      let user_captcha_value = result.value.captcha;//document.getElementById('user_captcha_input').value;
-
-      if (validateCaptcha(user_captcha_value, false) == true) {
-        alert('Captcha Matched');
-      }
-
-      else {
-        alert('Captcha Does Not Match');
-      }
-
-      //console.log("submit post");
-      var msg = {
-        postId: postId,
-        groupId: groupId,
-        content: postContent,
-        postTitle: postTitle,
-        language: postLanguage,
-        isDraft: false,
-        isNSFW: postNSFW,
-        postQuietly: postQuietly
-      };
-
-      //console.log(msg);
-
-      postJson("/Post/Submit/", msg)
-        .then((response) => {
-          //console.log(response);
-
-          // Navigate to the new post
-          var newPostUrl = "/Post/Detail";
-          newPostUrl = newPostUrl + '/' + response.postId;
-          window.location.replace(newPostUrl);
-        });
-    })
+    var rep = document.getElementById('zruserinfo').getAttribute("data-reputation");
+    //console.log(rep);
+    if (rep > 5000) {
+      doSubmit();
+    }
+    else {
+      RSwal.fire({
+        title: <p>Verify you are human</p>,
+        showCancelButton: true,
+        html:
+          <>
+            <div>
+              <LoadCanvasTemplate />
+              <input type="text" id="user_captcha_input" className="swal2-input" autoComplete="off" />
+            </div>
+          </>,
+        footer: <><div style={{ textAlign: "center" }}>Captcha is required when reputation is below 5000.  Your reputation is {rep}.</div></>,
+        didOpen: () => {
+          loadCaptchaEnginge(6);
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          let user_captcha_value = document.getElementById('user_captcha_input').value;//result.value.captcha;//document.getElementById('user_captcha_input').value;
+          if (validateCaptcha(user_captcha_value, false) == true) {
+            doSubmit();
+          } else {
+            RSwal.fire({
+              html: <p>Captcha does not match</p>,
+              icon: 'error'
+            });
+          }
+        }
+      })
+    }
   }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);
 
   return (
