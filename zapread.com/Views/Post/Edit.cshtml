@@ -1,4 +1,7 @@
-﻿<div id="root"></div>
+﻿@model zapread.com.Models.Posts.PostEditViewModel
+
+<div id="zruserinfo" style="display:none;" data-reputation="@Model.UserReputation"></div>
+<div id="root"></div>
 
 @section Styles {
     @Styles.Render("~/bundles/post/edit/css")
