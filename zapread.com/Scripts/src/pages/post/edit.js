@@ -8,7 +8,9 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';// [✓]
 import { Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';       // [✓]
 import ReactDOM from 'react-dom';                                       // [✓]
 import { useLocation, BrowserRouter as Router } from 'react-router-dom';// [✓]
+import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
 import Swal from 'sweetalert2';                                         // [✓]
+import withReactContent from 'sweetalert2-react-content'
 import Input from '../../Components/Input/Input';                       // [✓]
 import Editor from './Components/Editor';                               // [✓]
 import DraftsTable from './Components/DraftsTable';                     // [✓]
@@ -17,6 +19,8 @@ import LanguagePicker from './Components/LanguagePicker';               // [✓]
 import { postJson } from '../../utility/postData';                      // [✓]
 import PageHeading from '../../components/page-heading';                // [✓]
 import '../../shared/sharedlast';                                       // [✓]
+
+const RSwal = withReactContent(Swal)
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -152,29 +156,55 @@ function Page() {
   }
 
   const handleSubmitPost = useCallback(() => {
-    //console.log("submit post");
-    var msg = {
-      postId: postId,
-      groupId: groupId,
-      content: postContent,
-      postTitle: postTitle,
-      language: postLanguage,
-      isDraft: false,
-      isNSFW: postNSFW,
-      postQuietly: postQuietly
-    };
+    RSwal.fire({
+      title: <p>Verify you are human</p>,
+      showCancelButton: true,
+      html:
+        <>
+          <div>
+            <LoadCanvasTemplate />
+            <input type="text" id="captcha" className="swal2-input" />
+          </div>
+        </>,
+      didOpen: () => {
+        loadCaptchaEnginge(6);
+      }
+    }).then((result) => {
 
-    //console.log(msg);
+      let user_captcha_value = result.value.captcha;//document.getElementById('user_captcha_input').value;
 
-    postJson("/Post/Submit/", msg)
-      .then((response) => {
-        //console.log(response);
+      if (validateCaptcha(user_captcha_value, false) == true) {
+        alert('Captcha Matched');
+      }
 
-        // Navigate to the new post
-        var newPostUrl = "/Post/Detail";
-        newPostUrl = newPostUrl + '/' + response.postId;
-        window.location.replace(newPostUrl);
-      });
+      else {
+        alert('Captcha Does Not Match');
+      }
+
+      //console.log("submit post");
+      var msg = {
+        postId: postId,
+        groupId: groupId,
+        content: postContent,
+        postTitle: postTitle,
+        language: postLanguage,
+        isDraft: false,
+        isNSFW: postNSFW,
+        postQuietly: postQuietly
+      };
+
+      //console.log(msg);
+
+      postJson("/Post/Submit/", msg)
+        .then((response) => {
+          //console.log(response);
+
+          // Navigate to the new post
+          var newPostUrl = "/Post/Detail";
+          newPostUrl = newPostUrl + '/' + response.postId;
+          window.location.replace(newPostUrl);
+        });
+    })
   }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);
 
   return (
