@@ -309,10 +309,13 @@ namespace zapread.com.Controllers
 
                 IQueryable<Post> postquery = null;
 
+                //var numposts = validposts.Count();// DEBUG
+
                 switch (sort)
                 {
                     case "Score":
                         postquery = QueryHelpers.OrderPostsByScore(validposts);
+                        //var numvalidposts = postquery.Count();
                         break;
                     case "Active":
                         postquery = QueryHelpers.OrderPostsByActive(validposts);
