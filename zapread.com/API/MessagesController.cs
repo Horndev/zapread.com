@@ -17,6 +17,81 @@ namespace zapread.com.API
     public class MessagesController : ApiController
     {
         /// <summary>
+        /// Get the list of user chats
+        /// </summary>
+        /// <param name="page">0..n</param>
+        /// <param name="pagesize">default 20</param>
+        /// <param name="sort">unread, recent (default)</param>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/chats/list/{page}/{pagesize?}/{sort?}")]
+        public async Task<IHttpActionResult> GetChats(int? page, int pagesize = 100, string sort = "recent")
+        {
+            using (var db = new ZapContext())
+            {
+                var user = await GetCurrentUser(db).ConfigureAwait(true);
+
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+
+                string userAppId = user.AppId;
+
+                // Get private messages
+                var chatsQ = db.Messages
+                    .Where(m => m.IsPrivateMessage == true)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.To.AppId == userAppId || m.From.AppId == userAppId)
+                    .Where(m => !(m.To.AppId == userAppId && m.From.AppId == userAppId)) // Can't chat with self
+                    .Select(m => new
+                    {
+                        m.Id,
+                        other = m.To.AppId == userAppId ? m.From : m.To,
+                        otherId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId,
+                        IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
+                        IsReplied = m.From.AppId == userAppId,
+                        m.TimeStamp,
+                    })
+                    .GroupBy(m => m.other)  // Group by person
+                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()); // Most recent
+
+                if (sort == "unread")
+                {
+                    chatsQ = chatsQ
+                        .OrderBy(q => q.IsRead);
+                } else if (sort == "recent")
+                {
+                    chatsQ = chatsQ
+                        .OrderByDescending(q => q.TimeStamp);
+                }
+
+                int numrec = await chatsQ.CountAsync().ConfigureAwait(true);
+
+                int startpage = page ?? 0;
+
+                var valuesQ = await chatsQ
+                    .Skip(startpage*pagesize)
+                    .Take(pagesize)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        FromName = u.other.Name,
+                        FromAppId = u.other.AppId,
+                        FromProfileImageVersion = u.other.ProfileImage.Version,
+                        FromOnline = u.other.IsOnline,
+                        u.IsRead,
+                        u.IsReplied,
+                        u.TimeStamp,
+                    })
+                    .AsNoTracking()
+                    .ToListAsync().ConfigureAwait(true);
+
+                return Ok(new { chats = valuesQ, numChats = numrec });
+            }
+        }
+
+        /// <summary>
         /// Get the alerts for a user
         /// </summary>
         /// <param name="page"></param>

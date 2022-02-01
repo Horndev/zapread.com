@@ -516,7 +516,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Chat view with a user
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("Messages/Chat/{username?}")]
+        [HttpGet]
         public async Task<ActionResult> Chat(string username)
         {
             var userAppId = User.Identity.GetUserId();
@@ -561,8 +567,25 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start)
+        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start, bool markRead = true)
         {
+            if (markRead)
+            {
+                // Set the last message from other to user as read
+                var lastmessage = await db.Messages
+                    .Where(m => m.IsPrivateMessage)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => (m.From.Id == otherUserId && m.To.Id == userId))
+                    .OrderByDescending(m => m.TimeStamp)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (lastmessage != null && !lastmessage.IsRead)
+                {
+                    lastmessage.IsRead = true;
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+            }
+
             return await db.Messages
                 .Where(m => m.IsPrivateMessage)
                 .Where(m => !m.IsDeleted)
