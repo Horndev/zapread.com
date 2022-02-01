@@ -29,7 +29,7 @@ namespace zapread.com.Helpers
 
                 if (!allLang)
                 {
-                    var languages = user.Languages == null ? new List<string>() { "en" } : user.Languages.Split(',').ToList();
+                    var languages = userLanguages ?? new List<string>() { "en" };
                     validposts = validposts
                         .Where(p => p.Language == null || languages.Contains(p.Language));
                 }

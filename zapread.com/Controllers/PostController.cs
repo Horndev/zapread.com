@@ -20,6 +20,7 @@ using zapread.com.Models.API.Account;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
+using zapread.com.Models.Posts;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -354,31 +355,12 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                //await EnsureUserExists(userId, db).ConfigureAwait(true);
-                //var user = db.Users.Where(u => u.AppId == userId).First();
-                //var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
-                //var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
-                //var post = new Post()
-                //{
-                //    Content = "",
-                //    UserId = user,
-                //    Group = postGroup,// ?? communityGroup,
-                //    Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
-                //};
-
-                // List of languages known
-                //var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                //    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                //    .Select(g => g.First())
-                //    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                //var vm = new NewPostViewModel()
-                //{
-                //    Post = post,
-                //    Languages = languages,
-                //};
-
-                return View();
+                var userInfo = await db.Users.Where(u => u.AppId == userId)
+                    .Select(u => new
+                    {
+                        u.Reputation,
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation });
             }
         }
 
