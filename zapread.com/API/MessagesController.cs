@@ -49,6 +49,7 @@ namespace zapread.com.API
                         m.Id,
                         other = m.To.AppId == userAppId ? m.From : m.To,
                         otherId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId,
+                        FromOnline = m.To.AppId == userAppId ? m.From.IsOnline : m.To.IsOnline,
                         IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
                         IsReplied = m.From.AppId == userAppId,
                         m.TimeStamp,
@@ -79,7 +80,7 @@ namespace zapread.com.API
                         FromName = u.other.Name,
                         FromAppId = u.other.AppId,
                         FromProfileImageVersion = u.other.ProfileImage.Version,
-                        FromOnline = u.other.IsOnline,
+                        u.FromOnline,
                         u.IsRead,
                         u.IsReplied,
                         u.TimeStamp,
