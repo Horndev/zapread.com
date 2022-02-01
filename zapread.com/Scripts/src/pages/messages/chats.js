@@ -75,7 +75,7 @@ function Page() {
                           }} style={{cursor: "pointer"}}>
                             <td>
                               <div style={{ display: "inline-block" }}>
-                                {chat.IsOnline ? (<>
+                                {chat.FromOnline ? (<>
                                   <span style={{ display: "inline", color: "green" }} data-toggle='tooltip' data-placement='bottom' title='Online'>
                                     <i className="fa fa-check-circle"></i>
                                   </span>
