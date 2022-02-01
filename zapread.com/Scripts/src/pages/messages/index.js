@@ -4,16 +4,13 @@
 
 import "../../shared/shared";
 import "../../realtime/signalr";
-
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Button } from "react-bootstrap";
 import ReactDOM from "react-dom";
-
 import PageHeading from "../../components/page-heading";
 import { deleteJson } from "../../utility/deleteData";
 import { putJson } from "../../utility/putData";
 import { ISOtoRelative } from "../../utility/datetime/posttime"
-
 import "../../shared/sharedlast";
 
 function Page() {
@@ -122,7 +119,6 @@ function Page() {
                   </Button>
                 </span>
               </div>
-
             </div>
             <div className="ibox-content">
               <div className="feed-activity-list" style={{ minHeight: "30px" }}>
@@ -175,7 +171,6 @@ function Page() {
             </div>
           </div>
         </Col>
-
         <Col lg={6}>
           <div className="ibox float-e-margins">
             <div className="ibox-title">

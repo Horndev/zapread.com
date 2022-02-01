@@ -26,9 +26,8 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        //[Authorize]
         [Route("api/v1/stream/request")]
-        public async Task<ConnectionInfoResponse> RequestConnection()
+        public ConnectionInfoResponse RequestConnection()
         {
             var url = ConfigurationManager.AppSettings.Get("wshost");
             if (base.User.Identity.IsAuthenticated)
@@ -38,7 +37,7 @@ namespace zapread.com.API
             }
             else
             {
-                url = url + "/notificationHub";
+                url += "/notificationHub";
             }
             return new ConnectionInfoResponse() 
             { 
