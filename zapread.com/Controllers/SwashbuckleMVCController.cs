@@ -7,9 +7,17 @@ using System.Web.Mvc;
 
 namespace ExporterWeb.Controllers
 {
+    /// <summary>
+    /// Swagger UI
+    /// </summary>
     public class SwashbuckleMVCController : Controller
     {
+        /// <summary>
+        /// Swagger UI main page
+        /// </summary>
+        /// <returns></returns>
         // GET: SwashbucckleMVC
+        [HttpGet]
         public ActionResult Index()
         {                        
             

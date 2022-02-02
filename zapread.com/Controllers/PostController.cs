@@ -63,11 +63,12 @@ namespace zapread.com.Controllers
                 _roleManager = value;
             }
         }
-        
+
         /// <summary>
         /// Fetch a draft post (by post ID)
         /// </summary>
         /// <param name="postId"></param>
+        /// <param name="isDraft"></param>
         /// <returns></returns>
         [Route("Post/Draft/Load")]
         [HttpPost]
@@ -89,7 +90,8 @@ namespace zapread.com.Controllers
                     .Where(p => p.IsDraft == isDraft)
                     .Where(p => p.IsDeleted == false)
                     .Where(p => p.PostId == postId)
-                    .Select(p => new { 
+                    .Select(p => new
+                    {
                         p.PostId,
                         p.Group.GroupId,
                         p.PostTitle,
@@ -304,8 +306,8 @@ namespace zapread.com.Controllers
                     .SelectMany(u => u.GroupModeration.Select(g => g.GroupId))
                     .ContainsAsync(post.Group.GroupId).ConfigureAwait(false);
 
-                if (post.UserId.AppId == userId 
-                    || UserManager.IsInRole(userId, "Administrator") 
+                if (post.UserId.AppId == userId
+                    || UserManager.IsInRole(userId, "Administrator")
                     || callingUserIsMod)
                 {
                     post.IsNSFW = !post.IsNSFW;
@@ -326,7 +328,7 @@ namespace zapread.com.Controllers
                     };
                     postOwner.Alerts.Add(alert);
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                    return Json(new { success=true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -383,7 +385,7 @@ namespace zapread.com.Controllers
                         DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
             }
         }
@@ -463,11 +465,6 @@ namespace zapread.com.Controllers
                         post.IsDraft = isDraft;
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         // We don't return yet - so notifications can be fired off.
-                    }
-                    else
-                    {
-                        post.IsDraft = isDraft;
-                        await db.SaveChangesAsync().ConfigureAwait(true);
 
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
@@ -475,14 +472,22 @@ namespace zapread.com.Controllers
                             try
                             {
                                 var mailer = DependencyResolver.Current.GetService<MailerController>();
-                                await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                                string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+
+                                BackgroundJob.Enqueue<MailingService>(
+                                    methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                             }
                             catch (Exception e)
                             {
                                 // noted.
                             }
                         }
-
+                    }
+                    else
+                    {
+                        post.IsDraft = isDraft;
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
                 }
@@ -514,7 +519,11 @@ namespace zapread.com.Controllers
                         try
                         {
                             var mailer = DependencyResolver.Current.GetService<MailerController>();
-                            await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
+                            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                            string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+
+                            BackgroundJob.Enqueue<MailingService>(
+                                methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                         }
                         catch (Exception e)
                         {
@@ -552,63 +561,6 @@ namespace zapread.com.Controllers
             }
             string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
             return contentStr;
-        }
-
-        private async Task AlertUsersNewPost(ZapContext db, User user, Post post, MailerController mailer)
-        {
-            var followUsers = db.Users
-                .Include("Alerts")
-                .Include("Settings")
-                .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
-
-            //testing - only email self
-            //var followUsers = db.Users
-            //    .Include("Alerts")
-            //    .Include("Settings")
-            //    .Where(u => u.Id == user.Id).ToList();
-
-            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-            string subject = "New post by user you are following: " + user.Name;
-            string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject).ConfigureAwait(true);
-
-            foreach (var u in followUsers)
-            {
-                // Add Alert
-                var alert = new UserAlert()
-                {
-                    TimeStamp = DateTime.Now,
-                    Title = "New post by a user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
-                    Content = "",//post.PostTitle,
-                    IsDeleted = false,
-                    IsRead = false,
-                    To = u,
-                    PostLink = post,
-                };
-
-                u.Alerts.Add(alert);
-
-                if (u.Settings == null)
-                {
-                    u.Settings = new UserSettings();
-                }
-
-                if (u.Settings.NotifyOnNewPostSubscribedUser)
-                {
-                    string followerEmail = UserManager.FindById(u.AppId).Email;
-
-                    // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
-                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                        new UserEmailModel()
-                        {
-                            Destination = followerEmail,
-                            Body = emailBody,
-                            Email = "",
-                            Name = "zapread.com",
-                            Subject = subject,
-                        }, "Notify", true));
-                }
-            }
-            await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
         private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)
