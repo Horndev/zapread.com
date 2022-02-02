@@ -20,7 +20,6 @@ namespace ExporterWeb.Controllers
         [HttpGet]
         public ActionResult Index()
         {                        
-            
             return View();
         }
     }
