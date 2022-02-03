@@ -588,7 +588,11 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> DeletePost(DeletePostMsg p)
         {

@@ -23,7 +23,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public static string EncryptString(string key, string plainText)
         {
-            byte[] iv = new byte[16];  // careful - for security should use different initialization vectors
+            byte[] iv = new byte[16]; // careful - for security should use different initialization vectors
             byte[] array;
 
             using (Aes aes = Aes.Create())
@@ -47,7 +47,7 @@ namespace zapread.com.Services
                 }
             }
 
-            return Base32.Base32Encoder.Encode(array);// Convert.ToBase64String(array);
+            return Base32.Base32Encoder.Encode(array); // Convert.ToBase64String(array);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace zapread.com.Services
         public static string DecryptString(string key, string cipherText)
         {
             byte[] iv = new byte[16];
-            byte[] buffer = Base32.Base32Encoder.Decode(cipherText);// Convert.FromBase64String(cipherText);
+            byte[] buffer = Base32.Base32Encoder.Decode(cipherText); // Convert.FromBase64String(cipherText);
 
             using (Aes aes = Aes.Create())
             {
@@ -78,7 +78,6 @@ namespace zapread.com.Services
                     }
                 }
             }
-
         }
     }
 }
