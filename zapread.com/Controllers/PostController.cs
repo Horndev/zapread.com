@@ -464,8 +464,6 @@ namespace zapread.com.Controllers
                     {
                         post.IsDraft = isDraft;
                         await db.SaveChangesAsync().ConfigureAwait(true);
-                        // We don't return yet - so notifications can be fired off.
-
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
                             // Send alerts to users subscribed to users
@@ -515,7 +513,6 @@ namespace zapread.com.Controllers
 
                     if (!isDraft && !postQuietly)
                     {
-                        // Send alerts to users subscribed to users
                         try
                         {
                             var mailer = DependencyResolver.Current.GetService<MailerController>();
@@ -531,7 +528,6 @@ namespace zapread.com.Controllers
                         }
                     }
                 }
-
                 return Json(new { success = true, postId = post.PostId });
             }
         }
@@ -592,6 +588,7 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
         }
 
+
         [HttpPost]
         public async Task<ActionResult> DeletePost(DeletePostMsg p)
         {
@@ -611,7 +608,6 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync().ConfigureAwait(false);
 
                 return Json(new { Success = true });
-                //return RedirectToAction("Index", "Home");
             }
         }
 
@@ -622,7 +618,7 @@ namespace zapread.com.Controllers
         /// <param name="vote">0 = downvote, 1 = upvote</param>
         /// <param name="postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
-        [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
+        [MvcSiteMapNode(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("Post/Detail/{PostId?}/{postTitle?}")]
         [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]

@@ -82,6 +82,9 @@
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Base32, Version=1.0.0.26, Culture=neutral, PublicKeyToken=3427d4dc8cee30c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Base32.1.0.0.26\lib\portable-net40+sl40+win+wp80\Base32.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -265,6 +268,9 @@
     </Reference>
     <Reference Include="Ninject.Web.WebApi, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.1\lib\net45\Ninject.Web.WebApi.dll</HintPath>
+    </Reference>
+    <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
+      <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
     </Reference>
     <Reference Include="PreMailer.Net, Version=2.2.0.0, Culture=neutral, PublicKeyToken=23e3f43e29cae17f, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.2.0\lib\net461\PreMailer.Net.dll</HintPath>
@@ -490,6 +496,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\SwashbuckleMVCController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -904,6 +911,7 @@
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
@@ -916,6 +924,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Services\AchievementsService.cs" />
+    <Compile Include="Services\CryptoService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -1013,6 +1022,8 @@
     <Content Include="Scripts\dist\post\edit.js" />
     <Content Include="Scripts\dist\post\postnotfound.css" />
     <Content Include="Scripts\dist\post\postnotfound.js" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.css" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.js" />
     <Content Include="Scripts\dist\user\achievements.css" />
     <Content Include="Scripts\dist\user\achievements.js" />
     <Content Include="Scripts\dist\user\index.css" />
@@ -1165,6 +1176,7 @@
     <Content Include="Scripts\src\pages\post\Components\PostVoteButtons.js" />
     <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
+    <Content Include="Scripts\src\pages\subscription\unsubscribe.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
@@ -1410,6 +1422,11 @@
     <Content Include="Scripts\src\quill-image-resize-module\README.md" />
     <Content Include="Views\Group\Edit.cshtml" />
     <Content Include="Views\Admin\Accounting.cshtml" />
+    <Content Include="Views\Subscription\Index.cshtml" />
+    <Content Include="Views\Subscription\Unsubscribe.cshtml" />
+    <Content Include="Views\Shared\_LayoutSubscriptions.cshtml" />
+    <Content Include="Views\Subscription\Confirm.cshtml" />
+    <Content Include="Views\Subscription\Subscribe.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

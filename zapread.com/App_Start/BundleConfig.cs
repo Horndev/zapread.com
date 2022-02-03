@@ -119,6 +119,7 @@ namespace zapread.com
             BundlePage(bundles, "post", "edit");
             BundlePage(bundles, "post", "newpost");
             BundlePage(bundles, "post", "postnotfound");
+            BundlePage(bundles, "subscription", "unsubscribe");
             BundlePage(bundles, "user", "achievements");
             BundlePage(bundles, "user", "index");
 
