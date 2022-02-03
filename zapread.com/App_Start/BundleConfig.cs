@@ -135,6 +135,10 @@ namespace zapread.com
             //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
             //            .WithLastModifiedToken());
 
+            /* Tarteaucitron */
+            bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(
+                        "~/node_modules/tarteaucitronjs/tarteaucitron.js"));
+
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
                         "~/node_modules/datatables.net/js/jquery.dataTables.min.js",

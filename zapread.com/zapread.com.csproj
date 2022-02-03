@@ -960,6 +960,8 @@
     <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\logos.png" />
+    <Content Include="Content\privacy.png" />
+    <Content Include="node_modules\tarteaucitronjs\tarteaucitron.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\admin\accounting.css" />
