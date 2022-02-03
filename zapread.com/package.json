@@ -83,6 +83,7 @@
     "sass-loader": "9.0.3",
     "selectize": "0.12.6",
     "selectize-bootstrap4-theme": "2.0.2",
+    "shelljs": ">=0.8.5",
     "signalr": "2.4.1",
     "signalr-no-jquery": "0.1.10",
     "style-loader": "1.3.0",
