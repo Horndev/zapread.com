@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -665,7 +666,7 @@ namespace zapread.com.Controllers
                     cookie.Value = setValue;
                 cookie.Expires = DateTime.Now.AddDays(365);
                 HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
-                HttpContext.Response.SetCookie(cookie);
+                //HttpContext.Response.SetCookie(cookie);
                 cookieResultValue = cookie.Value;
             }
 
@@ -706,7 +707,40 @@ namespace zapread.com.Controllers
                 }
 
                 var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
-                return Json(new { success = true, HTMLString = PostHTMLString }, JsonRequestBehavior.AllowGet);
+
+                string contentStr = PostHTMLString;
+
+                var cookie = HttpContext.Request.Cookies.Get("tarteaucitron");
+
+                var youtubeCookie = cookie.Value.Split('!').Select(i => i.Split('=')).Where(i => i.Length > 1).Where(i => i[0] == "zyoutube").FirstOrDefault();
+                if (youtubeCookie != null && youtubeCookie[1] == "false")
+                {
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(PostHTMLString);
+
+                    // Check links
+                    var postLinks = postDocument.DocumentNode.SelectNodes("//iframe/@src");
+                    if (postLinks != null)
+                    {
+                        foreach (var link in postLinks.ToList())
+                        {
+                            string url = link.GetAttributeValue("src", "");
+                            // replace links to embedded videos
+                            if (url.Contains("youtube"))
+                            {
+                                var uri = new Uri(url);
+                                string videoId = uri.Segments.Last();
+                                //string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                                string modElement = $"<div class='youtube_player' videoID='{videoId}' showinfo='0'></div>";
+                                var newNode = HtmlNode.CreateNode(modElement);
+                                link.ParentNode.ReplaceChild(newNode, link);
+                            }
+                        }
+                    }
+                    contentStr = postDocument.DocumentNode.OuterHtml;
+                }
+
+                return Json(new { success = true, HTMLString = contentStr }, JsonRequestBehavior.AllowGet);
             }
         }
 

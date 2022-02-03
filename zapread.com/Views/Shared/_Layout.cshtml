@@ -14,13 +14,15 @@
     @RenderSection("Styles", required: false)
     @Styles.Render("~/Content/style/textspinners")
     @*@if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
-    {
-        @Styles.Render("~/Content/css-dark")
-    }
-    else
-    {
-        @Styles.Render("~/Content/css")
-    }*@
+        {
+            @Styles.Render("~/Content/css-dark")
+        }
+        else
+        {
+            @Styles.Render("~/Content/css")
+        }*@
+    @Scripts.Render("~/bundles/tarteaucitron")
+    @*<script type="text/javascript" src="~/bundles/tarteaucitron"></script>*@
 </head>
 <body class="top-navigation gray-bg">
     @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
