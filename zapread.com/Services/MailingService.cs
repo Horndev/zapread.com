@@ -93,6 +93,11 @@ namespace zapread.com.Services
                                     if (follower.NotifyOnNewPostSubscribedUser)
                                     {
                                         string followerEmail = userManager.FindById(follower.AppId).Email;
+                                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                                        var userUnsubscribeId = CryptoService.EncryptString(key, follower.AppId);
+
+                                        postBody = postBody.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
                                         BackgroundJob.Enqueue<MailingService>(x => x.SendI(
                                             new UserEmailModel()
                                             {

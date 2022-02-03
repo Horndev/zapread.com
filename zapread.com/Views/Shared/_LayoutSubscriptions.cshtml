@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @RenderSection("Styles", required: false)
+</head>
+<body class="gray-bg" style="padding-top: 0px;">
+    <div @*id="wrapper"*@ class="@Html.PageClass()">
+        <div @*id="page-wrapper"*@ class="gray-bg @ViewBag.SpecialClass">
+            @RenderBody()
+        </div>
+    </div>
+    @RenderSection("scripts", required: false)  @*Handler for local scripts*@
+</body>
+</html>
