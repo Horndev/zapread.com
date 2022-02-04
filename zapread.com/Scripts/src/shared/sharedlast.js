@@ -10,6 +10,9 @@ import { ready } from '../utility/ready';                           // [✓]
 
 import "tarteaucitronjs/css/tarteaucitron.css";
 
+var tarteaucitronForceCDN = '/Content/';
+tarteaucitron.cdn = tarteaucitronForceCDN;
+
 // youtube
 tarteaucitron.services.zyoutube = {
   "key": "zyoutube",
