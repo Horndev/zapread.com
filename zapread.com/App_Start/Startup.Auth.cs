@@ -7,6 +7,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Owin.Security.Providers.GitHub;
+using Owin.Security.Providers.LnAuth;
 using Owin.Security.Providers.Reddit;
 using System;
 using System.Collections.Generic;
@@ -111,6 +112,11 @@ namespace zapread.com
             {
                 ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
+            });
+
+            app.UseLnAuthAuthentication(new LnAuthAuthenticationOptions() { 
+                ClientId = "xxx",
+                ClientSecret = "yyy",
             });
 
             //app.UseTwitterAuthentication(new TwitterAuthenticationOptions()

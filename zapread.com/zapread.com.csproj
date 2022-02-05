@@ -466,6 +466,7 @@
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\CoreController.cs" />
     <Compile Include="API\GroupsController.cs" />
+    <Compile Include="API\LnauthController.cs" />
     <Compile Include="API\MessagesController.cs" />
     <Compile Include="API\PostController.cs" />
     <Compile Include="API\StreamController.cs" />
@@ -846,6 +847,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\Account\LNAuthLoginView.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
     <Compile Include="Models\Admin\AdminAchievementsViewModel.cs" />
     <Compile Include="Models\Admin\AdminJobsViewModel.cs" />
@@ -1494,6 +1496,7 @@
     <Content Include="Views\Shared\_LayoutSubscriptions.cshtml" />
     <Content Include="Views\Subscription\Confirm.cshtml" />
     <Content Include="Views\Subscription\Subscribe.cshtml" />
+    <Content Include="Views\Lnauth\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -1768,6 +1771,10 @@
       <Project>{e09682cb-8e40-41dd-b36c-7fec758958c6}</Project>
       <Name>Microsoft.Owin.Security.ApiKey</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Owin.Security.Providers.Lnauth\Owin.Security.Providers.LnAuth.csproj">
+      <Project>{e85bca59-c58b-4634-a248-2f4fb9a1dfbd}</Project>
+      <Name>Owin.Security.Providers.LnAuth</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj">
       <Project>{803f9eb7-029c-45ac-ab81-135e60d5beae}</Project>
       <Name>Owin.Security.Providers.GitHub</Name>
@@ -1819,6 +1826,8 @@
           <DevelopmentServerPort>27543</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:27543/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://192.168.0.172:27543/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
