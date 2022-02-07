@@ -122,19 +122,19 @@ namespace zapread.com.API
                 return Json(new { status= "ERROR", reason= "Parameter error" }, JsonRequestBehavior.AllowGet);
             }
 
-            System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
-                    "Response from wallet:" + Environment.NewLine +
-                    "key:" + getparams.key + Environment.NewLine +
-                    "k1:" + getparams.k1 + Environment.NewLine +
-                    "sig:" + getparams.sig + Environment.NewLine);
+            //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+            //        "Response from wallet:" + Environment.NewLine +
+            //        "key:" + getparams.key + Environment.NewLine +
+            //        "k1:" + getparams.k1 + Environment.NewLine +
+            //        "sig:" + getparams.sig + Environment.NewLine);
 
             var isValid = CryptoService.VerifyHashSignatureSecp256k1(
                 pubKey: getparams.key,
                 hash: getparams.k1,
                 signature: getparams.sig);
 
-            System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
-                    "isValid:" + (isValid ? "True" : "False") + Environment.NewLine + Environment.NewLine);
+            //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+            //        "isValid:" + (isValid ? "True" : "False") + Environment.NewLine + Environment.NewLine);
 
             if (isValid)
             {

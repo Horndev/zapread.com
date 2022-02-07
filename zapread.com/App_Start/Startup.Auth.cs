@@ -186,17 +186,17 @@ namespace zapread.com
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Google_Secret"],
             });
 
-            app.UseRedditAuthentication(new RedditAuthenticationOptions()
-            {
-                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_ClientId"],
-                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_Secret"],
-            });
+            //app.UseRedditAuthentication(new RedditAuthenticationOptions()
+            //{
+            //    ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_ClientId"],
+            //    ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_Secret"],
+            //});
 
-            app.UseGitHubAuthentication(new GitHubAuthenticationOptions()
-            {
-                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
-                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
-            });
+            //app.UseGitHubAuthentication(new GitHubAuthenticationOptions()
+            //{
+            //    ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
+            //    ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
+            //});
 
             app.UseLnAuthAuthentication(new LnAuthAuthenticationOptions() { 
                 DomainURL = "http://192.168.0.172:27543",
