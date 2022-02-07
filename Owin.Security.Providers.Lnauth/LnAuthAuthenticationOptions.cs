@@ -35,9 +35,9 @@ namespace Owin.Security.Providers.LnAuth
             public string UserInfoEndpoint { get; set; }
         }
 
-        private const string AuthorizationEndPoint = "http://localhost:27543/lnauth/auth";//"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
-        private const string TokenEndpoint = "https://zapread.com/lnauth/login/oauth/access_token";
-        private const string UserInfoEndpoint = "https://api.zapread.com/user";
+        private const string AuthorizationEndPoint = "https://zapread.com/lnauth/auth"; //"http://localhost:27543/lnauth/auth"; //"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
+        private const string TokenEndpoint = "https://zapread.com/lnauth/login/oauth/access_token"; // Not used
+        private const string UserInfoEndpoint = "https://api.zapread.com/user"; // Not used
 
         /// <summary>
         ///     Gets or sets the a pinned certificate validator to use to validate the endpoints used
