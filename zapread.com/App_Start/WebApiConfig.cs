@@ -6,8 +6,15 @@ using System.Web.Http;
 
 namespace zapread.com.App_Start
 {
+    /// <summary>
+    /// Configure webapi2
+    /// </summary>
     public static class WebApiConfig
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services

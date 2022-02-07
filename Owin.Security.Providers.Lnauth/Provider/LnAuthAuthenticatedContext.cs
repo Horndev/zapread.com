@@ -19,17 +19,19 @@ namespace Owin.Security.Providers.LnAuth
         /// <param name="context">The OWIN environment</param>
         /// <param name="user">The JSON-serialized user</param>
         /// <param name="accessToken">GitHub Access token</param>
-        public LnAuthAuthenticatedContext(IOwinContext context, JObject user, string accessToken)
+        public LnAuthAuthenticatedContext(IOwinContext context, string linkingKey)
             : base(context)
         {
-            User = user;
-            AccessToken = accessToken;
+            LinkingKey = linkingKey;
 
-            Id = TryGetValue(user, "id");
-            Name = TryGetValue(user, "name");
-            Link = TryGetValue(user, "url");
-            UserName = TryGetValue(user, "login");
-            Email = TryGetValue(user, "email");
+            //User = user;
+            //AccessToken = accessToken;
+
+            //Id = TryGetValue(user, "id");
+            //Name = TryGetValue(user, "name");
+            //Link = TryGetValue(user, "url");
+            //UserName = TryGetValue(user, "login");
+            //Email = TryGetValue(user, "email");
         }
 
         /// <summary>
@@ -50,6 +52,8 @@ namespace Owin.Security.Providers.LnAuth
         /// Gets the GitHub user ID
         /// </summary>
         public string Id { get; private set; }
+
+        public string LinkingKey { get; private set; }
 
         /// <summary>
         /// Gets the user's name

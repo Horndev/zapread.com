@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
-  mode: "production",//"development",
+  mode: "development",//production",//"development",
   entry: {
     account_login:  "./Scripts/src/pages/account/login.js",
     admin_achievements: "./Scripts/src/pages/admin/achievements.js",
@@ -24,6 +24,7 @@ module.exports = {
     home_faq:       "./Scripts/src/pages/home/faq.js",
     home_index:     "./Scripts/src/pages/home/index.js",
     home_install:   "./Scripts/src/pages/home/install.js",
+    lnauth_login:   "./Scripts/src/pages/lnauth/login.js",
     mailer_default: "./Scripts/src/pages/mailer/default.js",
     manage_apikeys: "./Scripts/src/pages/manage/apikeys.js",
     manage_default: "./Scripts/src/pages/manage/default.js",

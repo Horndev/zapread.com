@@ -14,7 +14,7 @@ namespace Owin.Security.Providers.LnAuth
             /// Endpoint which is used to redirect users to request xx access
             /// </summary>
             /// <remarks>
-            /// Defaults to https://xxx/authorize
+            /// Defaults to https://domain.com/lnauth/auth
             /// </remarks>
             public string AuthorizationEndpoint { get; set; }
 
@@ -35,8 +35,8 @@ namespace Owin.Security.Providers.LnAuth
             public string UserInfoEndpoint { get; set; }
         }
 
-        private const string AuthorizationEndPoint = "https://zapread.com/login/oauth/authorize";
-        private const string TokenEndpoint = "https://zapread.com/login/oauth/access_token";
+        private const string AuthorizationEndPoint = "http://localhost:27543/lnauth/auth";//"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
+        private const string TokenEndpoint = "https://zapread.com/lnauth/login/oauth/access_token";
         private const string UserInfoEndpoint = "https://api.zapread.com/user";
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Owin.Security.Providers.LnAuth
         /// <summary>
         ///     The request path within the application's base path where the user-agent will be returned.
         ///     The middleware will process this request when it arrives.
-        ///     Default value is "/signin-lnauth".
+        ///     Default value is "/lnauth/signin".
         /// </summary>
         public PathString CallbackPath { get; set; }
 
@@ -82,6 +82,8 @@ namespace Owin.Security.Providers.LnAuth
             get { return Description.Caption; }
             set { Description.Caption = value; }
         }
+
+        public string DomainURL { get; set; }
 
         /// <summary>
         ///     Gets or sets the xx supplied Client ID
@@ -127,13 +129,13 @@ namespace Owin.Security.Providers.LnAuth
             : base("LnAuth")
         {
             Caption = Constants.DefaultAuthenticationType;
-            CallbackPath = new PathString("/signin-lnauth");
+            CallbackPath = new PathString("/lnauth/callback");
             AuthenticationMode = AuthenticationMode.Passive;
             Scope = new List<string>
             {
                 "user"
             };
-            BackchannelTimeout = TimeSpan.FromSeconds(60);
+            BackchannelTimeout = TimeSpan.FromSeconds(120);
             Endpoints = new LnAuthAuthenticationEndpoints
             {
                 AuthorizationEndpoint = AuthorizationEndPoint,

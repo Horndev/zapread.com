@@ -19,12 +19,12 @@ namespace Owin.Security.Providers.LnAuth
             LnAuthAuthenticationOptions options)
             : base(next, options)
         {
-            if (string.IsNullOrWhiteSpace(Options.ClientId))
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Resources.Exception_OptionMustBeProvided, "ClientId"));
-            if (string.IsNullOrWhiteSpace(Options.ClientSecret))
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Resources.Exception_OptionMustBeProvided, "ClientSecret"));
+            //if (string.IsNullOrWhiteSpace(Options.ClientId))
+            //    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+            //        Resources.Exception_OptionMustBeProvided, "ClientId"));
+            //if (string.IsNullOrWhiteSpace(Options.ClientSecret))
+            //    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+            //        Resources.Exception_OptionMustBeProvided, "ClientSecret"));
 
             _logger = app.CreateLogger<LnAuthAuthenticationMiddleware>();
 

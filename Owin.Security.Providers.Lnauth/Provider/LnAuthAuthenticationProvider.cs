@@ -28,7 +28,7 @@ namespace Owin.Security.Providers.LnAuth
         public Func<LnAuthReturnEndpointContext, Task> OnReturnEndpoint { get; set; }
 
         /// <summary>
-        /// Invoked whenever GitHub successfully authenticates a user
+        /// Invoked whenever Lnauth successfully authenticates a user
         /// </summary>
         /// <param name="context">Contains information about the login session as well as the user <see cref="System.Security.Claims.ClaimsIdentity"/>.</param>
         /// <returns>A <see cref="Task"/> representing the completed operation.</returns>

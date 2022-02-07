@@ -5,6 +5,7 @@ using System.Web;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using NBitcoin;
 
 /*  Bech32 code https://github.com/guillaumebonnot/bech32/blob/master/Bech32/Bech32Engine.cs
  *  
@@ -41,6 +42,59 @@ namespace zapread.com.Services
     /// </summary>
     public static class CryptoService
     {
+        /// <summary>
+        /// Verify a
+        /// </summary>
+        /// <param name="pubKey"></param>
+        /// <param name="hash"></param>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public static bool VerifyHashSignatureSecp256k1(string pubKey, string hash, string signature)
+        {
+            var secp256k1 = ECCurve.CreateFromValue("1.3.132.0.10");
+
+            // signature is DER encoded -> convert to 64 byte array
+            var sigBytes = HexStringToByteArray(signature);
+            
+            var p1len = sigBytes[3];
+            var sigp1 = sigBytes.Skip(4).SkipWhile(b => b == 0).Take(32).ToArray(); // Remove any 0 padded bytes
+            var p2len = sigBytes.Skip(4 + p1len + 1).Take(1).ToArray()[0];
+            var sigp2 = sigBytes.Skip(4 + p1len + 2).SkipWhile(b => b == 0).Take(32).ToArray(); // Remove any 0 padded bytes
+            var sig = sigp1.Concat(sigp2).ToArray();
+
+            PubKey pk = new PubKey(HexStringToByteArray(pubKey));
+            var pkBytes = pk.Decompress().ToBytes();
+
+            using (var dsa = ECDsa.Create(new ECParameters
+            {
+                Curve = secp256k1,
+                Q = new ECPoint
+                {
+                    // gets the {x,y} from the uncompressed public key
+                    X = pkBytes.Skip(1).Take(32).ToArray(),
+                    Y = pkBytes.Skip(33).ToArray(),
+                }
+            }))
+            {
+                var isValid = dsa.VerifyHash(HexStringToByteArray(hash), sig);
+
+                return isValid;
+            }
+        }
+
+        /// <summary>
+        /// Convert a hexadecimal string to an array of bytes
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public static byte[] HexStringToByteArray(string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                             .ToArray();
+        }
+
         /// <summary>
         /// 
         /// </summary>

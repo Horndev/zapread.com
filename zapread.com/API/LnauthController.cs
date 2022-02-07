@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using System.Security.Cryptography;
-using zapread.com.Services;
-using QRCoder;
-using System.IO;
+﻿using QRCoder;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 using zapread.com.Helpers;
 using zapread.com.Models.Account;
+using zapread.com.Services;
+
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Infrastructure;
 
 namespace zapread.com.API
 {
@@ -26,8 +28,8 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("lnauth")]
-        public ActionResult Login()
+        [Route("lnauth/auth")]
+        public ActionResult Login(string cb, string client_id, string redirect_uri, string scope, string state)
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
             {
@@ -61,12 +63,36 @@ namespace zapread.com.API
                 var vm = new LNAuthLoginView()
                 {
                     QrImageBase64 = base64String,
+                    client_id = client_id,
+                    redirect_uri = redirect_uri,
+                    state = state,
+                    k1 = k1str,
                 };
+
+                //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+                //    "Send to wallet:" + Environment.NewLine +
+                //    "req:" + dataStr + Environment.NewLine +
+                //    "url:" + url + Environment.NewLine);
+
+                // Create correlation cookie
+                // https://stackoverflow.com/questions/32768326/what-does-generatecorrelationid-and-validatecorrelationid-do
+                
+                //var dataProtector = app.CreateDataProtector(
+                //    typeof(LnAuthAuthenticationMiddleware).FullName,
+                //    Options.AuthenticationType, "v1");
+                //var StateDataFormat = new PropertiesDataFormat(dataProtector);
+
+                //properties = StateDataFormat.Unprotect(state);
+
+
 
                 return View(vm);
             }
         }
 
+        /// <summary>
+        /// Parameters received from wallet
+        /// </summary>
         public class Authparams
         {
             public string sig { get; set; }
@@ -74,6 +100,7 @@ namespace zapread.com.API
             public string key { get; set; }
             public string tag { get; set; }
             public string action { get; set; }
+            public string cb { get; set; }
         }
 
         /// <summary>
@@ -84,11 +111,45 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("lnauth/signin")]
-        public JsonResult Signin(Authparams getparams)
+        public async Task<JsonResult> Signin(Authparams getparams)
         {
-            //login code
+            // Examples
+            // https://github.com/chill117/lnurl-node/blob/master/lib/verifyAuthorizationSignature.js
+            // https://github.com/ko-redtruck/ln-auth-python/blob/master/app.py
 
-            return Json(new { status = "OK"}, JsonRequestBehavior.AllowGet);
+            if (getparams == null)
+            {
+                return Json(new { status= "ERROR", reason= "Parameter error" }, JsonRequestBehavior.AllowGet);
+            }
+
+            System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+                    "Response from wallet:" + Environment.NewLine +
+                    "key:" + getparams.key + Environment.NewLine +
+                    "k1:" + getparams.k1 + Environment.NewLine +
+                    "sig:" + getparams.sig + Environment.NewLine);
+
+            var isValid = CryptoService.VerifyHashSignatureSecp256k1(
+                pubKey: getparams.key,
+                hash: getparams.k1,
+                signature: getparams.sig);
+
+            System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+                    "isValid:" + (isValid ? "True" : "False") + Environment.NewLine + Environment.NewLine);
+
+            if (isValid)
+            {
+                // need to return user to callback endpoint
+                await NotificationService.SendLnAuthLoginNotification(
+                    userId: getparams.k1,
+                    callback: "/lnauth/callback",
+                    token: getparams.key).ConfigureAwait(true);
+            }
+            else
+            {
+                return Json(new { status = "ERROR", reason = "Unable to validate signature." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { status = "OK" }, JsonRequestBehavior.AllowGet);
         }
     }
 }

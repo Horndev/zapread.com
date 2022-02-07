@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 using Microsoft.Owin.Infrastructure;
 using Microsoft.Owin.Logging;
 using Microsoft.Owin.Security;
@@ -56,89 +57,111 @@ namespace Owin.Security.Providers.LnAuth
                 }
 
                 // OAuth2 10.12 CSRF
+
+                // Why does this fail!?
                 if (!ValidateCorrelationId(properties, _logger))
                 {
                     return new AuthenticationTicket(null, properties);
                 }
 
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = Request.IsSecure
+                };
+
+                string correlationKey = ".AspNet.Correlation." + Options.AuthenticationType;
+                Response.Cookies.Delete(correlationKey, cookieOptions);
+
                 var requestPrefix = Request.Scheme + "://" + Request.Host;
                 var redirectUri = requestPrefix + Request.PathBase + Options.CallbackPath;
 
-                // Build up the body for the token request
-                var body = new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>("code", code),
-                    new KeyValuePair<string, string>("redirect_uri", redirectUri),
-                    new KeyValuePair<string, string>("client_id", Options.ClientId),
-                    new KeyValuePair<string, string>("client_secret", Options.ClientSecret)
-                };
+                //// Build up the body for the token request
+                //var body = new List<KeyValuePair<string, string>>
+                //{
+                //    new KeyValuePair<string, string>("code", code),
+                //    new KeyValuePair<string, string>("redirect_uri", redirectUri),
+                //    new KeyValuePair<string, string>("client_id", Options.ClientId),
+                //    new KeyValuePair<string, string>("client_secret", Options.ClientSecret)
+                //};
 
-                // Request the token
-                var requestMessage = new HttpRequestMessage(HttpMethod.Post, Options.Endpoints.TokenEndpoint);
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                requestMessage.Content = new FormUrlEncodedContent(body);
-                var tokenResponse = await _httpClient.SendAsync(requestMessage);
-                tokenResponse.EnsureSuccessStatusCode();
-                var text = await tokenResponse.Content.ReadAsStringAsync();
+                //// Request the token
+                //var requestMessage = new HttpRequestMessage(HttpMethod.Post, Options.Endpoints.TokenEndpoint);
+                //requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //requestMessage.Content = new FormUrlEncodedContent(body);
+                //var tokenResponse = await _httpClient.SendAsync(requestMessage);
+                //tokenResponse.EnsureSuccessStatusCode();
+                //var text = await tokenResponse.Content.ReadAsStringAsync();
 
-                // Deserializes the token response
-                dynamic response = JsonConvert.DeserializeObject<dynamic>(text);
-                var accessToken = (string)response.access_token;
+                //// Deserializes the token response
+                //dynamic response = JsonConvert.DeserializeObject<dynamic>(text);
+                //var accessToken = (string)response.access_token;
 
                 // Get the xx user
-                var userRequest = new HttpRequestMessage(HttpMethod.Get, Options.Endpoints.UserInfoEndpoint + "?access_token=" + Uri.EscapeDataString(accessToken));
-                userRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var userResponse = await _httpClient.SendAsync(userRequest, Request.CallCancelled);
-                userResponse.EnsureSuccessStatusCode();
-                text = await userResponse.Content.ReadAsStringAsync();
-                var user = JObject.Parse(text);
+                //var userRequest = new HttpRequestMessage(HttpMethod.Get, Options.Endpoints.UserInfoEndpoint + "?access_token=" + Uri.EscapeDataString(accessToken));
+                //userRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //var userResponse = await _httpClient.SendAsync(userRequest, Request.CallCancelled);
+                //userResponse.EnsureSuccessStatusCode();
+                //text = await userResponse.Content.ReadAsStringAsync();
 
-                var context = new LnAuthAuthenticatedContext(Context, user, accessToken)
+                // shortcut extra oauth2 token request since lnauth is simpler with linking key
+                //var accessToken = code;
+
+                //var user = JObject.Parse("");
+
+                var context = new LnAuthAuthenticatedContext(Context, linkingKey: code)
                 {
                     Identity = new ClaimsIdentity(
                         Options.AuthenticationType,
                         ClaimsIdentity.DefaultNameClaimType,
                         ClaimsIdentity.DefaultRoleClaimType)
                 };
-                if (!string.IsNullOrEmpty(context.Id))
+
+                //if (!string.IsNullOrEmpty(context.Id))
+                //{
+                    context.Identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, code, XmlSchemaString, Options.AuthenticationType));
+                //}
+
+                if(!string.IsNullOrEmpty(context.LinkingKey))
                 {
-                    context.Identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, context.Id, XmlSchemaString, Options.AuthenticationType));
+                    context.Identity.AddClaim(new Claim("urn:lnurl-auth:linkingkey", context.LinkingKey, XmlSchemaString, Options.AuthenticationType));
                 }
-                if (!string.IsNullOrEmpty(context.UserName))
-                {
-                    context.Identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, context.UserName, XmlSchemaString, Options.AuthenticationType));
-                }
-                if (!string.IsNullOrEmpty(context.Email))
-                {
-                    context.Identity.AddClaim(new Claim(ClaimTypes.Email, context.Email, XmlSchemaString,
-                        Options.AuthenticationType));
-                }
-                else if (Options.Scope.Any(x=> x == "user" || x == "user:email"))
-                {
-                    var userRequest2 = new HttpRequestMessage(HttpMethod.Get, Options.Endpoints.UserInfoEndpoint + "/emails" + "?access_token=" + Uri.EscapeDataString(accessToken));
-                    userRequest2.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var userResponse2 = await _httpClient.SendAsync(userRequest2, Request.CallCancelled);
-                    userResponse2.EnsureSuccessStatusCode();
-                    text = await userResponse2.Content.ReadAsStringAsync();
-                    var emails = JsonConvert.DeserializeObject<List<UserEmail>>(text);
-                    if (emails.Any())
-                    {
-                        var primaryEmail = emails.FirstOrDefault(x => x.Primary && x.Verified);
-                        if (primaryEmail != null)
-                        {
-                            context.Identity.AddClaim(new Claim(ClaimTypes.Email, primaryEmail.Email, XmlSchemaString,
-                        Options.AuthenticationType));
-                        }
-                    }
-                }
-                if (!string.IsNullOrEmpty(context.Name))
-                {
-                    context.Identity.AddClaim(new Claim("urn:github:name", context.Name, XmlSchemaString, Options.AuthenticationType));
-                }
-                if (!string.IsNullOrEmpty(context.Link))
-                {
-                    context.Identity.AddClaim(new Claim("urn:github:url", context.Link, XmlSchemaString, Options.AuthenticationType));
-                }
+
+                //if (!string.IsNullOrEmpty(context.UserName))
+                //{
+                    context.Identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, "LNAUTH", XmlSchemaString, Options.AuthenticationType));
+                //}
+                //if (!string.IsNullOrEmpty(context.Email))
+                //{
+                    context.Identity.AddClaim(new Claim(ClaimTypes.Email, "", XmlSchemaString, Options.AuthenticationType));
+                //}
+                //else if (Options.Scope.Any(x=> x == "user" || x == "user:email"))
+                //{
+                //    var userRequest2 = new HttpRequestMessage(HttpMethod.Get, Options.Endpoints.UserInfoEndpoint + "/emails" + "?access_token=" + Uri.EscapeDataString(accessToken));
+                //    userRequest2.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //    var userResponse2 = await _httpClient.SendAsync(userRequest2, Request.CallCancelled);
+                //    userResponse2.EnsureSuccessStatusCode();
+                //    text = await userResponse2.Content.ReadAsStringAsync();
+                //    var emails = JsonConvert.DeserializeObject<List<UserEmail>>(text);
+                //    if (emails.Any())
+                //    {
+                //        var primaryEmail = emails.FirstOrDefault(x => x.Primary && x.Verified);
+                //        if (primaryEmail != null)
+                //        {
+                //            context.Identity.AddClaim(new Claim(ClaimTypes.Email, primaryEmail.Email, XmlSchemaString,
+                //        Options.AuthenticationType));
+                //        }
+                //    }
+                //}
+                //if (!string.IsNullOrEmpty(context.Name))
+                //{
+                //    context.Identity.AddClaim(new Claim("urn:github:name", context.Name, XmlSchemaString, Options.AuthenticationType));
+                //}
+                //if (!string.IsNullOrEmpty(context.Link))
+                //{
+                //    context.Identity.AddClaim(new Claim("urn:github:url", context.Link, XmlSchemaString, Options.AuthenticationType));
+                //}
+
                 context.Properties = properties;
 
                 await Options.Provider.Authenticated(context);
@@ -185,6 +208,17 @@ namespace Owin.Security.Providers.LnAuth
 
             // OAuth2 10.12 CSRF
             GenerateCorrelationId(properties);
+
+            // This is to fix an owin bug
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsSecure
+            };
+
+            string correlationKey = ".AspNet.Correlation." + Options.AuthenticationType;
+
+            Response.Cookies.Append(correlationKey, properties.Dictionary[correlationKey], cookieOptions);
 
             // comma separated
             var scope = string.Join(",", Options.Scope);
