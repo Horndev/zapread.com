@@ -41,8 +41,8 @@ namespace zapread.com.API
 
                 var host = Request.Url;
 
-                //var url = host.GetLeftPart(UriPartial.Authority) + "/lnauth/signin?tag=login&k1=" + k1str;
-                var url = "http://192.168.0.172:27543" + "/lnauth/signin?tag=login&k1=" + k1str;
+                var url = host.GetLeftPart(UriPartial.Authority) + "/lnauth/signin?tag=login&k1=" + k1str;
+                //var url = "http://192.168.0.172:27543" + "/lnauth/signin?tag=login&k1=" + k1str;
 
                 var dataStr = CryptoService.Bech32.EncodeString(url);
 
