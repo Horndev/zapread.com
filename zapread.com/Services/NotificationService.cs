@@ -39,6 +39,26 @@ namespace zapread.com.Services
             }
         }
 
+        public async static Task SendLnAuthLoginNotification(string userId, string callback, string token)
+        {
+            var url = ConfigurationManager.AppSettings.Get("wshost");
+            url = url + "/api/";
+            RestClient client = new RestClient(url);
+            var request = (new RestRequest("auth/lnauthcb", Method.POST) { RequestFormat = DataFormat.Json })
+                .AddJsonBody(new
+                {
+                    toUserId = userId,
+                    Callback = callback,
+                    Token = token,
+                });
+
+            var response = await client.ExecuteAsync(request).ConfigureAwait(true);
+            if (response.IsSuccessful)
+            {
+                // Good!
+            }
+        }
+
         public async static Task SendIncomeNotification(double amount, string userId, string reason, string clickUrl)
         {
             string message = "You just earned " + amount.ToString("0.##", CultureInfo.InvariantCulture) + " Satoshi.";

@@ -22,18 +22,33 @@ namespace zapread.com.API
     public class StreamController : ApiController
     {
         /// <summary>
-        /// Request connection information for a streaming socket.
+        /// Added default route for request since optional parameter was not working
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/stream/request")]
-        public ConnectionInfoResponse RequestConnection()
+        public ConnectionInfoResponse RequestDefaultConnection()
+        {
+            return RequestConnection(null);
+        }
+        /// <summary>
+        /// Request connection information for a streaming socket.
+        /// </summary>
+        /// <param name="ctoken">connection token to use for stream subscription when not authenticated</param>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/stream/request/{ctoken?}")]
+        public ConnectionInfoResponse RequestConnection(string ctoken)
         {
             var url = ConfigurationManager.AppSettings.Get("wshost");
             if (base.User.Identity.IsAuthenticated)
             {
                 var token = User.Identity.GetUserId();
                 url = url + "/notificationHub?a=" + token;
+            }
+            else if(ctoken != null)
+            {
+                url = url + "/notificationHub?a=" + ctoken;
             }
             else
             {

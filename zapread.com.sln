@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29728.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zapread.com", "zapread.com\zapread.com.csproj", "{ECCE89DD-7AD3-4109-9F7C-32292EAC36AD}"
 EndProject
@@ -23,7 +23,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Owin.Security.Api
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "realtime.zapread.com", "realtime.zapread.com\realtime.zapread.com.csproj", "{2217068A-E96C-45D5-B78D-C1352EDAEC86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zapread.com-core", "zapread.com-core\zapread.com-core.csproj", "{B3562C9A-D124-4B7A-81FA-BA77606B7E36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "zapread.com-core", "zapread.com-core\zapread.com-core.csproj", "{B3562C9A-D124-4B7A-81FA-BA77606B7E36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Security.Providers.LnAuth", "Owin.Security.Providers.Lnauth\Owin.Security.Providers.LnAuth.csproj", "{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,12 @@ Global
 		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3562C9A-D124-4B7A-81FA-BA77606B7E36}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85BCA59-C58B-4634-A248-2F4FB9A1DFBD}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

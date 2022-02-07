@@ -20,7 +20,11 @@
                 <p>
                     @foreach (AuthenticationDescription p in loginProviders)
                     {
-                        if (p.AuthenticationType == "Google")
+                        if (p.AuthenticationType == "LnAuth")
+                        {
+                            <button type="submit" class="btn btn-social" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-bolt"></span> Lnurl-auth</button>
+                        }
+                        else if (p.AuthenticationType == "Google")
                         {
                             <button type="submit" class="btn btn-social btn-google" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-google"></span> Google</button>
                         }

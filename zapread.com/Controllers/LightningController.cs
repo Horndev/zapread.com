@@ -505,25 +505,33 @@ namespace zapread.com.Controllers
                             return Json(new { success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) + ", invoice is for " + decoded.num_satoshis + "." });
                         }
 
+                        // This is less than ideal for time checks...
+
                         // Check how much user withdrew previous 24 hours
-                        var withdrawn24h = await db.Users
-                            .Where(u => u.AppId == userAppId)
-                            .SelectMany(u => u.LNTransactions)
+                        var DayAgo = DateTime.UtcNow - TimeSpan.FromDays(1);
+
+                        var txs = await db.LightningTransactions
+                            .Where(tx => tx.User.AppId == userAppId)
+                            .Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > DayAgo)
                             .Where(tx => !tx.IsDeposit)
-                            .Where(tx => tx.TimestampCreated > DateTime.UtcNow - TimeSpan.FromDays(1))
-                            .SumAsync(tx => tx.Amount).ConfigureAwait(true);
+                            .Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+
+                        var withdrawn24h = txs.Sum();
 
                         if (withdrawn24h > 100000)
                         {
                             return Json(new { success = false, message = "Withdraws limited to 100,000 Satoshi within a 24 hour limit." });
                         }
 
-                        var withdrawn1h = await db.Users
-                            .Where(u => u.AppId == userAppId)
-                            .SelectMany(u => u.LNTransactions)
+                        var HourAgo = DateTime.UtcNow - TimeSpan.FromHours(1);
+
+                        var txs1h = await db.LightningTransactions
+                            .Where(tx => tx.User.AppId == userAppId)
+                            .Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > HourAgo)
                             .Where(tx => !tx.IsDeposit)
-                            .Where(tx => tx.TimestampCreated > DateTime.UtcNow - TimeSpan.FromHours(1))
-                            .SumAsync(tx => tx.Amount).ConfigureAwait(true);
+                            .Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+
+                        var withdrawn1h = txs1h.Sum();
 
                         if (withdrawn1h > 50000)
                         {
