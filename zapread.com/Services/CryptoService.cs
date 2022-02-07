@@ -168,7 +168,6 @@ namespace zapread.com.Services
             // charset is the sequence of ascii characters that make up the bech32
             // alphabet.  Each character represents a 5-bit squashed byte.
             // q = 0b00000, p = 0b00001, z = 0b00010, and so on.
-
             private const string charset = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 
             // icharset is a mapping of 8-bit ascii characters to the charset
@@ -208,8 +207,12 @@ namespace zapread.com.Services
                 return chk;
             }
 
-
-            // on error, data == null
+            /// <summary>
+            /// on error, data == null
+            /// </summary>
+            /// <param name="encoded"></param>
+            /// <param name="hrp"></param>
+            /// <param name="data"></param>
             public static void Decode(string encoded, out string hrp, out byte[] data)
             {
                 byte[] squashed;

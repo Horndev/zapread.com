@@ -48,7 +48,7 @@ namespace zapread.com.API
 
                 // Make it a qr
                 QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataStr, QRCodeGenerator.ECCLevel.L);//, forceUtf8: true);
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataStr, QRCodeGenerator.ECCLevel.L); //, forceUtf8: true);
                 QRCode qrCode = new QRCode(qrCodeData);
                 Bitmap qrCodeImage = qrCode.GetGraphic(20);
                 MemoryStream ms = new MemoryStream();
@@ -57,8 +57,6 @@ namespace zapread.com.API
                 Image png = Image.FromStream(ms);
                 byte[] imgdata = png.ToByteArray(ImageFormat.Png);
                 var base64String = Convert.ToBase64String(imgdata);
-
-                //return File(ms.ToArray(), "image/png");
 
                 var vm = new LNAuthLoginView()
                 {
@@ -73,19 +71,6 @@ namespace zapread.com.API
                 //    "Send to wallet:" + Environment.NewLine +
                 //    "req:" + dataStr + Environment.NewLine +
                 //    "url:" + url + Environment.NewLine);
-
-                // Create correlation cookie
-                // https://stackoverflow.com/questions/32768326/what-does-generatecorrelationid-and-validatecorrelationid-do
-                
-                //var dataProtector = app.CreateDataProtector(
-                //    typeof(LnAuthAuthenticationMiddleware).FullName,
-                //    Options.AuthenticationType, "v1");
-                //var StateDataFormat = new PropertiesDataFormat(dataProtector);
-
-                //properties = StateDataFormat.Unprotect(state);
-
-
-
                 return View(vm);
             }
         }

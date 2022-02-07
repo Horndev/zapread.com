@@ -36,15 +36,11 @@ namespace zapread.com.Tests.Controllers
             var secp256k1 = ECCurve.CreateFromValue("1.3.132.0.10");
             // signature is DER encoded -> convert to 64 byte array
 
-
-
-            
             var p1len = signature[3];
             var sigp1 = signature.Skip(4).SkipWhile(b => b == 0).Take(32).ToArray(); // Remove any 0 padded bytes
             var p2len = signature.Skip(4+p1len+1).Take(1).ToArray()[0];
             var sigp2 = signature.Skip(4+p1len+2).SkipWhile(b => b == 0).Take(32).ToArray(); // Remove any 0 padded bytes
             var sig = sigp1.Concat(sigp2).ToArray();
-            ;
             // decompress the public key
 
             //var i = publicKey[0];
@@ -82,7 +78,7 @@ namespace zapread.com.Tests.Controllers
                     X = pkX,
                     Y = pkY,
                 }
-            }); ;
+            });
 
             var isValid = dsa.VerifyHash(hash, sig);
 
