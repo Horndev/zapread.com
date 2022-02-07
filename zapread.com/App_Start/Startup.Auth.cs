@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
+using Microsoft.Owin.Infrastructure;
 using Microsoft.Owin.Security.ApiKey;
 using Microsoft.Owin.Security.ApiKey.Contexts;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Owin.Security.Providers.GitHub;
+using Owin.Security.Providers.LnAuth;
 using Owin.Security.Providers.Reddit;
 using System;
 using System.Collections.Generic;
@@ -26,6 +28,87 @@ namespace zapread.com
             return request.Uri.LocalPath.StartsWith(apiPath);
         }
 
+        //https://stackoverflow.com/questions/20737578/asp-net-sessionid-owin-cookies-do-not-send-to-browser
+        public class SystemWebCookieManager : ICookieManager
+        {
+            public string GetRequestCookie(IOwinContext context, string key)
+            {
+                if (context == null)
+                {
+                    throw new ArgumentNullException("context");
+                }
+
+                var webContext = context.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
+                var cookie = webContext.Request.Cookies[key];
+                return cookie == null ? null : cookie.Value;
+            }
+
+            public void AppendResponseCookie(IOwinContext context, string key, string value, CookieOptions options)
+            {
+                if (context == null)
+                {
+                    throw new ArgumentNullException("context");
+                }
+                if (options == null)
+                {
+                    throw new ArgumentNullException("options");
+                }
+
+                var webContext = context.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
+
+                bool domainHasValue = !string.IsNullOrEmpty(options.Domain);
+                bool pathHasValue = !string.IsNullOrEmpty(options.Path);
+                bool expiresHasValue = options.Expires.HasValue;
+
+                var cookie = new HttpCookie(key, value);
+                if (domainHasValue)
+                {
+                    cookie.Domain = options.Domain;
+                }
+                if (pathHasValue)
+                {
+                    cookie.Path = options.Path;
+                }
+                if (expiresHasValue)
+                {
+                    cookie.Expires = options.Expires.Value;
+                }
+                if (options.Secure)
+                {
+                    cookie.Secure = true;
+                }
+                if (options.HttpOnly)
+                {
+                    cookie.HttpOnly = true;
+                }
+
+                webContext.Response.AppendCookie(cookie);
+            }
+
+            public void DeleteCookie(IOwinContext context, string key, CookieOptions options)
+            {
+                if (context == null)
+                {
+                    throw new ArgumentNullException("context");
+                }
+                if (options == null)
+                {
+                    throw new ArgumentNullException("options");
+                }
+
+                AppendResponseCookie(
+                    context,
+                    key,
+                    string.Empty,
+                    new CookieOptions
+                    {
+                        Path = options.Path,
+                        Domain = options.Domain,
+                        Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    });
+            }
+        }
+
         // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -43,6 +126,7 @@ namespace zapread.com
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Account/Login"),
                 CookieName = "ZapreadUserAuth",
+                CookieManager = new SystemWebCookieManager(),
                 Provider = new CookieAuthenticationProvider
                 {
                     // Don't redirect if we are using the REST API
@@ -60,6 +144,7 @@ namespace zapread.com
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
             });
+
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enable API key authentication
@@ -101,16 +186,22 @@ namespace zapread.com
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Google_Secret"],
             });
 
-            app.UseRedditAuthentication(new RedditAuthenticationOptions()
-            {
-                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_ClientId"],
-                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_Secret"],
-            });
+            //app.UseRedditAuthentication(new RedditAuthenticationOptions()
+            //{
+            //    ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_ClientId"],
+            //    ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Reddit_Secret"],
+            //});
 
-            app.UseGitHubAuthentication(new GitHubAuthenticationOptions()
-            {
-                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
-                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
+            //app.UseGitHubAuthentication(new GitHubAuthenticationOptions()
+            //{
+            //    ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_ClientId"],
+            //    ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Github_Secret"],
+            //});
+
+            app.UseLnAuthAuthentication(new LnAuthAuthenticationOptions() { 
+                DomainURL = "https://zapread.com",//"http://192.168.0.172:27543",
+                ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Zapread_LnAuth_ClientId"],
+                ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Zapread_LnAuth_Secret"],
             });
 
             //app.UseTwitterAuthentication(new TwitterAuthenticationOptions()

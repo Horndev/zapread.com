@@ -989,7 +989,6 @@ namespace zapread.com.Controllers
                         .Include(usr => usr.SpendingEvents.Select(s => s.Group))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment))
                         .Include(usr => usr.SpendingEvents.Select(s => s.Comment).Select(c => c.Post))
-                        //.Where(usr => usr.Name == "renepickhardt").First(); //Debug issue observed by this user
                         .Where(usr => usr.Name.Trim() == username.Trim())
                         .SingleOrDefault();
 
