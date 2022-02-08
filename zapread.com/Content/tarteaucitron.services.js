@@ -1,4 +1,4 @@
-/*global tarteaucitron, ga, Shareaholic, stLight, clicky, top, google, Typekit, FB, ferankReady, IN, stButtons, twttr, PCWidget*/
+/*global tarteaucitron, ga, twttr*/
 /*jslint regexp: true, nomen: true*/
 
 // google+
@@ -479,7 +479,6 @@ tarteaucitron.services.soundcloud = {
             var qs = '?url=https%3A//api.soundcloud.com/' + playable_type + '/' + playable_id;
             // Or from raw URL from Soundcloud website
             if (playable_url && playable_url.length > 0) qs = '?url=' + escape(playable_url);
-
             if (hideRelated && hideRelated.length > 0) qs += '&hide_related=' + hideRelated;
             if (color && color.length > 0) qs += '&color=' + color.replace('#', '%23');
             if (autoplay && autoplay.length > 0) qs += '&auto_play=' + autoplay;
