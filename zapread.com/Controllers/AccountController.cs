@@ -784,16 +784,33 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        //
-        // GET: /Account/ResetPasswordConfirmation
+        /// <summary>
+        /// GET: /Account/ResetPasswordConfirmation
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult ResetPasswordConfirmation()
         {
             return View();
         }
 
-        //
-        // POST: /Account/ExternalLogin
+        /// <summary>
+        /// Associate the authenticated external login to currently logged in user
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ExternalLoginAssociate()
+        {
+            return RedirectToAction("Index", "Manage");
+        }
+        /// <summary>
+        /// POST: /Account/ExternalLogin
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -877,7 +894,7 @@ namespace zapread.com.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false).ConfigureAwait(true);
             switch (result)
             {
                 case SignInStatus.Success:

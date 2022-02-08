@@ -41,7 +41,7 @@ namespace zapread.com.API
         public ConnectionInfoResponse RequestConnection(string ctoken)
         {
             var url = ConfigurationManager.AppSettings.Get("wshost");
-            if (base.User.Identity.IsAuthenticated)
+            if ((ctoken== null) && base.User.Identity.IsAuthenticated)
             {
                 var token = User.Identity.GetUserId();
                 url = url + "/notificationHub?a=" + token;

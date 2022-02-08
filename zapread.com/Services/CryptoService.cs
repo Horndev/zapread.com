@@ -454,10 +454,10 @@ namespace zapread.com.Services
                 return output.ToArray();
             }
 
-            public static string EncodeString(string s)
+            public static string EncodeString(string hrp, string s)
             {
                 //var data = ByteSquasher(Encoding.Default.GetBytes(s), 8, 5);
-                return Bech32.Encode("lnurl", Encoding.UTF8.GetBytes(s));
+                return Bech32.Encode(hrp, Encoding.UTF8.GetBytes(s));
             }
         }
     }

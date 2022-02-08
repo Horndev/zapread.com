@@ -1239,6 +1239,7 @@
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
