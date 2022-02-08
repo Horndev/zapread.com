@@ -175,7 +175,7 @@ namespace zapread.com.Helpers
             }
         }
 
-        public static IQueryable<Post> OrderPostsByActive(IQueryable<Post> validposts)
+        public static IQueryable<PostQueryInfo> OrderPostsByActive(IQueryable<Post> validposts)
         {
             DateTime scoreStart = new DateTime(2018, 07, 01);
             var sposts = validposts
@@ -193,42 +193,71 @@ namespace zapread.com.Helpers
                     sign = p.p.Comments.Count >= 0.0 ? 1.0 : -1.0,                              // Sign of s
                     dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
                 })
-                .Select(p => new
+                .Select(p => new PostQueryInfo()
                 {
-                    p.p,
+                    p = p.p,
+                    hot = 0,
                     active = (p.sign * p.order) + (p.dt / 2000000.0) // Reduced time effect
                 })
-                .OrderByDescending(p => p.active)
-                .Select(p => p.p);
+                .OrderByDescending(p => p.active);
+                //.Select(p => p.p);
 
             return sposts;
         }
 
-        public static IQueryable<Post> OrderPostsByNew(IQueryable<Post> validposts, int groupId = 0, bool stickyPostOnTop = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validposts"></param>
+        /// <param name="groupId"></param>
+        /// <param name="stickyPostOnTop"></param>
+        /// <returns></returns>
+        public static IQueryable<PostQueryInfo> OrderPostsByNew(IQueryable<Post> validposts, int groupId = 0, bool stickyPostOnTop = false)
         {
-            IQueryable<Post> sposts = validposts;
+            IQueryable<PostQueryInfo> sposts = validposts
+                .Where(p => p.Score > -50)
+                .Select(p => new PostQueryInfo() {
+                p = p,
+                hot = 0,
+            });
 
             // filter by group
             if (groupId > 0)
             {
-                sposts = sposts.Where(p => p.Group.GroupId == groupId);
+                sposts = sposts.Where(p => p.p.Group.GroupId == groupId);
             }
 
             if (stickyPostOnTop)
             {
-                sposts = sposts.OrderByDescending(p => new { p.IsSticky, p.TimeStamp });
+                sposts = sposts.OrderByDescending(p => new { p.p.IsSticky, p.p.TimeStamp });
             }
             else
             {
-                sposts = sposts.OrderByDescending(p => p.TimeStamp);
+                sposts = sposts.OrderByDescending(p => p.p.TimeStamp);
             }
 
             return sposts;
         }
 
-        public static IQueryable<Post> OrderPostsByScore(IQueryable<Post> validposts)
+        public class PostQueryInfo
         {
-            DateTime scoreStart = new DateTime(2018, 07, 01);
+            public Post p;
+            public double? hot;
+            public double? order1;
+            public double? order2;
+            public double? sign;
+            public double? dt;
+            public double? active;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validposts"></param>
+        /// <returns></returns>
+        public static IQueryable<PostQueryInfo> OrderPostsByScore(IQueryable<Post> validposts)
+        {
+            DateTime scoreStart = DateTime.Now - TimeSpan.FromDays(30);//new DateTime(2018, 07, 01);
             var sposts = validposts
                 .Where(p => !p.IsDeleted)
                 .Where(p => !p.IsDraft)
@@ -252,22 +281,32 @@ namespace zapread.com.Helpers
                     sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
                     dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
                 })
-                .Select(p => new
+                .Select(p => new PostQueryInfo()
                 {
-                    p.p,
-                    p.order1,
-                    p.order2,
-                    p.sign,
-                    p.dt,
-                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / 90000.0)
+                    p = p.p,
+                    order1 = p.order1,
+                    order2 = p.order2,
+                    sign = p.sign,
+                    dt = p.dt,
+                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
                 })
-                .OrderByDescending(p => p.hot)
-                .Select(p => p.p);
+                .OrderByDescending(p => p.hot);
+            //.Select(p => p.p);
 
             return sposts;
         }
 
-        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<Post> postquery, User user = null, int userId = 0, int numComments = 3)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="postquery"></param>
+        /// <param name="user"></param>
+        /// <param name="userId"></param>
+        /// <param name="numComments"></param>
+        /// <returns></returns>
+        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, User user = null, int userId = 0, int numComments = 3)
         {
             if (user != null)
             {
@@ -279,27 +318,28 @@ namespace zapread.com.Helpers
                 .Take(count)
                 .Select(p => new PostViewModel()
                 {
-                    PostTitle = p.PostTitle,
-                    Content = p.Content,
-                    PostId = p.PostId,
-                    GroupId = p.Group.GroupId,
-                    GroupName = p.Group.GroupName,
-                    IsSticky = p.IsSticky,
-                    UserName = p.UserId.Name,
-                    UserId = p.UserId.Id,
-                    UserAppId = p.UserId.AppId,
-                    UserProfileImageVersion = p.UserId.ProfileImage.Version,
-                    Score = p.Score,
-                    TimeStamp = p.TimeStamp,
-                    TimeStampEdited = p.TimeStampEdited,
-                    IsNSFW = p.IsNSFW,
-                    ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
-                    ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
-                    ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
-                    ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
-                    CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                    Hot = p.hot??0,
+                    PostTitle = p.p.PostTitle,
+                    Content = p.p.Content,
+                    PostId = p.p.PostId,
+                    GroupId = p.p.Group.GroupId,
+                    GroupName = p.p.Group.GroupName,
+                    IsSticky = p.p.IsSticky,
+                    UserName = p.p.UserId.Name,
+                    UserId = p.p.UserId.Id,
+                    UserAppId = p.p.UserId.AppId,
+                    UserProfileImageVersion = p.p.UserId.ProfileImage.Version,
+                    Score = p.p.Score,
+                    TimeStamp = p.p.TimeStamp,
+                    TimeStampEdited = p.p.TimeStampEdited,
+                    IsNSFW = p.p.IsNSFW,
+                    ViewerIsMod = p.p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                    ViewerUpvoted = p.p.VotesUp.Select(v => v.Id).Contains(userId),
+                    ViewerDownvoted = p.p.VotesDown.Select(v => v.Id).Contains(userId),
+                    ViewerIgnoredUser = p.p.UserId.Id == userId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                    CommentVms = p.p.Comments.Select(c => new PostCommentsViewModel()
                     {
-                        PostId = p.PostId,
+                        PostId = p.p.PostId,
                         CommentId = c.CommentId,
                         Text = c.Text,
                         Score = c.Score,

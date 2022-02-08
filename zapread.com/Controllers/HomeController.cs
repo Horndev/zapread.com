@@ -294,6 +294,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Method to get the posts view model
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="sort"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<PostViewModel>> GetPostsVm(int start, int count, string sort = "Score", int userId = 0)
         {
             List<string> userLanguages = GetUserLanguages();
@@ -308,7 +316,7 @@ namespace zapread.com.Controllers
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
 
-                IQueryable<Post> postquery = null;
+                IQueryable<QueryHelpers.PostQueryInfo> postquery = null;
 
                 //var numposts = validposts.Count();// DEBUG
 
@@ -373,7 +381,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        protected async Task<IQueryable<Post>> GetPostsQuery(ZapContext db, string sort = "Score", int userId = 0)
+        protected async Task<IQueryable<QueryHelpers.PostQueryInfo>> GetPostsQuery(ZapContext db, string sort = "Score", int userId = 0)
         {
             //Modified reddit-like algorithm
             /*epoch = datetime(1970, 1, 1)
