@@ -157,8 +157,6 @@ namespace zapread.com.Services
                         actorRep: 0);
                 }
 
-                
-
                 // FINANCIAL
                 RecordFundTransfers(
                     from: isAnonymous ? null    : fromFunds,
@@ -172,8 +170,6 @@ namespace zapread.com.Services
                     amountCommunity: 0.1 * amount,
                     amountZapread:   0.1 * amount);
                 // END FINANCIAL
-
-                
 
                 // Adjust post owner reputation
                 bool isOwnPost = post.UserId.AppId == userAppId;
