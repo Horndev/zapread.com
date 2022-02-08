@@ -199,7 +199,6 @@ namespace zapread.com
             //});
 
             app.UseLnAuthAuthentication(new LnAuthAuthenticationOptions() { 
-                DomainURL = "https://zapread.com",//"http://192.168.0.172:27543",
                 ClientId = System.Configuration.ConfigurationManager.AppSettings["OAuth_Zapread_LnAuth_ClientId"],
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["OAuth_Zapread_LnAuth_Secret"],
             });

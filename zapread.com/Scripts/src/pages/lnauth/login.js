@@ -1,17 +1,12 @@
 ﻿
 
 import '../../shared/shared';
-//import '../../realtime/signalr';
-
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 import * as signalR from "@microsoft/signalr";
-
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import '../../shared/sharedlast';
-
 import { onlnauthlogin } from '../../realtime/auth/onlnauthlogin';
 import { ready } from '../../utility/ready';
-
 var connection;
 
 function connectStream(url, k1) {
@@ -26,8 +21,7 @@ function connectStream(url, k1) {
     // Don't handle this yet.
     console.log("ReceiveMessage", userId, message);
   });
-
-  console.log('connecting...(' + k1 + ')' );
+  //console.log('connecting...(' + k1 + ')' );
   connection.start().then(function () {
     console.log('Connected!');
   }).catch(function (err) {

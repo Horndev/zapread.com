@@ -1389,8 +1389,11 @@ namespace zapread.com.Controllers
             });
         }
 
-        //
-        // POST: /Manage/LinkLogin
+        /// <summary>
+        /// POST: /Manage/LinkLogin
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LinkLogin(string provider)
@@ -1404,7 +1407,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> LinkLoginCallback()
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
+            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId()).ConfigureAwait(true);
             if (loginInfo == null)
             {
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });

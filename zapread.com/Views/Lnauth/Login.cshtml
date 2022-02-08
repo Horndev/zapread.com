@@ -21,9 +21,10 @@
         <div class="col-md-6">
             <div class="ibox-content">
                 <section id="loginForm">
-                    <img loading="lazy" src="data:image/png;base64, @Model.QrImageBase64" class="img-fluid" />
+                    <a href="lightning:@Model.dataStr">
+                        <img loading="lazy" src="data:image/png;base64, @Model.QrImageBase64" class="img-fluid" />
+                    </a>
                 </section>
-
                 <p class="m-t text-center">
                     <small>Log in using your lightning wallet.</small>
                 </p>

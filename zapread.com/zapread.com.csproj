@@ -1239,6 +1239,7 @@
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\Editor.js" />
@@ -1281,7 +1282,6 @@
     <Content Include="Scripts\src\shared\topnavbar.js" />
     <Content Include="Scripts\src\utility\cookies\advertising.js" />
     <Content Include="Scripts\src\utility\cookies\tarteaucitron.js" />
-    <Content Include="Scripts\src\utility\cookies\tarteaucitron.services.js" />
     <Content Include="Scripts\src\utility\patchData.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\getScript.js" />

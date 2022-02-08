@@ -17,27 +17,9 @@ namespace Owin.Security.Providers.LnAuth
             /// Defaults to https://domain.com/lnauth/auth
             /// </remarks>
             public string AuthorizationEndpoint { get; set; }
-
-            /// <summary>
-            /// Endpoint which is used to exchange code for access token
-            /// </summary>
-            /// <remarks>
-            /// Defaults to https://xxx/access_token
-            /// </remarks>
-            public string TokenEndpoint { get; set; }
-
-            /// <summary>
-            /// Endpoint which is used to obtain user information after authentication
-            /// </summary>
-            /// <remarks>
-            /// Defaults to https://api.zapread.com/user
-            /// </remarks>
-            public string UserInfoEndpoint { get; set; }
         }
 
-        private const string AuthorizationEndPoint = "https://zapread.com/lnauth/auth"; //"http://localhost:27543/lnauth/auth"; //"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
-        private const string TokenEndpoint = "https://zapread.com/lnauth/login/oauth/access_token"; // Not used
-        private const string UserInfoEndpoint = "https://api.zapread.com/user"; // Not used
+        private const string AuthorizationEndPoint = "https://zapread.com/lnauth/auth"; // "http://localhost:27543/lnauth/auth"; //"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
 
         /// <summary>
         ///     Gets or sets the a pinned certificate validator to use to validate the endpoints used
@@ -82,8 +64,6 @@ namespace Owin.Security.Providers.LnAuth
             get { return Description.Caption; }
             set { Description.Caption = value; }
         }
-
-        public string DomainURL { get; set; }
 
         /// <summary>
         ///     Gets or sets the xx supplied Client ID
@@ -139,8 +119,6 @@ namespace Owin.Security.Providers.LnAuth
             Endpoints = new LnAuthAuthenticationEndpoints
             {
                 AuthorizationEndpoint = AuthorizationEndPoint,
-                TokenEndpoint = TokenEndpoint,
-                UserInfoEndpoint = UserInfoEndpoint
             };
         }
     }

@@ -25,5 +25,7 @@ namespace zapread.com.Models.Account
         public string redirect_uri { get; set; }
 
         public string state { get; set; }
+
+        public string dataStr { get; set; }
     }
 }

@@ -13,6 +13,7 @@ using zapread.com.Services;
 
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Infrastructure;
+using Microsoft.AspNet.Identity;
 
 namespace zapread.com.API
 {
@@ -36,42 +37,48 @@ namespace zapread.com.API
                 // Generate a random 32 byte challenge k1
                 byte[] k1 = new byte[32];
                 rng.GetBytes(k1);
-
                 var k1str = BitConverter.ToString(k1).Replace("-", string.Empty);
 
-                var host = Request.Url;
-
-                var url = host.GetLeftPart(UriPartial.Authority) + "/lnauth/signin?tag=login&k1=" + k1str;
+                //var serviceHost = System.Configuration.ConfigurationManager.AppSettings["LnAuth_Host"];
+                //var url = serviceHost + "/lnauth/signin?tag=login&k1=" + k1str;
+                var url = Request.Url.GetLeftPart(UriPartial.Authority) + "/lnauth/signin?tag=login&k1=" + k1str;
                 //var url = "http://192.168.0.172:27543" + "/lnauth/signin?tag=login&k1=" + k1str;
 
-                var dataStr = CryptoService.Bech32.EncodeString(url);
+                var dataStr = CryptoService.Bech32.EncodeString("lnurl", url);
 
                 // Make it a qr
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataStr, QRCodeGenerator.ECCLevel.L); //, forceUtf8: true);
-                QRCode qrCode = new QRCode(qrCodeData);
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-                MemoryStream ms = new MemoryStream();
-                qrCodeImage.Save(ms, ImageFormat.Png);
-
-                Image png = Image.FromStream(ms);
-                byte[] imgdata = png.ToByteArray(ImageFormat.Png);
-                var base64String = Convert.ToBase64String(imgdata);
-
-                var vm = new LNAuthLoginView()
+                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 {
-                    QrImageBase64 = base64String,
-                    client_id = client_id,
-                    redirect_uri = redirect_uri,
-                    state = state,
-                    k1 = k1str,
-                };
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataStr, QRCodeGenerator.ECCLevel.L); //, forceUtf8: true);
+                    using (QRCode qrCode = new QRCode(qrCodeData))
+                    {
+                        Bitmap qrCodeImage = qrCode.GetGraphic(20);
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            qrCodeImage.Save(ms, ImageFormat.Png);
+                            Image png = Image.FromStream(ms);
+                            byte[] imgdata = png.ToByteArray(ImageFormat.Png);
+                            var base64String = Convert.ToBase64String(imgdata);
 
-                //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
-                //    "Send to wallet:" + Environment.NewLine +
-                //    "req:" + dataStr + Environment.NewLine +
-                //    "url:" + url + Environment.NewLine);
-                return View(vm);
+                            var vm = new LNAuthLoginView()
+                            {
+                                QrImageBase64 = base64String,
+                                client_id = client_id,
+                                redirect_uri = redirect_uri,
+                                state = state,
+                                k1 = k1str,
+                                dataStr = dataStr,
+                            };
+
+                            //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
+                            //    "Send to wallet:" + Environment.NewLine +
+                            //    "req:" + dataStr + Environment.NewLine +
+                            //    "url:" + url + Environment.NewLine);
+
+                            return View(vm);
+                        }
+                    }
+                }
             }
         }
 
