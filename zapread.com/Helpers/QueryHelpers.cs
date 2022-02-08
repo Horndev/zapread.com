@@ -257,7 +257,7 @@ namespace zapread.com.Helpers
         /// <returns></returns>
         public static IQueryable<PostQueryInfo> OrderPostsByScore(IQueryable<Post> validposts)
         {
-            DateTime scoreStart = DateTime.Now - TimeSpan.FromDays(30);//new DateTime(2018, 07, 01);
+            DateTime scoreStart = DateTime.Now - TimeSpan.FromDays(30); //new DateTime(2018, 07, 01);
             var sposts = validposts
                 .Where(p => !p.IsDeleted)
                 .Where(p => !p.IsDraft)
