@@ -1,19 +1,17 @@
 ﻿/*
  * 
  */
-import $ from 'jquery';
 import tippy from 'tippy.js';                       // [✓]
 import 'tippy.js/dist/tippy.css';                   // [✓]
 import 'tippy.js/themes/light-border.css';          // [✓]
 import { postData } from './postData';              // [✓]
 
 export function loadachhover(e) {
-  e.removeAttribute('onmouseover');//$(e).removeAttr('onmouseover');
-  var achid = e.getAttribute('data-achid');//$(e).data('achid');
+  e.removeAttribute('onmouseover');
+  var achid = e.getAttribute('data-achid');
   if (typeof achid === 'undefined' || achid === null) {
     achid = -1;
   }
-
   tippy(e, {
     content: 'Loading...',
     theme: 'light-border',
@@ -47,60 +45,4 @@ export function loadachhover(e) {
       }
     }
   });
-
-  //var msg = JSON.stringify({
-  //  'id': achid
-  //});
-  //$.ajax({
-  //  type: "POST",
-  //  url: "/User/Achievement/Hover",
-  //  data: msg,
-  //  contentType: "application/json; charset=utf-8",
-  //  dataType: "json",
-  //  success: function (response) {
-  //    if (response.success) {
-  //      $(e).attr("data-content", response.HTMLString);
-  //      $(e).popover({
-  //        trigger: "manual",
-  //        html: true,
-  //        sanitize: false,
-  //        animation: false,
-  //        placement: "top",
-  //        container: "body",
-  //        title: ""
-  //      })
-  //        .on("mouseenter", function () {
-  //          var _this = this;
-  //          $(this).popover("show");
-  //          $(".popover").addClass("tooltip-hover");
-  //          $(".popover").on("mouseleave", function () {
-  //            $(_this).popover('hide');
-  //          });
-  //        })
-  //        .on("mouseleave", function () {
-  //          var _this = this;
-  //          setTimeout(function () {
-  //            if (!$(".popover:hover").length) {
-  //              $(_this).popover("hide");
-  //            }
-  //          }, 300);
-  //        });
-  //      $(e).popover("show");
-  //      $(".popover").addClass("tooltip-hover");
-  //      $(".popover").on("mouseleave", function () {
-  //        $(e).popover('hide');
-  //      });
-  //      $(e).removeClass("zr-user");
-  //    }
-  //    else {
-  //      console.log(response.Message);
-  //    }
-  //  },
-  //  failure: function (response) {
-  //    console.log('load more failure');
-  //  },
-  //  error: function (response) {
-  //    console.log('load more error');
-  //  }
-  //});
 }
