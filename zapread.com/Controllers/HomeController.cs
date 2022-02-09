@@ -681,13 +681,22 @@ namespace zapread.com.Controllers
             return cookieResultValue;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> TopFollowing()
+        public ActionResult TopFollowing()
         {
 
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sort"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
@@ -920,7 +929,7 @@ namespace zapread.com.Controllers
                 .Include(usr => usr.IgnoringUsers)
                 .Include(usr => usr.Groups)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.AppId == userid);
+                .FirstOrDefaultAsync(u => u.AppId == userid).ConfigureAwait(true);
             return user;
         }
 
@@ -1004,6 +1013,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
@@ -1022,9 +1037,23 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="loc"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON Only")]
         public ActionResult SendFeedback(string msg, string loc)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
+
             String uid = "";
 
             uid = User.Identity.GetUserId();
@@ -1040,6 +1069,11 @@ namespace zapread.com.Controllers
             return Json(new { result = "success" });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SendMail(UserEmailModel model)
@@ -1056,11 +1090,21 @@ namespace zapread.com.Controllers
             return RedirectToAction("FeedbackSuccess");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FeedbackSuccess()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult About()
         {
             ViewBag.Message = "About Zapread.com.";
@@ -1068,11 +1112,21 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FAQ()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
@@ -1080,63 +1134,14 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Feedback()
         {
             return View();
         }
-
-        //private async Task EnsureUserExists(string userId, ZapContext db)
-        //{
-        //    if (userId != null)
-        //    {
-        //        var user = await db.Users
-        //            .Include(usr => usr.ProfileImage)
-        //            .Include(usr => usr.ThumbImage)
-        //            .Include(usr => usr.Funds)
-        //            .Include(usr => usr.Settings)
-        //            .Where(u => u.AppId == userId)
-        //            .SingleOrDefaultAsync();
-
-        //        if (user == null)
-        //        {
-        //            // no user entry
-        //            User u = new User()
-        //            {
-        //                AboutMe = "Nothing to tell.",
-        //                AppId = userId,
-        //                Name = User.Identity.Name,
-        //                ProfileImage = new UserImage(),
-        //                ThumbImage = new UserImage(),
-        //                Funds = new UserFunds(),
-        //                Settings = new UserSettings(),
-        //                DateJoined = DateTime.UtcNow,
-        //            };
-        //            db.Users.Add(u);
-        //            await db.SaveChangesAsync();
-        //        }
-        //        else
-        //        {
-        //            // ensure all properties are not null
-        //            if (user.Funds == null)
-        //            {
-        //                // DANGER!
-        //                user.Funds = new UserFunds();
-        //            }
-        //            if (user.Settings == null)
-        //            {
-        //                user.Settings = new UserSettings();
-        //            }
-        //            if (user.ThumbImage == null)
-        //            {
-        //                user.ThumbImage = new UserImage();
-        //            }
-        //            if (user.ProfileImage == null)
-        //            {
-        //                user.ProfileImage = new UserImage();
-        //            }
-        //            await db.SaveChangesAsync();
-        //        }
-        //    }
-        //}
     }
 }

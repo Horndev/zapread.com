@@ -29,16 +29,28 @@ namespace zapread.com.Controllers
         private ApplicationUserManager _userManager;
         private ApplicationRoleManager _roleManager;
 
-        public AccountController()
-        {
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public AccountController() { }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
+        /// <param name="roleManager"></param>
         public AccountController(
             ApplicationUserManager userManager,
             ApplicationSignInManager signInManager,
@@ -144,14 +156,17 @@ namespace zapread.com.Controllers
                 }
             }
         }
-        
-        //
-        // GET: /Account/Balance
-        // Returns the currently logged in user balance
+
+        /// <summary>
+        /// GET: /Account/Balance
+        /// Returns the currently logged in user balance
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult> Balance()
         {
+            XFrameOptionsDeny();
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
@@ -163,6 +178,10 @@ namespace zapread.com.Controllers
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// Redirects to new Balance endpoint
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public ActionResult GetBalance()
@@ -231,27 +250,22 @@ namespace zapread.com.Controllers
             return Math.Floor(balance);
         }
 
-        //
-        // GET: /Account/GetLimboBalance
-        // Returns the currently logged in user balance
+        /// <summary>
+        /// GET: /Account/GetLimboBalance
+        /// Returns the currently logged in user balance
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult> GetLimboBalance()
         {
-            try
-            {
-                Response.AddHeader("X-Frame-Options", "DENY");
-            }
-            catch
-            {
-                ;  // TODO: add error handling - temp fix for unit test.
-            }
+            XFrameOptionsDeny();
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = await GetUserLimboBalance();
+                userBalance = await GetUserLimboBalance().ConfigureAwait(true);
             }
-            string balance = userBalance.ToString("0.##");
+            string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
             return Json(new { balance }, JsonRequestBehavior.AllowGet);
         }
 
@@ -267,7 +281,7 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include(i => i.Funds)
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(u => u.AppId == uid);
+                        .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                     if (user == null)
                     {
@@ -281,10 +295,10 @@ namespace zapread.com.Controllers
                             // Neets to be initialized
                             var user_modified = await db.Users
                                 .Include(i => i.Funds)
-                                .FirstOrDefaultAsync(u => u.AppId == uid);
+                                .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                             user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            await db.SaveChangesAsync();
+                            await db.SaveChangesAsync().ConfigureAwait(true);
                             user = user_modified;
                         }
                         balance = user.Funds.LimboBalance;
@@ -302,12 +316,18 @@ namespace zapread.com.Controllers
             return Math.Floor(balance);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="days"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetSpendingSum/{days?}")]
         public async Task<ActionResult> GetSpendingSum(string days)
         {
+            XFrameOptionsDeny();
             double amount = 0.0;
-            int numDays = Convert.ToInt32(days);
+            int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             double totalAmount = 0.0;
             string userId = "?";
             try
@@ -322,13 +342,13 @@ namespace zapread.com.Controllers
                         .Where(u => u.AppId == userId)
                         .SelectMany(u => u.SpendingEvents)
                         .Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays)
-                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
+                        .SumAsync(tx => (double?)tx.Amount).ConfigureAwait(true) ?? 0;
 
                     totalAmount = await db.Users
                         .Include(i => i.SpendingEvents)
                         .Where(u => u.AppId == userId)
                         .SelectMany(u => u.SpendingEvents)
-                        .SumAsync(tx => (double?)tx.Amount) ?? 0;
+                        .SumAsync(tx => (double?)tx.Amount).ConfigureAwait(true) ?? 0;
 
                     amount = sum;
                 }
@@ -353,10 +373,16 @@ namespace zapread.com.Controllers
             return Json(new { value, total }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="days"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetEarningsSum/{days?}")]
         public async Task<ActionResult> GetEarningsSum(string days)
         {
+            XFrameOptionsDeny();
             double amount = 0.0;
             int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             double totalAmount = 0.0;
@@ -404,6 +430,7 @@ namespace zapread.com.Controllers
         [Route("GetLNFlow/{days?}")]
         public async Task<ActionResult> GetLNFlow(string days)
         {
+            XFrameOptionsDeny();
             double amount = 0.0;
             double balance = await GetUserBalance().ConfigureAwait(true);
             double limboBalance = await GetUserLimboBalance().ConfigureAwait(true);
@@ -443,6 +470,9 @@ namespace zapread.com.Controllers
 
         /* Identity aspects*/
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationSignInManager SignInManager
         {
             get
@@ -455,6 +485,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -467,6 +500,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationRoleManager RoleManager
         {
             get
@@ -479,17 +515,20 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // GET: /Account/Login
+        /// <summary>
+        /// Login screen
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult Login(string returnUrl)
         {
+            XFrameOptionsDeny();
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
-        //
-        // POST: /Account/Login
         /// <summary>
         /// Login
         /// </summary>
@@ -593,9 +632,18 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/VerifyCode
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="returnUrl"></param>
+        /// <param name="rememberMe"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
         {
+            XFrameOptionsDeny();
             // Require that the user has already logged in via username/password or external login
             if (!await SignInManager.HasBeenVerifiedAsync())
             {
@@ -606,6 +654,11 @@ namespace zapread.com.Controllers
 
         //
         // POST: /Account/VerifyCode
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -637,15 +690,16 @@ namespace zapread.com.Controllers
         //
         // GET: /Account/Register
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult Register()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
         public async Task<ActionResult> SendEmailConfirmation()
         {
             var userId = User.Identity.GetUserId();
-
             string code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userId, code = code }, protocol: Request.Url.Scheme);
             await UserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
@@ -654,6 +708,11 @@ namespace zapread.com.Controllers
 
         //
         // POST: /Account/Register
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -692,27 +751,46 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/ConfirmEmail
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public async Task<ActionResult> ConfirmEmail(string userId, string code)
         {
+            XFrameOptionsDeny();
             if (userId == null || code == null)
             {
                 return View("Error");
             }
-            var result = await UserManager.ConfirmEmailAsync(userId, code);
+            var result = await UserManager.ConfirmEmailAsync(userId, code).ConfigureAwait(true);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
         //
         // GET: /Account/ForgotPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult ForgotPassword()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
         //
         // POST: /Account/ForgotPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -720,7 +798,7 @@ namespace zapread.com.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByEmailAsync(model.Email);
+                var user = await UserManager.FindByEmailAsync(model.Email).ConfigureAwait(true);
                 if (user == null)// || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
@@ -729,12 +807,13 @@ namespace zapread.com.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id).ConfigureAwait(true);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                 await UserManager.SendEmailAsync(
                     userId: user.Id,
                     subject: "Reset Password",
-                    body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl);
+                    body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl)
+                    .ConfigureAwait(true);
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
@@ -744,22 +823,40 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/ForgotPasswordConfirmation
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult ForgotPasswordConfirmation()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
         //
         // GET: /Account/ResetPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult ResetPassword(string code)
         {
+            XFrameOptionsDeny();
             return code == null ? View("Error") : View();
         }
 
         //
         // POST: /Account/ResetPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -769,13 +866,13 @@ namespace zapread.com.Controllers
             {
                 return View(model);
             }
-            var user = await UserManager.FindByEmailAsync(model.Email);
+            var user = await UserManager.FindByEmailAsync(model.Email).ConfigureAwait(true);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
             }
-            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password).ConfigureAwait(true);
             if (result.Succeeded)
             {
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
@@ -792,19 +889,10 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult ResetPasswordConfirmation()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
-        /// <summary>
-        /// Associate the authenticated external login to currently logged in user
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ExternalLoginAssociate()
-        {
-            return RedirectToAction("Index", "Manage");
-        }
         /// <summary>
         /// POST: /Account/ExternalLogin
         /// </summary>
@@ -816,30 +904,40 @@ namespace zapread.com.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
-            //ControllerContext.HttpContext.Session.RemoveAll();
-
-            //Session["Workaround"] = 0;
             // Request a redirect to the external login provider
             return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
         }
 
         //
         // GET: /Account/SendCode
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <param name="rememberMe"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public async Task<ActionResult> SendCode(string returnUrl, bool rememberMe)
         {
-            var userId = await SignInManager.GetVerifiedUserIdAsync();
+            XFrameOptionsDeny();
+            var userId = await SignInManager.GetVerifiedUserIdAsync().ConfigureAwait(true);
             if (userId == null)
             {
                 return View("Error");
             }
-            var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId);
+            var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId).ConfigureAwait(true);
             var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
         //
         // POST: /Account/SendCode
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -851,42 +949,26 @@ namespace zapread.com.Controllers
             }
 
             // Generate the token and send it
-            if (!await SignInManager.SendTwoFactorCodeAsync(model.SelectedProvider))
+            if (!await SignInManager.SendTwoFactorCodeAsync(model.SelectedProvider).ConfigureAwait(true))
             {
                 return View("Error");
             }
             return RedirectToAction("VerifyCode", new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
         }
 
-        private async Task<ExternalLoginInfo> AuthenticationManager_GetExternalLoginInfoAsync_WithExternalBearer()
-        {
-            ExternalLoginInfo loginInfo = null;
-
-            var result = await AuthenticationManager.AuthenticateAsync(DefaultAuthenticationTypes.ExternalBearer);
-
-            if (result != null && result.Identity != null)
-            {
-                var idClaim = result.Identity.FindFirst(ClaimTypes.NameIdentifier);
-                if (idClaim != null)
-                {
-                    loginInfo = new ExternalLoginInfo()
-                    {
-                        DefaultUserName = result.Identity.Name == null ? "" : result.Identity.Name.Replace(" ", ""),
-                        Login = new UserLoginInfo(idClaim.Issuer, idClaim.Value)
-                    };
-                }
-            }
-            return loginInfo;
-        }
-
         //
         // GET: /Account/ExternalLoginCallback
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
-
-            //var loginInfo = await AuthenticationManager_GetExternalLoginInfoAsync_WithExternalBearer();
+            XFrameOptionsDeny();
+            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync().ConfigureAwait(true);
 
             if (loginInfo == null)
             {
@@ -914,6 +996,12 @@ namespace zapread.com.Controllers
 
         //
         // POST: /Account/ExternalLoginConfirmation
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -956,8 +1044,6 @@ namespace zapread.com.Controllers
                         }
 
                         return RedirectToAction("Index", "Home");
-
-                        //return RedirectToLocal(returnUrl);
                     }
                 }
                 AddErrors(result);
@@ -969,6 +1055,10 @@ namespace zapread.com.Controllers
 
         //
         // POST: /Account/LogOff
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
@@ -979,12 +1069,22 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/ExternalLoginFailure
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
+        [HttpGet]
         public ActionResult ExternalLoginFailure()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1065,5 +1165,17 @@ namespace zapread.com.Controllers
             }
         }
         #endregion
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
+        }
     }
 }

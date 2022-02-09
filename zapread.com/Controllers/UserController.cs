@@ -21,6 +21,9 @@ using zapread.com.Models.UserViews;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for users
+    /// </summary>
     [RoutePrefix("user")]
     public class UserController : Controller
     {
@@ -28,12 +31,9 @@ namespace zapread.com.Controllers
         private ApplicationUserManager _userManager;
 
         /// <summary>
-        /// 
+        /// Empty constructor
         /// </summary>
-        public UserController()
-        {
-            // Empty constructor
-        }
+        public UserController() { }
 
         /// <summary>
         /// 
@@ -76,6 +76,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get posts for a user activity feed
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<PostViewModel>> GetActivityPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
@@ -135,20 +142,8 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                    //.Include(p => p.Group)
-                    //.Include(p => p.Comments)
-                    //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    //.Include(p => p.UserId)
-                    //.Include(p => p.UserId.ProfileImage)
-                    //.AsNoTracking();
-
                 // These are the user ids which we are following
                 //var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
-
                 // Posts by users who are following this user
                 var followposts = db.Posts
                     .Where(p => followingIds.Contains(p.UserId.Id))
@@ -198,29 +193,11 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                //.Include(p => p.Group)
-                //.Include(p => p.Comments)
-                //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                //.Include(p => p.UserId)
-                //.Include(p => p.UserId.ProfileImage)
-                //.AsNoTracking();
-
-                //var activityposts = await userposts.Union(followposts)
-                //    .OrderByDescending(p => p.TimeStamp)
-                //    .Skip(start)
-                //    .Take(count)
-                //    .ToListAsync().ConfigureAwait(true);
-
                 var activityposts = userposts.ToList().Union(followposts.ToList())
                     .OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
                     .ToList();
-                    //.ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
@@ -255,7 +232,6 @@ namespace zapread.com.Controllers
             var knownLanguages = LanguageHelpers.GetLanguages();
 
             // The first entries should be the user languages
-
             var userLangs = knownLanguages.Select(kl => kl.Split(':'))
                 .Where(kl => userLanguages.Contains(kl[0]));
 
@@ -284,15 +260,27 @@ namespace zapread.com.Controllers
             return Json(new { languages });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Achievement/Hover/")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON only")]
         public async Task<JsonResult> AchievementHover(int id)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 var a = await db.UserAchievements
                     .Include(i => i.Achievement)
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -310,7 +298,6 @@ namespace zapread.com.Controllers
 
                 string HTMLString = RenderPartialViewToString("_PartialUserAchievement", model: vm);
                 return Json(new { success = true, HTMLString });
-               
             }
         }
 
@@ -326,6 +313,11 @@ namespace zapread.com.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> Hover(int userId, string username)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 int hoverUserId = userId; // take from parameter passed
@@ -408,7 +400,7 @@ namespace zapread.com.Controllers
                     .Include(u => u.Achievements)
                     .Include(u => u.Achievements.Select(a => a.Achievement))
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(i => i.Name == username);
+                    .FirstOrDefaultAsync(i => i.Name == username).ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -440,7 +432,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        // GET: User
+        /// <summary>
+        /// Get user page
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
@@ -456,19 +452,6 @@ namespace zapread.com.Controllers
                 double userFunds = 0;
                 bool isFollowing = false;
                 bool isIgnoring = false;
-
-                //var user = await db.Users.Where(u => u.Name == username)
-                //    .Include(u => u.Following)
-                //    .Include(usr => usr.Groups)
-                //    .Include(usr => usr.ProfileImage)
-                //    .Include(usr => usr.Achievements)
-                //    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
-                //    .AsNoTracking()
-                //    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                //ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
 
                 var userInfo = await db.Users
                     .Where(u => u.Name == username)
@@ -549,20 +532,6 @@ namespace zapread.com.Controllers
                     .Take(20)
                     .AsNoTracking()
                     .ToListAsync().ConfigureAwait(true);
-
-                //List<PostViewModel> postViews = new List<PostViewModel>();
-
-                //foreach (var p in activityposts)
-                //{
-                //    postViews.Add(new PostViewModel()
-                //    {
-                //        //Post = p,
-                //        ViewerIsMod = false, //user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //        ViewerUpvoted = false, //user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        ViewerDownvoted = false, //user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        NumComments = 0,
-                //    });
-                //}
 
                 List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Groups)
@@ -948,7 +917,14 @@ namespace zapread.com.Controllers
             return PartialView();
         }
 
-        // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// <summary>
+        /// Renders MVC view to a string
+        /// 
+        /// https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
