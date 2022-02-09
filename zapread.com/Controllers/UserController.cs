@@ -21,6 +21,9 @@ using zapread.com.Models.UserViews;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for users
+    /// </summary>
     [RoutePrefix("user")]
     public class UserController : Controller
     {
@@ -28,12 +31,9 @@ namespace zapread.com.Controllers
         private ApplicationUserManager _userManager;
 
         /// <summary>
-        /// 
+        /// Empty constructor
         /// </summary>
-        public UserController()
-        {
-            // Empty constructor
-        }
+        public UserController() { }
 
         /// <summary>
         /// 
@@ -76,6 +76,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get posts for a user activity feed
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<PostViewModel>> GetActivityPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
@@ -135,17 +142,6 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                    //.Include(p => p.Group)
-                    //.Include(p => p.Comments)
-                    //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    //.Include(p => p.UserId)
-                    //.Include(p => p.UserId.ProfileImage)
-                    //.AsNoTracking();
-
                 // These are the user ids which we are following
                 //var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
 
@@ -198,29 +194,11 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                //.Include(p => p.Group)
-                //.Include(p => p.Comments)
-                //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                //.Include(p => p.UserId)
-                //.Include(p => p.UserId.ProfileImage)
-                //.AsNoTracking();
-
-                //var activityposts = await userposts.Union(followposts)
-                //    .OrderByDescending(p => p.TimeStamp)
-                //    .Skip(start)
-                //    .Take(count)
-                //    .ToListAsync().ConfigureAwait(true);
-
                 var activityposts = userposts.ToList().Union(followposts.ToList())
                     .OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
                     .ToList();
-                    //.ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
@@ -284,15 +262,27 @@ namespace zapread.com.Controllers
             return Json(new { languages });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Achievement/Hover/")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON only")]
         public async Task<JsonResult> AchievementHover(int id)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 var a = await db.UserAchievements
                     .Include(i => i.Achievement)
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -310,7 +300,6 @@ namespace zapread.com.Controllers
 
                 string HTMLString = RenderPartialViewToString("_PartialUserAchievement", model: vm);
                 return Json(new { success = true, HTMLString });
-               
             }
         }
 
@@ -326,6 +315,11 @@ namespace zapread.com.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> Hover(int userId, string username)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 int hoverUserId = userId; // take from parameter passed
