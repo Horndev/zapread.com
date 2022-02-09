@@ -181,9 +181,10 @@ namespace zapread.com.Controllers
                     }
                     else
                     {
-                        ver = await db.Images.Where(im => im.UserAppId == UserId)
-                            .Select(im => im.Version)
+                        var dbver = await db.Images.Where(im => im.UserAppId == UserId)
+                            .Select(im => (int?)im.Version)
                             .MaxAsync().ConfigureAwait(true);
+                        ver = dbver ?? -1;
                     }
                 }
                 catch (FormatException fe)

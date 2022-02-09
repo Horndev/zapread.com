@@ -2,23 +2,23 @@
  * Page for editing a post
  **/
 
-import '../../shared/shared';                                           // [✓]
-import '../../realtime/signalr';                                        // [✓]
-import React, { useCallback, useEffect, useState, useRef } from 'react';// [✓]
-import { Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';       // [✓]
-import ReactDOM from 'react-dom';                                       // [✓]
-import { useLocation, BrowserRouter as Router } from 'react-router-dom';// [✓]
+import '../../shared/shared';
+import '../../realtime/signalr';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';
+import ReactDOM from 'react-dom';
+import { useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
-import Swal from 'sweetalert2';                                         // [✓]
+import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content'
-import Input from '../../Components/Input/Input';                       // [✓]
-import Editor from './Components/Editor';                               // [✓]
-import DraftsTable from './Components/DraftsTable';                     // [✓]
-import GroupPicker from './Components/GroupPicker';                               // [✓]
-import LanguagePicker from './Components/LanguagePicker';               // [✓]
-import { postJson } from '../../utility/postData';                      // [✓]
-import PageHeading from '../../components/page-heading';                // [✓]
-import '../../shared/sharedlast';                                       // [✓]
+import Input from '../../Components/Input/Input';
+import Editor from './Components/Editor';
+import DraftsTable from './Components/DraftsTable';
+import GroupPicker from './Components/GroupPicker';
+import LanguagePicker from './Components/LanguagePicker';
+import { postJson } from '../../utility/postData';
+import PageHeading from '../../components/page-heading';
+import '../../shared/sharedlast';
 
 const RSwal = withReactContent(Swal)
 
@@ -32,6 +32,8 @@ function Page() {
   const [postId, setPostId] = useState(-1);
   const [groupId, setGroupId] = useState(1);
   const [groupName, setGroupName] = useState('');
+  const [userAppId, setUserAppId] = useState('');
+  const [userImgVer, setUserImgVer] = useState(0);
   const [postLanguage, setPostLanguage] = useState('English');
   const [postTitle, setPostTitle] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -62,6 +64,12 @@ function Page() {
         }
       });
     }
+
+    let appid = document.getElementById('zruserinfo').getAttribute("data-appid");
+    setUserAppId(appid);
+
+    let upiver = document.getElementById('zruserinfo').getAttribute("data-piver");
+    setUserImgVer(upiver);
 
     if (!isLoaded) {
       setIsLoaded(true);
@@ -179,7 +187,6 @@ function Page() {
 
   const handleSubmitPost = useCallback(() => {
     var rep = document.getElementById('zruserinfo').getAttribute("data-reputation");
-    //console.log(rep);
     if (rep > 5000) {
       doSubmit();
     }
@@ -200,7 +207,7 @@ function Page() {
         }
       }).then((result) => {
         if (result.isConfirmed) {
-          let user_captcha_value = document.getElementById('user_captcha_input').value;//result.value.captcha;//document.getElementById('user_captcha_input').value;
+          let user_captcha_value = document.getElementById('user_captcha_input').value;
           if (validateCaptcha(user_captcha_value, false) == true) {
             doSubmit();
           } else {
@@ -223,7 +230,7 @@ function Page() {
           <Col lg={8}>
             <div className="ibox-title" style={{ display: "inline-flex", width: "100%", marginTop: "8px" }}>
               <div className="social-avatar" style={{ paddingTop: "5px" }}>
-                <img className="img-circle user-image-45" width="45" height="45" src="/Home/UserImage/?size=45" />
+                <img className="img-circle user-image-45" width="45" height="45" src={"/Home/UserImage/?size=45&UserId=" + userAppId + "&v=" + userImgVer} />
               </div>
               <Input
                 id="postTitle"
