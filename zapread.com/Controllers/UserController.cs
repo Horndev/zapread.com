@@ -144,7 +144,6 @@ namespace zapread.com.Controllers
 
                 // These are the user ids which we are following
                 //var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
-
                 // Posts by users who are following this user
                 var followposts = db.Posts
                     .Where(p => followingIds.Contains(p.UserId.Id))
@@ -233,7 +232,6 @@ namespace zapread.com.Controllers
             var knownLanguages = LanguageHelpers.GetLanguages();
 
             // The first entries should be the user languages
-
             var userLangs = knownLanguages.Select(kl => kl.Split(':'))
                 .Where(kl => userLanguages.Contains(kl[0]));
 
@@ -402,7 +400,7 @@ namespace zapread.com.Controllers
                     .Include(u => u.Achievements)
                     .Include(u => u.Achievements.Select(a => a.Achievement))
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(i => i.Name == username);
+                    .FirstOrDefaultAsync(i => i.Name == username).ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -434,7 +432,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        // GET: User
+        /// <summary>
+        /// Get user page
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
@@ -450,19 +452,6 @@ namespace zapread.com.Controllers
                 double userFunds = 0;
                 bool isFollowing = false;
                 bool isIgnoring = false;
-
-                //var user = await db.Users.Where(u => u.Name == username)
-                //    .Include(u => u.Following)
-                //    .Include(usr => usr.Groups)
-                //    .Include(usr => usr.ProfileImage)
-                //    .Include(usr => usr.Achievements)
-                //    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
-                //    .AsNoTracking()
-                //    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                //ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
 
                 var userInfo = await db.Users
                     .Where(u => u.Name == username)
@@ -543,20 +532,6 @@ namespace zapread.com.Controllers
                     .Take(20)
                     .AsNoTracking()
                     .ToListAsync().ConfigureAwait(true);
-
-                //List<PostViewModel> postViews = new List<PostViewModel>();
-
-                //foreach (var p in activityposts)
-                //{
-                //    postViews.Add(new PostViewModel()
-                //    {
-                //        //Post = p,
-                //        ViewerIsMod = false, //user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //        ViewerUpvoted = false, //user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        ViewerDownvoted = false, //user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        NumComments = 0,
-                //    });
-                //}
 
                 List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Groups)
@@ -942,7 +917,14 @@ namespace zapread.com.Controllers
             return PartialView();
         }
 
-        // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// <summary>
+        /// Renders MVC view to a string
+        /// 
+        /// https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

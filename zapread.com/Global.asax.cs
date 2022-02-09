@@ -5,6 +5,9 @@ using zapread.com.App_Start;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// Configuration
+    /// </summary>
     public class MvcApplication : System.Web.HttpApplication
     {
         protected void Application_Start()

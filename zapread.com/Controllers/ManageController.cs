@@ -27,15 +27,19 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for manage pages
+    /// </summary>
     [Authorize]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public ManageController()
-        {
-        }
+        /// <summary>
+        /// default constructor
+        /// </summary>
+        public ManageController() { }
 
         public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
@@ -67,11 +71,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet]
         public ActionResult Financial()
         {
             return View();
         }
 
+        [HttpGet]
         [Route("Manage/APIKeys/")]
         public ActionResult APIKeys()
         {
