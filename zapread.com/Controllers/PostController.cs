@@ -361,8 +361,9 @@ namespace zapread.com.Controllers
                     .Select(u => new
                     {
                         u.Reputation,
+                        u.ProfileImage.Version
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
-                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation });
+                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation, UserAppId = userId, ProfileImageVersion = userInfo.Version });
             }
         }
 

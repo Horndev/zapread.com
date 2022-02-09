@@ -14,5 +14,15 @@ namespace zapread.com.Models.Posts
         /// Reputation of the user who is editing
         /// </summary>
         public long UserReputation { get; set; }
+
+        /// <summary>
+        /// GUID identifier for user
+        /// </summary>
+        public string UserAppId { get; set; }
+
+        /// <summary>
+        /// Version of user image to use
+        /// </summary>
+        public int ProfileImageVersion { get; set; }
     }
 }
