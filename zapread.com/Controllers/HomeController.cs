@@ -688,6 +688,11 @@ namespace zapread.com.Controllers
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sort"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
