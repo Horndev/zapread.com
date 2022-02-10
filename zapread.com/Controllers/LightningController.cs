@@ -21,6 +21,9 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// MVC Controller for Lightning requests
+    /// </summary>
     [RoutePrefix("Lightning")]
     public class LightningController : Controller
     {
@@ -40,12 +43,22 @@ namespace zapread.com.Controllers
 
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
 
-        // GET: Lightning
+        /// <summary>
+        /// Not used but here for catching root requests
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Index()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="invoice"></param>
+        /// <param name="isDeposit"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> CheckPayment(string invoice, bool isDeposit = true)
         {
@@ -56,10 +69,10 @@ namespace zapread.com.Controllers
 
                 var u = await db.Users
                     .Include(usr => usr.Funds)
-                    .FirstOrDefaultAsync(usr => usr.AppId == userId);
+                    .FirstOrDefaultAsync(usr => usr.AppId == userId).ConfigureAwait(true);
 
                 var p = await db.LightningTransactions
-                    .FirstOrDefaultAsync(t => t.PaymentRequest == invoice);
+                    .FirstOrDefaultAsync(t => t.PaymentRequest == invoice).ConfigureAwait(true);
 
                 if (p == null)
                     return Json(new { success = false, message = "invoice is not known to this node" });
@@ -109,6 +122,11 @@ namespace zapread.com.Controllers
             return inv;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         [Route("GetInvoiceStatus/{request?}")]
@@ -153,14 +171,14 @@ namespace zapread.com.Controllers
                 userId = User.Identity.GetUserId();
             }
 
-            if (memo == null || memo == "")
+            if (string.IsNullOrEmpty(memo))
             {
                 memo = "Zapread.com";
             }
 
-            if (Convert.ToInt64(amount, CultureInfo.InvariantCulture) > 1000)
+            if (Convert.ToInt64(amount, CultureInfo.InvariantCulture) > 50000)
             {
-                return Json(new { success = false, message = "Deposits temporarily limited to 1000 satoshi" });
+                return Json(new { success = false, message = "Deposits temporarily limited to 50000 satoshi" });
             }
 
             LndRpcClient lndClient = GetLndClient();
@@ -251,6 +269,7 @@ namespace zapread.com.Controllers
                     listener.InvoicePaid += 
                         async (invoice) => await NotifyClientsInvoicePaid(invoice)
                                                     .ConfigureAwait(true);                   // handle payment message
+
                     listener.StreamLost += OnListenerLost;                                   // stream lost
                     var a = new Task(() => listener.Start());                                // listen for payment
                     a.Start();
@@ -305,7 +324,7 @@ namespace zapread.com.Controllers
                 {
                     // We found it - mark it as settled.
                     t = tx.First();
-                    t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
+                    t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date, CultureInfo.InvariantCulture));
                     t.IsSettled = true;
 
                     if (t.Amount != amount)
@@ -331,7 +350,7 @@ namespace zapread.com.Controllers
                         HashStr = invoice.r_hash,
                         IsDeposit = true,
                         TimestampSettled = settletime,
-                        TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date)),
+                        TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date, CultureInfo.InvariantCulture)),
                         PaymentRequest = invoice.payment_request,
                         User = null,
                     };
@@ -458,12 +477,12 @@ namespace zapread.com.Controllers
 
                         if (amount < 1)
                         {
-                            return Json(new { success = false, message = "Zero- or any-value invoices not supported" });
+                            return Json(new { success = false, message = "Zero- or any-value invoices are not supported at this time" });
                         }
 
-                        if (amount > 5000)
+                        if (amount > 50000)
                         {
-                            return Json(new { success = false, message = "Withdraws temporarily limited to 5000 Satoshi" });
+                            return Json(new { success = false, message = "Withdraws temporarily limited to 50000 Satoshi" });
                         }
 
                         // Check user balance
@@ -484,6 +503,39 @@ namespace zapread.com.Controllers
                         if (userFunds.Balance < amount)
                         {
                             return Json(new { success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) + ", invoice is for " + decoded.num_satoshis + "." });
+                        }
+
+                        // This is less than ideal for time checks...
+
+                        // Check how much user withdrew previous 24 hours
+                        var DayAgo = DateTime.UtcNow - TimeSpan.FromDays(1);
+
+                        var txs = await db.LightningTransactions
+                            .Where(tx => tx.User.AppId == userAppId)
+                            .Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > DayAgo)
+                            .Where(tx => !tx.IsDeposit)
+                            .Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+
+                        var withdrawn24h = txs.Sum();
+
+                        if (withdrawn24h > 100000)
+                        {
+                            return Json(new { success = false, message = "Withdraws limited to 100,000 Satoshi within a 24 hour limit." });
+                        }
+
+                        var HourAgo = DateTime.UtcNow - TimeSpan.FromHours(1);
+
+                        var txs1h = await db.LightningTransactions
+                            .Where(tx => tx.User.AppId == userAppId)
+                            .Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > HourAgo)
+                            .Where(tx => !tx.IsDeposit)
+                            .Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+
+                        var withdrawn1h = txs1h.Sum();
+
+                        if (withdrawn1h > 50000)
+                        {
+                            return Json(new { success = false, message = "Withdraws limited to 50,000 Satoshi within a 1 hour limit." });
                         }
 
                         // Save the invoice to database
@@ -513,7 +565,7 @@ namespace zapread.com.Controllers
                         return Json(new
                         {
                             success = true,
-                            withdrawId = t.WithdrawId,//.Id,
+                            withdrawId = t.WithdrawId,
                             decoded.num_satoshis,
                             decoded.destination,
                         });
@@ -641,7 +693,9 @@ namespace zapread.com.Controllers
                     });
                     return Json(new { Result = "Error processing request." });
                 }
+#pragma warning disable CA1031 // Do not catch general exception types
                 catch (Exception e)
+#pragma warning restore CA1031 // Do not catch general exception types
                 {
                     MailingService.Send(new UserEmailModel()
                     {
@@ -675,6 +729,11 @@ namespace zapread.com.Controllers
             return lndClient;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public static string GetClientIpAddress(HttpRequestBase request)
         {
             try
@@ -699,7 +758,9 @@ namespace zapread.com.Controllers
 
                 return retval;
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 // Always return all zeroes for any failure (my calling code expects it)
                 return "0.0.0.0";

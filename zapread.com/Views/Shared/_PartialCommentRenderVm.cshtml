@@ -94,11 +94,11 @@
                     }
                     else
                     {
-                        @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserName = Model.UserName, IsIgnored = isIgnoredUser })
+                        @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = isIgnoredUser })
                     }
                     <small style="display: inline-block;">
                         -@if (Model.IsReply)
-                        {<text> replied to <a class="userhint" data-userid="@Model.ParentCommentId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
+                        {<text> replied to <a class="userhint" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
                     else
                     { <text> commented&nbsp; </text>}
                     </small><small class="postTime text-muted">@Model.TimeStamp.Value.ToString("o")</small>
@@ -109,7 +109,7 @@
                     }
                     <div class="row">
                         <div class="col">
-                            <div class="comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
+                            <div class="ql-comment comment-quotable" id="commentText_@Model.CommentId" style="position: relative;" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
                                 @if (isIgnoredUser)
                                 {
                                     <span><br /></span>
@@ -135,6 +135,7 @@
                         <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId,@Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
                     </div>
                 }
+
                 <div id="reply_c@(Model.CommentId)" style="display: none;"></div>@*This is the element where the comment box will render*@
                 <div id=@("rcomments_" + @Model.CommentId.ToString())>
                     @{

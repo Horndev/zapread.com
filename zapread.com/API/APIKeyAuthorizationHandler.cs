@@ -15,12 +15,28 @@ namespace zapread.com.API
     //https://dzone.com/articles/api-key-user-aspnet-web-api
 
     // This could be an alternative.
+    /// <summary>
+    /// Handler for validating API Keys
+    /// 
+    /// [TODO] How to use
+    /// </summary>
     public static class APIKeyAuthorizationHandler
     {
+        /// <summary>
+        /// Check that the key in the identity context is valid
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task ValidateIdentity(ApiKeyValidateIdentityContext context)
         {
             using (var db = new ZapContext())
             {
+                if (context == null)
+                {
+                    throw new ArgumentNullException(nameof(context));
+                }
+
                 var submittedKey = context.ApiKey;
 
                 var isValidKey = await db.APIKeys
@@ -34,10 +50,20 @@ namespace zapread.com.API
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static async Task<IEnumerable<Claim>> GenerateClaims(ApiKeyGenerateClaimsContext context)
         {
             using (var db = new ZapContext())
             {
+                if (context == null)
+                {
+                    throw new ArgumentNullException(nameof(context));
+                }
+
                 var submittedKey = context.ApiKey;
 
                 var keyRoles = await db.APIKeys

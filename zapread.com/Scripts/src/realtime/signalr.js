@@ -3,9 +3,7 @@
  */
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
-//import "signalr/jquery.signalR";  // Got rid of this!
 import * as signalR from "@microsoft/signalr";
-
 import { onchatreceived } from './chat/onchatreceived'
 import { onusermessage } from './notification/onusermessage'
 import { onpayment } from './notification/onpayment'
@@ -37,7 +35,7 @@ function connectStream(url) {
 }
 
 async function getstream() {
-    const response = await fetch("/api/v1/stream/request/");
+    const response = await fetch("/api/v1/stream/request");
     const json = await response.json();
     if (json.success) {
         const url = json.url;

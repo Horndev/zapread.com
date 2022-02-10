@@ -11,6 +11,7 @@ using zapread.com.Database;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 
 namespace zapread.com.API
@@ -31,6 +32,10 @@ namespace zapread.com.API
         public async Task<APIKeyResponse> RequestAPIKey(string roles)
         {
             var userAppId = User.Identity.GetUserId();
+
+            // Only an administrator can grant Administrator
+            roles = ""; //only grant APIUser
+
             using (var db = new ZapContext())
             {
                 string apiRoles = "APIUser";
@@ -121,7 +126,7 @@ namespace zapread.com.API
                     return new ZapReadResponse()
                     {
                         success = false,
-                        message = "API Key not found.",
+                        message = Properties.Resources.ErrorAPIKeyNotFound,
                     };
                 }
 
@@ -155,12 +160,10 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var values = await db.Users
+                var valuesq = db.Users
                     .Where(u => u.AppId == userId)
                     .SelectMany(u => u.LNTransactions)
                     .OrderByDescending(t => t.TimestampCreated)
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
                     .Select(t => new
                     {
                         t.Id,
@@ -170,8 +173,27 @@ namespace zapread.com.API
                         t.Memo,
                         t.IsSettled,
                         t.IsLimbo,
-                    })
-                    .ToListAsync().ConfigureAwait(true);
+                    });
+
+                if (dataTableParameters.Filter == "Completed")
+                {
+                    valuesq = valuesq.Where(t => t.IsSettled);
+                }
+
+                if (dataTableParameters.Filter == "Processing")
+                {
+                    valuesq = valuesq.Where(t => t.IsLimbo);
+                }
+
+                if (dataTableParameters.Filter == "Failed/Cancelled")
+                {
+                    valuesq = valuesq.Where(t => !t.IsSettled);
+                }
+
+                // paginate
+                valuesq = valuesq
+                    .Skip(dataTableParameters.Start)
+                    .Take(dataTableParameters.Length);
 
                 int numrec = await db.Users
                     .Where(u => u.AppId == userId)
@@ -183,16 +205,16 @@ namespace zapread.com.API
                     draw = dataTableParameters.Draw,
                     recordsTotal = numrec,
                     recordsFiltered = numrec,
-                    data = values.Select(v => new LightningTransactionsInfo()
+                    data = await valuesq.Select(v => new LightningTransactionsInfo()
                     {
                         Id = v.Id,
-                        Time = v.Time == null ? "" : v.Time.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Time = v.Time,// == null ? "" : v.Time.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                         Type = v.Type,
                         Amount = v.Amount,
                         Memo = v.Memo,
                         IsSettled = v.IsSettled,
                         IsLimbo = v.IsLimbo,
-                    })
+                    }).ToListAsync().ConfigureAwait(true)
                 };
             }
         }

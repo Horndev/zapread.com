@@ -27,24 +27,17 @@ namespace zapread.com
         }
     }
 
-    public class BundleConfig
+    /// <summary>
+    /// This is the configuration for script bundling.  This is now actually done by webpack, but is relayed through here.
+    /// </summary>
+    public static class BundleConfig
     {
-        // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bundles"></param>
         public static void RegisterBundles(BundleCollection bundles)
         {
-            // Shared scripts
-            //bundles.Add(new ScriptBundle("~/bundles/shared").Include(
-            //            //"~/Scripts/main.js",                                    // Custom for all
-            //            //"~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-            //            //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
-            //            //"~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
-            //            //"~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-            //            "~/Scripts/Utility/clipboard-element.js"               // For copy to clipboard
-            //            //"~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
-            //            //"~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
-            //            //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
-            //            ).WithLastModifiedToken());
-
             #region partial scripts
 
             // Partial script - summary statistics
@@ -96,6 +89,7 @@ namespace zapread.com
 
             BundlePage(bundles, "account", "login");
             BundlePage(bundles, "admin", "achievements");
+            BundlePage(bundles, "admin", "accounting");
             BundlePage(bundles, "admin", "audit");
             BundlePage(bundles, "admin", "icons");
             BundlePage(bundles, "admin", "index");
@@ -103,6 +97,7 @@ namespace zapread.com
             BundlePage(bundles, "admin", "lightning");
             BundlePage(bundles, "admin", "users");
             BundlePage(bundles, "group", "detail");
+            BundlePage(bundles, "group", "edit");
             BundlePage(bundles, "group", "index");
             BundlePage(bundles, "group", "members");
             BundlePage(bundles, "group", "new");
@@ -110,6 +105,7 @@ namespace zapread.com
             BundlePage(bundles, "home", "faq");
             BundlePage(bundles, "home", "install");
             BundlePage(bundles, "home", "index");
+            BundlePage(bundles, "lnauth", "login");
             BundlePage(bundles, "mailer", "default");
             BundlePage(bundles, "manage", "apikeys");
             BundlePage(bundles, "manage", "default");
@@ -124,6 +120,7 @@ namespace zapread.com
             BundlePage(bundles, "post", "edit");
             BundlePage(bundles, "post", "newpost");
             BundlePage(bundles, "post", "postnotfound");
+            BundlePage(bundles, "subscription", "unsubscribe");
             BundlePage(bundles, "user", "achievements");
             BundlePage(bundles, "user", "index");
 
@@ -138,6 +135,10 @@ namespace zapread.com
             //            "~/Scripts/dist/post_edit.js",
             //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
             //            .WithLastModifiedToken());
+
+            /* Tarteaucitron */
+            bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(
+                        "~/node_modules/tarteaucitronjs/tarteaucitron.js"));
 
             /* Datatables */
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(

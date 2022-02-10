@@ -58,11 +58,6 @@
                         <a class="btn btn-sm btn-white btn-block" href="@Url.Action("Register", "Account")">Create an account</a>
                     }
                 </section>
-
-                @*<p class="m-t">
-                        <small>Small footnote here</small>
-                    </p>*@
-
                 <br />
                 <section id="socialLoginForm">
                     @Html.Partial("_ExternalLoginsListPartial", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })

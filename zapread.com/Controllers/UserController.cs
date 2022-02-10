@@ -1,9 +1,11 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,23 +21,34 @@ using zapread.com.Models.UserViews;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for users
+    /// </summary>
     [RoutePrefix("user")]
     public class UserController : Controller
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public UserController()
-        {
-            // Empty constructor
-        }
+        /// <summary>
+        /// Empty constructor
+        /// </summary>
+        public UserController() { }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
         public UserController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationSignInManager SignInManager
         {
             get
@@ -48,6 +61,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -60,6 +76,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Get posts for a user activity feed
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<PostViewModel>> GetActivityPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
@@ -119,20 +142,8 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                    //.Include(p => p.Group)
-                    //.Include(p => p.Comments)
-                    //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                    //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                    //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                    //.Include(p => p.UserId)
-                    //.Include(p => p.UserId.ProfileImage)
-                    //.AsNoTracking();
-
                 // These are the user ids which we are following
                 //var followingIds = user.Following.Select(usr => usr.Id).ToList();// db.Users.Where(u => u.Name == username).Select(u => u.Id).ToList();
-
                 // Posts by users who are following this user
                 var followposts = db.Posts
                     .Where(p => followingIds.Contains(p.UserId.Id))
@@ -182,43 +193,94 @@ namespace zapread.com.Controllers
                         }),
                     });
 
-                //.Include(p => p.Group)
-                //.Include(p => p.Comments)
-                //.Include(p => p.Comments.Select(cmt => cmt.Parent))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                //.Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId))
-                //.Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                //.Include(p => p.UserId)
-                //.Include(p => p.UserId.ProfileImage)
-                //.AsNoTracking();
-
-                //var activityposts = await userposts.Union(followposts)
-                //    .OrderByDescending(p => p.TimeStamp)
-                //    .Skip(start)
-                //    .Take(count)
-                //    .ToListAsync().ConfigureAwait(true);
-
                 var activityposts = userposts.ToList().Union(followposts.ToList())
                     .OrderByDescending(p => p.TimeStamp)
                     .Skip(start)
                     .Take(count)
                     .ToList();
-                    //.ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
         }
 
+        /// <summary>
+        /// Gets the list of language options for the user
+        /// </summary>
+        /// <returns></returns>
+        [Route("languages")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> Languages(string prefix, int max)
+        {
+            // First we check what the browser is claiming to support
+            List<string> userLanguages;
+
+            try
+            {
+                userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
+
+                if (userLanguages.Count == 0)
+                {
+                    userLanguages.Add("en");
+                }
+            }
+            catch
+            {
+                userLanguages = new List<string>() { "en" };
+            }
+
+            var knownLanguages = LanguageHelpers.GetLanguages();
+
+            // The first entries should be the user languages
+            var userLangs = knownLanguages.Select(kl => kl.Split(':'))
+                .Where(kl => userLanguages.Contains(kl[0]));
+
+            var otherLangs = knownLanguages.Select(kl => kl.Split(':'))
+                .Where(kl => !userLanguages.Contains(kl[0]));
+
+            var query = userLangs.Concat(otherLangs)
+                .DistinctBy(kl => kl[0] + kl[1]);
+
+            if (String.IsNullOrEmpty(prefix))
+            {
+                
+            }
+            else
+            {
+                query = query.Where(kl => kl[1].ToLowerInvariant().StartsWith(prefix.ToLowerInvariant()));
+            }
+                
+            var languages = query.Select(kl => new
+                {
+                    Name = kl[1],
+                    iso = kl[0]
+                })
+                .Take(max);
+
+            return Json(new { languages });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Achievement/Hover/")]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON only")]
         public async Task<JsonResult> AchievementHover(int id)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 var a = await db.UserAchievements
                     .Include(i => i.Achievement)
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -236,7 +298,6 @@ namespace zapread.com.Controllers
 
                 string HTMLString = RenderPartialViewToString("_PartialUserAchievement", model: vm);
                 return Json(new { success = true, HTMLString });
-               
             }
         }
 
@@ -245,30 +306,44 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="userId">The id of the user to hover</param>
         /// <param name="username"></param>
+        /// <param name="userAppId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("Hover/")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public async Task<JsonResult> Hover(int userId, string username)
+        public async Task<JsonResult> Hover(int userId, string username, string userAppId)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
             using (var db = new ZapContext())
             {
                 int hoverUserId = userId; // take from parameter passed
-                var userAppId = User.Identity.GetUserId();
+                var _userAppId = userAppId ?? User.Identity.GetUserId();
 
                 // If a username was provided - use it in search, otherwise don't use.  This is built as a separate query
                 // here to reduce the sql query payload.
                 IQueryable<User> uiq;
-                if (!String.IsNullOrEmpty(username))
+                if (!String.IsNullOrEmpty(username) && userAppId == null)
                 {
                     uiq = db.Users
                         .Where(u => u.Id == hoverUserId || u.Name == username);
                 }
                 else
                 {
-                    uiq = db.Users
-                        .Where(u => u.Id == hoverUserId);
+                    if (hoverUserId > 0)
+                    {
+                        uiq = db.Users
+                            .Where(u => u.Id == hoverUserId);
+                    }
+                    else
+                    {
+                        uiq = db.Users
+                            .Where(u => u.AppId == _userAppId);
+                    }
                 }
 
                 var userInfo = await uiq
@@ -280,7 +355,7 @@ namespace zapread.com.Controllers
                         u.Reputation,
                         u.ProfileImage.Version,
                         u.IsOnline,
-                        IsFollowed = userAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(userAppId),
+                        IsFollowed = _userAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(_userAppId),
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
@@ -334,7 +409,7 @@ namespace zapread.com.Controllers
                     .Include(u => u.Achievements)
                     .Include(u => u.Achievements.Select(a => a.Achievement))
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(i => i.Name == username);
+                    .FirstOrDefaultAsync(i => i.Name == username).ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -366,7 +441,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        // GET: User
+        /// <summary>
+        /// Get user page
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("{username?}")]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
@@ -382,19 +461,6 @@ namespace zapread.com.Controllers
                 double userFunds = 0;
                 bool isFollowing = false;
                 bool isIgnoring = false;
-
-                //var user = await db.Users.Where(u => u.Name == username)
-                //    .Include(u => u.Following)
-                //    .Include(usr => usr.Groups)
-                //    .Include(usr => usr.ProfileImage)
-                //    .Include(usr => usr.Achievements)
-                //    .Include(usr => usr.Achievements.Select(ach => ach.Achievement))
-                //    .AsNoTracking()
-                //    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                //ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
 
                 var userInfo = await db.Users
                     .Where(u => u.Name == username)
@@ -476,20 +542,6 @@ namespace zapread.com.Controllers
                     .AsNoTracking()
                     .ToListAsync().ConfigureAwait(true);
 
-                //List<PostViewModel> postViews = new List<PostViewModel>();
-
-                //foreach (var p in activityposts)
-                //{
-                //    postViews.Add(new PostViewModel()
-                //    {
-                //        //Post = p,
-                //        ViewerIsMod = false, //user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                //        ViewerUpvoted = false, //user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        ViewerDownvoted = false, //user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                //        NumComments = 0,
-                //    });
-                //}
-
                 List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Groups)
                     .Select(g => new GroupInfo()
@@ -563,14 +615,15 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var uid = User.Identity.GetUserId();
-                User user = await db.Users.AsNoTracking()
+                User user = await db
+                    .Users.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
                 List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
 
-                List <GroupStats> groups = await db.Groups.AsNoTracking()
-                        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .ToListAsync().ConfigureAwait(true);
+                //List <GroupStats> groups = await db.Groups.AsNoTracking()
+                //        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                //        .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)
@@ -873,7 +926,14 @@ namespace zapread.com.Controllers
             return PartialView();
         }
 
-        // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// <summary>
+        /// Renders MVC view to a string
+        /// 
+        /// https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

@@ -20,21 +20,26 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for manage pages
+    /// </summary>
     [Authorize]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public ManageController()
-        {
-        }
+        /// <summary>
+        /// default constructor
+        /// </summary>
+        public ManageController() { }
 
         public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
@@ -66,11 +71,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet]
         public ActionResult Financial()
         {
             return View();
         }
 
+        [HttpGet]
         [Route("Manage/APIKeys/")]
         public ActionResult APIKeys()
         {
@@ -334,6 +341,9 @@ namespace zapread.com.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
         {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return Json(new { success = false, Result = "Failure", Message = "Tips Disabled" });
+
             if (amount == null || amount.Value < 1)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -525,11 +535,14 @@ namespace zapread.com.Controllers
                             Destination = receiverEmail,
                             Body = "From: " + senderName + " <br/> Amount: "
                                 + amount.ToString()
-                                + " Satoshi.<br/><br/><a href='http://www.zapread.com'>zapread.com</a>",
+                                + " Satoshi.<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
                             Email = "",
                             Name = "ZapRead.com Notify",
                             Subject = "You received a tip!",
-                        }, "Notify"));
+                        }, 
+                        "Notify", // account
+                        true // useSSL
+                        ));
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
@@ -694,6 +707,7 @@ namespace zapread.com.Controllers
                     HasPassword = HasPassword(),
                     UserName = userInfo.Name,
                     UserAppId = userInfo.AppId,
+                    UserId = userInfo.Id,
                     UserProfileImageVersion = userInfo.Version,
                     PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
@@ -712,7 +726,7 @@ namespace zapread.com.Controllers
                     AchievementsViewModel = uavm,
                     Settings = userInfo.Settings,
                     Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
-                    KnownLanguages = GetLanguages(),
+                    KnownLanguages = LanguageHelpers.GetLanguages(),
                     Reputation = userInfo.Reputation,
                 };
 
@@ -720,22 +734,7 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static List<string> GetLanguages()
-        {
-            // List of languages known
-            var languagesEng = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.EnglishName).ToList();
-
-            var languagesNat = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                .Select(g => g.First())
-                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-            var languages = languagesEng.Concat(languagesNat).ToList();
-            return languages;
-        }
+        
 
         private void ValidateClaims(UserSettings userSettings)
         {
@@ -884,6 +883,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates the user profile image
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
@@ -932,7 +936,10 @@ namespace zapread.com.Controllers
 
                     var user = db.Users.First(u => u.AppId == userId);
                     UserImage i = new UserImage() { 
+                        UserAppId = user.AppId,
                         ContentType = "image/png",
+                        XSize = max_wh,
+                        YSize = max_wh,
                         Image = data, 
                         Version = user.ProfileImage.Version + 1 };
                     user.ProfileImage = i;
@@ -953,6 +960,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> UpdateUserAlias(string alias)
         {
             try
@@ -964,7 +972,7 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                ; // Todo - fixup unit test
+                // This will happen with unit test - should fix it.
             }
 
             string cleanName = alias.CleanUnicode().Trim().SanitizeXSS();
@@ -1042,7 +1050,7 @@ namespace zapread.com.Controllers
             string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
                 id: user.Id,
                 userName: cleanName,
-                oldUserName: oldName);
+                oldUserName: oldName).ConfigureAwait(true);
 
             string userEmail = aspUser.Email;
 
@@ -1055,7 +1063,10 @@ namespace zapread.com.Controllers
                     Email = "",
                     Name = "zapread.com",
                     Subject = subject,
-                }, "Notify"));
+                }, 
+                "Notify", // account
+                true // useSSL
+                ));
         }
 
         [HttpPost]
@@ -1384,8 +1395,11 @@ namespace zapread.com.Controllers
             });
         }
 
-        //
-        // POST: /Manage/LinkLogin
+        /// <summary>
+        /// POST: /Manage/LinkLogin
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LinkLogin(string provider)
@@ -1399,7 +1413,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> LinkLoginCallback()
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
+            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId()).ConfigureAwait(true);
             if (loginInfo == null)
             {
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });

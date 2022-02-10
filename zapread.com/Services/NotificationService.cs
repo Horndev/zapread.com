@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// For sending realtime notifications
+    /// </summary>
     public class NotificationService
     {
         /// <summary>
@@ -30,6 +33,26 @@ namespace zapread.com.Services
                     invoice,
                     balance = userBalance,
                     txid,
+                });
+
+            var response = await client.ExecuteAsync(request).ConfigureAwait(true);
+            if (response.IsSuccessful)
+            {
+                // Good!
+            }
+        }
+
+        public async static Task SendLnAuthLoginNotification(string userId, string callback, string token)
+        {
+            var url = ConfigurationManager.AppSettings.Get("wshost");
+            url = url + "/api/";
+            RestClient client = new RestClient(url);
+            var request = (new RestRequest("auth/lnauthcb", Method.POST) { RequestFormat = DataFormat.Json })
+                .AddJsonBody(new
+                {
+                    toUserId = userId,
+                    Callback = callback,
+                    Token = token,
                 });
 
             var response = await client.ExecuteAsync(request).ConfigureAwait(true);

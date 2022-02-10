@@ -65,6 +65,9 @@
                 </li>
             }*@
                     <li>
+                        Hot: @Model.Hot
+                    </li>
+                    <li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
                     </li>
                     <li>
@@ -122,7 +125,7 @@
             @if (!Model.ViewerIgnoredUser)
             {
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle post-image-45@(Model.UserAppId == User.Identity.GetUserId() ? " user-image-45":"")" loading="lazy" width="45" height="45" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+                    <img class="img-circle post-image-45@(Model.UserAppId == User.Identity.GetUserId() ? " user-image-45":"")" loading="lazy" width="45" height="45" data-userappid="@Model.UserAppId" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
                 </a>
             }
             <div class="media-body">
@@ -137,7 +140,7 @@
                     }
                 </a>
                 <div class="vote-info" style="margin-left: 110px;">
-                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.IsSticky)
+                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.IsSticky)
                     {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
                     @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = Model.IsFirstPost })
 
@@ -154,8 +157,8 @@
         <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
             <div class="row">
                 <div class="col">
-                    <div class="post-quotable post-content @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userid="@Model.UserId">
-                        <div @if (!Model.IsDetailView) { <text> class="post-content" </text> }>
+                    <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userappid="@Model.UserAppId" data-userid="@Model.UserId">
+                        <div @if (!Model.IsDetailView) { <text> class="post-content ql-container ql-snow" </text> }>
                             @Html.Raw(Model.Content)
                         </div>
                         @if (Model.IsNSFW)
@@ -177,7 +180,9 @@
             <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
                 <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
             </div>
-            <div id="reply_p@(Model.PostId.ToString())" style="display: none;"></div>@*This is where the post reply comment input will be inserted.*@
+            <div id="reply_p@(Model.PostId.ToString())" style="display: none;">
+                @*This is where the post reply comment input will be inserted.*@
+            </div>
         }
         <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
             @if (Model.CommentVms.Any())

@@ -397,6 +397,8 @@ window.doVote = doVote;
  * @param {any} uid  id of user
  */
 export function tip(user, uid) {
+  alert("tips disabled.");
+  return;
     window.isTip = true;
     document.getElementById('voteModalTitle').innerHTML = "Tip " + user;
 

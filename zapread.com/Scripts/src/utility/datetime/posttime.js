@@ -18,3 +18,16 @@ export function updatePostTimes() {
         el.classList.remove('postTime');
     });
 }
+
+/**
+ * Convert an ISO time string to a relative text string
+ * @param {string} timestring
+ */
+export function ISOtoRelative(timestring) {
+  var datefn = parseISO(timestring);
+  datefn = subMinutes(datefn, (new Date()).getTimezoneOffset());
+  var date = format(datefn, "dd MMM yyyy");
+  var time = formatDistanceToNow(datefn, { addSuffix: false });
+  var returnstring = time + ' ago - ' + date;
+  return returnstring;
+}

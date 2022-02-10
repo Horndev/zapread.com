@@ -4,6 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// Describes an icon which can be used on the website.
+    /// This should be deprecated in a future version.
+    /// </summary>
     public class ZapIcon
     {
         public int Id { get; set; }
@@ -15,10 +19,15 @@ namespace zapread.com.Models
         public int NumUses { get; set; }
 
         public string Lib { get; set; }
+
         public int ImageSize { get; set; }
+
         public byte[] Image { get; set; }
     }
 
+    /// <summary>
+    /// Storage of user graphics in the database
+    /// </summary>
     public class UserImage
     {
         [Key]

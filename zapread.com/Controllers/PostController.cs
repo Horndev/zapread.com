@@ -17,18 +17,26 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
+using zapread.com.Models.Posts;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
     //[RoutePrefix("{Type:regex(Post|post)}")]
+    /// <summary>
+    /// Controller for the /Post/ Route
+    /// </summary>
     public class PostController : Controller
     {
         private ApplicationRoleManager _roleManager;
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// Access for Owin user manager
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -41,6 +49,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Access for Owin roles manager
+        /// </summary>
         public ApplicationRoleManager RoleManager
         {
             get
@@ -52,19 +63,83 @@ namespace zapread.com.Controllers
                 _roleManager = value;
             }
         }
-        public class EditPostInfo
+
+        /// <summary>
+        /// Fetch a draft post (by post ID)
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isDraft"></param>
+        /// <returns></returns>
+        [Route("Post/Draft/Load")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
+        public async Task<ActionResult> GetDraft(int postId, bool isDraft = true)
         {
-            public int PostId { get; set; }
+            var userId = User.Identity.GetUserId();
+
+            if (userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json(new { success = false, message = "Credentials failure" });
+            }
+            using (var db = new ZapContext())
+            {
+                var draftPost = await db.Posts
+                    .Where(p => p.UserId.AppId == userId)
+                    .Where(p => p.IsDraft == isDraft)
+                    .Where(p => p.IsDeleted == false)
+                    .Where(p => p.PostId == postId)
+                    .Select(p => new
+                    {
+                        p.PostId,
+                        p.Group.GroupId,
+                        p.PostTitle,
+                        p.Group.GroupName,
+                        p.Content
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (draftPost == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, message = "Draft post not found." });
+                }
+
+                return Json(new { success = true, draftPost });
+            }
         }
 
-        // This is a data structure to return the list of draft posts to view in a client-side table
-        public class DataItem
+        /// <summary>
+        /// Delete a draft post
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [Route("Post/Draft/Delete")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
+        public async Task<ActionResult> DeleteDraft(int postId)
         {
-            public string Time { get; set; }
-            public string Title { get; set; }
-            public string Group { get; set; }
-            public string GroupId { get; set; }
-            public string PostId { get; set; }
+            var userId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == postId).ConfigureAwait(false);
+
+                if (!User.IsInRole("Administrator"))
+                {
+                    if (post.UserId.AppId != userId)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                post.IsDeleted = true;
+                await db.SaveChangesAsync().ConfigureAwait(false);
+
+                return Json(new { success = true });
+            }
         }
 
         /// <summary>
@@ -75,7 +150,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "token in header")]
-        public ActionResult GetDrafts(DataTableParameters dataTableParameters)
+        public async Task<ActionResult> GetDrafts(DataTableParameters dataTableParameters)
         {
             if (dataTableParameters == null)
             {
@@ -96,30 +171,36 @@ namespace zapread.com.Controllers
                 User u = db.Users
                         .Where(us => us.AppId == userId).First();
 
-                var draftPosts = db.Posts
+                var draftPostsQuery = db.Posts
                     .Where(p => p.UserId.Id == u.Id)
                     .Where(p => p.IsDraft == true)
-                    .Where(p => p.IsDeleted == false)
-                    .Include(p => p.Group)
+                    .Where(p => p.IsDeleted == false);
+
+                var drafts = await draftPostsQuery
                     .OrderByDescending(p => p.TimeStamp)
                     .Skip(dataTableParameters.Start)
                     .Take(dataTableParameters.Length)
-                    .ToList();
+                    .Select(t => new
+                    {
+                        t.TimeStamp,//.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
+                        t.PostTitle,
+                        t.Group.GroupName,
+                        t.Group.GroupId,
+                        t.PostId,
+                    })
+                    .ToListAsync().ConfigureAwait(true);
 
-                var values = draftPosts.Select(t => new DataItem()
+                int numrec = await draftPostsQuery
+                    .CountAsync().ConfigureAwait(true);
+
+                var values = drafts.Select(t => new
                 {
-                    Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    Title = t.PostTitle,
-                    Group = t.Group.GroupName,
-                    GroupId = Convert.ToString(t.Group.GroupId),
-                    PostId = Convert.ToString(t.PostId),
-                }).ToList();
-
-                int numrec = db.Posts
-                    .Where(p => p.UserId.Id == u.Id)
-                    .Where(p => p.IsDraft == true)
-                    .Where(p => p.IsDeleted == false)
-                    .Count();
+                    TimeStamp = t.TimeStamp.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : "",
+                    t.PostTitle,
+                    t.GroupName,
+                    t.GroupId,
+                    t.PostId,
+                });
 
                 var ret = new
                 {
@@ -132,6 +213,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets and updates post impressions count.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet, Route("Post/Impressions/{id}")]
         public async Task<PartialViewResult> Impressions(int? id)
         {
@@ -149,6 +235,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Only Admin or Mod user can make a post sticky in the group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost, ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<JsonResult> ToggleStickyPost(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -178,6 +271,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Admin or Mod can toggle a post as NSFW
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -208,8 +306,8 @@ namespace zapread.com.Controllers
                     .SelectMany(u => u.GroupModeration.Select(g => g.GroupId))
                     .ContainsAsync(post.Group.GroupId).ConfigureAwait(false);
 
-                if (post.UserId.AppId == userId 
-                    || UserManager.IsInRole(userId, "Administrator") 
+                if (post.UserId.AppId == userId
+                    || UserManager.IsInRole(userId, "Administrator")
                     || callingUserIsMod)
                 {
                     post.IsNSFW = !post.IsNSFW;
@@ -230,7 +328,7 @@ namespace zapread.com.Controllers
                     };
                     postOwner.Alerts.Add(alert);
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                    return Json(new { success=true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
+                    return Json(new { success = true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -240,8 +338,15 @@ namespace zapread.com.Controllers
             }
         }
 
-        [AllowAnonymous]
-        public async Task<ActionResult> NewPost(int? group)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Post/Edit/{postId?}")]
+        public async Task<ActionResult> Edit(int? postId, int? group)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -252,31 +357,13 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                await EnsureUserExists(userId, db);
-                var user = db.Users.Where(u => u.AppId == userId).First();
-                var communityGroup = db.Groups.FirstOrDefault(g => g.GroupId == 1);
-                var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == group);
-                var post = new Post()
-                {
-                    Content = "",
-                    UserId = user,
-                    Group = postGroup,// ?? communityGroup,
-                    Language = (postGroup ?? communityGroup).DefaultLanguage ?? "en",
-                };
-
-                // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                var vm = new NewPostViewModel()
-                {
-                    Post = post,
-                    Languages = languages,
-                };
-
-                return View(vm);
+                var userInfo = await db.Users.Where(u => u.AppId == userId)
+                    .Select(u => new
+                    {
+                        u.Reputation,
+                        u.ProfileImage.Version
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation, UserAppId = userId, ProfileImageVersion = userInfo.Version });
             }
         }
 
@@ -284,7 +371,7 @@ namespace zapread.com.Controllers
         {
             if (userId != null)
             {
-                if (db.Users.Where(u => u.AppId == userId).Count() == 0)
+                if (!db.Users.Where(u => u.AppId == userId).Any())
                 {
                     // no user entry
                     User u = new User()
@@ -299,28 +386,35 @@ namespace zapread.com.Controllers
                         DateJoined = DateTime.UtcNow,
                     };
                     db.Users.Add(u);
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="groupId"></param>
+        /// <param name="content"></param>
+        /// <param name="postTitle"></param>
+        /// <param name="isDraft"></param>
+        /// <param name="isNSFW"></param>
+        /// <param name="postQuietly"></param>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        [Route("Post/Submit")]
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<JsonResult> SubmitNewPost(NewPostMsg p)
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, bool postQuietly, string language)
         {
             var userId = User.Identity.GetUserId();
 
             if (userId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                return Json(new { result = "failure", success = false, message = "Error finding user account." });
-            }
-
-            if (p == null)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { result = "failure", success = false, message = "Parameter error." });
+                return Json(new { success = false, message = "Error finding user account." });
             }
 
             using (var db = new ZapContext())
@@ -329,49 +423,20 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
 
                 // Cleanup post HTML
-                HtmlDocument postDocument = new HtmlDocument();
-                postDocument.LoadHtml(p.Content);
-                var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
-                if (postImages != null)
-                {
-                    foreach (var item in postImages)
-                    {
-                        // ensure images have the img-fluid class
-                        if (!item.HasClass("img-fluid"))
-                        {
-                            item.AddClass("img-fluid");
-                        }
-                    }
-                }
+                string contentStr = CleanContent(content);
 
-                // Check links
-                var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
-                if (postLinks != null)
-                {
-                    foreach (var link in postLinks.ToList())
-                    {
-                        string url = link.GetAttributeValue("href", "");
-                        // replace links to embedded videos
-                        if (url.Contains("youtu.be"))
-                        {
-                            var uri = new Uri(url);
-                            string videoId = uri.Segments.Last();
-                            string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
-                            var newNode = HtmlNode.CreateNode(modElement);
-                            link.ParentNode.ReplaceChild(newNode, link);
-                        }
-                    }
-                }
-                string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
-                var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
+                var postGroup = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
+
+                string postLanguage = LanguageHelpers.NameToISO(language);
 
                 Post post = null;
-                if (p.PostId > 0)
+                if (postId > 0)
                 {
                     // Updated post
-                    post = db.Posts
+                    post = await db.Posts
                         .Include(pst => pst.UserId)
-                        .Where(pst => pst.PostId == p.PostId).FirstOrDefault();
+                        .Where(pst => pst.PostId == postId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     // Ensure user owns this post (or is site admin)
                     if (post.UserId.Id != user.Id && !User.IsInRole("Administrator"))
@@ -381,10 +446,11 @@ namespace zapread.com.Controllers
                         return Json(new { result = "failure", success = false, message = "User mismatch" });
                     }
 
-                    post.PostTitle = p.Title == null ? "Post" : p.Title.CleanUnicode().SanitizeXSS();
+                    post.PostTitle = postTitle == null ? "Post" : postTitle.CleanUnicode().SanitizeXSS();
                     post.Group = postGroup;
                     post.Content = contentStr;
-                    post.Language = p.Language ?? post.Language;
+                    post.Language = postLanguage ?? post.Language;
+                    post.IsNSFW = isNSFW;
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -395,15 +461,31 @@ namespace zapread.com.Controllers
                         post.TimeStampEdited = DateTime.UtcNow;
                     }
 
-                    if (post.IsDraft && !p.IsDraft) // Post was a draft, now published
+                    if (post.IsDraft && !isDraft) // Post was a draft, now published
                     {
-                        post.IsDraft = p.IsDraft;
+                        post.IsDraft = isDraft;
                         await db.SaveChangesAsync().ConfigureAwait(true);
-                        // We don't return yet - so notifications can be fired off.
+                        if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
+                        {
+                            // Send alerts to users subscribed to users
+                            try
+                            {
+                                var mailer = DependencyResolver.Current.GetService<MailerController>();
+                                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                                string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+
+                                BackgroundJob.Enqueue<MailingService>(
+                                    methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
+                            }
+                            catch (Exception e)
+                            {
+                                // noted.
+                            }
+                        }
                     }
                     else
                     {
-                        post.IsDraft = p.IsDraft;
+                        post.IsDraft = isDraft;
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
@@ -421,89 +503,61 @@ namespace zapread.com.Controllers
                         Group = postGroup,
                         TimeStamp = DateTime.UtcNow,
                         VotesUp = new List<User>() { user },
-                        PostTitle = p.Title == null ? "" : p.Title.CleanUnicode().SanitizeXSS(),
-                        IsDraft = p.IsDraft,
-                        Language = p.Language,
+                        PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS(),
+                        IsDraft = isDraft,
+                        Language = postLanguage,
+                        IsNSFW = isNSFW,
                     };
 
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    if (!isDraft && !postQuietly)
+                    {
+                        try
+                        {
+                            var mailer = DependencyResolver.Current.GetService<MailerController>();
+                            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                            string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+
+                            BackgroundJob.Enqueue<MailingService>(
+                                methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
+                        }
+                        catch (Exception e)
+                        {
+                            // noted.
+                        }
+                    }
                 }
-
-                bool quiet = false;  // Used when debugging
-
-                if (p.IsDraft || quiet) // Don't send any alerts
-                {
-                    return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
-                }
-
-                // Send alerts to users subscribed to group
-                await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
-
-                // Send alerts to users subscribed to users
-                try
-                {
-                    var mailer = DependencyResolver.Current.GetService<MailerController>();
-                    await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
-                }
-                catch (Exception e)
-                {
-                    // noted.
-                }
-
-                return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
+                return Json(new { success = true, postId = post.PostId });
             }
         }
 
-        private async Task AlertUsersNewPost(ZapContext db, User user, Post post, MailerController mailer)
+        private static string CleanContent(string content)
         {
-            var followUsers = db.Users
-                .Include("Alerts")
-                .Include("Settings")
-                .Where(u => u.Following.Select(usr => usr.Id).Contains(user.Id));
+            HtmlDocument postDocument = new HtmlDocument();
+            postDocument.LoadHtml(content);
 
-            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-            string subject = "New post by user you are following: " + user.Name;
-            string emailBody = await mailer.GenerateNewPostEmailBod(post.PostId, subject).ConfigureAwait(true);
-
-            foreach (var u in followUsers)
+            // Check links
+            var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
+            if (postLinks != null)
             {
-                // Add Alert
-                var alert = new UserAlert()
+                foreach (var link in postLinks.ToList())
                 {
-                    TimeStamp = DateTime.Now,
-                    Title = "New post by a user you are following: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
-                    Content = "",//post.PostTitle,
-                    IsDeleted = false,
-                    IsRead = false,
-                    To = u,
-                    PostLink = post,
-                };
-
-                u.Alerts.Add(alert);
-
-                if (u.Settings == null)
-                {
-                    u.Settings = new UserSettings();
-                }
-
-                if (u.Settings.NotifyOnNewPostSubscribedUser)
-                {
-                    string followerEmail = UserManager.FindById(u.AppId).Email;
-
-                    // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
-                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                        new UserEmailModel()
-                        {
-                            Destination = followerEmail,
-                            Body = emailBody,
-                            Email = "",
-                            Name = "zapread.com",
-                            Subject = subject,
-                        }, "Notify"));
+                    string url = link.GetAttributeValue("href", "");
+                    // replace links to embedded videos
+                    if (url.Contains("youtu.be"))
+                    {
+                        var uri = new Uri(url);
+                        string videoId = uri.Segments.Last();
+                        string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                        var newNode = HtmlNode.CreateNode(modElement);
+                        link.ParentNode.ReplaceChild(newNode, link);
+                    }
                 }
             }
-            await db.SaveChangesAsync().ConfigureAwait(true);
+            string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
+            return contentStr;
         }
 
         private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)
@@ -527,7 +581,7 @@ namespace zapread.com.Controllers
                 };
                 u.Alerts.Add(alert);
             }
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
         public class DeletePostMsg
@@ -535,6 +589,11 @@ namespace zapread.com.Controllers
             public int PostId { get; set; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> DeletePost(DeletePostMsg p)
         {
@@ -554,44 +613,6 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync().ConfigureAwait(false);
 
                 return Json(new { Success = true });
-                //return RedirectToAction("Index", "Home");
-            }
-        }
-
-        public ActionResult Edit(int postId)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
-            }
-
-            var userId = User.Identity.GetUserId();
-
-            using (var db = new ZapContext())
-            {
-                var user = db.Users.Where(u => u.AppId == userId).First();
-                var postVm = db.Posts
-                    .Where(p => p.PostId == postId)
-                    .Select(p => new PostViewModel()
-                    {
-                        GroupId = p.Group.GroupId,
-                        GroupName = p.Group.GroupName,
-                        UserId = p.UserId.Id,
-                        UserAppId = p.UserId.AppId,
-                        PostTitle = p.PostTitle,
-                        Content = p.Content,
-                        PostId = p.PostId,
-                    })
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
-                // Must own post, or be an Administrator to edit
-                if (postVm == null || (postVm.UserAppId != userId && !User.IsInRole("Administrator")))
-                {
-                    // TODO: If userId doesn't match - should throw more informative error.
-                    return RedirectToAction("Index", "Home");
-                }
-                return View(postVm);
             }
         }
 
@@ -600,9 +621,9 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="PostId"></param>
         /// <param name="vote">0 = downvote, 1 = upvote</param>
-        /// <param name="postTitle">Optonal string which is used in SEO</param>
+        /// <param name="postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
-        [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
+        [MvcSiteMapNode(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("Post/Detail/{PostId?}/{postTitle?}")]
         [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
@@ -624,7 +645,7 @@ namespace zapread.com.Controllers
                 }
 
                 var pst = db.Posts
-                    .Where(p => p.PostId == PostId)
+                    .Where(p => p.PostId == PostId && !p.IsDraft && !p.IsDeleted)
                     .Select(p => new PostViewModel()
                     {
                         PostTitle = p.PostTitle,
@@ -690,102 +711,12 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public class UpdatePostMessage
-        {
-            public int PostId { get; set; }
-            public int GroupId { get; set; }
-            public string UserId { get; set; }
-            public string Content { get; set; }
-            public string Title { get; set; }
-            public bool IsDraft { get; set; }
-        }
-
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON Header")]
-        public async Task<JsonResult> Update(UpdatePostMessage p)
-        {
-            var userId = User.Identity.GetUserId();
-
-            if (p == null)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { result = "failure", success = false, message = "Parameter error." });
-            }
-
-            if (userId != p.UserId && !User.IsInRole("Administrator"))
-            {
-                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                return Json(new { result = "error", success = false, message = "User authentication error." });
-            }
-
-            using (var db = new ZapContext())
-            {
-                var user = await db.Users
-                    .SingleOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
-
-                var post = await db.Posts
-                    .Include(ps => ps.UserId)
-                    .Include(ps => ps.Group)
-                    .SingleOrDefaultAsync(ps => ps.PostId == p.PostId).ConfigureAwait(true);
-
-                if (post == null)
-                {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { result = "error", success=false, message = "Post not found." });
-                }
-                if (post.UserId.Id != user.Id && !User.IsInRole("Administrator"))
-                {
-                    Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    return Json(new { result = "error", success=false, message = "User authentication error." });
-                }
-
-                string contentStr = p.Content.SanitizeXSS();
-                post.Content = contentStr;
-                post.PostTitle = p.Title == null ? "Post" : p.Title.CleanUnicode().SanitizeXSS();
-
-                if (post.IsDraft)
-                {
-                    if (p.IsDraft)
-                    {
-                        // Post was draft - still draft
-                        post.TimeStampEdited = DateTime.UtcNow;
-                    }
-                    else
-                    {
-                        // Post was draft - now live
-                        post.TimeStamp = DateTime.UtcNow;
-
-                        // Send alerts to users subscribed to group
-                        var postGroup = db.Groups.FirstOrDefault(g => g.GroupId == p.GroupId);
-                        await AlertGroupNewPost(db, postGroup, post).ConfigureAwait(true);
-
-                        // Send alerts to users subscribed to users
-                        var mailer = DependencyResolver.Current.GetService<MailerController>();
-                        await AlertUsersNewPost(db, user, post, mailer).ConfigureAwait(true);
-                    }
-                }
-                else
-                {
-                    // Post was already live - only edit timestamp can be changed.
-                    if (!User.IsInRole("Administrator"))
-                    {
-                        post.TimeStampEdited = DateTime.UtcNow;
-                    }
-                }
-                if (post.Group.GroupId != p.GroupId)
-                {
-                    // Need to reset score
-                    post.Score = 1;
-                    post.Group = await db.Groups.FirstAsync(g => g.GroupId == p.GroupId).ConfigureAwait(true);
-                }
-
-                post.IsDraft = p.IsDraft;
-                await db.SaveChangesAsync().ConfigureAwait(true);
-                return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
-            }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="newLanguage"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult ChangeLanguage(int postId, string newLanguage)
         {

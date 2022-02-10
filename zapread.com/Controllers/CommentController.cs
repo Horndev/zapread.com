@@ -103,7 +103,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// This method returns the partial HTML view for a comment input box.
         /// </summary>
-        /// <param name="id">The comment for which the reply input is intended for.</param>
+        /// <param name="commentId">The comment for which the reply input is intended for.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("Comment/GetInputBox/{commentId}")]
@@ -265,7 +265,10 @@ namespace zapread.com.Controllers
 
                 if (user == null)
                 {
-                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    if (Response != null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
                     return Json(new { success = false, Message = "User not found in DB." });
                 }
 
@@ -276,7 +279,10 @@ namespace zapread.com.Controllers
 
                 if (post == null)
                 {
-                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    if (Response != null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
                     return Json(new { success = false, Message = "Post not found in DB." });
                 }
 
@@ -701,7 +707,7 @@ namespace zapread.com.Controllers
                     message: new UserEmailModel()
                     {
                         Subject = "New mention in comment",
-                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='http://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='http://www.zapread.com'>zapread.com</a>",
+                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='https://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='https://www.zapread.com'>zapread.com</a>",
                         Destination = mentionedEmail,
                         Email = "",
                         Name = "ZapRead.com Notify"

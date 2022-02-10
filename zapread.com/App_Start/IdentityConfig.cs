@@ -9,47 +9,36 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// Send identity service emails
+    /// </summary>
     public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        /// <summary>
+        /// Send out email message
+        /// </summary>
+        /// <param name="message">Message contents</param>
+        /// <returns>void</returns>
+        public async Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
-            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
-            var emailuser = System.Configuration.ConfigurationManager.AppSettings["AccountsEmailUser"];
-            var emailpass = System.Configuration.ConfigurationManager.AppSettings["AccountsEmailPass"];
-
-            if (emailuser == "[INSERT HERE]")
+            if (message == null)
             {
-                // Local debug
+                return;
             }
-            else
-            {
-                var mmessage = new MailMessage();
-                mmessage.To.Add(new MailAddress(message.Destination));
-                mmessage.From = new MailAddress(emailuser);  // replace with valid value
-                mmessage.Subject = message.Subject;
-                mmessage.Body = message.Body;
-                mmessage.IsBodyHtml = true;
 
-                using (var smtp = new SmtpClient())
+            await MailingService.SendAsync(user: "Accounts", useSSL: true,
+                message: new UserEmailModel()
                 {
-                    var credential = new NetworkCredential
-                    {
-                        UserName = emailuser,
-                        Password = emailpass
-                    };
-                    smtp.Credentials = credential;
-                    smtp.Host = emailhost;
-                    smtp.Port = emailport;
-                    smtp.EnableSsl = false;
-                    smtp.Send(mmessage);
-                }
-            }
-            return Task.FromResult(0);
+                    Destination = message.Destination,
+                    Body = message.Body,
+                    Email = "",
+                    Name = "zapread.com",
+                    Subject = message.Subject,
+                }).ConfigureAwait(true);
         }
     }
 
