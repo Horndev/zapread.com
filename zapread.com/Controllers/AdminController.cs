@@ -273,6 +273,11 @@ namespace zapread.com.Controllers
             public int Id { get; set; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="icon"></param>
+        /// <returns></returns>
         public ActionResult AddIcon(string icon)
         {
             using (var db = new ZapContext())
@@ -293,6 +298,11 @@ namespace zapread.com.Controllers
             return Json(new { });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public ActionResult DeleteIcon(int Id)
         {
             using (var db = new ZapContext())
@@ -339,18 +349,6 @@ namespace zapread.com.Controllers
                         IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
                     });
 
-                //.Skip(dataTableParameters.Start).Take(dataTableParameters.Length).ToListAsync().ConfigureAwait(false)
-
-                //db.Icons.OrderByDescending(i => i.Id).Skip(dataTableParameters.Start).Take(dataTableParameters.Length)
-                //.ToList();
-
-                //var values = icons.Select(i => new DataItem()
-                //{
-                //    Icon = i.Icon,
-                //    Graphic = i.Icon,
-                //    Id = i.Id,
-                //}).ToList();
-
                 int numrec = iconsQuery.Count();
 
                 var ret = new
@@ -371,12 +369,22 @@ namespace zapread.com.Controllers
 
         #region Achievements
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Achievements()
         {
+            XFrameOptionsDeny();
             var vm = new AdminAchievementsViewModel();
             return View(vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         public ActionResult GetAchievements(DataTableParameters dataTableParameters)
         {
             using (var db = new ZapContext())
@@ -422,7 +430,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(true);
 
                 if (a == null)
                 {
@@ -577,9 +585,18 @@ namespace zapread.com.Controllers
             return Json(new { success=true, result = "success" });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/AddAchievement")]
         public async Task<ActionResult> AddAchievement(int id, string name, string description, int value)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var a = await db.Achievements
@@ -834,10 +851,15 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("Admin/Accounting")]
         public ActionResult Accounting()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -1803,6 +1825,18 @@ namespace zapread.com.Controllers
             private set
             {
                 _roleManager = value;
+            }
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
             }
         }
     }

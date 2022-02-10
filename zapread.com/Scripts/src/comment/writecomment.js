@@ -35,7 +35,7 @@ export async function writeComment(postId, content) {
     '</div>' +
     '</div>';
   boxEl.innerHTML = spinnerHTML;
-  console.log(boxEl);
+  //console.log(boxEl);
 
   var url = '/Comment/PostReply/' + postId.toString() + '/';
   fetch(url).then(data => data.text()).then(data => {

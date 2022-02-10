@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// For sending realtime notifications
+    /// </summary>
     public class NotificationService
     {
         /// <summary>
