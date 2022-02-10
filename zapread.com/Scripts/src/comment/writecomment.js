@@ -40,6 +40,7 @@ export async function writeComment(postId, content) {
   var url = '/Comment/PostReply/' + postId.toString() + '/';
   fetch(url).then(data => data.text()).then(data => {
     boxEl.innerHTML = data
+    boxEl.style.minHeight = "";
   }).then(function () {
     // initialize
     boxEl.style.display = '';   // Make visible
