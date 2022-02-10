@@ -125,31 +125,32 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var groupIdCheck = -1;
-
-                if (p.GroupId.HasValue)
-                {
-                    groupIdCheck = p.GroupId.Value;
-                }
-                else
-                {
-                    return BadRequest();
-                }
-
-                bool exists = await GroupExists(p.GroupName.CleanUnicode(), groupIdCheck, db).ConfigureAwait(true);
+                bool exists = await GroupExists(p.GroupName.CleanUnicode(), p.GroupId, db).ConfigureAwait(true);
                 return Ok(new CheckExistsGroupResponse() { exists = exists, success = true });
             }
         }
 
-        private static async Task<bool> GroupExists(string GroupName, int groupId, ZapContext db)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="GroupName"></param>
+        /// <param name="groupId"></param>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        private static async Task<bool> GroupExists(string GroupName, int? groupId, ZapContext db)
         {
             Group matched = await db.Groups.Where(g => g.GroupName == GroupName).FirstOrDefaultAsync().ConfigureAwait(true);
             if (matched != null)
             {
-                if (matched.GroupId != groupId)
+                if(groupId.HasValue && matched.GroupId != groupId.Value)
                 {
                     return true;
                 }
+                else if (groupId.HasValue && groupId.Value > 0)
+                {
+                    return false;
+                }
+                return true;
             }
             return false;
         }
