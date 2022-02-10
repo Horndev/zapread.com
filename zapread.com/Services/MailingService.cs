@@ -13,6 +13,7 @@ using zapread.com.Controllers;
 using System.Web.Mvc;
 using Hangfire;
 using zapread.com.Models.Database;
+using System.Globalization;
 
 namespace zapread.com.Services
 {
@@ -196,11 +197,18 @@ namespace zapread.com.Services
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="user"></param>
+        /// <param name="useSSL"></param>
+        /// <returns></returns>
         public static bool Send(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
-            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"], CultureInfo.InvariantCulture);
             var emailuser = System.Configuration.ConfigurationManager.AppSettings[user + "EmailUser"];
             var emailpass = System.Configuration.ConfigurationManager.AppSettings[user + "EmailPass"];
 

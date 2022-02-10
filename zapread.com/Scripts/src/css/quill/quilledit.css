@@ -73,6 +73,21 @@
 }
 
 /* For the saving overlay */
+.submitoverlay {
+    position: absolute;
+    z-index: 1050;
+    /*bottom: 8px;
+    left: 30px;*/
+    width: 100%;
+    height: 100%;
+    background-color: #11111133;
+}
+.submit-sk-loading {
+    padding-top: 150px;
+    borderStyle: "none";
+}
+
+/* For the saving overlay */
 .savingoverlay {
     position: absolute;
     z-index: 1050;

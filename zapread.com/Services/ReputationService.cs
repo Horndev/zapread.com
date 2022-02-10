@@ -37,7 +37,7 @@ namespace zapread.com.Services
             var w = 1.0 + sign * Math.E * Math.Pow(d, z);
             var ds = Math.Round(amount * w, MidpointRounding.AwayFromZero);
             if (ds == 0)
-                ds = vs;
+                ds = vs*sign;
             return ds;
         }
     }

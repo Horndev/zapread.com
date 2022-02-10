@@ -111,11 +111,11 @@ export default class Editor extends React.Component {
                     ['clean']],
                 handlers: {
                     'save': function () {
-                        console.log('save clicked');
+                        //console.log('save clicked');
                         self.props.onSaveDraft();
                     },
                     'submit': function () {
-                        console.log('submit clicked');
+                        //console.log('submit clicked');
                         self.props.onSubmitPost();
                     }
             }},
@@ -140,7 +140,7 @@ export default class Editor extends React.Component {
                 // optional
                 // add callback when a image have been chosen
                 checkBeforeSend: (file, next) => {
-                    console.log(file);
+                    //console.log(file);
                     next(file); // go back to component and send to the server
                 }
             },

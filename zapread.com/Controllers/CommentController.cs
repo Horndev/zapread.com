@@ -103,7 +103,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// This method returns the partial HTML view for a comment input box.
         /// </summary>
-        /// <param name="id">The comment for which the reply input is intended for.</param>
+        /// <param name="commentId">The comment for which the reply input is intended for.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("Comment/GetInputBox/{commentId}")]
