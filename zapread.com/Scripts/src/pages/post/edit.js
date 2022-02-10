@@ -91,8 +91,6 @@ function Page() {
         postQuietly: postQuietly
       };
 
-      //console.log(msg);
-
       postJson("/Post/Submit/", msg)
         .then((response) => {
           console.log(response);
@@ -123,7 +121,7 @@ function Page() {
           }
         });
       } else {
-        console.log("cancelled load");
+        //console.log("cancelled load");
       }
     });
   }
@@ -153,7 +151,7 @@ function Page() {
       if (willLoad.value) {
         loadPost(postId, true);
       } else {
-        console.log("cancelled load");
+        //console.log("cancelled load");
       }
     });
   }
@@ -164,7 +162,6 @@ function Page() {
   }
 
   async function doSubmit() {
-    //console.log("submit post");
     var msg = {
       postId: postId,
       groupId: groupId,
@@ -175,13 +172,20 @@ function Page() {
       isNSFW: postNSFW,
       postQuietly: postQuietly
     };
-    //console.log(msg);
+
+    document.getElementById("submitnotification").style.display = "";
+
     await postJson("/Post/Submit/", msg)
       .then((response) => {
-        //console.log(response);
-        var newPostUrl = "/Post/Detail";
-        newPostUrl = newPostUrl + '/' + response.postId;
-        window.location.replace(newPostUrl);  // Navigate to the new post
+        if (response.success) {
+          var newPostUrl = "/Post/Detail";
+          newPostUrl = newPostUrl + '/' + response.postId;
+          window.location.replace(newPostUrl);  // Navigate to the new post
+        }
+        document.getElementById("submitnotification").style.display = "none";
+      }).catch((error) => {
+        document.getElementById("submitnotification").style.display = "none";
+        console.log(error);
       });
   }
 
@@ -278,6 +282,15 @@ function Page() {
         <Row>
           <Col lg={2}></Col>
           <Col lg={8}>
+            <div className="submitoverlay" id="submitnotification" style={{ display: "none" }}>
+              <div className="submit-sk-loading sk-loading">
+                <div className="sk-spinner sk-spinner-three-bounce">
+                  <div className="sk-bounce1"></div>
+                  <div className="sk-bounce2"></div>
+                  <div className="sk-bounce3"></div>
+                </div>
+              </div>
+            </div>
             <div className="savingoverlay" id="savingnotification" style={{ display: "none" }}>
               <i className="fa fa-circle-o-notch fa-spin"></i> saving...
             </div>
