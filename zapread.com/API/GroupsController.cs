@@ -177,7 +177,7 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 // Ensure not a duplicate group!
-                var cleanName = newGroup.GroupName.CleanUnicode();
+                var cleanName = newGroup.GroupName.CleanUnicode().SanitizeXSS();
                 bool exists = await GroupExists(cleanName, -1, db).ConfigureAwait(true);
                 if (exists)
                 {
@@ -195,7 +195,7 @@ namespace zapread.com.API
                     Moderators = new List<User>(),
                     Members = new List<User>(),
                     Administrators = new List<User>(),
-                    Tags = newGroup.Tags,
+                    Tags = newGroup.Tags.CleanUnicode().SanitizeXSS(),
                     Icon = null, //m.Icon,  // This field is now depricated - will be removed
                     GroupImage = icon,
                     CreationDate = DateTime.UtcNow,
@@ -391,7 +391,7 @@ namespace zapread.com.API
                     return Unauthorized();
                 }
 
-                var cleanName = existingGroup.GroupName.CleanUnicode();
+                var cleanName = existingGroup.GroupName.CleanUnicode().SanitizeXSS();
                 bool exists = await GroupExists(cleanName, existingGroup.GroupId, db).ConfigureAwait(true);
 
                 if (exists)
@@ -408,7 +408,7 @@ namespace zapread.com.API
                 }
 
                 group.DefaultLanguage = existingGroup.Language == null ? "en" : existingGroup.Language; // Ensure value
-                group.Tags = existingGroup.Tags;
+                group.Tags = existingGroup.Tags.CleanUnicode().SanitizeXSS();
                 
                 group.GroupName = cleanName;
                 group.GroupImage = icon;
