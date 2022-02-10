@@ -171,7 +171,7 @@ function Comment(props) {
               <div className="media-body" style={{ display: "inline" }}>
                 {props.comment.IsDeleted ? (<>&nbsp;deleted&nbsp;</>) : (
                   <>
-                    <a className="post-username userhint" data-userid={props.comment.UserId} href={
+                    <a className="post-username userhint" data-userid={props.comment.UserId} data-userappid={props.comment.UserAppId} href={
                       "/User/" + encodeURIComponent(props.comment.UserName) + "/"
                     }>
                       {props.comment.isIgnoredUser ? (<>&nbsp;(Ignored)&nbsp;</>) : (<>&nbsp;{props.comment.UserName}&nbsp;</>)}
@@ -183,7 +183,7 @@ function Comment(props) {
                   {props.comment.IsReply ? (
                     <>
                       &nbsp;replied to&nbsp;
-                      <a className="userhint" data-userid={props.comment.ParentCommentId} href={
+                      <a className="userhint" data-userid={props.comment.ParentUserId} data-userappid={props.comment.ParentUserAppId} href={
                         "/User/" + encodeURIComponent(props.comment.ParentUserName) + "/"
                         //"@Url.Action(actionName: " Index", controllerName: "User", routeValues: new {username = Model.ParentUserName.Trim()})"
                       }>

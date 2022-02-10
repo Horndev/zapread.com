@@ -212,7 +212,7 @@ export default function PostView(props) {
             </a>
             <div className="vote-info" style={{ marginLeft: "110px" }}>
 
-              <a className="post-username userhint" data-userid={post.UserId}
+              <a className="post-username userhint" data-userid={post.UserId} data-userappid={post.UserAppId}
                 href={"/User/" + post.UserName}>
                 {isIgnored ? (<>(Ignored)</>) : (<>{post.UserName}</>)}
               </a>
@@ -254,6 +254,7 @@ export default function PostView(props) {
               <div className="post-quotable post-content ql-container ql-snow post-box"
                 ref={postContentRef}
                 data-postid={post.PostId}
+                data-userappid={post.UserAppId}
                 data-userid={post.UserId}>
                 <div className="post-content ql-container ql-snow">
                   <div dangerouslySetInnerHTML={{ __html: post.Content }} />

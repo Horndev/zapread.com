@@ -12,6 +12,7 @@ import { applyHoverToChildren } from '../../../utility/userhover';  // [✓]
 export default function PostAuthorName(props) {
   const [userId, setUserId] = useState(0);
   const [userName, setUserName] = useState("");
+  const [userAppId, setUserAppId] = useState("");
   const [isIgnored, setIsIgnored] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -24,8 +25,9 @@ export default function PostAuthorName(props) {
       setUserId(props.userId);
       setUserName(props.userName);
       setIsIgnored(props.isIgnored);
+      setUserAppId(props.userAppId);
     },
-    [props.isIgnored, props.userId, props.userName]
+    [props.isIgnored, props.userId, props.userName, props.userAppId]
   );
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function PostAuthorName(props) {
 
   return (
     <>
-      <a ref={userNameRef} className="post-username userhint" data-userid={userId}
+      <a ref={userNameRef} className="post-username userhint" data-userid={userId} data-userappid={userAppId}
         href={"/User/" + userName}>
         {isIgnored ? (<>(Ignored)</>) : (<>{ userName }</>)}
       </a>

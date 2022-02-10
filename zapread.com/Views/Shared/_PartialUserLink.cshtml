@@ -1,5 +1,5 @@
 ﻿@using zapread.com.Helpers;
 @model zapread.com.Models.UserViews.UserLinkViewModel
-<a class="post-username userhint" data-userid="@Model.User.Id" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.User.Name.Trim() })">
+<a class="post-username userhint" data-userappid="@Model.User.AppId" data-userid="@Model.User.Id" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.User.Name.Trim() })">
     @if (Model.IsIgnored){<text>(Ignored) </text>}@Model.User.Name
 </a>

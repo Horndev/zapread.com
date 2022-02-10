@@ -35,11 +35,11 @@ export async function writeComment(postId, content) {
     '</div>' +
     '</div>';
   boxEl.innerHTML = spinnerHTML;
-  //console.log(boxEl);
-
+  
   var url = '/Comment/PostReply/' + postId.toString() + '/';
   fetch(url).then(data => data.text()).then(data => {
     boxEl.innerHTML = data
+    boxEl.style.minHeight = "";
   }).then(function () {
     // initialize
     boxEl.style.display = '';   // Make visible
@@ -60,7 +60,7 @@ export async function writeComment(postId, content) {
       onSubmitSuccess: function (data) {
         // remove the editor
         var replyEl = document.getElementById('reply_p' + postId.toString());
-        replyEl.parentNode.removeChild(replyEl);
+        replyEl.innerHTML = '';
         document.getElementById('wc_' + postId.toString()).style.display = '';      // Show the comment button
         // and replace with HTML
         var commentsEl = document.getElementById('comments_' + postId.toString());
