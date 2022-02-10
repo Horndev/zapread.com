@@ -306,12 +306,13 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="userId">The id of the user to hover</param>
         /// <param name="username"></param>
+        /// <param name="userAppId"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("Hover/")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public async Task<JsonResult> Hover(int userId, string username)
+        public async Task<JsonResult> Hover(int userId, string username, string userAppId)
         {
             if (!Request.ContentType.Contains("json"))
             {
@@ -321,20 +322,28 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 int hoverUserId = userId; // take from parameter passed
-                var userAppId = User.Identity.GetUserId();
+                var _userAppId = userAppId ?? User.Identity.GetUserId();
 
                 // If a username was provided - use it in search, otherwise don't use.  This is built as a separate query
                 // here to reduce the sql query payload.
                 IQueryable<User> uiq;
-                if (!String.IsNullOrEmpty(username))
+                if (!String.IsNullOrEmpty(username) && userAppId == null)
                 {
                     uiq = db.Users
                         .Where(u => u.Id == hoverUserId || u.Name == username);
                 }
                 else
                 {
-                    uiq = db.Users
-                        .Where(u => u.Id == hoverUserId);
+                    if (hoverUserId > 0)
+                    {
+                        uiq = db.Users
+                            .Where(u => u.Id == hoverUserId);
+                    }
+                    else
+                    {
+                        uiq = db.Users
+                            .Where(u => u.AppId == _userAppId);
+                    }
                 }
 
                 var userInfo = await uiq
@@ -346,7 +355,7 @@ namespace zapread.com.Controllers
                         u.Reputation,
                         u.ProfileImage.Version,
                         u.IsOnline,
-                        IsFollowed = userAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(userAppId),
+                        IsFollowed = _userAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(_userAppId),
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 

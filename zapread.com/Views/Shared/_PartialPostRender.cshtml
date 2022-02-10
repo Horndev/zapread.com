@@ -137,7 +137,7 @@
                     }
                 </a>
                 <div class="vote-info" style="margin-left: 110px;">
-                    @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.Post.IsSticky)
+                    @Html.Partial("_PartialUserLink", new UserLinkViewModel() { User = Model.Post.UserId, UserAppId = Model.Post.UserId.AppId, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.Post.IsSticky)
                     {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
                     @Html.Partial("_PartialGroupLink", new GroupLinkViewModel() { Group = Model.Post.Group, IsFirstPost = Model.IsFirstPost })
 

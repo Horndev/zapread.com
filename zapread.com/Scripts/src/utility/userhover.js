@@ -24,6 +24,7 @@ export function loaduserhover(e) {
   e.removeAttribute('onmouseover');
   var userid = e.getAttribute('data-userid');
   var username = e.innerHTML.trim().replace('@', '');
+  var userAppId = e.getAttribute('data-userappid');
   if (typeof userid === 'undefined' || userid === null) {
     userid = -1;
   }
@@ -51,7 +52,7 @@ export function loaduserhover(e) {
       } else {
         //console.log('fetching...');
         instance._isFetching = true;
-        var hoverdata = { 'userId': userid, 'username': username };
+        var hoverdata = { 'userId': userid, 'username': username, 'userAppId': userAppId };
         postData('/User/Hover/', hoverdata)
           .then((data) => {
             instance.setContent(data.HTMLString);

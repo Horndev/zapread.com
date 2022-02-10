@@ -288,7 +288,7 @@ namespace zapread.com.Helpers
                     order2 = p.order2,
                     sign = p.sign,
                     dt = p.dt,
-                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
+                    hot = (p.sign * (p.order1 + p.sign > 0 ? p.order2 : 0)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
                 })
                 .OrderByDescending(p => p.hot);
             //.Select(p => p.p);
@@ -356,6 +356,7 @@ namespace zapread.com.Helpers
                         ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                         ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                         ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
                         ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
                     }),
                 })
