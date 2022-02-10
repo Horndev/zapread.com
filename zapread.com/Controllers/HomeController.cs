@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -150,7 +151,11 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> UserImage(int? size, string UserId, string v, string r)
         {
-            if (size == null) size = 100;
+            if (!size.HasValue)
+            {
+                size = 100;
+            }
+
             if (UserId != null)
             {
                 // use the value passed
@@ -164,26 +169,38 @@ namespace zapread.com.Controllers
             }
 
             int ver = -1;
-            try
-            {
-                ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException fe)
-            {
-                //
-            }
 
             // Check for image in DB
             using (var db = new ZapContext())
             {
+                try
+                {
+                    if (v != null)
+                    {
+                        ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        var dbver = await db.Images.Where(im => im.UserAppId == UserId)
+                            .Select(im => (int?)im.Version)
+                            .MaxAsync().ConfigureAwait(true);
+                        ver = dbver ?? -1;
+                    }
+                }
+                catch (FormatException fe)
+                {
+                    //
+                }
+
                 var imgq = db.Images.Where(im => im.UserAppId == UserId && im.XSize == size);
                 if (ver > -1)
                 {
                     imgq = imgq.Where(im => im.Version == ver);
                 }
+
                 // Fetch image from image cache
                 var i = await imgq
-                    .Select(im => new { im.Image, im.ContentType })
+                    .Select(im => new { im.Image, im.ContentType, im.Version })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -197,12 +214,15 @@ namespace zapread.com.Controllers
                 {
                     // Check if non size-cached version exists
                     var uimq = db.Users.Where(u => u.AppId == UserId);
-                    if (ver > -1)
-                    { 
-                        uimq = uimq.Where(u => u.ProfileImage.Version == ver);
-                    }
+
+                    //if (ver > -1)
+                    //{ 
+                    //    uimq = uimq.Where(u => u.ProfileImage.Version == ver);
+                    //}
+
+                    // This is the most recent (current) user image
                     i = await uimq
-                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType})
+                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType, u.ProfileImage.Version})
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -224,7 +244,7 @@ namespace zapread.com.Controllers
                                     ContentType = "image/png",
                                     Image = data,
                                     UserAppId = UserId,
-                                    Version = ver,
+                                    Version = i.Version,//ver, // Not using requested version (this could lead to a bug)
                                     XSize = size.Value,
                                     YSize = size.Value,
                                 });
@@ -275,6 +295,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Method to get the posts view model
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="sort"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<PostViewModel>> GetPostsVm(int start, int count, string sort = "Score", int userId = 0)
         {
             List<string> userLanguages = GetUserLanguages();
@@ -289,12 +317,15 @@ namespace zapread.com.Controllers
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
 
-                IQueryable<Post> postquery = null;
+                IQueryable<QueryHelpers.PostQueryInfo> postquery = null;
+
+                //var numposts = validposts.Count();// DEBUG
 
                 switch (sort)
                 {
                     case "Score":
                         postquery = QueryHelpers.OrderPostsByScore(validposts);
+                        //var numvalidposts = postquery.Count();
                         break;
                     case "Active":
                         postquery = QueryHelpers.OrderPostsByActive(validposts);
@@ -348,6 +379,46 @@ namespace zapread.com.Controllers
                     default:
                         return await QueryPostsByNew(start, count, validposts).ConfigureAwait(false);
                 }
+            }
+        }
+
+        protected async Task<IQueryable<QueryHelpers.PostQueryInfo>> GetPostsQuery(ZapContext db, string sort = "Score", int userId = 0)
+        {
+            //Modified reddit-like algorithm
+            /*epoch = datetime(1970, 1, 1)
+
+            def epoch_seconds(date):
+                td = date - epoch
+                return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
+
+            def score(ups, downs):
+                return ups - downs
+
+            def hot(ups, downs, date):
+                s = score(ups, downs)
+                order = log(max(abs(s), 1), 10)
+                sign = 1 if s > 0 else -1 if s < 0 else 0
+                seconds = epoch_seconds(date) - 1134028003
+                return round(sign * order + seconds / 45000, 7)*/
+
+            List<string> userLanguages = GetUserLanguages();
+
+            DateTime t = DateTime.Now;
+
+            var user = await db.Users
+                .Include(usr => usr.Settings)
+                .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+
+            IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
+
+            switch (sort)
+            {
+                case "Score":
+                    return QueryHelpers.OrderPostsByScore(validposts);
+                case "Active":
+                    return QueryHelpers.OrderPostsByActive(validposts);
+                default:
+                    return QueryHelpers.OrderPostsByNew(validposts);
             }
         }
 
@@ -429,7 +500,7 @@ namespace zapread.com.Controllers
                 {
                     p,
                     // Includes the sum of absolute value of comment scores
-                    cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                    cScore = p.Comments.Count > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
                 })
                 .Select(p => new
                 {
@@ -480,7 +551,7 @@ namespace zapread.com.Controllers
             {
                 userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
 
-                if (userLanguages.Count() == 0)
+                if (userLanguages.Count == 0)
                 {
                     userLanguages.Add("en");
                 }
@@ -509,7 +580,7 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var zapreadGlobals = await db.ZapreadGlobals
-                    .SingleOrDefaultAsync(i => i.Id == 1);
+                    .SingleOrDefaultAsync(i => i.Id == 1).ConfigureAwait(true);
 
                 // This is run only the first time the app is launched in the database.
                 // The global entry should only be created once in the database.
@@ -527,6 +598,8 @@ namespace zapread.com.Controllers
                         ZapReadTotalEarned = 0.0,
                         ZapReadTotalWithdrawn = 0.0,
                         LNWithdraws = new List<LNTransaction>(),
+                        EarningEvents = new List<EarningEvent>(),
+                        SpendingEvents = new List<SpendingEvent>(),
                     });
 
                     
@@ -557,6 +630,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// User does not want to continue tour - make note in cookie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Obsolete("This endpoint is not used and will be retired in a future version.")]
         [HttpPost]
         public async Task<JsonResult> DismissTour(int id)
         {
@@ -596,20 +675,29 @@ namespace zapread.com.Controllers
                     cookie.Value = setValue;
                 cookie.Expires = DateTime.Now.AddDays(365);
                 HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
-                HttpContext.Response.SetCookie(cookie);
+                //HttpContext.Response.SetCookie(cookie);
                 cookieResultValue = cookie.Value;
             }
 
             return cookieResultValue;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> TopFollowing()
+        public ActionResult TopFollowing()
         {
 
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sort"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
@@ -637,7 +725,48 @@ namespace zapread.com.Controllers
                 }
 
                 var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
-                return Json(new { success = true, HTMLString = PostHTMLString }, JsonRequestBehavior.AllowGet);
+
+                string contentStr = PostHTMLString;
+
+                try
+                {
+                    var cookie = HttpContext.Request.Cookies.Get("tarteaucitron");
+
+                    if (cookie != null)
+                    {
+                        var youtubeCookie = cookie.Value.Split('!').Select(i => i.Split('=')).Where(i => i.Length > 1).Where(i => i[0] == "zyoutube").FirstOrDefault();
+                        if (youtubeCookie != null && youtubeCookie[1] == "false")
+                        {
+                            HtmlDocument postDocument = new HtmlDocument();
+                            postDocument.LoadHtml(PostHTMLString);
+
+                            // Check links
+                            var postLinks = postDocument.DocumentNode.SelectNodes("//iframe/@src");
+                            if (postLinks != null)
+                            {
+                                foreach (var link in postLinks.ToList())
+                                {
+                                    string url = link.GetAttributeValue("src", "");
+                                    // replace links to embedded videos
+                                    if (url.Contains("youtube"))
+                                    {
+                                        var uri = new Uri(url);
+                                        string videoId = uri.Segments.Last();
+                                        //string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+                                        string modElement = $"<div class='youtube_player' videoID='{videoId}' showinfo='0'></div>";
+                                        var newNode = HtmlNode.CreateNode(modElement);
+                                        link.ParentNode.ReplaceChild(newNode, link);
+                                    }
+                                }
+                            }
+                            contentStr = postDocument.DocumentNode.OuterHtml;
+                        }
+                    }
+                } catch (Exception)
+                {
+
+                }
+                return Json(new { success = true, HTMLString = contentStr }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -801,7 +930,7 @@ namespace zapread.com.Controllers
                 .Include(usr => usr.IgnoringUsers)
                 .Include(usr => usr.Groups)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.AppId == userid);
+                .FirstOrDefaultAsync(u => u.AppId == userid).ConfigureAwait(true);
             return user;
         }
 
@@ -847,7 +976,15 @@ namespace zapread.com.Controllers
             return userId;
         }
 
+        /// <summary>
+        /// Returns the next set of posts, rendered to HTML
+        /// </summary>
+        /// <param name="BlockNumber">The starting block</param>
+        /// <param name="sort">How the posts are sorted</param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Validated in JSON header")]
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
@@ -856,34 +993,33 @@ namespace zapread.com.Controllers
             {
                 var uid = User.Identity.GetUserId();
                 var user = await db.Users.AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
+                    .SingleOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
 
-                var posts = await GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
+                var postquery = await GetPostsQuery(db, sort, user != null ? user.Id : 0).ConfigureAwait(true);
+
+                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, postquery, user).ConfigureAwait(true);
 
                 string PostsHTMLString = "";
 
-                foreach (var p in posts)
+                foreach (var p in postsVm)
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    };
-
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
                 return Json(new
                 {
-                    NoMoreData = posts.Count < BlockSize,
+                    NoMoreData = postsVm.Count < BlockSize,
                     HTMLString = PostsHTMLString,
                 });
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
@@ -902,9 +1038,23 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="loc"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON Only")]
         public ActionResult SendFeedback(string msg, string loc)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "Bad request type." });
+            }
+
             String uid = "";
 
             uid = User.Identity.GetUserId();
@@ -920,6 +1070,11 @@ namespace zapread.com.Controllers
             return Json(new { result = "success" });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SendMail(UserEmailModel model)
@@ -936,11 +1091,21 @@ namespace zapread.com.Controllers
             return RedirectToAction("FeedbackSuccess");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FeedbackSuccess()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult About()
         {
             ViewBag.Message = "About Zapread.com.";
@@ -948,11 +1113,21 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FAQ()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
@@ -960,63 +1135,14 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Feedback()
         {
             return View();
         }
-
-        //private async Task EnsureUserExists(string userId, ZapContext db)
-        //{
-        //    if (userId != null)
-        //    {
-        //        var user = await db.Users
-        //            .Include(usr => usr.ProfileImage)
-        //            .Include(usr => usr.ThumbImage)
-        //            .Include(usr => usr.Funds)
-        //            .Include(usr => usr.Settings)
-        //            .Where(u => u.AppId == userId)
-        //            .SingleOrDefaultAsync();
-
-        //        if (user == null)
-        //        {
-        //            // no user entry
-        //            User u = new User()
-        //            {
-        //                AboutMe = "Nothing to tell.",
-        //                AppId = userId,
-        //                Name = User.Identity.Name,
-        //                ProfileImage = new UserImage(),
-        //                ThumbImage = new UserImage(),
-        //                Funds = new UserFunds(),
-        //                Settings = new UserSettings(),
-        //                DateJoined = DateTime.UtcNow,
-        //            };
-        //            db.Users.Add(u);
-        //            await db.SaveChangesAsync();
-        //        }
-        //        else
-        //        {
-        //            // ensure all properties are not null
-        //            if (user.Funds == null)
-        //            {
-        //                // DANGER!
-        //                user.Funds = new UserFunds();
-        //            }
-        //            if (user.Settings == null)
-        //            {
-        //                user.Settings = new UserSettings();
-        //            }
-        //            if (user.ThumbImage == null)
-        //            {
-        //                user.ThumbImage = new UserImage();
-        //            }
-        //            if (user.ProfileImage == null)
-        //            {
-        //                user.ProfileImage = new UserImage();
-        //            }
-        //            await db.SaveChangesAsync();
-        //        }
-        //    }
-        //}
     }
 }

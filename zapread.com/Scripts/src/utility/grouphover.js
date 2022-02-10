@@ -27,7 +27,7 @@ export function loadgrouphover(e) {
         delay: 300,
         interactive: true,
         interactiveBorder: 30,
-        flipOnUpdate: true,
+        // flipOnUpdate: true,
         // some async loading code...
         onCreate(instance) {
             // Setup our own custom state properties

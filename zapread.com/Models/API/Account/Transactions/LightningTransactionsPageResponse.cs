@@ -16,7 +16,7 @@ namespace zapread.com.Models.API.Account.Transactions
     public class LightningTransactionsInfo
     {
         public int Id { get; set; }
-        public string Time { get; set; }
+        public DateTime? Time { get; set; }
         public bool Type { get; set; }
         public long Amount { get; set; }
         public string Memo { get; set; }

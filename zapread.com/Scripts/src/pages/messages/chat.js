@@ -8,6 +8,7 @@
 import '../../shared/shared';                                                   // [✓]
 import '../../realtime/signalr';                                                // [✓]
 import Quill from 'quill';                                                      // [✓]
+import DOMPurify from 'dompurify';
 import 'quill/dist/quill.core.css'                                              // [✓]
 import 'quill/dist/quill.snow.css'                                              // [✓]
 import '../../css/quill/quillchat.css'; // Some custom overrides                // [✓]
@@ -39,22 +40,13 @@ var toolbarOptions = {
     container: [
         ['send'],
         ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        ['blockquote'/*, 'code-block'*/],
-        //[{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        ['blockquote'],
         [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        //[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-        //[{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-        //[{ 'direction': 'rtl' }],                         // text direction
-        //[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
         [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-        ['link', 'image' /*,'video'*/ /*,'formula'*/],          // add's image support
-        //[{ 'font': [] }],
-        //[{ 'align': [] }],
+        ['link', 'image'],          // add's image support
         ['clean']                                         // remove formatting button
     ],
     handlers: {
-    //    'cancel': function () { },  //dummy - will be updated
         'save': function () { }   //dummy - will be updated
     }
 };
@@ -62,7 +54,6 @@ var toolbarOptions = {
 var icons = Quill.import('ui/icons');
 icons['send'] = 'Send <i class="fa fa-paper-plane"></i>';
 
-//$(document).ready(function () {
 ready(function () {
     var quill = new Quill("#editor-container", {
         modules: {
@@ -193,7 +184,7 @@ export function sendMessage(id) {
     console.log('send to ' + id);
 
     var contentEl = document.getElementById('editor-container').querySelectorAll('.ql-editor').item(0);
-    var commentHTML = contentEl.innerHTML;
+    var commentHTML = DOMPurify.sanitize(contentEl.innerHTML);
 
     if (commentHTML === "<p><br></p>" || commentHTML.replace(" ", "") === "<p></p>") {
         // don't send empty!

@@ -2,7 +2,10 @@
     ViewBag.Title = "Admin Icons";
 }
 
-<div class="row">
+<div id="root"></div>
+
+
+@*<div class="row">
     <div class="col-md-2"></div>
     <div class="col-md-8">
         <div class="form-group">
@@ -25,7 +28,7 @@
             <tbody></tbody>
         </table>
     </div>
-</div>
+</div>*@
 
 
 @section Styles {
@@ -33,9 +36,9 @@
 }
 
 @section Scripts {
-    <script type="text/javascript">
+    @*<script type="text/javascript">
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-    </script>
+    </script>*@
 
     @Scripts.Render("~/bundles/admin/icons")
 }

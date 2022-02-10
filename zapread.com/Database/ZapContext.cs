@@ -6,13 +6,16 @@ using zapread.com.Models.Lightning;
 
 namespace zapread.com.Database
 {
+    /// <summary>
+    /// Main Database Context
+    /// </summary>
     public class ZapContext : DbContext
     {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public ZapContext() : base("name=" + System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"])
         {
 
         }
-
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Group> Groups { get; set; }
@@ -24,6 +27,7 @@ namespace zapread.com.Database
         public DbSet<ZapReadGlobals> ZapreadGlobals { get; set; }
         public DbSet<ZapIcon> Icons { get; set; }
         public DbSet<UserMessage> Messages { get; set; }
+        public DbSet<UserAlert> Alerts { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<PendingPostVote> PendingPostVotes { get; set; }
@@ -34,8 +38,8 @@ namespace zapread.com.Database
         public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
         public DbSet<LNNode> LNNodes { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }

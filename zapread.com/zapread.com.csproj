@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
   <Import Project="..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
@@ -20,7 +21,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>zapread.com</RootNamespace>
     <AssemblyName>zapread.com</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -32,6 +33,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,9 +44,22 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,14 +73,17 @@
     <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AngleSharp, Version=0.14.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.14.0\lib\net472\AngleSharp.dll</HintPath>
+    <Reference Include="AngleSharp, Version=0.16.1.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.16.1\lib\net472\AngleSharp.dll</HintPath>
     </Reference>
-    <Reference Include="AngleSharp.Css, Version=0.14.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.Css.0.14.0\lib\net472\AngleSharp.Css.dll</HintPath>
+    <Reference Include="AngleSharp.Css, Version=0.16.3.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.Css.0.16.3\lib\net472\AngleSharp.Css.dll</HintPath>
     </Reference>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Base32, Version=1.0.0.26, Culture=neutral, PublicKeyToken=3427d4dc8cee30c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Base32.1.0.0.26\lib\portable-net40+sl40+win+wp80\Base32.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
@@ -82,11 +100,11 @@
     <Reference Include="Hangfire.SqlServer, Version=1.7.11.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.SqlServer.1.7.11\lib\net45\Hangfire.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.23.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.23\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.11.39.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.39\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlSanitizer, Version=5.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlSanitizer.5.0.310\lib\net46\HtmlSanitizer.dll</HintPath>
+    <Reference Include="HtmlSanitizer, Version=7.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlSanitizer.7.0.473\lib\net46\HtmlSanitizer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
@@ -163,8 +181,8 @@
     <Reference Include="Microsoft.AspNetCore.WebUtilities, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNetCore.WebUtilities.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.WebUtilities.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -197,17 +215,17 @@
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.2.8.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.2.8\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.2.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.4.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=4.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.2.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.2.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Security.Facebook, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Security.Facebook.4.1.0\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
@@ -233,6 +251,9 @@
     <Reference Include="MvcSiteMapProvider.WebActivator, Version=4.6.26.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MvcSiteMapProvider.MVC5.4.6.26\lib\net45\MvcSiteMapProvider.WebActivator.dll</HintPath>
     </Reference>
+    <Reference Include="NBitcoin, Version=6.0.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NBitcoin.6.0.19\lib\net472\NBitcoin.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -251,6 +272,9 @@
     <Reference Include="Ninject.Web.WebApi, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.1\lib\net45\Ninject.Web.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
+      <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
+    </Reference>
     <Reference Include="PreMailer.Net, Version=2.2.0.0, Culture=neutral, PublicKeyToken=23e3f43e29cae17f, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.2.0\lib\net461\PreMailer.Net.dll</HintPath>
     </Reference>
@@ -259,8 +283,8 @@
     <Reference Include="QRCoder, Version=1.3.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.3.9\lib\net40\QRCoder.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=106.0.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.10.1\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=106.15.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.15.0\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
@@ -294,6 +318,7 @@
     <Reference Include="System.IO.Pipelines, Version=4.0.2.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.4.7.1\lib\netstandard2.0\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Linq" />
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
@@ -311,15 +336,17 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reflection" />
     <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Extensions" />
     <Reference Include="System.Runtime.InteropServices" />
     <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -355,17 +382,23 @@
       <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Text.Encoding.CodePages, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encoding.CodePages.4.7.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encodings.Web, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encodings.Web.4.7.0\lib\netstandard2.0\System.Text.Encodings.Web.dll</HintPath>
+    <Reference Include="System.Text.Encodings.Web, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.6.0.0\lib\net461\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.5.0.0\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Thread" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -429,9 +462,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>API.resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
+    <Compile Include="API\CoreController.cs" />
+    <Compile Include="API\GroupsController.cs" />
+    <Compile Include="API\LnauthController.cs" />
+    <Compile Include="API\MessagesController.cs" />
     <Compile Include="API\PostController.cs" />
     <Compile Include="API\StreamController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -461,6 +503,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\SwashbuckleMVCController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -476,11 +519,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
     <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelpers.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
     <Compile Include="Helpers\QueryHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
@@ -798,8 +843,17 @@
     <Compile Include="Migrations\202005302024335_addWithdrawGuid.designer.cs">
       <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202006021408393_addGroupImage.cs" />
+    <Compile Include="Migrations\202006021408393_addGroupImage.designer.cs">
+      <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202201270152510_global_earning_spending.cs" />
+    <Compile Include="Migrations\202201270152510_global_earning_spending.designer.cs">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\Account\LNAuthLoginView.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
     <Compile Include="Models\Admin\AdminAchievementsViewModel.cs" />
     <Compile Include="Models\Admin\AdminJobsViewModel.cs" />
@@ -808,11 +862,24 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
-    <Compile Include="Models\API\Account\DataTableParameters.cs" />
+    <Compile Include="Models\API\Admin\APIAdminAccountingSummaryResponse.cs" />
+    <Compile Include="Models\API\Core\GetLanguagesResponse.cs" />
+    <Compile Include="Models\API\DataTables\DataTableParameters.cs" />
     <Compile Include="Models\API\Account\Transactions\LightningTransactionsPageResponse.cs" />
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
+    <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\GroupInfo.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupResponse .cs" />
+    <Compile Include="Models\API\Groups\AddGroupResponse.cs" />
+    <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
+    <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
@@ -831,8 +898,8 @@
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
-    <Compile Include="Models\Finance\CurrencyModels.cs" />
-    <Compile Include="Models\Finance\FinanceModels.cs" />
+    <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
+    <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupStats.cs" />
@@ -845,18 +912,27 @@
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
+    <Compile Include="Models\Messages\ChatsDataItem.cs" />
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
+    <Compile Include="Models\Posts\PostEditViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
     <Compile Include="Models\User\UserLinkViewModel.cs" />
     <Compile Include="Models\User\UserViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Services\AchievementsService.cs" />
+    <Compile Include="Services\CryptoService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -882,7 +958,6 @@
     <Content Include="Content\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\images\chosen-sprite%402x.png" />
     <Content Include="Content\images\chosen-sprite.png" />
-    <Content Include="Content\images\fontawesome-webfont.svg" />
     <Content Include="Content\images\header-profile.png" />
     <Content Include="Content\images\shattered.png" />
     <Content Include="Content\images\ui-icons_444444_256x240.png" />
@@ -891,10 +966,76 @@
     <Content Include="Content\images\ui-icons_777777_256x240.png" />
     <Content Include="Content\images\ui-icons_cc0000_256x240.png" />
     <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\lang\tarteaucitron.bg.js" />
+    <Content Include="Content\lang\tarteaucitron.ca.js" />
+    <Content Include="Content\lang\tarteaucitron.cn.js" />
+    <Content Include="Content\lang\tarteaucitron.cs.js" />
+    <Content Include="Content\lang\tarteaucitron.da.js" />
+    <Content Include="Content\lang\tarteaucitron.de.js" />
+    <Content Include="Content\lang\tarteaucitron.el.js" />
+    <Content Include="Content\lang\tarteaucitron.en.js" />
+    <Content Include="Content\lang\tarteaucitron.es.js" />
+    <Content Include="Content\lang\tarteaucitron.fi.js" />
+    <Content Include="Content\lang\tarteaucitron.fr.js" />
+    <Content Include="Content\lang\tarteaucitron.hu.js" />
+    <Content Include="Content\lang\tarteaucitron.it.js" />
+    <Content Include="Content\lang\tarteaucitron.ja.js" />
+    <Content Include="Content\lang\tarteaucitron.lt.js" />
+    <Content Include="Content\lang\tarteaucitron.lv.js" />
+    <Content Include="Content\lang\tarteaucitron.nl.js" />
+    <Content Include="Content\lang\tarteaucitron.no.js" />
+    <Content Include="Content\lang\tarteaucitron.oc.js" />
+    <Content Include="Content\lang\tarteaucitron.pl.js" />
+    <Content Include="Content\lang\tarteaucitron.pt.js" />
+    <Content Include="Content\lang\tarteaucitron.ro.js" />
+    <Content Include="Content\lang\tarteaucitron.ru.js" />
+    <Content Include="Content\lang\tarteaucitron.se.js" />
+    <Content Include="Content\lang\tarteaucitron.sk.js" />
+    <Content Include="Content\lang\tarteaucitron.sv.js" />
+    <Content Include="Content\lang\tarteaucitron.tr.js" />
+    <Content Include="Content\lang\tarteaucitron.vi.js" />
+    <Content Include="Content\lang\tarteaucitron.zh.js" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\logos.png" />
+    <Content Include="Content\privacy.png" />
+    <Content Include="Content\tarteaucitron.services.js" />
+    <Content Include="node_modules\tarteaucitronjs\advertising.js" />
+    <Content Include="node_modules\tarteaucitronjs\css\tarteaucitron.css" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.bg.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ca.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.cn.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.cs.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.da.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.de.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.el.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.en.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.es.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.fi.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.fr.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.hu.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.it.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ja.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.lt.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.lv.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.nl.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.no.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.oc.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.pl.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.pt.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ro.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ru.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.se.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.sk.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.sv.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.tr.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.vi.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.zh.js" />
+    <Content Include="node_modules\tarteaucitronjs\tarteaucitron.js" />
+    <Content Include="node_modules\tarteaucitronjs\tarteaucitron.services.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
+    <Content Include="Scripts\dist\admin\accounting.css" />
+    <Content Include="Scripts\dist\admin\accounting.js" />
     <Content Include="Scripts\dist\admin\achievements.css" />
     <Content Include="Scripts\dist\admin\achievements.js" />
     <Content Include="Scripts\dist\admin\audit.css" />
@@ -911,6 +1052,8 @@
     <Content Include="Scripts\dist\admin\users.js" />
     <Content Include="Scripts\dist\group\detail.css" />
     <Content Include="Scripts\dist\group\detail.js" />
+    <Content Include="Scripts\dist\group\edit.css" />
+    <Content Include="Scripts\dist\group\edit.js" />
     <Content Include="Scripts\dist\group\index.css" />
     <Content Include="Scripts\dist\group\index.js" />
     <Content Include="Scripts\dist\group\members.css" />
@@ -925,6 +1068,8 @@
     <Content Include="Scripts\dist\home\index.js" />
     <Content Include="Scripts\dist\home\install.css" />
     <Content Include="Scripts\dist\home\install.js" />
+    <Content Include="Scripts\dist\lnauth\login.css" />
+    <Content Include="Scripts\dist\lnauth\login.js" />
     <Content Include="Scripts\dist\mailer\default.css" />
     <Content Include="Scripts\dist\mailer\default.js" />
     <Content Include="Scripts\dist\manage\apikeys.css" />
@@ -949,10 +1094,10 @@
     <Content Include="Scripts\dist\post\detail.js" />
     <Content Include="Scripts\dist\post\edit.css" />
     <Content Include="Scripts\dist\post\edit.js" />
-    <Content Include="Scripts\dist\post\newpost.css" />
-    <Content Include="Scripts\dist\post\newpost.js" />
     <Content Include="Scripts\dist\post\postnotfound.css" />
     <Content Include="Scripts\dist\post\postnotfound.js" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.css" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.js" />
     <Content Include="Scripts\dist\user\achievements.css" />
     <Content Include="Scripts\dist\user\achievements.js" />
     <Content Include="Scripts\dist\user\index.css" />
@@ -960,8 +1105,13 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\src\comment\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\Components\VoteModal.js" />
+    <Content Include="Scripts\src\css\components\autosuggest.css" />
+    <Content Include="Scripts\src\css\components\input\input.css" />
+    <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -981,7 +1131,9 @@
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
+    <Content Include="Scripts\src\css\quill\quilledit.css" />
     <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <Content Include="Scripts\src\css\quill\quillfont.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
@@ -1069,26 +1221,74 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
+    <Content Include="Scripts\src\pages\admin\accounting.js" />
+    <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\pages\group\Components\CollapseBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
+    <Content Include="Scripts\src\pages\group\Components\IgnoreButton.js" />
+    <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
+    <Content Include="Scripts\src\pages\group\edit.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
+    <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
-    <Content Include="Scripts\src\pages\post\newpost.js" />
+    <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
+    <Content Include="Scripts\src\pages\post\Components\Editor.js" />
+    <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
+    <Content Include="Scripts\src\pages\post\Components\GroupPicker.js" />
+    <Content Include="Scripts\src\Components\Input\Input.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostAuthorName.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostView.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostList.js" />
+    <Content Include="Scripts\src\pages\post\Components\PostVoteButtons.js" />
+    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
+    <Content Include="Scripts\src\pages\subscription\unsubscribe.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\image-resize.min.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\ImageResize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Resize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\webpack.config.js" />
+    <Content Include="Scripts\src\quill\EmbedResponsive.js" />
+    <Content Include="Scripts\src\quill\image-upload.js" />
+    <Content Include="Scripts\src\quill\QuillImageDropAndPaste.js" />
+    <Content Include="Scripts\src\quill\StickyToolbar\quill-sticky-toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Resize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\VideoResize.js" />
+    <Content Include="Scripts\src\quill\VideoResponsive.js" />
+    <Content Include="Scripts\src\realtime\auth\onlnauthlogin.js" />
     <Content Include="Scripts\src\realtime\chat\onchatreceived.js" />
     <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
     <Content Include="Scripts\src\shared\topnavbar.js" />
+    <Content Include="Scripts\src\utility\cookies\advertising.js" />
+    <Content Include="Scripts\src\utility\cookies\tarteaucitron.js" />
+    <Content Include="Scripts\src\utility\patchData.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
-    <Content Include="Scripts\src\utility\editor\posteditor.js" />
+    <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\deleteData.js" />
+    <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
@@ -1104,7 +1304,7 @@
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
-    <Content Include="Scripts\src\components\page-heading.js" />
+    <Content Include="Scripts\src\Components\page-heading.js" />
     <Content Include="Scripts\src\css\Site.css" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
@@ -1136,7 +1336,6 @@
     <Content Include="Scripts\src\pages\messages\chats.js" />
     <Content Include="Scripts\src\pages\messages\index.js" />
     <Content Include="Scripts\src\pages\post\detail.js" />
-    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
@@ -1148,7 +1347,6 @@
     <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
-    <Content Include="Scripts\src\utility\postData.js" />
     <Content Include="Scripts\src\utility\quotable\quotable.js" />
     <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
@@ -1199,7 +1397,6 @@
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
     <Content Include="Views\Shared\_ModalAboutMe.cshtml" />
-    <Content Include="Views\Post\NewPost.cshtml" />
     <Content Include="Views\Post\Edit.cshtml" />
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
@@ -1294,10 +1491,28 @@
     <Content Include="Views\Shared\DisplayTemplates\MenuHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CanonicalHelperModel.cshtml" />
     <Content Include="Views\Comment\_PartialPostReplyInput.cshtml" />
+    <Content Include="Scripts\src\quill-image-resize-module\.editorconfig" />
+    <Content Include="Scripts\src\quill-image-resize-module\.eslintrc" />
+    <Content Include="Scripts\src\quill-image-resize-module\.gitignore" />
+    <Content Include="Scripts\src\quill-image-resize-module\CHANGELOG.md" />
+    <Content Include="Scripts\src\quill-image-resize-module\LICENSE" />
+    <Content Include="Scripts\src\quill-image-resize-module\npm-shrinkwrap.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\package.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\README.md" />
+    <Content Include="Views\Group\Edit.cshtml" />
+    <Content Include="Views\Admin\Accounting.cshtml" />
+    <Content Include="Views\Subscription\Index.cshtml" />
+    <Content Include="Views\Subscription\Unsubscribe.cshtml" />
+    <Content Include="Views\Shared\_LayoutSubscriptions.cshtml" />
+    <Content Include="Views\Subscription\Confirm.cshtml" />
+    <Content Include="Views\Subscription\Subscribe.cshtml" />
+    <Content Include="Views\Lnauth\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Models\Finance\" />
     <Folder Include="Views\Finance\" />
+    <Folder Include="Views\Groups\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
     <Folder Include="Views\Vote\" />
@@ -1308,6 +1523,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="API.resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>API.resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805160258291_InitialVersion.resx">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>
     </EmbeddedResource>
@@ -1542,6 +1761,16 @@
     <EmbeddedResource Include="Migrations\202005302024335_addWithdrawGuid.resx">
       <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006021408393_addGroupImage.resx">
+      <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202201270152510_global_earning_spending.resx">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LndLib.NET\LightningLib\LightningLib.csproj">
@@ -1551,6 +1780,10 @@
     <ProjectReference Include="..\Microsoft.Owin.Security.ApiKey\src\Microsoft.Owin.Security.ApiKey\Microsoft.Owin.Security.ApiKey.csproj">
       <Project>{e09682cb-8e40-41dd-b36c-7fec758958c6}</Project>
       <Name>Microsoft.Owin.Security.ApiKey</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Owin.Security.Providers.Lnauth\Owin.Security.Providers.LnAuth.csproj">
+      <Project>{e85bca59-c58b-4634-a248-2f4fb9a1dfbd}</Project>
+      <Name>Owin.Security.Providers.LnAuth</Name>
     </ProjectReference>
     <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj">
       <Project>{803f9eb7-029c-45ac-ab81-135e60d5beae}</Project>
@@ -1580,11 +1813,15 @@
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
@@ -1599,6 +1836,8 @@
           <DevelopmentServerPort>27543</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:27543/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://192.168.0.172:27543/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

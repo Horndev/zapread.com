@@ -1,23 +1,45 @@
-﻿@model zapread.com.Models.PostViewModel
+﻿@model zapread.com.Models.Posts.PostEditViewModel
 
-@{
-    ViewBag.Title = "Edit Post";
+<div id="zruserinfo" style="display:none;" data-reputation="@Model.UserReputation" data-appid="@Model.UserAppId" data-piver="@Model.ProfileImageVersion"></div>
+<div id="root"></div>
+
+@section Styles {
+    @Styles.Render("~/bundles/post/edit/css")
 }
 
-<div class="wrapper border-bottom white-bg page-heading">
+@section Scripts {
+    @Scripts.Render("~/bundles/post/edit")
+}
+
+@*<div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>Edit Post</h2>
+        <h2>
+            New Post in <span id="postGroupActive">
+                @if (Model.Post.Group != null)
+                {@Model.Post.Group.GroupName }
+            else
+            {<text>Community</text>}
+            </span>
+        </h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a href="@Url.Action("Index", "Group")">Groups</a></li>
-            <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.GroupId })">@Model.GroupName</a></li>
-            <li class="breadcrumb-item active">Edit</li>
+            @if (Model.Post.Group != null)
+            {
+                <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = Model.Post.Group.GroupId })">@Model.Post.Group.GroupName</a></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item"><a id="groupLink" href="@Url.Action("GroupDetail", "Group", new { id = 1 })">Community</a></li>
+            }
+            <li class="breadcrumb-item active">New</li>
         </ol>
     </div>
     <div class="col-lg-2">
     </div>
 </div>
+
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-2">
@@ -26,7 +48,7 @@
             <div id="postEdit" class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h3>
-                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30})" /> @User.Identity.Name : Edit Post
+                        <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30 })" /> @User.Identity.Name : New Post
                     </h3>
                 </div>
                 <div class="ibox-content no-padding">
@@ -38,25 +60,39 @@
                     <div class="wrapper p-md">
                         <form>
                             <div class="form-group">
-                                <label>Post Title</label>
-                                <input id="postTitle" type="text" class="form-control" value="@Model.PostTitle" placeholder="Post Title (Optional)">
+                                <label>Post Title (Optional)</label>
+                                <input id="postTitle" type="text" class="form-control">
                             </div>
-                            <div id="editGroup" class="form-group" style="display:none;">
-                                <label>Post Group</label>
-                                <input id="postGroup" type="text" class="form-control" value="@Model.GroupName" />
+                            <div class="form-group">
+                                <label>Post Group (Community if left blank)</label>
+                                <input id="postGroup" type="text" class="form-control" value="@if (Model.Post.Group != null) { @Model.Post.Group.GroupName }" />
                             </div>
-                            <div id="changeGroupBtn" class="form-group">
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="changeGroup();">Change Group</a>
+                            <div class="form-group">
+                                <label>Post Language</label>
+                                <select id='languageSelect' class="form-control">
+                                    @foreach (var l in Model.Languages)
+                                    {
+                                        if (Model.Post.Language == @l.Split(':')[0])
+                                        {
+                                            <option selected value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@l.Split(':')[0]">@l.Split(':')[1]</option>
+                                        }
+                                    }
+                                </select>
                             </div>
                         </form>
                     </div>
+
                     <div id="progressUpload" class="progress" style="display:none">
                         <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">
                         </div>
                     </div>
                     <div class="sticky-top sticky-offset" id="editorToolbar"></div>
                     <div class="click2edit wrapper p-md" style="min-height: 50px;">
-                        @Html.Raw(Model.Content)
+                        @Html.Raw(Model.Post.Content)
                     </div>
                 </div>
                 <div class="ibox-footer">
@@ -64,8 +100,8 @@
                         <div class="col-sm-8"></div>
                         <div class="col-sm-4 text-right">
                             <button id="edit" class="btn btn-secondary btn-sm m-l-sm" onclick="edit();" type="button">Edit</button>
-                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(@Model.PostId,gid,'@Model.UserAppId',true);" type="button">Preview (Save Draft)</button>
-                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(@Model.PostId,gid,'@Model.UserAppId',true);" type="button">Submit</button>
+                            <button id="save" class="btn btn-secondary btn-sm" onclick="save(0,gid,false);" type="button">Preview (Save Draft)</button>
+                            <button id="submit" class="btn btn-primary btn-sm" onclick="submit(0,gid,false);" type="button">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -98,16 +134,5 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
-@section Styles {
-    @Styles.Render("~/bundles/post/edit/css")
-}
-
-@section Scripts {
-    @Scripts.Render("~/bundles/post/edit")
-
-<script type="text/javascript">
-    var gid = @Model.GroupId;
-</script>
-}

@@ -8,7 +8,7 @@ namespace zapread.com.Tests.Services
     public class SanitizationTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestSanitizeXSS()
         {
             var text = @"<script>window.location.href = 'https://www.google.com';</script>";
 

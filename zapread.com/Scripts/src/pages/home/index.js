@@ -7,18 +7,15 @@ import '../../shared/shared';                                               // [
 import '../../utility/ui/vote';                                             // [✓]
 import '../../realtime/signalr';                                            // [✓]
 import Swal from 'sweetalert2';                                             // [✓]
-const Globals = require('./globals').default;                               // [✓]  
 import { addposts, loadmore } from '../../utility/loadmore';                // [✓]
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';        // [✓]
 import { writeComment } from '../../comment/writecomment';                  // [✓]
 import { replyComment } from '../../comment/replycomment';                  // [✓]
 import { editComment } from '../../comment/editcomment';                    // [✓]
 import { loadMoreComments } from '../../comment/loadmorecomments';          // [✓]
-
 import '../../shared/postfunctions';                                        // [✓]
 import '../../shared/readmore';                                             // [✓]
 import '../../shared/postui';                                               // [✓]
-
 import '../../shared/sharedlast';                                           // [✓]
 
 // Make global (called from html)
@@ -27,6 +24,11 @@ window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
 window.loadmore = loadmore;
+
+/** Global vars */
+window.BlockNumber = 10;   //Infinite Scroll starts from second block
+window.NoMoreData = false;
+window.inProgress = false;
 
 var request = new XMLHttpRequest();
 request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);

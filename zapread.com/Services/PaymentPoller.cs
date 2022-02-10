@@ -1,6 +1,7 @@
 ﻿using LightningLib.lndrpc;
 using System;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using zapread.com.Database;
 
@@ -11,6 +12,7 @@ namespace zapread.com.Services
     /// </summary>
     public class PaymentPoller
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "<Pending>")]
         public static void Subscribe()
         {
             LndRpcClient lndClient;
@@ -82,7 +84,7 @@ namespace zapread.com.Services
                             {
                                 ; // Do something
                                 i.IsSettled = true;
-                                i.FeePaid_Satoshi = pmt.fee != null ? Convert.ToInt64(pmt.fee) : 0;
+                                i.FeePaid_Satoshi = pmt.fee != null ? Convert.ToInt64(pmt.fee, CultureInfo.InvariantCulture) : 0;
 
                                 // Should probably update user balance too
 

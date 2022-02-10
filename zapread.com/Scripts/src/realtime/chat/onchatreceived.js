@@ -2,6 +2,7 @@
  * Handle chat messages being received
  **/
 
+import DOMPurify from 'dompurify';
 import { updatePostTimes } from '../../utility/datetime/posttime'
 
 /**
@@ -13,11 +14,12 @@ import { updatePostTimes } from '../../utility/datetime/posttime'
  * @param {string} userId user who is being chatted with
  **/
 export function onchatreceived(HTMLString, userId) {
-    if (typeof ChattingWithId !== 'undefined') {
-        if (userId === ChattingWithId) {
-            document.querySelectorAll('#endMessages').item(0).innerHTML += HTMLString;
-            updatePostTimes();
-            window.scrollTo(0, document.body.scrollHeight + 10);
-        }
+  var cleanHTMLString = DOMPurify.sanitize(HTMLString);
+  if (typeof ChattingWithId !== 'undefined') {
+    if (userId === ChattingWithId) {
+      document.querySelectorAll('#endMessages').item(0).innerHTML += cleanHTMLString;
+      updatePostTimes();
+      window.scrollTo(0, document.body.scrollHeight + 10);
     }
+  }
 }

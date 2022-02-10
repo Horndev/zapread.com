@@ -268,7 +268,7 @@ namespace zapread.com.Controllers
                 ViewBag.Message = "User Alias Updated";
                 string HTMLString = RenderViewToString("MailerUpdatedUserAlias", vm);
 
-                string msgHTML = CleanMail(HTMLString, subject: "");
+                string msgHTML = CleanMail(HTMLString);
 
                 return msgHTML;
             }
@@ -280,7 +280,7 @@ namespace zapread.com.Controllers
         /// <param name="id"></param>
         /// <param name="subject"></param>
         /// <returns></returns>
-        public async Task<string> GenerateNewPostEmailBod(int id, string subject)
+        public async Task<string> GenerateNewPostEmailBody(int id)
         {
             // TODO: convert youtube embeds to images to mail out: https://img.youtube.com/vi/ifesHElrfuo/hqdefault.jpg
             using (var db = new ZapContext())
@@ -290,12 +290,12 @@ namespace zapread.com.Controllers
                     .Include(p => p.UserId)
                     .Include(p => p.UserId.ProfileImage)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.PostId == id);
+                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(true);
 
-                var groups = db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
+                //var groups = db.Groups
+                //        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
+                //        .AsNoTracking()
+                //        .ToListAsync();
 
                 if (pst == null)
                 {
@@ -307,10 +307,10 @@ namespace zapread.com.Controllers
                     Post = pst,
                 };
 
-                ViewBag.Message = subject;
+                ViewBag.Message = "New post by user you are following";
                 string HTMLString = RenderViewToString("MailerNewPost", vm);
 
-                string msgHTML = CleanMail(HTMLString, subject);
+                string msgHTML = CleanMail(HTMLString);
 
                 return msgHTML;
             }
@@ -353,7 +353,7 @@ namespace zapread.com.Controllers
             return true;
         }
 
-        private string CleanMail(string HTMLString, string subject)
+        private string CleanMail(string HTMLString)
         {
             PreMailer.Net.InlineResult result;
             string msgHTML;
@@ -394,7 +394,7 @@ namespace zapread.com.Controllers
 
         private Task SendMailAsync(string HTMLString, string email, string subject)
         {
-            string msgHTML = CleanMail(HTMLString, subject);
+            string msgHTML = CleanMail(HTMLString);
 
             return MailingService.SendAsync(user: "Notify",
                 message: new UserEmailModel()

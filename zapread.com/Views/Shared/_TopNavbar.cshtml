@@ -1,7 +1,7 @@
 ﻿@using zapread.com.Helpers
 
 <div class="white-bg">
-    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
+    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav" @*style="max-height: 65px;"*@>
         <div id="goHome">
             <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
             @*<span class="navbar-text" style="color:darkgreen;font-weight: 900;">
@@ -75,7 +75,8 @@
                 </li>
             </ul>
             <div class="mx-2 w-100" style="margin-right: 10px;">
-                <script>
+                @*<gcse:searchresults-only id="gcse_searchresults"></gcse:searchresults-only>*@
+                @*<script>
                     (function () {
                         var cx = '011527487946990464906:hzzt0pfk0iu';
                         var gcse = document.createElement('script');
@@ -86,7 +87,7 @@
                         s.parentNode.insertBefore(gcse, s);
                     })();
                 </script>
-                <gcse:search></gcse:search>
+                <gcse:search></gcse:search>*@
             </div>
             @if (Request.IsAuthenticated)
             {
@@ -137,9 +138,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="        padding-top: 15px;
-        padding-bottom: 0px
-">
+                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" @*style="padding-top: 15px;padding-bottom: 0px"*@>
                             <i class="fa fa-comments"></i>
                         </a>
                     </li>
@@ -148,8 +147,3 @@
         </div>
     </nav>
 </div>
-
-@*@using (var context = Html.BeginScriptContext())
-{
-    context.AddScriptFile("~/bundles/partial/topnavbar");
-}*@

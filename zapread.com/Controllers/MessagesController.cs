@@ -15,16 +15,23 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API.Account;
+using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Messages;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for Messages/ route
+    /// </summary>
     public class MessagesController : Controller
     {
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// User Manager to access Owin users and properties.
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -41,6 +48,7 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
         public ActionResult Chats()
         {
             if (!User.Identity.IsAuthenticated)
@@ -51,11 +59,21 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult All()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Alerts()
         {
             return View();
@@ -181,16 +199,12 @@ namespace zapread.com.Controllers
             }
         }
 
-        public class ChatsDataItem
-        {
-            public string Status { get; set; }
-            public string IsRead { get; set; }
-            public string Type { get; set; }
-            public string From { get; set; }
-            public string FromID { get; set; }
-            public string LastMessage { get; set; }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="include_alerts"></param>
+        /// <param name="include_content"></param>
+        /// <returns></returns>
         [HttpGet]
         [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Unread(bool? include_alerts, bool? include_content)
@@ -437,35 +451,36 @@ namespace zapread.com.Controllers
         // GET: Messages
         public ActionResult Index()
         {
-            var userId = User.Identity.GetUserId();
-            if (userId == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            //var userId = User.Identity.GetUserId();
+            //if (userId == null)
+            //{
+            //    return RedirectToAction("Index", "Home");
+            //}
 
-            using (var db = new ZapContext())
-            {
-                var user = db.Users
-                    .Include("Alerts")
-                    .Include("Messages")
-                    .Include("Alerts.PostLink")
-                    .Include("Messages.PostLink")
-                    .Include("Messages.From")
-                    .Where(u => u.AppId == userId).First();
+            //using (var db = new ZapContext())
+            //{
+            //    var user = db.Users
+            //        .Include("Alerts")
+            //        .Include("Messages")
+            //        .Include("Alerts.PostLink")
+            //        .Include("Messages.PostLink")
+            //        .Include("Messages.From")
+            //        .Where(u => u.AppId == userId).First();
 
-                var messages = user.Messages
-                    .Where(m => !m.IsRead && !m.IsDeleted).ToList();
+            //    var messages = user.Messages
+            //        .Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
-                var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).ToList();
+            //    var alerts = user.Alerts.Where(m => !m.IsRead && !m.IsDeleted).ToList();
 
-                var vm = new MessagesViewModel()
-                {
-                    Messages = messages,
-                    Alerts = alerts,
-                };
+            //    var vm = new MessagesViewModel()
+            //    {
+            //        Messages = messages,
+            //        Alerts = alerts,
+            //    };
 
-                return View(vm);
-            }
+            //    return View(vm);
+            //}
+            return View();
         }
 
         [Route("Messages/LoadOlder")]
@@ -501,7 +516,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// Chat view with a user
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("Messages/Chat/{username?}")]
+        [HttpGet]
         public async Task<ActionResult> Chat(string username)
         {
             var userAppId = User.Identity.GetUserId();
@@ -536,14 +557,35 @@ namespace zapread.com.Controllers
                         Id = 0,
                         AppId = ""
                     };
+                } else {
+                    if (otherUser.Id == userId) { // disallow chatting with yourself
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
 
                 return View(vm);
             }
         }
 
-        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start)
+        private static async Task<List<ChatMessageViewModel>> GetChats(ZapContext db, int userId, int otherUserId, int step, int start, bool markRead = true)
         {
+            if (markRead)
+            {
+                // Set the last message from other to user as read
+                var lastmessage = await db.Messages
+                    .Where(m => m.IsPrivateMessage)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => (m.From.Id == otherUserId && m.To.Id == userId))
+                    .OrderByDescending(m => m.TimeStamp)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (lastmessage != null && !lastmessage.IsRead)
+                {
+                    lastmessage.IsRead = true;
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+            }
+
             return await db.Messages
                 .Where(m => m.IsPrivateMessage)
                 .Where(m => !m.IsDeleted)
@@ -787,7 +829,7 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include("Alerts")
                         .Where(u => u.AppId == userId)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     if (user == null)
                     {
@@ -836,16 +878,35 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var unreadChats = await db.Users
-                    .Where(u => u.AppId == userId)
-                    .SelectMany(u => u.Messages)
-                    .Where(m => m.From != null)
+                var numUnreadChats = await db.Messages
+                    .Where(m => m.To.AppId == userId)
+                    .Where(m => m.IsPrivateMessage)
                     .Where(m => !m.IsDeleted)
-                    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage)
-                    .Where(m => m.IsRead == false)
-                    .CountAsync();
+                    .GroupBy(m => m.From)
+                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()) // Most recent
+                    .Where(m => !m.IsRead)
+                    .CountAsync().ConfigureAwait(true);
 
-                return Json(new { Unread = unreadChats, success = true });
+                // Debugging
+                //var UnreadChats = await db.Messages
+                //    .Where(m => m.To.AppId == userId)
+                //    .Where(m => m.IsPrivateMessage || m.Title.StartsWith("Private"))
+                //    .Where(m => !m.IsDeleted)
+                //    .GroupBy(m => m.From)
+                //    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()) // Most recent
+                //    .Where(m => !m.IsRead)
+                //    .ToListAsync().ConfigureAwait(true);
+
+                //var unreadChats = await db.Users
+                //    .Where(u => u.AppId == userId)
+                //    .SelectMany(u => u.Messages)
+                //    .Where(m => m.From != null)
+                //    .Where(m => !m.IsDeleted)
+                //    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage)
+                //    .Where(m => m.IsRead == false)
+                //    .CountAsync().ConfigureAwait(true);
+
+                return Json(new { Unread = numUnreadChats, success = true });
             }
         }
 
@@ -859,7 +920,7 @@ namespace zapread.com.Controllers
                     var user = await db.Users
                         .Include("Messages")
                         .Where(u => u.AppId == userId)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     if (user == null)
                     {
@@ -873,7 +934,7 @@ namespace zapread.com.Controllers
                         {
                             a.IsDeleted = true;
                         }
-                        await db.SaveChangesAsync();
+                        await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { Result = "Success" });
                     }
 
@@ -885,7 +946,7 @@ namespace zapread.com.Controllers
                     }
 
                     msg.IsDeleted = true;
-                    await db.SaveChangesAsync();
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                     return Json(new { Result = "Success" });
                 }
             }

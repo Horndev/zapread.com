@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     <div class="ibox-content no-padding border-left-right">
-                        <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, v=Model.UserProfileImageVersion})" />
+                        <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new { size = 500, v = Model.UserProfileImageVersion })" />
                         @*<div class="cuadro_intro_hover">
                             <p style="text-align:center; ">
                             </p>
@@ -77,7 +77,7 @@
                             <strong>
                                 @if (Request.IsAuthenticated)
                                 {
-                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new {size = 30, v=Model.UserProfileImageVersion})" /> @Model.UserName
+                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new { size = 30, v = Model.UserProfileImageVersion })" /> @Model.UserName
                                 }
                                 else
                                 {
@@ -155,50 +155,62 @@
                     <div>
                         <div class="ibox-content profile-content">
                             <h4>Security</h4>
-                            @if (!Model.EmailConfirmed)
-                            {
-                                <div class="row">
+                            <div class="container">
+                                <div class="row justify-content-start">
+                                    <div class="col-sm-4">
+                                        <a class="btn btn-block btn-outline btn-sm btn-primary" href='/Manage/ManageLogins'><i class="fa fa-user"></i> Manage Logins</a>
+                                    </div>
                                     <div class="col-auto">
-                                        <a class="btn btn-outline btn-sm btn-danger" href='@Url.Action("SendEmailConfirmation", "Account", null)'><i class="fa fa-exclamation"></i> Confirm Email</a>
-                                    </div>
-                                    <div class="col">
-                                        Confirm your email to secure your account.
+                                        External Logins
                                     </div>
                                 </div>
-                            }
-                            else
-                            {
-                                <div class="row">
-                                    @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("emailTwoFactor", isActive: Model.TwoFactor))
-                                    <div class="col">
-                                        Enable email 2-factor authentication.
+                                <div class="row justify-content-start">
+                                    <div class="col-sm-4">
+                                        <a class="btn btn-block btn-outline btn-sm btn-warning" href='/Manage/APIKeys/'><i class="fa fa-key"></i> Manage Keys</a>
+                                    </div>
+                                    <div class="col-auto">
+                                        API keys
                                     </div>
                                 </div>
-                            }
-                            <div class="row">
-                                <div class="col-auto">
-                                    <a class="btn btn-outline btn-sm btn-info" href='javascript:void(0);' onclick="requestAPIKey();"><i class="fa fa-key"></i> Request Key</a>
+                                <div class="row justify-content-start">
+                                    <div class="col-sm-4">
+                                        <a class="btn btn-block btn-outline btn-sm btn-info" href='javascript:void(0);' onclick="requestAPIKey();"><i class="fa fa-key"></i> Request Key</a>
+                                    </div>
+                                    <div class="col-auto">
+                                        Request a new API key.
+                                    </div>
                                 </div>
-                                <div class="col">
-                                    Request a new API key.
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-auto">
-                                    <a class="btn btn-outline btn-sm btn-warning" href='/Manage/APIKeys/'><i class="fa fa-key"></i> Manage Keys</a>
-                                </div>
-                                <div class="col">
-                                    Manage API keys
-                                </div>
+                                @if (!Model.EmailConfirmed)
+                                {
+                                    <div class="row justify-content-start">
+                                        <div class="col-sm-4">
+                                            <a class="btn btn-block btn-outline btn-sm btn-danger" href='@Url.Action("SendEmailConfirmation", "Account", null)'><i class="fa fa-exclamation"></i> Confirm Email</a>
+                                        </div>
+                                        <div class="col-auto">
+                                            Confirm your email to secure your account.
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row justify-content-start">
+                                        <div class="col-sm-4">
+                                            @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("emailTwoFactor", isActive: Model.TwoFactor))
+                                        </div> 
+                                        <div class="col-auto">
+                                            Enable email 2-factor authentication.
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div class="ibox-content profile-content">
                             <h4>Notifications</h4>
                             <div class="row">
-                                <div class="col-auto">
-                                    Email
+                                <div class="col-auto text-center">
+                                    Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 </div>
-                                <div class="col-auto">
+                                <div class="col-auto text-center">
                                     Alert
                                 </div>
                                 <div class="col">
@@ -462,7 +474,7 @@
                             @foreach (var u in Model.TopFollowingVm)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImageVersion})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = u.AppId, v = u.ProfileImageVersion })" />
                                 </a>
                             }
                         </div>
@@ -479,7 +491,7 @@
                             @foreach (var u in Model.TopFollowersVm)
                             {
                                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v = u.ProfileImageVersion})" />
+                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = u.AppId, v = u.ProfileImageVersion })" />
                                 </a>
                             }
                         </div>
@@ -526,7 +538,7 @@
                         }
                     </div>
                     <div>
-                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore()"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
                     </div>
                 </div>
             </div>
