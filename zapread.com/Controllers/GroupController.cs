@@ -153,7 +153,6 @@ namespace zapread.com.Controllers
             return user;
         }
 
-
         /// <summary>
         /// GET: Group/Members/1
         /// </summary>

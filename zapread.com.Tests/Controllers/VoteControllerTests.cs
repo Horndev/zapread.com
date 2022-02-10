@@ -21,7 +21,6 @@ namespace zapread.com.Tests.Controllers
                         actorRep: voterRep);
 
             Assert.IsTrue(scoreAdj < 0);
-
         }
     }
 }
