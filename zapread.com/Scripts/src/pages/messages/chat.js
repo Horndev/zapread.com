@@ -1,28 +1,25 @@
 ﻿/**
- * 
  * User to user chat
  * 
- * [✓] Don't use jQuery
- * 
  */ 
-import '../../shared/shared';                                                   // [✓]
-import '../../realtime/signalr';                                                // [✓]
-import Quill from 'quill';                                                      // [✓]
+import '../../shared/shared';
+import '../../realtime/signalr';
+import Quill from 'quill';
 import DOMPurify from 'dompurify';
-import 'quill/dist/quill.core.css'                                              // [✓]
-import 'quill/dist/quill.snow.css'                                              // [✓]
-import '../../css/quill/quillchat.css'; // Some custom overrides                // [✓]
-import 'quill-mention'; // This auto-registers                                  // [✓]
-import ImageResize from 'quill-image-resize-module';                            // [✓]
-import { ImageUpload } from 'quill-image-upload';                               // [✓]
-import AutoLinks from 'quill-auto-links';                                       // [✓]
-import QuillImageDropAndPaste from 'quill-image-drop-and-paste';                // [✓]
-import { getAntiForgeryToken } from '../../utility/antiforgery';                // [✓]
-import { updatePostTimes } from '../../utility/datetime/posttime';              // [✓]
-import { ready } from '../../utility/ready';                                    // [✓]
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';   // [✓]
-import { postJson } from '../../utility/postData';                              // [✓]
-import '../../shared/sharedlast';                                               // [✓]
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import '../../css/quill/quillchat.css'; // Some custom overrides
+import 'quill-mention'; // This auto-registers
+import ImageResize from 'quill-image-resize-module';
+import { ImageUpload } from 'quill-image-upload';
+import AutoLinks from 'quill-auto-links';
+import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
+import { getAntiForgeryToken } from '../../utility/antiforgery';
+import { updatePostTimes } from '../../utility/datetime/posttime';
+import { ready } from '../../utility/ready';
+import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
+import { postJson } from '../../utility/postData';
+import '../../shared/sharedlast';
 
 Quill.register('modules/imageUpload', ImageUpload);
 Quill.register('modules/autoLinks', AutoLinks);
