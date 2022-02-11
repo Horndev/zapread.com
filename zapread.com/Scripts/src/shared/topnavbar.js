@@ -40,13 +40,12 @@ export function dismiss(t, id) {
             Array.prototype.forEach.call(document.querySelectorAll('[id^="a2_"]'), function (e, _i) {
               e.style.display = 'none';
             });
+            document.getElementById("topChat").style.color = "";
           } else {
             document.getElementById("a1_" + id).style.display = 'none';
             document.getElementById("a2_" + id).style.display = 'none';
           }
 
-          //var urla = $("#unreadAlerts").data("url");
-          //$("#unreadAlerts").load(urla);
           var url = document.getElementById("unreadAlerts").getAttribute('data-url');
           fetch(url).then(function (response) {
             return response.text();
