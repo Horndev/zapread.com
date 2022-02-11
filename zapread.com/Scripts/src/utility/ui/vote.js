@@ -133,11 +133,14 @@ window.onVote = onVote;
  * @param {any} msg
  */
 export function updateVoteInvoice(msg) {
+  document.getElementById("voteQRloading").style.display = '';
+
   postJson("/Lightning/GetDepositInvoice/", msg)
     .then((response) => {
       if (response.success) {
         document.getElementById("voteDepositInvoiceInput").value = response.Invoice;
         document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
+        document.getElementById("lnDepositInvoiceImgLink").setAttribute("href", "lightning:" + response.Invoice);
         document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
         document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
@@ -145,12 +148,14 @@ export function updateVoteInvoice(msg) {
         document.getElementById("voteDepositInvoiceFooter").style.display = '';
         document.getElementById("voteDepositQR").style.display = '';
         document.getElementById("voteDepositInvoice").style.display = '';
+        document.getElementById("voteQRloading").style.display = 'none';
       }
       else {
         document.getElementById("voteDepositInvoiceFooter").innerHTML = response.message;
         document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
         document.getElementById("voteDepositInvoiceFooter").style.display = '';
+        document.getElementById("voteQRloading").style.display = 'none';
       }
     })
     .then(() => {
@@ -162,6 +167,7 @@ export function updateVoteInvoice(msg) {
       document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
       document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
       document.getElementById("voteDepositInvoiceFooter").style.display = '';
+      document.getElementById("voteQRloading").style.display = 'none';
     });
 }
 window.updateVoteInvoice = updateVoteInvoice;
@@ -176,6 +182,7 @@ export function onCancelVote(e) {
   document.getElementById("voteDepositInvoiceFooter").style.display = 'none';
   document.getElementById("voteDepositQR").style.display = 'none';
   document.getElementById("voteDepositInvoice").style.display = 'none';
+  document.getElementById("voteQRloading").style.display = 'none';
 }
 window.onCancelVote = onCancelVote;
 
@@ -217,8 +224,9 @@ export function vote(id, d, t, b, o) {
   document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";//$('#voteDepositInvoiceFooter').html("Click vote to confirm.");
   document.getElementById('voteDepositQR').style.display = 'none';//$("#voteDepositQR").hide();
   document.getElementById('voteDepositInvoice').style.display = 'none';//$("#voteDepositInvoice").hide();
+  document.getElementById("voteQRloading").style.display = 'none';
 
-  showVoteModal(); // $('#voteModal').modal('show');
+  showVoteModal();
   refreshUserBalance().then((userBalance) => {
     /* This is done here prior to showing */
     if (userVote.amount > userBalance) {
