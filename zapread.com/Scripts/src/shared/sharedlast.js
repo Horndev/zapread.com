@@ -5,9 +5,7 @@
 import '../css/Site.css';
 import '../css/roundlinks.css';
 import '../css/hover.css';
-
-import { ready } from '../utility/ready';                           // [✓]
-
+import { ready } from '../utility/ready';
 import "tarteaucitronjs/css/tarteaucitron.css";
 
 var tarteaucitronForceCDN = '/Content/';
@@ -73,7 +71,7 @@ tarteaucitron.services.zyoutube = {
         loading = '';
       }
 
-      video_frame = '<iframe class="embed-responsive-item" title="' + frame_title + '" src="//www.youtube.com/embed/' + video_id + '?' + params + '"' + (allowfullscreen == '0' ? '' : ' webkitallowfullscreen mozallowfullscreen allowfullscreen') + ' ' + srcdoc + ' ' + loading + '></iframe>';
+      video_frame = '<iframe class="embed-responsive-item" title="' + frame_title + '" src="//www.youtube-nocookie.com/embed/' + video_id + '?' + params + '"' + (allowfullscreen == '0' ? '' : ' webkitallowfullscreen mozallowfullscreen allowfullscreen') + ' ' + srcdoc + ' ' + loading + '></iframe>';
       return video_frame;
     });
   },

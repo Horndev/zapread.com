@@ -761,6 +761,11 @@ namespace zapread.com.Controllers
                             }
                             contentStr = postDocument.DocumentNode.OuterHtml;
                         }
+                        else
+                        {
+                            // filter youtube nocookie anyway
+                            contentStr = PostHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
+                        }
                     }
                 } catch (Exception)
                 {
@@ -1018,10 +1023,14 @@ namespace zapread.com.Controllers
                     var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
+
+                // filter youtube nocookie anyway
+                var contentStr = PostsHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
+
                 return Json(new
                 {
                     NoMoreData = postsVm.Count < BlockSize,
-                    HTMLString = PostsHTMLString,
+                    HTMLString = contentStr,//PostsHTMLString,
                 });
             }
         }
