@@ -25,8 +25,6 @@ export default function VoteModal(props) {
 
         // This initializes the modals (done manually using bootstrap.native)
         var bsnModalInit = new bsn.Modal("#voteModal");
-        var bsnNodeModalInit = new bsn.Modal("#voteNodeModal");
-
       }
       setIsInitialized(true);
     },
