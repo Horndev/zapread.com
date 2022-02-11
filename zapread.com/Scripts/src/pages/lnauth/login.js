@@ -19,7 +19,7 @@ function connectStream(url, k1) {
   connection.on("LnAuthLogin", onlnauthlogin);
   connection.on("ReceiveMessage", function (userId, message) {
     // Don't handle this yet.
-    console.log("ReceiveMessage", userId, message);
+    //console.log("ReceiveMessage", userId, message);
   });
   //console.log('connecting...(' + k1 + ')' );
   connection.start().then(function () {
@@ -42,4 +42,11 @@ async function getstream() {
   }
 }
 
-ready(() => { getstream(); });
+ready(() => {
+  getstream();
+
+  appInsights.trackEvent({
+    name: 'lnurl-auth login start',
+  });
+  appInsights.flush(); // send now
+});
