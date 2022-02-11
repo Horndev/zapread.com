@@ -39,7 +39,7 @@ namespace zapread.com.API
                     success = true
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new GetLanguagesResponse()
                 {

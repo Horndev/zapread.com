@@ -11,8 +11,19 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class QueryHelpers
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userLanguages"></param>
+        /// <param name="db"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public static IQueryable<Post> QueryValidPosts(int userId, List<string> userLanguages, ZapContext db, User user = null)
         {
             IQueryable<Post> validposts = db.Posts
@@ -26,7 +37,6 @@ namespace zapread.com.Helpers
                     .Where(p => !ig.Contains(p.Group.GroupId));
 
                 var allLang = user.Settings.ViewAllLanguages;
-
                 if (!allLang)
                 {
                     var languages = userLanguages ?? new List<string>() { "en" };
@@ -55,23 +65,30 @@ namespace zapread.com.Helpers
             return validposts;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public static async Task<List<PostViewModel>> QueryActivityPostsVm(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
             {
-                List<int> followingIds = await db.Users
-                        .Where(us => us.Id == userId)
-                        .SelectMany(us => us.Following)
-                        .Select(f => f.Id)
-                        .ToListAsync()
-                        .ConfigureAwait(true);
+                //List<int> followingIds = await db.Users
+                //        .Where(us => us.Id == userId)
+                //        .SelectMany(us => us.Following)
+                //        .Select(f => f.Id)
+                //        .ToListAsync()
+                //        .ConfigureAwait(true);
 
                 var userposts = db.Posts
                     .Where(p => p.UserId.Id == userId)
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft)
                     .OrderByDescending(p => p.TimeStamp)
-                    .Take(20)
+                    //.Take(20)
                     .Select(p => new PostViewModel()
                     {
                         PostTitle = p.PostTitle,
@@ -111,70 +128,80 @@ namespace zapread.com.Helpers
                             ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                             ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                             ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
                             ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
                         }),
                     });
 
                 // Posts by users who are following this user
-                var followposts = db.Posts
-                    .Where(p => followingIds.Contains(p.UserId.Id))
-                    .Where(p => !p.IsDeleted)
-                    .Where(p => !p.IsDraft)
-                    .OrderByDescending(p => p.TimeStamp)
-                    .Take(20)
-                    .Select(p => new PostViewModel()
-                    {
-                        PostTitle = p.PostTitle,
-                        Content = p.Content,
-                        PostId = p.PostId,
-                        GroupId = p.Group.GroupId,
-                        GroupName = p.Group.GroupName,
-                        IsSticky = p.IsSticky,
-                        UserName = p.UserId.Name,
-                        UserId = p.UserId.Id,
-                        UserAppId = p.UserId.AppId,
-                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
-                        Score = p.Score,
-                        TimeStamp = p.TimeStamp,
-                        TimeStampEdited = p.TimeStampEdited,
-                        IsNSFW = p.IsNSFW,
-                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
-                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
-                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
-                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
-                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
-                        {
-                            PostId = p.PostId,
-                            CommentId = c.CommentId,
-                            Text = c.Text,
-                            Score = c.Score,
-                            IsReply = c.IsReply,
-                            IsDeleted = c.IsDeleted,
-                            TimeStamp = c.TimeStamp,
-                            TimeStampEdited = c.TimeStampEdited,
-                            UserId = c.UserId.Id,
-                            UserName = c.UserId.Name,
-                            UserAppId = c.UserId.AppId,
-                            ProfileImageVersion = c.UserId.ProfileImage.Version,
-                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
-                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
-                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
-                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
-                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
-                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
-                        }),
-                    });
+                //var followposts = db.Posts
+                //    .Where(p => followingIds.Contains(p.UserId.Id))
+                //    .Where(p => !p.IsDeleted)
+                //    .Where(p => !p.IsDraft)
+                //    .OrderByDescending(p => p.TimeStamp)
+                //    .Take(20)
+                //    .Select(p => new PostViewModel()
+                //    {
+                //        PostTitle = p.PostTitle,
+                //        Content = p.Content,
+                //        PostId = p.PostId,
+                //        GroupId = p.Group.GroupId,
+                //        GroupName = p.Group.GroupName,
+                //        IsSticky = p.IsSticky,
+                //        UserName = p.UserId.Name,
+                //        UserId = p.UserId.Id,
+                //        UserAppId = p.UserId.AppId,
+                //        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                //        Score = p.Score,
+                //        TimeStamp = p.TimeStamp,
+                //        TimeStampEdited = p.TimeStampEdited,
+                //        IsNSFW = p.IsNSFW,
+                //        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
+                //        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
+                //        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
+                //        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                //        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                //        {
+                //            PostId = p.PostId,
+                //            CommentId = c.CommentId,
+                //            Text = c.Text,
+                //            Score = c.Score,
+                //            IsReply = c.IsReply,
+                //            IsDeleted = c.IsDeleted,
+                //            TimeStamp = c.TimeStamp,
+                //            TimeStampEdited = c.TimeStampEdited,
+                //            UserId = c.UserId.Id,
+                //            UserName = c.UserId.Name,
+                //            UserAppId = c.UserId.AppId,
+                //            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                //            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
+                //            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
+                //            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                //            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                //            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                //            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                //        }),
+                //    });
+                //var activityposts = userposts.ToList().Union(followposts.ToList())
+                //    .OrderByDescending(p => p.TimeStamp)
+                //    .Skip(start)
+                //    .Take(count)
+                //    .ToList();
 
-                var activityposts = userposts.ToList().Union(followposts.ToList())
-                    .OrderByDescending(p => p.TimeStamp)
+                var activityposts = await userposts
                     .Skip(start)
                     .Take(count)
-                    .ToList();
+                    .ToListAsync().ConfigureAwait(true);
 
                 return activityposts;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validposts"></param>
+        /// <returns></returns>
         public static IQueryable<PostQueryInfo> OrderPostsByActive(IQueryable<Post> validposts)
         {
             DateTime scoreStart = new DateTime(2018, 07, 01);
@@ -239,8 +266,12 @@ namespace zapread.com.Helpers
             return sposts;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public class PostQueryInfo
         {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             public Post p;
             public double? hot;
             public double? order1;
@@ -248,6 +279,7 @@ namespace zapread.com.Helpers
             public double? sign;
             public double? dt;
             public double? active;
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         }
 
         /// <summary>

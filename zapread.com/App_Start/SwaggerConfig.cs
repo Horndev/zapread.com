@@ -10,6 +10,9 @@ using System.Globalization;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SwaggerConfig
     {
         private static string ResolveBasePath(HttpRequestMessage message)
@@ -34,6 +37,9 @@ namespace zapread.com
             return val;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static void Register()
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;

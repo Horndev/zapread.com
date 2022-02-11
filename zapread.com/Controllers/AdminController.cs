@@ -905,8 +905,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public class AuditDataItem
         {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable IDE1006 // Naming Styles
             public string Created { get; set; }
             public string Time { get; set; }
             public string Type { get; set; }
@@ -916,8 +921,16 @@ namespace zapread.com.Controllers
             public bool Settled { get; set; }
             public string PaymentHash { get; set; }
             public int id { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/GetLNTransactions/{username}")]
         public ActionResult GetLNTransactions(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
@@ -961,6 +974,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/GetEarningEvents/{username}")]
         public ActionResult GetEarningEvents(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
@@ -998,6 +1017,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/GetSpendingEvents/{username}")]
         public ActionResult GetSpendingEvents(string username, [System.Web.Http.FromBody] DataTableParameters dataTableParameters)
         {
@@ -1047,6 +1072,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="days"></param>
+        /// <returns></returns>
         [HttpGet, Route("Admin/GetLNFlow/{username}/{days?}")]
         public ActionResult GetLNFlow(string username, string days)
         {
@@ -1082,7 +1113,11 @@ namespace zapread.com.Controllers
             return Json(new { value }, JsonRequestBehavior.AllowGet);
         }
 
-        // Function to check if LN invoice was settled
+        /// <summary>
+        /// // Function to check if LN invoice was settled
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet, Route("Admin/CheckLNInvoice/{id}")]
         public ActionResult CheckLNInvoice(int id)
         {
@@ -1096,6 +1131,10 @@ namespace zapread.com.Controllers
 
         #region Lightning
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("Admin/Lightning/Payments")]
         public ActionResult LightningPayments()
@@ -1103,6 +1142,10 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [Route("Admin/Lightning")]
         public async Task<ActionResult> Lightning()
         {
@@ -1131,6 +1174,15 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="LnMainnetHost"></param>
+        /// <param name="LnPubkey"></param>
+        /// <param name="LnMainnetMacaroonAdmin"></param>
+        /// <param name="LnMainnetMacaroonInvoice"></param>
+        /// <param name="LnMainnetMacaroonRead"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Lightning/Update")]
         public async Task<ActionResult> LightningUpdate(string LnMainnetHost, string LnPubkey, string LnMainnetMacaroonAdmin, string LnMainnetMacaroonInvoice, string LnMainnetMacaroonRead)
         {
@@ -1154,6 +1206,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="macaroonType"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Lightning/Macaroon/Upload")]
         public JsonResult LightningUploadInvoice(HttpPostedFileBase file, string macaroonType)
         {
@@ -1172,6 +1230,10 @@ namespace zapread.com.Controllers
 
         #region Users
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Administrator")]
         [Route("Admin/Users")]
@@ -1643,7 +1705,11 @@ namespace zapread.com.Controllers
         #endregion
 
         #region Admin Bar
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public PartialViewResult SiteAdminBarUserInfo(int userId)
         {
             using (var db = new ZapContext())
@@ -1660,6 +1726,16 @@ namespace zapread.com.Controllers
                     .Where(usr => usr.Id == userId)
                     .FirstOrDefault();
 
+                var withdrawTxns = db.LightningTransactions
+                    .Where(tx => tx.User.AppId == u.AppId)
+                    .Where(tx => !tx.IsDeposit && tx.IsSettled)
+                    .Select(tx => tx.Amount).ToList();
+
+                var depositTxns = db.LightningTransactions
+                    .Where(tx => tx.User.AppId == u.AppId)
+                    .Where(tx => tx.IsDeposit && tx.IsSettled)
+                    .Select(tx => tx.Amount).ToList();
+
                 if (u == null)
                 {
                     return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
@@ -1668,6 +1744,8 @@ namespace zapread.com.Controllers
                 vm.Balance = Convert.ToInt32(Math.Floor(u.Funds.Balance));
                 vm.TotalEarned = Convert.ToInt32(u.TotalEarned);
                 vm.NumPosts = Convert.ToInt32(u.Posts.Where(p => !p.IsDeleted && !p.IsDraft).Count());
+                vm.TotalWithdrawn = Convert.ToInt32(withdrawTxns.Sum());
+                vm.TotalDeposited = Convert.ToInt32(depositTxns.Sum());
 
                 var appUser = UserManager.FindById(u.AppId);
                 vm.Email = appUser.Email;
@@ -1676,12 +1754,22 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewInfo"></param>
+        /// <returns></returns>
         public PartialViewResult SiteAdminBar(string viewInfo)
         {
             ViewBag.ViewInfo = viewInfo;
             return PartialView("_PartialSiteAdminBar");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
         public PartialViewResult AdminAddUserToGroupRoleForm(string groupName)
         {
             var vm = new AddUserToGroupRoleViewModel
@@ -1691,7 +1779,11 @@ namespace zapread.com.Controllers
             return PartialView("_PartialAddUserToGroupRoleForm", vm);
         }
 
-        // Query the DB for all users starting with the prefix
+        /// <summary>
+        /// // Query the DB for all users starting with the prefix
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         public JsonResult GetUsers(string prefix)
@@ -1703,6 +1795,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult GetUserGroupRoles(string group, string user)
         {
@@ -1731,6 +1829,15 @@ namespace zapread.com.Controllers
             return Json(roles);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="user"></param>
+        /// <param name="isAdmin"></param>
+        /// <param name="isMod"></param>
+        /// <param name="isMember"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         public JsonResult UpdateUserGroupRoles(string group, string user, bool isAdmin, bool isMod, bool isMember)

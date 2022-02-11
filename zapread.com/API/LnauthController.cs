@@ -87,12 +87,16 @@ namespace zapread.com.API
         /// </summary>
         public class Authparams
         {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable IDE1006 // Naming Styles
             public string sig { get; set; }
             public string k1 { get; set; }
             public string key { get; set; }
             public string tag { get; set; }
             public string action { get; set; }
             public string cb { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         }
 
         /// <summary>
