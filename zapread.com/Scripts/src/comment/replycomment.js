@@ -23,7 +23,7 @@ export async function replyComment(commentId, postId, content) {
   var el = document.getElementById('reply_c' + commentId.toString());
   el.style.display = '';
   var spinnerHTML = "" +
-    '<div class="sk-loading" style="borderStyle: none;">' +
+    '<div class="sk-loading" style="border-style: none;">' +
     '<div class="sk-spinner sk-spinner-three-bounce">' +
     '<div class="sk-bounce1"></div>' +
     '<div class="sk-bounce2"></div>' +

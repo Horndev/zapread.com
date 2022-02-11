@@ -13,7 +13,6 @@ import { updatePostTimes } from '../../../utility/datetime/posttime'; // [✓]
 import { writeComment } from '../../../comment/writecomment'          // [✓]
 import { setPostLanguage, nsfwPost, stickyPost } from "../../../shared/postfunctions";      // [✓]
 import { makeQuotable } from "../../../utility/quotable/quotable";
-import PostAuthorName from "./PostAuthorName";
 import PostVoteButtons from "./PostVoteButtons";
 import CommentsView from "../../../comment/CommentsView";
 

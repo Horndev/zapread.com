@@ -73,7 +73,19 @@ export default function VoteModal(props) {
                     </div>
                   </div>
 
-                  <img loading="lazy" id="voteDepositQR" src="~/Content/FFFFFF-0.png" className="img-fluid" />
+                  <div id="voteQRloading" style={{ display: "none"}}>
+                    <div className="sk-loading" style={{BorderStyle: "none"}}>
+                      <div className="sk-spinner sk-spinner-three-bounce">
+                        <div className="sk-bounce1"></div>
+                        <div claclassNamess="sk-bounce2"></div>
+                        <div className="sk-bounce3"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a id="lnDepositInvoiceImgLink" href="lightning:xxx">
+                    <img loading="lazy" id="voteDepositQR" src="~/Content/FFFFFF-0.png" className="img-fluid" />
+                  </a>
 
                   <div className="input-group mb-3" id="voteDepositInvoice" style={{ display: "none" }}>
                     <div className="input-group-prepend">
@@ -86,21 +98,21 @@ export default function VoteModal(props) {
                           //"copyToClipboard(this,'voteDepositInvoiceInput');"
                         }}><span className="fa fa-copy"></span>&nbsp;Copy</button>
                     </div>
-                    <div className="col-md-2 pull-right">
-                      <button type="button" className="btn btn-primary" data-toggle="modal" data-target=".vote-modal">
-                        <i className="fa fa-qrcode"></i>
-                      </button>
+                    {/*<div className="col-md-2 pull-right">*/}
+                    {/*  <button type="button" className="btn btn-primary" data-toggle="modal" data-target=".vote-modal">*/}
+                    {/*    <i className="fa fa-qrcode"></i>*/}
+                    {/*  </button>*/}
 
-                      <div id="voteNodeModal" className="modal fade vote-modal" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-                        <div className="modal-dialog modal-lg">
-                          <div className="modal-content">
-                            <img width="300" height="300" loading="lazy" src={qrURL} className="img-fluid" />
-                            <br />
-                            <textarea className="form-control" value="" readOnly="readonly" rows="3">02cda8c01b2303e91bec74c43093d5f1c4fd42a95671ae27bf853d7dfea9b78c06@lightning.zapread.com:9735</textarea>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {/*  <div id="voteNodeModal" className="modal fade vote-modal" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">*/}
+                    {/*    <div className="modal-dialog modal-lg">*/}
+                    {/*      <div className="modal-content">*/}
+                    {/*        <img width="300" height="300" loading="lazy" src={qrURL} className="img-fluid" />*/}
+                    {/*        <br />*/}
+                    {/*        <textarea className="form-control" value="" readOnly="readonly" rows="3">02cda8c01b2303e91bec74c43093d5f1c4fd42a95671ae27bf853d7dfea9b78c06@lightning.zapread.com:9735</textarea>*/}
+                    {/*      </div>*/}
+                    {/*    </div>*/}
+                    {/*  </div>*/}
+                    {/*</div>*/}
                   </div>
                 </div>
                 <div className="card-footer bg-info" id="voteDepositInvoiceFooter">

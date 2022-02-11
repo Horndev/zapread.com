@@ -5,8 +5,8 @@
 import React, { useCallback, useEffect, useState, createRef } from "react";
 import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
 
-import { postJson } from "../../../utility/postData"; // [✓]
-import { vote } from "../../../utility/ui/vote";      // [✓]
+import { postJson } from "../../../utility/postData";
+import { vote } from "../../../utility/ui/vote";
 
 export default function PostVoteButtons(props) {
   const [postId, setPostId] = useState(0);

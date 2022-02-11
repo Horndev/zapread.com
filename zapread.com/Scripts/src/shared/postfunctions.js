@@ -1,18 +1,13 @@
 ﻿/**
  * 
- * [✓] does not use jQuery
- * 
  */
 
 import Swal from 'sweetalert2';
-import { getAntiForgeryToken } from '../utility/antiforgery';
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
-import { postJson } from '../utility/postData';                             // [✓]
+import { postJson } from '../utility/postData';
 
 /**
  * User clicks to sticky a post
  * 
- * [✓] does not use jQuery
  * 
  * @param {any} id
  */
@@ -29,7 +24,6 @@ window.stickyPost = stickyPost;
 /**
  * Toggle if a post is NSFW
  * 
- * [✓] does not use jQuery
  * 
  * @param {any} id
  */
@@ -51,7 +45,6 @@ window.nsfwPost = nsfwPost;
 
 /**
  * 
- * [✓] does not use jQuery
  * 
  * @param {any} id
  */
@@ -87,19 +80,6 @@ export function deleteComment(id) {
             Swal.fire("Error", "Error deleting comment.", "error");
           }
         });
-      //$.post("/Comment/DeleteComment/",
-      //{ "Id": id },
-      //function (data) {
-      //    if (data.Success) {
-      //        $('#comment_' + id.toString()).hide();
-      //        Swal.fire("Deleted! Your comment has been deleted.", {
-      //            icon: "success"
-      //        });
-      //    }
-      //    else {
-      //        Swal.fire("Error", "Error deleting comment.", "error");
-      //    }
-      //});
     } else {
       console.log("cancelled delete");
     }
@@ -109,7 +89,6 @@ window.deleteComment = deleteComment;
 
 /**
  * 
- * [✓] does not use jQuery
  * 
  * @param {any} id
  */
@@ -132,19 +111,6 @@ export function setPostLanguage(id) {
           Swal.fire("Error", "Error: " + data.message, "error");
         }
       });
-
-    //$.post("/Post/ChangeLanguage/",
-    //{ "postId": id, "newLanguage": name.value },
-    //function (data) {
-    //    if (data.success) {
-    //        Swal.fire("Post language has been updated!", {
-    //            icon: "success"
-    //        });
-    //    }
-    //    else {
-    //        Swal.fire("Error", "Error: " + data.message, "error");
-    //    }
-    //});
   }).catch(function (err) {
     if (err) {
       Swal.fire("Error", "Error updating language.", "error");
@@ -159,8 +125,6 @@ window.setPostLanguage = setPostLanguage;
 /**
  * 
  * 
- * [✓] does not use jQuery
- * 
  * @param {any} id
  */
 export function deletePost(id) {
@@ -174,11 +138,9 @@ export function deletePost(id) {
       postJson("/Post/DeletePost/", { "PostId": id })
         .then((data) => {
           if (data.Success) {
-            //$('#post_' + id.toString()).hide();
             if (document.querySelectorAll('#post_' + id.toString()).length) {
               document.querySelectorAll('#post_' + id.toString()).item(0).style.display = 'none';
             }
-
             Swal.fire({
               title: "Deleted",
               text: "Deleted! Your post has been deleted.",
@@ -189,20 +151,6 @@ export function deletePost(id) {
             Swal.fire("Error", "Error deleting post.", "error");
           }
         });
-
-      //$.post("/Post/DeletePost/",
-      //{ "PostId": id },
-      //function (data) {
-      //    if (data.Success) {
-      //        $('#post_' + id.toString()).hide();
-      //        Swal.fire("Deleted! Your post has been deleted.", {
-      //            icon: "success"
-      //        });
-      //    }
-      //    else {
-      //        Swal.fire("Error", "Error deleting post.", "error");
-      //    }
-      //});
     } else {
       console.log("cancelled delete");
     }
@@ -216,30 +164,16 @@ var isCommenting = false;
 
 /**
  * 
- * [✓] does not use jQuery
  * 
  **/
 export function dofeedback() {
-  var msg = $('#feedbackText').val();
+  var msg = document.getElementById('feedbackText').value; // $('#feedbackText').val();
   var feebackLocation = window.location.href;
 
   postJson("/Home/SendFeedback/", { msg: msg, loc: feebackLocation })
     .then((data) => {
       alert('Feedback successfully sent.  Thank you!');
     });
-
-  //$.ajax({
-  //    url: "/Home/SendFeedback",
-  //    type: "POST",
-  //    dataType: "json",
-  //    data: { msg: msg, loc: feebackLocation },
-  //    success: function (data) {
-  //        alert('Feedback successfully sent.  Thank you!');
-  //    }
-  //});
-
-  //$('.open-small-chat').children().toggleClass('fa-comments').toggleClass('fa-remove');
-  //$('.small-chat-box').toggleClass('active');
 }
 window.dofeedback = dofeedback;
 
