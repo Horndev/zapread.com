@@ -288,7 +288,7 @@ namespace zapread.com.Helpers
                     order2 = p.order2,
                     sign = p.sign,
                     dt = p.dt,
-                    hot = (p.sign * (p.order1 + p.sign > 0 ? p.order2 : 0)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
+                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
                 })
                 .OrderByDescending(p => p.hot);
             //.Select(p => p.p);
