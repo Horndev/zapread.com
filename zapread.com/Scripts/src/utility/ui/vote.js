@@ -2,6 +2,7 @@
  * User vote functions - controlling modal and ui interface
  * 
  **/
+import Swal from 'sweetalert2';
 import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4';
 import { getAntiForgeryTokenValue } from '../antiforgery';
 import { postJson } from '../postData';
@@ -214,29 +215,44 @@ export function vote(id, d, t, b, o) {
   userVote.o = o;     /* Track the calling object */
   userVote.amount = voteCost;
 
-  /* Prepare vote modal without an invoice, and show it.*/
-  document.getElementById('voteModalTitle').innerHTML = "Vote";//$('#voteModalTitle').html("Vote");
-  document.getElementById('userVoteBalance').innerHTML = "...";//$('#userVoteBalance').html("...");
-  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-success");//$("#voteDepositInvoiceFooter").removeClass("bg-success");
-  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-error");//$("#voteDepositInvoiceFooter").removeClass("bg-error");
-  document.getElementById('voteDepositInvoiceFooter').classList.add("bg-info");//$("#voteDepositInvoiceFooter").addClass("bg-info");
-  document.getElementById('voteOkButton').innerHTML = "Vote";//$("#voteOkButton").html('Vote');
-  document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";//$('#voteDepositInvoiceFooter').html("Click vote to confirm.");
-  document.getElementById('voteDepositQR').style.display = 'none';//$("#voteDepositQR").hide();
-  document.getElementById('voteDepositInvoice').style.display = 'none';//$("#voteDepositInvoice").hide();
-  document.getElementById("voteQRloading").style.display = 'none';
+  if (!IsAuthenticated) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Anonymous Vote',
+      text: 'You are not logged in, but you can still vote anonymously with a Bitcoin Lightning Payment.',
+      footer: '<a href="/Account/Login">Log in instead</a>'
+    }).then(() => {
+      prepareAndShowVoteModal();
+    });
+  }
+  else {
+    prepareAndShowVoteModal();
+  }
+}
 
+window.vote = vote;
+
+function prepareAndShowVoteModal() {
+  /* Prepare vote modal without an invoice, and show it.*/
+  document.getElementById('voteModalTitle').innerHTML = "Vote";
+  document.getElementById('userVoteBalance').innerHTML = "...";
+  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-success");
+  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-error");
+  document.getElementById('voteDepositInvoiceFooter').classList.add("bg-info");
+  document.getElementById('voteOkButton').innerHTML = "Vote";
+  document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
+  document.getElementById('voteDepositQR').style.display = 'none';
+  document.getElementById('voteDepositInvoice').style.display = 'none';
+  document.getElementById("voteQRloading").style.display = 'none';
   showVoteModal();
   refreshUserBalance().then((userBalance) => {
     /* This is done here prior to showing */
     if (userVote.amount > userBalance) {
-      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";//$('#voteDepositInvoiceFooter').html('Please pay lightning invoice.');
-      document.getElementById('voteOkButton').innerHTML = "Get Invoice";//$("#voteOkButton").html('Get Invoice');
+      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
+      document.getElementById('voteOkButton').innerHTML = "Get Invoice";
     }
   });
-
 }
-window.vote = vote;
 
 /**
  * [✓]
