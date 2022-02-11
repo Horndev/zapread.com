@@ -13,8 +13,6 @@ window.ub = ub;
 /**
  * Dismiss messages and alerts
  * 
- * [✓] does not use jQuery
- * 
  * @param {any} t  : type (1 = alert)
  * @param {any} id : object id
  * @returns {bool} : true on success

@@ -3,34 +3,27 @@
  * 
  */
 
-//import '../../shared/shared';
 import $ from 'jquery';
 
 import 'bootstrap';                                             // [X]            // still requires jquery :(
 import 'bootstrap/dist/css/bootstrap.min.css';                  // [✓]
 import 'font-awesome/css/font-awesome.min.css';                 // [✓]
-import '../../utility/ui/paymentsscan';                         // [  ]
-import '../../utility/ui/accountpayments';                      // [  ]
-
+import '../../utility/ui/paymentsscan';                         // [ ]
+import '../../utility/ui/accountpayments';                      // [ ]
 import '../../shared/postfunctions';                            // [✓]
 import '../../shared/readmore';                                 // [✓]
 import '../../shared/postui';                                   // [✓]
-
 import '../../shared/topnavbar';                                // [✓]
 import "jquery-ui-dist/jquery-ui";                              // [X]
 import "jquery-ui-dist/jquery-ui.min.css";                      // [X]
-
 import '../../utility/ui/vote';                                 // [✓]
 import '../../realtime/signalr';                                // [✓]
-
 import Dropzone from 'dropzone';
 import 'dropzone/dist/basic.css';
 import 'dropzone/dist/dropzone.css';
 import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
 import 'bootstrap-chosen/bootstrap-chosen.css';
-
 import Swal from 'sweetalert2';
-
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
@@ -38,7 +31,6 @@ import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
 import { loadmore } from '../../utility/loadmore';
-
 import './updateAlias';
 import '../../shared/sharedlast';
 
@@ -64,7 +56,6 @@ export function manageloadmore(userId) {
 }
 window.loadmore = manageloadmore;
 
-// 
 onLoadedMorePosts();
 
 $('.ach-hover').each(function () {
@@ -205,30 +196,6 @@ export function generateRobot(set) {
             if (response.success) {
                 // Reload images
                 updateImagesOnPage(response.version);
-                //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&v=" + response.version);
-
-                //$(".user-image-30").each(function () {
-                //    $(this).attr("src", "/Home/UserImage/?size=30&v=" + response.version);
-                //});
-
-                //$(".user-image-45").each(function () {
-                //    // Refreshes post user images
-                //    $(this).attr("src", "/Home/UserImage/?size=45&v=" + response.version);
-                //});
-
-                //$(".user-image-15").each(function () {
-                //    $(this).attr("src", "/Home/UserImage/?size=15&v=" + response.version);
-                //});
-                //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&r=" + new Date().getTime());
-                //$(".user-image-30").each(function () {
-                //    $(this).attr("src", "/Home/UserImage/?size=30&r=" + new Date().getTime());
-                //});
-                //$(".user-image-15").each(function () {
-                //    $(this).attr("src", "/Home/UserImage/?size=15&r=" + new Date().getTime());
-                //});
-                //Swal.fire("Your profile image has been updated!", {
-                //    icon: "success"
-                //});
             } else {
                 // Did not work
                 Swal.fire({
@@ -282,94 +249,3 @@ export function settingToggle(e) {
     });
 }
 window.settingToggle = settingToggle;
-
-
-
-//export function loadmore() {
-//    if (!inProgress) {
-//        inProgress = true;
-//        $('#loadmore').show();
-//        $('#btnLoadmore').prop('disabled', true);
-//        $.post("/Manage/InfiniteScroll/",
-//            { "BlockNumber": BlockNumber },
-//            function (data) {
-//                $('#loadmore').hide();
-//                $('#btnLoadmore').prop('disabled', false);
-//                BlockNumber = BlockNumber + 10;
-//                NoMoreData = data.NoMoreData;
-//                $("#posts").append(data.HTMLString);
-//                inProgress = false;
-//                $('.postTime').each(function (i, e) {
-//                    var datefn = dateFns.parse($(e).html());
-//                    // Adjust to local time
-//                    datefn = dateFns.subMinutes(datefn, (new Date()).getTimezoneOffset());
-//                    var date = dateFns.format(datefn, "DD MMM YYYY");
-//                    var time = dateFns.distanceInWordsToNow(datefn);
-//                    $(e).html('<span>' + time + ' ago - ' + date + '</span>');
-//                    $(e).css('display', 'inline');
-//                    $(e).removeClass("postTime");
-//                });
-//                if (NoMoreData) {
-//                    $('#showmore').hide();
-//                }
-//                $(".sharing").each(function () {
-//                    $(this).jsSocials({
-//                        url: $(this).data('url'),
-//                        text: $(this).data('sharetext'),
-//                        showLabel: false,
-//                        showCount: false,
-//                        shareIn: "popup",
-//                        shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp"]
-//                    });
-//                    $(this).removeClass("sharing");
-//                });
-//                $(".c_input").summernote({
-//                    callbacks: {
-//                        onImageUpload: function (files) {
-//                            let that = $(this);
-//                            sendFile(files[0], that);
-//                        }
-//                    },
-//                    focus: false,
-//                    placeholder: 'Write comment...',
-//                    disableDragAndDrop: true,
-//                    toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'fontsize', 'color', 'link'],
-//                    minHeight: 60,
-//                    maxHeight: 300,
-//                    hint: {
-//                        match: /\B@(\w*)$/,
-//                        search: function (keyword, callback) {
-//                            if (!keyword.length) return callback();
-//                            var msg = JSON.stringify({ 'searchstr': keyword.toString() });
-//                            $.ajax({
-//                                async: true,
-//                                url: '/Comment/GetMentions',
-//                                type: 'POST',
-//                                contentType: "application/json; charset=utf-8",
-//                                dataType: 'json',
-//                                data: msg,
-//                                error: function () {
-//                                    callback();
-//                                },
-//                                success: function (res) {
-//                                    callback(res.users);
-//                                }
-//                            });
-//                        },
-//                        content: function (item) {
-//                            return $("<span class='badge badge-info userhint'>").html('@' + item)[0];
-//                        }
-//                    }
-//                });
-//                $('.c_input').each(function (i, e) {
-//                    $(e).removeClass("c_input");
-//                });
-//                $(".impression").each(function (ix, e) {
-//                    $(e).load($(e).data("url"));
-//                    $(e).removeClass("impression");
-//                });
-//                $(".note-statusbar").css("display", "none");
-//            });
-//    }
-//}
-//window.loadmore = loadmore;

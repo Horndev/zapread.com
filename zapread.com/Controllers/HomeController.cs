@@ -807,29 +807,41 @@ namespace zapread.com.Controllers
                 ; // Todo - fixup unit test
             }
 
-            SetTourCookie();
+            //SetTourCookie();
 
             try
             {
                 using (var db = new ZapContext())
                 {
-                    User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
-
                     var userAppId = User.Identity.GetUserId();
+                    int userId = 0;
+                    List<GroupInfo> subscribedGroups;
 
-                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
-
-                    if (!userId.HasValue)
+                    if (userAppId == null)
                     {
-                        return RedirectToAction(actionName: "Login", controllerName: "Account");
+                        // Not logged in
+                        subscribedGroups = new List<GroupInfo>();
+                    }
+                    else
+                    {
+                        User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line (for now, only used when logged in)
+
+                        if (user == null)
+                        {
+                            return RedirectToAction(actionName: "Login", controllerName: "Account");
+                        }
+
+                        subscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true);
+                        userId = user.Id;
+                        await ClaimsHelpers.ValidateClaims(userId, User).ConfigureAwait(true);
                     }
 
-                    await ClaimsHelpers.ValidateClaims(userId.Value, User).ConfigureAwait(true);
+                    //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
 
                     var vm = new HomeIndexViewModel()
                     {
                         Sort = sort ?? "Score",
-                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
+                        SubscribedGroups = subscribedGroups,
                     };
 
                     return View(vm);
