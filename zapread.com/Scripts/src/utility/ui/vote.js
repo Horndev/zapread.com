@@ -1,17 +1,12 @@
 ﻿/**
  * User vote functions - controlling modal and ui interface
  * 
- * [✓] Does not use jQuery
- * 
  **/
-import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
-import { getAntiForgeryTokenValue } from '../antiforgery';          // [✓]
-import { postJson } from '../postData';                             // [✓]
-import { ready } from '../ready';                                   // [✓]
+import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4';
+import { getAntiForgeryTokenValue } from '../antiforgery';
+import { postJson } from '../postData';
+import { ready } from '../ready';
 
-/**
- * [✓]
- **/
 function createNewEvent(eventName) {
     var event;
     if (typeof Event === 'function') {
@@ -26,7 +21,7 @@ function createNewEvent(eventName) {
 var userVote = { id: 0, d: 0, t: 0, amount: 1, tx: 0, b: 0 };
 var userTip = { username: "", amount: 1 };
 var isTip = false;
-var voteReadyEvent = createNewEvent('voteReady');//new Event('voteReady');
+var voteReadyEvent = createNewEvent('voteReady');
 
 window.userVote = userVote;
 window.userTip = userTip;
@@ -37,7 +32,6 @@ ready(function () {
     var userdefaultvote = '1';
     document.getElementById('payAmount').innerHTML = userdefaultvote;
     document.getElementById('voteValueAmount').value = userdefaultvote;
-
     var userBalance = window.userVote.b;
     document.getElementById('userVoteBalance').innerHTML = userBalance;
 
@@ -74,8 +68,6 @@ ready(function () {
 /**
  * This function is called when a user clicks the button to either pay with balance or invoice
  * 
- * [✓] does not use jQuery
- * 
  * @param {any} e
  */
 export function onVote(e) {
@@ -96,9 +88,6 @@ export function onVote(e) {
     if (IsAuthenticated) {
         isanon = '0';
     }
-    else {
-        console.log('Anonymous vote.');
-    }
 
     if (parseInt(userVote.amount) > parseInt(userBalance)) {
         // Not enough funds - ask for invoice
@@ -118,11 +107,8 @@ export function onVote(e) {
             doTip(userVote.id, userVote.amount, null);
         }
         else {
-            /* Set chevron spinning */
-            //console.log('doVote');
-            //console.log(userVote);
-            
-            var icon = userVote.o.querySelectorAll('i').item(0);    //var icon = $(userVote.o).find('i');
+            /* Set chevron spinning */            
+            var icon = userVote.o.querySelectorAll('i').item(0);
             icon.classList.remove('fa-chevron-up');
             icon.classList.add('fa-circle-o-notch');
             icon.classList.add('fa-spin');
@@ -136,17 +122,13 @@ window.onVote = onVote;
 /**
  * This function gets an invoice and displays it to the user
  * 
- * [✓] does not use jQuery
- * 
  * @param {any} msg
  */
 export function updateVoteInvoice(msg) {
     postJson("/Lightning/GetDepositInvoice/", msg)
     .then((response) => {
         if (response.success) {
-
-            console.log(response);
-            document.getElementById("voteDepositInvoiceInput").value = response.Invoice;//.val(response.Invoice);
+            document.getElementById("voteDepositInvoiceInput").value = response.Invoice;
             document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
             document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
             document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
@@ -164,7 +146,7 @@ export function updateVoteInvoice(msg) {
         }
     })
     .then(() => {
-        showVoteModal(); //$('#voteModal').modal('show');
+        showVoteModal();
     })
     .catch((error) => {
         console.log(error);
@@ -177,8 +159,6 @@ export function updateVoteInvoice(msg) {
 window.updateVoteInvoice = updateVoteInvoice;
 
 /**
- * 
- * [✓] does not use jQuery
  * 
  * @param {any} e
  */
@@ -195,8 +175,6 @@ window.onCancelVote = onCancelVote;
  * User pressed vote button
  * - Use modal dialog to set amount and handle LN transactions if needed
  * 
- * [✓] does not use jQuery
- * 
  * @param {any} id
  * @param {any} d
  * @param {any} t
@@ -210,7 +188,7 @@ export function vote(id, d, t, b, o) {
     // o  : the object calling vote
     window.isTip = false;
     var userBalance = 0;
-    var voteCost = parseInt(document.getElementById('voteValueAmount').value);  // $('#voteValueAmount').val()
+    var voteCost = parseInt(document.getElementById('voteValueAmount').value);
 
     /* Configure vote parameters */
     userVote.b = ub;
@@ -432,8 +410,6 @@ export function tip(user, uid) {
 window.tip = tip;
 
 /**
- * 
- * [✓] does not use jQuery
  * 
  * @param {any} id      the user receiving the tip
  * @param {any} amount  the amount of the tip
