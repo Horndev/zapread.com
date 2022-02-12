@@ -50,7 +50,7 @@ export default function VoteModal(props) {
                       <div className="row">
                         <div className="col-5">
                           <span> Pay </span>
-                          <input type="number" id="voteValueAmount" placeholder="Amount" className="form-control font-bold" aria-label="Amount" />
+                          <input type="number" min=1 id="voteValueAmount" placeholder="Amount" className="form-control font-bold" aria-label="Amount" />
                           <small className="text-muted">Satoshi</small>
                         </div>
                         <div className="col-5 text-right">
