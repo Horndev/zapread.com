@@ -41,12 +41,20 @@ namespace zapread.com.Controllers
         /// </summary>
         public ManageController() { }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
         public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationSignInManager SignInManager
         {
             get
@@ -59,6 +67,9 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -71,12 +82,20 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult Financial()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("Manage/APIKeys/")]
         public ActionResult APIKeys()
@@ -84,6 +103,11 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         public async Task<ActionResult> GetLNTransactions(DataTableParameters dataTableParameters)
         {
             var userId = User.Identity.GetUserId();
@@ -274,6 +298,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataTableParameters"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -550,6 +579,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected async Task<List<Post>> GetPosts(int start, int count, int userId = 0)
         {
             using (var db = new ZapContext())
@@ -615,8 +651,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // GET: /Manage/Index
+        /// <summary>
+        /// // GET: /Manage/Index
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
         public async Task<ActionResult> Index(ManageMessageId? message)
@@ -645,7 +684,6 @@ namespace zapread.com.Controllers
                         u.ProfileImage.Version,
                         u.AboutMe,
                         u.Name,
-
                         TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
                             .Select(us => new UserFollowView()
                             {
@@ -653,7 +691,6 @@ namespace zapread.com.Controllers
                                 AppId = us.AppId,
                                 ProfileImageVersion = us.ProfileImage.Version,
                             }),
-
                         TopFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20)
                             .Select(us => new UserFollowView()
                             {
@@ -661,7 +698,6 @@ namespace zapread.com.Controllers
                                 AppId = us.AppId,
                                 ProfileImageVersion = us.ProfileImage.Version,
                             }),
-
                         UserGroups = u.Groups
                             .Select(g => new GroupInfo()
                             {
@@ -679,7 +715,7 @@ namespace zapread.com.Controllers
                             {
                                 Id = ach.Id,
                                 ImageId = ach.Achievement.Id,
-                                Name = ach.Achievement.Name,// + " on " + ach.DateAchieved.Value.ToShortDateString()
+                                Name = ach.Achievement.Name,
                             }),
                         UserIgnoring = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id),
                         ColorTheme = u.Settings == null ? "" : u.Settings.ColorTheme,
@@ -709,10 +745,10 @@ namespace zapread.com.Controllers
                     UserAppId = userInfo.AppId,
                     UserId = userInfo.Id,
                     UserProfileImageVersion = userInfo.Version,
-                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
+                    //PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
                     EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
-                    Logins = await UserManager.GetLoginsAsync(userAppId).ConfigureAwait(true),
+                    //Logins = await UserManager.GetLoginsAsync(userAppId).ConfigureAwait(true),
                     AboutMe = new AboutMeViewModel() { AboutMe = userInfo.AboutMe == null ? "Nothing to tell." : userInfo.AboutMe },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = userInfo.UserGroups },
                     NumPosts = userInfo.NumPosts,
@@ -734,8 +770,6 @@ namespace zapread.com.Controllers
             }
         }
 
-        
-
         private void ValidateClaims(UserSettings userSettings)
         {
             try
@@ -748,6 +782,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult UpdateUserLanguages(string languages)
         {
@@ -775,6 +814,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="BlockNumber"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> InfiniteScroll(int BlockNumber)
         {
@@ -811,6 +855,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
@@ -830,8 +880,12 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // POST: /Manage/RemoveLogin
+        /// <summary>
+        /// // POST: /Manage/RemoveLogin
+        /// </summary>
+        /// <param name="loginProvider"></param>
+        /// <param name="providerKey"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> RemoveLogin(string loginProvider, string providerKey)
@@ -854,14 +908,21 @@ namespace zapread.com.Controllers
             return RedirectToAction("ManageLogins", new { Message = message });
         }
 
-        //
-        // GET: /Manage/AddPhoneNumber
+        /// <summary>
+        /// // GET: /Manage/AddPhoneNumber
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult AddPhoneNumber()
         {
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> UpdateAboutMe(AboutMeViewModel model)
@@ -1035,13 +1096,13 @@ namespace zapread.com.Controllers
 
                 // Send a security notification to user
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
-                await sendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
+                await SendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
 
                 return Json(new { success = true, result = "Success" });
             }
         }
 
-        private async Task sendUpdateUserAliasEmailNotification(string cleanName, string oldName, User user, ApplicationUser aspUser, MailerController mailer)
+        private async Task SendUpdateUserAliasEmailNotification(string cleanName, string oldName, User user, ApplicationUser aspUser, MailerController mailer)
         {
             // Sets the mailer controller context for views to be rendered.
             mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
@@ -1069,6 +1130,12 @@ namespace zapread.com.Controllers
                 ));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="setting"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> UpdateUserSetting(string setting, bool value)
         {

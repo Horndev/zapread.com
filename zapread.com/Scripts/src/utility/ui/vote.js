@@ -367,6 +367,13 @@ export function doVote(id, d, t, amount, tx) {
         icon.classList.add('fa-chevron-up');
         icon.style.color = '';//('color', '');
 
+        var val = data.scoreStr;
+        document.getElementById(sid + id.toString()).innerHTML = val.toString();
+
+        var deltaCommunity = data.deltaCommunity;
+        var amountEl = document.getElementById("amount-info-payout");
+        amountEl.innerHTML = parseInt(amountEl.innerHTML) + deltaCommunity;
+
         var delta = Number(data.delta);
         if (delta === 1) {
           document.getElementById(uid + id.toString()).classList.remove("text-muted");
@@ -380,9 +387,6 @@ export function doVote(id, d, t, amount, tx) {
           document.getElementById(did + id.toString()).classList.remove("text-muted");
           document.getElementById(uid + id.toString()).classList.add("text-muted");
         }
-        var val = data.scoreStr;
-        document.getElementById(sid + id.toString()).innerHTML = val.toString();
-
         refreshUserBalance();
       }
       else {

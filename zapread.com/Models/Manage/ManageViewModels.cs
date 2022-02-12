@@ -7,6 +7,9 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ManageUserViewModel : UserViewModel
     {
         public bool HasPassword { get; set; }
