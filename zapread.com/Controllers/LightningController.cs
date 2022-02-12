@@ -456,10 +456,19 @@ namespace zapread.com.Controllers
             {
                 var invoice = request.SanitizeXSS();
 
-                // Check if the request has previously been submitted
-                var t = await db.LightningTransactions
-                    .Where(tx => tx.PaymentRequest == invoice)
-                    .SingleOrDefaultAsync().ConfigureAwait(true);
+                LNTransaction t;
+                try
+                {
+                    // Check if the request has previously been submitted
+                    t = await db.LightningTransactions
+                        .Where(tx => tx.PaymentRequest == invoice)
+                        .SingleOrDefaultAsync().ConfigureAwait(true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // source has more than one element.
+                    return Json(new { success = false, message = "Duplicate invoice - please use a new invoice." });
+                }
 
                 if (t == null)
                 {
@@ -660,6 +669,17 @@ namespace zapread.com.Controllers
                 }
 
                 if (lntx.IsSettled || lntx.IsIgnored || lntx.IsLimbo || lntx.IsDeposit || lntx.IsError)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = "Invalid withdraw request." });
+                }
+
+                // Verify lntx invoice is unique.  This is a layer to protect against spam attacks
+                var numTxsWithSamePayreq = db.LightningTransactions
+                    .Where(tx => tx.PaymentRequest == lntx.PaymentRequest)
+                    .Count();
+                
+                if (numTxsWithSamePayreq > 1)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     return Json(new { success = false, message = "Invalid withdraw request." });
