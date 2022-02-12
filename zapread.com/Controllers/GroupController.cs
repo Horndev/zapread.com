@@ -915,7 +915,7 @@ namespace zapread.com.Controllers
                         userInfo: new QueryHelpers.PostQueryUserInfo()
                         {
                             Id = userId,
-                            AppId = user.AppId,
+                            AppId = user?.AppId,
                         }).ConfigureAwait(true),
                     GroupId = group.GroupId,
                     IsMember = group.isMember,

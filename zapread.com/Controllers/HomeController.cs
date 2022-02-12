@@ -923,7 +923,7 @@ namespace zapread.com.Controllers
                     postquery: postquery, 
                     userInfo: new QueryHelpers.PostQueryUserInfo()
                     {
-                        Id = user.Id,
+                        Id = user == null ? 0 : user.Id,
                         AppId = userAppId,
                     }).ConfigureAwait(true);
 
