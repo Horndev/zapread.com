@@ -244,21 +244,35 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+                //var user = await db.Users
+                //    .AsNoTracking()
+                //    .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
 
-                int userId = user == null ? 0 : user.Id;
+                //int userId = user == null ? 0 : user.Id;
 
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db,
-                    user: null);
+                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(null, db,
+                    userInfo: userInfo);
 
                 var groupPosts = QueryHelpers.OrderPostsByNew(validposts, req.groupId, true);
 
                 var response = new GetGroupPostsResponse()
                 {
                     HasMorePosts = groupPosts.Count() >= 10,
-                    Posts = await QueryHelpers.QueryPostsVm(start: BlockNumber*BlockSize, count: BlockSize, postquery: groupPosts, user: user, userId: userId).ConfigureAwait(true),
+                    Posts = await QueryHelpers.QueryPostsVm(
+                        start: BlockNumber*BlockSize, 
+                        count: BlockSize, 
+                        postquery: groupPosts, 
+                        userInfo: userInfo).ConfigureAwait(true),
                     success = true,
                 };
 

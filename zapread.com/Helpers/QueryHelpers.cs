@@ -19,24 +19,50 @@ namespace zapread.com.Helpers
         /// <summary>
         /// 
         /// </summary>
+        public class PostQueryUserInfo
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public int Id;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string AppId;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public bool ViewAllLanguages;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public List<int> IgnoredGroups;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userId"></param>
         /// <param name="userLanguages"></param>
         /// <param name="db"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public static IQueryable<Post> QueryValidPosts(int userId, List<string> userLanguages, ZapContext db, User user = null)
+        public static IQueryable<Post> QueryValidPosts(List<string> userLanguages, ZapContext db, PostQueryUserInfo userInfo = null)
         {
             IQueryable<Post> validposts = db.Posts
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft);
 
-            if (userId > 0 && user != null)
+            if (userInfo != null)
             {
-                var ig = user.IgnoredGroups.Select(g => g.GroupId);
+                var ig = userInfo.IgnoredGroups;//user.IgnoredGroups.Select(g => g.GroupId);
                 validposts = validposts
                     .Where(p => !ig.Contains(p.Group.GroupId));
 
-                var allLang = user.Settings.ViewAllLanguages;
+                var allLang = userInfo.ViewAllLanguages;
                 if (!allLang)
                 {
                     var languages = userLanguages ?? new List<string>() { "en" };
@@ -334,15 +360,17 @@ namespace zapread.com.Helpers
         /// <param name="start"></param>
         /// <param name="count"></param>
         /// <param name="postquery"></param>
-        /// <param name="user"></param>
+        /// <param name="userInfo"></param>
         /// <param name="userId"></param>
         /// <param name="numComments"></param>
         /// <returns></returns>
-        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, User user = null, int userId = 0, int numComments = 3)
+        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, PostQueryUserInfo userInfo = null, int numComments = 3)
         {
-            if (user != null)
+            int userId = 0;
+
+            if (userInfo != null)
             {
-                userId = user != null ? user.Id : 0;
+                userId = userInfo.Id;
             }
 
             var sposts = await postquery

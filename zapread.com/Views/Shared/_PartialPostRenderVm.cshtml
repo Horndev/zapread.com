@@ -5,7 +5,7 @@
 @using zapread.com.Models.GroupViews;
 @model zapread.com.Models.PostViewModel
 
-    <div class="social-feed-box @(Model.IsFirstPost ? "firstPost" : "")" id=@("post_" + @Model.PostId.ToString())>
+    <div class="social-feed-box" id=@("post_" + @Model.PostId.ToString())>
         <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
             <i class="fa fa-minus-square togglebutton"></i>
         </button>
@@ -53,17 +53,6 @@
 
                 @if (User.IsInRole("Administrator"))
                 {
-                    @*using (Html.BeginForm("Edit", "Post",
-                new { ReturnUrl = ViewBag.ReturnUrl },
-                FormMethod.Post,
-                new { role = "form" }))
-            {
-                @Html.AntiForgeryToken()
-                @Html.Hidden("PostId", Model.PostId)
-                <li>
-                    <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit (Admin)</button>
-                </li>
-            }*@
                     <li>
                         Hot: @Model.Hot
                     </li>
@@ -113,11 +102,11 @@
         <div class="social-avatar" style="padding-bottom: 15px;">
             <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
                 <div class="vote-actions">
-                    <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100, this)" class="@(Model.ViewerUpvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteUp" : "")" id="uVote_@Model.PostId">
+                    <a href="#/" onclick="vote(@Model.PostId, 1, 1, 100, this)" class="@(Model.ViewerUpvoted ? "" : "text-muted ")" id="uVote_@Model.PostId">
                         <i class="fa fa-chevron-up"> </i>
                     </a>
-                    <div id="sVote_@Model.PostId" class="@(Model.IsFirstPost ? "firstPostScore" : "")">@Model.Score.ToAbbrString()</div>
-                    <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100, this)" class="@(Model.ViewerDownvoted ? "" : "text-muted ") @(Model.IsFirstPost ? "firstPostVoteDown" : "")" id="dVote_@Model.PostId">
+                    <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
+                    <a href="#/" onclick="vote(@Model.PostId, 0, 1, 100, this)" class="@(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.PostId">
                         <i class="fa fa-chevron-down"> </i>
                     </a>
                 </div>
@@ -140,9 +129,9 @@
                     }
                 </a>
                 <div class="vote-info" style="margin-left: 110px;">
-                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = Model.IsFirstPost })@if (Model.IsSticky)
+                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = false })@if (Model.IsSticky)
                     {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
-                    @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = Model.IsFirstPost })
+                    @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = false })
 
                     <small class="postTime text-muted" style="display: none">@Model.TimeStamp.Value.ToString("o")</small>
                     @if (Model.TimeStampEdited != null)
@@ -247,5 +236,4 @@
                 }
             }
         </div>
-
     </div>
