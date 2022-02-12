@@ -45,10 +45,9 @@ namespace zapread.com.Helpers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userId"></param>
         /// <param name="userLanguages"></param>
         /// <param name="db"></param>
-        /// <param name="user"></param>
+        /// <param name="userInfo"></param>
         /// <returns></returns>
         public static IQueryable<Post> QueryValidPosts(List<string> userLanguages, ZapContext db, PostQueryUserInfo userInfo = null)
         {
@@ -58,7 +57,7 @@ namespace zapread.com.Helpers
 
             if (userInfo != null)
             {
-                var ig = userInfo.IgnoredGroups;//user.IgnoredGroups.Select(g => g.GroupId);
+                var ig = userInfo.IgnoredGroups;
                 validposts = validposts
                     .Where(p => !ig.Contains(p.Group.GroupId));
 
@@ -85,7 +84,6 @@ namespace zapread.com.Helpers
                         .Where(p => !p.IsDraft)
                         .Where(p => p.Language == null || userLanguages.Contains(p.Language));
                 }
-                
             }
 
             return validposts;
