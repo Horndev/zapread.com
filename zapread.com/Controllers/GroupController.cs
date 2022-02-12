@@ -435,10 +435,22 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var uid = User.Identity.GetUserId();
-                var user = await db.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+                var userAppId = User.Identity.GetUserId();
+                //var user = await db.Users
+                //    .AsNoTracking()
+                //    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+
+                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    //.Include(usr => usr.Settings)
+                    //.AsNoTracking()
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
 
                 //List<int> viewerIgnoredUsers = new List<int>();
 
@@ -447,13 +459,17 @@ namespace zapread.com.Controllers
                 //    viewerIgnoredUsers = user.IgnoringUsers.Select(usr => usr.Id).Where(usid => usid != user.Id).ToList();
                 //}
 
-                int userId = user == null ? 0 : user.Id;
+                //int userId = user == null ? 0 : user.Id;
 
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db, user);
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(null, db, userInfo);
 
                 var postquery = QueryHelpers.OrderPostsByNew(validposts, groupId, true);
 
-                var postsVm = await QueryHelpers.QueryPostsVm(BlockNumber, BlockSize, postquery, user).ConfigureAwait(true);
+                var postsVm = await QueryHelpers.QueryPostsVm(
+                    start: BlockNumber, 
+                    count: BlockSize, 
+                    postquery: postquery, 
+                    userInfo: userInfo).ConfigureAwait(true);
 
                 // Render each post HTML
                 string PostsHTMLString = "";
@@ -815,6 +831,7 @@ namespace zapread.com.Controllers
                     {
                         IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(id.Value),
                         u.Id,
+                        u.AppId,
                         FundsBalance = u.Funds.Balance,
                         SubscribedGroups = u.Groups
                             .OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute)
@@ -854,8 +871,10 @@ namespace zapread.com.Controllers
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, null, db, 
-                    user: null);
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
+                    userLanguages: null, 
+                    db: db, 
+                    userInfo: null);
 
                 var groupPosts = QueryHelpers.OrderPostsByNew(validposts, group.GroupId, true);
 
@@ -889,7 +908,15 @@ namespace zapread.com.Controllers
                 {
                     HasMorePosts = groupPosts.Count() < 10 ? false : true,
                     SubscribedGroups = user == null ? new List<GroupInfo>() : user.SubscribedGroups.ToList(),
-                    Posts = await QueryHelpers.QueryPostsVm(0, 10, groupPosts, user: null, userId: userId).ConfigureAwait(true),
+                    Posts = await QueryHelpers.QueryPostsVm(
+                        start: 0, 
+                        count: 10, 
+                        postquery: groupPosts, 
+                        userInfo: new QueryHelpers.PostQueryUserInfo()
+                        {
+                            Id = userId,
+                            AppId = user?.AppId,
+                        }).ConfigureAwait(true),
                     GroupId = group.GroupId,
                     IsMember = group.isMember,
                     NumMembers = group.NumMembers,
