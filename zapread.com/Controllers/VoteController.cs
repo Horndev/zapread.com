@@ -120,7 +120,8 @@ namespace zapread.com.Controllers
                 {
                     success = true,
                     delta = v.d == 1 ? 1 : -1,
-                    scoreStr = newScore.ToAbbrString()
+                    scoreStr = newScore.ToAbbrString(),
+                    deltaCommunity = Convert.ToInt32(v.a*0.1*(v.d == 1 ? 1.0 : -1.0)),
                 });
             }
         }
@@ -221,7 +222,8 @@ namespace zapread.com.Controllers
                 return Json(new {
                     success = true,
                     delta = v.d == 1 ? 1 : -1, 
-                    scoreStr = newScore.ToAbbrString()
+                    scoreStr = newScore.ToAbbrString(),
+                    deltaCommunity = Convert.ToInt32(v.a * 0.1 * (v.d == 1 ? 1.0 : -1.0)),
                 });
             }
         }

@@ -696,6 +696,31 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult> GetPayoutInfo()
+        {
+            using (var db = new ZapContext())
+            {
+                var website = await db.ZapreadGlobals.Where(gl => gl.Id == 1).FirstOrDefaultAsync().ConfigureAwait(false);
+
+                if (website == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new { success = false });
+                }
+
+                return Json(new 
+                { 
+                    success = true, 
+                    community=Convert.ToInt32(website.CommunityEarnedToDistribute),
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="sort"></param>
         /// <returns></returns>
         [HttpGet]

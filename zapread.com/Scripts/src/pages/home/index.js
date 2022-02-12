@@ -1,6 +1,5 @@
 ﻿/**
  * 
- * [✓] Native JS
  **/
 
 import '../../shared/shared';                                               // [✓]
@@ -13,6 +12,12 @@ import { writeComment } from '../../comment/writecomment';                  // [
 import { replyComment } from '../../comment/replycomment';                  // [✓]
 import { editComment } from '../../comment/editcomment';                    // [✓]
 import { loadMoreComments } from '../../comment/loadmorecomments';          // [✓]
+import { createPieChart } from "micro-charts";
+import { ready } from "../../utility/ready";
+import { getJson } from "../../utility/getData";
+import tippy from 'tippy.js';                       // [✓]
+import 'tippy.js/dist/tippy.css';                   // [✓]
+import 'tippy.js/themes/light-border.css';          // [✓]
 import '../../shared/postfunctions';                                        // [✓]
 import '../../shared/readmore';                                             // [✓]
 import '../../shared/postui';                                               // [✓]
@@ -60,5 +65,68 @@ request.onerror = function () {
     var response = JSON.parse(this.response);
     Swal.fire("Error", "Error requesting posts: " + response.message, "error");
 };
-
 request.send();
+
+function getCanvas(id) {
+  return document.getElementById(id);
+}
+
+var payoutDate = new Date();
+payoutDate.setUTCHours(24, 0, 0, 0); //next midnight
+
+var timer;
+
+async function showCommunityPayoutTimer() {
+  await getJson("/Home/GetPayoutInfo/")
+    .then(response => {
+      if (response.success) {
+        var amountEl = document.getElementById("amount-info-payout");
+        amountEl.innerHTML = response.community;
+
+        timer = setInterval(function () {
+          var now = new Date().getTime();
+          var distance = payoutDate - now;
+
+          var timerEl = document.getElementById("timer-info-payout");
+          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          timerEl.innerHTML = hours.toString().padStart(2, '0')
+            + ":" + minutes.toString().padStart(2, '0')
+            + ":" + seconds.toString().padStart(2, '0');
+
+          if (distance < 0) {
+            clearInterval(timer);
+            console.log("payout!!");
+          }
+        }, 1000);
+
+        var now = new Date().getTime();
+        var distance = payoutDate - now;
+        var percent = 100 * distance / (1000 * 60 * 60 * 24);
+
+        createPieChart(getCanvas('pc-community'),
+          [
+            { id: '1', percent: 100-percent, color: '#FFFFFFFF' }, // green '#4CAF50'
+            { id: '2', percent: percent, color: '#1ab39455' }  // red '#E91E63'
+          ],
+          { size: 25 });
+      }
+    });
+}
+
+// Show community payout timer
+ready(function () {
+  showCommunityPayoutTimer();
+});
+
+// Apply the loading tippy
+var infoEl = document.getElementById("hover-info-payout");
+tippy(infoEl, {
+  content: '<div class="text-center" style="margin-top:5px;"><strong>Community Payout Timer!</strong></div><hr>This community payout is distributed daily to the highest scoring posts over the last 30 days.  Your votes increase this payout.',
+  theme: 'light-border',
+  allowHTML: true,
+  delay: 300,
+  interactive: true,
+  interactiveBorder: 30,
+});

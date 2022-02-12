@@ -1246,6 +1246,7 @@
     <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
+    <Content Include="Scripts\src\utility\getData.js" />
     <Content Include="Scripts\src\utility\postData.js" />
     <Content Include="Scripts\src\utility\deleteData.js" />
     <Content Include="Scripts\src\utility\putData.js" />
