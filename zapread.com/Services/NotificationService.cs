@@ -26,7 +26,7 @@ namespace zapread.com.Services
             var url = ConfigurationManager.AppSettings.Get("wshost");
             url = url + "/api/";
             RestClient client = new RestClient(url);
-            var request = (new RestRequest("payment/complete", Method.POST) { RequestFormat = DataFormat.Json })
+            var request = (new RestRequest("payment/complete", Method.Post) { RequestFormat = DataFormat.Json })
                 .AddJsonBody(new
                 {
                     toUserId = userId,
@@ -47,7 +47,7 @@ namespace zapread.com.Services
             var url = ConfigurationManager.AppSettings.Get("wshost");
             url = url + "/api/";
             RestClient client = new RestClient(url);
-            var request = (new RestRequest("auth/lnauthcb", Method.POST) { RequestFormat = DataFormat.Json })
+            var request = (new RestRequest("auth/lnauthcb", Method.Post) { RequestFormat = DataFormat.Json })
                 .AddJsonBody(new
                 {
                     toUserId = userId,
@@ -78,7 +78,7 @@ namespace zapread.com.Services
             var url = ConfigurationManager.AppSettings.Get("wshost");
             url = url + "/api/";
             RestClient client = new RestClient(url);
-            var request = (new RestRequest("message/send", Method.POST) { RequestFormat = DataFormat.Json })
+            var request = (new RestRequest("message/send", Method.Post) { RequestFormat = DataFormat.Json })
                 .AddJsonBody(new
                 {
                     content = message,
@@ -101,6 +101,14 @@ namespace zapread.com.Services
             await PostMessage(userId, reason, clickUrl, content).ConfigureAwait(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="HTMLString"></param>
+        /// <param name="userId"></param>
+        /// <param name="senderUserId"></param>
+        /// <param name="clickUrl"></param>
+        /// <returns></returns>
         public async static Task SendPrivateChat(string HTMLString, string userId, string senderUserId, string clickUrl)
         {
             //var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
@@ -110,7 +118,7 @@ namespace zapread.com.Services
             var url = ConfigurationManager.AppSettings.Get("wshost");
             url = url + "/api/";
             RestClient client = new RestClient(url);
-            var request = (new RestRequest("chat/send", Method.POST){ RequestFormat = DataFormat.Json })
+            var request = (new RestRequest("chat/send", Method.Post){ RequestFormat = DataFormat.Json })
                 .AddJsonBody(new
                 {
                     HTMLString,

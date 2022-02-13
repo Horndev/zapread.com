@@ -42,6 +42,12 @@ namespace zapread.com.Services
             // Empty constructor
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public bool IsNodeBanned(string node, out string message)
         {
             // TODO: This should be in a database with admin view
@@ -59,6 +65,10 @@ namespace zapread.com.Services
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
         public void RecordNodeWithdraw(string node)
         {
             nodeWithdrawAttemptTimes.AddOrUpdate(

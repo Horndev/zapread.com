@@ -8,8 +8,16 @@ using zapread.com.Helpers;
 
 namespace zapread.com.DI
 {
+    /// <summary>
+    /// Used for generating the sitemap
+    /// </summary>
     public class PostsDetailsProvider : DynamicNodeProviderBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public override IEnumerable<DynamicNode> GetDynamicNodeCollection(ISiteMapNode node)
         {
             using (var db = new ZapContext())

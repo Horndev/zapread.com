@@ -93,6 +93,9 @@ namespace zapread.com.Models
 
         public string PaymentRequest { get; set; }
 
+        /// <summary>
+        /// Hash String for payment
+        /// </summary>
         public string HashStr { get; set; }
 
         /// <summary>
