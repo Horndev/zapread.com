@@ -7,8 +7,15 @@ using zapread.com.Models;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class LNTransactionMonitor
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void CheckLNTransactions()
         {
             using (var db = new ZapContext())
