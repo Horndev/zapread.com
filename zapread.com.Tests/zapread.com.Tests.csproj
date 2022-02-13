@@ -97,8 +97,8 @@
     <Reference Include="PreMailer.Net, Version=2.2.0.0, Culture=neutral, PublicKeyToken=23e3f43e29cae17f, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.2.0\lib\net461\PreMailer.Net.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=106.15.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.15.0\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=107.3.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.107.3.0\lib\netstandard2.0\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
