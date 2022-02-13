@@ -13,6 +13,21 @@ namespace zapread.com.Services
     public class LNTransactionMonitor
     {
         /// <summary>
+        /// Synchronize the database with the Lightning Node
+        /// </summary>
+        public void SyncNode()
+        {
+            using (var db = new ZapContext())
+            {
+                var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <exception cref="Exception"></exception>

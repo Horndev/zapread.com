@@ -10,8 +10,14 @@ using zapread.com.Models.Lightning;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Monitoring of the Lightning Node
+    /// </summary>
     public class LNNodeMonitor
     {
+        /// <summary>
+        /// Method to do hourly status updates
+        /// </summary>
         public void UpdateHourly()
         {
             using (var db = new ZapContext())
@@ -32,8 +38,6 @@ namespace zapread.com.Services
                     Console.WriteLine(e.Message);
                     return;
                 }
-
-
 
                 var node = db.LNNodes
                     .Include(n => n.Channels)
@@ -162,16 +166,25 @@ namespace zapread.com.Services
             return lndClient;
         }
 
+        /// <summary>
+        /// Run once per day
+        /// </summary>
         public void UpdateDaily()
         {
 
         }
 
+        /// <summary>
+        /// Run once per week
+        /// </summary>
         public void UpdateWeekly()
         {
 
         }
 
+        /// <summary>
+        /// Run once per month
+        /// </summary>
         public void UpdateMonthly()
         {
 

@@ -808,6 +808,10 @@
     <Compile Include="Migrations\202201270152510_global_earning_spending.designer.cs">
       <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202202131921272_expandLNTransactionFields.cs" />
+    <Compile Include="Migrations\202202131921272_expandLNTransactionFields.designer.cs">
+      <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1724,6 +1728,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202201270152510_global_earning_spending.resx">
       <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202202131921272_expandLNTransactionFields.resx">
+      <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

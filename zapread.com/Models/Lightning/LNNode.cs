@@ -7,6 +7,9 @@ using System.Web;
 
 namespace zapread.com.Models.Lightning
 {
+    /// <summary>
+    /// Describes an Lightning Node
+    /// </summary>
     public class LNNode
     {
         [Key]
