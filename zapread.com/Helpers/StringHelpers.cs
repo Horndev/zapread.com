@@ -102,7 +102,7 @@ namespace zapread.com.Helpers
                     sb.Append((char)(c | 32));
                     prevdash = false;
                 }
-                else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
+                else if (c == ' ' || c == ',' || c == '.' || c == '/' || c == '(' || c == ')' || c == ':' ||
                     c == '\\' || c == '-' || c == '_' || c == '=')
                 {
                     if (!prevdash && sb.Length > 0)
