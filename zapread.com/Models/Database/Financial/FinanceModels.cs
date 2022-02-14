@@ -238,6 +238,12 @@ namespace zapread.com.Models
         /// Record of payment error
         /// </summary>
         public bool IsError { get; set; }
+
+        /// <summary>
+        /// Used for versioning the table row and prevent concurrency issues
+        /// </summary>
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 
 }

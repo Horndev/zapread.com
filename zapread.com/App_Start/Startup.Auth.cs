@@ -20,6 +20,9 @@ using zapread.com.Models;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class Startup
     {
         private static bool IsApiRequest(IOwinRequest request)
@@ -28,9 +31,18 @@ namespace zapread.com
             return request.Uri.LocalPath.StartsWith(apiPath);
         }
 
-        //https://stackoverflow.com/questions/20737578/asp-net-sessionid-owin-cookies-do-not-send-to-browser
+        /// <summary>
+        /// https://stackoverflow.com/questions/20737578/asp-net-sessionid-owin-cookies-do-not-send-to-browser
+        /// </summary>
         public class SystemWebCookieManager : ICookieManager
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="context"></param>
+            /// <param name="key"></param>
+            /// <returns></returns>
+            /// <exception cref="ArgumentNullException"></exception>
             public string GetRequestCookie(IOwinContext context, string key)
             {
                 if (context == null)
@@ -43,6 +55,14 @@ namespace zapread.com
                 return cookie == null ? null : cookie.Value;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="context"></param>
+            /// <param name="key"></param>
+            /// <param name="value"></param>
+            /// <param name="options"></param>
+            /// <exception cref="ArgumentNullException"></exception>
             public void AppendResponseCookie(IOwinContext context, string key, string value, CookieOptions options)
             {
                 if (context == null)
@@ -85,6 +105,13 @@ namespace zapread.com
                 webContext.Response.AppendCookie(cookie);
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="context"></param>
+            /// <param name="key"></param>
+            /// <param name="options"></param>
+            /// <exception cref="ArgumentNullException"></exception>
             public void DeleteCookie(IOwinContext context, string key, CookieOptions options)
             {
                 if (context == null)
@@ -109,7 +136,10 @@ namespace zapread.com
             }
         }
 
-        // For more information on configuring authentication, please visit https://go.microsoft.com/fwlink/?LinkId=301864
+        /// <summary>
+        /// Configure app
+        /// </summary>
+        /// <param name="app"></param>
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and signin manager to use a single instance per request

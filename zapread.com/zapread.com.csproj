@@ -812,6 +812,10 @@
     <Compile Include="Migrations\202202131921272_expandLNTransactionFields.designer.cs">
       <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202202141633047_addRowVersionToLNTransactions.cs" />
+    <Compile Include="Migrations\202202141633047_addRowVersionToLNTransactions.designer.cs">
+      <DependentUpon>202202141633047_addRowVersionToLNTransactions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1731,6 +1735,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202202131921272_expandLNTransactionFields.resx">
       <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202202141633047_addRowVersionToLNTransactions.resx">
+      <DependentUpon>202202141633047_addRowVersionToLNTransactions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

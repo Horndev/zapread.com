@@ -37,6 +37,9 @@ namespace zapread.com.Services
         /// </summary>
         private Object withdrawLock = new Object();
 
+        /// <summary>
+        /// 
+        /// </summary>
         public LightningPayments()
         {
             // Empty constructor
@@ -98,6 +101,7 @@ namespace zapread.com.Services
 
             long FeePaid_Satoshi;   // This is used later if the invoice succeeds.
             User user = null;
+            SendPaymentResponse paymentresult = null;
 
             using (var db = new ZapContext())
             {
@@ -106,6 +110,7 @@ namespace zapread.com.Services
                     .Where(tx => tx.User.AppId == userAppId)            // This user
                     .Where(tx => tx.Id != request.Id)                   // Not the one being processed now
                     .OrderByDescending(tx => tx.TimestampCreated)       // Most recent
+                    .AsNoTracking()
                     .FirstOrDefault();
 
                 if (lasttx != null && (DateTime.UtcNow - lasttx.TimestampCreated < TimeSpan.FromMinutes(5)))
@@ -129,7 +134,6 @@ namespace zapread.com.Services
                     return new { success = false, message = "User withdraw is locked.  Please contact an administrator." };
                 }
 
-                SendPaymentResponse paymentresult = null;
                 string responseStr = "";
 
                 //all (should be) ok - make the payment
@@ -161,7 +165,6 @@ namespace zapread.com.Services
                     catch (DbUpdateConcurrencyException ex)
                     {
                         // The balance has changed - don't do withdraw.
-
                         // This may trigger if the user also gets funds added - such as a tip.
                         // For now, we will fail the withdraw under any condition.
                         // In the future, we may consider ignoring changes increasing balance.
@@ -170,6 +173,29 @@ namespace zapread.com.Services
                         WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTimeReset);
 
                         return new { success = false, message = "Failed. User balances changed during withdraw." };
+                    }
+
+                    // Get an update-able entity for the transaction from the DB
+                    var t = db.LightningTransactions
+                        .Where(tx => tx.Id == request.Id)
+                        .Where(tx => tx.User.AppId == userAppId)
+                        .FirstOrDefault();
+                    if (t == null)
+                    {
+                        return new { success = false, message = "Validated invoice not found in database." };
+                    }
+                    t.IsLimbo = true; // Mark the transaction as in limbo as we try to pay it
+
+                    // Save the transaction state
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        // Remove this request from the lock so the user can retry.
+                        WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTimeReset);
+                        return new { success = false, message = "Failed. Validated invoice modified during transaction." };
                     }
 
                     // Execute payment
@@ -182,6 +208,19 @@ namespace zapread.com.Services
                         user = db.Users
                             .Where(u => u.AppId == userAppId)
                             .FirstOrDefault();
+
+                        t.IsError = true;
+                        t.ErrorMessage = "REST exception executing payment";
+
+                        // Save the transaction state
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (DbUpdateConcurrencyException ex)
+                        {
+                            return HandleClientRestException(userAppId, request.Id, "DB Cuncurrency exception: " + ex.Message + " REST Exception: " + responseStr, e);
+                        }
 
                         // A RestException happens when there was an error with the LN node.
                         // At this point, the funds will remain in limbo until it is verified as paid by the 
@@ -279,17 +318,16 @@ namespace zapread.com.Services
                     .Where(u => u.AppId == userAppId)
                     .FirstOrDefault();
 
-                // We have already subtracted the balance from the user account, since the payment was
-                // successful, we leave it subtracted from the account and we remove the balance from limbo.
-                bool saveFailed;
-                int attempts = 0;
-
                 // Get an update-able entity for the transaction from the DB
                 var t = db.LightningTransactions
                     .Where(tx => tx.Id == request.Id)
                     .Where(tx => tx.User.AppId == userAppId)
                     .FirstOrDefault();
 
+                // We have already subtracted the balance from the user account, since the payment was
+                // successful, we leave it subtracted from the account and we remove the balance from limbo.
+                bool saveFailed;
+                int attempts = 0;
                 do
                 {
                     attempts++;
@@ -304,8 +342,25 @@ namespace zapread.com.Services
 
                     user.Funds.LimboBalance -= Convert.ToDouble(request.Amount, CultureInfo.InvariantCulture);
                     //update transaction status in DB
+
+                    // payment hash and preimage are B64 encoded.  Here we convert to hex strings
+                    var HexEncoder = new LightningLib.DataEncoders.HexEncoder(); // static method
+                    string payment_hash_str = null; // default
+                    string payment_preimage_str = null; // default
+                    if (paymentresult != null && paymentresult.payment_hash != null)
+                    {
+                        payment_hash_str = HexEncoder.EncodeData(Convert.FromBase64String(paymentresult.payment_hash));
+                    }
+                    if (paymentresult != null && paymentresult.payment_preimage != null)
+                    {
+                        payment_preimage_str = HexEncoder.EncodeData(Convert.FromBase64String(paymentresult.payment_preimage));
+                    }
+
                     t.IsSettled = true;
                     t.IsLimbo = false;
+                    t.PaymentHash = payment_hash_str;
+                    t.PaymentPreimage = payment_preimage_str; // Important: this is proof that we paid it
+                    
                     try
                     {
                         t.FeePaid_Satoshi = FeePaid_Satoshi;// (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees, CultureInfo.InvariantCulture));
