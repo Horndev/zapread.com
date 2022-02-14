@@ -35,37 +35,49 @@ window.BlockNumber = 10;   //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
-var request = new XMLHttpRequest();
-request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
-
-request.onload = function () {
+async function LoadTopPostsAsync() {
+  var request = new XMLHttpRequest();
+  request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
+  request.onload = function () {
     var resp = this.response;
     var response = {};
     if (this.status >= 200 && this.status < 400) {
-        // Success!
-        response = JSON.parse(resp);
-        if (response.success) {
-            // Insert posts
-            document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
-            addposts(response, onLoadedMorePosts); // [ ] TODO: zrOnLoadedMorePosts uses jquery
-            document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
-        } else {
-            // Did not work
-            Swal.fire("Error", "Error loading posts: " + response.message, "error");
-        }
+      // Success!
+      response = JSON.parse(resp);
+      if (response.success) {
+        // Insert posts
+        document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
+        addposts(response, onLoadedMorePosts); // [ ] TODO: zrOnLoadedMorePosts uses jquery
+        document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
+      } else {
+        // Did not work
+        Swal.fire("Error", "Error loading posts: " + response.message, "error");
+      }
     } else {
-        response = JSON.parse(resp);
-        // We reached our target server, but it returned an error
-        Swal.fire("Error", "Error loading posts (status ok): " + response.message, "error");
+      response = JSON.parse(resp);
+      // We reached our target server, but it returned an error
+      Swal.fire("Error", "Error loading posts (status ok): " + response.message, "error");
     }
-};
-
-request.onerror = function () {
+  };
+  request.onerror = function () {
     // There was a connection error of some sort
     var response = JSON.parse(this.response);
     Swal.fire("Error", "Error requesting posts: " + response.message, "error");
-};
-request.send();
+  };
+  request.send();
+}
+
+async function LoadTopGroupsAsync() {
+  await fetch("/Home/TopGroups").then(response => {
+    return response.text();
+  }).then(html => {
+    var groupsBoxEl = document.getElementById("group-box");
+    groupsBoxEl.innerHTML = html;
+  })
+}
+
+LoadTopPostsAsync();
+LoadTopGroupsAsync();
 
 function getCanvas(id) {
   return document.getElementById(id);

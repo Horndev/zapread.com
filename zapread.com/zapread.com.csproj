@@ -870,6 +870,7 @@
     <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Home\HomeIndexViewModel.cs" />
+    <Compile Include="Models\Home\HomeTopGroupsPartialViewModel.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
     <Compile Include="Models\Lightning\LNNode.cs" />
@@ -1473,6 +1474,7 @@
     <Content Include="Views\Subscription\Confirm.cshtml" />
     <Content Include="Views\Subscription\Subscribe.cshtml" />
     <Content Include="Views\Lnauth\Login.cshtml" />
+    <Content Include="Views\Home\_PartialTopGroups.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
