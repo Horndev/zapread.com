@@ -683,6 +683,7 @@ namespace zapread.com.Controllers
         {
             //PaymentPoller.Subscribe();
             //LNTransactionMonitor a = new LNTransactionMonitor();
+            //a.SyncNode();
             //a.CheckLNTransactions();
             //AchievementsService a = new AchievementsService();
             //a.CheckAchievements();
