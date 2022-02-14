@@ -85,8 +85,19 @@ function getCanvas(id) {
 
 var payoutDate = new Date();
 payoutDate.setUTCHours(24, 0, 0, 0); //next midnight
-
 var timer;
+
+function getTimeString() {
+  var now = new Date().getTime();
+  var distance = payoutDate - now;
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  var timeStr = hours.toString().padStart(2, '0')
+    + ":" + minutes.toString().padStart(2, '0')
+    + ":" + seconds.toString().padStart(2, '0');
+  return timeStr;
+}
 
 async function showCommunityPayoutTimer() {
   await getJson("/Home/GetPayoutInfo/")
@@ -94,29 +105,9 @@ async function showCommunityPayoutTimer() {
       if (response.success) {
         var amountEl = document.getElementById("amount-info-payout");
         amountEl.innerHTML = response.community;
-
-        timer = setInterval(function () {
-          var now = new Date().getTime();
-          var distance = payoutDate - now;
-
-          var timerEl = document.getElementById("timer-info-payout");
-          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-          timerEl.innerHTML = hours.toString().padStart(2, '0')
-            + ":" + minutes.toString().padStart(2, '0')
-            + ":" + seconds.toString().padStart(2, '0');
-
-          if (distance < 0) {
-            clearInterval(timer);
-            console.log("payout!!");
-          }
-        }, 1000);
-
         var now = new Date().getTime();
         var distance = payoutDate - now;
         var percent = 100 * distance / (1000 * 60 * 60 * 24);
-
         createPieChart(getCanvas('pc-community'),
           [
             { id: '1', percent: 100-percent, color: '#FFFFFFFF' }, // green '#4CAF50'
@@ -125,12 +116,22 @@ async function showCommunityPayoutTimer() {
           { size: 25 });
       }
     });
+
+  var timerEl = document.getElementById("timer-info-payout");
+  timerEl.innerHTML = getTimeString();
+  // Update every second
+  timer = setInterval(function () {
+    var timerEl = document.getElementById("timer-info-payout");
+    timerEl.innerHTML = getTimeString();
+    if (distance < 0) {
+      clearInterval(timer);
+      console.log("payout!!");
+    }
+  }, 1000);
 }
 
 // Show community payout timer
-ready(function () {
-  showCommunityPayoutTimer();
-});
+showCommunityPayoutTimer();
 
 // Apply the loading tippy
 var infoEl = document.getElementById("hover-info-payout");
