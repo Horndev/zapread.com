@@ -59,7 +59,7 @@ namespace zapread.com.Controllers
                 var i = await db.Achievements
                     .FirstOrDefaultAsync(a => a.Id == imgid).ConfigureAwait(true);
 
-                if (i.Image != null)
+                if (i != null && i.Image != null)
                 {
                     using (MemoryStream ms = new MemoryStream(i.Image))
                     {
@@ -75,10 +75,16 @@ namespace zapread.com.Controllers
                 {
                     i = await db.Achievements
                         .FirstOrDefaultAsync(a => a.Id == 1).ConfigureAwait(true);
-                    Image png = Image.FromStream(new MemoryStream(i.Image));
-                    Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
-                    byte[] data = thumb.ToByteArray(ImageFormat.Png);
-                    return File(data, "image/png");
+                    if (i != null)
+                    {
+                        Image png = Image.FromStream(new MemoryStream(i.Image));
+                        Bitmap thumb = ImageExtensions.ResizeImage(png, (int)size, (int)size);
+                        byte[] data = thumb.ToByteArray(ImageFormat.Png);
+                        return File(data, "image/png");
+                    }
+
+                    Bitmap img = new Bitmap((int)size, (int)size);
+                    return File(img.ToByteArray(ImageFormat.Png), "image/png");
                 }
             }
         }

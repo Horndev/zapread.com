@@ -874,6 +874,7 @@
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
     <Compile Include="Models\Lightning\LNNode.cs" />
+    <Compile Include="Models\Manage\ManageActivityPostsPartialViewModel.cs" />
     <Compile Include="Models\Manage\UpdatedUserAliasView.cs" />
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
@@ -1475,6 +1476,7 @@
     <Content Include="Views\Subscription\Subscribe.cshtml" />
     <Content Include="Views\Lnauth\Login.cshtml" />
     <Content Include="Views\Home\_PartialTopGroups.cshtml" />
+    <Content Include="Views\Manage\_PartialManageActivityPosts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

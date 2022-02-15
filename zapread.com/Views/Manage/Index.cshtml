@@ -60,17 +60,6 @@
                 <div>
                     <div class="ibox-content no-padding border-left-right">
                         <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new { size = 500, v = Model.UserProfileImageVersion })" />
-                        @*<div class="cuadro_intro_hover">
-                            <p style="text-align:center; ">
-                            </p>
-                            <div class="caption">
-                                <div class="blur"></div>
-                                <div class="caption-text">
-                                    <br />
-                                    <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#ModalProfileImage">Update Profile Image</a>
-                                </div>
-                            </div>
-                        </div>*@
                     </div>
                     <div class="ibox-content profile-content">
                         <h4>
@@ -532,10 +521,13 @@
                 </div>
                 <div class="ibox-content">
                     <div id="posts">
-                        @foreach (var p in Model.ActivityPosts)
-                        {
-                            @Html.Partial(partialViewName: "_PartialPostRenderVm", model: p)
-                        }
+                        <div id="posts-loading" class="ibox-content no-padding sk-loading" style="border-style:none;min-height:30px;">
+                            <div class="sk-spinner sk-spinner-three-bounce">
+                                <div class="sk-bounce1"></div>
+                                <div class="sk-bounce2"></div>
+                                <div class="sk-bounce3"></div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
@@ -545,7 +537,6 @@
         </div>
     </div>
 </div>
-
 
 @section Styles {
     @Styles.Render("~/bundles/manage/index/css")
