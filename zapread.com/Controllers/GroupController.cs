@@ -1521,7 +1521,7 @@ namespace zapread.com.Controllers
                 var userId = User.Identity.GetUserId();
 
                 // Ensure not a duplicate group!
-                var cleanName = m.GroupName.CleanUnicode();
+                var cleanName = m.GroupName.CleanUnicode().Trim();
 
                 if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
                 {
