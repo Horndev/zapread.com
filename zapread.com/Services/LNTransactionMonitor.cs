@@ -120,16 +120,15 @@ namespace zapread.com.Services
                                 }
                                 else if (flagged)
                                 {
-                                    ;
                                     if (tx.IsLimbo)
                                     {
-                                        ;
+                                        // Fix?
                                     }
                                 }
                             }
                             else
                             {
-                                ; // shouldn't be
+                                // shouldn't be here
                             }
                             updated = false; // for next round
                             flagged = false;
