@@ -441,6 +441,18 @@ namespace zapread.com.Controllers
             }
         }
 
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
+        }
+
         /// <summary>
         /// Get user page
         /// </summary>
@@ -451,6 +463,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Index(string username)
         {
+            XFrameOptionsDeny();
             if (username == null)
             {
                 return RedirectToAction(actionName: "Index", controllerName: "Manage");

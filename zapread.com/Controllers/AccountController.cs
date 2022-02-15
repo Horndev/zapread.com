@@ -186,6 +186,7 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public ActionResult GetBalance()
         {
+            XFrameOptionsDeny();
             return RedirectToActionPermanent("Balance");
         }
 

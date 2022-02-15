@@ -56,7 +56,20 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            XFrameOptionsDeny();
             return View();
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
         }
 
         /// <summary>
@@ -138,6 +151,7 @@ namespace zapread.com.Controllers
         [Route("GetInvoiceStatus/{request?}")]
         public ActionResult GetInvoiceStatus(string request)
         {
+            XFrameOptionsDeny();
             using (ZapContext db = new ZapContext())
             {
                 var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.PaymentRequest == request);

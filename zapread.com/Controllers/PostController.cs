@@ -221,6 +221,7 @@ namespace zapread.com.Controllers
         [HttpGet, Route("Post/Impressions/{id}")]
         public async Task<PartialViewResult> Impressions(int? id)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var post = await db.Posts
@@ -348,6 +349,7 @@ namespace zapread.com.Controllers
         [Route("Post/Edit/{postId?}")]
         public async Task<ActionResult> Edit(int? postId, int? group)
         {
+            XFrameOptionsDeny();
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
@@ -629,6 +631,7 @@ namespace zapread.com.Controllers
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Detail(int? PostId, string postTitle, int? vote)
         {
+            XFrameOptionsDeny();
             if (PostId == null)
             {
                 return RedirectToAction("Index", "Home");
@@ -739,6 +742,18 @@ namespace zapread.com.Controllers
                 db.SaveChanges();
 
                 return Json(new { result = "success", success = true });
+            }
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
             }
         }
     }
