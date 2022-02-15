@@ -44,6 +44,7 @@ namespace zapread.com.Controllers
             stringBuilder.AppendLine("disallow: /Account/GetBalance/");
             stringBuilder.AppendLine("disallow: /Account/Login/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
+            stringBuilder.AppendLine("disallow: /Messages/DismissMessage/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
             stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
             stringBuilder.AppendLine("disallow: /Manage/TipUser/");
