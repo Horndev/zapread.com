@@ -487,7 +487,7 @@ namespace zapread.com.Controllers
                 int userId = userInfo.Id;
 
                 string userAppId = null;
-                if (User.Identity.IsAuthenticated)
+                if (User != null && User.Identity.IsAuthenticated)
                 {
                     userAppId = User.Identity.GetUserId();
 

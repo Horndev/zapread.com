@@ -21,7 +21,7 @@
                         <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.')"><i class="fa fa-eye"></i> Show Post</button>
                     </li>
                 }
-                @if (User.Identity.Name == Model.UserName || User.IsInRole("Administrator"))
+                @if (User != null && (User.Identity.Name == Model.UserName || User.IsInRole("Administrator")))
                 {
                     @*using (Html.BeginForm("Edit", "Post",
                         new { ReturnUrl = ViewBag.ReturnUrl },
@@ -51,7 +51,7 @@
                     </li>
                 }
 
-                @if (User.IsInRole("Administrator"))
+                @if (User != null && User.IsInRole("Administrator"))
                 {
                     <li>
                         Hot: @Model.Hot
@@ -64,7 +64,7 @@
                     </li>
                 }
 
-                @if (Model.ViewerIsMod || User.Identity.Name == Model.UserName || User.IsInRole("Administrator"))
+                @if (Model.ViewerIsMod || (User != null && User.Identity.Name == Model.UserName) || (User != null && User.IsInRole("Administrator")))
                 {
                     <li>
                         <button class="btn btn-link btn-sm" onclick="nsfwPost(@Model.PostId)"><i class="fa fa-exclamation-triangle"></i> Toggle NSFW</button>
@@ -86,7 +86,7 @@
                         <button class="btn btn-link btn-sm" onclick="stickyPost(@Model.PostId)"><i class="fa fa-map-pin"></i> Toggle Group Sitcky</button>
                     </li>
                 }
-                @if (User.IsInRole("Administrator"))
+                @if (User != null && User.IsInRole("Administrator"))
                 {
 
                 }
@@ -114,7 +114,7 @@
             @if (!Model.ViewerIgnoredUser)
             {
                 <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle post-image-45@(Model.UserAppId == User.Identity.GetUserId() ? " user-image-45":"")" loading="lazy" width="45" height="45" data-userappid="@Model.UserAppId" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+                    <img class="img-circle post-image-45@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-45": "")" loading="lazy" width="45" height="45" data-userappid="@Model.UserAppId" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
                 </a>
             }
             <div class="media-body">
