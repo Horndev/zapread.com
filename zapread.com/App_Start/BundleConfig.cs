@@ -88,6 +88,7 @@ namespace zapread.com
             #endregion
 
             BundlePage(bundles, "account", "login");
+            BundlePage(bundles, "account", "register");
             BundlePage(bundles, "admin", "achievements");
             BundlePage(bundles, "admin", "accounting");
             BundlePage(bundles, "admin", "audit");

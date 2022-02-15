@@ -106,18 +106,18 @@ namespace zapread.com.Controllers
         //    }
         //}
 
-        private async Task EnsureUserExists(string userId, ZapContext db)
+        private async Task EnsureUserExists(string userAppId, ZapContext db)
         {
-            if (userId != null)
+            if (userAppId != null)
             {
-                if (!db.Users.Where(u => u.AppId == userId).Any())
+                if (!db.Users.Where(u => u.AppId == userAppId).Any())
                 {
                     // no user entry
                     User u = new User()
                     {
                         AboutMe = "Nothing to tell.",
-                        AppId = userId,
-                        Name = UserManager.FindByIdAsync(userId).Result.UserName,
+                        AppId = userAppId,
+                        Name = UserManager.FindByIdAsync(userAppId).Result.UserName,
                         ProfileImage = new UserImage(),
                         ThumbImage = new UserImage(),
                         Funds = new UserFunds(),
@@ -129,7 +129,7 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
                     if (user.Settings == null)
                     {
                         user.Settings = new UserSettings()
@@ -694,7 +694,12 @@ namespace zapread.com.Controllers
         public ActionResult Register()
         {
             XFrameOptionsDeny();
-            return View();
+            var vm = new RegisterViewModel()
+            {
+                AcceptEmailsNotify = true,
+            };
+
+            return View(vm);
         }
 
         public async Task<ActionResult> SendEmailConfirmation()
@@ -737,14 +742,40 @@ namespace zapread.com.Controllers
                     
                     using (var db = new ZapContext())
                     {
-                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                    }
+                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true); // This creates the user entry if it doesn't already exist
 
+                        var userSettings = await db.Users
+                            .Where(u => u.AppId == userId.Id)
+                            .Select(u => u.Settings)
+                            .FirstOrDefaultAsync();
+
+                        if (userSettings != null)
+                        {
+                            userSettings.AlertOnMentioned = true;
+                            userSettings.AlertOnNewPostSubscribedGroup = true;
+                            userSettings.AlertOnNewPostSubscribedUser = true;
+                            userSettings.AlertOnOwnCommentReplied = true;
+                            userSettings.AlertOnOwnPostCommented = true;
+                            userSettings.AlertOnPrivateMessage = true;
+                            userSettings.AlertOnReceivedTip = true;
+
+                            if (model.AcceptEmailsNotify)
+                            {
+                                userSettings.NotifyOnMentioned = true;
+                                userSettings.NotifyOnNewPostSubscribedGroup = true;
+                                userSettings.NotifyOnNewPostSubscribedUser = true;
+                                userSettings.NotifyOnOwnCommentReplied = true;
+                                userSettings.NotifyOnOwnPostCommented = true;
+                                userSettings.NotifyOnPrivateMessage = true;
+                                userSettings.NotifyOnReceivedTip = true;
+                            }
+                            await db.SaveChangesAsync();
+                        }
+                    }
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
-
             // If we got this far, something failed, redisplay form
             return View(model);
         }
@@ -1041,8 +1072,35 @@ namespace zapread.com.Controllers
                         using (var db = new ZapContext())
                         {
                             await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                        }
 
+                            var userSettings = await db.Users
+                                .Where(u => u.AppId == userId.Id)
+                                .Select(u => u.Settings)
+                                .FirstOrDefaultAsync();
+
+                            if (userSettings != null)
+                            {
+                                userSettings.AlertOnMentioned = true;
+                                userSettings.AlertOnNewPostSubscribedGroup = true;
+                                userSettings.AlertOnNewPostSubscribedUser = true;
+                                userSettings.AlertOnOwnCommentReplied = true;
+                                userSettings.AlertOnOwnPostCommented = true;
+                                userSettings.AlertOnPrivateMessage = true;
+                                userSettings.AlertOnReceivedTip = true;
+
+                                if (model.AcceptEmailsNotify)
+                                {
+                                    userSettings.NotifyOnMentioned = true;
+                                    userSettings.NotifyOnNewPostSubscribedGroup = true;
+                                    userSettings.NotifyOnNewPostSubscribedUser = true;
+                                    userSettings.NotifyOnOwnCommentReplied = true;
+                                    userSettings.NotifyOnOwnPostCommented = true;
+                                    userSettings.NotifyOnPrivateMessage = true;
+                                    userSettings.NotifyOnReceivedTip = true;
+                                }
+                                await db.SaveChangesAsync();
+                            }
+                        }
                         return RedirectToAction("Index", "Home");
                     }
                 }
