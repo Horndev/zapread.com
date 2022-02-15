@@ -23,6 +23,7 @@ using zapread.com.Models.API.Account.Transactions;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
+using zapread.com.Models.Manage;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -732,12 +733,13 @@ namespace zapread.com.Controllers
 
                 ValidateClaims(new UserSettings() { ColorTheme = userInfo.ColorTheme });
 
-                var postViews = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.Id).ConfigureAwait(true);
+                //var postViews = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.Id).ConfigureAwait(true);
 
                 var uavm = new UserAchievementsViewModel() { 
                     Achievements = userInfo.UserAchievements
                 };
 
+                // This is a mess - need to split it up
                 var model = new ManageUserViewModel
                 {
                     HasPassword = HasPassword(),
@@ -745,17 +747,15 @@ namespace zapread.com.Controllers
                     UserAppId = userInfo.AppId,
                     UserId = userInfo.Id,
                     UserProfileImageVersion = userInfo.Version,
-                    //PhoneNumber = await UserManager.GetPhoneNumberAsync(userAppId).ConfigureAwait(true),
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
                     EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
-                    //Logins = await UserManager.GetLoginsAsync(userAppId).ConfigureAwait(true),
                     AboutMe = new AboutMeViewModel() { AboutMe = userInfo.AboutMe == null ? "Nothing to tell." : userInfo.AboutMe },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = userInfo.UserGroups },
                     NumPosts = userInfo.NumPosts,
                     NumFollowers = userInfo.NumFollowers,
                     NumFollowing = userInfo.NumFollowing,
                     IsFollowing = true, // Not actually used here
-                    ActivityPosts = postViews,
+                    //ActivityPosts = postViews,
                     TopFollowingVm = userInfo.TopFollowing,
                     TopFollowersVm = userInfo.TopFollowers,
                     UserBalance = userInfo.UserBalance,
@@ -767,6 +767,29 @@ namespace zapread.com.Controllers
                 };
 
                 return View(model);
+            }
+        }
+
+        /// <summary>
+        /// Called when initially loading the activity posts
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> GetActivityPosts()
+        {
+            var userAppId = User.Identity.GetUserId();
+            using (var db = new ZapContext())
+            {
+                var postViews = await QueryHelpers.QueryActivityPostsVm(
+                    start: 0, 
+                    count: 10,
+                    userAppId: userAppId).ConfigureAwait(true);
+
+                var vm = new ManageActivityPostsPartialViewModel()
+                {
+                    ActivityPosts = postViews
+                };
+
+                return PartialView("_PartialManageActivityPosts", vm);
             }
         }
 

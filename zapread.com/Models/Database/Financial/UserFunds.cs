@@ -6,13 +6,20 @@ using System.Web;
 
 namespace zapread.com.Models.Database.Financial
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class UserFunds
     {
         [Key]
         public int Id { get; set; }
         public double TotalEarned { get; set; }
         public double Balance { get; set; }
-        public double LimboBalance { get; set; }    // These are funds the user may have as pending withdraw or deposit.  Not spendable.
+
+        /// <summary>
+        /// These are funds the user may have as pending withdraw or deposit.  Not spendable.
+        /// </summary>
+        public double LimboBalance { get; set; }
 
         public bool IsWithdrawLocked { get; set; }
 

@@ -94,9 +94,9 @@ namespace zapread.com.Helpers
         /// </summary>
         /// <param name="start"></param>
         /// <param name="count"></param>
-        /// <param name="userId"></param>
+        /// <param name="userAppId"></param>
         /// <returns></returns>
-        public static async Task<List<PostViewModel>> QueryActivityPostsVm(int start, int count, int userId = 0)
+        public static async Task<List<PostViewModel>> QueryActivityPostsVm(int start, int count, string userAppId)
         {
             using (var db = new ZapContext())
             {
@@ -108,11 +108,10 @@ namespace zapread.com.Helpers
                 //        .ConfigureAwait(true);
 
                 var userposts = db.Posts
-                    .Where(p => p.UserId.Id == userId)
+                    .Where(p => p.UserId.AppId == userAppId)
                     .Where(p => !p.IsDeleted)
                     .Where(p => !p.IsDraft)
                     .OrderByDescending(p => p.TimeStamp)
-                    //.Take(20)
                     .Select(p => new PostViewModel()
                     {
                         PostTitle = p.PostTitle,
@@ -129,10 +128,10 @@ namespace zapread.com.Helpers
                         TimeStamp = p.TimeStamp,
                         TimeStampEdited = p.TimeStampEdited,
                         IsNSFW = p.IsNSFW,
-                        ViewerIsMod = p.Group.Moderators.Select(m => m.Id).Contains(userId),
-                        ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
-                        ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
-                        ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        ViewerIsMod = p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
+                        ViewerUpvoted = p.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                        ViewerDownvoted = p.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                        ViewerIgnoredUser = p.UserId.AppId == userAppId ? false : p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
                             PostId = p.PostId,
@@ -147,9 +146,9 @@ namespace zapread.com.Helpers
                             UserName = c.UserId.Name,
                             UserAppId = c.UserId.AppId,
                             ProfileImageVersion = c.UserId.ProfileImage.Version,
-                            ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
-                            ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
-                            ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                            ViewerUpvoted = c.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                            ViewerDownvoted = c.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                            ViewerIgnoredUser = c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                             ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                             ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
                             ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,

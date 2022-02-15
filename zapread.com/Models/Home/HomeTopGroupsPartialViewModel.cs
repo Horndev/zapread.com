@@ -5,14 +5,14 @@ using System.Web;
 
 namespace zapread.com.Models.Home
 {
-    public class HomeIndexViewModel
+    /// <summary>
+    /// 
+    /// </summary>
+    public class HomeTopGroupsPartialViewModel
     {
-        public string Sort { get; set; }
-
         /// <summary>
-        /// 
+        /// Groups to show
         /// </summary>
-        [Obsolete]
         public List<GroupInfo> SubscribedGroups { get; set; }
     }
 }

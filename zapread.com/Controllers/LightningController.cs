@@ -33,12 +33,18 @@ namespace zapread.com.Controllers
         public ILightningPayments PaymentsService { get; private set; }
 
         /// <summary>
+        /// Used to encode bytes to hex strings
+        /// </summary>
+        public LightningLib.DataEncoders.HexEncoder HexEncoder { get; private set; }
+
+        /// <summary>
         /// Constructor with dependency injection for IOC and controller singleton control.
         /// </summary>
         /// <param name="paymentsService"></param>
         public LightningController(ILightningPayments paymentsService)
         {
             this.PaymentsService = paymentsService;
+            this.HexEncoder = new LightningLib.DataEncoders.HexEncoder();
         }
 
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
@@ -234,6 +240,9 @@ namespace zapread.com.Controllers
                     }
                 }
 
+                var rhash_bytes = Convert.FromBase64String(inv.r_hash);
+                var rhash_hex = HexEncoder.EncodeData(rhash_bytes);
+
                 //create a new transaction record in database
                 LNTransaction t = new LNTransaction()
                 {
@@ -242,7 +251,8 @@ namespace zapread.com.Controllers
                     IsSpent = false,
                     Memo = memo.SanitizeXSS(),
                     Amount = Convert.ToInt64(amount, CultureInfo.InvariantCulture),
-                    HashStr = inv.r_hash,
+                    HashStr = inv.r_hash, // B64 encoded
+                    PreimageHash = rhash_hex,
                     IsDeposit = true,
                     TimestampCreated = DateTime.Now,
                     PaymentRequest = inv.payment_request,
@@ -342,12 +352,18 @@ namespace zapread.com.Controllers
                     // We still record it in our database for any possible user forensics/history later.
                     settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) 
                         + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date, CultureInfo.InvariantCulture));
+
+                    var HexEncoder = new LightningLib.DataEncoders.HexEncoder(); // static method
+                    var rhash_bytes = Convert.FromBase64String(invoice.r_hash);
+                    var rhash_hex = HexEncoder.EncodeData(rhash_bytes);
+
                     t = new LNTransaction()
                     {
                         IsSettled = invoice.settled.Value,
                         Memo = invoice.memo.SanitizeXSS(),
                         Amount = amount,//Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture),
                         HashStr = invoice.r_hash,
+                        PreimageHash = rhash_hex,
                         IsDeposit = true,
                         TimestampSettled = settletime,
                         TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date, CultureInfo.InvariantCulture)),
@@ -558,6 +574,7 @@ namespace zapread.com.Controllers
                             IsSettled = false,
                             Memo = (decoded.description ?? "Withdraw").SanitizeXSS(),
                             HashStr = decoded.payment_hash,
+                            PaymentHash = decoded.payment_hash,
                             Amount = Convert.ToInt64(decoded.num_satoshis, CultureInfo.InvariantCulture),
                             IsDeposit = false,
                             TimestampSettled = null,

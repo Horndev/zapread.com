@@ -641,7 +641,7 @@ namespace zapread.com.Controllers
 
                 if (userId.HasValue && userId != 0)
                 {
-                    await ClaimsHelpers.ValidateClaims(userId.Value, User).ConfigureAwait(true);
+                    await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
                 }
 
                 var pst = db.Posts

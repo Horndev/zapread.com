@@ -486,9 +486,10 @@ namespace zapread.com.Controllers
 
                 int userId = userInfo.Id;
 
+                string userAppId = null;
                 if (User.Identity.IsAuthenticated)
                 {
-                    var userAppId = User.Identity.GetUserId();
+                    userAppId = User.Identity.GetUserId();
 
                     var loggedInUserInfo = await db.Users
                         .Where(u => u.AppId == userAppId)
@@ -512,7 +513,7 @@ namespace zapread.com.Controllers
                     isIgnoring = loggedInUserInfo.isIgnoring;
                 }
 
-                var activityposts = await QueryHelpers.QueryActivityPostsVm(0, 10, userId).ConfigureAwait(true); //await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
+                var activityposts = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.AppId).ConfigureAwait(true); //await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
 
                 int numUserPosts = await db.Posts.Where(p => p.UserId.Id == userId)
                     .CountAsync().ConfigureAwait(true);
@@ -606,6 +607,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="BlockNumber"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("InfiniteScroll/")]
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, int? userId)
@@ -614,12 +621,23 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var uid = User.Identity.GetUserId();
-                User user = await db
-                    .Users.AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+                //var uid = User.Identity.GetUserId();
 
-                List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userId != null ? userId.Value : 0).ConfigureAwait(true);
+                string userAppId = null;
+
+                if (userId.HasValue)
+                {
+                    userAppId = await db.Users
+                        .Where(u => u.Id == userId.Value)
+                        .Select(u => u.AppId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+                }
+
+                //User user = await db
+                //    .Users.AsNoTracking()
+                //    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+
+                List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userAppId).ConfigureAwait(true);
 
                 //List <GroupStats> groups = await db.Groups.AsNoTracking()
                 //        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })

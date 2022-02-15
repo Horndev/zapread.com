@@ -11,18 +11,27 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ClaimsHelpers
     {
-        public static async Task ValidateClaims(int userId, IPrincipal User)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAppId"></param>
+        /// <param name="User"></param>
+        /// <returns></returns>
+        public static async Task ValidateClaims(string userAppId, IPrincipal User)
         {
             try
             {
-                if (userId > 0)
+                if (userAppId != null)
                 {
                     using (var db = new ZapContext())
                     {
                         var us = await db.Users
-                            .Where(u => u.Id == userId)
+                            .Where(u => u.AppId == userAppId)
                             .Select(u => new
                             {
                                 u.Settings.ColorTheme,
