@@ -24,8 +24,15 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class HomeController : Controller
     {
+        /// <summary>
+        /// For bots
+        /// </summary>
+        /// <returns></returns>
         [Route("robots.txt", Name = "GetRobotsText"), OutputCache(Duration = 86400)]
         public ContentResult RobotsText()
         {
@@ -49,6 +56,11 @@ namespace zapread.com.Controllers
             return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="set"></param>
+        /// <returns></returns>
         [HttpPost, ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> SetUserImage(int set)
         {
@@ -133,7 +145,7 @@ namespace zapread.com.Controllers
                         return Json(new { success = false, message = "User not found" });
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     return Json(new { success = false, result = "Failure", message = "Endpoint error." });
@@ -144,8 +156,10 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Gets the user's image
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="size">size in px</param>
         /// <param name="UserId"></param>
+        /// <param name="v">image version</param>
+        /// <param name="r"></param>
         /// <returns></returns>
         [OutputCache(Duration = 3600, VaryByParam = "v;r", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
@@ -187,7 +201,7 @@ namespace zapread.com.Controllers
                         ver = dbver ?? -1;
                     }
                 }
-                catch (FormatException fe)
+                catch (FormatException)
                 {
                     //
                 }
@@ -356,7 +370,7 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="db"></param>
         /// <param name="sort"></param>
-        /// <param name="userId"></param>
+        /// <param name="userAppId"></param>
         /// <returns></returns>
         protected async Task<IQueryable<QueryHelpers.PostQueryInfo>> GetPostsQuery(ZapContext db, string sort = "Score", string userAppId = null)
         {
@@ -503,16 +517,16 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Obsolete("This endpoint is not used and will be retired in a future version.")]
-        [HttpPost]
-        public async Task<JsonResult> DismissTour(int id)
-        {
-            if (SetOrUpdateUserTourCookie("hide") == "hide")
-            {
-                return Json(new { success = true, result = "success" });
-            }
-            return Json(new { success = false, result = "failure setting cookie" });
-        }
+        //[Obsolete("This endpoint is not used and will be retired in a future version.")]
+        //[HttpPost]
+        //public async Task<JsonResult> DismissTour(int id)
+        //{
+        //    if (SetOrUpdateUserTourCookie("hide") == "hide")
+        //    {
+        //        return Json(new { success = true, result = "success" });
+        //    }
+        //    return Json(new { success = false, result = "failure setting cookie" });
+        //}
 
         /// <summary>
         /// If the user is away for longer than 30 days, it presents the tour again.
@@ -675,7 +689,6 @@ namespace zapread.com.Controllers
         /// <param name="l"></param>
         /// <param name="g">include subscribed groups null = yes</param>
         /// <param name="f">include subscribed followers null = yes</param>
-        /// <param name="p">page</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]
@@ -683,6 +696,7 @@ namespace zapread.com.Controllers
         {
             //PaymentPoller.Subscribe();
             //LNTransactionMonitor a = new LNTransactionMonitor();
+            //a.SyncNode();
             //a.CheckLNTransactions();
             //AchievementsService a = new AchievementsService();
             //a.CheckAchievements();
@@ -712,26 +726,24 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     var userAppId = User.Identity.GetUserId();
-                    int userId = 0;
-                    List<GroupInfo> subscribedGroups;
+                    //int userId = 0;
+                    //List<GroupInfo> subscribedGroups;
 
                     if (userAppId == null)
                     {
                         // Not logged in
-                        subscribedGroups = new List<GroupInfo>();
+                        //subscribedGroups = new List<GroupInfo>();
                     }
                     else
                     {
-                        User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line (for now, only used when logged in)
-
-                        if (user == null)
-                        {
-                            return RedirectToAction(actionName: "Login", controllerName: "Account");
-                        }
-
-                        subscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true);
-                        userId = user.Id;
-                        await ClaimsHelpers.ValidateClaims(userId, User).ConfigureAwait(true);
+                        //User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line (for now, only used when logged in)
+                        //if (user == null)
+                        //{
+                        //    return RedirectToAction(actionName: "Login", controllerName: "Account");
+                        //}
+                        ////subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
+                        //userId = user.Id;
+                        await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
                     }
 
                     //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
@@ -739,7 +751,7 @@ namespace zapread.com.Controllers
                     var vm = new HomeIndexViewModel()
                     {
                         Sort = sort ?? "Score",
-                        SubscribedGroups = subscribedGroups,
+                        //SubscribedGroups = subscribedGroups,
                     };
 
                     return View(vm);
@@ -759,9 +771,29 @@ namespace zapread.com.Controllers
             }
         }
 
-        private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult> TopGroups()
         {
-            if (userId == 0)
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+
+                var subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
+
+                return PartialView("_PartialTopGroups", new HomeTopGroupsPartialViewModel()
+                {
+                    SubscribedGroups = subscribedGroups
+                });
+            }
+        }
+
+        private static Task<List<GroupInfo>> GetUserGroups(string userAppId, ZapContext db)
+        {
+            if (userAppId == null)
             {
                 return db.Groups
                     .OrderByDescending(g => g.TotalEarned)
@@ -769,8 +801,8 @@ namespace zapread.com.Controllers
                     .Select(g => new GroupInfo()
                     {
                         Id = g.GroupId,
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-                        IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
+                        IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
+                        IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
                         Name = g.GroupName,
                         Icon = g.Icon,
                         Level = g.Tier,
@@ -780,13 +812,13 @@ namespace zapread.com.Controllers
                 .ToListAsync();
             }
             
-            return db.Users.Where(u => u.Id == userId)
+            return db.Users.Where(u => u.AppId == userAppId)
                 .SelectMany(u => u.Groups)
                 .OrderByDescending(g => g.TotalEarned)
                 .Select(g => new GroupInfo() {
                     Id = g.GroupId,
-                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-                    IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
+                    IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
+                    IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
                     Name = g.GroupName,
                     Icon = g.Icon,
                     Level = g.Tier,

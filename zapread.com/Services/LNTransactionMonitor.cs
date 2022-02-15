@@ -12,6 +12,141 @@ namespace zapread.com.Services
     /// </summary>
     public class LNTransactionMonitor
     {
+        private static bool running = false;
+        /// <summary>
+        /// Synchronize the database with the Lightning Node
+        /// </summary>
+        public void SyncNode()
+        {
+            using (var db = new ZapContext())
+            {
+                if (running)
+                {
+                    return;
+                }
+                running = true;
+
+                var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
+                    //.AsNoTracking()
+                    .FirstOrDefault();
+
+                if (website == null)
+                {
+                    throw new Exception("Unable to load website settings.");
+                }
+
+                LndRpcClient lndClient = GetLNDClient(website);
+
+                int step = 300;
+                int start = 63000;
+                int max = 30;
+
+                var paymentsResult = lndClient.GetPayments(
+                    include_incomplete: true, // Important for checking
+                    //reversed: true, // Start with most recent and work backwards
+                    max_payments: step);
+
+                var paymentsResultEnd = lndClient.GetPayments(
+                    include_incomplete: true, // Important for checking
+                    reversed: true, // Start with most recent and work backwards
+                    max_payments: 1);
+
+                start = Convert.ToInt32(paymentsResult.first_index_offset);
+                max += Convert.ToInt32(paymentsResultEnd.last_index_offset);
+                bool updated = false;
+                bool flagged = false;
+                while (start < max)
+                {
+                    foreach (var payment in paymentsResult.payments)
+                    {
+                        var payment_hash = payment.payment_hash;
+                        var invoice = payment.payment_request;
+
+                        var dbMatches = db.LightningTransactions
+                            .Where(tx => tx.PaymentRequest == invoice)
+                            .ToList();
+
+                        if (dbMatches.Count > 0)
+                        {
+                            if (dbMatches.Count == 1)
+                            {
+                                var tx = dbMatches[0];
+                                if (payment.payment_hash!= null && tx.PaymentHash == null)
+                                {
+                                    tx.PaymentHash = payment.payment_hash;
+                                    updated = true;
+                                }
+                                if (payment.failure_reason != null && tx.FailureReason == null)
+                                {
+                                    tx.FailureReason = payment.failure_reason;
+                                    updated = true;
+                                }
+                                if (payment.payment_index != null && tx.PaymentIndex == null)
+                                {
+                                    tx.PaymentIndex = Convert.ToInt32(payment.payment_index);
+                                    updated = true;
+                                }
+                                if (payment.payment_preimage != null && tx.PaymentPreimage == null)
+                                {
+                                    tx.PaymentPreimage = payment.payment_preimage;
+                                    updated = true;
+                                }
+                                if (payment.status != null && tx.PaymentStatus == null)
+                                {
+                                    tx.PaymentStatus = payment.status;
+                                    updated = true;
+                                    if (payment.status == "UNKNOWN")
+                                    {
+                                        // not sure what happened.
+                                        flagged = true;
+                                    }
+                                    if (!tx.IsSettled && payment.status == "SUCCEEDED")
+                                    {
+                                        // LND marked as settled but not in db!
+                                        updated = false; // Don't save for now
+                                        flagged = true;
+                                    }
+                                    if (tx.IsSettled && (payment.status == "FAILED" || payment.status == "IN_FLIGHT"))
+                                    {
+                                        // We settled an invoice we should not have
+                                        updated = false; // Don't save for now
+                                        flagged = true;
+                                    }
+                                }
+                                if (updated)
+                                {
+                                    tx.TimestampUpdated = DateTime.UtcNow;
+                                    db.SaveChanges();
+                                }
+                                else if (flagged)
+                                {
+                                    ;
+                                    if (tx.IsLimbo)
+                                    {
+                                        ;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ; // shouldn't be
+                            }
+                            updated = false; // for next round
+                            flagged = false;
+                        }
+                    }
+
+                    start = Convert.ToInt32(paymentsResult.last_index_offset);
+
+                    //get next batch
+                    paymentsResult = lndClient.GetPayments(
+                       include_incomplete: true, // Important for checking
+                       index_offset: start,
+                       max_payments: step);
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -21,7 +156,7 @@ namespace zapread.com.Services
             using (var db = new ZapContext())
             {
                 var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
-                    .AsNoTracking()
+                    //.AsNoTracking() // need to track since it will get updated
                     .FirstOrDefault();
 
                 if (website == null)
@@ -29,11 +164,7 @@ namespace zapread.com.Services
                     throw new Exception("Unable to load website settings.");
                 }
 
-                LndRpcClient lndClient = new LndRpcClient(
-                    host: website.LnMainnetHost,
-                    macaroonAdmin: website.LnMainnetMacaroonAdmin,
-                    macaroonRead: website.LnMainnetMacaroonRead,
-                    macaroonInvoice: website.LnMainnetMacaroonInvoice);
+                LndRpcClient lndClient = GetLNDClient(website);
 
                 //var invv = lndClient.GetInvoice("8Td4xGBvz4nI2qRLIVC93S9mcTDodd/sylhd9IG7FEA=", out string responseStr, useQuery: false);
                 //var allpayments = lndClient.GetPayments(out string responseStr, include_incomplete: true);
@@ -193,7 +324,7 @@ namespace zapread.com.Services
                                         }
                                     }
                                 }
-                                
+
                                 i.IsLimbo = false;
                                 i.IsIgnored = true;
                                 i.IsSettled = true;
@@ -262,7 +393,7 @@ namespace zapread.com.Services
                                 i.IsSettled = false;
                                 Services.MailingService.SendErrorNotification(
                                             title: "Tx marked as ignored",
-                                            message: "tx.id: "+Convert.ToString(i.Id) 
+                                            message: "tx.id: " + Convert.ToString(i.Id)
                                             + " Reason 1");
                             }
                             else if (i.ErrorMessage == "Error: payment is in transition")
@@ -335,7 +466,7 @@ namespace zapread.com.Services
                                      i.ErrorMessage == "Error: payment attempt not completed before timeout")
                             {
                                 i.IsIgnored = true;
-                                
+
                                 if (i.User.Funds.LimboBalance - amount < 0)
                                 {
                                     if (i.User.Funds.LimboBalance < 0) // shouldn't happen!
@@ -410,6 +541,15 @@ namespace zapread.com.Services
                 }
                 db.SaveChanges();
             }
+        }
+
+        private static LndRpcClient GetLNDClient(Models.Database.ZapReadGlobals website)
+        {
+            return new LndRpcClient(
+                                host: website.LnMainnetHost,
+                                macaroonAdmin: website.LnMainnetMacaroonAdmin,
+                                macaroonRead: website.LnMainnetMacaroonRead,
+                                macaroonInvoice: website.LnMainnetMacaroonInvoice);
         }
     }
 }

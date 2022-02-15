@@ -77,7 +77,8 @@ export function onVote(e) {
   var memo = "ZapRead.com";
   if (window.isTip) {
     depositUse = "tip";
-    memo = 'ZapRead.com ' + $('#voteModalTitle').html();
+    var voteModalTitle = document.getElementById("voteModalTitle");
+    memo = 'ZapRead.com ' + voteModalTitle.innerText;//$('#voteModalTitle').html();
   } else if (userVote.t === 1) {
     depositUse = "votePost";
     memo = 'ZapRead.com vote post ID: ' + userVote.id;

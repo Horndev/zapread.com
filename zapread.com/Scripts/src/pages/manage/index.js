@@ -43,6 +43,17 @@ window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
+async function LoadActivityPostsAsync() {
+  await fetch("/Manage/GetActivityPosts").then(response => {
+    return response.text();
+  }).then(html => {
+    document.getElementById("posts-loading").classList.remove("sk-loading");
+    var postsBoxEl = document.getElementById("posts");
+    postsBoxEl.innerHTML = html;
+  })
+}
+LoadActivityPostsAsync();
+
 /**
  * Wrapper for load more
  **/
@@ -55,13 +66,11 @@ export function manageloadmore(userId) {
   });
 }
 window.loadmore = manageloadmore;
-
 onLoadedMorePosts();
 
-$('.ach-hover').each(function () {
-  $(this).mouseover(function () {
-    loadachhover(this);
-  });
+var elements = document.querySelectorAll(".ach-hover");
+Array.prototype.forEach.call(elements, function (el, _i) {
+  loadachhover(el);
 });
 
 Dropzone.options.dropzoneForm = {

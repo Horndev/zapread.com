@@ -1,0 +1,6 @@
+﻿@model zapread.com.Models.Manage.ManageActivityPostsPartialViewModel
+
+@foreach (var p in Model.ActivityPosts)
+{
+    @Html.Partial(partialViewName: "_PartialPostRenderVm", model: p)
+}
