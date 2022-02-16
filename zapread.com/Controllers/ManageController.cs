@@ -90,7 +90,20 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Financial()
         {
+            XFrameOptionsDeny();
             return View();
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
         }
 
         /// <summary>
@@ -101,6 +114,7 @@ namespace zapread.com.Controllers
         [Route("Manage/APIKeys/")]
         public ActionResult APIKeys()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -661,6 +675,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
+            XFrameOptionsDeny();
             ViewBag.StatusMessage =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
                 : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
@@ -938,6 +953,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult AddPhoneNumber()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -1350,6 +1366,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
+            XFrameOptionsDeny();
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
             // Send an SMS through the SMS provider to verify the phone number
             return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
@@ -1503,6 +1520,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> LinkLoginCallback()
         {
+            XFrameOptionsDeny();
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId()).ConfigureAwait(true);
             if (loginInfo == null)
             {

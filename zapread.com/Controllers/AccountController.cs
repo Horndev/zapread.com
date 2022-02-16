@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -106,18 +108,18 @@ namespace zapread.com.Controllers
         //    }
         //}
 
-        private async Task EnsureUserExists(string userId, ZapContext db)
+        private async Task EnsureUserExists(string userAppId, ZapContext db)
         {
-            if (userId != null)
+            if (userAppId != null)
             {
-                if (!db.Users.Where(u => u.AppId == userId).Any())
+                if (!db.Users.Where(u => u.AppId == userAppId).Any())
                 {
                     // no user entry
                     User u = new User()
                     {
                         AboutMe = "Nothing to tell.",
-                        AppId = userId,
-                        Name = UserManager.FindByIdAsync(userId).Result.UserName,
+                        AppId = userAppId,
+                        Name = UserManager.FindByIdAsync(userAppId).Result.UserName,
                         ProfileImage = new UserImage(),
                         ThumbImage = new UserImage(),
                         Funds = new UserFunds(),
@@ -129,7 +131,7 @@ namespace zapread.com.Controllers
                 }
                 else
                 {
-                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
                     if (user.Settings == null)
                     {
                         user.Settings = new UserSettings()
@@ -186,6 +188,7 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         public ActionResult GetBalance()
         {
+            XFrameOptionsDeny();
             return RedirectToActionPermanent("Balance");
         }
 
@@ -689,14 +692,31 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/Register
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet]
         public ActionResult Register()
         {
+            var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string code);
+            Session["Captcha"] = code; // Save to session (encrypted in cookie)
+
             XFrameOptionsDeny();
-            return View();
+            var vm = new RegisterViewModel()
+            {
+                AcceptEmailsNotify = true,
+                CaptchaSrcB64 = captchaSrcB64
+            };
+
+            return View(vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<ActionResult> SendEmailConfirmation()
         {
             var userId = User.Identity.GetUserId();
@@ -718,6 +738,13 @@ namespace zapread.com.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            // Check Captcha
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            if (model.Captcha != captchaCode)
+            {
+                ModelState.AddModelError("Captcha", "Captcha does not match");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
@@ -737,16 +764,80 @@ namespace zapread.com.Controllers
                     
                     using (var db = new ZapContext())
                     {
-                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                    }
+                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true); // This creates the user entry if it doesn't already exist
 
+                        var userSettings = await db.Users
+                            .Where(u => u.AppId == userId.Id)
+                            .Select(u => u.Settings)
+                            .FirstOrDefaultAsync();
+
+                        if (userSettings != null)
+                        {
+                            userSettings.AlertOnMentioned = true;
+                            userSettings.AlertOnNewPostSubscribedGroup = true;
+                            userSettings.AlertOnNewPostSubscribedUser = true;
+                            userSettings.AlertOnOwnCommentReplied = true;
+                            userSettings.AlertOnOwnPostCommented = true;
+                            userSettings.AlertOnPrivateMessage = true;
+                            userSettings.AlertOnReceivedTip = true;
+
+                            if (model.AcceptEmailsNotify)
+                            {
+                                userSettings.NotifyOnMentioned = true;
+                                userSettings.NotifyOnNewPostSubscribedGroup = true;
+                                userSettings.NotifyOnNewPostSubscribedUser = true;
+                                userSettings.NotifyOnOwnCommentReplied = true;
+                                userSettings.NotifyOnOwnPostCommented = true;
+                                userSettings.NotifyOnPrivateMessage = true;
+                                userSettings.NotifyOnReceivedTip = true;
+                            }
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                    try
+                    {
+                        ControllerContext.HttpContext.Session.Remove("Captcha");
+                    }
+                    catch (Exception)
+                    {
+                        // Not a big deal right now
+                    }
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
-
             // If we got this far, something failed, redisplay form
+            var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string newCode);
+            Session["Captcha"] = newCode; // Save to session (encrypted in cookie)
+            model.CaptchaSrcB64 = captchaSrcB64; // New image and code
             return View(model);
+        }
+
+        /// <summary>
+        /// Based on code from https://stackoverflow.com/questions/47300251/how-to-use-windows-speech-synthesizer-in-asp-net-mvc
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> CaptchaAudio()
+        {
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            
+            Task<FileContentResult> task = Task.Run(() =>
+            {
+                using (SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer())
+                {
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        speechSynthesizer.SetOutputToWaveStream(stream);
+                        speechSynthesizer.Speak(captchaCode);
+                        var bytes = stream.GetBuffer();
+                        return File(bytes, "audio/x-wav");
+                    }
+                }
+            });
+
+            return await task;
         }
 
         //
@@ -1041,8 +1132,35 @@ namespace zapread.com.Controllers
                         using (var db = new ZapContext())
                         {
                             await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                        }
 
+                            var userSettings = await db.Users
+                                .Where(u => u.AppId == userId.Id)
+                                .Select(u => u.Settings)
+                                .FirstOrDefaultAsync();
+
+                            if (userSettings != null)
+                            {
+                                userSettings.AlertOnMentioned = true;
+                                userSettings.AlertOnNewPostSubscribedGroup = true;
+                                userSettings.AlertOnNewPostSubscribedUser = true;
+                                userSettings.AlertOnOwnCommentReplied = true;
+                                userSettings.AlertOnOwnPostCommented = true;
+                                userSettings.AlertOnPrivateMessage = true;
+                                userSettings.AlertOnReceivedTip = true;
+
+                                if (model.AcceptEmailsNotify)
+                                {
+                                    userSettings.NotifyOnMentioned = true;
+                                    userSettings.NotifyOnNewPostSubscribedGroup = true;
+                                    userSettings.NotifyOnNewPostSubscribedUser = true;
+                                    userSettings.NotifyOnOwnCommentReplied = true;
+                                    userSettings.NotifyOnOwnPostCommented = true;
+                                    userSettings.NotifyOnPrivateMessage = true;
+                                    userSettings.NotifyOnReceivedTip = true;
+                                }
+                                await db.SaveChangesAsync();
+                            }
+                        }
                         return RedirectToAction("Index", "Home");
                     }
                 }

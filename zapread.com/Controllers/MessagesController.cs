@@ -51,12 +51,25 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Chats()
         {
+            XFrameOptionsDeny();
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Messages/Chats" });
             }
 
             return View();
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
         }
 
         /// <summary>
@@ -66,6 +79,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult All()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -76,6 +90,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Alerts()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -209,6 +224,7 @@ namespace zapread.com.Controllers
         [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Unread(bool? include_alerts, bool? include_content)
         {
+            XFrameOptionsDeny();
             var userAppId = User.Identity.GetUserId();
             if (userAppId == null)
             {
@@ -525,6 +541,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Chat(string username)
         {
+            XFrameOptionsDeny();
             var userAppId = User.Identity.GetUserId();
             if (userAppId == null)
             {
@@ -705,9 +722,14 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<PartialViewResult> UnreadAlerts()
         {
+            XFrameOptionsDeny();
             Response.AddHeader("X-Frame-Options", "DENY");
             string userId = null;
             if (User != null)
@@ -1090,6 +1112,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet, AllowAnonymous]
         public JsonResult TestMailer()
         {

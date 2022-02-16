@@ -161,6 +161,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult GetUserMentions()
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var usernames = db.Users.Select(u => u.Name).ToList();
@@ -768,6 +769,18 @@ namespace zapread.com.Controllers
                 };
                 db.Users.Add(u);
                 await db.SaveChangesAsync();
+            }
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
             }
         }
     }

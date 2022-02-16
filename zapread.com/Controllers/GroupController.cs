@@ -35,6 +35,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Index(int? p = 1)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 GroupsViewModel vm = new GroupsViewModel()
@@ -161,6 +162,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Members(int id)
         {
+            XFrameOptionsDeny();
             var userId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
@@ -816,6 +818,7 @@ namespace zapread.com.Controllers
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Group", DynamicNodeProvider = "zapread.com.DI.GroupsDetailsProvider, zapread.com")]
         public async Task<ActionResult> GroupDetail(int? id)
         {
+            XFrameOptionsDeny();
             if (!id.HasValue)
             {
                 return RedirectToAction(actionName:"Index", controllerName:"Home");
@@ -945,6 +948,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public PartialViewResult GroupAdminBar(string groupId)
         {
+            XFrameOptionsDeny();
             ViewBag.groupId = groupId;
             using (var db = new ZapContext())
             {
@@ -970,6 +974,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public PartialViewResult AdminAddUserToGroupRoleForm(int groupId)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var g = db.Groups.FirstOrDefault(grp => grp.GroupId == groupId);
@@ -1260,6 +1265,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public PartialViewResult GetGroupIcons(int groupId)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var g = db.Groups.Where(grp => grp.GroupId == groupId).AsNoTracking().FirstOrDefault();
@@ -1333,6 +1339,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public PartialViewResult GetGroupTags(int groupId)
         {
+            XFrameOptionsDeny();
             var vm = new GroupAdminTagsViewModel();
             using (var db = new ZapContext())
             {
@@ -1436,6 +1443,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult New()
         {
+            XFrameOptionsDeny();
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
@@ -1466,6 +1474,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Edit()
         {
+            XFrameOptionsDeny();
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
@@ -1521,7 +1530,7 @@ namespace zapread.com.Controllers
                 var userId = User.Identity.GetUserId();
 
                 // Ensure not a duplicate group!
-                var cleanName = m.GroupName.CleanUnicode();
+                var cleanName = m.GroupName.CleanUnicode().Trim();
 
                 if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
                 {
@@ -1715,6 +1724,18 @@ namespace zapread.com.Controllers
                 await db.SaveChangesAsync().ConfigureAwait(false);
             }
             return Json(new { success = true });
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
         }
     }
 }

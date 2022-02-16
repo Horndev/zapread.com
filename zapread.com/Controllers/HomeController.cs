@@ -44,6 +44,7 @@ namespace zapread.com.Controllers
             stringBuilder.AppendLine("disallow: /Account/GetBalance/");
             stringBuilder.AppendLine("disallow: /Account/Login/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
+            stringBuilder.AppendLine("disallow: /Messages/DismissMessage/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
             stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
             stringBuilder.AppendLine("disallow: /Manage/TipUser/");
@@ -165,6 +166,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> UserImage(int? size, string UserId, string v, string r)
         {
+            XFrameOptionsDeny();
             if (!size.HasValue)
             {
                 size = 100;
@@ -453,6 +455,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Install()
         {
+            XFrameOptionsDeny();
             var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
             if (!Convert.ToBoolean(isenabled))
             {
@@ -571,7 +574,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult TopFollowing()
         {
-
+            XFrameOptionsDeny();
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
@@ -582,6 +585,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> GetPayoutInfo()
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var website = await db.ZapreadGlobals.Where(gl => gl.Id == 1).FirstOrDefaultAsync().ConfigureAwait(false);
@@ -608,6 +612,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> TopPosts(string sort)
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 //User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
@@ -778,6 +783,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> TopGroups()
         {
+            XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
                 var userAppId = User.Identity.GetUserId();
@@ -1062,6 +1068,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult FeedbackSuccess()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -1072,8 +1079,8 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult About()
         {
+            XFrameOptionsDeny();
             ViewBag.Message = "About Zapread.com.";
-
             return View();
         }
 
@@ -1084,6 +1091,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult FAQ()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
@@ -1094,8 +1102,8 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Contact()
         {
+            XFrameOptionsDeny();
             ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
@@ -1106,7 +1114,20 @@ namespace zapread.com.Controllers
         [HttpGet]
         public ActionResult Feedback()
         {
+            XFrameOptionsDeny();
             return View();
+        }
+
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
         }
     }
 }

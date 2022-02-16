@@ -52,6 +52,18 @@ namespace zapread.com.Controllers
             }
         }
 
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+                // TODO: add error handling - temp fix for unit test.
+            }
+        }
+
         /// <summary>
         /// Overview
         /// </summary>
@@ -60,6 +72,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Index()
         {
+            XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             using (var db = new ZapContext())
@@ -98,6 +111,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Unsubscribe(string userUnsubscribeId, string subscriptionType)
         {
+            XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
@@ -154,6 +168,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Confirm(string userUnsubscribeId, string subscriptionType)
         {
+            XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
@@ -221,6 +236,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Subscribe(string userUnsubscribeId, string subscriptionType)
         {
+            XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.

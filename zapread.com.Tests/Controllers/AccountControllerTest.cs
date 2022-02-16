@@ -12,12 +12,19 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Controllers
 {
     [TestClass]
     public class AccountControllerTest
     {
+        [TestMethod]
+        public void TestCaptcha()
+        {
+            string captcha = CaptchaService.GenerateCaptchaCode(7);
+        }
+
         [TestMethod]
         public void TestAccountBalance()
         {

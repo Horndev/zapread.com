@@ -6,7 +6,8 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 module.exports = {
   mode: "production",//production",//"development",
   entry: {
-    account_login:  "./Scripts/src/pages/account/login.js",
+    account_login: "./Scripts/src/pages/account/login.js",
+    account_register: "./Scripts/src/pages/account/register.js",
     admin_achievements: "./Scripts/src/pages/admin/achievements.js",
     admin_accounting: "./Scripts/src/pages/admin/accounting.js",
     admin_audit:    "./Scripts/src/pages/admin/audit.js",

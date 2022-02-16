@@ -125,7 +125,7 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                bool exists = await GroupExists(p.GroupName.CleanUnicode(), p.GroupId, db).ConfigureAwait(true);
+                bool exists = await GroupExists(p.GroupName.CleanUnicode().Trim(), p.GroupId, db).ConfigureAwait(true);
                 return Ok(new CheckExistsGroupResponse() { exists = exists, success = true });
             }
         }
