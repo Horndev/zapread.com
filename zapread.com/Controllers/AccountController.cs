@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -822,22 +822,20 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> CaptchaAudio()
         {
             var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
-            
-            Task<FileContentResult> task = Task.Run(() =>
-            {
-                using (SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer())
-                {
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        speechSynthesizer.SetOutputToWaveStream(stream);
-                        speechSynthesizer.Speak(captchaCode);
-                        var bytes = stream.GetBuffer();
-                        return File(bytes, "audio/x-wav");
-                    }
-                }
-            });
 
-            return await task;
+            var config = SpeechConfig.FromSubscription(
+                System.Configuration.ConfigurationManager.AppSettings["SpeechServicesKey"],
+                System.Configuration.ConfigurationManager.AppSettings["SpeechServicesRegion"]);
+
+            config.SpeechSynthesisLanguage = "en-CA";
+            config.SpeechSynthesisVoiceName = "en-CA-LiamNeural";
+            config.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3);
+
+            using (var synthesizer = new SpeechSynthesizer(config, null))
+            {
+                var result = await synthesizer.SpeakTextAsync(captchaCode);
+                return File(result.AudioData, "audio/mpeg");
+            }
         }
 
         //
