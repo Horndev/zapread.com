@@ -118,6 +118,5 @@ namespace zapread.com.Services
             var base64String = Convert.ToBase64String(imgdata);
             return base64String;
         }
-
     }
 }
