@@ -86,11 +86,23 @@ namespace zapread.com.Models
     public class RegisterViewModel
     {
         /// <summary>
+        /// Base 64 encoded captcha image
+        /// </summary>
+        public string CaptchaSrcB64 { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         [Required]
         [Display(Name = "User Name")]
         public string UserName { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Required]
+        [Display(Name = "Captcha")]
+        public string Captcha { get; set; }
 
         /// <summary>
         /// 

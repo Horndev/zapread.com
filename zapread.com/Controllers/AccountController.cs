@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -690,19 +692,31 @@ namespace zapread.com.Controllers
 
         //
         // GET: /Account/Register
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet]
         public ActionResult Register()
         {
+            var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string code);
+            Session["Captcha"] = code; // Save to session (encrypted in cookie)
+
             XFrameOptionsDeny();
             var vm = new RegisterViewModel()
             {
                 AcceptEmailsNotify = true,
+                CaptchaSrcB64 = captchaSrcB64
             };
 
             return View(vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<ActionResult> SendEmailConfirmation()
         {
             var userId = User.Identity.GetUserId();
@@ -724,6 +738,13 @@ namespace zapread.com.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            // Check Captcha
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            if (model.Captcha != captchaCode)
+            {
+                ModelState.AddModelError("Captcha", "Captcha does not match");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
@@ -773,12 +794,50 @@ namespace zapread.com.Controllers
                             await db.SaveChangesAsync();
                         }
                     }
+                    try
+                    {
+                        ControllerContext.HttpContext.Session.Remove("Captcha");
+                    }
+                    catch (Exception)
+                    {
+                        // Not a big deal right now
+                    }
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
             // If we got this far, something failed, redisplay form
+            var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string newCode);
+            Session["Captcha"] = newCode; // Save to session (encrypted in cookie)
+            model.CaptchaSrcB64 = captchaSrcB64; // New image and code
             return View(model);
+        }
+
+        /// <summary>
+        /// Based on code from https://stackoverflow.com/questions/47300251/how-to-use-windows-speech-synthesizer-in-asp-net-mvc
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> CaptchaAudio()
+        {
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            
+            Task<FileContentResult> task = Task.Run(() =>
+            {
+                using (SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer())
+                {
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        speechSynthesizer.SetOutputToWaveStream(stream);
+                        speechSynthesizer.Speak(captchaCode);
+                        var bytes = stream.GetBuffer();
+                        return File(bytes, "audio/x-wav");
+                    }
+                }
+            });
+
+            return await task;
         }
 
         //

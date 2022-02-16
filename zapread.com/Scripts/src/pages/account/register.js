@@ -4,12 +4,11 @@
 
 import '../../shared/shared';
 import 'jquery-validation';
-import '../../shared/sharedlast';
 import tippy from 'tippy.js';                       // [✓]
 import 'tippy.js/dist/tippy.css';                   // [✓]
 import 'tippy.js/themes/light-border.css';          // [✓]
-
-
+import 'font-awesome/css/font-awesome.min.css';
+import '../../shared/sharedlast';
 
 // Apply the loading tippy
 var infoEl = document.getElementById("info-notifications");
@@ -21,3 +20,9 @@ tippy(infoEl, {
   interactive: true,
   interactiveBorder: 30,
 });
+
+var audioEl = document.getElementById("CaptchaAudioButton");
+audioEl.onclick = () => {
+  var audio = document.getElementById("CaptchaAudio");
+  audio.play();
+}
