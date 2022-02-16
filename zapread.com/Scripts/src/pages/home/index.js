@@ -23,6 +23,8 @@ import '../../shared/readmore';                                             // [
 import '../../shared/postui';                                               // [✓]
 import '../../shared/sharedlast';                                           // [✓]
 
+import '../../css/posts.css' // styles related to pages which render posts
+
 // Make global (called from html)
 window.writeComment = writeComment;
 window.replyComment = replyComment;
