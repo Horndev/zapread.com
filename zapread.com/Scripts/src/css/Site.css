@@ -6870,7 +6870,7 @@ table.shoping-cart-table {
 }
 
 .social-avatar {
-    padding: 10px 15px 1px 15px;
+    padding: 5px 5px 0px 0px;
 }
 
 .social-comment .social-comment {
@@ -6967,6 +6967,7 @@ table.shoping-cart-table {
     color: inherit;
     font-size: 18px;
     font-weight: 600;
+    padding-top: 5px;
     /*margin-top: 5px;*/
     /*margin-bottom: 2px;*/
 }
