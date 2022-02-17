@@ -272,7 +272,7 @@ function Page() {
             <div className="ibox-title" style={{ display: "flex" }}>
               <Form.Check type="checkbox" label="Post quietly (don't notify followers)"
                 checked={postQuietly}
-                onChange={e => setPostQuietly(e.target.checked)}
+                onChange={e => { console.log("setPostQuietly", e.target.checked); setPostQuietly(e.target.checked) }}
               />
             </div>
           </Col>

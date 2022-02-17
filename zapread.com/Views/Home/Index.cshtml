@@ -48,7 +48,6 @@
         </div>
         <div class="col-lg-2">
             <div class="ibox-title" id="hover-info-payout" style="white-space: nowrap; text-align: center;">
-                @*<span><i class="fa fa-question-circle"></i></span>&nbsp;*@
                 <b><span id="amount-info-payout"></span>&nbsp;</b>
                 <canvas id="pc-community" class="piechart" style="vertical-align: middle; max-height: 25px;"></canvas>&nbsp;
                 <span id="timer-info-payout"></span>
@@ -62,20 +61,6 @@
         <div class="col-lg-2">
             <div id="topGroups" class="ibox float-e-margins d-none d-lg-block">
                 <div id="group-box" class="ibox-content" style="display:none">
-                    @*@foreach (var g in Model.SubscribedGroups)
-                    {
-                        <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
-                            <i class="fa fa-@g.Icon"></i> @g.Name
-                            @if (g.IsAdmin)
-                            {
-                                <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
-                            }
-                            else if (g.IsMod)
-                            {
-                                <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
-                            }
-                        </button>
-                    }*@
                 </div>
             </div>
         </div>
@@ -98,7 +83,6 @@
             <div class="social-feed-box-nb">
                 <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore({ sort: '@Model.Sort' })" style="display:none;"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
             </div>
-
             <div class="social-feed-box-nb">
                 <span></span>
             </div>

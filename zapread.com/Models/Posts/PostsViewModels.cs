@@ -4,6 +4,9 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PostViewModel
     {
         public double Hot;
@@ -44,13 +47,29 @@ namespace zapread.com.Models
         public List<string> Languages { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class PostsViewModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public List<PostViewModel> Posts;
-        public List<int> Upvoted;
-        public List<int> Downvoted;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public double UserBalance;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public List<GroupInfo> SubscribedGroups;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public string Sort;
     }
 
