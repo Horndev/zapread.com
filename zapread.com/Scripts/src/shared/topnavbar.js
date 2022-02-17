@@ -109,6 +109,6 @@ postJson("/Messages/CheckUnreadChats/")
       }
     }
     else {
-      alert(response.Message);
+      alert(response.message);
     }
   });
