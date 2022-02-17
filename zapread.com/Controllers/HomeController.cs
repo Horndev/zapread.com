@@ -625,17 +625,6 @@ namespace zapread.com.Controllers
                     Posts = await GetPostsVm(0,10,sort, userAppId).ConfigureAwait(true)
                 };
 
-                // Not sure these are needed.
-                if (vm.Downvoted == null)
-                {
-                    vm.Downvoted = new List<int>();
-                }
-
-                if (vm.Upvoted == null)
-                {
-                    vm.Upvoted = new List<int>();
-                }
-
                 var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
 
                 string contentStr = PostHTMLString;

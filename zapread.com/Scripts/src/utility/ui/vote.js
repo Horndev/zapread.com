@@ -479,7 +479,7 @@ export function doTip(id, amount, tx) {
         document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
         document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
         document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.Message;
+        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
         document.getElementById("voteDepositInvoiceFooter").class.display = '';
       }
     });

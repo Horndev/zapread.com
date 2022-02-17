@@ -81,7 +81,7 @@ export default function VoteModal(props) {
                     <div className="sk-loading" style={{BorderStyle: "none"}}>
                       <div className="sk-spinner sk-spinner-three-bounce">
                         <div className="sk-bounce1"></div>
-                        <div claclassNamess="sk-bounce2"></div>
+                        <div className="sk-bounce2"></div>
                         <div className="sk-bounce3"></div>
                       </div>
                     </div>

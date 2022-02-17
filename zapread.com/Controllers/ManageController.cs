@@ -386,12 +386,12 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return Json(new { success = false, Result = "Failure", Message = "Tips Disabled" });
+            return Json(new { success = false, Result = "Failure", message = "Tips Disabled" });
 
             if (amount == null || amount.Value < 1)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, Result = "Failure", Message = "Invalid amount" });
+                return Json(new { success = false, Result = "Failure", message = "Invalid amount" });
             }
             
             using (var db = new ZapContext())
@@ -403,7 +403,7 @@ namespace zapread.com.Controllers
                 if (receiver == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { success = false, Result = "Failure", Message = "User not found." });
+                    return Json(new { success = false, Result = "Failure", message = "User not found." });
                 }
 
                 string senderName = "anonymous";
@@ -416,7 +416,7 @@ namespace zapread.com.Controllers
                 {
                     if (userAppId == null)
                     {
-                        return Json(new { success = false, Result = "Failure", Message = "User not found." });
+                        return Json(new { success = false, Result = "Failure", message = "User not found." });
                     }
                     var userName = await db.Users
                         .Where(u => u.AppId == userAppId)
@@ -438,7 +438,7 @@ namespace zapread.com.Controllers
                     if (vtx == null || vtx.IsSpent == true)
                     {
                         Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        return Json(new { Result = "Failure", Message = "Transaction not found" });
+                        return Json(new { Result = "Failure", message = "Transaction not found" });
                     }
                 }
 
@@ -473,7 +473,7 @@ namespace zapread.com.Controllers
                             if (userFunds.Balance < amount)
                             {
                                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                                return Json(new { success = false, Result = "Failure", Message = "Not enough funds." });
+                                return Json(new { success = false, Result = "Failure", message = "Not enough funds." });
                             }
                             userFunds.Balance -= amount.Value;
                         }
@@ -528,7 +528,7 @@ namespace zapread.com.Controllers
                         { 
                             success = false, 
                             Result = "Failure", 
-                            Message = "Too many balance updates.  Please try again later." 
+                            message = "Too many balance updates.  Please try again later." 
                         });
                     }
                     else

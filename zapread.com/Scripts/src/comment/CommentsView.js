@@ -15,6 +15,8 @@ import { deleteComment } from "../shared/postfunctions";        // [✓]
 import { makeQuotable } from "../utility/quotable/quotable";    // [✓]
 import { applyHoverToChildren } from '../utility/userhover';             // [✓]
 
+import '../css/posts.css'
+
 function Comment(props) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [childComments, setChildComments] = useState([]);
@@ -202,7 +204,7 @@ function Comment(props) {
                   </>) : (<></>)}
                 <div className="row">
                   <div className="col">
-                    <div className="ql-comment comment-quotable"
+                    <div className="ql-comment post-comment comment-quotable"
                       ref={commentTextRef}
                       id={"commentText_" + props.comment.CommentId}
                       style={{ position: "relative" }}

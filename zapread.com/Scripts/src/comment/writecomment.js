@@ -2,7 +2,7 @@
  * 
  * [✓] Native JS
  **/
-import { postData } from '../utility/postData';                         // [✓]
+import { postJson } from '../utility/postData';                         // [✓]
 import { applyHoverToChildren } from '../utility/userhover';            // [✓]
 import { updatePostTimes } from '../utility/datetime/posttime';         // [✓]
 import { makeQuillComment } from './utility/makeQuillComment';          // [✓]
@@ -74,7 +74,7 @@ export async function writeComment(postId, content) {
       },
       submitCallback: function (commentHTML) {
         // Submit comment
-        return postData("/Comment/AddComment/", {
+        return postJson("/Comment/AddComment/", {
           CommentContent: commentHTML,
           CommentId: -1,
           PostId: postId,

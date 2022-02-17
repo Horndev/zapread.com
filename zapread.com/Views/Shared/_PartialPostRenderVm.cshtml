@@ -9,6 +9,8 @@
         <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
             <i class="fa fa-minus-square togglebutton"></i>
         </button>
+        @if (Request.IsAuthenticated)
+        {
         <div class="pull-right social-action dropdown">
             <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu dropdown-menu-right m-t-xs" style="left: auto;">
@@ -98,7 +100,7 @@
                 </li>*@
             </ul>
         </div>
-        @*border-style: solid;border-color: #1ab394;border-top-width: 0px;border-left-width: 0px;border-right-width: 0px;border-bottom-width: 1px;*@
+        }
         <div class="social-avatar" style="padding-bottom: 15px;">
             <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
                 <div class="vote-actions">

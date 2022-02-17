@@ -23,10 +23,16 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class CommentController : Controller
     {
         private ApplicationUserManager _userManager;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUserManager UserManager
         {
             get
@@ -39,24 +45,50 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public class NewComment
         {
+            /// <summary>
+            /// 
+            /// </summary>
             [Required]
             [DataType(DataType.MultilineText)]
             [AllowHtml]
             public string CommentContent { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public int PostId { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public int CommentId { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public bool IsReply { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public bool IsDeleted { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public bool IsTest { get; set; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchstr"></param>
+        /// <returns></returns>
         [HttpPost, AllowAnonymous]
         public JsonResult GetMentions(string searchstr)
         {
@@ -158,6 +190,10 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult GetUserMentions()
         {
@@ -169,6 +205,11 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public ActionResult DeleteComment(int Id)
         {
             var userId = User.Identity.GetUserId();
@@ -245,14 +286,14 @@ namespace zapread.com.Controllers
             if (c == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, Message = "Invalid parameter." });
+                return Json(new { success = false, message = "Invalid parameter." });
             }
 
             // Check for empty comment
             if (c.CommentContent.Replace(" ", "") == "<p><br></p>")
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, Message = "Empty comment." });
+                return Json(new { success = false, message = "Empty comment." });
             }
 
             var userAppId = User.Identity.GetUserId();
@@ -270,7 +311,7 @@ namespace zapread.com.Controllers
                     {
                         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     }
-                    return Json(new { success = false, Message = "User not found in DB." });
+                    return Json(new { success = false, message = "User not found in DB." });
                 }
 
                 var post = await db.Posts
@@ -284,7 +325,7 @@ namespace zapread.com.Controllers
                     {
                         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     }
-                    return Json(new { success = false, Message = "Post not found in DB." });
+                    return Json(new { success = false, message = "Post not found in DB." });
                 }
 
                 Comment parent = null;
@@ -620,7 +661,15 @@ namespace zapread.com.Controllers
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
                 mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
 
-                await mailer.SendPostComment(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
+                try
+                {
+                    await mailer.SendPostComment(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
+                }
+                catch (System.Net.Mail.SmtpException)
+                {
+                    // Could not send the email
+                    // [TODO] set up logging for this
+                }
             }
         }
 
@@ -645,7 +694,15 @@ namespace zapread.com.Controllers
                 var mailer = DependencyResolver.Current.GetService<MailerController>();
                 mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
 
-                await mailer.SendPostCommentReply(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
+                try
+                {
+                    await mailer.SendPostCommentReply(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
+                }
+                catch (System.Net.Mail.SmtpException)
+                {
+                    // Could not send the email
+                    // [TODO] set up logging for this
+                }
             }
         }
 
@@ -732,6 +789,12 @@ namespace zapread.com.Controllers
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

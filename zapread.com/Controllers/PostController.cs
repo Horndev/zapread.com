@@ -86,12 +86,13 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var draftPost = await db.Posts
-                    .Where(p => p.UserId.AppId == userId)
+                    //.Where(p => p.UserId.AppId == userId)
                     .Where(p => p.IsDraft == isDraft)
                     .Where(p => p.IsDeleted == false)
                     .Where(p => p.PostId == postId)
                     .Select(p => new
                     {
+                        p.UserId.AppId,
                         p.PostId,
                         p.Group.GroupId,
                         p.PostTitle,
@@ -99,6 +100,13 @@ namespace zapread.com.Controllers
                         p.Content
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                // Verify owner or Admin
+                if (draftPost.AppId != userId && !User.IsInRole("Administrator"))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Json(new { success = false, message = "Credentials failure" });
+                }
 
                 if (draftPost == null)
                 {
@@ -485,9 +493,14 @@ namespace zapread.com.Controllers
                             }
                         }
                     }
+                    else if (!post.IsDraft && isDraft) // Editing a previously published post
+                    {
+                        // Just save final version
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                    }
                     else
                     {
-                        post.IsDraft = isDraft;
+                        //post.IsDraft = isDraft; // Don't set draft again after published
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
@@ -555,6 +568,18 @@ namespace zapread.com.Controllers
                         string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
                         var newNode = HtmlNode.CreateNode(modElement);
                         link.ParentNode.ReplaceChild(newNode, link);
+                    }
+                }
+            }
+            // Clean up 
+            var paragraphs = postDocument.DocumentNode.SelectNodes("//p");
+            if (paragraphs != null)
+            {
+                foreach (var p in paragraphs.ToList())
+                {
+                    if (p.OuterHtml == "<p><br></p>")
+                    {
+                        p.Remove();
                     }
                 }
             }

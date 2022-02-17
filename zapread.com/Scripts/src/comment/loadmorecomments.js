@@ -21,7 +21,7 @@ export function loadMoreComments(e) {
             e.parentElement.querySelectorAll(".insertComments").item(0).innerHTML += response.HTMLString;
         }
         else {
-            alert(response.Message);
+            alert(response.message);
         }
     })
     .catch((error) => {
