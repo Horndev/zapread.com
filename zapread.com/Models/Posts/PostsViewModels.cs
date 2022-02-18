@@ -15,8 +15,8 @@ namespace zapread.com.Models
         public double Hot;
 
         [Obsolete("Use view model attributes instead of the Post object.")]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Post Post { get; set; }
-
         public string PostTitle { get; set; }
         public string Content { get; set; }
         public int PostId { get; set; }
@@ -144,4 +144,5 @@ namespace zapread.com.Models
         public bool ViewerDownvoted;    // If the user has downvoted this comment
         public bool ViewerIgnoredUser;  // If the user has ignored the user
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }
