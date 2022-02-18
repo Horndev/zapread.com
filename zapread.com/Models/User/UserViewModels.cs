@@ -4,6 +4,9 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class UserViewModel
     {
         public AboutMeViewModel AboutMe { get; set; }
@@ -29,13 +32,13 @@ namespace zapread.com.Models
 
         public List<PostViewModel> ActivityPosts { get; set; }
 
-        [Obsolete]
-        public List<User> TopFollowing { get; set; }
+        //[Obsolete]
+        //public List<User> TopFollowing { get; set; }
 
         public IEnumerable<UserFollowView> TopFollowingVm { get; set; }
 
-        [Obsolete]
-        public List<User> TopFollowers { get; set; }
+        //[Obsolete]
+        //public List<User> TopFollowers { get; set; }
 
         public IEnumerable<UserFollowView> TopFollowersVm { get; set; }
 

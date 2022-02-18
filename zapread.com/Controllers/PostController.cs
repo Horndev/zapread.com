@@ -230,6 +230,13 @@ namespace zapread.com.Controllers
         public async Task<PartialViewResult> Impressions(int? id)
         {
             XFrameOptionsDeny();
+            if (!id.HasValue)
+            {
+                return PartialView("_Impressions");
+            }
+
+            //PostService.PostImpressionEnqueue(id.Value);
+            //return PartialView("_Impressions");
             using (var db = new ZapContext())
             {
                 var post = await db.Posts
@@ -487,7 +494,7 @@ namespace zapread.com.Controllers
                                 BackgroundJob.Enqueue<MailingService>(
                                     methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 // noted.
                             }
@@ -538,7 +545,7 @@ namespace zapread.com.Controllers
                             BackgroundJob.Enqueue<MailingService>(
                                 methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             // noted.
                         }

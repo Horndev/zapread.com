@@ -17,6 +17,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.GroupView;
+using zapread.com.Models.UserView;
 using zapread.com.Models.UserViews;
 
 namespace zapread.com.Controllers
@@ -210,7 +211,7 @@ namespace zapread.com.Controllers
         [Route("languages")]
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
-        public async Task<ActionResult> Languages(string prefix, int max)
+        public ActionResult Languages(string prefix, int max)
         {
             // First we check what the browser is claiming to support
             List<string> userLanguages;
@@ -539,23 +540,6 @@ namespace zapread.com.Controllers
                     .SelectMany(usr => usr.Following)
                     .CountAsync().ConfigureAwait(true);
 
-                
-                var topFollowing = await db.Users.Where(u => u.Name == username)
-                    .SelectMany(usr => usr.Following)
-                    .OrderByDescending(us => us.TotalEarned)
-                    .Include(us => us.ProfileImage)
-                    .Take(20)
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
-                var topFollowers = await db.Users.Where(u => u.Name == username)
-                    .SelectMany(usr => usr.Followers)
-                    .OrderByDescending(us => us.TotalEarned)
-                    .Include(us => us.ProfileImage)
-                    .Take(20)
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
                 List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
                     .SelectMany(usr => usr.Groups)
                     .Select(g => new GroupInfo()
@@ -599,10 +583,7 @@ namespace zapread.com.Controllers
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing,
                     IsIgnoring = isIgnoring,
-                    //User = user,
                     ActivityPosts = activityposts,
-                    TopFollowers = topFollowers,
-                    TopFollowing = topFollowing,
                     UserBalance = userFunds,
                     AchievementsViewModel = uavm,
                     UserId = userId,
@@ -617,6 +598,74 @@ namespace zapread.com.Controllers
                 ViewBag.UserId = userId;
 
                 return View(vm);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        [Route("Following/{userAppId?}")]
+        [HttpGet]
+        public async Task<ActionResult> FollowingUsers(string userAppId)
+        {
+            XFrameOptionsDeny();
+            using (var db = new ZapContext())
+            {
+                var topFollowing = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(usr => usr.Following)
+                    .OrderByDescending(us => us.TotalEarned)
+                    .Include(us => us.ProfileImage)
+                    .AsNoTracking()
+                    .Take(20)
+                    .Select(u => new UserFollowView()
+                    {
+                        AppId = u.AppId,
+                        Name = u.Name,
+                        ProfileImageVersion = u.ProfileImage.Version,
+                    })
+                    .ToListAsync().ConfigureAwait(true);
+
+                return PartialView("_PartialUserTopFollowers", new UserTopFollowingPartialViewModel()
+                {
+                    TopFollowUsers = topFollowing,
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        [Route("Followers/{userAppId?}")]
+        [HttpGet]
+        public async Task<ActionResult> FollowerUsers(string userAppId)
+        {
+            XFrameOptionsDeny();
+            using (var db = new ZapContext())
+            {
+                var topFollowers = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(usr => usr.Followers)
+                    .OrderByDescending(us => us.TotalEarned)
+                    .Include(us => us.ProfileImage)
+                    .AsNoTracking()
+                    .Take(20)
+                    .Select(u => new UserFollowView()
+                    {
+                        AppId = u.AppId,
+                        Name = u.Name,
+                        ProfileImageVersion = u.ProfileImage.Version,
+                    })
+                    .ToListAsync().ConfigureAwait(true);
+
+                return PartialView("_PartialUserTopFollowers", new UserTopFollowingPartialViewModel()
+                {
+                    TopFollowUsers = topFollowers,
+                });
             }
         }
 

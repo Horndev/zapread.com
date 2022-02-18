@@ -88,6 +88,7 @@ namespace zapread.com.API
         {
             using (var db = new ZapContext())
             {
+                var node = await db.LNNodes.FirstOrDefaultAsync();
                 return Ok();
             }
         }

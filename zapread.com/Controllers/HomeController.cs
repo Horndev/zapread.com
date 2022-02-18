@@ -625,6 +625,8 @@ namespace zapread.com.Controllers
                     Posts = await GetPostsVm(0,10,sort, userAppId).ConfigureAwait(true)
                 };
 
+                //await PostService.PostImpressionEnqueue(vm.Posts.Select(p=>p.PostId));
+
                 var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
 
                 string contentStr = PostHTMLString;

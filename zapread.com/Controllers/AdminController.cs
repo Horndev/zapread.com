@@ -1153,7 +1153,7 @@ namespace zapread.com.Controllers
 
             RecurringJob.AddOrUpdate<LNTransactionMonitor>(
                 x => x.CheckLNTransactions(),
-                Cron.MinuteInterval(5));
+                "*/5 * * * *"); //Cron.MinuteInterval(5)
 
             using (var db = new ZapContext())
             {
@@ -1411,7 +1411,7 @@ namespace zapread.com.Controllers
             {
                 RecurringJob.AddOrUpdate<LNTransactionMonitor>(
                     x => x.CheckLNTransactions(),
-                    Cron.MinuteInterval(5));
+                    "*/5 * * * *"); // Every 5 min
                 return Json(new { success = true });
             }
 

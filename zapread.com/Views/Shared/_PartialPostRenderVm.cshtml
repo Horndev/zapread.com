@@ -17,6 +17,9 @@
                 <li>
                     <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
                 </li>
+                @*<li>
+                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> @Model.Impressions Impression(s)</button>
+                </li>*@
                 @if (Model.ViewerIgnoredUser)
                 {
                     <li>
@@ -26,16 +29,16 @@
                 @if (User != null && (User.Identity.Name == Model.UserName || User.IsInRole("Administrator")))
                 {
                     @*using (Html.BeginForm("Edit", "Post",
-                        new { ReturnUrl = ViewBag.ReturnUrl },
-                        FormMethod.Post,
-                        new { role = "form" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.Hidden("PostId", Model.PostId)
-                        <li>
-                            <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
-                        </li>
-                    }*@
+                new { ReturnUrl = ViewBag.ReturnUrl },
+                FormMethod.Post,
+                new { role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("PostId", Model.PostId)
+                <li>
+                    <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
+                </li>
+            }*@
                     <li>
                         <a class="btn btn-link btn-sm" href="/Post/Edit?postId=@Model.PostId"><i class="fa fa-edit"></i> Edit</a>
                     </li>
@@ -93,11 +96,11 @@
 
                 }
                 @*<li class="dropdown-submenu pull-left">
-                    <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
-                    <ul class="dropdown-menu">
-                        <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
-                    </ul>
-                </li>*@
+            <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
+            <ul class="dropdown-menu">
+                <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
+            </ul>
+        </li>*@
             </ul>
         </div>
         }
@@ -145,7 +148,7 @@
                 </div>
             </div>
         </div>
-        <div class="social-body" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
+        <div class="social-body post-observe" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
             <div class="row">
                 <div class="col">
                     <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userappid="@Model.UserAppId" data-userid="@Model.UserId">
