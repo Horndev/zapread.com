@@ -17,7 +17,6 @@ namespace zapread.com.Models
         [Obsolete("Use view model attributes instead of the Post object.")]
         public Post Post { get; set; }
 
-
         public string PostTitle { get; set; }
         public string Content { get; set; }
         public int PostId { get; set; }
