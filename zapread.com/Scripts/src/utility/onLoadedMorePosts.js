@@ -14,77 +14,98 @@ import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  
  * [✓] native JS
  **/
 export function onLoadedMorePosts() {
-    //console.log('[DEBUG] onLoadedMorePosts');
-    // User mention hover
-    applyHoverToChildren(document, ".userhint");
-    //var elements = document.querySelectorAll(".userhint");
-    //Array.prototype.forEach.call(elements, function (el, _i) {
-    //    loaduserhover(el);
-    //    el.classList.remove('userhint');
-    //});
+  //console.log('[DEBUG] onLoadedMorePosts');
+  // User mention hover
+  applyHoverToChildren(document, ".userhint");
+  //var elements = document.querySelectorAll(".userhint");
+  //Array.prototype.forEach.call(elements, function (el, _i) {
+  //    loaduserhover(el);
+  //    el.classList.remove('userhint');
+  //});
 
-    var elements = document.querySelectorAll(".grouphint");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        loadgrouphover(el);
-        el.classList.remove('grouphint');
-    });
+  var elements = document.querySelectorAll(".grouphint");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    loadgrouphover(el);
+    el.classList.remove('grouphint');
+  });
 
-    // activate dropdown (done manually using bootstrap.native)
-    elements = document.querySelectorAll(".dropdown-toggle");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        var dropdownInit = new bsn.Dropdown(el);
-    });
+  // activate dropdown (done manually using bootstrap.native)
+  elements = document.querySelectorAll(".dropdown-toggle");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    var dropdownInit = new bsn.Dropdown(el);
+  });
 
-    // show the read more
-    elements = document.querySelectorAll(".post-box");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
-            el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
-        }
-    });
+  // show the read more
+  elements = document.querySelectorAll(".post-box");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
+      el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
+    }
+  });
 
-    // --- update impressions counts
-    elements = document.querySelectorAll(".impression");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        var url = el.getAttribute('data-url');
+  // --- update impressions counts
+  var impressionObserver = new IntersectionObserver(function (entries) {
+    // since there is a single target to be observed, there will be only one entry
+    if (entries[0]['isIntersecting'] === true) {
+      var el = entries[0]['target'];
+      var impressionEl = el.parentElement.querySelector(".impression");
+      if (impressionEl != null) {
+        var url = impressionEl.getAttribute('data-url');
+        //console.log('obs', url, el);
         fetch(url).then(function (response) {
-            return response.text();
+          return response.text();
         }).then(function (html) {
-            el.innerHTML = html;
-            el.classList.remove('impression');
+          impressionEl.innerHTML = html;
+          impressionEl.classList.remove('impression');
         });
-    });
+      }
+    }
+  }, { threshold: [0.1] });
+  elements = document.querySelectorAll(".post-observe");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    impressionObserver.observe(el);
+    el.classList.remove('post-observe');
+  });
+  //Array.prototype.forEach.call(elements, function (el, _i) {
+  //    var url = el.getAttribute('data-url');
+  //    fetch(url).then(function (response) {
+  //        return response.text();
+  //    }).then(function (html) {
+  //        el.innerHTML = html;
+  //        el.classList.remove('impression');
+  //    });
+  //});
 
-    // --- relative times
-    updatePostTimes();
-    // ---
+  // --- relative times
+  updatePostTimes();
+  // ---
 
-    // --- socials buttons
-    // TODO: implement using non-jquery library
-    elements = document.querySelectorAll(".sharing");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        var url = el.getAttribute('data-url');
-        var sharetext = el.getAttribute('data-sharetext');
-        //el.jsSocials({
-        //    url: url,
-        //    text: sharetext,
-        //    showLabel: false,
-        //    showCount: false,
-        //    shareIn: "popup",
-        //    shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp", "copy"]
-        //});
-        el.classList.remove('sharing');
-    });
+  // --- socials buttons
+  // TODO: implement using non-jquery library
+  elements = document.querySelectorAll(".sharing");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    var url = el.getAttribute('data-url');
+    var sharetext = el.getAttribute('data-sharetext');
+    //el.jsSocials({
+    //    url: url,
+    //    text: sharetext,
+    //    showLabel: false,
+    //    showCount: false,
+    //    shareIn: "popup",
+    //    shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp", "copy"]
+    //});
+    el.classList.remove('sharing');
+  });
 
-    elements = document.querySelectorAll(".pop");
-    Array.prototype.forEach.call(elements, function (el, _i) {
-        el.classList.remove('pop');
-    });
+  elements = document.querySelectorAll(".pop");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    el.classList.remove('pop');
+  });
 
-    // Make post quotable
-    makePostsQuotable();
+  // Make post quotable
+  makePostsQuotable();
 
-    // Make comments quotable
+  // Make comments quotable
   makeCommentsQuotable();
   try {
     (tarteaucitron.job = tarteaucitron.job || []).push('zyoutube');

@@ -34,6 +34,33 @@ window.toggleUserIgnore = toggleUserIgnore;
 window.BlockNumber = 10;                        // Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
+
+/**
+ * userAppId is set externally in the razor view
+*/
+async function LoadFollowersAsync() {
+  //console.log("LoadFollowersAsync", window.userAppId);
+  await fetch("/User/Followers/" + window.userAppId).then(response => {
+    return response.text();
+  }).then(html => {
+    var groupsBoxEl = document.getElementById("top-followers");
+    groupsBoxEl.innerHTML = html;
+  })
+}
+
+async function LoadFollowingAsync() {
+  //console.log("LoadFollowingAsync", window.userAppId);
+  await fetch("/User/Following/" + window.userAppId).then(response => {
+    return response.text();
+  }).then(html => {
+    var groupsBoxEl = document.getElementById("top-following");
+    groupsBoxEl.innerHTML = html;
+  })
+}
+
+LoadFollowersAsync();
+LoadFollowingAsync();
+
 /**
  * Wrapper for loadmore
  * 

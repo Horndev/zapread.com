@@ -9,10 +9,15 @@ namespace zapread.com.Models
     /// </summary>
     public class PostViewModel
     {
+        /// <summary>
+        /// Only used for debug
+        /// </summary>
         public double Hot;
 
         [Obsolete("Use view model attributes instead of the Post object.")]
         public Post Post { get; set; }
+
+
         public string PostTitle { get; set; }
         public string Content { get; set; }
         public int PostId { get; set; }

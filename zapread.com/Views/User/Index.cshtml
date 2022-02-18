@@ -14,6 +14,7 @@
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
         var userId = @Model.UserId;
+        var userAppId = "@Model.UserAppId";
     </script>
     @Scripts.Render("~/bundles/user/index")
 }
@@ -149,14 +150,7 @@
                         <p class="small">
                             @Model.UserName is subscribed to content from these users.  Their content will appear in the activity feed.
                         </p>
-                        <div class="user-friends">
-                            @foreach (var u in Model.TopFollowing)
-                            {
-                                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v=u.ProfileImage.Version})" />
-                                </a>
-                            }
-                        </div>
+                        <div class="user-friends" id="top-following"></div>
                     </div>
                 </div>
 
@@ -166,14 +160,7 @@
                         <p class="small">
                             These users are subscribing to @Model.UserName.  @Model.UserName's content will appear in their activity feed.
                         </p>
-                        <div class="user-friends">
-                            @foreach (var u in Model.TopFollowers)
-                            {
-                                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
-                                    <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v=u.ProfileImage.Version})" />
-                                </a>
-                            }
-                        </div>
+                        <div class="user-friends" id="top-followers"></div>
                     </div>
                 </div>
 
