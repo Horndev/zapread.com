@@ -75,33 +75,77 @@ namespace zapread.com.Models.Database
         [InverseProperty("Moderators")]
         public virtual ICollection<Group> GroupModeration { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Administrators")]
         public virtual ICollection<Group> GroupAdministration { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ICollection<LNTransaction> LNTransactions { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("User")]
         public ICollection<Financial.Withdraw> Withdraws { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ICollection<APIKey> APIKeys { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ICollection<UserProcess> UserProcesses { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("UserId")]
         public virtual ICollection<Post> Posts { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("UserId")]
         public virtual ICollection<Comment> Comments { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("To")]
         public virtual ICollection<UserMessage> Messages { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("To")]
         public virtual ICollection<UserAlert> Alerts { get; set; }
 
+        /// <summary>
+        /// Code used for this user
+        /// </summary>
+        public string ReferralCode { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Referral ReferralInfo { get; set; }
+
+        /// <summary>
+        /// Achievements by this user
+        /// </summary>
         [InverseProperty("AchievedBy")]
         public virtual ICollection<UserAchievement> Achievements { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v"></param>
         public static implicit operator User(string v)
         {
             // not sure why this exists...

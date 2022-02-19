@@ -19,6 +19,7 @@ namespace zapread.com.Services
         private static void RecordFundTransfers(
             UserFunds from, 
             UserFunds to, 
+            UserFunds referredBy,
             Group group, 
             int originType,
             int originId,
@@ -28,6 +29,8 @@ namespace zapread.com.Services
             double amountCommunity,
             double amountZapread)
         {
+            double referralPayment = 0.0;
+
             using (var db = new ZapContext())
             {
                 var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
@@ -44,6 +47,18 @@ namespace zapread.com.Services
                 else
                 {
                     group.TotalEarnedToDistribute += amountGroup;
+                }
+
+                if (referredBy != null)
+                {
+                    // Make a referral bonus payment - comes out of zapread funds (6%)
+                    referralPayment = amountFrom * 0.06;
+                    amountZapread -= referralPayment;
+                    if (amountZapread < 0)
+                    {
+                        amountCommunity += amountZapread;
+                        amountZapread = 0;
+                    }
                 }
 
                 website.CommunityEarnedToDistribute += amountCommunity;
@@ -78,6 +93,13 @@ namespace zapread.com.Services
                         if (to != null) // downvotes could go to just community and group
                         {
                             to.Balance += amountTo;
+                        }
+
+                        if (referredBy != null)
+                        {
+                            // Both referred and referred by get 1/2 of the payment, so 3% each.
+                            referredBy.Balance += 0.5 * referralPayment;
+                            to.Balance += 0.5 * referralPayment;
                         }
 
                         try
@@ -138,6 +160,9 @@ namespace zapread.com.Services
                         .Select(u => u.Funds)
                         .FirstOrDefault();
 
+                UserFunds referalFunds = null;
+                User referalUser = null;
+
                 if (isAnonymous)  // Anonymous vote
                 {
                     // Check if vote tx has been claimed
@@ -157,10 +182,33 @@ namespace zapread.com.Services
                         actorRep: 0);
                 }
 
+                // Check if author has referral program active
+                var referralInfo = db.Users
+                       .Where(u => u.Id == post.UserId.Id)
+                       .Select(u => u.ReferralInfo)
+                       .AsNoTracking()
+                       .FirstOrDefault();
+
+                // Referral within last 6 months
+                if ( referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30*6)))
+                {
+                    var refbyAppId = referralInfo.ReferredByAppId;
+                    referalFunds = db.Users
+                        .Where(u => u.AppId == refbyAppId)
+                        .Select(u => u.Funds)
+                        .FirstOrDefault();
+
+                    referalUser = db.Users
+                        .Where(u => u.AppId == refbyAppId)
+                        .Include(u => u.EarningEvents)
+                        .FirstOrDefault();
+                }
+
                 // FINANCIAL
                 RecordFundTransfers(
                     from: isAnonymous ? null    : fromFunds,
                     to:   isUpvote    ? toFunds : null,
+                    referredBy: isUpvote ? referalFunds : null,
                     group: post.Group,
                     originType: 0,
                     originId: post.PostId,
@@ -190,6 +238,37 @@ namespace zapread.com.Services
                         OriginId = post.PostId,
                     });
                     post.UserId.TotalEarned += 0.6 * amount;
+
+                    if (referalFunds != null)
+                    {
+                        post.UserId.EarningEvents.Add(new EarningEvent()
+                        {
+                            Amount = 0.03 * amount,
+                            OriginType = 0,
+                            TimeStamp = DateTime.UtcNow,
+                            Type = 4,
+                            OriginId = post.PostId,
+                        });
+
+                        if (referalUser != null)
+                        {
+                            referalUser.EarningEvents.Add(new EarningEvent()
+                            {
+                                Amount = 0.03 * amount,
+                                OriginType = 0,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 4,
+                                OriginId = post.PostId,
+                            });
+
+                            // Notify the referrer they just made income
+                            _ = NotificationService.SendIncomeNotification(
+                                amount: 0.03 * amount,
+                                userId: referalUser.AppId,
+                                reason: "Referral Bonus",
+                                clickUrl: "/Post/Detail/" + post.PostId);
+                        }
+                    }
                 }
                 
                 // Spending event for voter
@@ -284,6 +363,9 @@ namespace zapread.com.Services
                         .Select(u => u.Funds)
                         .FirstOrDefault();
 
+                UserFunds referalFunds = null;
+                User referalUser = null;
+
                 if (isAnonymous)  // Anonymous vote
                 {
                     // Check if vote tx has been claimed
@@ -303,10 +385,33 @@ namespace zapread.com.Services
                         actorRep: 0);
                 }
 
+                // Check if author has referral program active
+                var referralInfo = db.Users
+                       .Where(u => u.Id == comment.UserId.Id)
+                       .Select(u => u.ReferralInfo)
+                       .AsNoTracking()
+                       .FirstOrDefault();
+
+                // Referral within last 6 months
+                if (referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30 * 6)))
+                {
+                    var refbyAppId = referralInfo.ReferredByAppId;
+                    referalFunds = db.Users
+                        .Where(u => u.AppId == refbyAppId)
+                        .Select(u => u.Funds)
+                        .FirstOrDefault();
+
+                    referalUser = db.Users
+                        .Where(u => u.AppId == refbyAppId)
+                        .Include(u => u.EarningEvents)
+                        .FirstOrDefault();
+                }
+
                 // FINANCIAL
                 RecordFundTransfers(
                     from: isAnonymous ? null : fromFunds,
                     to: isUpvote ? toFunds : null,
+                    referredBy: isUpvote ? referalFunds : null,
                     group: comment.Post.Group,
                     originType: 1,
                     originId: Convert.ToInt32(comment.CommentId),
@@ -334,6 +439,36 @@ namespace zapread.com.Services
                         OriginId = Convert.ToInt32(comment.CommentId),
                     });
                     comment.UserId.TotalEarned += 0.6 * amount;
+
+                    if (referalFunds != null)
+                    {
+                        comment.UserId.EarningEvents.Add(new EarningEvent()
+                        {
+                            Amount = 0.03 * amount,
+                            OriginType = 1,
+                            TimeStamp = DateTime.UtcNow,
+                            Type = 4,
+                            OriginId = Convert.ToInt32(comment.CommentId),
+                        });
+
+                        if (referalUser != null)
+                        {
+                            referalUser.EarningEvents.Add(new EarningEvent()
+                            {
+                                Amount = 0.03 * amount,
+                                OriginType = 1,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 4,
+                                OriginId = Convert.ToInt32(comment.CommentId),
+                            });
+
+                            _ = NotificationService.SendIncomeNotification(
+                                amount: 0.03 * amount,
+                                userId: referalUser.AppId,
+                                reason: "Referral Bonus",
+                                clickUrl: "/Post/Detail/" + comment.Post.PostId);
+                        }
+                    }
                 }
 
                 // Spending event for voter

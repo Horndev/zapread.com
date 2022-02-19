@@ -86,6 +86,12 @@ namespace zapread.com.Models
     public class RegisterViewModel
     {
         /// <summary>
+        /// Refferal code (if any)
+        /// </summary>
+        [Display(Name = "Referral Code (optional)")]
+        public string RefCode { get; set; }
+
+        /// <summary>
         /// Base 64 encoded captcha image
         /// </summary>
         public string CaptchaSrcB64 { get; set; }

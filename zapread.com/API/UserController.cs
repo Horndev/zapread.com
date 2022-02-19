@@ -12,6 +12,7 @@ using System.Web.Http;
 using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.API;
+using zapread.com.Models.API.User;
 using zapread.com.Services;
 
 namespace zapread.com.API
@@ -49,6 +50,49 @@ namespace zapread.com.API
 
             HttpContext.Current.Response.Headers.Add("X-Frame-Options", "DENY");
             return new UserBalanceResponse() { success = true, balance=balance };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/referralcode")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetReferralCode()
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Unauthorized();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var refCode = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ReferralCode)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (refCode == null)
+                {
+                    var user = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+                    if (user == null) return NotFound();
+                    user.ReferralCode = CryptoService.GetNewRefCode();
+                    refCode = user.ReferralCode;
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+
+                var numrefs = await db.Referrals
+                    .Where(r => r.ReferredByAppId == userAppId)
+                    .CountAsync();
+
+                return Ok(new GetRefCodeResponse()
+                {
+                    refCode = refCode
+                });
+            }
         }
 
         private async Task<double> GetUserBalance()
