@@ -1333,7 +1333,7 @@ namespace zapread.com.Controllers
                 var values = pageUsers
                     .Select(u => new
                     {
-                        u.UserName,
+                        UserName = u.UserName.Trim(),
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
                         LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
                         u.NumPosts,
