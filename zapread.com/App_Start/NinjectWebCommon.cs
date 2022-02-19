@@ -13,6 +13,9 @@ namespace zapread.com.App_Start
     using Ninject.Web.Common.WebHost;
     using zapread.com.Services;
 
+    /// <summary>
+    /// Ninject dependency injection
+    /// </summary>
     public static class NinjectWebCommon 
     {
         private static readonly Bootstrapper bootstrapper = new Bootstrapper();

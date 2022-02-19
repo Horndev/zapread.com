@@ -2,6 +2,9 @@
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class FinanceController : Controller
     {
         // GET: Finance

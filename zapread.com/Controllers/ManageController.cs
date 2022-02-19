@@ -1397,8 +1397,10 @@ namespace zapread.com.Controllers
             return View(model);
         }
 
-        //
-        // POST: /Manage/RemovePhoneNumber
+        /// <summary>
+        /// // POST: /Manage/RemovePhoneNumber
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> RemovePhoneNumber()
@@ -1416,15 +1418,21 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", new { Message = ManageMessageId.RemovePhoneSuccess });
         }
 
-        //
-        // GET: /Manage/ChangePassword
+        /// <summary>
+        /// // GET: /Manage/ChangePassword
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult ChangePassword()
         {
             return View();
         }
 
-        //
-        // POST: /Manage/ChangePassword
+        /// <summary>
+        /// // POST: /Manage/ChangePassword
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -1447,8 +1455,10 @@ namespace zapread.com.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Manage/SetPassword
+        /// <summary>
+        /// // GET: /Manage/SetPassword
+        /// </summary>
+        /// <returns></returns>
         public ActionResult SetPassword()
         {
             return View();

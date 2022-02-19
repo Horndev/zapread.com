@@ -759,7 +759,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Returns the tier of the group
         /// </summary>
-        /// <param name="g"></param>
+        /// <param name="e"></param>
         /// <returns></returns>
         protected static int GetGroupLevel(double e)
         {

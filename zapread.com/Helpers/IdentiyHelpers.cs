@@ -6,8 +6,17 @@ using System.Web;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentPrincipal"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public static void AddUpdateClaim(this IPrincipal currentPrincipal, string key, string value)
         {
             var identity = currentPrincipal.Identity as ClaimsIdentity;
@@ -25,6 +34,12 @@ namespace zapread.com.Helpers
             authenticationManager.AuthenticationResponseGrant = new AuthenticationResponseGrant(new ClaimsPrincipal(identity), new AuthenticationProperties() { IsPersistent = true });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentPrincipal"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static string GetClaimValue(this IPrincipal currentPrincipal, string key)
         {
             var identity = currentPrincipal.Identity as ClaimsIdentity;

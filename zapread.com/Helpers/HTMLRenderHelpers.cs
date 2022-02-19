@@ -6,8 +6,18 @@ using zapread.com.Models.GroupView;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class HTMLRenderHelpers
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="user"></param>
+        /// <param name="groups"></param>
+        /// <returns></returns>
         public static PostViewModel CreatePostViewModel(Post p, User user, List<GroupStats> groups)
         {
             return new PostViewModel()

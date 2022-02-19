@@ -14,9 +14,15 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// Controller for the mailer (generate email content)
+    /// </summary>
     public class MailerController : Controller
     {
-        // GET: Mailer
+        /// <summary>
+        /// // GET: Mailer
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Administrator")]
         public ActionResult Index()
@@ -90,6 +96,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="email"></param>
+        /// <param name="subject"></param>
+        /// <returns></returns>
         public async Task<bool> SendPostComment(long id, string email, string subject)
         {
             using (var db = new ZapContext())
@@ -158,6 +171,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="email"></param>
+        /// <param name="subject"></param>
+        /// <returns></returns>
         public async Task<bool> SendPostCommentReply(long id, string email, string subject)
         {
             using (var db = new ZapContext())
@@ -194,6 +214,11 @@ namespace zapread.com.Controllers
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Route("Mailer/Template/NewChat/{id}")]
         [HttpGet]
         [Authorize(Roles = "Administrator")]
@@ -218,6 +243,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="email"></param>
+        /// <param name="subject"></param>
+        /// <returns></returns>
         public async Task<bool> SendNewChat(long id, string email, string subject)
         {
             using (var db = new ZapContext())
@@ -316,6 +348,13 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="email"></param>
+        /// <param name="subject"></param>
+        /// <returns></returns>
         public async Task<bool> SendNewPost(int id, string email, string subject)
         {
             using (var db = new ZapContext())
