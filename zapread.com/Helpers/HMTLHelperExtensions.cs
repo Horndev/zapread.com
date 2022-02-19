@@ -26,18 +26,34 @@ namespace zapread.com
                 cssClass : String.Empty;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
         public static string PageClass(this HtmlHelper html)
         {
             string currentAction = (string)html.ViewContext.RouteData.Values["action"];
             return currentAction;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="htmlHelper"></param>
+        /// <param name="template"></param>
+        /// <returns></returns>
         public static MvcHtmlString Script(this HtmlHelper htmlHelper, Func<object, HelperResult> template)
         {
             htmlHelper.ViewContext.HttpContext.Items["_script_" + Guid.NewGuid()] = template;
             return MvcHtmlString.Empty;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="htmlHelper"></param>
+        /// <returns></returns>
         public static IHtmlString RenderPartialViewScripts(this HtmlHelper htmlHelper)
         {
             foreach (object key in htmlHelper.ViewContext.HttpContext.Items.Keys)

@@ -618,8 +618,14 @@ namespace zapread.com.Controllers
             await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
+        /// <summary>
+        /// [TODO] move to a model
+        /// </summary>
         public class DeletePostMsg
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public int PostId { get; set; }
         }
 

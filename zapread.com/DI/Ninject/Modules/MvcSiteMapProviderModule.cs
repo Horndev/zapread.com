@@ -16,9 +16,15 @@ using MvcSiteMapProvider.Xml;
 
 namespace DI.Ninject.Modules
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MvcSiteMapProviderModule
         : NinjectModule
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Load()
         {
             bool enableLocalization = true;

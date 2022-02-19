@@ -2,8 +2,16 @@
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class NumberHelpers
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public static string ToAbbrString(this double number)
         {
             string ret = Convert.ToString(number);
@@ -16,6 +24,11 @@ namespace zapread.com.Helpers
             return ret;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public static string ToAbbrString(this int number)
         {
             string ret = Convert.ToString(number);
@@ -28,6 +41,11 @@ namespace zapread.com.Helpers
             return ret;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public static string ToAbbrString(this long number)
         {
             string ret = Convert.ToString(number);

@@ -3,6 +3,9 @@ using System.Text;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class StringHelpers
     {
         /// <summary>
@@ -55,6 +58,11 @@ namespace zapread.com.Helpers
             return cleanName;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dirty"></param>
+        /// <returns></returns>
         public static String RemoveUnicodeNonPrinting(this string dirty)
         {
             string normName = dirty.Normalize(System.Text.NormalizationForm.FormC);
@@ -77,7 +85,11 @@ namespace zapread.com.Helpers
             return cleanName;
         }
 
-        // From https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls/25486#25486
+        /// <summary>
+        /// // From https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls/25486#25486
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
         public static String MakeURLFriendly(this string title)
         {
             if (title == null) return "";
@@ -126,6 +138,11 @@ namespace zapread.com.Helpers
                 return sb.ToString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public static string RemapInternationalCharToAscii(char c)
         {
             string s = c.ToString().ToLowerInvariant();

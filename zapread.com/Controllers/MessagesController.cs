@@ -447,16 +447,46 @@ namespace zapread.com.Controllers
             }).ToList();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public class AlertDataItem
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public int AlertId { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Status { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Title { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Date { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Link { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Anchor { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public string Message { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public bool HasCommentLink { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
             public bool HasLink { get; set; }
         }
 
@@ -648,6 +678,11 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public PartialViewResult RecentUnreadAlerts(int count)
         {
             string userId = null;

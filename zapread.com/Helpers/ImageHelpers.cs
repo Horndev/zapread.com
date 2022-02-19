@@ -6,8 +6,17 @@ using System.IO;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ImageExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
         public static byte[] ToByteArray(this Image image, ImageFormat format)
         {
             using (MemoryStream ms = new MemoryStream())
