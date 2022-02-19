@@ -383,215 +383,195 @@ namespace zapread.com.Controllers
         [AllowAnonymous]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public async Task<ActionResult> TipUser(int id, int? amount, int? tx)
+        public ActionResult TipUser(int id, int? amount, int? tx)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
             return Json(new { success = false, Result = "Failure", message = "Tips Disabled" });
 
-            if (amount == null || amount.Value < 1)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, Result = "Failure", message = "Invalid amount" });
-            }
-            
-            using (var db = new ZapContext())
-            {
-                var receiver = await db.Users
-                    .Where(u => u.Id == id)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                if (receiver == null)
-                {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { success = false, Result = "Failure", message = "User not found." });
-                }
-
-                string senderName = "anonymous";
-                bool saveAborted = false;
-                UserFunds userFunds = null;
-                LNTransaction vtx = null;
-
-                var userAppId = User.Identity.GetUserId();
-                if (tx == null) // Pay the user from the logged-in account balance
-                {
-                    if (userAppId == null)
-                    {
-                        return Json(new { success = false, Result = "Failure", message = "User not found." });
-                    }
-                    var userName = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => u.Name)
-                        .FirstAsync().ConfigureAwait(true);
-
-                    // Notify receiver
-                    senderName = "<a href='"
-                        + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = userName })
-                        + "'>" + userName + "</a>";
-                }
-                else // Anonymous tip
-                {
-                    vtx = await db.LightningTransactions
-                        .FirstOrDefaultAsync(txn => txn.Id == tx)
-                        .ConfigureAwait(true);
-
-                    // If trying to "re-use" an anonymous tip - fail it.
-                    if (vtx == null || vtx.IsSpent == true)
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        return Json(new { Result = "Failure", message = "Transaction not found" });
-                    }
-                }
-
-                // Begin financial part
-                var receiverFunds = await db.Users
-                    .Where(u => u.Id == id)
-                    .Select(u => u.Funds)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                if (tx == null)
-                {
-                    userFunds = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Select(u => u.Funds)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-                }
-
-                int attempts = 0;
-                bool saveFailed;
-                saveAborted = false;
-
-                do
-                {
-                    attempts++;
-                    saveFailed = false;
-
-                    if (attempts < 50)
-                    {
-                        if (tx == null) // Do this only if tip was from a logged-in user
-                        {
-                            // Ensure user has the funds available.
-                            if (userFunds.Balance < amount)
-                            {
-                                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                                return Json(new { success = false, Result = "Failure", message = "Not enough funds." });
-                            }
-                            userFunds.Balance -= amount.Value;
-                        }
-                        
-                        receiverFunds.Balance += amount.Value;
-
-                        try
-                        {
-                            db.SaveChanges(); // synchronous
-                        }
-                        catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
-                        {
-                            saveFailed = true;
-                            foreach(var entry in ex.Entries)
-                            {
-                                entry.Reload();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        saveAborted = true;
-                    }
-                }
-                while (saveFailed);
-
-                if (saveAborted == false)
-                {
-                    if (tx == null)
-                    {
-                        // Add spending event
-                        db.Users.Where(u => u.AppId == userAppId)
-                        .Select(u => u.SpendingEvents)
-                        .First().Add(new SpendingEvent()
-                        {
-                            Amount = amount.Value,
-                            TimeStamp = DateTime.UtcNow,
-                        });
-                    }
-                    else // anonymous tip
-                    {
-                        vtx.IsSpent = true;
-                        await db.SaveChangesAsync().ConfigureAwait(true);
-                    }
-                }
-                else
-                {
-                    if (tx == null)
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.Conflict;
-                        return Json(new 
-                        { 
-                            success = false, 
-                            Result = "Failure", 
-                            message = "Too many balance updates.  Please try again later." 
-                        });
-                    }
-                    else
-                    {
-                        // need to handle assignment of anonymous tx to user.
-                        // we don't want funds to be lost. This will be handled by 
-                        // cron process checking db sync with LND node.
-                    }
-                }
-
-                // Add Earning Event
-                db.Users.First(u => u.Id == id).EarningEvents.Add(new EarningEvent()
-                {
-                    Amount = amount.Value,
-                    OriginType = 2,
-                    TimeStamp = DateTime.UtcNow,
-                    Type = 0,
-                });
-
-                // Do notifications for the receiver
-                var receiverSettings = await db.Users
-                    .Where(u => u.Id == id)
-                    .Select(u => new {
-                        DoNotify = u.Settings == null ? false : u.Settings.NotifyOnReceivedTip
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                if (receiverSettings.DoNotify)
-                {
-                    var alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "You received a tip!",
-                        Content = "From: " + senderName + " <br/> Amount: " + amount.ToString() + " Satoshi.",
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = receiver,
-                    };
-
-                    db.Users.First(u => u.Id == id).Alerts.Add(alert);
-
-                    string receiverEmail = UserManager.FindById(receiver.AppId).Email;
-
-                    // queue for sending the email
-                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                        new UserEmailModel()
-                        {
-                            Destination = receiverEmail,
-                            Body = "From: " + senderName + " <br/> Amount: "
-                                + amount.ToString()
-                                + " Satoshi.<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
-                            Email = "",
-                            Name = "ZapRead.com Notify",
-                            Subject = "You received a tip!",
-                        }, 
-                        "Notify", // account
-                        true // useSSL
-                        ));
-                }
-
-                await db.SaveChangesAsync().ConfigureAwait(true);
-                return Json(new { success = true, Result = "Success" });
-            }
+            // The following code needs to be re-written & cleaned up before tips can be re-enabled.
+            //if (amount == null || amount.Value < 1)
+            //{
+            //    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            //    return Json(new { success = false, Result = "Failure", message = "Invalid amount" });
+            //}
+            //using (var db = new ZapContext())
+            //{
+            //    var receiver = await db.Users
+            //        .Where(u => u.Id == id)
+            //        .FirstOrDefaultAsync().ConfigureAwait(true);
+            //    if (receiver == null)
+            //    {
+            //        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            //        return Json(new { success = false, Result = "Failure", message = "User not found." });
+            //    }
+            //    string senderName = "anonymous";
+            //    bool saveAborted = false;
+            //    UserFunds userFunds = null;
+            //    LNTransaction vtx = null;
+            //    var userAppId = User.Identity.GetUserId();
+            //    if (tx == null) // Pay the user from the logged-in account balance
+            //    {
+            //        if (userAppId == null)
+            //        {
+            //            return Json(new { success = false, Result = "Failure", message = "User not found." });
+            //        }
+            //        var userName = await db.Users
+            //            .Where(u => u.AppId == userAppId)
+            //            .Select(u => u.Name)
+            //            .FirstAsync().ConfigureAwait(true);
+            //        // Notify receiver
+            //        senderName = "<a href='"
+            //            + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = userName })
+            //            + "'>" + userName + "</a>";
+            //    }
+            //    else // Anonymous tip
+            //    {
+            //        vtx = await db.LightningTransactions
+            //            .FirstOrDefaultAsync(txn => txn.Id == tx)
+            //            .ConfigureAwait(true);
+            //        // If trying to "re-use" an anonymous tip - fail it.
+            //        if (vtx == null || vtx.IsSpent == true)
+            //        {
+            //            Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            //            return Json(new { Result = "Failure", message = "Transaction not found" });
+            //        }
+            //    }
+            //    // Begin financial part
+            //    var receiverFunds = await db.Users
+            //        .Where(u => u.Id == id)
+            //        .Select(u => u.Funds)
+            //        .FirstOrDefaultAsync().ConfigureAwait(true);
+            //    if (tx == null)
+            //    {
+            //        userFunds = await db.Users
+            //        .Where(u => u.AppId == userAppId)
+            //        .Select(u => u.Funds)
+            //        .FirstOrDefaultAsync().ConfigureAwait(true);
+            //    }
+            //    int attempts = 0;
+            //    bool saveFailed;
+            //    saveAborted = false;
+            //    do
+            //    {
+            //        attempts++;
+            //        saveFailed = false;
+            //        if (attempts < 50)
+            //        {
+            //            if (tx == null) // Do this only if tip was from a logged-in user
+            //            {
+            //                // Ensure user has the funds available.
+            //                if (userFunds.Balance < amount)
+            //                {
+            //                    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            //                    return Json(new { success = false, Result = "Failure", message = "Not enough funds." });
+            //                }
+            //                userFunds.Balance -= amount.Value;
+            //            }
+            //            receiverFunds.Balance += amount.Value;
+            //            try
+            //            {
+            //                db.SaveChanges(); // synchronous
+            //            }
+            //            catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+            //            {
+            //                saveFailed = true;
+            //                foreach(var entry in ex.Entries)
+            //                {
+            //                    entry.Reload();
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            saveAborted = true;
+            //        }
+            //    }
+            //    while (saveFailed);
+            //    if (saveAborted == false)
+            //    {
+            //        if (tx == null)
+            //        {
+            //            // Add spending event
+            //            db.Users.Where(u => u.AppId == userAppId)
+            //            .Select(u => u.SpendingEvents)
+            //            .First().Add(new SpendingEvent()
+            //            {
+            //                Amount = amount.Value,
+            //                TimeStamp = DateTime.UtcNow,
+            //            });
+            //        }
+            //        else // anonymous tip
+            //        {
+            //            vtx.IsSpent = true;
+            //            await db.SaveChangesAsync().ConfigureAwait(true);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (tx == null)
+            //        {
+            //            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            //            return Json(new 
+            //            { 
+            //                success = false, 
+            //                Result = "Failure", 
+            //                message = "Too many balance updates.  Please try again later." 
+            //            });
+            //        }
+            //        else
+            //        {
+            //            // need to handle assignment of anonymous tx to user.
+            //            // we don't want funds to be lost. This will be handled by 
+            //            // cron process checking db sync with LND node.
+            //        }
+            //    }
+            //    // Add Earning Event
+            //    db.Users.First(u => u.Id == id).EarningEvents.Add(new EarningEvent()
+            //    {
+            //        Amount = amount.Value,
+            //        OriginType = 2,
+            //        TimeStamp = DateTime.UtcNow,
+            //        Type = 0,
+            //    });
+            //    // Do notifications for the receiver
+            //    var receiverSettings = await db.Users
+            //        .Where(u => u.Id == id)
+            //        .Select(u => new {
+            //            DoNotify = u.Settings == null ? false : u.Settings.NotifyOnReceivedTip
+            //        })
+            //        .FirstOrDefaultAsync().ConfigureAwait(true);
+            //    if (receiverSettings.DoNotify)
+            //    {
+            //        var alert = new UserAlert()
+            //        {
+            //            TimeStamp = DateTime.Now,
+            //            Title = "You received a tip!",
+            //            Content = "From: " + senderName + " <br/> Amount: " + amount.ToString() + " Satoshi.",
+            //            IsDeleted = false,
+            //            IsRead = false,
+            //            To = receiver,
+            //        };
+            //        db.Users.First(u => u.Id == id).Alerts.Add(alert);
+            //        string receiverEmail = UserManager.FindById(receiver.AppId).Email;
+            //        // queue for sending the email
+            //        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+            //            new UserEmailModel()
+            //            {
+            //                Destination = receiverEmail,
+            //                Body = "From: " + senderName + " <br/> Amount: "
+            //                    + amount.ToString()
+            //                    + " Satoshi.<br/><br/><a href='https://www.zapread.com'>zapread.com</a>",
+            //                Email = "",
+            //                Name = "ZapRead.com Notify",
+            //                Subject = "You received a tip!",
+            //            }, 
+            //            "Notify", // account
+            //            true // useSSL
+            //            ));
+            //    }
+            //    await db.SaveChangesAsync().ConfigureAwait(true);
+            //    return Json(new { success = true, Result = "Success" });
+            //}
         }
 
         /// <summary>
@@ -849,47 +829,6 @@ namespace zapread.com.Controllers
                 db.SaveChanges();
 
                 return Json(new { result = "success", success = true });
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="BlockNumber"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<ActionResult> InfiniteScroll(int BlockNumber)
-        {
-            int BlockSize = 10;
-
-            using (var db = new ZapContext())
-            {
-                var uid = User.Identity.GetUserId();
-                var user = db.Users.AsNoTracking().FirstOrDefault(u => u.AppId == uid);
-
-                var posts = await GetPosts(BlockNumber, BlockSize, user != null ? user.Id : 0);
-
-                string PostsHTMLString = "";
-
-                foreach (var p in posts)
-                {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    };
-
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
-                    PostsHTMLString += PostHTMLString;
-                }
-                return Json(new
-                {
-                    NoMoreData = posts.Count < BlockSize,
-                    HTMLString = PostsHTMLString,
-                });
             }
         }
 
@@ -1307,8 +1246,11 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // POST: /Manage/AddPhoneNumber
+        /// <summary>
+        /// // POST: /Manage/AddPhoneNumber
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AddPhoneNumber(AddPhoneNumberViewModel model)
@@ -1331,8 +1273,10 @@ namespace zapread.com.Controllers
             return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
         }
 
-        //
-        // POST: /Manage/EnableTwoFactorAuthentication
+        /// <summary>
+        /// // POST: /Manage/EnableTwoFactorAuthentication
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> EnableTwoFactorAuthentication()
@@ -1346,8 +1290,10 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "Manage");
         }
 
-        //
-        // POST: /Manage/DisableTwoFactorAuthentication
+        /// <summary>
+        /// // POST: /Manage/DisableTwoFactorAuthentication
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DisableTwoFactorAuthentication()
@@ -1361,8 +1307,11 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "Manage");
         }
 
-        //
-        // GET: /Manage/VerifyPhoneNumber
+        /// <summary>
+        /// // GET: /Manage/VerifyPhoneNumber
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
@@ -1372,8 +1321,11 @@ namespace zapread.com.Controllers
             return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
         }
 
-        //
-        // POST: /Manage/VerifyPhoneNumber
+        /// <summary>
+        /// // POST: /Manage/VerifyPhoneNumber
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> VerifyPhoneNumber(VerifyPhoneNumberViewModel model)
@@ -1464,8 +1416,11 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        //
-        // POST: /Manage/SetPassword
+        /// <summary>
+        /// // POST: /Manage/SetPassword
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SetPassword(SetPasswordViewModel model)
@@ -1489,8 +1444,11 @@ namespace zapread.com.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Manage/ManageLogins
+        /// <summary>
+        /// // GET: /Manage/ManageLogins
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public async Task<ActionResult> ManageLogins(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
@@ -1525,8 +1483,10 @@ namespace zapread.com.Controllers
             return new AccountController.ChallengeResult(provider, Url.Action("LinkLoginCallback", "Manage"), User.Identity.GetUserId());
         }
 
-        //
-        // GET: /Manage/LinkLoginCallback
+        /// <summary>
+        /// // GET: /Manage/LinkLoginCallback
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> LinkLoginCallback()
         {
@@ -1540,6 +1500,10 @@ namespace zapread.com.Controllers
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && _userManager != null)
@@ -1591,15 +1555,42 @@ namespace zapread.com.Controllers
             return false;
         }
 
+        /// <summary>
+        /// Not sure if these are still going to be used - mark for refactor.
+        /// </summary>
         public enum ManageMessageId
         {
+            /// <summary>
+            /// 
+            /// </summary>
             AddPhoneSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             ChangePasswordSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             SetTwoFactorSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             SetPasswordSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             RemoveLoginSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             RemovePhoneSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             UpdateAboutMeSuccess,
+            /// <summary>
+            /// 
+            /// </summary>
             Error
         }
 
