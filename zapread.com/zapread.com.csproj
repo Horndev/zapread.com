@@ -854,6 +854,7 @@
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
+    <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />

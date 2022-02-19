@@ -43,6 +43,21 @@ window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
+async function LoadReferralStats() {
+  await fetch("/api/v1/user/referralstats").then(response => {
+    return response.json();
+  }).then(data => {
+    console.log("LoadReferralStats", data);
+    var totalEl = document.getElementById("refTotal");
+    totalEl.innerHTML = data.TotalReferred;
+    var activeEl = document.getElementById("refTotalActive");
+    activeEl.innerHTML = data.TotalReferredActive;
+    var enrolledEl = document.getElementById("refEnrolled");
+    enrolledEl.innerHTML = data.IsActive ? "Referral Active" : "Referral Inactive";
+  })
+}
+LoadReferralStats();
+
 async function LoadReferralCode() {
   await fetch("/api/v1/user/referralcode").then(response => {
     return response.json();

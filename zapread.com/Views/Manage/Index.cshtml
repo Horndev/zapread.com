@@ -142,16 +142,21 @@
                         <div class="form-group">
                             <label for="regLink">Referral Code</label>
                             <input type="text" id="referralCode" class="form-control" readonly aria-label="Referral Code">
-                            @*<div class="input-group-append">
-                                <button class="btn btn-primary" type="button" onclick="copyToClipboard(this,'referralCode');"><span class="fa fa-copy"></span> Copy</button>
-                            </div>*@
                         </div>
                         <div class="form-group">
                             <label for="regLink">Registration Link</label>
                             <input type="text" id="regLink" class="form-control" readonly aria-label="Registration Link">
-                            @*<div class="input-group-append">
-                                <button class="btn btn-primary" type="button" onclick="copyToClipboard(this,'referralCode');"><span class="fa fa-copy"></span> Copy</button>
-                            </div>*@
+                        </div>
+                        <div class="row m-t-lg">
+                            <div class="col-md-4" title="Number of users referred">
+                                <h5><strong id="refTotal">...</strong> Referred</h5>
+                            </div>
+                            <div class="col-md-4" title="Number of referred users paying bonuses">
+                                <h5><strong id="refTotalActive">...</strong> Active</h5>
+                            </div>
+                            <div class="col-md-4" title="Active means you are getting bonuses">
+                                <h5><strong id="refEnrolled"></strong></h5>
+                            </div>
                         </div>
                     </div>
                     <div>
