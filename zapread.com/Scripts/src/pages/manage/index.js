@@ -43,6 +43,20 @@ window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
+async function LoadReferralCode() {
+  await fetch("/api/v1/user/referralcode").then(response => {
+    return response.json();
+  }).then(data => {
+    console.log(data);
+    var codeEl = document.getElementById("referralCode");
+    codeEl.value = data.refCode;
+    var reglink = "https://www.zapread.com/Account/Register/?refcode=" + data.refCode
+    var linkEl = document.getElementById("regLink");
+    linkEl.value = reglink;
+  })
+}
+LoadReferralCode();
+
 async function LoadActivityPostsAsync() {
   await fetch("/Manage/GetActivityPosts").then(response => {
     return response.text();

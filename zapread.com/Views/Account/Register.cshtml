@@ -28,7 +28,7 @@
                         @Html.AntiForgeryToken()
                         @Html.ValidationSummary("", new { @class = "text-danger" })
                         <div class="form-group">
-                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder=Html.DisplayNameFor(m=>m.UserName) })
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.UserName) })
                         </div>
                         <div class="form-group">
                             @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Email) })
@@ -48,6 +48,9 @@
                                 <audio id="CaptchaAudio" src='/Account/CaptchaAudio' type='audio/mpeg' preload='none'></audio>
                             </div>
                             @Html.TextBoxFor(m => m.Captcha, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Captcha) })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.RefCode, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.RefCode) })
                         </div>
                         <div id="info-notifications" class="form-check">
                             @Html.CheckBoxFor(m => m.AcceptEmailsNotify, new { @class = "form-check-input" })

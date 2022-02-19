@@ -1001,7 +1001,7 @@ namespace zapread.com.Controllers
                 {
                     Time = t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                     Amount = t.Amount.ToString("0.##"),
-                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : t.Type == 4 ? "Referral Bonus" : "Unknown",
                 }).ToList();
 
                 int numrec = u.EarningEvents.Count;

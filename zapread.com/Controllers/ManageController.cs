@@ -292,7 +292,7 @@ namespace zapread.com.Controllers
                     Id = t.Id,
                     Time = t.TimeValue.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     t.Amount,
-                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : "Unknown",
+                    Type = t.Type == 0 ? (t.OriginType == 0 ? "Post" : t.OriginType == 1 ? "Comment" : t.OriginType == 2 ? "Tip" : "Unknown") : t.Type == 1 ? "Group" : t.Type == 2 ? "Community" : t.Type == 4 ? "Referral Bonus" : "Unknown",
                     URL = GetEarningURL(t, commentIds, comments),
                     Memo = GetEarningMemo(t, groupIds, groups, postIds, posts, commentIds, comments),
                 }).ToList();

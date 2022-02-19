@@ -16,6 +16,7 @@ namespace zapread.com.Database
         {
 
         }
+        public DbSet<Referral> Referrals { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Group> Groups { get; set; }

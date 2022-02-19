@@ -43,6 +43,15 @@ namespace zapread.com.Services
     public static class CryptoService
     {
         /// <summary>
+        /// Generate a new referral Code
+        /// </summary>
+        /// <returns></returns>
+        public static string GetNewRefCode()
+        {
+            return Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("=", "").Replace("/", "-").Replace("+", "_");
+        }
+
+        /// <summary>
         /// Verify a
         /// </summary>
         /// <param name="pubKey"></param>
