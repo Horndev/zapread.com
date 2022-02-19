@@ -29,11 +29,14 @@ namespace zapread.com.Models
     /// </summary>
     public class EarningEvent
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key]
         public int Id { get; set; }
 
         /// <summary>
-        /// 0=direct, 1=group, 2=community, 3=website
+        /// 0=direct, 1=group, 2=community, 3=website, 4=referral
         /// </summary>
         public int Type { get; set; }
 

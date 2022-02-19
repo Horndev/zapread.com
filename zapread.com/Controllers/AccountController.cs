@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using Microsoft.CognitiveServices.Speech;
 using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
@@ -63,55 +62,19 @@ namespace zapread.com.Controllers
             this.UserManager = userManager;
         }
 
-        /* Monetary aspects */
-        
-        // This is no longer used - remove    
-        //[AllowAnonymous]
-        //public async Task<JsonResult> UserBalance()
-        //{
-        //    Response.AddHeader("X-Frame-Options", "DENY");
-        //    string userId = "?";
-        //    try
-        //    {
-        //        if (!Request.IsAuthenticated)
-        //        {
-        //            return Json(new { balance = 0 });
-        //        }
-        //        userId = User.Identity.GetUserId();
-        //        if (userId == null)
-        //        {
-        //            return Json(new { balance = 0 });
-        //        }
-        //        using (var db = new ZapContext())
-        //        {
-        //            var user = await db.Users
-        //                .Include(usr => usr.Funds)
-        //                .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
-        //            if (user == null)
-        //            {
-        //                return Json(new { balance = 0 });
-        //            }
-        //            return Json(new { balance = Math.Floor(user.Funds.Balance) });
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        MailingService.Send(new UserEmailModel()
-        //        {
-        //            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-        //            Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userId,
-        //            Email = "",
-        //            Name = "zapread.com Exception",
-        //            Subject = "Account Controller error",
-        //        });
-        //        return Json(new { balance = 0 });
-        //    }
-        //}
-
-        private async Task EnsureUserExists(string userAppId, ZapContext db)
+        private async Task EnsureUserExists(string userAppId, ZapContext db, string refcode = null)
         {
             if (userAppId != null)
             {
+                string refUserAppId = null;
+                if (refcode != null)
+                {
+                    refUserAppId = await db.Users
+                        .Where(u => u.ReferralCode == refcode)
+                        .Select(u => u.AppId)
+                        .FirstOrDefaultAsync();
+                }
+
                 if (!db.Users.Where(u => u.AppId == userAppId).Any())
                 {
                     // no user entry
@@ -125,13 +88,37 @@ namespace zapread.com.Controllers
                         Funds = new UserFunds(),
                         Settings = new UserSettings(),
                         DateJoined = DateTime.UtcNow,
+                        ReferralCode = CryptoService.GetNewRefCode(), // This is the code this user can hand out
+                        ReferralInfo = refUserAppId != null ? new Referral()
+                        {
+                            ReferredByAppId = refUserAppId,
+                            TimeStamp = DateTime.UtcNow,
+                        } : null,
                     };
                     db.Users.Add(u);
                     await db.SaveChangesAsync().ConfigureAwait(true);
                 }
                 else
                 {
-                    var user = await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+                    var user = await db.Users
+                        .Include(u => u.ReferralInfo)
+                        .FirstOrDefaultAsync(u => u.AppId == userAppId)
+                        .ConfigureAwait(true);
+
+                    if (user.ReferralCode == null)
+                    {
+                        user.ReferralCode = CryptoService.GetNewRefCode();
+                    }
+
+                    if (refUserAppId != null && user.ReferralInfo == null)
+                    {
+                        user.ReferralInfo = new Referral()
+                        {
+                            ReferredByAppId = refUserAppId,
+                            TimeStamp = DateTime.UtcNow,
+                        };
+                    }
+
                     if (user.Settings == null)
                     {
                         user.Settings = new UserSettings()
@@ -695,10 +682,11 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="refcode">Referral code</param>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult Register()
+        public ActionResult Register(string refcode)
         {
             var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string code);
             Session["Captcha"] = code; // Save to session (encrypted in cookie)
@@ -707,7 +695,8 @@ namespace zapread.com.Controllers
             var vm = new RegisterViewModel()
             {
                 AcceptEmailsNotify = true,
-                CaptchaSrcB64 = captchaSrcB64
+                CaptchaSrcB64 = captchaSrcB64,
+                RefCode = refcode,
             };
 
             return View(vm);
@@ -745,6 +734,22 @@ namespace zapread.com.Controllers
                 ModelState.AddModelError("Captcha", "Captcha does not match");
             }
 
+            // Check Referral
+            if (model.RefCode != null)
+            {
+                using (var db = new ZapContext())
+                {
+                    var refExists = await db.Users
+                        .Where(u => u.ReferralCode == model.RefCode)
+                        .AnyAsync();
+
+                    if (!refExists)
+                    {
+                        ModelState.AddModelError("RefCode", "Referral code not valid");
+                    }
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
@@ -764,7 +769,7 @@ namespace zapread.com.Controllers
                     
                     using (var db = new ZapContext())
                     {
-                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true); // This creates the user entry if it doesn't already exist
+                        await EnsureUserExists(userId.Id, db, model.RefCode).ConfigureAwait(true); // This creates the user entry if it doesn't already exist
 
                         var userSettings = await db.Users
                             .Where(u => u.AppId == userId.Id)
@@ -822,33 +827,11 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> CaptchaAudio()
         {
             var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            var key = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesKey"];
+            var region = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesRegion"];
 
-            var config = SpeechConfig.FromSubscription(
-                System.Configuration.ConfigurationManager.AppSettings["SpeechServicesKey"],
-                System.Configuration.ConfigurationManager.AppSettings["SpeechServicesRegion"]);
-
-            var voiceName = "en-CA-LiamNeural";
-            config.SpeechSynthesisLanguage = "en-CA";
-            config.SpeechSynthesisVoiceName = voiceName;
-            config.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3);
-
-            // insert spaces between characters
-            var captchaCodeSpaced = String.Join(" ", captchaCode.ToCharArray());
-
-            using (var synthesizer = new SpeechSynthesizer(config, null))
-            {
-                string ssml =   "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">" +
-                                "  <voice name=\"" + voiceName + "\">" +
-                                "    <prosody rate=\"-40.00%\">" +
-                                "      <say-as interpret-as=\"characters\">" +
-                                            captchaCodeSpaced +
-                                "      </say-as>" +
-                                "    </prosody>" +
-                                "  </voice>" +
-                                "</speak>";
-                var result = await synthesizer.SpeakSsmlAsync(ssml);
-                return File(result.AudioData, "audio/mpeg");
-            }
+            byte[] AudioData = await services.x64.zapread.com.SpeechServices.GetAudio(captchaCode, key, region);
+            return File(AudioData, "audio/mpeg");
         }
 
         //
