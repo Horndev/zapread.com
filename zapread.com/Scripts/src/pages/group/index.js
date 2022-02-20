@@ -27,22 +27,24 @@ function Page() {
       <Row>
         <Col lg={12}>
           <div className="wrapper wrapper-content animated fadeInUp">
-            <div className="ibox">
-              <div className="ibox-title">
-                <div className="pull-right forum-desc" />
-                <h3>Top Groups</h3>
-                <div className="ibox-tools">
-                  <a href="/Group/New" className="btn btn-primary btn-xs">
-                    Create new group
-                  </a>
+            <Row>
+              <Col lg={2}></Col>
+              <Col lg={8}>
+                <div className="ibox">
+                  <div className="ibox-title">
+                    <a href="/Group/New" className="btn btn-primary btn-xs btn-block">
+                      Create new group
+                    </a>
+                  </div>
+                  <div className="ibox-content">
+                    <div className="project-list">
+                      <GroupsTable pageSize={20} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="ibox-content">
-                <div className="project-list">
-                  <GroupsTable pageSize={20} />
-                </div>
-              </div>
-            </div>
+              </Col>
+              <Col lg={2}></Col>
+            </Row>
           </div>
         </Col>
       </Row>

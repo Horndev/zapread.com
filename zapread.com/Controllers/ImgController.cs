@@ -398,7 +398,11 @@ namespace zapread.com.Controllers
             return Json(new { result = "failure" });
         }
 
-        // GET: Img
+        /// <summary>
+        /// Gets the submitted string as QR image
+        /// </summary>
+        /// <param name="qr"></param>
+        /// <returns>image/png</returns>
         [OutputCache(Duration = 60 * 60 * 24, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public ActionResult QR(string qr)
         {
@@ -413,6 +417,11 @@ namespace zapread.com.Controllers
             return File(ms.ToArray(), "image/png");
         }
 
+        /// <summary>
+        /// Upload an image
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult UploadImage(HttpPostedFileBase file)
         {

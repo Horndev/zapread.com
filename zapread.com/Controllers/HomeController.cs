@@ -516,22 +516,6 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// User does not want to continue tour - make note in cookie
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        //[Obsolete("This endpoint is not used and will be retired in a future version.")]
-        //[HttpPost]
-        //public async Task<JsonResult> DismissTour(int id)
-        //{
-        //    if (SetOrUpdateUserTourCookie("hide") == "hide")
-        //    {
-        //        return Json(new { success = true, result = "success" });
-        //    }
-        //    return Json(new { success = false, result = "failure setting cookie" });
-        //}
-
-        /// <summary>
         /// If the user is away for longer than 30 days, it presents the tour again.
         /// value is "hide"     : do not present the tour to the user
         ///          "show"     : present to user

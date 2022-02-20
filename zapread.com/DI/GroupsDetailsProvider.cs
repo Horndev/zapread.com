@@ -7,8 +7,16 @@ using zapread.com.Database;
 
 namespace zapread.com.DI
 {
+    /// <summary>
+    /// Provides sitemap node for group
+    /// </summary>
     public class GroupsDetailsProvider : DynamicNodeProviderBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public override IEnumerable<DynamicNode> GetDynamicNodeCollection(ISiteMapNode node)
         {
             using (var db = new ZapContext())

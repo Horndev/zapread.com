@@ -53,6 +53,50 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// Gets statistics on the user referrals
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/referralstats")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetReferralStats()
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Unauthorized();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var referralInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Where(u => u.ReferralInfo != null)
+                    .Select(u=> u.ReferralInfo)
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(true);
+
+                var referredInfos = await db.Users
+                       .Where(u => u.ReferralInfo != null && u.ReferralInfo.ReferredByAppId == userAppId)
+                       .Select(u => u.ReferralInfo)
+                       .AsNoTracking()
+                       .ToListAsync().ConfigureAwait(true);
+
+                // Check how many active and total
+                var dateNow = DateTime.UtcNow;
+                var numActive = referredInfos.Where(r => (dateNow - r.TimeStamp) < TimeSpan.FromDays(6 * 30)).Count();
+                var numTotal = referredInfos.Count() - numActive;
+
+                return Ok(new GetRefStatsResponse()
+                {
+                    ReferredByAppId = referralInfo != null ? referralInfo.ReferredByAppId ?? null : null,
+                    TotalReferred = numTotal,
+                    TotalReferredActive = numActive,
+                    IsActive = referralInfo != null && (dateNow - referralInfo.TimeStamp) < TimeSpan.FromDays(6 * 30),
+                });
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>

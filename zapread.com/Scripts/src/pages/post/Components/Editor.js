@@ -8,22 +8,18 @@ import Delta from 'quill-delta';
 import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
 import 'react-quill/dist/quill.snow.css';                               // [✓]
 import '../../../css/quill/quilledit.css';                              // [✓]
-
 //import '../../../quill/StickyToolbar/quill-sticky-toolbar';
 import ImageResize from '../../../quill-image-resize-module';          // [✓] Import from source
 //import { ImageUpload } from 'quill-image-upload';
 import { ImageUpload } from '../../../quill/image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from '../../../quill/QuillImageDropAndPaste';
-//import VideoResize from '../../../quill/VideoResize/VideoResize';
-
 import Button from 'react-bootstrap/Button';
 
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
 Quill.register('modules/imageUpload', ImageUpload);
 Quill.register('modules/autoLinks', AutoLinks);
 Quill.register('modules/imageResize', ImageResize);
-//Quill.register('modules/videoResize', VideoResize);
 
 var Image = Quill.import('formats/image');
 Image.className = 'img-post';

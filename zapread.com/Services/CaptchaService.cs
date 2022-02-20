@@ -118,5 +118,18 @@ namespace zapread.com.Services
             var base64String = Convert.ToBase64String(imgdata);
             return base64String;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public static string GetCaptchaB64(string code)
+        {
+            var image = GenerateCaptchaImage(code);
+            byte[] imgdata = image.ToByteArray(ImageFormat.Png);
+            var base64String = Convert.ToBase64String(imgdata);
+            return base64String;
+        }
     }
 }

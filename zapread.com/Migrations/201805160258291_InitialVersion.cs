@@ -2,8 +2,14 @@ namespace zapread.com.Migrations
 {
     using System.Data.Entity.Migrations;
 
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class InitialVersion : DbMigration
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Up()
         {
             CreateTable(
@@ -80,6 +86,9 @@ namespace zapread.com.Migrations
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Down()
         {
             DropForeignKey("dbo.User", "Post_PostId1", "dbo.Post");

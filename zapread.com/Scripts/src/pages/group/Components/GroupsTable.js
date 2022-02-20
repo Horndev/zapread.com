@@ -295,6 +295,7 @@ export default function GroupsTable(props) {
             <Col lg={12}>
               <div className="project-list">
                 <Datatable
+                  keyName="groupsTable"
                   classes={classes}
                   tableHeaders={header}
                   tableBody={data}

@@ -167,6 +167,7 @@ namespace zapread.com.Controllers
         /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
         /// <param name="use">what the invoice is used for</param>
         /// <param name="useId">target of invoice (user id, post id, etc)</param>
+        /// <param name="useAction"></param>
         /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]

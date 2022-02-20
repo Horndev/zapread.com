@@ -101,5 +101,8 @@
   },
   "dependencies": {
     "buffer": "^6.0.3"
+  },
+  "optionalDependencies": {
+    "fsevents": "*"
   }
 }

@@ -17,6 +17,7 @@ using zapread.com.Models.Admin;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.GroupViews;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -152,6 +153,28 @@ namespace zapread.com.Controllers
                 .Include(u => u.Settings)
                 .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
             return user;
+        }
+
+        /// <summary>
+        /// Get a captcha image
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet, Route("Group/CaptchaImage")]
+        public ActionResult GetCaptchaImage()
+        {
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+
+            if (string.IsNullOrEmpty(captchaCode))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { error = "No captcha code session found" });
+            }
+
+            var B64Image = CaptchaService.GetCaptchaB64(captchaCode);
+
+            return Json(new {
+                B64Image
+            }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -759,7 +782,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Returns the tier of the group
         /// </summary>
-        /// <param name="g"></param>
+        /// <param name="e"></param>
         /// <returns></returns>
         protected static int GetGroupLevel(double e)
         {
@@ -1448,22 +1471,27 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
-            using (var db = new ZapContext())
+
+            var captchaSrcB64 = CaptchaService.GetCaptchaB64(4, out string code);
+            Session["Captcha"] = code; // Save to session (encrypted in cookie)
+
+            NewGroupViewModel vm = new NewGroupViewModel()
             {
-                NewGroupViewModel vm = new NewGroupViewModel();
-                vm.Icons = db.Icons.Select(i => i.Icon).ToList();
+                CaptchaSrcB64 = captchaSrcB64,
+            };
 
-                // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                vm.Language = "en";
-                vm.Languages = languages;
-
-                return View(vm);
-            }
+            return View(vm);
+            //using (var db = new ZapContext())
+            //{
+            //    //vm.Icons = db.Icons.Select(i => i.Icon).ToList();
+            //    //// List of languages known
+            //    //var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+            //    //    .GroupBy(ci => ci.TwoLetterISOLanguageName)
+            //    //    .Select(g => g.First())
+            //    //    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+            //    //vm.Language = "en";
+            //    //vm.Languages = languages;
+            //}
         }
 
         // GET: Group/Edit
@@ -1479,22 +1507,22 @@ namespace zapread.com.Controllers
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
             }
-            using (var db = new ZapContext())
-            {
-                NewGroupViewModel vm = new NewGroupViewModel();
-                vm.Icons = db.Icons.Select(i => i.Icon).ToList();
 
-                // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+            NewGroupViewModel vm = new NewGroupViewModel();
+            return View(vm);
+            //using (var db = new ZapContext())
+            //{
+            //    NewGroupViewModel vm = new NewGroupViewModel();
+            //    vm.Icons = db.Icons.Select(i => i.Icon).ToList();
 
-                vm.Language = "en";
-                vm.Languages = languages;
-
-                return View(vm);
-            }
+            //    // List of languages known
+            //    var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+            //        .GroupBy(ci => ci.TwoLetterISOLanguageName)
+            //        .Select(g => g.First())
+            //        .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+            //    vm.Language = "en";
+            //    vm.Languages = languages;
+            //}
         }
 
         /// <summary>
@@ -1502,69 +1530,58 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult New(NewGroupViewModel m)
-        {
-            if (!ModelState.IsValid)
-            {
-                // Validation error - send back to user
-                using (var db = new ZapContext())
-                {
-                    m.Icons = db.Icons.Select(i => i.Icon).ToList();
-
-                    // List of languages known
-                    var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                        .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                        .Select(g => g.First())
-                        .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
-                    m.Languages = languages;
-
-                    return View(m);
-                }
-            }
-
-            using (var db = new ZapContext())
-            {
-                var userId = User.Identity.GetUserId();
-
-                // Ensure not a duplicate group!
-                var cleanName = m.GroupName.CleanUnicode().Trim();
-
-                if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
-                {
-                    ModelState.AddModelError("GroupName", "Group already exists!");
-                    m.Icons = db.Icons.Select(i => i.Icon).ToList();
-                    return View(m);
-                }
-
-                Group g = new Group()
-                {
-                    GroupName = cleanName,
-                    TotalEarned = 0.0,
-                    TotalEarnedToDistribute = 0.0,
-                    Moderators = new List<User>(),
-                    Members = new List<User>(),
-                    Administrators = new List<User>(),
-                    Tags = m.Tags,
-                    Icon = m.Icon,
-                    CreationDate = DateTime.UtcNow,
-                    DefaultLanguage = m.Language,
-                };
-
-                var u = db.Users.Where(us => us.AppId == userId).First();
-
-                g.Members.Add(u);
-                g.Moderators.Add(u);
-                g.Administrators.Add(u);
-
-                db.Groups.Add(g);
-                db.SaveChanges();
-
-                return RedirectToAction(actionName: "GroupDetail", routeValues: new { id = g.GroupId });
-            }
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult New(NewGroupViewModel m)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        // Validation error - send back to user
+        //        using (var db = new ZapContext())
+        //        {
+        //            m.Icons = db.Icons.Select(i => i.Icon).ToList();
+        //            // List of languages known
+        //            var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
+        //                .GroupBy(ci => ci.TwoLetterISOLanguageName)
+        //                .Select(g => g.First())
+        //                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
+        //            m.Languages = languages;
+        //            return View(m);
+        //        }
+        //    }
+        //    using (var db = new ZapContext())
+        //    {
+        //        var userId = User.Identity.GetUserId();
+        //        // Ensure not a duplicate group!
+        //        var cleanName = m.GroupName.CleanUnicode().Trim();
+        //        if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
+        //        {
+        //            ModelState.AddModelError("GroupName", "Group already exists!");
+        //            m.Icons = db.Icons.Select(i => i.Icon).ToList();
+        //            return View(m);
+        //        }
+        //        Group g = new Group()
+        //        {
+        //            GroupName = cleanName,
+        //            TotalEarned = 0.0,
+        //            TotalEarnedToDistribute = 0.0,
+        //            Moderators = new List<User>(),
+        //            Members = new List<User>(),
+        //            Administrators = new List<User>(),
+        //            Tags = m.Tags,
+        //            Icon = m.Icon,
+        //            CreationDate = DateTime.UtcNow,
+        //            DefaultLanguage = m.Language,
+        //        };
+        //        var u = db.Users.Where(us => us.AppId == userId).First();
+        //        g.Members.Add(u);
+        //        g.Moderators.Add(u);
+        //        g.Administrators.Add(u);
+        //        db.Groups.Add(g);
+        //        db.SaveChanges();
+        //        return RedirectToAction(actionName: "GroupDetail", routeValues: new { id = g.GroupId });
+        //    }
+        //}
 
         /// <summary>
         /// 

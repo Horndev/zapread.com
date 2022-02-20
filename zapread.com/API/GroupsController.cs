@@ -162,16 +162,21 @@ namespace zapread.com.API
         /// <returns>AddGroupResponse</returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/add")]
-        public async Task<AddGroupResponse> Add(AddGroupParameters newGroup)
+        public async Task<IHttpActionResult> Add(AddGroupParameters newGroup)
         {
             if (newGroup == null)
             {
                 // use this to return status code
                 // https://www.tutorialsteacher.com/webapi/action-method-return-type-in-web-api
-                return new AddGroupResponse()
-                {
-                    success = false
-                };
+                return BadRequest();
+            }
+
+            //Check Captcha
+            var captchaCode = HttpContext.Current.Session["Captcha"].ToString();
+
+            if (captchaCode != newGroup.Captcha)
+            {
+                return BadRequest("Captcha does not match");
             }
 
             using (var db = new ZapContext())
@@ -181,7 +186,7 @@ namespace zapread.com.API
                 bool exists = await GroupExists(cleanName, -1, db).ConfigureAwait(true);
                 if (exists)
                 {
-                    return new AddGroupResponse() { success = false };
+                    return BadRequest();
                 }
 
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
@@ -209,11 +214,11 @@ namespace zapread.com.API
                 db.Groups.Add(g);
                 await db.SaveChangesAsync().ConfigureAwait(true);
 
-                return new AddGroupResponse()
+                return Ok(new AddGroupResponse()
                 {
                     success = true,
                     GroupId = g.GroupId
-                };
+                });
             }
         }
 

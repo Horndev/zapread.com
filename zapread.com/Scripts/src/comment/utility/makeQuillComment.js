@@ -8,10 +8,8 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import '../../css/quill/quilledit.css';                              // [✓]
 import '../../css/quill/quillcustom.css'; // Some custom overrides
-
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { postData } from '../../utility/postData';
-
 import 'quill-mention'; // This auto-registers
 //import 'quill-mention/dist/quill.mention.css'  // Not importing since the styles are in quillcustom.css
 import ImageResize from 'quill-image-resize-module';
@@ -23,6 +21,10 @@ Quill.register('modules/imageUpload', ImageUpload);
 Quill.register('modules/autoLinks', AutoLinks);
 Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
+
+var Image = Quill.import('formats/image');
+Image.className = 'img-post';
+Quill.register(Image, true);
 
 var toolbarOptions = {
   container: [

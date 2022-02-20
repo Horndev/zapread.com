@@ -878,6 +878,11 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "User", new { username = username });
         }
 
+        /// <summary>
+        /// Unfollow a user
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("Unfollow/{username?}")]
         public ActionResult UnFollow(string username)
         {
@@ -933,6 +938,11 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "User", new { username = username });
         }
 
+        /// <summary>
+        /// Toggle ignore on a user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("ToggleIgnore")]
         public ActionResult ToggleIgnore(int id)

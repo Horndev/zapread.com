@@ -266,12 +266,12 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        public class DataItem
-        {
-            public string Icon { get; set; }
-            public string Graphic { get; set; }
-            public int Id { get; set; }
-        }
+        //public class DataItem
+        //{
+        //    public string Icon { get; set; }
+        //    public string Graphic { get; set; }
+        //    public int Id { get; set; }
+        //}
 
         /// <summary>
         /// 
@@ -424,6 +424,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Achievements/Description/Update")]
         public async Task<JsonResult> AdminUpdateAchievementDescription(int id, string description)
         {
@@ -1327,7 +1333,7 @@ namespace zapread.com.Controllers
                 var values = pageUsers
                     .Select(u => new
                     {
-                        u.UserName,
+                        UserName = u.UserName.Trim(),
                         DateJoined = u.DateJoined != null ? u.DateJoined.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
                         LastSeen = u.DateLastActivity != null ? u.DateLastActivity.Value.ToString("o", CultureInfo.InvariantCulture) : "?",
                         u.NumPosts,
@@ -1355,6 +1361,11 @@ namespace zapread.com.Controllers
 
         #region CRON
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jobid"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Jobs/Run")]
         [ValidateJsonAntiForgeryToken]
         public ActionResult RunJob(string jobid)
@@ -1397,6 +1408,11 @@ namespace zapread.com.Controllers
             return Json(new { success = false });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jobid"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Jobs/Install")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -1451,6 +1467,11 @@ namespace zapread.com.Controllers
             return Json(new { success = false });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jobid"></param>
+        /// <returns></returns>
         [HttpPost, Route("Admin/Jobs/Remove")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -1494,6 +1515,10 @@ namespace zapread.com.Controllers
             return Json(new { success = false });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Jobs()
         {
             if (!User.Identity.IsAuthenticated)
