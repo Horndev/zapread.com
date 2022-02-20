@@ -5,7 +5,7 @@
  */
 import "../../shared/shared";
 import "../../realtime/signalr";
-
+import Swal from 'sweetalert2';
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Form, Button, Container } from "react-bootstrap";
 import ReactDOM from "react-dom";
@@ -15,11 +15,12 @@ import { getAntiForgeryToken } from "../../utility/antiforgery";
 import { postJson } from "../../utility/postData";
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
-
 import "../../shared/sharedlast";
 
 function Page() {
   const [groupName, setgroupName] = useState("");
+  const [captchaValue, setCaptchaValue] = useState("");
+  const [captchaValueValid, setCaptchaValueValid] = useState(false);
   const [groupNameValid, setGroupNameValid] = useState(true);
   const [groupNameError, setGroupNameError] = useState("");
   const [tags, setTags] = useState([]);
@@ -27,8 +28,10 @@ function Page() {
   const [language, setLanguage] = useState(null);
   const [imageId, setImageId] = useState(0); // This is the image used for the group
   const [validated, setValidated] = useState(false);
+  const [captchaImgB64, setCaptchaImgB64] = useState("");
 
   const inputFile = useRef(null);
+  const captchaAudioRef = useRef(null);
 
   // Async load languages for options
   useEffect(() => {
@@ -43,7 +46,15 @@ function Page() {
         })
       );
     }
+
+    //async function getCaptcha() {
+    //  const response = await fetch("/Group/CaptchaImage/");
+    //  const json = await response.json();
+    //  setCaptchaImgB64(json.B64Image);
+    //}
+
     getLanguages();
+    //getCaptcha();
   }, []);
 
   function defaultLanguage() {
@@ -51,12 +62,9 @@ function Page() {
   }
 
   async function handleSubmit(event) {
-    //console.log("Submitted", event);
-    //console.log("groupName", groupName);
     console.log("tags", tags);
     event.preventDefault();
     event.stopPropagation();
-
     //if (form.checkValidity() === false) {
     //  event.preventDefault();
     //  event.stopPropagation();
@@ -64,6 +72,14 @@ function Page() {
     setValidated(true);
 
     var tagstring = tags.map(t => t.value).join(",");
+
+    // Check if captcha entered
+    if (captchaValue != "") {
+      setCaptchaValueValid(true);
+    } else {
+      setCaptchaValueValid(false);
+    }
+
 
     // Check if group is valid
     postJson("/api/v1/groups/checkexists/", {
@@ -90,7 +106,8 @@ function Page() {
             GroupName: groupName,
             ImageId: imageId,
             Tags: tagstring,
-            Language: language !== null ? language.value : "en"
+            Language: language !== null ? language.value : "en",
+            Captcha: captchaValue
           };
           postJson("/api/v1/groups/add/", newGroupData).then(response => {
             console.log(response);
@@ -99,6 +116,14 @@ function Page() {
               console.log("groups add success");
               window.location.href = "/Group/GroupDetail/" + response.GroupId;
             }
+          }).catch(error => {
+            console.log("error", error);
+            if (error instanceof Error) {
+              Swal.fire("Error", `${error.message}`, "error");
+            }
+            error.json().then(data => {
+              Swal.fire("Error", `${data.Message}`, "error");
+            })
           });
         }
       });
@@ -266,6 +291,37 @@ function Page() {
                       }}
                     />
                   </Form.Group>
+
+                  <Form.Group controlId="GroupName">
+                    <div className="captcha-box" id="Captcha">
+                      <img src={"data:image/png;base64, " + captchaImageB64} />
+                      <div className="captcha-audio-overlay" id="CaptchaAudioButton" onClick={() => {
+                        var audio = captchaAudioRef.current;
+                        audio.play();
+                      }}>
+                        <span className="captcha-audio-btn">
+                          <a className="btn btn-sm btn-outline-primary captcha-audio-btn">
+                            <i className="fa fa-volume-up"></i>
+                          </a>
+                        </span>
+                      </div>
+                      <audio ref={captchaAudioRef} id="CaptchaAudio" src='/Account/CaptchaAudio' type='audio/mpeg' preload='none'></audio>
+                    </div><br/>
+                    <Form.Label>Enter Captcha</Form.Label>
+                    <Form.Control
+                      autoComplete="off"
+                      placeholder="Enter the Captcha from the image above"
+                      value={captchaValue}
+                      type="text"
+                      onChange={({ target: { value } }) => setCaptchaValue(value)}
+                      isValid={captchaValue && captchaValueValid}
+                      isInvalid={validated && (!captchaValue || !captchaValueValid)}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please enter the Captcha
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
                   <Button variant="primary" type="submit">
                     Create Group
                   </Button>

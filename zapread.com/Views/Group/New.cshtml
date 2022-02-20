@@ -11,5 +11,8 @@
 }
 
 @section Scripts {
+    <script>
+        var captchaImageB64 = "@Model.CaptchaSrcB64";
+    </script>
     @Scripts.Render("~/bundles/group/new")
 }
