@@ -177,59 +177,64 @@ function Page() {
       <Row>
         <Col lg={12}>
           <div className="wrapper wrapper-content animated fadeInRight">
-            <div className="ibox float-e-margins">
-              <div className="ibox-title">
-                <h5>Create a new group</h5>
-              </div>
-              <div className="ibox-content">
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                  <Form.Group controlId="GroupName">
-                    <Form.Label>Group Name</Form.Label>
-                    <Form.Control
-                      placeholder="Enter group name"
-                      value={groupName}
-                      type="text"
-                      onChange={({ target: { value } }) => setgroupName(value)}
-                      isValid={groupName && groupNameValid}
-                      isInvalid={validated && (!groupName || !groupNameValid)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please provide a unique group name. {groupNameError}
-                    </Form.Control.Feedback>
-                    <Form.Text id="groupNameBlock" muted>
-                      The group name should be short and clear. A good name will
-                      help users discover the group.
-                    </Form.Text>
-                  </Form.Group>
-                  <Form.Group controlId="Tags">
-                    <Form.Label>Tags</Form.Label>
-                    <MultiSelect
-                      values={tags}
-                      onValuesChange={tags => {
-                        setTags(tags);
-                        console.log(tags);
-                      }}
-                      // createFromSearch :: [Item] -> [Item] -> String -> Item?
-                      createFromSearch={function(options, values, search) {
-                        var labels = values.map(function(value) {
-                          return value.label;
-                        });
-                        if (
-                          search.trim().length == 0 ||
-                          labels.indexOf(search.trim()) != -1
-                        )
-                          return null;
-                        return { label: search.trim(), value: search.trim() };
-                      }}
-                    />
-                    <small id="multiselHelp" className="form-text text-muted">
-                      Tags help people search and filter groups.
-                    </small>
-                  </Form.Group>
-                  <Form.Group>
-                    <Form.Label>Icon</Form.Label>
-                    <Form.Row>
-                      {/*
+            {/*<div className="ibox float-e-margins">*/}
+            {/*  <div className="wrapper wrapper-content">*/}
+            <Row>
+              <Col lg={3}></Col>
+              <Col lg={6}>
+                <div className="ibox-title">
+                  <h5>Create a new group</h5>
+                </div>
+                <div className="ibox-content">
+                  <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                    <Form.Group controlId="GroupName">
+                      <Form.Label>Group Name</Form.Label>
+                      <Form.Control
+                        placeholder="Enter group name"
+                        value={groupName}
+                        type="text"
+                        onChange={({ target: { value } }) => setgroupName(value)}
+                        isValid={groupName && groupNameValid}
+                        isInvalid={validated && (!groupName || !groupNameValid)}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Please provide a unique group name. {groupNameError}
+                      </Form.Control.Feedback>
+                      <Form.Text id="groupNameBlock" muted>
+                        The group name should be short and clear. A good name will
+                        help users discover the group.
+                      </Form.Text>
+                    </Form.Group>
+                    <Form.Group controlId="Tags">
+                      <Form.Label>Tags</Form.Label>
+                      <MultiSelect
+                        style={{ width: "100%" }}
+                        values={tags}
+                        onValuesChange={tags => {
+                          setTags(tags);
+                          console.log(tags);
+                        }}
+                        // createFromSearch :: [Item] -> [Item] -> String -> Item?
+                        createFromSearch={function (options, values, search) {
+                          var labels = values.map(function (value) {
+                            return value.label;
+                          });
+                          if (
+                            search.trim().length == 0 ||
+                            labels.indexOf(search.trim()) != -1
+                          )
+                            return null;
+                          return { label: search.trim(), value: search.trim() };
+                        }}
+                      />
+                      <small id="multiselHelp" className="form-text text-muted">
+                        Tags help people search and filter groups.
+                      </small>
+                    </Form.Group>
+                    <Form.Group>
+                      <Form.Label>Icon</Form.Label>
+                      <Form.Row>
+                        {/*
                        * <div class="container-fluid">
                        * <div class="row align-items-center">
                        * <div class="col-md-auto">
@@ -244,90 +249,92 @@ function Page() {
                        * </div>
                        * </div>
                        **/}
-                      <Container fluid>
-                        <Row className="align-items-center">
-                          <Col xs="auto" sm="auto" md="auto">
-                            <input
-                              type="file"
-                              id="file"
-                              ref={inputFile}
-                              accept="image"
-                              onChange={e => handleFileChange(e.target.files)}
-                              style={{ display: "none" }}
-                            />
-                            <img
-                              src={`/Img/Group/IconById/${imageId}/?s=100`}
-                            />
-                          </Col>
-                          <Col xs="auto" sm="auto" md="auto">
-                            {/*This shows the image which the group will be assigned*/}
-                          </Col>
-                          <Col>
-                            <Button
-                              size="sm"
-                              variant="outline-primary"
-                              onClick={e => updateIcon(-1, e)}
-                            >
-                              Change Icon
-                            </Button>
-                          </Col>
-                        </Row>
-                      </Container>
-                    </Form.Row>
-                    <Form.Text id="groupIconBlock" muted>
-                      The icon is a small visual branding for the group.
-                    </Form.Text>
-                  </Form.Group>
-
-                  <Form.Group controlId="GroupName">
-                    <Form.Label>Default Language</Form.Label>
-                    <SimpleSelect
-                      placeholder="Select the group default language"
-                      options={languages}
-                      value={defaultLanguage()}
+                        <Container fluid>
+                          <Row className="align-items-center">
+                            <Col xs="auto" sm="auto" md="auto">
+                              <input
+                                type="file"
+                                id="file"
+                                ref={inputFile}
+                                accept="image"
+                                onChange={e => handleFileChange(e.target.files)}
+                                style={{ display: "none" }}
+                              />
+                              <img
+                                src={`/Img/Group/IconById/${imageId}/?s=100`}
+                              />
+                            </Col>
+                            <Col xs="auto" sm="auto" md="auto">
+                              {/*This shows the image which the group will be assigned*/}
+                            </Col>
+                            <Col>
+                              <Button
+                                size="sm"
+                                variant="outline-primary"
+                                onClick={e => updateIcon(-1, e)}
+                              >
+                                Change Icon
+                              </Button>
+                            </Col>
+                          </Row>
+                        </Container>
+                      </Form.Row>
+                      <Form.Text id="groupIconBlock" muted>
+                        The icon is a small visual branding for the group.
+                      </Form.Text>
+                    </Form.Group>
+                    <Form.Group controlId="GroupName">
+                      <Form.Label>Default Language</Form.Label>
+                      <SimpleSelect
+                        style={{ width: "100%" }}
+                        placeholder="Select the group default language"
+                        options={languages}
+                        value={defaultLanguage()}
                         onValueChange={option => {
-                        setLanguage(option);
-                        console.log(option);
-                      }}
-                    />
-                  </Form.Group>
-
-                  <Form.Group controlId="GroupName">
-                    <div className="captcha-box" id="Captcha">
-                      <img src={"data:image/png;base64, " + captchaImageB64} />
-                      <div className="captcha-audio-overlay" id="CaptchaAudioButton" onClick={() => {
-                        var audio = captchaAudioRef.current;
-                        audio.play();
-                      }}>
-                        <span className="captcha-audio-btn">
-                          <a className="btn btn-sm btn-outline-primary captcha-audio-btn">
-                            <i className="fa fa-volume-up"></i>
-                          </a>
-                        </span>
+                          setLanguage(option);
+                          console.log(option);
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="GroupName">
+                      <div className="captcha-box" id="Captcha">
+                        <img src={"data:image/png;base64, " + captchaImageB64} />
+                        <div className="captcha-audio-overlay" id="CaptchaAudioButton" onClick={() => {
+                          var audio = captchaAudioRef.current;
+                          audio.play();
+                        }}>
+                          <span className="captcha-audio-btn">
+                            <a className="btn btn-sm btn-outline-primary captcha-audio-btn">
+                              <i className="fa fa-volume-up"></i>
+                            </a>
+                          </span>
+                        </div>
+                        <audio ref={captchaAudioRef} id="CaptchaAudio" src='/Account/CaptchaAudio' type='audio/mpeg' preload='none'></audio>
                       </div>
-                      <audio ref={captchaAudioRef} id="CaptchaAudio" src='/Account/CaptchaAudio' type='audio/mpeg' preload='none'></audio>
-                    </div><br/>
-                    <Form.Label>Enter Captcha</Form.Label>
-                    <Form.Control
-                      autoComplete="off"
-                      placeholder="Enter the Captcha from the image above"
-                      value={captchaValue}
-                      type="text"
-                      onChange={({ target: { value } }) => setCaptchaValue(value)}
-                      isValid={captchaValue && captchaValueValid}
-                      isInvalid={validated && (!captchaValue || !captchaValueValid)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please enter the Captcha
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Button variant="primary" type="submit">
-                    Create Group
-                  </Button>
-                </Form>
-              </div>
-            </div>
+                      {/*<Form.Label>Enter Captcha</Form.Label>*/}
+                      <Form.Control
+                        autoComplete="off"
+                        placeholder="Enter the Captcha from the image above"
+                        value={captchaValue}
+                        type="text"
+                        onChange={({ target: { value } }) => setCaptchaValue(value)}
+                        isValid={captchaValue && captchaValueValid}
+                        isInvalid={validated && (!captchaValue || !captchaValueValid)}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter the Captcha
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                    <Button block variant="primary" type="submit">
+                      Create Group
+                    </Button><br /><div style={{height: "40px"}}></div>
+                  </Form>
+                </div>
+              </Col>
+              <Col lg={3}></Col>
+            </Row>
+            {/*  </div>*/}
+            {/*</div>*/}
           </div>
         </Col>
       </Row>
