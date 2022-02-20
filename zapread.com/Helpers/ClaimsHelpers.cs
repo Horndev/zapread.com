@@ -39,10 +39,12 @@ namespace zapread.com.Helpers
                                 u.AppId,
                             })
                             .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                        User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
-                        User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
-                        User.AddUpdateClaim("UserAppId", us.AppId);
+                        if (us != null)
+                        {
+                            User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
+                            User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
+                            User.AddUpdateClaim("UserAppId", us.AppId);
+                        }
                     }
                 }
             }
