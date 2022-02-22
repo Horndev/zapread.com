@@ -223,7 +223,7 @@ export default function PostView(props) {
               ) : (<></>)}
               &nbsp;posted in&nbsp;
               <a className="post-groupname grouphint" data-groupid={post.GroupId} href={
-                "/Group/Detail/" + post.GroupId
+                "/Group/GroupDetail/" + post.GroupId
                 //"@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new {id = Model.GroupId})"
               } style={{ fontSize: "small", display: "inline" }}>
                 {post.GroupName}
