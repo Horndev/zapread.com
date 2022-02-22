@@ -358,16 +358,17 @@ namespace zapread.com.Helpers
         /// <param name="count"></param>
         /// <param name="postquery"></param>
         /// <param name="userInfo"></param>
-        /// <param name="userId"></param>
         /// <param name="numComments"></param>
         /// <returns></returns>
         public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, PostQueryUserInfo userInfo = null, int numComments = 3)
         {
             int userId = 0;
+            string userAppId = null;
 
             if (userInfo != null)
             {
                 userId = userInfo.Id;
+                userAppId = userInfo.AppId;
             }
 
             var sposts = await postquery
@@ -390,10 +391,10 @@ namespace zapread.com.Helpers
                     TimeStamp = p.p.TimeStamp,
                     TimeStampEdited = p.p.TimeStampEdited,
                     IsNSFW = p.p.IsNSFW,
-                    ViewerIsMod = p.p.Group.Moderators.Select(m => m.Id).Contains(userId),
-                    ViewerUpvoted = p.p.VotesUp.Select(v => v.Id).Contains(userId),
-                    ViewerDownvoted = p.p.VotesDown.Select(v => v.Id).Contains(userId),
-                    ViewerIgnoredUser = p.p.UserId.Id == userId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                    ViewerIsMod = p.p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
+                    ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                    ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                    ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                     CommentVms = p.p.Comments.Select(c => new PostCommentsViewModel()
                     {
                         PostId = p.p.PostId,
@@ -408,9 +409,9 @@ namespace zapread.com.Helpers
                         UserName = c.UserId.Name,
                         UserAppId = c.UserId.AppId,
                         ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        ViewerUpvoted = c.VotesUp.Select(v => v.Id).Contains(userId),
-                        ViewerDownvoted = c.VotesDown.Select(v => v.Id).Contains(userId),
-                        ViewerIgnoredUser = c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        ViewerUpvoted = c.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                        ViewerDownvoted = c.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                        ViewerIgnoredUser = c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                         ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                         ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
                         ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,

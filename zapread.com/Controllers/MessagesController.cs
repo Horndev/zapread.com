@@ -619,16 +619,20 @@ namespace zapread.com.Controllers
             if (markRead)
             {
                 // Set the last message from other to user as read
-                var lastmessage = await db.Messages
+                var messages = await db.Messages
                     .Where(m => m.IsPrivateMessage)
                     .Where(m => !m.IsDeleted)
                     .Where(m => (m.From.Id == otherUserId && m.To.Id == userId))
                     .OrderByDescending(m => m.TimeStamp)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
+                    .ToListAsync()
+                    .ConfigureAwait(true);
 
-                if (lastmessage != null && !lastmessage.IsRead)
+                if (messages != null)
                 {
-                    lastmessage.IsRead = true;
+                    foreach (var m in messages)
+                    {
+                        m.IsRead = true;
+                    }
                     await db.SaveChangesAsync().ConfigureAwait(true);
                 }
             }
@@ -927,8 +931,8 @@ namespace zapread.com.Controllers
         [HttpPost]
         public async Task<JsonResult> CheckUnreadChats()
         {
-            var userId = User.Identity.GetUserId();
-            if (userId == null)
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
             {
                 return Json(new { Unread = 0, success = true });
             }
@@ -936,37 +940,23 @@ namespace zapread.com.Controllers
             using (var db = new ZapContext())
             {
                 var numUnreadChats = await db.Messages
-                    .Where(m => m.To.AppId == userId)
-                    .Where(m => m.IsPrivateMessage)
-                    .Where(m => !m.IsDeleted)
-                    .GroupBy(m => m.From)
-                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()) // Most recent
-                    .Where(m => !m.IsRead)
-                    .CountAsync().ConfigureAwait(true);
-
-                // Debugging
-                //var UnreadChats = await db.Messages
-                //    .Where(m => m.To.AppId == userId)
-                //    .Where(m => m.IsPrivateMessage || m.Title.StartsWith("Private"))
-                //    .Where(m => !m.IsDeleted)
-                //    .GroupBy(m => m.From)
-                //    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()) // Most recent
-                //    .Where(m => !m.IsRead)
-                //    .ToListAsync().ConfigureAwait(true);
-
-                //var unreadChats = await db.Users
-                //    .Where(u => u.AppId == userId)
-                //    .SelectMany(u => u.Messages)
-                //    .Where(m => m.From != null)
-                //    .Where(m => !m.IsDeleted)
-                //    .Where(m => m.Title.StartsWith("Private") || m.IsPrivateMessage)
-                //    .Where(m => m.IsRead == false)
-                //    .CountAsync().ConfigureAwait(true);
+                    .Where(m => m.IsPrivateMessage && !m.IsDeleted && !m.IsRead)
+                    .Where(m => m.To.AppId == userAppId)
+                    //.GroupBy(m => m.From)
+                    //.Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()) // Most recent
+                    //.Where(m => !m.IsRead)
+                    .CountAsync()
+                    .ConfigureAwait(false); // Performance - don't need to keep context
 
                 return Json(new { Unread = numUnreadChats, success = true });
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<JsonResult> DeleteMessage(int id)
         {
             var userId = User.Identity.GetUserId();

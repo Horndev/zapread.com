@@ -4,7 +4,7 @@
  **/
 import { postJson } from '../utility/postData';                         // [✓]
 import { applyHoverToChildren } from '../utility/userhover';            // [✓]
-import { updatePostTimes } from '../utility/datetime/posttime';         // [✓]
+import { updatePostTimesOnEl } from '../utility/datetime/posttime';         // [✓]
 import { makeQuillComment } from './utility/makeQuillComment';          // [✓]
 import { makeCommentsQuotable } from '../utility/quotable/quotable';    // [✓]
 
@@ -64,11 +64,15 @@ export async function writeComment(postId, content) {
         document.getElementById('wc_' + postId.toString()).style.display = '';      // Show the comment button
         // and replace with HTML
         var commentsEl = document.getElementById('comments_' + postId.toString());
-        commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML;
+        commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML; // prepend
+
+        var newCommentEl = commentsEl.querySelector('#comment_' + data.CommentId.toString());
+        //console.log(newCommentEl, commentsEl);
+
         // If user inserted any at mentions - they become hoverable.
-        applyHoverToChildren(commentsEl, '.userhint');
+        applyHoverToChildren(newCommentEl, '.userhint');
         // Format timestamp
-        updatePostTimes();
+        updatePostTimesOnEl(newCommentEl, false);
         // Make new comment quotable
         makeCommentsQuotable();
       },

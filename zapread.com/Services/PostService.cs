@@ -15,6 +15,16 @@ namespace zapread.com.Services
     public class PostService
     {
         /// <summary>
+        /// Batch service method to update post scores
+        /// </summary>
+        /// <returns></returns>
+        public bool UpdateScores()
+        {
+
+            return false;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="id"></param>

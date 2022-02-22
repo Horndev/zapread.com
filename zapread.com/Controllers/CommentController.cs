@@ -439,8 +439,8 @@ namespace zapread.com.Controllers
                     HTMLString = CommentHTMLString,
                     c.PostId,
                     success = true,
-                    c.IsReply,
-                    c.CommentId,
+                    comment.IsReply,
+                    comment.CommentId,
                 });
             }
         }
