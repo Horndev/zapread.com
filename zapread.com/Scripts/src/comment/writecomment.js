@@ -2,11 +2,12 @@
  * 
  * [✓] Native JS
  **/
-import { postJson } from '../utility/postData';                         // [✓]
-import { applyHoverToChildren } from '../utility/userhover';            // [✓]
-import { updatePostTimesOnEl } from '../utility/datetime/posttime';         // [✓]
-import { makeQuillComment } from './utility/makeQuillComment';          // [✓]
-import { makeCommentsQuotable } from '../utility/quotable/quotable';    // [✓]
+import * as bsn from 'bootstrap.native/dist/bootstrap-native-v4';       
+import { postJson } from '../utility/postData';
+import { applyHoverToChildren } from '../utility/userhover';
+import { updatePostTimesOnEl } from '../utility/datetime/posttime';
+import { makeQuillComment } from './utility/makeQuillComment';
+import { makeCommentsQuotable } from '../utility/quotable/quotable';
 
 /**
  * @name writeComment
@@ -75,6 +76,11 @@ export async function writeComment(postId, content) {
         updatePostTimesOnEl(newCommentEl, false);
         // Make new comment quotable
         makeCommentsQuotable();
+
+        // activate dropdown (done manually using bootstrap.native)
+        var menuDropdownEl = newCommentEl.querySelector(".dropdown-toggle");
+        var dropdownInit = new bsn.Dropdown(menuDropdownEl);
+
       },
       submitCallback: function (commentHTML) {
         // Submit comment

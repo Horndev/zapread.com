@@ -397,16 +397,49 @@ namespace zapread.com.Controllers
             //var user = await db.Users
             //    .Include(usr => usr.Settings)
             //    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+            QueryHelpers.PostQueryUserInfo userInfo = null;
+            try
+            {
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .SingleOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
+            catch (InvalidOperationException)
+            {
+                // Multiple users in DB?!
+                //Debug
+                var users = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    }).ToListAsync()
+                    .ConfigureAwait(false);
 
-            var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
-                .Select(u => new QueryHelpers.PostQueryUserInfo()
-                {
-                    Id = u.Id,
-                    AppId = u.AppId,
-                    ViewAllLanguages = u.Settings.ViewAllLanguages,
-                    IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
-                })
-                .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+                // Move forward for now with just the first instance.
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
 
             IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
                 userLanguages: userLanguages, 
