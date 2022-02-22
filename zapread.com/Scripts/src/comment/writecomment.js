@@ -66,21 +66,16 @@ export async function writeComment(postId, content) {
         // and replace with HTML
         var commentsEl = document.getElementById('comments_' + postId.toString());
         commentsEl.innerHTML = data.HTMLString + commentsEl.innerHTML; // prepend
-
         var newCommentEl = commentsEl.querySelector('#comment_' + data.CommentId.toString());
-        //console.log(newCommentEl, commentsEl);
-
         // If user inserted any at mentions - they become hoverable.
         applyHoverToChildren(newCommentEl, '.userhint');
         // Format timestamp
         updatePostTimesOnEl(newCommentEl, false);
         // Make new comment quotable
         makeCommentsQuotable();
-
         // activate dropdown (done manually using bootstrap.native)
         var menuDropdownEl = newCommentEl.querySelector(".dropdown-toggle");
         var dropdownInit = new bsn.Dropdown(menuDropdownEl);
-
       },
       submitCallback: function (commentHTML) {
         // Submit comment
