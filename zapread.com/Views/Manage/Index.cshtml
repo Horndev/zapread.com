@@ -46,15 +46,16 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Profile Detail</h5>
-                    <div class="ibox-tools">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i class="fa fa-wrench"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-user">
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#ModalProfileImage">Update Profile Image</a>
-                            </li>
-                        </ul>
+                    <div class="zr-tools">
+                        <div class="dropdown zr-small-dropdown">
+                            <button class="dropdown-toggle" id="profileDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-wrench"></i>
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" id="btnUpdateProfileImage" data-target="#ModalProfileImage">Update Profile Image</a>
+                                <a class="dropdown-item" href="#" id="btnRotateProfileImage"><i class="fa fa-repeat"></i> Rotate Profile Image</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -62,58 +63,41 @@
                         <img id="userImageLarge" class="img-fluid" src="@Url.Action("UserImage", "Home", new { size = 500, v = Model.UserProfileImageVersion })" />
                     </div>
                     <div class="ibox-content profile-content">
-                        <h4>
+                        <div>
                             <strong>
-                                @if (Request.IsAuthenticated)
-                                {
-                                    <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new { size = 30, v = Model.UserProfileImageVersion })" /> @Model.UserName
-                                }
-                                else
-                                {
-                                    <text>User Name</text>
-                                }
+                                <img class="img-circle user-image-30" src="@Url.Action("UserImage", "Home", new { size = 30, v = Model.UserProfileImageVersion })" />
+                                <big><span id="labelUsername">@Model.UserName</span></big>
                             </strong>
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color:#c3c3c3;">
-                                <i class="fa fa-cog"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-user">
-                                <li>
-                                    <a href="#" data-toggle="modal" data-target="#ModalProfileImage">Upload Profile Image</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:generateRobot(1);">Generate Profile Image (Robot)</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:generateRobot(2);">Generate Profile Image (Cat)</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:generateRobot(3);">Generate Profile Image (Human)</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:generateRobot(4);">Generate Profile Image (Monster)</a>
-                                </li>
-                                <li>
-                                    <a href="#" data-toggle="modal" data-target="#userAliasModal">Change Alias</a>
-                                </li>
-                            </ul>
-                        </h4>
-
+                            <div class="dropdown zr-small-dropdown">
+                                <button class="dropdown-toggle" id="usernameDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="usernameDropdown">
+                                    <a class="dropdown-item" href="#" id="btnUploadImage" data-toggle="modal" data-target="#ModalProfileImage">Upload Profile Image</a>
+                                    <a class="dropdown-item" href="javascript:generateRobot(1);">Generate Profile Image (Robot)</a>
+                                    <a class="dropdown-item" href="javascript:generateRobot(2);">Generate Profile Image (Cat)</a>
+                                    <a class="dropdown-item" href="javascript:generateRobot(3);">Generate Profile Image (Human)</a>
+                                    <a class="dropdown-item" href="javascript:generateRobot(4);">Generate Profile Image (Monster)</a>
+                                    <a class="dropdown-item" href="#" id="btnChangeAlias">Change Alias</a>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
                         <p><i class="fa fa-star"></i> Reputation @Model.Reputation</p>
-                        <h5>
-                            About me
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color:#c3c3c3;">
-                                <i class="fa fa-cog"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-user">
-                                <li>
-                                    <a href="#" data-toggle="modal" data-target="#myModal">Update Description</a>
-                                </li>
-                            </ul>
-                        </h5>
+                        <div>
+                            <big>About me</big>
+                            <div class="dropdown zr-small-dropdown">
+                                <button class="dropdown-toggle" id="aboutmeDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="aboutmeDropdown">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" id="btnUpdateAboutMe" data-target="#myModal">Update About Me</a>
+                                </div>
+                            </div>
+                        </div>
                         <p>
                             @Model.AboutMe.AboutMe
                         </p>
-                        @*Achievements*@
                         <div class="row m-t-lg">
                             <div class="col-md-12">
                                 <h5>Achievements</h5>

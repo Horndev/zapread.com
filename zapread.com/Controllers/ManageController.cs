@@ -923,6 +923,60 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> RotateProfileImage()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "User not authorized." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var userImage = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ProfileImage)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var img = await db.Images
+                    .Where(i => i.UserAppId == userAppId)
+                    .Where(i => i.Version == userImage.Version)
+                    .Where(i => i.ImageId == userImage.ImageId)
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(true);
+
+                if (img == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return Json(new { success = false, message = "Image not found." });
+                }
+
+                using (var ms = new MemoryStream(img.Image))
+                {
+                    Image png = Image.FromStream(ms);
+                    png.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    byte[] data = png.ToByteArray(ImageFormat.Png);
+
+                    img.Image = data;
+                    img.Version += 1;
+
+                    await db.SaveChangesAsync();
+
+                    return Json(new { success = true, version = img.Version });
+                }
+            }
+        }
+
+        /// <summary>
         /// Updates the user profile image
         /// </summary>
         /// <param name="file"></param>

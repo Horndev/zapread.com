@@ -1,0 +1,25 @@
+﻿.selectr-tag {
+    background: #1AB394;
+}
+
+.zr-tools {
+    display: block;
+    float: none;
+    margin-top: 0;
+    position: relative;
+    padding: 0;
+    text-align: right;
+}
+
+.zr-small-dropdown {
+    color: #c3c3c3;
+    display: inline-block;
+    font-size: 14px;
+    background-color: #00000000;
+}
+
+    .zr-small-dropdown button {
+        color: #c3c3c3;
+        border-color: transparent;
+        background-color: transparent;
+    }

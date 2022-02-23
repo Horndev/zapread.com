@@ -1108,6 +1108,7 @@
     <Content Include="Scripts\src\Components\VoteModal.js" />
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
+    <Content Include="Scripts\src\css\pages\manage\manage.css" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
