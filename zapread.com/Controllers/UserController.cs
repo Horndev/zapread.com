@@ -952,13 +952,13 @@ namespace zapread.com.Controllers
                 return new HttpUnauthorizedResult("User not authorized");
             }
 
-            var userId = User.Identity.GetUserId();
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
                 var user = db.Users
                     .Include(usr => usr.IgnoringUsers)
-                    .FirstOrDefault(u => u.AppId == userId);
+                    .FirstOrDefault(u => u.AppId == userAppId);
 
                 if (user == null)
                 {
@@ -973,7 +973,7 @@ namespace zapread.com.Controllers
 
                 if (ignoredUser == null)
                 {
-                    return Json(new { result = "error", message = "user not found." });
+                    return Json(new { success=false, result = "error", message = "user not found." });
                 }
 
                 bool added = false;
@@ -995,7 +995,7 @@ namespace zapread.com.Controllers
 
                 db.SaveChanges();
 
-                return Json(new { result = "success", added });
+                return Json(new { success = true, result = "success", added });
             }
         }
 

@@ -297,13 +297,19 @@ namespace zapread.com.Controllers
             }
 
             var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return Json(new { success = false, message = "Unable to verify logged in user" });
+            }
 
             using (var db = new ZapContext())
             {
                 var user = await db.Users
                     .Include(usr => usr.Settings)
                     .Where(u => u.AppId == userAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(true);
 
                 if (user == null)
                 {
@@ -311,13 +317,14 @@ namespace zapread.com.Controllers
                     {
                         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     }
-                    return Json(new { success = false, message = "User not found in DB." });
+                    return Json(new { success = false, message = "User not found in database" });
                 }
 
                 var post = await db.Posts
                     .Include(pst => pst.UserId)
                     .Include(pst => pst.UserId.Settings)
-                    .FirstOrDefaultAsync(p => p.PostId == c.PostId).ConfigureAwait(true);
+                    .FirstOrDefaultAsync(p => p.PostId == c.PostId)
+                    .ConfigureAwait(true);
 
                 if (post == null)
                 {
@@ -331,7 +338,10 @@ namespace zapread.com.Controllers
                 Comment parent = null;
                 if (c.IsReply)
                 {
-                    parent = db.Comments.Include(cmt => cmt.Post).FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
+                    parent = await db.Comments
+                        .Include(cmt => cmt.Post)
+                        .FirstOrDefaultAsync(cmt => cmt.CommentId == c.CommentId)
+                        .ConfigureAwait(true);
                 }
 
                 Comment comment = CreateComment(c, user, post, parent);
@@ -347,7 +357,13 @@ namespace zapread.com.Controllers
 
                 if (c.IsReply)
                 {
-                    commentOwner = db.Comments.FirstOrDefault(cmt => cmt.CommentId == c.CommentId).UserId;
+                    commentOwner = await db.Comments
+                        .Where(cmt => cmt.CommentId == c.CommentId)
+                        .Include(cmt=> cmt.UserId.ProfileImage)
+                        .Select(cmt => cmt.UserId)
+                        .FirstOrDefaultAsync()
+                        .ConfigureAwait(true);
+
                     if (commentOwner.Settings == null)
                     {
                         commentOwner.Settings = new UserSettings();
@@ -364,7 +380,8 @@ namespace zapread.com.Controllers
                     db.Comments.Add(comment);
 
                     // Done synchronously since we can get errors when trying to render post HTML later.
-                    db.SaveChanges();
+                    await db.SaveChangesAsync()
+                        .ConfigureAwait(true);
                 }
 
                 // Find user mentions
@@ -395,16 +412,19 @@ namespace zapread.com.Controllers
                 }
 
                 // Only send messages if not own post.
+                // TODO: move this to hangfire queue
                 if (!c.IsReply && (postOwner.AppId != user.AppId))
                 {
                     if (!c.IsTest)
-                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner).ConfigureAwait(true);
+                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner)
+                            .ConfigureAwait(true);
                 }
 
                 if (c.IsReply && commentOwner.AppId != user.AppId)
                 {
                     if (!c.IsTest)
-                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner).ConfigureAwait(true);
+                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner)
+                            .ConfigureAwait(true);
                 }
 
                 // Render the comment to be inserted to HTML
@@ -439,8 +459,8 @@ namespace zapread.com.Controllers
                     HTMLString = CommentHTMLString,
                     c.PostId,
                     success = true,
-                    c.IsReply,
-                    c.CommentId,
+                    comment.IsReply,
+                    comment.CommentId,
                 });
             }
         }

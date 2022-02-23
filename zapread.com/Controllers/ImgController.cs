@@ -45,10 +45,13 @@ namespace zapread.com.Controllers
 
         /// <summary>
         /// Returns the image for the achievement specified by id
+        /// 
+        /// Cached: 1 day
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [OutputCache(Duration = 86400, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
+        [HttpGet]
         public async Task<ActionResult> AchievementImage(string id)
         {
             // Check for image in DB

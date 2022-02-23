@@ -159,8 +159,10 @@ namespace zapread.com.Controllers
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
-                userBalance = await GetUserBalance().ConfigureAwait(true);
+                var userAppId = User.Identity.GetUserId();
+                userBalance = await GetUserBalance(userAppId).ConfigureAwait(true);
             }
+
             string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
 
             Response.AddHeader("X-Frame-Options", "DENY");
@@ -179,47 +181,41 @@ namespace zapread.com.Controllers
             return RedirectToActionPermanent("Balance");
         }
 
-        private async Task<double> GetUserBalance()
+        private async Task<double> GetUserBalance(string userAppId)
         {
             double balance;
-            var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
-
-            if (userAppId == null)
+            if (string.IsNullOrEmpty(userAppId))
             {
                 return 0.0;
             }
-
             try
             {
                 using (var db = new ZapContext())
                 {
                     var userBalance = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new
-                        {
-                            Value = u.Funds == null ? -1 : u.Funds.Balance
-                        })
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                        .Where(u => u.AppId == userAppId && u.Funds != null)
+                        .AsNoTracking()
+                        .Select(u => new { u.Funds.Balance })
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
                     if (userBalance == null)
                     {
                         // User not found in database, or not logged in
-                        return 0.0;
-                    }
-                    else
-                    {
-                        if (userBalance.Value == -1)
+                        var userExists = await db.Users
+                            .Where(u => u.AppId == userAppId)
+                            .AnyAsync().ConfigureAwait(false);
+                        if (userExists)
                         {
-                            // Neets to be initialized
+                            // user exists and funds is null
                             var user_modified = await db.Users
+                                .Where(u => u.AppId == userAppId)
                                 .Include(i => i.Funds)
-                                .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
-
+                                .FirstOrDefaultAsync().ConfigureAwait(false);
                             user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
-                            await db.SaveChangesAsync().ConfigureAwait(true);
+                            await db.SaveChangesAsync().ConfigureAwait(false);
                         }
-                        balance = userBalance.Value;//user.Funds.Balance;
-                    }
+                        return 0.0;
+                    }                    
+                    balance = userBalance.Balance;
                 }
             }
             catch (Exception e)
@@ -421,19 +417,18 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GetLNFlow(string days)
         {
             XFrameOptionsDeny();
+            var userAppId = User.Identity.GetUserId();
             double amount = 0.0;
-            double balance = await GetUserBalance().ConfigureAwait(true);
+            double balance = await GetUserBalance(userAppId).ConfigureAwait(true);
             double limboBalance = await GetUserLimboBalance().ConfigureAwait(true);
             int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             try
             {
                 using (var db = new ZapContext())
                 {
-                    // Get the logged in user ID
-                    var uid = User.Identity.GetUserId();
                     var sum = await db.Users
                         .Include(i => i.LNTransactions)
-                        .Where(u => u.AppId == uid)
+                        .Where(u => u.AppId == userAppId)
                         .SelectMany(u => u.LNTransactions)
                         .Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays)   // Filter for time
                         .Select(tx => new { amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount })

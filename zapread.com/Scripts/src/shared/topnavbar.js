@@ -100,15 +100,18 @@ ready(function () {
   }
 });
 
-// [X] TODO - move into section specifically for loading the top bar.
-postJson("/Messages/CheckUnreadChats/")
-  .then((response) => {
-    if (response.success) {
-      if (response.Unread > 0) {
-        document.getElementById("topChat").style.color = "red";
+async function CheckChats() {
+  await postJson("/Messages/CheckUnreadChats/")
+    .then((response) => {
+      if (response.success) {
+        if (response.Unread > 0) {
+          document.getElementById("topChat").style.color = "red";
+        }
       }
-    }
-    else {
-      alert(response.message);
-    }
-  });
+      else {
+        alert(response.message);
+      }
+    });
+}
+
+CheckChats();

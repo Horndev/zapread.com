@@ -202,11 +202,12 @@ export function makeQuillComment(options) {
           hideCommentLoadingById('s' + options.uid);
           Swal.fire("Error", `Error submitting comment: ${error.message}`, "error");
         }
-
-        error.json().then(data => {
-          hideCommentLoadingById('s' + options.uid);
-          Swal.fire("Error", `Error submitting comment: ${data.message}`, "error");
-        })
+        else {
+          error.json().then(data => {
+            hideCommentLoadingById('s' + options.uid);
+            Swal.fire("Error", `Error submitting comment: ${data.message}`, "error");
+          })
+        }
       })
       .finally(() => {
         // nothing?
@@ -231,5 +232,10 @@ function showCommentLoadingById(id) {
 
 function hideCommentLoadingById(id) {
   var el = document.getElementById(id);
-  el.querySelectorAll('.ibox-content').item(0).classList.remove('sk-loading');
+  if (el != null) {
+    var loadingEl = el.querySelectorAll('.ibox-content').item(0);
+    if (loadingEl != null) {
+      loadingEl.classList.remove('sk-loading');
+    }
+  }
 }

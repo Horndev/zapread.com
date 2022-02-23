@@ -143,7 +143,7 @@ ready(function () {
     "cookieslist": false, /* Show the cookie list */
     "showIcon": true, /* Show cookie icon to manage cookies */
     "iconSrc": "/Content/privacy.png", /* Optionnal: URL or base64 encoded image */
-    "iconPosition": "BottomRight", /* Position of the icon between BottomRight, BottomLeft, TopRight and TopLeft */
+    "iconPosition": "BottomLeft", /* Position of the icon between BottomRight, BottomLeft, TopRight and TopLeft */
     "adblocker": false, /* Show a Warning if an adblocker is detected */
     "DenyAllCta": true, /* Show the deny all button */
     "AcceptAllCta": true, /* Show the accept all button when highPrivacy on */

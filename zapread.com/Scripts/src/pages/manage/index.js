@@ -1,28 +1,17 @@
 ﻿/**
  * Scripts for User Management
  * 
+ * Native JS
  */
 
-import $ from 'jquery';
-
-import 'bootstrap';                                             // [X]            // still requires jquery :(
-import 'bootstrap/dist/css/bootstrap.min.css';                  // [✓]
-import 'font-awesome/css/font-awesome.min.css';                 // [✓]
-import '../../utility/ui/paymentsscan';                         // [ ]
-import '../../utility/ui/accountpayments';                      // [ ]
-import '../../shared/postfunctions';                            // [✓]
-import '../../shared/readmore';                                 // [✓]
-import '../../shared/postui';                                   // [✓]
-import '../../shared/topnavbar';                                // [✓]
-import "jquery-ui-dist/jquery-ui";                              // [X]
-import "jquery-ui-dist/jquery-ui.min.css";                      // [X]
-import '../../utility/ui/vote';                                 // [✓]
-import '../../realtime/signalr';                                // [✓]
+import "../../shared/shared";
+import '../../utility/ui/vote';
+import '../../realtime/signalr';
 import Dropzone from 'dropzone';
+import Selectr from 'mobius1-selectr';
+import 'mobius1-selectr/dist/selectr.min.css'
 import 'dropzone/dist/basic.css';
 import 'dropzone/dist/dropzone.css';
-import 'bootstrap-chosen/dist/chosen.jquery-1.4.2/chosen.jquery';
-import 'bootstrap-chosen/bootstrap-chosen.css';
 import Swal from 'sweetalert2';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
 import { writeComment } from '../../comment/writecomment';
@@ -31,7 +20,13 @@ import { editComment } from '../../comment/editcomment';
 import { loadMoreComments } from '../../comment/loadmorecomments';
 import { loadachhover } from '../../utility/achievementhover';
 import { loadmore } from '../../utility/loadmore';
+import { postJson } from "../../utility/postData";
+import { getJson } from "../../utility/getData";
+import '../../css/pages/manage/manage.css';
 import './updateAlias';
+import '../../shared/postfunctions';
+import '../../shared/readmore';
+import '../../shared/postui';
 import '../../shared/sharedlast';
 
 // Make global (called from html)
@@ -47,7 +42,7 @@ async function LoadReferralStats() {
   await fetch("/api/v1/user/referralstats").then(response => {
     return response.json();
   }).then(data => {
-    console.log("LoadReferralStats", data);
+    //console.log("LoadReferralStats", data);
     var totalEl = document.getElementById("refTotal");
     totalEl.innerHTML = data.TotalReferred;
     var activeEl = document.getElementById("refTotalActive");
@@ -62,7 +57,7 @@ async function LoadReferralCode() {
   await fetch("/api/v1/user/referralcode").then(response => {
     return response.json();
   }).then(data => {
-    console.log(data);
+    //console.log(data);
     var codeEl = document.getElementById("referralCode");
     codeEl.value = data.refCode;
     var reglink = "https://www.zapread.com/Account/Register/?refcode=" + data.refCode
@@ -79,9 +74,35 @@ async function LoadActivityPostsAsync() {
     document.getElementById("posts-loading").classList.remove("sk-loading");
     var postsBoxEl = document.getElementById("posts");
     postsBoxEl.innerHTML = html;
+    onLoadedMorePosts();
   })
 }
 LoadActivityPostsAsync();
+
+async function InitRotateProfileImageButton() {
+  var el = document.getElementById('btnRotateProfileImage');
+  el.addEventListener("click", function (e) {
+    postJson('/Manage/RotateProfileImage/').then(response => {
+      if (response.success) {
+        console.log('rotated');
+        updateImagesOnPage(response.version); // Reload images
+      } else {
+        // Did not work
+        Swal.fire("Error updating: " + data.message, "error");
+      }
+    }).catch((error) => {
+        if (error instanceof Error) {
+          Swal.fire("Error", `${error.message}`, "error");
+        }
+        else {
+          error.json().then(data => {
+            Swal.fire("Error", `${data.message}`, "error");
+          })
+        }
+      });
+  }, false);
+}
+InitRotateProfileImageButton();
 
 /**
  * Wrapper for load more
@@ -128,7 +149,7 @@ Dropzone.options.dropzoneForm = {
 };
 
 function updateImagesOnPage(ver) {
-  document.getElementById("userImageLarge").setAttribute("src", "/Home/UserImage/?size=500&v=" + ver); //$('#userImageLarge').attr("src", "/Home/UserImage/?size=500&v=" + response.version);
+  document.getElementById("userImageLarge").setAttribute("src", "/Home/UserImage/?size=500&v=" + ver);
   var elements = document.querySelectorAll(".user-image-30");
   Array.prototype.forEach.call(elements, function (el, _i) {
     el.setAttribute("src", "/Home/UserImage/?size=30&v=" + ver);
@@ -143,45 +164,55 @@ function updateImagesOnPage(ver) {
   });
 }
 
-$(document).ready(function () {
-  $('.chosen-select').chosen({ width: "100%" }).on('change', function (evt, params) {
-    var selectedValue = params.selected;
-    var values = $('#languagesSelect').val();
-    console.log(selectedValue);
+async function initLanguagesSelect() {
+  var langEl = document.getElementById("languagesSelect");
+  var selectr = new Selectr(langEl, {
+    multiple: true
+  });
+  langEl.addEventListener("change", function (evt) {
+    var selectedValues = selectr.getValue();
+    var values = [...new Set(selectedValues)]; // Unique set only
     var userlangs = values.join(',');
     console.log(userlangs);
-    $.ajax({
-      async: true,
-      data: JSON.stringify({ 'languages': userlangs }),
-      type: 'POST',
-      url: '/Manage/UpdateUserLanguages',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success: function (response) {
-        if (response.success) {
-          console.log('languages updated.');
+    postJson('/Manage/UpdateUserLanguages', {
+        languages: userlangs
+      })
+      .then(response => {
+      if (response.success) {
+        console.log('languages updated.');
+      } else {
+        // Did not work
+        Swal.fire("Error updating: " + data.message, "error");
+      }
+    })
+      .catch((error) => {
+        if (error instanceof Error) {
+          Swal.fire("Error", `${error.message}`, "error");
         }
         else {
-          console.log(response.message);
+          error.json().then(data => {
+            Swal.fire("Error", `${data.message}`, "error");
+          })
         }
-      }
-    });
-  });
+      });
+  })
+}
+initLanguagesSelect();
 
-  // Set group list as clickable
-  $(".clickable-row").click(function () {
-    window.location = $(this).data("href");
-  });
+// Set group list as clickable
+var elements = document.querySelectorAll(".clickable-row");
+Array.prototype.forEach.call(elements, function (el, _i) {
+  el.addEventListener("click", function (e) {
+    //console.log(e,el);
+    var url = el.getAttribute('data-href')
+    window.location = url;
+  }, false);
 });
 
+
 export function requestAPIKey() {
-  $.ajax({
-    async: true,
-    type: 'GET',
-    url: '/api/v1/account/apikeys/new?roles=default',
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function (response) {
+  getJson('/api/v1/account/apikeys/new?roles=default')
+    .then(response => {
       if (response.success) {
         Swal.fire({
           icon: "success",
@@ -194,14 +225,17 @@ export function requestAPIKey() {
         // Did not work
         Swal.fire("Error generating key: " + data.message, "error");
       }
-    },
-    failure: function (response) {
-      Swal.fire("Failure generating key: " + response.message, "error");
-    },
-    error: function (response) {
-      Swal.fire("Error generating key: " + response.message, "error");
-    }
-  });
+    })
+    .catch((error) => {
+      if (error instanceof Error) {
+        Swal.fire("Error", `${error.message}`, "error");
+      }
+      else {
+        error.json().then(data => {
+          Swal.fire("Error", `${data.message}`, "error");
+        })
+      }
+    });
   return false; // Prevent jump to top of page
 }
 window.requestAPIKey = requestAPIKey;
@@ -217,20 +251,10 @@ window.updateLanguages = updateLanguages;
  * @returns {boolean} false
  */
 export function generateRobot(set) {
-  var form = $('#__AjaxAntiForgeryForm');
-  var token = $('input[name="__RequestVerificationToken"]', form).val();
-  var headers = {};
-  headers['__RequestVerificationToken'] = token;
-
-  $.ajax({
-    async: true,
-    data: JSON.stringify({ "set": set }),
-    type: 'POST',
-    url: '/Home/SetUserImage/',
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    headers: headers,
-    success: function (response) {
+  postJson('/Home/SetUserImage/',
+    {
+      set: set
+    }).then((response) => {
       if (response.success) {
         // Reload images
         updateImagesOnPage(response.version);
@@ -242,48 +266,39 @@ export function generateRobot(set) {
           text: "Error updating image: " + response.message
         })
       }
-    },
-    failure: function (response) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Image Update Error',
-        text: "Error updating image: " + response.message
-      })
-    },
-    error: function (response) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Image Update Error',
-        text: "Error updating image: " + response.message
-      })
-    }
-  });
+    }).catch((error) => {
+      if (error instanceof Error) {
+        Swal.fire("Error", `${error.message}`, "error");
+      }
+      else {
+        error.json().then(data => {
+          Swal.fire("Error", `${data.message}`, "error");
+        })
+      }
+    });
   return false; // Prevent jump to top of page
 }
 window.generateRobot = generateRobot;
 
 export function settingToggle(e) {
+  console.log(e);
   var setting = e.id;
   var value = e.checked;
-  let spinner = $(e).parent().find(".switch-spinner");
-  spinner.removeClass("fa-check");
-  spinner.addClass("fa-refresh");
-  spinner.addClass("fa-spin");
-  spinner.show();
+  let spinner = e.parentElement.querySelector(".switch-spinner");
+  console.log("spinner",spinner);
+  spinner.classList.remove("fa-check");
+  spinner.classList.add("fa-refresh");
+  spinner.classList.add("fa-spin");
+  spinner.style.display = 'initial';
 
-  $.ajax({
-    async: true,
-    data: JSON.stringify({ 'setting': setting, 'value': value }),
-    type: 'POST',
-    url: '/Manage/UpdateUserSetting',
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function (response) {
-      if (response.success) {
-        spinner.removeClass("fa-refresh");
-        spinner.removeClass("fa-spin");
-        spinner.addClass("fa-check");
-      }
+  postJson('/Manage/UpdateUserSetting', {
+    setting: setting,
+    value: value
+  }).then((response) => {
+    if (response.success) {
+      spinner.classList.remove("fa-refresh");
+      spinner.classList.remove("fa-spin");
+      spinner.classList.add("fa-check");
     }
   });
 }

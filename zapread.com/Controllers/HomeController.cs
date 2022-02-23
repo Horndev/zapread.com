@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
@@ -325,11 +326,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                //DateTime t = DateTime.Now;
-
                 var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
-                    //.Include(usr => usr.Settings)
-                    //.AsNoTracking()
                     .Select(u => new QueryHelpers.PostQueryUserInfo()
                     {
                         Id = u.Id,
@@ -400,16 +397,49 @@ namespace zapread.com.Controllers
             //var user = await db.Users
             //    .Include(usr => usr.Settings)
             //    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+            QueryHelpers.PostQueryUserInfo userInfo = null;
+            try
+            {
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .SingleOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
+            catch (InvalidOperationException)
+            {
+                // Multiple users in DB?!
+                //Debug
+                var users = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    }).ToListAsync()
+                    .ConfigureAwait(false);
 
-            var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
-                .Select(u => new QueryHelpers.PostQueryUserInfo()
-                {
-                    Id = u.Id,
-                    AppId = u.AppId,
-                    ViewAllLanguages = u.Settings.ViewAllLanguages,
-                    IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
-                })
-                .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+                // Move forward for now with just the first instance.
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                    })
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
 
             IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
                 userLanguages: userLanguages, 
@@ -599,33 +629,43 @@ namespace zapread.com.Controllers
             XFrameOptionsDeny();
             using (var db = new ZapContext())
             {
-                //User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
-                
                 var userAppId = User.Identity.GetUserId();
-                //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
 
-                PostsViewModel vm = new PostsViewModel()
+                var postquery = await GetPostsQuery(
+                    db: db,
+                    sort: sort,
+                    userAppId: userAppId)
+                    .ConfigureAwait(false);
+
+                var postsVm = await QueryHelpers.QueryPostsVm(
+                    start: 0,
+                    count: 10,
+                    postquery: postquery,
+                    userInfo: new QueryHelpers.PostQueryUserInfo()
+                    {
+                        AppId = userAppId,
+                    })
+                    .ConfigureAwait(false);
+
+                // Performance (expensive)
+                string PostsHTMLString = "";
+                foreach (var p in postsVm)
                 {
-                    Posts = await GetPostsVm(0,10,sort, userAppId).ConfigureAwait(true)
-                };
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
+                    PostsHTMLString += PostHTMLString;
+                }
 
-                //await PostService.PostImpressionEnqueue(vm.Posts.Select(p=>p.PostId));
-
-                var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
-
-                string contentStr = PostHTMLString;
-
+                string contentStr = PostsHTMLString;
                 try
                 {
                     var cookie = HttpContext.Request.Cookies.Get("tarteaucitron");
-
                     if (cookie != null)
                     {
                         var youtubeCookie = cookie.Value.Split('!').Select(i => i.Split('=')).Where(i => i.Length > 1).Where(i => i[0] == "zyoutube").FirstOrDefault();
                         if (youtubeCookie != null && youtubeCookie[1] == "false")
                         {
                             HtmlDocument postDocument = new HtmlDocument();
-                            postDocument.LoadHtml(PostHTMLString);
+                            postDocument.LoadHtml(PostsHTMLString);
 
                             // Check links
                             var postLinks = postDocument.DocumentNode.SelectNodes("//iframe/@src");
@@ -651,7 +691,7 @@ namespace zapread.com.Controllers
                         else
                         {
                             // filter youtube nocookie anyway
-                            contentStr = PostHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
+                            contentStr = PostsHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
                         }
                     }
                 } catch (Exception)
@@ -982,6 +1022,19 @@ namespace zapread.com.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
+
+        /*
+        Task<bool> task = Task.Run(() =>
+            {
+                foreach (var id in ids)
+                {
+                    BackgroundJob.Enqueue<PostService>(methodCall: x => x.PostImpressionIncrement(id));
+                }
+                return true;
+            });
+
+            return await task;
+         */
 
         /// <summary>
         /// 
