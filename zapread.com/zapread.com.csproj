@@ -1301,7 +1301,6 @@
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
     <Content Include="Scripts\src\shared\readmore.js" />
-    <Content Include="Scripts\src\comment\initCommentInput.js" />
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
@@ -1349,7 +1348,6 @@
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
     <Content Include="Scripts\src\utility\quotable\quotable.js" />
-    <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
