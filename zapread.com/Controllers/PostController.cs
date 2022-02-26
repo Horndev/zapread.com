@@ -679,8 +679,6 @@ namespace zapread.com.Controllers
 
             if (postIdEnc != null)
             {
-                var s = CryptoService.IntIdToString(8499);
-                // decode postId
                 PostId = CryptoService.StringToIntId(postIdEnc);
             }
 

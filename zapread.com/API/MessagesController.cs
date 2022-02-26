@@ -178,11 +178,12 @@ namespace zapread.com.API
         /// Get the messages for a user
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="read"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/messages/get/{page}")]
+        [Route("api/v1/messages/get/{page}/{read?}")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public async Task<IHttpActionResult> GetMessages(int? page)
+        public async Task<IHttpActionResult> GetMessages(int? page, string read = null)
         {
             using (var db = new ZapContext())
             {
@@ -198,10 +199,18 @@ namespace zapread.com.API
                 int pagesize = 100;
                 int qpage = page ?? 0;
 
-                // Query messages to show
-                var messages = await db.Messages
+                var q = db.Messages
                     .Where(m => m.To.AppId == userAppId)
-                    .Where(m => !m.IsRead && !m.IsDeleted)
+                    .Where(m => !m.IsDeleted);
+
+                // Check if we include read alerts
+                if (read == null)
+                {
+                    q = q.Where(a => !a.IsRead);
+                }
+
+                // Query messages to show
+                var messages = await q
                     .OrderByDescending(m => m.TimeStamp)
                     .Select(m => new {
                         m.Id,
@@ -209,6 +218,36 @@ namespace zapread.com.API
                         m.Title,
                         m.Content,
                         m.TimeStamp,
+                        UserName = m.IsPrivateMessage ?
+                            m.From.Name
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    ""
+                                    :
+                                    m.PostLink.UserId.Name
+                                :
+                                m.CommentLink.UserId.Name,
+                        FromUserAppId = m.IsPrivateMessage ? 
+                            m.From.AppId
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    ""
+                                    :
+                                    m.PostLink.UserId.AppId
+                                :
+                                m.CommentLink.UserId.AppId,
+                        FromUserProfileImageVersion = m.IsPrivateMessage ?
+                            m.From.ProfileImage.Version
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    0
+                                    :
+                                    m.PostLink.UserId.ProfileImage.Version
+                                :
+                                m.CommentLink.UserId.ProfileImage.Version,
                         FromName = m.From.Name,
                         PostTitle = m.PostLink == null ? "" : m.PostLink.PostTitle,
                         PostId = m.PostLink == null ? -1 : m.PostLink.PostId,
