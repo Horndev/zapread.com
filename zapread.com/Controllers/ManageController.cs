@@ -925,8 +925,6 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="v"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]

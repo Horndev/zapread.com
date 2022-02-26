@@ -1,10 +1,12 @@
 ﻿const webpack = require("webpack");
 const path = require("path");
+const glob = require('glob-all')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const PurgecssPlugin = require('purgecss-webpack-plugin')
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
-  mode: "production",//production",//"development",
+  mode: "development",//production",//"development",
   entry: {
     account_login: "./Scripts/src/pages/account/login.js",
     account_register: "./Scripts/src/pages/account/register.js",
@@ -51,6 +53,18 @@ module.exports = {
       return subpath + "/" + filename + ".js";
     }
   },
+  //optimization: {
+  //  splitChunks: {
+  //    cacheGroups: {
+  //      styles: {
+  //        name: 'styles',
+  //        test: /\.css$/,
+  //        chunks: 'all',
+  //        enforce: true
+  //      }
+  //    }
+  //  }
+  //},
   //optimization: {
   //  minimizer: [
   //    // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line

@@ -15,15 +15,20 @@ import { loadMoreComments } from '../../comment/loadmorecomments';          // [
 import { createPieChart } from "micro-charts";
 import { ready } from "../../utility/ready";
 import { getJson } from "../../utility/getData";
-import tippy from 'tippy.js';                       // [✓]
-import 'tippy.js/dist/tippy.css';                   // [✓]
-import 'tippy.js/themes/light-border.css';          // [✓]
-import '../../shared/postfunctions';                                        // [✓]
-import '../../shared/readmore';                                             // [✓]
-import '../../shared/postui';                                               // [✓]
-import '../../shared/sharedlast';                                           // [✓]
+/*
+ * This is the main landing page for ZapRead
+ */
 
-import '../../css/posts.css' // styles related to pages which render posts
+import '../../css/Site.css';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
+import '../../css/posts.css'
+
+import tippy from 'tippy.js';
+import '../../shared/postfunctions';
+import '../../shared/readmore';
+import '../../shared/postui';
+import '../../shared/sharedlast';
 
 // Make global (called from html)
 window.writeComment = writeComment;

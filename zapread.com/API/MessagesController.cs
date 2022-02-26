@@ -96,11 +96,13 @@ namespace zapread.com.API
         /// Get the alerts for a user
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="read"></param>
+        /// <param name="sort"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/alerts/get/{page}")]
+        [Route("api/v1/alerts/get/{page}/{read?}/{sort?}")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public async Task<IHttpActionResult> GetAlerts(int? page)
+        public async Task<IHttpActionResult> GetAlerts(int? page, string read = null, string sort = null)
         {
             using (var db = new ZapContext())
             {
@@ -116,8 +118,16 @@ namespace zapread.com.API
                 int pagesize = 100;
                 int qpage = page ?? 0;
 
-                var alerts = await db.Alerts.Where(a => a.To.AppId == userAppId)
-                    .Where(a => !a.IsRead && !a.IsDeleted)
+                var alertsq = db.Alerts.Where(a => a.To.AppId == userAppId)
+                    .Where(a => !a.IsDeleted);
+
+                // Check if we include read alerts
+                if (read == null)
+                {
+                    alertsq = alertsq.Where(a => !a.IsRead);
+                }
+
+                var alerts = await alertsq
                     .OrderByDescending(a => a.TimeStamp)
                     .Select(a => new
                     {
@@ -134,9 +144,7 @@ namespace zapread.com.API
                     .ToListAsync().ConfigureAwait(true);
 
                 // Query message count
-                var numAlerts = await db.Alerts
-                    .Where(a => a.To.AppId == userAppId)
-                    .Where(a => !a.IsRead && !a.IsDeleted)
+                var numAlerts = await alertsq
                     .CountAsync().ConfigureAwait(true);
 
                 return Ok(new { alerts, numAlerts });
