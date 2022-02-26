@@ -110,14 +110,11 @@ function Page() {
                           </td>
                           <td className="project-people">
                             {alert.FromUserAppId != "" ?
-                              <>
+                              <a href={"/user/" + encodeURIComponent(alert.UserName) }>
                                 <img alt="image" className="rounded-circle" loading="lazy" width="32" height="32"
                                   src={"/Home/UserImage/?size=32&UserId=" + encodeURIComponent(alert.FromUserAppId) + "&v=" + alert.FromUserProfileImageVersion}/>
-                              </> : <></>}
+                              </a> : <></>}
                           </td>
-                          {/*<td>*/}
-                          {/*  <div dangerouslySetInnerHTML={{ __html: alert.Content }} />*/}
-                          {/*</td>*/}
                           <td className="project-title">
                             <small className="postTime text-muted">{ ISOtoRelative(alert.TimeStamp) }</small>
                             <br />

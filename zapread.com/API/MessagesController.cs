@@ -137,8 +137,28 @@ namespace zapread.com.API
                         a.IsRead,
                         a.Title,
                         a.Content,
-                        FromUserAppId = a.PostLink == null ? "" : a.PostLink.UserId.AppId,
-                        FromUserProfileImageVersion = a.PostLink == null ? 0 : a.PostLink.UserId.ProfileImage.Version,
+                        UserName = a.CommentLink == null ?
+                                a.PostLink == null ?
+                                    ""
+                                    :
+                                    a.PostLink.UserId.Name
+                                :
+                                a.CommentLink.UserId.Name,
+                        FromUserAppId = a.CommentLink == null ?
+                                a.PostLink == null ? 
+                                    "" 
+                                    : 
+                                    a.PostLink.UserId.AppId
+                                :
+                                a.CommentLink.UserId.AppId,
+                        FromUserProfileImageVersion = 
+                            a.CommentLink == null ? 
+                                a.PostLink == null ? 
+                                    0 
+                                    : 
+                                    a.PostLink.UserId.ProfileImage.Version
+                                :
+                                a.CommentLink.UserId.ProfileImage.Version,
                         CommentId = a.CommentLink == null ? -1 :a.CommentLink.CommentId,
                         PostId = a.PostLink == null ? -1 : a.PostLink.PostId,
                         PostTitle = a.PostLink == null ? "" : a.PostLink.PostTitle,
