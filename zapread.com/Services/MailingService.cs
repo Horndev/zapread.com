@@ -79,7 +79,7 @@ namespace zapread.com.Services
                                             IsDeleted = false,
                                             IsRead = false,
                                             To = follower.user,
-                                            PostLink = postInfo.post,
+                                            PostLink = postInfo.post,                                            
                                         };
 
                                         follower.user.Alerts.Add(alert);

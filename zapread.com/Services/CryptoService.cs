@@ -42,6 +42,12 @@ namespace zapread.com.Services
     /// </summary>
     public static class CryptoService
     {
+        private static readonly char[] alphabetEnc = new char[] {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_', '.', '~',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's','t','u','v','w','x','y','z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S','T','U','V','W','X','Y','Z',
+        };
+
         /// <summary>
         /// Generate a new referral Code
         /// </summary>
@@ -49,6 +55,65 @@ namespace zapread.com.Services
         public static string GetNewRefCode()
         {
             return Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("=", "").Replace("/", "-").Replace("+", "_");
+        }
+
+        /// <summary>
+        /// Encode a number
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static string IntIdToString(int number)
+        {
+            var numChars = alphabetEnc.Count();
+
+            int dividend = number;
+            int remainder;
+            var digits = new List<int>();
+
+            while (dividend > 0)
+            {
+                remainder = dividend % numChars;
+                dividend /= numChars;
+                digits.Add(remainder);
+            }
+
+            digits.Reverse();
+
+            string encString = "";
+            int i = 0;
+            while(digits.Count() > i)
+            {
+                encString += alphabetEnc[digits[i]];
+                i++;
+            }
+
+            return encString;
+        }
+
+        /// <summary>
+        /// Decode a number
+        /// </summary>
+        /// <param name="encoded"></param>
+        /// <returns></returns>
+        public static int StringToIntId(string encoded)
+        {
+            if (encoded == null) return 0;
+
+            int val = 0;
+            var numChars = alphabetEnc.Count();
+            var numDigits = encoded.Length;
+            int i = 0;
+            int placeval = 1;
+            while (numDigits > i)
+            {
+                var c = encoded[numDigits - i - 1]; //LSB first
+                var n = Array.IndexOf(alphabetEnc, c);
+                val += placeval * n;
+                placeval *= numChars;
+                i++;
+            }
+
+            return val;
         }
 
         /// <summary>

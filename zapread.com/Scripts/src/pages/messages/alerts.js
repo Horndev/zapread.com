@@ -2,7 +2,6 @@
  *
  */
 
-//import "../../css/style_messages_alerts.scss";
 import "../../css/pages/messages/alerts.scss";
 import "../../shared/shared";
 import "../../realtime/signalr";
@@ -99,8 +98,8 @@ function Page() {
                   <table className="table table-hover">
                     <tbody>
                       {alerts.map((alert, index) => (
-                        <tr className={alert.IsRead ? "" : "alert-row-unread"}>
-                          <td className="project-status">
+                        <tr key={alert.Id} className={alert.IsRead ? "" : "alert-row-unread"}>
+                          <td className="project-status" onClick={() => { dismissAlert(alert.Id); }}>
                             {alert.IsRead ?
                               <>
                                 <span className="badge badge-primary">Read</span>
@@ -108,6 +107,13 @@ function Page() {
                               <>
                                 <span className="badge badge-info">Unread</span>
                               </>}
+                          </td>
+                          <td className="project-people">
+                            {alert.FromUserAppId != "" ?
+                              <>
+                                <img alt="image" className="rounded-circle" loading="lazy" width="32" height="32"
+                                  src={"/Home/UserImage/?size=32&UserId=" + encodeURIComponent(alert.FromUserAppId) + "&v=" + alert.FromUserProfileImageVersion}/>
+                              </> : <></>}
                           </td>
                           {/*<td>*/}
                           {/*  <div dangerouslySetInnerHTML={{ __html: alert.Content }} />*/}
@@ -119,7 +125,7 @@ function Page() {
                           </td>
                           <td className="project-actions">
                             <a className="btn btn-sm btn-outline-warning" onClick={() => { deleteAlert(alert.Id); }}>
-                              <i className="fa fa-times-circle"></i>{" "}Dismiss
+                              <i className="fa fa-minus-circle"></i>{" "}Dismiss
                             </a>
                           </td>
                         </tr>
