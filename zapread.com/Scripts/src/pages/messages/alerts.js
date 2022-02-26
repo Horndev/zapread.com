@@ -2,7 +2,7 @@
  *
  */
 
-import "../../css/style_messages_alerts.scss";
+//import "../../css/style_messages_alerts.scss";
 import "../../css/pages/messages/alerts.scss";
 import "../../shared/shared";
 import "../../realtime/signalr";
@@ -99,7 +99,7 @@ function Page() {
                   <table className="table table-hover">
                     <tbody>
                       {alerts.map((alert, index) => (
-                        <tr>
+                        <tr className={alert.IsRead ? "" : "alert-row-unread"}>
                           <td className="project-status">
                             {alert.IsRead ?
                               <>
@@ -109,22 +109,17 @@ function Page() {
                                 <span className="badge badge-info">Unread</span>
                               </>}
                           </td>
-                          {/*<td className="project-people">*/}
-                          {/*  <a>*/}
-                          {/*    <img className="rounded-circle" src=""/>*/}
-                          {/*  </a>*/}
+                          {/*<td>*/}
+                          {/*  <div dangerouslySetInnerHTML={{ __html: alert.Content }} />*/}
                           {/*</td>*/}
-                          <td>
-                            <div dangerouslySetInnerHTML={{ __html: alert.Content }} />
-                          </td>
                           <td className="project-title">
-                            <small className="postTime text-muted">{alert.TimeStamp}</small>
+                            <small className="postTime text-muted">{ ISOtoRelative(alert.TimeStamp) }</small>
                             <br />
-                            <a><div dangerouslySetInnerHTML={{ __html: alert.Title }} /></a>
+                            <a href={alert.CommentId > 0 ? ("/Post/Detail/" + alert.PostId + "/#cid_" + alert.CommentId) : alert.PostId > 0 ? "/Post/Detail/" + alert.PostId : "#"}><div dangerouslySetInnerHTML={{ __html: alert.Title }} /></a>
                           </td>
                           <td className="project-actions">
-                            <a className="btn btn-sm btn-outline-danger">
-                              <i className="fa fa-times-circle"></i>{" "}Delete
+                            <a className="btn btn-sm btn-outline-warning" onClick={() => { deleteAlert(alert.Id); }}>
+                              <i className="fa fa-times-circle"></i>{" "}Dismiss
                             </a>
                           </td>
                         </tr>
@@ -132,41 +127,41 @@ function Page() {
                     </tbody>
                   </table>
                 </div>
-                <br /><br />OLD<br /><br />
-                {alerts.map((alert, index) => (
-                  <div
-                    key={alert.Id}
-                    id={"a_" + alert.Id}
-                    className="feed-element">
-                    <div>
-                      <span className="pull-right">&nbsp;
-                        <a className="btn btn-sm btn-danger" onClick={() => { deleteAlert(alert.Id); }}>
-                          Delete&nbsp;<i className="fa fa-times-circle"></i>
-                        </a>
-                      </span>
-                      {alert.IsRead ?
-                        <>
-                          <span className="badge badge-primary">Read</span>
-                        </> :
-                        <>
-                          <span className="badge badge-info">Unread</span>
-                        </>}
-                      <strong>
-                        <div dangerouslySetInnerHTML={{ __html: alert.Title }} />
-                      </strong>
-                      <div>
-                        {alert.PostId > 0 ? (<>
-                          <span>Post:</span>
-                          <a href={"/Post/Detail/" + alert.PostId}>
-                            {alert.PostTitle != "" ? (<>{alert.PostTitle}</>) : (<>Link</>)}
-                          </a>
-                        </>) : (<></>)}
-                      </div>
-                      <div dangerouslySetInnerHTML={{ __html: alert.Content }} />
-                      <small className="postTime text-muted">{alert.TimeStamp}</small>
-                    </div>
-                  </div>
-                ))}
+                {/*<br /><br />OLD<br /><br />*/}
+                {/*{alerts.map((alert, index) => (*/}
+                {/*  <div*/}
+                {/*    key={alert.Id}*/}
+                {/*    id={"a_" + alert.Id}*/}
+                {/*    className="feed-element">*/}
+                {/*    <div>*/}
+                {/*      <span className="pull-right">&nbsp;*/}
+                {/*        <a className="btn btn-sm btn-danger" onClick={() => { deleteAlert(alert.Id); }}>*/}
+                {/*          Delete&nbsp;<i className="fa fa-times-circle"></i>*/}
+                {/*        </a>*/}
+                {/*      </span>*/}
+                {/*      {alert.IsRead ?*/}
+                {/*        <>*/}
+                {/*          <span className="badge badge-primary">Read</span>*/}
+                {/*        </> :*/}
+                {/*        <>*/}
+                {/*          <span className="badge badge-info">Unread</span>*/}
+                {/*        </>}*/}
+                {/*      <strong>*/}
+                {/*        <div dangerouslySetInnerHTML={{ __html: alert.Title }} />*/}
+                {/*      </strong>*/}
+                {/*      <div>*/}
+                {/*        {alert.PostId > 0 ? (<>*/}
+                {/*          <span>Post:</span>*/}
+                {/*          <a href={"/Post/Detail/" + alert.PostId}>*/}
+                {/*            {alert.PostTitle != "" ? (<>{alert.PostTitle}</>) : (<>Link</>)}*/}
+                {/*          </a>*/}
+                {/*        </>) : (<></>)}*/}
+                {/*      </div>*/}
+                {/*      <div dangerouslySetInnerHTML={{ __html: alert.Content }} />*/}
+                {/*      <small className="postTime text-muted">{ ISOtoRelative(alert.TimeStamp) }</small>*/}
+                {/*    </div>*/}
+                {/*  </div>*/}
+                {/*))}*/}
               </div>
             </div>
           </div>

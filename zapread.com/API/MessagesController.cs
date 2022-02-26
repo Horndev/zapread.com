@@ -137,6 +137,7 @@ namespace zapread.com.API
                         a.IsRead,
                         a.Title,
                         a.Content,
+                        CommentId = a.CommentLink == null ? -1 :a.CommentLink.CommentId,
                         PostId = a.PostLink == null ? -1 : a.PostLink.PostId,
                         PostTitle = a.PostLink == null ? "" : a.PostLink.PostTitle,
                     }).Skip(qpage * pagesize).Take(pagesize)

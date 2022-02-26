@@ -687,8 +687,9 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        public PartialViewResult RecentUnreadAlerts(int count)
+        public PartialViewResult RecentUnreadAlerts()
         {
+            int count = 10;
             string userId = null;
             if (User != null)
             {
@@ -723,8 +724,15 @@ namespace zapread.com.Controllers
             }
         }
 
-        public PartialViewResult RecentUnreadMessages(int count)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public PartialViewResult RecentUnreadMessages()
         {
+            int count = 10;
             string userId = null;
             if (User != null)
             {

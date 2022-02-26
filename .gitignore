@@ -101,3 +101,5 @@ packages/
 /realtime.zapread.com/node_modules/
 /realtime.zapread.com/wwwroot/js/
 /zapread.com/Scripts/dist/
+/zapread.com/.upgrade-assistant
+/zapread.com/upgrade-assistant.clef

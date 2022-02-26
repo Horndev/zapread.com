@@ -2,3 +2,7 @@
 @use '../../themes/default' as colors;
 @use '../../site/layout';
 @use '../../site/items-list';
+
+.alert-row-unread {
+    background-color: #1ab39420;
+}
