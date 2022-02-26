@@ -1245,6 +1245,7 @@
     <Content Include="Scripts\config\webpack.config.js" />
     <Content Include="Scripts\src\css\site\layout.scss" />
     <Content Include="Scripts\src\css\style_messages_alerts.scss" />
+    <Content Include="Scripts\src\css\style.scss" />
     <None Include="Scripts\src\css\themes\default.scss" />
     <None Include="Scripts\src\css\site\items-list.scss" />
     <Content Include="Scripts\src\pages\account\register.js" />
