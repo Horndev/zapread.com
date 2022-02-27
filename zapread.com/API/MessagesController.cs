@@ -196,7 +196,7 @@ namespace zapread.com.API
 
                 string userAppId = user.AppId;
 
-                int pagesize = 100;
+                int pagesize = 200;
                 int qpage = page ?? 0;
 
                 var q = db.Messages
@@ -214,6 +214,7 @@ namespace zapread.com.API
                     .OrderByDescending(m => m.TimeStamp)
                     .Select(m => new {
                         m.Id,
+                        m.IsRead,
                         m.IsPrivateMessage,
                         m.Title,
                         m.Content,

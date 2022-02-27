@@ -80,7 +80,7 @@ function Page() {
                 </small>
                 <span className="pull-right">&nbsp;
                   <Button variant="danger" size="sm" onClick={() => { dismissMessage(-1); }}>
-                    Delete all&nbsp;<i className="fa fa-times-circle"></i>
+                    Dismiss all&nbsp;<i className="fa fa-times-circle"></i>
                   </Button>
                 </span>
               </div>
@@ -119,11 +119,18 @@ function Page() {
                             <small className="postTime text-muted">{ISOtoRelative(alert.TimeStamp)}</small>
                             <br />
                             <a href={alert.CommentId > 0 ? ("/Post/Detail/" + alert.PostId + "/#cid_" + alert.CommentId) : alert.PostId > 0 ? "/Post/Detail/" + alert.PostId : "#"}><div dangerouslySetInnerHTML={{ __html: alert.Title }} /></a>
+                            <br />
+                            <div className="alert-content" style={{ overflow: "hidden" }} dangerouslySetInnerHTML={{ __html: alert.Content }}></div>
                           </td>
                           <td className="project-actions">
                             <a className="btn btn-sm btn-outline-warning" onClick={() => { dismissMessage(alert.Id); }}>
                               <i className="fa fa-minus-circle"></i>{" "}Dismiss
                             </a>
+                            {alert.IsPrivateMessage ? <></> :
+                              <a className="btn btn-sm btn-outline-danger" onClick={() => { deleteMessage(alert.Id); }}>
+                                <i className="fa fa-times-circle"></i>{" "}Delete
+                              </a>
+                            }
                           </td>
                         </tr>
                       ))}
