@@ -310,7 +310,6 @@ namespace zapread.com.Controllers
         /// Generates the HTML to be mailed out
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="subject"></param>
         /// <returns></returns>
         public async Task<string> GenerateNewPostEmailBody(int id)
         {
