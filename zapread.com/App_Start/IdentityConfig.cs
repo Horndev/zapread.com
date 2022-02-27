@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Base32;
+using Hangfire;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
+using OtpSharp;
 using System;
+using System.Data.Entity.Utilities;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
@@ -74,6 +78,26 @@ namespace zapread.com
         }
 
         /// <summary>
+        /// Access method for checking if GA is enabled
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> IsEmailAuthenticatorEnabledAsync(string userAppId)
+        {
+            var user = await FindByIdAsync(userAppId).ConfigureAwait(true);
+            return user.IsEmailAuthenticatorEnabled;
+        }
+
+        /// <summary>
+        /// Access method for checking if GA is enabled
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> IsGoogleAuthenticatorEnabledAsync(string userAppId)
+        {
+            var user = await FindByIdAsync(userAppId).ConfigureAwait(true);
+            return user.IsGoogleAuthenticatorEnabled;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="options"></param>
@@ -115,7 +139,11 @@ namespace zapread.com
                 Subject = "Security Code",
                 BodyFormat = "Your security code is {0}"
             });
+
+            manager.RegisterTwoFactorProvider("Google Authenticator", new GoogleAuthenticatorTokenProvider());
+
             manager.EmailService = new EmailService();
+
             //manager.SmsService = new SmsService();
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
@@ -124,6 +152,65 @@ namespace zapread.com
                     new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
             return manager;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class GoogleAuthenticatorTokenProvider : IUserTokenProvider<ApplicationUser, string>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="purpose"></param>
+        /// <param name="manager"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult((string)null);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="purpose"></param>
+        /// <param name="token"></param>
+        /// <param name="manager"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Task<bool> ValidateAsync(string purpose, string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            long timeStepMatched = 0;
+
+            var otp = new Totp(Base32Encoder.Decode(user.GoogleAuthenticatorSecretKey));
+            bool valid = otp.VerifyTotp(token, out timeStepMatched, new VerificationWindow(2, 2));
+
+            return Task.FromResult(valid);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="manager"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Task NotifyAsync(string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Task<bool> IsValidProviderForUserAsync(UserManager<ApplicationUser, string> manager, ApplicationUser user)
+        {
+            return Task.FromResult(user.IsGoogleAuthenticatorEnabled);
         }
     }
 

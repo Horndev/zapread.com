@@ -506,6 +506,19 @@
     <Compile Include="Helpers\StringHelpers.cs" />
     <Compile Include="Helpers\URLHelperExtensions.cs" />
     <Compile Include="Helpers\ValidateJsonAntiForgeryToken.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.designer.cs">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202271702287_Initial.cs" />
+    <Compile Include="MigrationsASP\202202271702287_Initial.designer.cs">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.cs" />
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.designer.cs">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\Configuration.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.Designer.cs">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>
@@ -899,6 +912,7 @@
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
     <Compile Include="Models\Lightning\LNNode.cs" />
+    <Compile Include="Models\Manage\GoogleAuthenticatorViewModel.cs" />
     <Compile Include="Models\Manage\ManageActivityPostsPartialViewModel.cs" />
     <Compile Include="Models\Manage\UpdatedUserAliasView.cs" />
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
@@ -1556,6 +1570,15 @@
     <EmbeddedResource Include="API.resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>API.resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202002200019335_InitialCreate.resx">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202271702287_Initial.resx">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.resx">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805160258291_InitialVersion.resx">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>

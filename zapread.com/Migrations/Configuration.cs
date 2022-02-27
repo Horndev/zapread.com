@@ -7,6 +7,8 @@ namespace zapread.com.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
+            MigrationsDirectory = @"Migrations";
+            ContextKey = "zapread.com.Migrations.Configuration"; //  zapread.com.Database.ZapContext
         }
 
         protected override void Seed(zapread.com.Database.ZapContext context)
