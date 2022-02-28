@@ -73,6 +73,13 @@ function Page() {
   useEffect(() => {
     async function initialize() {
       if (!isLoaded) {
+        const d = new Date();
+        let month = d.getMonth() + 1;
+        let year = d.getFullYear();
+        let my = { year: year, month: month };
+        //console.log(my);
+        setMonthYear(my);
+
         setIsLoaded(true);
         getLiability();
       }
@@ -128,22 +135,25 @@ function Page() {
                   <Button onClick={() => {
                     pickAMonth.current.show();
                   }}>{months[monthYear.month - 1]}-{monthYear.year}</Button>
-                  
                 </div>
                 <Spreadsheet data={revenueData} />
+                <br /><br /><br /><br />
               </Tab>
               <Tab eventKey="liabilities" title="Liabilities">
                 <Spreadsheet data={liabilityData} />
+                <br /><br /><br /><br />
               </Tab>
               <Tab eventKey="assets" title="Assets">
                 <p>
                   TODO
                 </p>
+                <br /><br /><br /><br />
               </Tab>
               <Tab eventKey="transactions" title="Transactions">
                 <p>
                   TODO
                 </p>
+                <br /><br /><br /><br />
               </Tab>
             </Tabs>
 
