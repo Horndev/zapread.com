@@ -81,7 +81,7 @@ namespace zapread.com
         /// Access method for checking if GA is enabled
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> IsEmailAuthenticatorEnabledAsync(string userAppId)
+        public virtual async Task<bool> IsEmailAuthenticatorEnabledAsync(string userAppId)
         {
             var user = await FindByIdAsync(userAppId).ConfigureAwait(true);
             return user.IsEmailAuthenticatorEnabled;
@@ -91,7 +91,7 @@ namespace zapread.com
         /// Access method for checking if GA is enabled
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> IsGoogleAuthenticatorEnabledAsync(string userAppId)
+        public virtual async Task<bool> IsGoogleAuthenticatorEnabledAsync(string userAppId)
         {
             var user = await FindByIdAsync(userAppId).ConfigureAwait(true);
             return user.IsGoogleAuthenticatorEnabled;

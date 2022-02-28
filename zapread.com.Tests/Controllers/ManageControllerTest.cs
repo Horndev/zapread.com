@@ -181,6 +181,8 @@ namespace zapread.com.Tests.Controllers
 
             userManager.Setup(x => x.GetPhoneNumberAsync(It.IsAny<string>())).Returns(Task.FromResult("123"));
             userManager.Setup(x => x.GetTwoFactorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
+            userManager.Setup(x => x.IsGoogleAuthenticatorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
+            userManager.Setup(x => x.IsEmailAuthenticatorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
             userManager.Setup(x => x.GetLoginsAsync(It.IsAny<string>())).Returns(Task.FromResult(userlogins));
         }
     }

@@ -101,7 +101,10 @@ namespace zapread.com.Controllers
         {
             try
             {
-                Response.AddHeader("X-Frame-Options", "DENY");
+                if (Response != null)
+                {
+                    Response.AddHeader("X-Frame-Options", "DENY");
+                }
             }
             catch
             {
