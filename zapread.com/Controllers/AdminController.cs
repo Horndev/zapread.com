@@ -822,7 +822,7 @@ namespace zapread.com.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = "/" });
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Admin/Audit/Transaction/" + id.ToString() });
             }
 
             using (var db = new ZapContext())
