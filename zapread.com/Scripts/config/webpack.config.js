@@ -146,11 +146,11 @@ module.exports = {
       moduleFilename: chunk =>
         `${chunk.name.split("_")[0]}/${chunk.name.split("_")[1]}.css`
     }),
-    new PurgeCSSPlugin({
-      paths: glob.sync([
-        './Scripts/**',
-        './Views/**'
-      ], { nodir: true })
-    })
+    //new PurgeCSSPlugin({
+    //  paths: glob.sync([
+    //    './Scripts/**',
+    //    './Views/**'
+    //  ], { nodir: true })
+    //})
   ]
 };
