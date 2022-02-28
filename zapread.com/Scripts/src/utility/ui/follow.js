@@ -2,8 +2,6 @@
  * [✓] Native JS
  */
 
-//import $ from 'jquery';
-
 import { getAntiForgeryToken } from '../antiforgery';       // [✓]
 import { postJson } from '../postData';                     // [✓]
 

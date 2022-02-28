@@ -2,8 +2,6 @@
  * 
  * [✓] Native JS
  */
-//import $ from 'jquery';
-
 import { postJson } from '../postData';                     // [✓]
 
 export function joinGroup(id, e) {

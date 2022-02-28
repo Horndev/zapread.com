@@ -63,9 +63,6 @@
                 <li class="nav-item">
                     @Html.ActionLink("FAQ", "FAQ", "Home", new { area = "" }, new { @class = "nav-link" })
                 </li>
-                <li class="nav-item">
-                    @Html.ActionLink("Contact", "Feedback", "Home", new { area = "" }, new { @class = "nav-link" })
-                </li>
             </ul>
             <div class="mx-2 w-100" style="margin-right: 10px;">
                 @*<gcse:searchresults-only id="gcse_searchresults"></gcse:searchresults-only>*@
@@ -89,7 +86,7 @@
                         <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">-</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                        <ul id="RecentUnreadMessages" class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
                                 <span class="pull-right">
                                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(0,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
@@ -101,17 +98,13 @@
                                 </div>
                             </li>
                             <li class="divider"><hr /></li>
-                            @if (true)
-                            {
-                                Html.RenderAction(actionName: "RecentUnreadMessages", controllerName: "Messages", routeValues: new { count = 10 });
-                            }
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a id="topAlerts" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-bell" data-toggle="tooltip" data-placement="bottom" title="Alerts"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">-</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                        <ul id="RecentUnreadAlerts" class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
                                 <span class="pull-right">
                                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(1,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
@@ -124,10 +117,6 @@
 
                             </li>
                             <li class="divider"><hr /></li>
-                            @if (true)
-                            {
-                                Html.RenderAction(actionName: "RecentUnreadAlerts", controllerName: "Messages", routeValues: new { count = 10 });
-                            }
                         </ul>
                     </li>
                     <li class="nav-item">

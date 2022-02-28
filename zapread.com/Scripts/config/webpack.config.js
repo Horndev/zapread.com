@@ -1,9 +1,12 @@
 ﻿const webpack = require("webpack");
 const path = require("path");
+const glob = require('glob-all')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const PurgeCSSPlugin = require('purgecss-webpack-plugin')
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
+  devtool: "source-map",
   mode: "production",//production",//"development",
   entry: {
     account_login: "./Scripts/src/pages/account/login.js",
@@ -51,13 +54,17 @@ module.exports = {
       return subpath + "/" + filename + ".js";
     }
   },
-  //optimization: {
-  //  minimizer: [
-  //    // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-  //    // `...`,
-  //    new CssMinimizerPlugin(),
-  //  ],
-  //},
+  optimization: {
+    minimizer: [
+      // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
+      // `...`,
+      new CssMinimizerPlugin(
+        //{
+        //test: /\index.css$/i,
+        //}
+      ),
+    ],
+  },
   module: {
     rules: [
       {
@@ -138,6 +145,12 @@ module.exports = {
     new MiniCssExtractPlugin({
       moduleFilename: chunk =>
         `${chunk.name.split("_")[0]}/${chunk.name.split("_")[1]}.css`
+    }),
+    new PurgeCSSPlugin({
+      paths: glob.sync([
+        './Scripts/**',
+        './Views/**'
+      ], { nodir: true })
     })
   ]
 };

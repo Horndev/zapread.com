@@ -660,19 +660,26 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <param name="PostId"></param>
+        /// <param name="postIdEnc">0 = downvote, 1 = upvote</param>
         /// <param name="vote">0 = downvote, 1 = upvote</param>
         /// <param name="postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNode(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("Post/Detail/{PostId?}/{postTitle?}")]
+        [Route("p/{postIdEnc?}/{postTitle?}", Order = 1)]
         [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
-        public async Task<ActionResult> Detail(int? PostId, string postTitle, int? vote)
+        public async Task<ActionResult> Detail(int? PostId = null, string postIdEnc = null, string postTitle = null, int? vote = null)
         {
             XFrameOptionsDeny();
-            if (PostId == null)
+            if (PostId == null && postIdEnc == null)
             {
                 return RedirectToAction("Index", "Home");
+            }
+
+            if (postIdEnc != null)
+            {
+                PostId = CryptoService.StringToIntId(postIdEnc);
             }
 
             using (var db = new ZapContext())

@@ -529,6 +529,13 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="otherId"></param>
+        /// <param name="start"></param>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
         [Route("Messages/LoadOlder")]
         [HttpPost]
         public async Task<JsonResult> LoadOlder(string otherId, int start, int blocks)
@@ -659,6 +666,10 @@ namespace zapread.com.Controllers
                 .ToListAsync().ConfigureAwait(true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<PartialViewResult> UnreadMessages()
         {
             Response.AddHeader("X-Frame-Options", "DENY");
@@ -687,8 +698,9 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        public PartialViewResult RecentUnreadAlerts(int count)
+        public PartialViewResult RecentUnreadAlerts()
         {
+            int count = 10;
             string userId = null;
             if (User != null)
             {
@@ -723,8 +735,15 @@ namespace zapread.com.Controllers
             }
         }
 
-        public PartialViewResult RecentUnreadMessages(int count)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public PartialViewResult RecentUnreadMessages()
         {
+            int count = 10;
             string userId = null;
             if (User != null)
             {
@@ -794,6 +813,11 @@ namespace zapread.com.Controllers
             return PartialView("_UnreadMessages", model: vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<JsonResult> DismissAlert(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -837,6 +861,11 @@ namespace zapread.com.Controllers
             return Json(new { Result = "Failure" });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<JsonResult> DismissMessage(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -880,6 +909,11 @@ namespace zapread.com.Controllers
             return Json(new { Result = "Failure" });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<JsonResult> DeleteAlert(int id)
         {
             var userId = User.Identity.GetUserId();
@@ -1093,6 +1127,11 @@ namespace zapread.com.Controllers
             return Json(new { success = false, result = "Failure", message = "Error sending message." });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -1180,6 +1219,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

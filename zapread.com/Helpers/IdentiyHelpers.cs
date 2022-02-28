@@ -30,8 +30,11 @@ namespace zapread.com.Helpers
 
             // add new claim
             identity.AddClaim(new Claim(key, value));
-            var authenticationManager = HttpContext.Current.GetOwinContext().Authentication;
-            authenticationManager.AuthenticationResponseGrant = new AuthenticationResponseGrant(new ClaimsPrincipal(identity), new AuthenticationProperties() { IsPersistent = true });
+            if (HttpContext.Current != null)
+            {
+                var authenticationManager = HttpContext.Current.GetOwinContext().Authentication;
+                authenticationManager.AuthenticationResponseGrant = new AuthenticationResponseGrant(new ClaimsPrincipal(identity), new AuthenticationProperties() { IsPersistent = true });
+            }
         }
 
         /// <summary>

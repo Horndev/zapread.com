@@ -506,6 +506,19 @@
     <Compile Include="Helpers\StringHelpers.cs" />
     <Compile Include="Helpers\URLHelperExtensions.cs" />
     <Compile Include="Helpers\ValidateJsonAntiForgeryToken.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.designer.cs">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202271702287_Initial.cs" />
+    <Compile Include="MigrationsASP\202202271702287_Initial.designer.cs">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.cs" />
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.designer.cs">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\Configuration.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.Designer.cs">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>
@@ -899,6 +912,7 @@
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
     <Compile Include="Models\Lightning\LNNode.cs" />
+    <Compile Include="Models\Manage\GoogleAuthenticatorViewModel.cs" />
     <Compile Include="Models\Manage\ManageActivityPostsPartialViewModel.cs" />
     <Compile Include="Models\Manage\UpdatedUserAliasView.cs" />
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
@@ -1110,6 +1124,29 @@
     <Content Include="Scripts\src\css\components\input\input.css" />
     <Content Include="Scripts\src\css\pages\manage\manage.css" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
+    <Content Include="Scripts\src\css\base\badges_labels.scss" />
+    <Content Include="Scripts\src\css\base\base.scss" />
+    <Content Include="Scripts\src\css\base\buttons.scss" />
+    <Content Include="Scripts\src\css\base\chat.scss" />
+    <Content Include="Scripts\src\css\base\custom.scss" />
+    <Content Include="Scripts\src\css\base\elements.scss" />
+    <Content Include="Scripts\src\css\base\glyphicons.scss" />
+    <Content Include="Scripts\src\css\base\landing.scss" />
+    <Content Include="Scripts\src\css\base\md-skin.scss" />
+    <Content Include="Scripts\src\css\base\media.scss" />
+    <Content Include="Scripts\src\css\base\metismenu.scss" />
+    <Content Include="Scripts\src\css\base\mixins.scss" />
+    <Content Include="Scripts\src\css\base\navigation.scss" />
+    <Content Include="Scripts\src\css\base\pages.scss" />
+    <Content Include="Scripts\src\css\base\rtl.scss" />
+    <Content Include="Scripts\src\css\base\sidebar.scss" />
+    <Content Include="Scripts\src\css\base\skins.scss" />
+    <Content Include="Scripts\src\css\base\spinners.scss" />
+    <Content Include="Scripts\src\css\base\theme-config.scss" />
+    <Content Include="Scripts\src\css\base\top_navigation.scss" />
+    <Content Include="Scripts\src\css\base\typography.scss" />
+    <Content Include="Scripts\src\css\base\variables.scss" />
+    <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -1220,6 +1257,11 @@
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
+    <Content Include="Scripts\src\css\site\layout.scss" />
+    <Content Include="Scripts\src\css\style_messages_alerts.scss" />
+    <Content Include="Scripts\src\css\style.scss" />
+    <None Include="Scripts\src\css\themes\default.scss" />
+    <None Include="Scripts\src\css\site\items-list.scss" />
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
@@ -1301,7 +1343,6 @@
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
     <Content Include="Scripts\src\shared\readmore.js" />
-    <Content Include="Scripts\src\comment\initCommentInput.js" />
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
@@ -1349,7 +1390,6 @@
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
     <Content Include="Scripts\src\utility\quotable\quotable.js" />
-    <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
@@ -1530,6 +1570,15 @@
     <EmbeddedResource Include="API.resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>API.resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202002200019335_InitialCreate.resx">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202271702287_Initial.resx">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.resx">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805160258291_InitialVersion.resx">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>

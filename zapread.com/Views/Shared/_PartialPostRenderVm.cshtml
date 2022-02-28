@@ -123,7 +123,11 @@
                 </a>
             }
             <div class="media-body">
-                <a class="vote-title" href="@Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : null })" style="margin-left: 110px;">
+                <a class="vote-title" href="@Url.Action("Detail", "Post", 
+                                           new { 
+                                               postIdEnc = zapread.com.Services.CryptoService.IntIdToString(Model.PostId), 
+                                               postTitle = !String.IsNullOrEmpty(Model.PostTitle) ? Model.PostTitle.MakeURLFriendly() : (Model.UserName + " posted in " + Model.GroupName).MakeURLFriendly()
+                                           })" style="margin-left: 110px;">
                     @if (String.IsNullOrEmpty(Model.PostTitle))
                     {
                         <text>Post</text>

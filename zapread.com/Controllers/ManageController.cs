@@ -1,7 +1,10 @@
-﻿using Hangfire;
+﻿using Base32;
+using Hangfire;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using OtpSharp;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -98,7 +101,10 @@ namespace zapread.com.Controllers
         {
             try
             {
-                Response.AddHeader("X-Frame-Options", "DENY");
+                if (Response != null)
+                {
+                    Response.AddHeader("X-Frame-Options", "DENY");
+                }
             }
             catch
             {
@@ -744,6 +750,8 @@ namespace zapread.com.Controllers
                     UserProfileImageVersion = userInfo.Version,
                     TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
                     EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
+                    IsGoogleAuthenticatorEnabled = await UserManager.IsGoogleAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
+                    IsEmailAuthenticatorEnabled = await UserManager.IsEmailAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
                     AboutMe = new AboutMeViewModel() { AboutMe = userInfo.AboutMe == null ? "Nothing to tell." : userInfo.AboutMe },
                     UserGroups = new ManageUserGroupsViewModel() { Groups = userInfo.UserGroups },
                     NumPosts = userInfo.NumPosts,
@@ -925,8 +933,6 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="v"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
@@ -1165,6 +1171,108 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> DisableGoogleAuthenticator()
+        {
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user != null)
+            {
+                user.IsGoogleAuthenticatorEnabled = false;
+                user.GoogleAuthenticatorSecretKey = null;
+                //user.TwoFactorEnabled = false;
+
+                await UserManager.UpdateAsync(user);
+
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
+        }
+
+        /// <summary>
+        /// Submitting the activation code here will enable GA for the user
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> EnableGoogleAuthenticator(GoogleAuthenticatorViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                byte[] secretKey = Base32Encoder.Decode(model.SecretKey);
+
+                long timeStepMatched = 0;
+                var otp = new Totp(secretKey);
+                if (otp.VerifyTotp(model.Code, out timeStepMatched, new VerificationWindow(2, 2)))
+                {
+                    var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                    user.IsGoogleAuthenticatorEnabled = true;
+                    user.GoogleAuthenticatorSecretKey = model.SecretKey;
+                    //user.TwoFactorEnabled = true;
+                    //await UserManager.SetTwoFactorEnabledAsync(userId, value)
+                    await UserManager.UpdateAsync(user);
+
+                    //return RedirectToAction("Index", "Manage");
+                    return Json(new { success = true });
+                } else
+                {
+                    return Json(new { success = false, message = "The code is not valid" });
+                }
+            }
+            return Json(new { success = false, message = "bad request" });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public JsonResult ConfigureGoogleAuthenticator()
+        {
+            byte[] secretKey = KeyGeneration.GenerateRandomKey(20);
+            //var user = await UserManager.FindByIdAsync(User.Identity.GetUserId()).ConfigureAwait(true);
+            string userName = User.Identity.GetUserName();// user.Email;// User.Identity.GetUserName();
+            string barcodeUrl = KeyUrl.GetTotpUrl(secretKey, userName) + "&issuer=ZapRead.com";
+
+            //var model = new GoogleAuthenticatorViewModel
+            //{
+            //    SecretKey = Base32Encoder.Encode(secretKey),
+            //    BarcodeUrl = HttpUtility.UrlEncode(barcodeUrl)
+            //};
+
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(barcodeUrl, QRCodeGenerator.ECCLevel.L); //, forceUtf8: true);
+                using (QRCode qrCode = new QRCode(qrCodeData))
+                {
+                    Bitmap qrCodeImage = qrCode.GetGraphic(20);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        qrCodeImage.Save(ms, ImageFormat.Png);
+                        Image png = Image.FromStream(ms);
+                        byte[] imgdata = png.ToByteArray(ImageFormat.Png);
+                        var base64String = Convert.ToBase64String(imgdata);
+
+                        return Json(new
+                        {
+                            success = true,
+                            SecretKey = Base32Encoder.Encode(secretKey),
+                            //BarcodeUrl = HttpUtility.UrlEncode(barcodeUrl)
+                            QRCodeB64 = base64String
+                        });
+                    }
+                }
+            }
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="setting"></param>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -1193,8 +1301,22 @@ namespace zapread.com.Controllers
                     case "notifyPost":
                         user.Settings.NotifyOnOwnPostCommented = value;
                         break;
-                    case "emailTwoFactor":
+                    case "twoFactor":
                         await UserManager.SetTwoFactorEnabledAsync(userId, value);
+                        break;
+                    case "emailTwoFactor":
+                        var aspUser = await UserManager.FindByIdAsync(userId).ConfigureAwait(true);
+                        if (aspUser.EmailConfirmed)
+                        {
+                            aspUser.IsEmailAuthenticatorEnabled = value;
+                            await UserManager.UpdateAsync(aspUser);
+                        } else
+                        {
+                            // Careful not to lock out user
+                            aspUser.IsEmailAuthenticatorEnabled = false;
+                            await UserManager.UpdateAsync(aspUser);
+                        }
+                        
                         break;
                     default:
                         break;

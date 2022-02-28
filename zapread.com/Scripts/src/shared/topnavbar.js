@@ -10,6 +10,26 @@ import { postJson } from '../utility/postData';
 var ub = 0;
 window.ub = ub;
 
+async function GetUnreadMessages() {
+  await fetch("/Messages/RecentUnreadMessages").then(response => {
+    return response.text();
+  }).then(html => {
+    var messagesEl = document.getElementById("RecentUnreadMessages");
+    messagesEl.innerHTML += html;
+  })
+}
+GetUnreadMessages();
+
+async function GetUnreadAlerts() {
+  await fetch("/Messages/RecentUnreadAlerts").then(response => {
+    return response.text();
+  }).then(html => {
+    var alertsEl = document.getElementById("RecentUnreadAlerts");
+    alertsEl.innerHTML += html;
+  })
+}
+GetUnreadAlerts();
+
 /**
  * Dismiss messages and alerts
  * 

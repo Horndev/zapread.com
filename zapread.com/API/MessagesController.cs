@@ -96,11 +96,13 @@ namespace zapread.com.API
         /// Get the alerts for a user
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="read"></param>
+        /// <param name="sort"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/alerts/get/{page}")]
+        [Route("api/v1/alerts/get/{page}/{read?}/{sort?}")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public async Task<IHttpActionResult> GetAlerts(int? page)
+        public async Task<IHttpActionResult> GetAlerts(int? page, string read = null, string sort = null)
         {
             using (var db = new ZapContext())
             {
@@ -116,8 +118,16 @@ namespace zapread.com.API
                 int pagesize = 100;
                 int qpage = page ?? 0;
 
-                var alerts = await db.Alerts.Where(a => a.To.AppId == userAppId)
-                    .Where(a => !a.IsRead && !a.IsDeleted)
+                var alertsq = db.Alerts.Where(a => a.To.AppId == userAppId)
+                    .Where(a => !a.IsDeleted);
+
+                // Check if we include read alerts
+                if (read == null)
+                {
+                    alertsq = alertsq.Where(a => !a.IsRead);
+                }
+
+                var alerts = await alertsq
                     .OrderByDescending(a => a.TimeStamp)
                     .Select(a => new
                     {
@@ -127,6 +137,29 @@ namespace zapread.com.API
                         a.IsRead,
                         a.Title,
                         a.Content,
+                        UserName = a.CommentLink == null ?
+                                a.PostLink == null ?
+                                    ""
+                                    :
+                                    a.PostLink.UserId.Name
+                                :
+                                a.CommentLink.UserId.Name,
+                        FromUserAppId = a.CommentLink == null ?
+                                a.PostLink == null ? 
+                                    "" 
+                                    : 
+                                    a.PostLink.UserId.AppId
+                                :
+                                a.CommentLink.UserId.AppId,
+                        FromUserProfileImageVersion = 
+                            a.CommentLink == null ? 
+                                a.PostLink == null ? 
+                                    0 
+                                    : 
+                                    a.PostLink.UserId.ProfileImage.Version
+                                :
+                                a.CommentLink.UserId.ProfileImage.Version,
+                        CommentId = a.CommentLink == null ? -1 :a.CommentLink.CommentId,
                         PostId = a.PostLink == null ? -1 : a.PostLink.PostId,
                         PostTitle = a.PostLink == null ? "" : a.PostLink.PostTitle,
                     }).Skip(qpage * pagesize).Take(pagesize)
@@ -134,9 +167,7 @@ namespace zapread.com.API
                     .ToListAsync().ConfigureAwait(true);
 
                 // Query message count
-                var numAlerts = await db.Alerts
-                    .Where(a => a.To.AppId == userAppId)
-                    .Where(a => !a.IsRead && !a.IsDeleted)
+                var numAlerts = await alertsq
                     .CountAsync().ConfigureAwait(true);
 
                 return Ok(new { alerts, numAlerts });
@@ -147,11 +178,12 @@ namespace zapread.com.API
         /// Get the messages for a user
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="read"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/messages/get/{page}")]
+        [Route("api/v1/messages/get/{page}/{read?}")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public async Task<IHttpActionResult> GetMessages(int? page)
+        public async Task<IHttpActionResult> GetMessages(int? page, string read = null)
         {
             using (var db = new ZapContext())
             {
@@ -164,20 +196,59 @@ namespace zapread.com.API
 
                 string userAppId = user.AppId;
 
-                int pagesize = 100;
+                int pagesize = 200;
                 int qpage = page ?? 0;
 
-                // Query messages to show
-                var messages = await db.Messages
+                var q = db.Messages
                     .Where(m => m.To.AppId == userAppId)
-                    .Where(m => !m.IsRead && !m.IsDeleted)
+                    .Where(m => !m.IsDeleted);
+
+                // Check if we include read alerts
+                if (read == null)
+                {
+                    q = q.Where(a => !a.IsRead);
+                }
+
+                // Query messages to show
+                var messages = await q
                     .OrderByDescending(m => m.TimeStamp)
                     .Select(m => new {
                         m.Id,
+                        m.IsRead,
                         m.IsPrivateMessage,
                         m.Title,
                         m.Content,
                         m.TimeStamp,
+                        UserName = m.IsPrivateMessage ?
+                            m.From.Name
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    ""
+                                    :
+                                    m.PostLink.UserId.Name
+                                :
+                                m.CommentLink.UserId.Name,
+                        FromUserAppId = m.IsPrivateMessage ? 
+                            m.From.AppId
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    ""
+                                    :
+                                    m.PostLink.UserId.AppId
+                                :
+                                m.CommentLink.UserId.AppId,
+                        FromUserProfileImageVersion = m.IsPrivateMessage ?
+                            m.From.ProfileImage.Version
+                            :
+                            m.CommentLink == null ?
+                                m.PostLink == null ?
+                                    0
+                                    :
+                                    m.PostLink.UserId.ProfileImage.Version
+                                :
+                                m.CommentLink.UserId.ProfileImage.Version,
                         FromName = m.From.Name,
                         PostTitle = m.PostLink == null ? "" : m.PostLink.PostTitle,
                         PostId = m.PostLink == null ? -1 : m.PostLink.PostId,

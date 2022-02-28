@@ -182,17 +182,40 @@
                                         </div>
                                     </div>
                                 }
-                                else
+                                <div class="row justify-content-start">
+                                    <div class="col-sm-4">
+                                        @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("twoFactor", isActive: Model.TwoFactor))
+                                    </div>
+                                    <div class="col-auto">
+                                        Enable 2-factor authentication.
+                                    </div>
+                                </div>
+                                @if (Model.EmailConfirmed)
                                 {
                                     <div class="row justify-content-start">
                                         <div class="col-sm-4">
-                                            @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("emailTwoFactor", isActive: Model.TwoFactor))
+                                            @Html.Partial(partialViewName: "_PartialManageSetting", model: new ManageSettingViewModel("emailTwoFactor", isActive: Model.IsEmailAuthenticatorEnabled))
                                         </div>
                                         <div class="col-auto">
                                             Enable email 2-factor authentication.
                                         </div>
                                     </div>
                                 }
+                                <div class="row justify-content-start">
+                                    <div class="col-sm-4">
+                                        @if (Model.IsGoogleAuthenticatorEnabled)
+                                        {
+                                            <a class="btn btn-block btn-outline btn-sm btn-warning" id="btnDisableGA" href='javascript:void(0);'><i class="fa fa-times-circle"></i> Disable</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-block btn-outline btn-sm btn-primary" id="btnEnableGA" href='javascript:void(0);'><i class="fa fa-lock"></i> Enable</a>
+                                        }
+                                    </div>
+                                    <div class="col-auto">
+                                        Google Authenticator
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="ibox-content profile-content">

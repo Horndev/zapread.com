@@ -79,7 +79,7 @@ namespace zapread.com.Services
                                             IsDeleted = false,
                                             IsRead = false,
                                             To = follower.user,
-                                            PostLink = postInfo.post,
+                                            PostLink = postInfo.post,                                            
                                         };
 
                                         follower.user.Alerts.Add(alert);
@@ -120,6 +120,13 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="header"></param>
+        /// <param name="footer"></param>
+        /// <returns></returns>
         public static string ComposeEmail(string body, string header = "", string footer = "")
         {
             header = "";
@@ -127,6 +134,15 @@ namespace zapread.com.Services
             return header + body + footer;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="emailTo"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <param name="user"></param>
+        /// <param name="useSSL"></param>
+        /// <returns></returns>
         public bool SendEmail(string emailTo, string subject, string body, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
@@ -162,6 +178,13 @@ namespace zapread.com.Services
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="user"></param>
+        /// <param name="useSSL"></param>
+        /// <returns></returns>
         public bool SendI(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {
             // Plug in your email service here to send an email.
@@ -239,6 +262,12 @@ namespace zapread.com.Services
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static bool SendErrorNotification(string title, string message)
         {
             // Send error
@@ -252,6 +281,13 @@ namespace zapread.com.Services
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="user"></param>
+        /// <param name="useSSL"></param>
+        /// <returns></returns>
         public static async Task<bool> SendAsync(UserEmailModel message, string user = "Accounts", bool useSSL = true)
         {
             // Plug in your email service here to send an email.

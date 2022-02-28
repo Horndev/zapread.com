@@ -125,7 +125,6 @@
 }
 
 /* Read more */
-
 .post-box {
     max-height: 800px;
     position: relative;  /*This is needed to correctly calculate size of post for read-more*/

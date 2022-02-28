@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using zapread.com.Database;
@@ -48,30 +45,6 @@ namespace zapread.com.API
                 await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return new ZapReadResponse() { success = true };
-            }
-        }
-
-        /// <summary>
-        /// Get status of current assets (total Zapread assets on Node + liquidity)
-        /// </summary>
-        /// <returns></returns>
-        [Route("api/v1/admin/accounting/summary")]
-        [AcceptVerbs("GET")]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IHttpActionResult> GetAccountingSummary()
-        {
-            using (var db = new ZapContext())
-            {
-                var website = await db.ZapreadGlobals
-                    .Include(z => z.EarningEvents)
-                    .FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(false);
-
-                if (website == null)
-                {
-                    return InternalServerError();
-                }
-
-                return Ok();
             }
         }
 
@@ -138,7 +111,7 @@ namespace zapread.com.API
                         row.Cells.Add(new Cell() { value = entry.count });
                         row.Cells.Add(new Cell() { value = entry.balance });
                         row.Cells.Add(new Cell() { value = entry.limbo });
-                        row.Cells.Add(new Cell() { value = entry.balance+entry.limbo });
+                        row.Cells.Add(new Cell() { value = entry.balance + entry.limbo });
                         response.data.Add(row);
                         totalUsers += entry.count;
                         totalBalance += entry.balance;
@@ -150,7 +123,7 @@ namespace zapread.com.API
                     footer.Cells.Add(new Cell() { value = totalUsers });
                     footer.Cells.Add(new Cell() { value = totalBalance });
                     footer.Cells.Add(new Cell() { value = totalLimbo });
-                    footer.Cells.Add(new Cell() { value = totalBalance+ totalLimbo });
+                    footer.Cells.Add(new Cell() { value = totalBalance + totalLimbo });
 
                     response.data.Add(footer);
 
@@ -164,7 +137,7 @@ namespace zapread.com.API
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="year"></param>
         /// <param name="month"></param>
@@ -187,7 +160,7 @@ namespace zapread.com.API
 
                 var startDate = new DateTime(year: year, month: month, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Utc);
 
-                var transactionsByday = website.EarningEvents.Where(e => e.TimeStamp.Value.Year == year && e.TimeStamp.Value.Month == month )
+                var transactionsByday = website.EarningEvents.Where(e => e.TimeStamp.Value.Year == year && e.TimeStamp.Value.Month == month)
                     .OrderBy(e => e.TimeStamp)
                     .GroupBy(e => e.TimeStamp.Value.Day)
                     .Select(e => new
@@ -219,8 +192,10 @@ namespace zapread.com.API
                 double totalEvents = 0;
                 double totalPosts = 0;
                 double totalComments = 0;
+                //for (int test = 0; test < 10; test++)
+                //{
                 foreach (var transaction in transactionsByday)
-                {                   
+                {
                     var row = new Row() { Cells = new List<Cell>() };
                     row.Cells.Add(new Cell() { value = year });
                     row.Cells.Add(new Cell() { value = month });
@@ -236,7 +211,7 @@ namespace zapread.com.API
                     totalPosts += transaction.posts;
                     totalComments += transaction.comments;
                 }
-
+                //}
                 var footer = new Row() { Cells = new List<Cell>() };
                 footer.Cells.Add(new Cell() { value = "Total:" });
                 footer.Cells.Add(new Cell() { value = "" });
@@ -253,19 +228,42 @@ namespace zapread.com.API
             }
         }
 
+        /// <summary>
+        /// Get status of current assets (total Zapread assets on Node + liquidity)
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/admin/accounting/summary")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GetAccountingSummary()
+        {
+            using (var db = new ZapContext())
+            {
+                var website = await db.ZapreadGlobals
+                    .Include(z => z.EarningEvents)
+                    .FirstOrDefaultAsync(i => i.Id == 1).ConfigureAwait(false);
+
+                if (website == null)
+                {
+                    return InternalServerError();
+                }
+
+                return Ok();
+            }
+        }
         private class AccountingSummaryResponse : ZapReadResponse
         {
             public List<Row> data;
         }
 
-        private class Row
-        {
-            public List<Cell> Cells { get; set; }
-        }
-
         private class Cell
         {
             public object value { get; set; }
+        }
+
+        private class Row
+        {
+            public List<Cell> Cells { get; set; }
         }
     }
 }

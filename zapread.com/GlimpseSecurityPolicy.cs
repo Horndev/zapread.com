@@ -20,7 +20,7 @@ namespace zapread.com
             // You can perform a check like the one below to control Glimpse's permissions within your application.
             // More information about RuntimePolicies can be found at http://getglimpse.com/Help/Custom-Runtime-Policy
             var httpContext = policyContext.GetHttpContext();
-            if (!httpContext.User.IsInRole("Administrator"))
+            if (httpContext.User != null && !httpContext.User.IsInRole("Administrator"))
             {
                 return RuntimePolicy.Off;
             }

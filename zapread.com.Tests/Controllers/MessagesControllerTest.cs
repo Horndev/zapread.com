@@ -19,7 +19,7 @@ namespace zapread.com.Tests.Controllers
             MessagesController controller = new MessagesController();
 
             // Act
-            ActionResult result = controller.RecentUnreadMessages(1) as ActionResult;
+            ActionResult result = controller.RecentUnreadMessages() as ActionResult;
 
             // Assert
             Assert.IsNotNull(result);

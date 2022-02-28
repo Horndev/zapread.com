@@ -20,7 +20,6 @@ namespace zapread.com.Services
         /// <returns></returns>
         public bool UpdateScores()
         {
-
             return false;
         }
 

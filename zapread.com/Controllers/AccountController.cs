@@ -1006,8 +1006,24 @@ namespace zapread.com.Controllers
             {
                 return View("Error");
             }
+
             var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId).ConfigureAwait(true);
+            var user = await UserManager.FindByIdAsync(userId).ConfigureAwait(true);
+
+            if (!user.IsEmailAuthenticatorEnabled)
+            {
+                // remove "Email Code" from list if it is there
+                userFactors.Remove("Email Code");
+            }
+
+            if (!user.IsGoogleAuthenticatorEnabled)
+            {
+                // remove "Google Authenticator"
+                userFactors.Remove("Google Authenticator");
+            }
+
             var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
+
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
