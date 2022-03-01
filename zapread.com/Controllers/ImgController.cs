@@ -3,15 +3,18 @@ using QRCoder;
 using System;
 using System.Data.Entity;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -361,18 +364,59 @@ namespace zapread.com.Controllers
             }
         }
 
+        private byte[] NotFoundImage(int width=140, int height=20)
+        {
+            var bitmap = new Bitmap(width, height);
+            Graphics g = Graphics.FromImage(bitmap);
+            Rectangle rect = new Rectangle(0, 0, width, height);
+            
+            GraphicsPath graphicPath = new GraphicsPath();
+            graphicPath.AddString("Image Not Found", FontFamily.GenericSerif, (int)FontStyle.Bold, 16, rect, null);
+            //var hatchBrush = new HatchBrush(HatchStyle., Color.White, Color.Teal);
+            var brush = new SolidBrush(Color.Teal);
+            g.FillPath(brush, graphicPath);
+            brush.Dispose();
+            g.Dispose();
+
+            var bytes = bitmap.ToByteArray(ImageFormat.Jpeg);
+
+            return bytes;
+        }
+
         /// <summary>
         /// Get an image from the database
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="imge">Optional: encoded image identifier</param>
+        /// <param name="f">Optional: format code</param>
         /// <returns></returns>
         [OutputCache(Duration = int.MaxValue, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
-        public ActionResult Content(int id)
+        [Route("Img/Content/{id?}/{f?}")]
+        [Route("i/{imge?}/{f?}")]
+        public async Task<ActionResult> Content(int? id = null, string imge = null, string f = null)
         {
+            if (imge != null)
+            {
+                id = CryptoService.StringToIntId(imge);
+            }
+
+            if (!id.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.NotFound;
+                return File(NotFoundImage(), "image/jpeg");
+            }
+
             using (var db = new ZapContext())
             {
-                var img = db.Images.FirstOrDefault(i => i.ImageId == id);
+                var img = await db.Images.FirstOrDefaultAsync(i => i.ImageId == id)
+                    .ConfigureAwait(false); // Don't capture context
+                if (img == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return File(NotFoundImage(), "image/jpeg");
+                }
+
                 if (img.Image != null)
                 {
                     var contentType = img.ContentType;
@@ -398,7 +442,7 @@ namespace zapread.com.Controllers
                     }
                 }
             }
-            return Json(new { result = "failure" });
+            return File(NotFoundImage(), "image/jpeg");
         }
 
         /// <summary>
