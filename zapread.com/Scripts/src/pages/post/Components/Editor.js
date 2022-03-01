@@ -222,7 +222,8 @@ export default class Editor extends React.Component {
                 var data = JSON.parse(xhr.responseText);
                 var index = (this.quill.getSelection() || {}).index || this.quill.getLength();
                 if (index) {
-                    this.quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
+                    //this.quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
+                  quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
                 } else {
                     console.log({
                         code: xhr.status,
