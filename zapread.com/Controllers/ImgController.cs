@@ -530,7 +530,12 @@ namespace zapread.com.Controllers
 
                     db.Images.Add(i);
                     db.SaveChanges();
-                    return Json(new { result = "success", imgId = i.ImageId });
+                    return Json(new { 
+                        success = true,
+                        result = "success", 
+                        imgId = i.ImageId, 
+                        imgIdEnc = CryptoService.IntIdToString(i.ImageId) 
+                    });
                 }
 
                 return Json(new { result = "failure" });

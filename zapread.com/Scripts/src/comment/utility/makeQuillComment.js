@@ -67,7 +67,11 @@ export function makeQuillComment(options) {
         //customUploader: () => { }, // add custom uploader
         // personalize successful callback and call next function to insert new url to the editor
         callbackOK: (serverResponse, insertURL) => {
-          insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
+          var index = (quill.getSelection() || {}).index || quill.getLength();
+          if (index) {
+            quill.insertEmbed(index, 'image', '/i/' + serverResponse.imgIdEnc, 'user');
+          }
+          //insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
         },
         // personalize failed callback
         callbackKO: serverError => {
@@ -150,7 +154,8 @@ export function makeQuillComment(options) {
         var data = JSON.parse(xhr.responseText);
         var index = (quill.getSelection() || {}).index || quill.getLength();
         if (index) {
-          quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
+          //quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
+          quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
         } else {
           console.log({
             code: xhr.status,
