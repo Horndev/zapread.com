@@ -93,7 +93,7 @@ function Page() {
 
       postJson("/Post/Submit/", msg)
         .then((response) => {
-          console.log(response);
+          //console.log(response);
           setPostId(response.postId);
           setNumSaves(numSaves + 1);
           setIsSaving(false);         // Release the saving lock
