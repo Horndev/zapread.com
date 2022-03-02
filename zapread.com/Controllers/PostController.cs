@@ -9,14 +9,12 @@ using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
-using zapread.com.Models.API.Account;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
@@ -355,7 +353,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="postId"></param>
         /// <param name="group"></param>
@@ -409,7 +407,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="postId"></param>
         /// <param name="groupId"></param>
@@ -578,7 +576,7 @@ namespace zapread.com.Controllers
                     }
                 }
             }
-            // Clean up 
+            // Clean up
             var paragraphs = postDocument.DocumentNode.SelectNodes("//p");
             if (paragraphs != null)
             {
@@ -624,13 +622,13 @@ namespace zapread.com.Controllers
         public class DeletePostMsg
         {
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public int PostId { get; set; }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -657,7 +655,38 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// Get a rendered post.
         /// 
+        /// This method is used to asynchronously render posts
+        /// </summary>
+        /// <param name="postIdEnc"></param>
+        /// <returns></returns>
+        [Route("Post/Display/{postIdEnc}")]
+        [HttpGet]
+        public async Task<ActionResult> Display(string postIdEnc)
+        {
+            XFrameOptionsDeny();
+
+            if (postIdEnc == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success=false, message="no parameter" });
+            }
+
+            int postId = CryptoService.StringToIntId(postIdEnc);
+
+            using (var db = new ZapContext())
+            {
+                var p = await db.Posts
+                    .Where(p => p.PostId == postId)
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                return Json(new { });
+            }
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="PostId"></param>
         /// <param name="postIdEnc">0 = downvote, 1 = upvote</param>
@@ -755,7 +784,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public ActionResult PostNotFound()
@@ -764,7 +793,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="postId"></param>
         /// <param name="newLanguage"></param>
