@@ -63,16 +63,16 @@ export function makeQuillComment(options) {
         name: 'file', // custom form name
         withCredentials: true, // withCredentials
         headers: getAntiForgeryToken(), // add custom headers, example { token: 'your-token'}
-        //csrf: { token: 'token', hash: '' }, // add custom CSRF
-        //customUploader: () => { }, // add custom uploader
-        // personalize successful callback and call next function to insert new url to the editor
-        callbackOK: (serverResponse, insertURL) => {
-          var index = (quill.getSelection() || {}).index || quill.getLength();
-          if (index) {
-            quill.insertEmbed(index, 'image', '/i/' + serverResponse.imgIdEnc, 'user');
-          }
-          //insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
+        customUploader: (file, dataUrl) => {
+          sendImage(file);
         },
+        //callbackOK: (serverResponse, insertURL) => {
+        //  var index = (quill.getSelection() || {}).index || quill.getLength();
+        //  if (index) {
+        //    quill.insertEmbed(index, 'image', '/i/' + serverResponse.imgIdEnc, 'user');
+        //  }
+        //  //insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
+        //},
         // personalize failed callback
         callbackKO: serverError => {
           alert(serverError);
@@ -118,6 +118,57 @@ export function makeQuillComment(options) {
   quill.setSelection(9999);
 
   /**
+   * Upload a file with loading bar
+   * @param {any} file
+   */
+  function sendImage(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    document.getElementById("progressUpload").style.display = "flex";
+    document.getElementById("progressUploadBar").style.width = "1%";
+    // upload image
+    const xhr = new XMLHttpRequest();
+    // init http query
+    xhr.open('POST', '/Img/UploadImage/', true);
+    // add custom headers
+    var headers = getAntiForgeryToken();
+    for (var index in headers) {
+      xhr.setRequestHeader(index, headers[index]);
+    }
+
+    // progress bar
+    xhr.upload.addEventListener("progress", function (evt) {
+      if (evt.lengthComputable) {
+        var percentComplete = evt.loaded / evt.total;
+        percentComplete = parseInt(percentComplete * 100);
+        document.getElementById("progressUploadBar").style.width = percentComplete.toString() + "%";
+        if (percentComplete === 100) {
+          document.getElementById("progressUploadBar").style.width = "100%";
+        }
+      }
+    }, false);
+
+    // listen callback
+    xhr.onload = () => {
+      document.getElementById("progressUpload").style.display = "none";
+      if (xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+        var index = (quill.getSelection() || {}).index || quill.getLength();
+        if (index) {
+          quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
+        } else {
+          console.log({
+            code: xhr.status,
+            type: xhr.statusText,
+            body: xhr.responseText
+          });
+        }
+      };
+    }
+    xhr.send(fd);
+  }
+
+  /**
   * Do something to our dropped or pasted image
   * @param.imageDataUrl {string} - image's dataURL
   * @param.type {string} - image's mime type
@@ -132,41 +183,41 @@ export function makeQuillComment(options) {
   function imageHandler(imageDataUrl, type, imageData) {
     var filename = 'pastedImage.png'
     var file = imageData.toFile(filename)
+    sendImage(file);
 
-    // generate a form data
-    var fd = new FormData()
-    fd.append('file', file)
+    //// generate a form data
+    //var fd = new FormData()
+    //fd.append('file', file)
 
-    // upload image
-    //postData('/Img/UploadImage/')
-    const xhr = new XMLHttpRequest();
-    // init http query
-    xhr.open('POST', '/Img/UploadImage/', true);
-    // add custom headers
-    var headers = getAntiForgeryToken();
-    for (var index in headers) {
-      xhr.setRequestHeader(index, headers[index]);
-    }
+    //// upload image
+    ////postData('/Img/UploadImage/')
+    //const xhr = new XMLHttpRequest();
+    //// init http query
+    //xhr.open('POST', '/Img/UploadImage/', true);
+    //// add custom headers
+    //var headers = getAntiForgeryToken();
+    //for (var index in headers) {
+    //  xhr.setRequestHeader(index, headers[index]);
+    //}
 
-    // listen callback
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        var data = JSON.parse(xhr.responseText);
-        var index = (quill.getSelection() || {}).index || quill.getLength();
-        if (index) {
-          //quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
-          quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
-        } else {
-          console.log({
-            code: xhr.status,
-            type: xhr.statusText,
-            body: xhr.responseText
-          });
-        }
-      };
-    }
+    //// listen callback
+    //xhr.onload = () => {
+    //  if (xhr.status === 200) {
+    //    var data = JSON.parse(xhr.responseText);
+    //    var index = (quill.getSelection() || {}).index || quill.getLength();
+    //    if (index) {
+    //      quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
+    //    } else {
+    //      console.log({
+    //        code: xhr.status,
+    //        type: xhr.statusText,
+    //        body: xhr.responseText
+    //      });
+    //    }
+    //  };
+    //}
 
-    xhr.send(fd);
+    //xhr.send(fd);
   }
 
   // configure toolbar

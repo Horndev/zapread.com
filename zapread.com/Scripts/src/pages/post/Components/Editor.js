@@ -121,19 +121,7 @@ export default class Editor extends React.Component {
         name: 'file', // custom form name
         withCredentials: true, // withCredentials
         headers: getAntiForgeryToken(), // add custom headers, example { token: 'your-token'}
-        //csrf: { token: 'token', hash: '' }, // add custom CSRF
-        //customUploader: () => { }, // add custom uploader
-        // personalize successful callback and call next function to insert new url to the editor
-        //callbackOK: (serverResponse, insertURL) => {
-        //  var index = (this.quillRef.getSelection() || {}).index || this.quillRef.getLength();
-        //  if (index) {
-        //    this.quillRef.insertEmbed(index, 'image', '/i/' + serverResponse.imgIdEnc, 'user');
-        //  }
-        //  //insertURL('/Img/Content/' + serverResponse.imgId + '/');//serverResponse);
-        //},
         customUploader: (file, dataUrl) => {
-          //console.log("customUploader", dataUrl);
-          // generate a form data
           this.sendImage(file);
         },
         // personalize failed callback

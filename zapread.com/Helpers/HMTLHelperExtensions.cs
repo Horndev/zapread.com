@@ -5,8 +5,19 @@ using System.Web.WebPages;
 
 namespace zapread.com
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class HMTLHelperExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="controller"></param>
+        /// <param name="action"></param>
+        /// <param name="cssClass"></param>
+        /// <returns></returns>
         public static string IsSelected(this HtmlHelper html, string controller = null, string action = null, string cssClass = null)
         {
 
