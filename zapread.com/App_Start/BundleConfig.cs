@@ -151,9 +151,6 @@ namespace zapread.com
                       "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
                       "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
 
-            //bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
-            //          "~/node_modules/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
-
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
 

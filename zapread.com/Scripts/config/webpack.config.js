@@ -53,7 +53,20 @@ module.exports = {
       var filename = c.chunk.name.split("_")[1];
       return subpath + "/" + filename + ".js";
     },
-    assetModuleFilename: '../res/[hash][ext][query]'
+    //publicPath: './Content',
+    //assetModuleFilename: (pathData) => {
+    //  console.log("assetModuleFilename", pathData);
+    //  const filepath = path
+    //    .dirname(pathData.filename)
+    //    .split("/")
+    //    .slice(1)
+    //    .join("/");
+    //  //var fn = `${filepath}/[name].[hash][ext][query]`;
+    //  var fn = "../../Content/[name][ext][query]";
+    //  console.log("fn", fn);
+    //  return fn;
+    //}
+    //'res/[name][ext][query]'
   },
   optimization: {
     minimizer: [
@@ -118,7 +131,9 @@ module.exports = {
         test: /\.(woff|woff2|ttf|otf|eot)$/,
         type: 'asset/resource',
         generator: {
-          filename: "../res/[hash][ext][query]"
+          filename: "[name][ext][query]",
+          outputPath: "../../Content/fonts",
+          publicPath: "../../../Content/fonts/"
         }
       },
       {

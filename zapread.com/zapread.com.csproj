@@ -956,7 +956,21 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\dist\res\**" />
+    <Content Include="Scripts\dist\res\0a1b701f5563c2288281.ttf" />
+    <Content Include="Scripts\dist\res\15d98c18221c8bcb2334.ttf" />
+    <Content Include="Scripts\dist\res\1e59d2330b4c6deb84b3.ttf" />
+    <Content Include="Scripts\dist\res\20fd1704ea223900efa9.woff2" />
+    <Content Include="Scripts\dist\res\39bed32a2eb4fdce1824.svg" />
+    <Content Include="Scripts\dist\res\3d503f89ccaf1b224aa5.woff2" />
+    <Content Include="Scripts\dist\res\4896d4b04430cc3dfb06.woff2" />
+    <Content Include="Scripts\dist\res\4bfd54b9d9a8a6564c4c.png" />
+    <Content Include="Scripts\dist\res\52eba2c567c521b8d58a.ttf" />
+    <Content Include="Scripts\dist\res\79da213423ac0def2058.ttf" />
+    <Content Include="Scripts\dist\res\8b43027f47b20503057d.eot" />
+    <Content Include="Scripts\dist\res\d79c2ec96ab9ff1161a2.woff2" />
+    <Content Include="Scripts\dist\res\e7746d619853ce1054c9.png" />
+    <Content Include="Scripts\dist\res\f691f37e57f04c152e23.woff" />
+    <Content Include="Scripts\dist\res\f77bcc98bb7468c8b15a.woff2" />
     <Content Include="App_Data\zapread.mdf" />
     <Content Include="App_Data\zapread_log.ldf">
       <DependentUpon>zapread.mdf</DependentUpon>
@@ -964,8 +978,6 @@
     <Content Include="Content\bootstrap-social.css" />
     <Content Include="Content\bootstrap-tour.min.css" />
     <Content Include="Content\FFFFFF-0.png" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
-    <Content Include="Content\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\images\chosen-sprite%402x.png" />
     <Content Include="Content\images\chosen-sprite.png" />
     <Content Include="Content\images\header-profile.png" />
@@ -1042,6 +1054,14 @@
     <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.zh.js" />
     <Content Include="node_modules\tarteaucitronjs\tarteaucitron.js" />
     <Content Include="node_modules\tarteaucitronjs\tarteaucitron.services.js" />
+    <Content Include="Content\fonts\fa-brands-400.ttf" />
+    <Content Include="Content\fonts\fa-brands-400.woff2" />
+    <Content Include="Content\fonts\fa-regular-400.ttf" />
+    <Content Include="Content\fonts\fa-regular-400.woff2" />
+    <Content Include="Content\fonts\fa-solid-900.ttf" />
+    <Content Include="Content\fonts\fa-solid-900.woff2" />
+    <Content Include="Content\fonts\fa-v4compatibility.ttf" />
+    <Content Include="Content\fonts\fa-v4compatibility.woff2" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1149,29 +1169,12 @@
     <Content Include="node_modules\selectize\dist\css\selectize.css" />
     <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
     <Content Include="package.json" />
-    <Content Include="plugins\font\summernote.eot" />
-    <Content Include="plugins\font\summernote.ttf" />
-    <Content Include="plugins\font\summernote.woff" />
-    <Content Include="Content\fonts\fontawesome-webfont.eot" />
-    <Content Include="Content\fonts\fontawesome-webfont.ttf" />
-    <Content Include="Content\fonts\fontawesome-webfont.woff" />
-    <Content Include="Content\fonts\fontawesome-webfont.woff2" />
-    <Content Include="Content\fonts\FontAwesome.otf" />
     <Content Include="AppSettings.config" />
     <Content Include="database.config" />
     <Content Include="libman.json" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.eot" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.ttf" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff2" />
-    <Content Include="Content\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="Mvc.sitemap" />
     <Compile Include="DI\NinjectDependencyInjectionContainer.cs" />
     <Content Include=".babelrc" />
-    <Content Include="Content\fonts\summernote.eot" />
-    <Content Include="Content\fonts\summernote.ttf" />
-    <Content Include="Content\fonts\summernote.woff" />
-    <Content Include="Content\fonts\summernote.woff2" />
     <Content Include="NuGet_Packages.md" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
@@ -1467,6 +1470,7 @@
   <ItemGroup>
     <Folder Include="Images\" />
     <Folder Include="Models\Finance\" />
+    <Folder Include="Scripts\dist\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Groups\" />
     <Folder Include="Views\Img\" />
