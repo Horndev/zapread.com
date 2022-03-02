@@ -36,7 +36,7 @@ export default function PostVoteButtons(props) {
             onClick={ () => {
               vote(postId, 1, 1, 100, upVoteRef.current);
             }} className={viewerUpvoted ? "" : "text-muted"} id={"uVote_" + postId}>
-            <i className="fa fa-chevron-up"> </i>
+            <i className="fa-solid fa-chevron-up fa-lg"> </i>
           </a>
           <div id={"sVote_" + postId}>
             {postScore}
@@ -45,7 +45,7 @@ export default function PostVoteButtons(props) {
             onClick={ () => {
               vote(postId, 0, 1, 100, downVoteRef.current);
             }} className={viewerDownvoted ? "" : "text-muted"} id={"dVote_" + postId}>
-            <i className="fa fa-chevron-down"> </i>
+            <i className="fa-solid fa-chevron-down fa-lg"> </i>
           </a>
         </div>
       </div>

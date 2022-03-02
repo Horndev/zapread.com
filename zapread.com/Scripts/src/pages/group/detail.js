@@ -175,7 +175,7 @@ function Page() {
                   onClick={() => {
                     getMorePosts();
                   }}>
-                  <i className="fa fa-arrow-down"></i>&nbsp;Show More&nbsp;<i id="loadmore" className="fa fa-circle-o-notch fa-spin" style={{display:"none"}}></i>
+                  <i className="fa-solid fa-arrow-down"></i>&nbsp;Show More&nbsp;<i id="loadmore" className="fa-solid fa-circle-notch fa-spin" style={{display:"none"}}></i>
                 </button>
               </div>
               ) : (<></>)

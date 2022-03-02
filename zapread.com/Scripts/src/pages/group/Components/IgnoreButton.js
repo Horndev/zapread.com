@@ -37,7 +37,7 @@ export default function IgnoreButton(props) {
         }}
         className="btn btn-sm btn-link btn-warning btn-outline"
       >
-        {isIgnoring ? (<><i className="fa fa-circle" /> Un-Ignore</>) : (<><i className = "fa fa-ban" /> Ignore</>) }
+        {isIgnoring ? (<><i className="fa-solid fa-circle" /> Un-Ignore</>) : (<><i className = "fa fa-ban" /> Ignore</>) }
       </button>
     </>
   );

@@ -135,7 +135,7 @@ export default function VoteModal(props) {
                 style={{ display: "none" }}
                 data-invoice-element="voteDepositInvoiceInput"
                 data-spin-element="spinCheckPaymentVote">
-                Check Payment <i id="spinCheckPaymentVote" className="fa fa-circle-o-notch fa-spin" style={{ display: "none" }}></i>
+                Check Payment <i id="spinCheckPaymentVote" className="fa-solid fa-circle-notch fa-spin" style={{ display: "none" }}></i>
               </button>
               <button ref={voteButtonRef} onClick={() => {
                 onVote(voteButtonRef.current);

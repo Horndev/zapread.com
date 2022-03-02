@@ -42,6 +42,22 @@ window.BlockNumber = 10;   //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
+window.addEventListener('resize', function (event) {
+  //console.log(event);
+  var elements = document.querySelectorAll(".post-box");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    if (!el.classList.contains('read-more-expanded')) {
+      if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
+        el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
+      }
+      else {
+        // Hide
+        el.querySelectorAll(".read-more-button").item(0).style.display = 'none';
+      }
+    }
+  });
+}, true);
+
 async function LoadTopPostsAsync() {
   var request = new XMLHttpRequest();
   request.open('GET', '/Home/TopPosts/?sort=' + postSort, true);
@@ -54,7 +70,7 @@ async function LoadTopPostsAsync() {
       if (response.success) {
         // Insert posts
         document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
-        addposts(response, onLoadedMorePosts); // [ ] TODO: zrOnLoadedMorePosts uses jquery
+        addposts(response, onLoadedMorePosts);
         document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
       } else {
         // Did not work

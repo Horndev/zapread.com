@@ -52,7 +52,8 @@ module.exports = {
       var subpath = c.chunk.name.split("_")[0];
       var filename = c.chunk.name.split("_")[1];
       return subpath + "/" + filename + ".js";
-    }
+    },
+    assetModuleFilename: '../res/[hash][ext][query]'
   },
   optimization: {
     minimizer: [
@@ -115,16 +116,10 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|ttf|otf|eot)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-              outputPath: "../../Content/fonts",
-              publicPath: "/Content/fonts"
-            }
-          }
-        ]
+        type: 'asset/resource',
+        generator: {
+          filename: "../res/[hash][ext][query]"
+        }
       },
       {
         test: require.resolve("jquery"),
@@ -143,8 +138,11 @@ module.exports = {
       Quill: "quill"
     }),
     new MiniCssExtractPlugin({
-      moduleFilename: chunk =>
-        `${chunk.name.split("_")[0]}/${chunk.name.split("_")[1]}.css`
+      filename: c => {
+        var subpath = c.chunk.name.split("_")[0];
+        var filename = c.chunk.name.split("_")[1];
+        return subpath + "/" + filename + ".css";
+      }
     }),
     //new PurgeCSSPlugin({
     //  paths: glob.sync([

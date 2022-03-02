@@ -956,6 +956,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\dist\res\**" />
     <Content Include="App_Data\zapread.mdf" />
     <Content Include="App_Data\zapread_log.ldf">
       <DependentUpon>zapread.mdf</DependentUpon>
@@ -1041,78 +1042,6 @@
     <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.zh.js" />
     <Content Include="node_modules\tarteaucitronjs\tarteaucitron.js" />
     <Content Include="node_modules\tarteaucitronjs\tarteaucitron.services.js" />
-    <Content Include="Scripts\dist\account\login.css" />
-    <Content Include="Scripts\dist\account\login.js" />
-    <Content Include="Scripts\dist\account\register.css" />
-    <Content Include="Scripts\dist\account\register.js" />
-    <Content Include="Scripts\dist\admin\accounting.css" />
-    <Content Include="Scripts\dist\admin\accounting.js" />
-    <Content Include="Scripts\dist\admin\achievements.css" />
-    <Content Include="Scripts\dist\admin\achievements.js" />
-    <Content Include="Scripts\dist\admin\audit.css" />
-    <Content Include="Scripts\dist\admin\audit.js" />
-    <Content Include="Scripts\dist\admin\icons.css" />
-    <Content Include="Scripts\dist\admin\icons.js" />
-    <Content Include="Scripts\dist\admin\index.css" />
-    <Content Include="Scripts\dist\admin\index.js" />
-    <Content Include="Scripts\dist\admin\jobs.css" />
-    <Content Include="Scripts\dist\admin\jobs.js" />
-    <Content Include="Scripts\dist\admin\lightning.css" />
-    <Content Include="Scripts\dist\admin\lightning.js" />
-    <Content Include="Scripts\dist\admin\users.css" />
-    <Content Include="Scripts\dist\admin\users.js" />
-    <Content Include="Scripts\dist\group\detail.css" />
-    <Content Include="Scripts\dist\group\detail.js" />
-    <Content Include="Scripts\dist\group\edit.css" />
-    <Content Include="Scripts\dist\group\edit.js" />
-    <Content Include="Scripts\dist\group\index.css" />
-    <Content Include="Scripts\dist\group\index.js" />
-    <Content Include="Scripts\dist\group\members.css" />
-    <Content Include="Scripts\dist\group\members.js" />
-    <Content Include="Scripts\dist\group\new.css" />
-    <Content Include="Scripts\dist\group\new.js" />
-    <Content Include="Scripts\dist\home\about.css" />
-    <Content Include="Scripts\dist\home\about.js" />
-    <Content Include="Scripts\dist\home\faq.css" />
-    <Content Include="Scripts\dist\home\faq.js" />
-    <Content Include="Scripts\dist\home\index.css" />
-    <Content Include="Scripts\dist\home\index.js" />
-    <Content Include="Scripts\dist\home\install.css" />
-    <Content Include="Scripts\dist\home\install.js" />
-    <Content Include="Scripts\dist\lnauth\login.css" />
-    <Content Include="Scripts\dist\lnauth\login.js" />
-    <Content Include="Scripts\dist\mailer\default.css" />
-    <Content Include="Scripts\dist\mailer\default.js" />
-    <Content Include="Scripts\dist\manage\apikeys.css" />
-    <Content Include="Scripts\dist\manage\apikeys.js" />
-    <Content Include="Scripts\dist\manage\default.css" />
-    <Content Include="Scripts\dist\manage\default.js" />
-    <Content Include="Scripts\dist\manage\financial.css" />
-    <Content Include="Scripts\dist\manage\financial.js" />
-    <Content Include="Scripts\dist\manage\index.css" />
-    <Content Include="Scripts\dist\manage\index.js" />
-    <Content Include="Scripts\dist\messages\alerts.css" />
-    <Content Include="Scripts\dist\messages\alerts.js" />
-    <Content Include="Scripts\dist\messages\all.css" />
-    <Content Include="Scripts\dist\messages\all.js" />
-    <Content Include="Scripts\dist\messages\chat.css" />
-    <Content Include="Scripts\dist\messages\chat.js" />
-    <Content Include="Scripts\dist\messages\chats.css" />
-    <Content Include="Scripts\dist\messages\chats.js" />
-    <Content Include="Scripts\dist\messages\index.css" />
-    <Content Include="Scripts\dist\messages\index.js" />
-    <Content Include="Scripts\dist\post\detail.css" />
-    <Content Include="Scripts\dist\post\detail.js" />
-    <Content Include="Scripts\dist\post\edit.css" />
-    <Content Include="Scripts\dist\post\edit.js" />
-    <Content Include="Scripts\dist\post\postnotfound.css" />
-    <Content Include="Scripts\dist\post\postnotfound.js" />
-    <Content Include="Scripts\dist\subscription\unsubscribe.css" />
-    <Content Include="Scripts\dist\subscription\unsubscribe.js" />
-    <Content Include="Scripts\dist\user\achievements.css" />
-    <Content Include="Scripts\dist\user\achievements.js" />
-    <Content Include="Scripts\dist\user\index.css" />
-    <Content Include="Scripts\dist\user\index.js" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1195,10 +1124,6 @@
     <Content Include="node_modules\dropzone\dist\min\basic.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.js" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.css" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.min.css" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.svg" />
-    <Content Include="node_modules\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.min.js" />
     <Content Include="node_modules\jquery-slimscroll\jquery.slimscroll.min.js" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_444444_256x240.png" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_555555_256x240.png" />
@@ -1224,11 +1149,6 @@
     <Content Include="node_modules\selectize\dist\css\selectize.css" />
     <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
     <Content Include="package.json" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.eot" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.ttf" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff2" />
-    <Content Include="node_modules\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="plugins\font\summernote.eot" />
     <Content Include="plugins\font\summernote.ttf" />
     <Content Include="plugins\font\summernote.woff" />
@@ -1397,11 +1317,6 @@
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
-    <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
-    <Content Include="Scripts\summernote\dist\summernote-bs4.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Scripts\summernote\dist\summernote.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1464,9 +1379,6 @@
     <Content Include="Views\Group\DoPayouts.cshtml" />
     <Content Include="Views\Group\Members.cshtml" />
     <Content Include="Views\Group\_PartialGroupMember.cshtml" />
-    <Content Include="Scripts\summernote\dist\font\summernote.eot" />
-    <Content Include="Scripts\summernote\dist\font\summernote.ttf" />
-    <Content Include="Scripts\summernote\dist\font\summernote.woff" />
     <Content Include="Views\Comment\_PartialCommentReplyInput.cshtml" />
     <Content Include="Views\Messages\Index.cshtml" />
     <Content Include="Views\Messages\_UnreadMessages.cshtml" />

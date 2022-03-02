@@ -93,7 +93,7 @@ function Page() {
 
       postJson("/Post/Submit/", msg)
         .then((response) => {
-          console.log(response);
+          //console.log(response);
           setPostId(response.postId);
           setNumSaves(numSaves + 1);
           setIsSaving(false);         // Release the saving lock
@@ -292,7 +292,7 @@ function Page() {
               </div>
             </div>
             <div className="savingoverlay" id="savingnotification" style={{ display: "none" }}>
-              <i className="fa fa-circle-o-notch fa-spin"></i> saving...
+              <i className="fa-solid fa-circle-notch fa-spin"></i> saving...
             </div>
             <Editor
               value={postContent}

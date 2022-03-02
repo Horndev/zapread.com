@@ -41,7 +41,7 @@
                         <div class="col-md-12 ">
                             <div class="chat-discussion">
                                 <div class="social-feed-box-nb">
-                                    <button id="btnLoadOlder" class="btn btn-primary btn-block" onclick="loadolderchats(@Model.OtherUser.Id)"><i class="fa fa-arrow-up"></i> Show Older <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                                    <button id="btnLoadOlder" class="btn btn-primary btn-block" onclick="loadolderchats(@Model.OtherUser.Id)"><i class="fa-solid fa-arrow-up"></i> Show Older <i id="loadmore" class="fa fa-circle-notch fa-spin" style="display:none"></i></button>
                                 </div>
                                 <div id="startMessages"></div>
                                 @foreach (var c in Model.Messages)
@@ -59,6 +59,9 @@
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="chat-message-form" style="background-color: #eee;">
+                                            <div id="progressUpload" class="progress" style="display:none">
+                                                <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
+                                            </div>
                                             @*<div class="m_input wrapper p-md" id="message_input"></div>*@
                                             <div class="ql-content" id="content-container" style="display: flex;flex-direction: column-reverse; ">
                                                 <div id="editor-container" data-userid="@Model.OtherUser.Id"></div>

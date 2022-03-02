@@ -181,13 +181,47 @@ namespace zapread.com.Controllers
         {
             if (file == null)
             {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json(new { success = false, message = "no file" });
             }
 
             using (var db = new ZapContext())
             {
-                if (file.ContentLength > 0)
+                if (!(file.ContentLength > 0))
                 {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new { success = false, message = "empty file" });
+                }
+                else
+                {
+                    // Authorization
+                    var userAppId = User.Identity.GetUserId();
+                    if (userAppId == null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        return Json(new { success = false, message = "Unknown user" });
+                    }
+
+                    var giq = db.Groups
+                        .Where(g => g.GroupId == groupId);
+
+                    if (!User.IsInRole("Administrator"))
+                    {
+                        giq = giq.Where(g => g.Administrators.Select(a => a.AppId).Contains(userAppId));
+                    }
+
+                    var groupInfo = await giq
+                        //.Select(g => new { 
+                        //    g.GroupName,
+                        //    g.GroupImage })
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (groupInfo == null && groupId != -1)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        return Json(new { success = false, message = "You must be an administrator to change group image." });
+                    }
+
                     Image img = Image.FromStream(file.InputStream);
 
                     byte[] data;
@@ -215,10 +249,11 @@ namespace zapread.com.Controllers
                             data = thumb.ToByteArray(ImageFormat.Jpeg);
                         }
 
-                        UserImage i = await db.Groups
-                            .Where(g => g.GroupId == groupId)
-                            .Select(g => g.GroupImage)
-                            .FirstOrDefaultAsync().ConfigureAwait(false);
+                        UserImage i = groupId == -1 ? null : groupInfo.GroupImage;
+                        //await db.Groups
+                        //    .Where(g => g.GroupId == groupId)
+                        //    .Select(g => g.GroupImage)
+                        //    .FirstOrDefaultAsync().ConfigureAwait(false);
 
                         // No group or no image for group
                         if (i == null)
@@ -249,8 +284,6 @@ namespace zapread.com.Controllers
                     }
                 }
             }
-
-            return Json(new { success = false, message = "" });
         }
 
         /// <summary>
