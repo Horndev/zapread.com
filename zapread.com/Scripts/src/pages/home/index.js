@@ -50,6 +50,10 @@ window.addEventListener('resize', function (event) {
       if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
         el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
       }
+      else {
+        // Hide
+        el.querySelectorAll(".read-more-button").item(0).style.display = 'none';
+      }
     }
   });
 }, true);
