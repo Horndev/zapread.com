@@ -956,7 +956,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-	<Content Include="Scripts\dist\res\**" />
+    <Content Include="Scripts\dist\res\**" />
     <Content Include="App_Data\zapread.mdf" />
     <Content Include="App_Data\zapread_log.ldf">
       <DependentUpon>zapread.mdf</DependentUpon>
@@ -1124,10 +1124,6 @@
     <Content Include="node_modules\dropzone\dist\min\basic.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.js" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.css" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.min.css" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.svg" />
-    <Content Include="node_modules\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.min.js" />
     <Content Include="node_modules\jquery-slimscroll\jquery.slimscroll.min.js" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_444444_256x240.png" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_555555_256x240.png" />
@@ -1153,11 +1149,6 @@
     <Content Include="node_modules\selectize\dist\css\selectize.css" />
     <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
     <Content Include="package.json" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.eot" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.ttf" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff2" />
-    <Content Include="node_modules\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="plugins\font\summernote.eot" />
     <Content Include="plugins\font\summernote.ttf" />
     <Content Include="plugins\font\summernote.woff" />
