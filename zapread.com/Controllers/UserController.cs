@@ -396,6 +396,11 @@ namespace zapread.com.Controllers
             return usernameCleaned.Trim();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Route("{username?}/Achievements")]
         public async Task<ActionResult> Achievements(string username)
         {
@@ -720,6 +725,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
