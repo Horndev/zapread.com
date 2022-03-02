@@ -4,6 +4,7 @@ const glob = require('glob-all')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const PurgeCSSPlugin = require('purgecss-webpack-plugin')
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
@@ -69,7 +70,11 @@ module.exports = {
     //'res/[name][ext][query]'
   },
   optimization: {
+    minimize: true,
     minimizer: [
+      new TerserPlugin({
+        test: /\.js(\?.*)?$/i,
+      }),
       // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
       // `...`,
       new CssMinimizerPlugin(
