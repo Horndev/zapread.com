@@ -7,6 +7,14 @@
  *
 */
 
+.pull-right {
+    float: right;
+}
+
+.pull-left {
+    float: left;
+}
+
 .img-post {
     display: block;
     margin: auto;
@@ -6904,13 +6912,13 @@ table.shoping-cart-table {
 
 .social-footer {
     border-top: 2px solid #999;
-    padding: 10px 15px;
+    padding: 5px 0px 0px 5px;
     background: #f9f9f9;
     border-radius: 0px 0px 10px 10px;
 }
 .social-footer-reply {
     border-top: 1px solid #e7eaec;
-    padding: 10px 15px;
+    padding: 5px 0px 0px 5px;
     background: #f9f9f9;
     border-left: 2px dashed #e7eaec;
     padding-right: 0;
@@ -6955,7 +6963,9 @@ table.shoping-cart-table {
 .vote-actions {
     float: left;
     width: 30px;
-    margin-right: 15px;
+    left: -6px;
+    padding-left: 0px;
+    /*margin-right: 15px;*/
     text-align: center;
 }
 

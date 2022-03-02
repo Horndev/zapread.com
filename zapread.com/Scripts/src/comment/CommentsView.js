@@ -144,7 +144,7 @@ function Comment(props) {
                       vote(props.comment.CommentId, 1, 2, 100, upVoteRef.current);
                     }}
                     className={props.comment.ViewerUpvoted ? "" : "text-muted"} id={"uVotec_" + props.comment.CommentId}>
-                    <i className="fa fa-chevron-up"> </i>
+                    <i className="fa-solid fa-chevron-up fa-lg"> </i>
                   </a>
                   <div id={"sVotec_" + props.comment.CommentId}>
                     {props.comment.Score}
@@ -155,7 +155,7 @@ function Comment(props) {
                       vote(props.comment.CommentId, 0, 2, 100, downVoteRef.current);
                     }}
                     className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
-                    <i className="fa fa-chevron-down"> </i>
+                    <i className="fa-solid fa-chevron-down fa-lg"> </i>
                   </a>
                 </div>
               )}
@@ -166,7 +166,7 @@ function Comment(props) {
                     "img-circle user-image-30"
                   } loading="lazy" width="30" height="30" src={
                     "/Home/UserImage/?size=30&UserId=" + encodeURIComponent(props.comment.UserAppId) + "&v=" + props.comment.ProfileImageVersion
-                  } style={{ marginBottom: "10px" }} />
+                  } style={{ marginBottom: "16px", marginTop: "8px" }} />
                 </a>
               </>)}
 

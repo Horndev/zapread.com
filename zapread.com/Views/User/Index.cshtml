@@ -127,11 +127,11 @@
                                     {
                                         if (Model.IsIgnoring)
                                         {
-                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa-solid fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
                                         }
                                         else
                                         {
-                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa fa-ban"></i> <span id="igBtnText">Ignore</span></a>
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa-solid fa-ban"></i> <span id="igBtnText">Ignore</span></a>
                                         }
                                     }
                                     else
@@ -204,7 +204,7 @@
                         }
                     </div>
                     <div>
-                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa-solid fa-arrow-down"></i> Show More <i id="loadmore" class="fa-solid fa-circle-notch fa-spin" style="display:none"></i></button>
                     </div>
                 </div>
             </div>

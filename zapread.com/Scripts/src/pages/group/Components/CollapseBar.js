@@ -74,10 +74,10 @@ export default function CollapseBar(props) {
                 </h5>
                 <div className="ibox-tools">
                   <a ref={collapseRef} className="collapse-link">
-                    <i className="fa fa-chevron-up"></i>
+                    <i className="fa-solid fa-chevron-up"></i>
                   </a>
                   <a ref={closeRef} className="close-link">
-                    <i className="fa fa-times"></i>
+                    <i className="fa-solid fa-xmark"></i>
                   </a>
                 </div>
               </div>

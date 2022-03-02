@@ -292,7 +292,7 @@ function Page() {
               </div>
             </div>
             <div className="savingoverlay" id="savingnotification" style={{ display: "none" }}>
-              <i className="fa fa-circle-o-notch fa-spin"></i> saving...
+              <i className="fa-solid fa-circle-notch fa-spin"></i> saving...
             </div>
             <Editor
               value={postContent}

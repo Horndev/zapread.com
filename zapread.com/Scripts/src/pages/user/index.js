@@ -79,10 +79,10 @@ export function toggleUserIgnore(id) {
   }).then((response) => {
     if (response.success) {
       if (response.added) {
-        document.getElementById('i_' + id.toString()).innerHTML = "<i class='fa fa-circle'></i> Un-Ignore ";
+        document.getElementById('i_' + id.toString()).innerHTML = "<i class='fa-solid fa-circle'></i> Un-Ignore ";
       }
       else {
-        document.getElementById('i_' + id.toString()).innerHTML = "<i class='fa fa-ban'></i> Ignore ";
+        document.getElementById('i_' + id.toString()).innerHTML = "<i class='fa-solid fa-ban'></i> Ignore ";
       }
     }
   });

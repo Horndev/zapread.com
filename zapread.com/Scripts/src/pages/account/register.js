@@ -7,7 +7,7 @@ import 'jquery-validation';
 import tippy from 'tippy.js';                       // [✓]
 import 'tippy.js/dist/tippy.css';                   // [✓]
 import 'tippy.js/themes/light-border.css';          // [✓]
-import 'font-awesome/css/font-awesome.min.css';
+//import 'font-awesome/css/font-awesome.min.css';
 import '../../shared/sharedlast';
 
 // Apply the loading tippy

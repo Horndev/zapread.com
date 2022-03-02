@@ -120,7 +120,7 @@ export function onVote(e) {
       /* Set chevron spinning */
       var icon = userVote.o.querySelectorAll('i').item(0);
       icon.classList.remove('fa-chevron-up');
-      icon.classList.add('fa-circle-o-notch');
+      icon.classList.add('fa-circle-notch');
       icon.classList.add('fa-spin');
       icon.style.color = 'darkcyan';
       doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
@@ -363,7 +363,7 @@ export function doVote(id, d, t, amount, tx) {
       if (data.success) {
         var icon = userVote.o.querySelectorAll('i').item(0);
         //var icon = $(userVote.o).find('i');
-        icon.classList.remove('fa-circle-o-notch');
+        icon.classList.remove('fa-circle-notch');
         icon.classList.remove('fa-spin');
         icon.classList.add('fa-chevron-up');
         icon.style.color = '';//('color', '');
