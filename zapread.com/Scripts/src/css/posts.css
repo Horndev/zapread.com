@@ -3,6 +3,6 @@
 */
 
 .post-comment {
-    overflow: hidden;
+    /*overflow: hidden;*/
     position: relative;
 }
