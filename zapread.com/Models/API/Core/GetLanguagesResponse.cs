@@ -10,7 +10,9 @@ namespace zapread.com.Models.API.Core
     /// </summary>
     public class GetLanguagesResponse: ZapReadResponse
     {
-        // List of languages
+        /// <summary>
+        /// // List of languages
+        /// </summary>
         public List<string> Languages { get; set; }
     }
 }

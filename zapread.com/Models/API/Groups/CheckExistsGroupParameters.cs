@@ -5,10 +5,18 @@ using System.Web;
 
 namespace zapread.com.Models.API.Groups
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class CheckExistsGroupParameters
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string GroupName { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public int? GroupId { get; set; }
     }
 }

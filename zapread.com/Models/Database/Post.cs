@@ -11,7 +11,9 @@ namespace zapread.com.Models.Database
     public class Post
     {
         [Key]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public int PostId { get; set; }
+
         public int Score { get; set; }
         public long Impressions { get; set; }                           // Number of times post was rendered
         public string PostTitle { get; set; }
@@ -49,4 +51,5 @@ namespace zapread.com.Models.Database
         public bool IsDraft { get; set; }
         public bool IsPublished { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

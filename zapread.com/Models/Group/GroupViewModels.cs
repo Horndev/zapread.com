@@ -5,6 +5,7 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public class GroupAdminBarViewModel
     {
         public int GroupId { get; set; }
@@ -144,4 +145,5 @@ namespace zapread.com.Models
         public bool IsMod { get; set; }
         public bool IsAdmin { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

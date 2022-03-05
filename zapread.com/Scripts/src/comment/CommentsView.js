@@ -139,23 +139,38 @@ function Comment(props) {
                 {/* Don't show score for deleted comments */ }
               </>) : (
                 <div className="vote-actions" style={isIgnoredUser ? { display: none } : {}}>
-                  <a ref={upVoteRef} role="button"
-                    onClick={() => {
-                      vote(props.comment.CommentId, 1, 2, 100, upVoteRef.current);
+                  <a role="button" onClick={() => {
+                      const event = new CustomEvent('vote', {
+                        detail: {
+                          direction: 'up',
+                          type: 'comment',
+                          id: props.comment.CommentId,
+                          target: upVoteRef.current
+                        }
+                      });
+                      document.dispatchEvent(event);
+                      //vote(props.comment.CommentId, 1, 2, 100, upVoteRef.current);
                     }}
                     className={props.comment.ViewerUpvoted ? "" : "text-muted"} id={"uVotec_" + props.comment.CommentId}>
-                    <i className="fa-solid fa-chevron-up fa-lg"> </i>
+                      <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
                   </a>
                   <div id={"sVotec_" + props.comment.CommentId}>
                     {props.comment.Score}
                   </div>
-                  <a ref={downVoteRef} role="button"
-                    style={{ position: "relative", zIndex: 1 }}
-                    onClick={() => {
-                      vote(props.comment.CommentId, 0, 2, 100, downVoteRef.current);
+                  <a role="button" style={{ position: "relative", zIndex: 1 }} onClick={() => {
+                        const event = new CustomEvent('vote', {
+                          detail: {
+                            direction: 'down',
+                            type: 'comment',
+                            id: props.comment.CommentId,
+                            target: downVoteRef.current
+                          }
+                        });
+                        document.dispatchEvent(event);
+                      //vote(props.comment.CommentId, 0, 2, 100, downVoteRef.current);
                     }}
                     className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
-                    <i className="fa-solid fa-chevron-down fa-lg"> </i>
+                      <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
                   </a>
                 </div>
               )}

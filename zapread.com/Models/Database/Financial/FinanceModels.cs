@@ -6,19 +6,35 @@ using zapread.com.Models.Lightning;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SpendingEvent
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key]
         public int Id { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime? TimeStamp { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public double Amount { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Post Post { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Comment Comment { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Group Group { get; set; }
 
         // type?
@@ -61,19 +77,49 @@ namespace zapread.com.Models
         public DateTime? TimeStamp { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum TransactionUse
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Undefined = 0,
+        /// <summary>
+        /// 
+        /// </summary>
         VotePost = 1,
+        /// <summary>
+        /// 
+        /// </summary>
         VoteComment = 2,
+        /// <summary>
+        /// 
+        /// </summary>
         Tip = 3,
+        /// <summary>
+        /// 
+        /// </summary>
         UserDeposit = 4,
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum TransactionUseAction
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Undefined = -1,
+        /// <summary>
+        /// 
+        /// </summary>
         VoteDown = 0,
+        /// <summary>
+        /// 
+        /// </summary>
         VoteUp = 1,
     }
 

@@ -32,20 +32,36 @@ export default function PostVoteButtons(props) {
     <>
       <div className="col-sm-auto vote-actions" style={{ paddingLeft: "0px" }}>
         <div className="vote-actions">
-          <a ref={upVoteRef} role="button"
-            onClick={ () => {
-              vote(postId, 1, 1, 100, upVoteRef.current);
+          <a role="button" onClick={() => {
+              const event = new CustomEvent('vote', {
+                detail: {
+                  direction: 'up',
+                  type: 'post',
+                  id: postId,
+                  target: upVoteRef.current
+                }
+              });
+              document.dispatchEvent(event);
+              //vote(postId, 1, 1, 100, upVoteRef.current);
             }} className={viewerUpvoted ? "" : "text-muted"} id={"uVote_" + postId}>
-            <i className="fa-solid fa-chevron-up fa-lg"> </i>
+            <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
           </a>
           <div id={"sVote_" + postId}>
             {postScore}
           </div>
-          <a ref={downVoteRef} role="button"
-            onClick={ () => {
-              vote(postId, 0, 1, 100, downVoteRef.current);
+          <a role="button" onClick={() => {
+              const event = new CustomEvent('vote', {
+                detail: {
+                  direction: 'down',
+                  type: 'post',
+                  id: postId,
+                  target: downVoteRef.current
+                }
+              });
+              document.dispatchEvent(event);
+              //vote(postId, 0, 1, 100, downVoteRef.current);
             }} className={viewerDownvoted ? "" : "text-muted"} id={"dVote_" + postId}>
-            <i className="fa-solid fa-chevron-down fa-lg"> </i>
+            <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
           </a>
         </div>
       </div>

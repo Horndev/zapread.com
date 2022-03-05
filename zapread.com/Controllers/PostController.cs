@@ -677,7 +677,7 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var p = await db.Posts
+                var post = await db.Posts
                     .Where(p => p.PostId == postId)
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 

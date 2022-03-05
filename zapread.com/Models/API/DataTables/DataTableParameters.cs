@@ -20,9 +20,11 @@ namespace zapread.com.Models.API.DataTables
         public int Start { get; set; }
         public string Filter { get; set; }
 #pragma warning restore CA2227 // Collection properties should be read only
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataTableColumn
     {
         public int Data { get; set; }
@@ -43,4 +45,5 @@ namespace zapread.com.Models.API.DataTables
         public int Column { get; set; }
         public string Dir { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

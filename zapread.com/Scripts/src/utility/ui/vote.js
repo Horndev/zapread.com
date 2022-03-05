@@ -7,7 +7,12 @@ import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4';
 import { getAntiForgeryTokenValue } from '../antiforgery';
 import { postJson } from '../postData';
 import { ready } from '../ready';
+import { updateUserInfo } from '../userInfo';
 
+/**
+ * This should be IE compatible
+ * @param {any} eventName
+ */
 function createNewEvent(eventName) {
   var event;
   if (typeof Event === 'function') {
@@ -29,42 +34,42 @@ window.userTip = userTip;
 window.isTip = isTip;
 window.voteReadyEvent = voteReadyEvent;
 
-ready(function () {
-  var userdefaultvote = '1';
-  document.getElementById('payAmount').innerHTML = userdefaultvote;
-  document.getElementById('voteValueAmount').value = userdefaultvote;
-  var userBalance = window.userVote.b;
-  document.getElementById('userVoteBalance').innerHTML = userBalance;
-
-  // If the user updates the amount
-  var voteInput = document.getElementById('voteValueAmount');
-  voteInput.addEventListener('input', function () {
-    var amt = this.value;
-    window.userVote.amount = amt;
-    window.userTip.amount = amt;
-    if (parseInt(window.userVote.amount) > parseInt(window.userVote.b)) {
-      document.getElementById('voteDepositInvoiceFooter').innerHTML = 'Please pay lightning invoice.';
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
-      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-      document.getElementById("voteOkButton").innerHTML = 'Get Invoice';
-    }
-    else {
-      if (window.isTip) {
-        document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
-        document.getElementById("voteOkButton").innerHTML = 'Tip';
-      }
-      else {
-        document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
-        document.getElementById("voteOkButton").innerHTML = 'Vote';
-      }
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
-      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-    }
-  });
-  document.dispatchEvent(voteReadyEvent);
-});
+//ready(function () {
+//  var userdefaultvote = '1';
+//  document.getElementById('payAmount').innerHTML = userdefaultvote;
+//  document.getElementById('voteValueAmount').value = userdefaultvote;
+//  //var userBalance = window.userVote.b;
+//  //var userBalance = window.userVote.b;
+//  //document.getElementById('userVoteBalance').innerHTML = userBalance;
+//  // If the user updates the amount
+//  var voteInput = document.getElementById('voteValueAmount');
+//  voteInput.addEventListener('input', function () {
+//    var amt = this.value;
+//    window.userVote.amount = amt;
+//    window.userTip.amount = amt;
+//    if (parseInt(window.userVote.amount) > parseInt(window.userVote.b)) {
+//      document.getElementById('voteDepositInvoiceFooter').innerHTML = 'Please pay lightning invoice.';
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+//      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+//      document.getElementById("voteOkButton").innerHTML = 'Get Invoice';
+//    }
+//    else {
+//      if (window.isTip) {
+//        document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
+//        document.getElementById("voteOkButton").innerHTML = 'Tip';
+//      }
+//      else {
+//        document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
+//        document.getElementById("voteOkButton").innerHTML = 'Vote';
+//      }
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+//      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+//    }
+//  });
+//  document.dispatchEvent(voteReadyEvent);
+//});
 
 /**
  * This function is called when a user clicks the button to either pay with balance or invoice
@@ -198,125 +203,123 @@ window.onCancelVote = onCancelVote;
  * @param {any} b
  * @param {any} o
  */
-export function vote(id, d, t, b, o) {
-  // id : the identifier for the item being voted on
-  // d  : the direction of the vote
-  // t  : the type of item voted on.  (2 = comment)
-  // o  : the object calling vote
-  window.isTip = false;
-  var userBalance = 0;
-  var voteCost = parseInt(document.getElementById('voteValueAmount').value);
+//export function vote(id, d, t, b, o) {
+//  // id : the identifier for the item being voted on
+//  // d  : the direction of the vote
+//  // t  : the type of item voted on.  (2 = comment)
+//  // o  : the object calling vote
+//  window.isTip = false;
+//  var userBalance = 0;
+//  var voteCost = parseInt(document.getElementById('voteValueAmount').value);
 
-  /* Configure vote parameters */
-  userVote.b = ub;
-  userVote.id = id;
-  userVote.d = d;
-  userVote.t = t;
-  userVote.b = ub;
-  userVote.o = o;     /* Track the calling object */
-  userVote.amount = voteCost;
+//  /* Configure vote parameters */
+//  userVote.b = ub;
+//  userVote.id = id;
+//  userVote.d = d;
+//  userVote.t = t;
+//  userVote.b = ub;
+//  userVote.o = o;     /* Track the calling object */
+//  userVote.amount = voteCost;
 
-  if (!IsAuthenticated) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Anonymous Vote',
-      text: 'You are not logged in, but you can still vote anonymously with a Bitcoin Lightning Payment.',
-      footer: '<a href="/Account/Login">Log in instead</a>'
-    }).then(() => {
-      prepareAndShowVoteModal();
-    });
-  }
-  else {
-    prepareAndShowVoteModal();
-  }
-}
+//  if (!IsAuthenticated) {
+//    Swal.fire({
+//      icon: 'info',
+//      title: 'Anonymous Vote',
+//      text: 'You are not logged in, but you can still vote anonymously with a Bitcoin Lightning Payment.',
+//      footer: '<a href="/Account/Login">Log in instead</a>'
+//    }).then(() => {
+//      prepareAndShowVoteModal();
+//    });
+//  }
+//  else {
+//    prepareAndShowVoteModal();
+//  }
+//}
+//window.vote = vote;
 
-window.vote = vote;
+//function prepareAndShowVoteModal() {
+//  /* Prepare vote modal without an invoice, and show it.*/
+//  document.getElementById('voteModalTitle').innerHTML = "Vote";
+//  //document.getElementById('userVoteBalance').innerHTML = "...";
+//  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-success");
+//  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-error");
+//  document.getElementById('voteDepositInvoiceFooter').classList.add("bg-info");
+//  document.getElementById('voteOkButton').innerHTML = "Vote";
+//  document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
+//  document.getElementById('voteDepositQR').style.display = 'none';
+//  document.getElementById('voteDepositInvoice').style.display = 'none';
+//  document.getElementById("voteQRloading").style.display = 'none';
+//  showVoteModal();
+//  refreshUserBalance().then((userBalance) => {
+//    /* This is done here prior to showing */
+//    if (userVote.amount > userBalance) {
+//      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
+//      document.getElementById('voteOkButton').innerHTML = "Get Invoice";
+//    }
+//  });
+//}
 
-function prepareAndShowVoteModal() {
-  /* Prepare vote modal without an invoice, and show it.*/
-  document.getElementById('voteModalTitle').innerHTML = "Vote";
-  document.getElementById('userVoteBalance').innerHTML = "...";
-  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-success");
-  document.getElementById('voteDepositInvoiceFooter').classList.remove("bg-error");
-  document.getElementById('voteDepositInvoiceFooter').classList.add("bg-info");
-  document.getElementById('voteOkButton').innerHTML = "Vote";
-  document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click vote to confirm.";
-  document.getElementById('voteDepositQR').style.display = 'none';
-  document.getElementById('voteDepositInvoice').style.display = 'none';
-  document.getElementById("voteQRloading").style.display = 'none';
-  showVoteModal();
-  refreshUserBalance().then((userBalance) => {
-    /* This is done here prior to showing */
-    if (userVote.amount > userBalance) {
-      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
-      document.getElementById('voteOkButton').innerHTML = "Get Invoice";
-    }
-  });
-}
-
-/**
- * [✓]
- **/
-async function refreshUserBalance() {
-  return fetch('/Account/Balance/', {
-    method: 'GET', // *GET, POST, PUT, DELETE, etc.
-    mode: 'same-origin', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json',
-      '__RequestVerificationToken': getAntiForgeryTokenValue()
-    }
-  })
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      document.getElementById('userVoteBalance').innerHTML = data.balance;//$('#userVoteBalance').html(data.balance);
-
-      if (typeof userBalance !== 'undefined') {
-        userBalance = parseFloat(data.balance);
-      } else if (Object.prototype.hasOwnProperty.call(window, "userBalance")) {
-        window.userBalance = parseFloat(data.balance);
-      } else {
-        window.userBalance = parseFloat(data.balance);
-      }
-
-      if (Object.prototype.hasOwnProperty.call(window, "userVote")) {
-        window.userVote.b = parseFloat(data.balance);
-      }
-
-      var elements = document.querySelectorAll(".userBalanceValue");
-      Array.prototype.forEach.call(elements, function (el, _i) {
-        el.innerHTML = data.balance;
-      });
-
-      return data.balance;
-    });
-}
+///**
+// * [✓]
+// **/
+//async function refreshUserBalance() {
+//  return fetch('/Account/Balance/', {
+//    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+//    mode: 'same-origin', // no-cors, *cors, same-origin
+//    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+//    credentials: 'same-origin', // include, *same-origin, omit
+//    headers: {
+//      'Content-Type': 'application/json',
+//      '__RequestVerificationToken': getAntiForgeryTokenValue()
+//    }
+//  })
+//    .then((response) => {
+//      return response.json();
+//    })
+//    .then((data) => {
+//      updateUserInfo({
+//        balance: data.balance
+//      });
+//      //document.getElementById('userVoteBalance').innerHTML = data.balance;//$('#userVoteBalance').html(data.balance);
+//      if (typeof userBalance !== 'undefined') {
+//        userBalance = parseFloat(data.balance);
+//      } else if (Object.prototype.hasOwnProperty.call(window, "userBalance")) {
+//        window.userBalance = parseFloat(data.balance);
+//      } else {
+//        window.userBalance = parseFloat(data.balance);
+//      }
+//      if (Object.prototype.hasOwnProperty.call(window, "userVote")) {
+//        window.userVote.b = parseFloat(data.balance);
+//      }
+//      //var elements = document.querySelectorAll(".userBalanceValue");
+//      //Array.prototype.forEach.call(elements, function (el, _i) {
+//      //  el.innerHTML = data.balance;
+//      //});
+//      return data.balance;
+//    });
+//}
 
 /**
  * [✓]
  **/
-function showVoteModal() {
-  if (Object.prototype.hasOwnProperty.call(document.getElementById('voteModal'), "Modal")) {
-    document.getElementById('voteModal').Modal.show();
-  } else {
-    var voteModalEl = document.getElementById('voteModal');
-    var voteModal = new Modal(voteModalEl);//.Modal;
-    voteModal.show();
-  }
-}
+//function showVoteModal() {
+//  if (Object.prototype.hasOwnProperty.call(document.getElementById('voteModal'), "Modal")) {
+//    document.getElementById('voteModal').Modal.show();
+//  } else {
+//    var voteModalEl = document.getElementById('voteModal');
+//    var voteModal = new Modal(voteModalEl);//.Modal;
+//    voteModal.show();
+//  }
+//}
 
 /**
  * [✓]
  **/
-function hideVoteModal() {
-  var voteModalEl = document.getElementById('voteModal');
-  var voteModal = voteModalEl.Modal;//new Modal(voteModalEl);//.Modal;
-  voteModal.hide();
-}
+//function hideVoteModal() {
+//  var voteModalEl = document.getElementById('voteModal');
+//  var voteModal = voteModalEl.Modal;//new Modal(voteModalEl);//.Modal;
+//  voteModal.hide();
+//}
 
 /**
  * 
@@ -411,40 +414,40 @@ window.doVote = doVote;
  * @param {any} user name of user
  * @param {any} uid  id of user
  */
-export function tip(user, uid) {
-  alert("tips disabled.");
-  return;
-  window.isTip = true;
-  document.getElementById('voteModalTitle').innerHTML = "Tip " + user;
+//export function tip(user, uid) {
+//  alert("tips disabled.");
+//  return;
+//  window.isTip = true;
+//  document.getElementById('voteModalTitle').innerHTML = "Tip " + user;
 
-  refreshUserBalance().then((userBalance) => {
-    document.getElementById('userVoteBalance').innerHTML = userBalance;
-    userVote.id = uid;
+//  refreshUserBalance().then((userBalance) => {
+//    //document.getElementById('userVoteBalance').innerHTML = userBalance;
+//    userVote.id = uid;
 
-    /* This is done here prior to showing */
-    if (userVote.amount > userBalance) {
-      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
-      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-      document.getElementById("voteOkButton").innerHTML = "Get Invoice";
-    }
-    else {
-      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
-      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-      document.getElementById("voteOkButton").innerHTML = "Tip";
-    }
+//    /* This is done here prior to showing */
+//    if (userVote.amount > userBalance) {
+//      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Please pay lightning invoice.";
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+//      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+//      document.getElementById("voteOkButton").innerHTML = "Get Invoice";
+//    }
+//    else {
+//      document.getElementById('voteDepositInvoiceFooter').innerHTML = "Click tip to confirm.";
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-error");
+//      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+//      document.getElementById("voteOkButton").innerHTML = "Tip";
+//    }
 
-    /* Prepare vote modal without an invoice, and show it.*/
-    document.getElementById("voteDepositQR").style.display = "none";
-    document.getElementById("voteDepositInvoice").style.display = "none";
+//    /* Prepare vote modal without an invoice, and show it.*/
+//    document.getElementById("voteDepositQR").style.display = "none";
+//    document.getElementById("voteDepositInvoice").style.display = "none";
 
-    showVoteModal();
-  });
-}
-window.tip = tip;
+//    showVoteModal();
+//  });
+//}
+//window.tip = tip;
 
 /**
  * 
@@ -452,38 +455,38 @@ window.tip = tip;
  * @param {any} amount  the amount of the tip
  * @param {any} tx      txid if the tip is anonymous
  */
-export function doTip(id, amount, tx) {
-  var body = { 'id': id, 'amount': parseInt(amount), 'tx': tx };
+//export function doTip(id, amount, tx) {
+//  var body = { 'id': id, 'amount': parseInt(amount), 'tx': tx };
 
-  fetch('/Manage/TipUser/', {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'same-origin', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json',
-      '__RequestVerificationToken': getAntiForgeryTokenValue()
-    },
-    body: JSON.stringify(body)
-  })
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      if (data.success) {
-        hideVoteModal();
+//  fetch('/Manage/TipUser/', {
+//    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+//    mode: 'same-origin', // no-cors, *cors, same-origin
+//    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+//    credentials: 'same-origin', // include, *same-origin, omit
+//    headers: {
+//      'Content-Type': 'application/json',
+//      '__RequestVerificationToken': getAntiForgeryTokenValue()
+//    },
+//    body: JSON.stringify(body)
+//  })
+//    .then((response) => {
+//      return response.json();
+//    })
+//    .then((data) => {
+//      if (data.success) {
+//        hideVoteModal();
 
-        refreshUserBalance();
-      }
-      else {
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
-        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
-        document.getElementById("voteDepositInvoiceFooter").class.display = '';
-      }
-    });
+//        refreshUserBalance();
+//      }
+//      else {
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+//        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+//        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
+//        document.getElementById("voteDepositInvoiceFooter").class.display = '';
+//      }
+//    });
 
-  window.isTip = false;
-}
-window.doTip = doTip;
+//  window.isTip = false;
+//}
+//window.doTip = doTip;

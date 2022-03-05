@@ -38,7 +38,16 @@ async function Initialize() {
         }
 
         // Show vote modal - vote for comment
-        vote(commentId, detailPostVote, 2, 100, el);
+        //vote(commentId, detailPostVote, 2, 100, el);
+        const event = new CustomEvent('vote', {
+          detail: {
+            direction: detailPostVote == 1 ? 'up' : 'down',
+            type: 'comment',
+            id: commentId,
+            target: el
+          }
+        });
+        document.dispatchEvent(event);
       } else if (hash) {
         // Bad anchor
         alert('Error voting');
@@ -49,7 +58,16 @@ async function Initialize() {
           el = document.getElementById('dVote_' + detailPostId);
         }
         // Show vote modal - vote for post
-        vote(detailPostId, detailPostVote, 1, 100, el);
+        //vote(detailPostId, detailPostVote, 1, 100, el);
+        const event = new CustomEvent('vote', {
+          detail: {
+            direction: detailPostVote == 1 ? 'up' : 'down',
+            type: 'post',
+            id: detailPostId,
+            target: el
+          }
+        });
+        document.dispatchEvent(event);
       }
     });
   }

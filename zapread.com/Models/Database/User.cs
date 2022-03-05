@@ -12,6 +12,7 @@ namespace zapread.com.Models.Database
     public class User
     {
         [Key]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public int Id { get; set; }
 
         [Required, StringLength(100)]
@@ -152,4 +153,5 @@ namespace zapread.com.Models.Database
             throw new NotImplementedException();
         }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

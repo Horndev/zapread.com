@@ -7,6 +7,9 @@ using System.Web;
 
 namespace zapread.com.Models.Database
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class APIKey
     {
         /// <summary>

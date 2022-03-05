@@ -6,34 +6,65 @@ using System.Web;
 
 namespace zapread.com.Models.Database
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Achievement
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int Id { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Description { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public byte[] Image { get; set; }
 
-        // An intrinsic assigned value to the achievement
+        /// <summary>
+        /// // An intrinsic assigned value to the achievement
+        /// </summary>
         public int Value { get; set; }
 
-        // Navigation property
+        /// <summary>
+        /// // Navigation property
+        /// </summary>
         [InverseProperty("Achievement")]
         public virtual ICollection<UserAchievement> Awarded { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class UserAchievement
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Achievements")]
         public User AchievedBy { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Awarded")]
         public Achievement Achievement { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime? DateAchieved { get; set; }
     }
 }

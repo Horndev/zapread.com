@@ -8,7 +8,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
-  mode: "production",//production",//"development",
+  mode: "development",//production",//"development",
   entry: {
     account_login: "./Scripts/src/pages/account/login.js",
     account_register: "./Scripts/src/pages/account/register.js",
@@ -54,6 +54,12 @@ module.exports = {
       var filename = c.chunk.name.split("_")[1];
       return subpath + "/" + filename + ".js";
     },
+    chunkFilename: c => {
+      //var idlen = c.chunk.id.split("_").length;
+      var subpath = c.chunk.runtime.split("_")[0];
+      //var filename = c.chunk.id.split("_")[idlen - 2];
+      return subpath + "/" + c.chunk.id + ".js";
+    }
     //publicPath: './Content',
     //assetModuleFilename: (pathData) => {
     //  console.log("assetModuleFilename", pathData);
@@ -69,21 +75,21 @@ module.exports = {
     //}
     //'res/[name][ext][query]'
   },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        test: /\.js(\?.*)?$/i,
-      }),
-      // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-      // `...`,
-      new CssMinimizerPlugin(
-        //{
-        //test: /\index.css$/i,
-        //}
-      ),
-    ],
-  },
+  //optimization: {
+  //  minimize: true,
+  //  minimizer: [
+  //    new TerserPlugin({
+  //      test: /\.js(\?.*)?$/i,
+  //    }),
+  //    // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
+  //    // `...`,
+  //    new CssMinimizerPlugin(
+  //      //{
+  //      //test: /\index.css$/i,
+  //      //}
+  //    ),
+  //  ],
+  //},
   module: {
     rules: [
       {
@@ -162,6 +168,10 @@ module.exports = {
         var subpath = c.chunk.name.split("_")[0];
         var filename = c.chunk.name.split("_")[1];
         return subpath + "/" + filename + ".css";
+      },
+      chunkFilename: c => {
+        var subpath = c.chunk.runtime.split("_")[0];
+        return subpath + "/" + c.chunk.id + ".css";
       }
     }),
     //new PurgeCSSPlugin({

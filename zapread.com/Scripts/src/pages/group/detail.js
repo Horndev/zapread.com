@@ -2,28 +2,24 @@
  * View a group posts
  */
 
-import '../../shared/shared';       // [✓]
-import '../../realtime/signalr';    // [✓]
-
-import React, { useEffect, useState } from 'react'; // [✓]
-import ReactDOM from "react-dom";                                        // [✓]
-import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom'; // [✓]
+import '../../shared/shared';
+import '../../realtime/signalr';
+import React, { useEffect, useState } from 'react';
+import ReactDOM from "react-dom";
+import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
 import { postJson } from "../../utility/postData";
-
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
 import GroupAdminBar from "./Components/GroupAdminBar";
 import GroupModBar from "./Components/GroupModBar";
 import PostList from "../post/Components/PostList";
 import VoteModal from "../../Components/VoteModal";
-
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
-
-import '../../shared/postfunctions';                                        // [✓]
-import '../../shared/readmore';                                             // [✓]
-import '../../shared/postui';                                               // [✓]
-import '../../shared/sharedlast';                                           // [✓]
+import '../../shared/postfunctions';
+import '../../shared/readmore';
+import '../../shared/postui';
+import '../../shared/sharedlast';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -124,7 +120,6 @@ function Page() {
   return (
     <>
       <VoteModal />
-
       <div className="wrapper border-bottom white-bg page-heading">
         <div className="col-lg-10">
           <br />

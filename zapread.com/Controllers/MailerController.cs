@@ -445,7 +445,12 @@ namespace zapread.com.Controllers
                 });
         }
 
-        // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// <summary>
+        /// // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         protected string RenderViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

@@ -10,11 +10,21 @@ namespace zapread.com.Models.Comments
     /// </summary>
     public class CommentReplyInputViewModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public Int64 CommentId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public int PostId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string UserAppId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public int ProfileImageVersion { get; set; }
     }
 }
