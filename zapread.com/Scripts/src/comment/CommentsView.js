@@ -149,7 +149,6 @@ function Comment(props) {
                         }
                       });
                       document.dispatchEvent(event);
-                      //vote(props.comment.CommentId, 1, 2, 100, upVoteRef.current);
                     }}
                     className={props.comment.ViewerUpvoted ? "" : "text-muted"} id={"uVotec_" + props.comment.CommentId}>
                       <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
@@ -167,7 +166,6 @@ function Comment(props) {
                           }
                         });
                         document.dispatchEvent(event);
-                      //vote(props.comment.CommentId, 0, 2, 100, downVoteRef.current);
                     }}
                     className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
                       <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>

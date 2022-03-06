@@ -42,7 +42,6 @@ export default function PostVoteButtons(props) {
                 }
               });
               document.dispatchEvent(event);
-              //vote(postId, 1, 1, 100, upVoteRef.current);
             }} className={viewerUpvoted ? "" : "text-muted"} id={"uVote_" + postId}>
             <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
           </a>
@@ -59,7 +58,6 @@ export default function PostVoteButtons(props) {
                 }
               });
               document.dispatchEvent(event);
-              //vote(postId, 0, 1, 100, downVoteRef.current);
             }} className={viewerDownvoted ? "" : "text-muted"} id={"dVote_" + postId}>
             <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
           </a>

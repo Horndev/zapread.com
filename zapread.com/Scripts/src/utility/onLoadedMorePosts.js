@@ -8,11 +8,42 @@ import { loadgrouphover } from './grouphover';                                  
 import { updatePostTimes } from './datetime/posttime';                          // [✓]
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
 
+async function enableVoting(className, d, t, idel) {
+  var elements = document.querySelectorAll("." + className);
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    var postid = el.getAttribute(idel);
+    el.addEventListener("click", (e) => {
+      // Emit vote event
+      const event = new CustomEvent('vote', {
+        detail: {
+          direction: d,
+          type: t,
+          id: postid,
+          target: e.target
+        }
+      });
+      document.dispatchEvent(event);
+    });
+    // remove className to indicate event handler is attached
+    el.classList.remove(className);
+  });
+}
+/* Does the vote/comment up/down handler attachment in parallel */
+async function enableVotingAsync() {
+  await Promise.all([
+    enableVoting("vote-post-up", 'up', 'post', 'data-postid'),
+    enableVoting("vote-post-dn", 'down', 'post', 'data-postid'),
+    enableVoting("vote-comment-up", 'up', 'comment', 'data-commentid'),
+    enableVoting("vote-comment-dn", 'down', 'comment', 'data-commentid')
+  ]);
+}
+
 /**
  * 
  * [✓] native JS
  **/
 export function onLoadedMorePosts() {
+  enableVotingAsync(); // Done in parallel
   //console.log('[DEBUG] onLoadedMorePosts');
   // User mention hover
   applyHoverToChildren(document, ".userhint");

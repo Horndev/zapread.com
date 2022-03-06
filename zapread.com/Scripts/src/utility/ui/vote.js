@@ -76,122 +76,122 @@ window.voteReadyEvent = voteReadyEvent;
  * 
  * @param {any} e
  */
-export function onVote(e) {
-  var userBalance = userVote.b;
-  var depositUse = "userDeposit";
-  var memo = "ZapRead.com";
-  if (window.isTip) {
-    depositUse = "tip";
-    var voteModalTitle = document.getElementById("voteModalTitle");
-    memo = 'ZapRead.com ' + voteModalTitle.innerText;//$('#voteModalTitle').html();
-  } else if (userVote.t === 1) {
-    depositUse = "votePost";
-    memo = 'ZapRead.com vote post ID: ' + userVote.id;
-  } else if (userVote.t === 2) {
-    depositUse = "voteComment";
-    memo = 'ZapRead.com vote comment ID: ' + userVote.id;
-  }
-  var isanon = '1';
-  if (IsAuthenticated) {
-    isanon = '0';
-  }
-  else {
-    appInsights.trackEvent({
-      name: 'Anonymous Vote',
-      properties: {
-        amount: userVote.amount.toString()
-      }
-    });
-  }
+//export function onVote(e) {
+//  var userBalance = userVote.b;
+//  var depositUse = "userDeposit";
+//  var memo = "ZapRead.com";
+//  if (window.isTip) {
+//    depositUse = "tip";
+//    var voteModalTitle = document.getElementById("voteModalTitle");
+//    memo = 'ZapRead.com ' + voteModalTitle.innerText;//$('#voteModalTitle').html();
+//  } else if (userVote.t === 1) {
+//    depositUse = "votePost";
+//    memo = 'ZapRead.com vote post ID: ' + userVote.id;
+//  } else if (userVote.t === 2) {
+//    depositUse = "voteComment";
+//    memo = 'ZapRead.com vote comment ID: ' + userVote.id;
+//  }
+//  var isanon = '1';
+//  if (IsAuthenticated) {
+//    isanon = '0';
+//  }
+//  else {
+//    appInsights.trackEvent({
+//      name: 'Anonymous Vote',
+//      properties: {
+//        amount: userVote.amount.toString()
+//      }
+//    });
+//  }
 
-  if (parseInt(userVote.amount) > parseInt(userBalance)) {
-    // Not enough funds - ask for invoice
-    updateVoteInvoice({
-      "amount": userVote.amount.toString(),
-      "memo": memo,
-      "anon": isanon,
-      "use": depositUse,
-      "useId": userVote.id,
-      "useAction": userVote.d    // direction of vote 0=down; 1=up
-    });
-    document.getElementById('voteOkButton').style.display = "none"; // hide
-    document.getElementById('btnCheckLNVote').style.display = "";   // show
-  }
-  else {
-    if (window.isTip) {
-      doTip(userVote.id, userVote.amount, null);
-    }
-    else {
-      /* Set chevron spinning */
-      var icon = userVote.o.querySelectorAll('i').item(0);
-      icon.classList.remove('fa-chevron-up');
-      icon.classList.add('fa-circle-notch');
-      icon.classList.add('fa-spin');
-      icon.style.color = 'darkcyan';
-      doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
-    }
-  }
-}
-window.onVote = onVote;
+//  if (parseInt(userVote.amount) > parseInt(userBalance)) {
+//    // Not enough funds - ask for invoice
+//    updateVoteInvoice({
+//      "amount": userVote.amount.toString(),
+//      "memo": memo,
+//      "anon": isanon,
+//      "use": depositUse,
+//      "useId": userVote.id,
+//      "useAction": userVote.d    // direction of vote 0=down; 1=up
+//    });
+//    document.getElementById('voteOkButton').style.display = "none"; // hide
+//    document.getElementById('btnCheckLNVote').style.display = "";   // show
+//  }
+//  else {
+//    if (window.isTip) {
+//      doTip(userVote.id, userVote.amount, null);
+//    }
+//    else {
+//      /* Set chevron spinning */
+//      var icon = userVote.o.querySelectorAll('i').item(0);
+//      icon.classList.remove('fa-chevron-up');
+//      icon.classList.add('fa-circle-notch');
+//      icon.classList.add('fa-spin');
+//      icon.style.color = 'darkcyan';
+//      doVote(userVote.id, userVote.d, userVote.t, userVote.amount, 0);
+//    }
+//  }
+//}
+//window.onVote = onVote;
 
 /**
  * This function gets an invoice and displays it to the user
  * 
  * @param {any} msg
  */
-export function updateVoteInvoice(msg) {
-  document.getElementById("voteQRloading").style.display = '';
+//export function updateVoteInvoice(msg) {
+//  document.getElementById("voteQRloading").style.display = '';
 
-  postJson("/Lightning/GetDepositInvoice/", msg)
-    .then((response) => {
-      if (response.success) {
-        document.getElementById("voteDepositInvoiceInput").value = response.Invoice;
-        document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
-        document.getElementById("lnDepositInvoiceImgLink").setAttribute("href", "lightning:" + response.Invoice);
-        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
-        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
-        document.getElementById("voteDepositInvoiceFooter").style.display = '';
-        document.getElementById("voteDepositQR").style.display = '';
-        document.getElementById("voteDepositInvoice").style.display = '';
-        document.getElementById("voteQRloading").style.display = 'none';
-      }
-      else {
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = response.message;
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
-        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
-        document.getElementById("voteDepositInvoiceFooter").style.display = '';
-        document.getElementById("voteQRloading").style.display = 'none';
-      }
-    })
-    .then(() => {
-      showVoteModal();
-    })
-    .catch((error) => {
-      console.log(error);
-      document.getElementById("voteDepositInvoiceFooter").innerHTML = "Error generating invoice";
-      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
-      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
-      document.getElementById("voteDepositInvoiceFooter").style.display = '';
-      document.getElementById("voteQRloading").style.display = 'none';
-    });
-}
-window.updateVoteInvoice = updateVoteInvoice;
+//  postJson("/Lightning/GetDepositInvoice/", msg)
+//    .then((response) => {
+//      if (response.success) {
+//        document.getElementById("voteDepositInvoiceInput").value = response.Invoice;
+//        document.getElementById("lnDepositInvoiceLink").setAttribute("href", "lightning:" + response.Invoice);
+//        document.getElementById("lnDepositInvoiceImgLink").setAttribute("href", "lightning:" + response.Invoice);
+//        document.getElementById("voteDepositQR").setAttribute("src", "/Img/QR?qr=" + encodeURI("lightning:" + response.Invoice));
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-error");
+//        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-info");
+//        document.getElementById("voteDepositInvoiceFooter").innerHTML = "Please pay invoice.";
+//        document.getElementById("voteDepositInvoiceFooter").style.display = '';
+//        document.getElementById("voteDepositQR").style.display = '';
+//        document.getElementById("voteDepositInvoice").style.display = '';
+//        document.getElementById("voteQRloading").style.display = 'none';
+//      }
+//      else {
+//        document.getElementById("voteDepositInvoiceFooter").innerHTML = response.message;
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
+//        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+//        document.getElementById("voteDepositInvoiceFooter").style.display = '';
+//        document.getElementById("voteQRloading").style.display = 'none';
+//      }
+//    })
+//    .then(() => {
+//      showVoteModal();
+//    })
+//    .catch((error) => {
+//      console.log(error);
+//      document.getElementById("voteDepositInvoiceFooter").innerHTML = "Error generating invoice";
+//      document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success", "bg-info");
+//      document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+//      document.getElementById("voteDepositInvoiceFooter").style.display = '';
+//      document.getElementById("voteQRloading").style.display = 'none';
+//    });
+//}
+//window.updateVoteInvoice = updateVoteInvoice;
 
 /**
  * 
  * @param {any} e
  */
-export function onCancelVote(e) {
-  document.getElementById('voteOkButton').style.display = '';
-  document.getElementById('btnCheckLNVote').style.display = 'none';
-  document.getElementById("voteDepositInvoiceFooter").style.display = 'none';
-  document.getElementById("voteDepositQR").style.display = 'none';
-  document.getElementById("voteDepositInvoice").style.display = 'none';
-  document.getElementById("voteQRloading").style.display = 'none';
-}
-window.onCancelVote = onCancelVote;
+//export function onCancelVote(e) {
+//  document.getElementById('voteOkButton').style.display = '';
+//  document.getElementById('btnCheckLNVote').style.display = 'none';
+//  document.getElementById("voteDepositInvoiceFooter").style.display = 'none';
+//  document.getElementById("voteDepositQR").style.display = 'none';
+//  document.getElementById("voteDepositInvoice").style.display = 'none';
+//  document.getElementById("voteQRloading").style.display = 'none';
+//}
+//window.onCancelVote = onCancelVote;
 
 /**
  * User pressed vote button
@@ -331,80 +331,80 @@ window.onCancelVote = onCancelVote;
  * @param {any} amount  the size of the vote
  * @param {any} tx
  */
-export function doVote(id, d, t, amount, tx) {
-  //var val;// = Number(document.getElementById('sVote_' + id.toString()).innerHTML);//$('#sVote_' + id.toString()).html());
-  var body = { 'Id': id, 'd': d, 'a': amount, 'tx': tx };
-  var voteurl = '/Vote/Post';
-  var uid = 'uVote_';    // element for up arrow
-  var did = 'dVote_';
-  var sid = 'sVote_';    // element for score
+//export function doVote(id, d, t, amount, tx) {
+//  //var val;// = Number(document.getElementById('sVote_' + id.toString()).innerHTML);//$('#sVote_' + id.toString()).html());
+//  var body = { 'Id': id, 'd': d, 'a': amount, 'tx': tx };
+//  var voteurl = '/Vote/Post';
+//  var uid = 'uVote_';    // element for up arrow
+//  var did = 'dVote_';
+//  var sid = 'sVote_';    // element for score
 
-  if (t === 2) {
-    voteurl = '/Vote/Comment';
-    uid = 'uVotec_';
-    did = 'dVotec_';
-    sid = 'sVotec_';
-  }
+//  if (t === 2) {
+//    voteurl = '/Vote/Comment';
+//    uid = 'uVotec_';
+//    did = 'dVotec_';
+//    sid = 'sVotec_';
+//  }
 
-  hideVoteModal();//$('#voteModal').modal('hide');
+//  hideVoteModal();//$('#voteModal').modal('hide');
 
-  fetch(voteurl, {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'same-origin', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json',
-      '__RequestVerificationToken': getAntiForgeryTokenValue()
-    },
-    body: JSON.stringify(body)
-  })
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      if (data.success) {
-        var icon = userVote.o.querySelectorAll('i').item(0);
-        //var icon = $(userVote.o).find('i');
-        icon.classList.remove('fa-circle-notch');
-        icon.classList.remove('fa-spin');
-        icon.classList.add('fa-chevron-up');
-        icon.style.color = '';//('color', '');
+//  fetch(voteurl, {
+//    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+//    mode: 'same-origin', // no-cors, *cors, same-origin
+//    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+//    credentials: 'same-origin', // include, *same-origin, omit
+//    headers: {
+//      'Content-Type': 'application/json',
+//      '__RequestVerificationToken': getAntiForgeryTokenValue()
+//    },
+//    body: JSON.stringify(body)
+//  })
+//    .then((response) => {
+//      return response.json();
+//    })
+//    .then((data) => {
+//      if (data.success) {
+//        var icon = userVote.o.querySelectorAll('i').item(0);
+//        //var icon = $(userVote.o).find('i');
+//        icon.classList.remove('fa-circle-notch');
+//        icon.classList.remove('fa-spin');
+//        icon.classList.add('fa-chevron-up');
+//        icon.style.color = '';//('color', '');
 
-        var val = data.scoreStr;
-        document.getElementById(sid + id.toString()).innerHTML = val.toString();
+//        var val = data.scoreStr;
+//        document.getElementById(sid + id.toString()).innerHTML = val.toString();
 
-        var deltaCommunity = data.deltaCommunity;
-        var amountEl = document.getElementById("amount-info-payout");
-        amountEl.innerHTML = parseInt(amountEl.innerHTML) + deltaCommunity;
+//        var deltaCommunity = data.deltaCommunity;
+//        var amountEl = document.getElementById("amount-info-payout");
+//        amountEl.innerHTML = parseInt(amountEl.innerHTML) + deltaCommunity;
 
-        var delta = Number(data.delta);
-        if (delta === 1) {
-          document.getElementById(uid + id.toString()).classList.remove("text-muted");
-          document.getElementById(did + id.toString()).classList.add("text-muted");
-        }
-        else if (delta === 0) {
-          document.getElementById(uid + id.toString()).classList.add("text-muted");
-          document.getElementById(did + id.toString()).classList.add("text-muted");
-        }
-        else {
-          document.getElementById(did + id.toString()).classList.remove("text-muted");
-          document.getElementById(uid + id.toString()).classList.add("text-muted");
-        }
-        refreshUserBalance();
-      }
-      else {
-        showVoteModal();
+//        var delta = Number(data.delta);
+//        if (delta === 1) {
+//          document.getElementById(uid + id.toString()).classList.remove("text-muted");
+//          document.getElementById(did + id.toString()).classList.add("text-muted");
+//        }
+//        else if (delta === 0) {
+//          document.getElementById(uid + id.toString()).classList.add("text-muted");
+//          document.getElementById(did + id.toString()).classList.add("text-muted");
+//        }
+//        else {
+//          document.getElementById(did + id.toString()).classList.remove("text-muted");
+//          document.getElementById(uid + id.toString()).classList.add("text-muted");
+//        }
+//        refreshUserBalance();
+//      }
+//      else {
+//        showVoteModal();
 
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
-        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
-        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
-        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
-        document.getElementById("voteDepositInvoiceFooter").style.display = '';
-      }
-    });
-}
-window.doVote = doVote;
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-success");
+//        document.getElementById("voteDepositInvoiceFooter").classList.remove("bg-info");
+//        document.getElementById("voteDepositInvoiceFooter").classList.add("bg-error");
+//        document.getElementById("voteDepositInvoiceFooter").innerHTML = data.message;
+//        document.getElementById("voteDepositInvoiceFooter").style.display = '';
+//      }
+//    });
+//}
+//window.doVote = doVote;
 
 /**
  * User tip

@@ -1,14 +1,22 @@
 ﻿/**
  * Modal for user voting
+ * 
+ * List of locations where voting is used:
+ *  - home/index
+ *  - post/detail
+ *  - manage/index
+ *  - user
+ *  - group/detail
+ * 
  */
 
-import React, { useCallback, useEffect, useState, createRef } from "react";
+import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
+const getSwal = () => import('sweetalert2'); //import Swal from 'sweetalert2';
 import { Modal, Container, Row, Col, ButtonGroup, Button, Card } from "react-bootstrap";
-import { onVote, onCancelVote } from "../utility/ui/vote";
-import { checkInvoicePaid } from "../utility/ui/accountpayments";
 import { useUserInfo } from "./hooks/useUserInfo";
 import { on, off } from "../utility/events";
 import { refreshUserBalance } from '../utility/refreshUserBalance';
+import { oninvoicepaid } from "../utility/payments/oninvoicepaid";
 import { updateUserInfo } from '../utility/userInfo';
 import { postJson } from '../utility/postData';
 
@@ -22,35 +30,66 @@ export default function VoteModal(props) {
   const [footerBg, setFooterBg] = useState("bg-info");
   const [voteAmount, setVoteAmount] = useState(1);
   const [voteId, setVoteId] = useState(-1);
-  const [voteTx, setVoteTx] = useState(-1); // Transaction Id (unspent) to register with the vote
+  const voteTx = useRef(-1);
   const [voteDirection, setVoteDirection] = useState("up");
   const [invoice, setInvoice] = useState("");
-  const [invoiceQRURL, setInvoiceQRURL] = useState("~/Content/FFFFFF-0.png");
+  const [invoiceQRURL, setInvoiceQRURL] = useState("/Content/FFFFFF-0.png");
   const [voteTarget, setVoteTarget] = useState(null);
-
+  const [copied, setCopied] = useState(false);
   const [showGetInvoiceButton, setShowGetInvoiceButton] = useState(false);
+  const [showCheckPaymentSpinner, setShowCheckPaymentSpinner] = useState(false);
   const [showCheckPaymentButton, setShowCheckPaymentButton] = useState(false);
   const [showVoteButton, setShowVoteButton] = useState(true);
 
   const [show, setShow] = useState(false);
   const [showQRLoading, setShowQRLoading] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const inputRef = createRef();
+  const invoiceInputRef = createRef();
 
   const handleClose = () => {
     // Cleanup & reset
     setShow(false);
+    setCopied(false);
     setShowGetInvoiceButton(false);
     setShowCheckPaymentButton(false);
     setShowVoteButton(true);
+    setShowQR(false);
+    setShowQRLoading(false);
     setFooterMessage("Click vote to confirm");
   };
   const handleShow = () => setShow(true);
+  const copyInvoiceToClipboard = () => {
+    var inputEl = invoiceInputRef.current;
+    inputEl.focus();
+    inputEl.select();
+    inputEl.setSelectionRange(0, 99999);
+    navigator.clipboard
+      .writeText(invoice)
+      .then(() => {
+        console.log("successfully copied");
+      })
+      .catch(() => {
+        console.log("something went wrong");
+      });
 
-  const inputRef = createRef();
+    // Create an event to select the contents (native js)
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('select', true, false);
+    inputEl.dispatchEvent(event);
 
-  // Ideally we should try remove these refs by refactoring
-  const checkPaidButtonRef = createRef();
-  const voteButtonRef = createRef();
-  const voteCancelButtonRef = createRef();
+    try {
+      var successful = document.execCommand('copy');
+      //var msg = successful ? 'successful' : 'unsuccessful';
+      //console.log('Copying text command was ' + msg);
+      setTimeout(function () { setCopied(false); }, 10000);
+    } catch (err) {
+      //console.log('Oops, unable to copy');
+    }
+
+    setCopied(true);
+  }
+
   const userInfo = useUserInfo(); // Custom hook
 
   // Monitor for changes in props
@@ -77,7 +116,6 @@ export default function VoteModal(props) {
   function setStateCheckPayment() {
     setShowCheckPaymentButton(true);
     setShowVoteButton(false);
-
   }
 
   function handleVote() {
@@ -100,13 +138,13 @@ export default function VoteModal(props) {
     setShowCheckPaymentButton(true);
     setShowQRLoading(true);
 
-    var memo = "ZapRead.com vote on " + voteType;
+    var memo = "ZapRead.com vote " + voteDirection + " on " + voteType;
 
     // Get an invoice
     postJson("/Lightning/GetDepositInvoice/", {
       amount: voteAmount,
       memo: memo,
-      anon: IsAuthenticated ? 1 : 0,
+      anon: !IsAuthenticated ? 1 : 0,
       use: voteType,
       useId: voteId,
       useAction: voteDirection == "up" ? 1 : 0 // direction of vote 0=down; 1=up
@@ -117,11 +155,13 @@ export default function VoteModal(props) {
         setFooterBg("bg-info");
         setFooterMessage("Please pay invoice");
         setShowQRLoading(false);
+        setShowQR(true);
       }
       else {
         setFooterMessage(response.message);
         setFooterBg("bg-danger");
         setShowQRLoading(false);
+        setShowQR(false);
       }
     })
     .then(() => {
@@ -131,8 +171,49 @@ export default function VoteModal(props) {
       console.log(error);
       setFooterMessage("Error generating invoice");
       setFooterBg("bg-danger");
+      setShowVoteButton(false);
+      setShowGetInvoiceButton(true);
+      setShowCheckPaymentButton(false);
       setShowQRLoading(false);
     });
+  }
+
+  function handleCheckPayment() {
+    setShowCheckPaymentSpinner(true);
+    postJson("/Lightning/CheckPayment/", {
+      invoice: invoice,
+      isDeposit: true
+    })
+      .then((response) => {
+        setShowCheckPaymentSpinner(false);
+        //document.getElementById(spinElId).style.display = "none";//$("#" + $(e).data('spin-element')).hide();
+        if (response.success) {
+          if (response.result === true) {
+
+            oninvoicepaid(response.invoice, response.balance, response.txid);
+            //handleInvoicePaid(response);
+            // Payment has been successfully made
+            console.log('Payment confirmed');
+          } else {
+            setFooterMessage("Not yet paid. Please pay invoice");
+          }
+        }
+        else {
+          setShowCheckPaymentSpinner(false);
+          //alert(response.message);
+          setShow(true);
+          setFooterMessage(response.message);
+          setFooterBg("bg-danger")
+        }
+      })
+      .catch((error) => {
+        setShowCheckPaymentSpinner(false);
+        //document.getElementById(spinElId).style.display = "none";//$("#" + $(e).data('spin-element')).hide();
+        //alert(response.message);
+        setShow(true);
+        setFooterMessage(response.message);
+        setFooterBg("bg-danger")
+      });
   }
 
   function spinnerOn(target) {
@@ -166,7 +247,7 @@ export default function VoteModal(props) {
       Id: voteId,
       d: voteDirection == "up" ? 1 : 0,
       a: voteAmount,
-      tx: voteTx
+      tx: voteTx.current
     }).then((data) => {
       if (data.success) {
         updateUserInfo({
@@ -205,6 +286,9 @@ export default function VoteModal(props) {
     });
   }
 
+  /**
+   * Event registration
+   **/
   const onVoteEventHandler = useCallback((e) => {
     setVoteType(e.detail.type);
     setVoteId(e.detail.id);
@@ -212,20 +296,22 @@ export default function VoteModal(props) {
     setVoteDirection(e.detail.direction);
 
     if (!IsAuthenticated) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Anonymous Vote',
-        text: 'You are not logged in, but you can still vote anonymously with a Bitcoin Lightning Payment.',
-        footer: '<a href="/Account/Login">Log in instead</a>'
-      }).then(() => {
-        setShow(true); // Show the Modal
-        setStateGetInvoice();
-        //appInsights.trackEvent({
-        //  name: 'Anonymous Vote',
-        //  properties: {
-        //    amount: userVote.amount.toString()
-        //  }
-        //});
+      getSwal().then(({ default: Swal }) => {
+        Swal.fire({
+          icon: 'info',
+          title: 'Anonymous Vote',
+          text: 'You are not logged in, but you can still vote anonymously with a Bitcoin Lightning Payment.',
+          footer: '<a href="/Account/Login">Log in instead</a>'
+        }).then(() => {
+          setShow(true); // Show the Modal
+          setStateGetInvoice();
+          //appInsights.trackEvent({
+          //  name: 'Anonymous Vote',
+          //  properties: {
+          //    amount: userVote.amount.toString()
+          //  }
+          //});
+        });
       });
     } else {
       refreshUserBalance().then((userBalance) => {
@@ -240,9 +326,10 @@ export default function VoteModal(props) {
       });
     }
   }, []);
-
   const onPaidEventHandler = useCallback((e) => {
-    setVoteTx(e.detail.tx);
+    console.log("VoteModal onPaidEventHandler", e.detail);
+    //setVoteTx(e.detail.tx);
+    voteTx.current = e.detail.tx;
     spinnerOn(voteTarget);
     doVote();
   });
@@ -256,7 +343,7 @@ export default function VoteModal(props) {
     }
   }, [onVoteEventHandler]);
 
-  // Register event handler for vote click
+  // Register event handler for invoice paid
   useEffect(() => {
     on("zapread:vote:invoicePaid", onPaidEventHandler);
 
@@ -306,36 +393,50 @@ export default function VoteModal(props) {
                   </div>
                 </div>
 
-                <a href={"lightning:" + invoice} style={showQRLoading ? {} : { display: "none" }}>
+                <a href={"lightning:" + invoice} style={showQR ? {} : { display: "none" }}>
                   <img loading="lazy" src={invoiceQRURL} className="img-fluid" />
                 </a>
 
-                <div className="input-group mb-3" id="voteDepositInvoice" style={showQRLoading ? {} : { display: "none" }}>
+                <div className="input-group mb-3" id="voteDepositInvoice" style={showQR ? {} : { display: "none" }}>
                   <div className="input-group-prepend">
-                    <a href="lightning:xxx" id="lnDepositInvoiceLink" className="btn btn-primary" role="button" aria-pressed="true"><span className="fa fa-bolt"></span></a>
+                    <a href={"lightning:" + invoice} id="lnDepositInvoiceLink" className="btn btn-primary" role="button" aria-pressed="true"><span className="fa fa-bolt"></span></a>
                   </div>
-                  <input type="text" id="voteDepositInvoiceInput" className="form-control" placeholder="invoice" aria-label="invoice" aria-describedby="basic-addon2" />
+                  <input type="text" id="voteDepositInvoiceInput"
+                    ref={invoiceInputRef}
+                    value={invoice}
+                    readOnly
+                    className="form-control" placeholder="invoice" aria-label="invoice" aria-describedby="basic-addon2" />
                   <div className="input-group-append">
                     <button className="btn btn-primary" type="button"
-                      onClick={() => {
-                        //"copyToClipboard(this,'voteDepositInvoiceInput');"
-                      }}><span className="fa fa-copy"></span>&nbsp;Copy</button>
+                      onClick={copyInvoiceToClipboard}>
+                      {copied ?
+                        <><span className='fa-solid fa-copy'></span>&nbsp;Copied</>
+                        :
+                        <><span className="fa-solid fa-copy"></span>&nbsp;Copy</>
+                      }
+                    </button>
                   </div>
                 </div>
-
               </Container>
             </Card.Body>
             <Card.Footer className={footerBg}> {footerMessage} </Card.Footer>
           </Card>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="info" onClick={handleClose} style={showCheckPaymentButton ? {} : { display: "none" }}>
-            Check Payment
+          <Button variant="info"
+            onClick={handleCheckPayment}
+            disabled={showCheckPaymentSpinner || showQRLoading}
+            style={showCheckPaymentButton ? {} : { display: "none" }}>
+            Check Payment <i className="fa-solid fa-circle-notch fa-spin" style={showCheckPaymentSpinner ? {} : { display: "none" }}></i>
           </Button>
-          <Button variant="primary" onClick={handleVote} style={showVoteButton ? {} : { display: "none" }}>
+          <Button variant="primary"
+            onClick={handleVote} style={showVoteButton ? {} : { display: "none" }}>
             Vote
           </Button>
-          <Button variant="primary" onClick={handleGetInvoice} style={showGetInvoiceButton ? {} : { display: "none" }}>
+          <Button variant="primary"
+            onClick={handleGetInvoice}
+            disabled={showQRLoading}
+            style={showGetInvoiceButton ? {} : { display: "none" }}>
             Get Invoice
           </Button>
           <Button variant="secondary" onClick={handleClose}>
@@ -343,105 +444,6 @@ export default function VoteModal(props) {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      <div className="modal fade" id="voteModal" data-backdrop="static" tabIndex="-1" role="dialog" aria-labelledby="voteModalTitle" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="voteModalTitle">Modal title</h5>
-              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="card ">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-lg-12">
-                      <div className="row">
-                        <div className="col-5">
-                          <span> Pay </span>
-                          <input
-                            type="number"
-                            min={1}
-                            id="voteValueAmount"
-                            placeholder="Amount"
-                            className="form-control font-bold"
-                            aria-label="Amount" />
-                          <small className="text-muted">Satoshi</small>
-                        </div>
-                        <div className="col-5 text-right">
-                          <span> Balance </span>
-                          <h2 className="font-bold"><span id="userVoteBalance">0</span> </h2>
-                          <small className="text-muted">Satoshi</small>
-                        </div>
-                        <div className="col-2">
-                          <i className="fa fa-bolt fa-5x"></i>
-                        </div>
-                      </div>
-                      <h2 className="font-bold"><span id="payAmount" style={{ display: "none" }}></span></h2>
-                    </div>
-                  </div>
-
-                  <div id="voteQRloading" style={{ display: "none" }}>
-                    <div className="sk-loading" style={{ BorderStyle: "none" }}>
-                      <div className="sk-spinner sk-spinner-three-bounce">
-                        <div className="sk-bounce1"></div>
-                        <div className="sk-bounce2"></div>
-                        <div className="sk-bounce3"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <a id="lnDepositInvoiceImgLink" href="lightning:xxx">
-                    <img loading="lazy" id="voteDepositQR" src="~/Content/FFFFFF-0.png" className="img-fluid" />
-                  </a>
-
-                  <div className="input-group mb-3" id="voteDepositInvoice" style={{ display: "none" }}>
-                    <div className="input-group-prepend">
-                      <a href="lightning:xxx" id="lnDepositInvoiceLink" className="btn btn-primary" role="button" aria-pressed="true"><span className="fa fa-bolt"></span></a>
-                    </div>
-                    <input type="text" id="voteDepositInvoiceInput" className="form-control" placeholder="invoice" aria-label="invoice" aria-describedby="basic-addon2" />
-                    <div className="input-group-append">
-                      <button className="btn btn-primary" type="button"
-                        onClick={() => {
-                          //"copyToClipboard(this,'voteDepositInvoiceInput');"
-                        }}><span className="fa fa-copy"></span>&nbsp;Copy</button>
-                    </div>
-                  </div>
-                </div>
-                <div className="card-footer bg-info" id="voteDepositInvoiceFooter">
-                  Click vote to confirm.
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button ref={checkPaidButtonRef}
-                onClick={() => {
-                  checkInvoicePaid(checkPaidButtonRef.current);
-                }}
-                id="btnCheckLNVote"
-                type="button"
-                className="btn btn-info btn-ln-checkPayment"
-                style={{ display: "none" }}
-                data-invoice-element="voteDepositInvoiceInput"
-                data-spin-element="spinCheckPaymentVote">
-                Check Payment <i id="spinCheckPaymentVote" className="fa-solid fa-circle-notch fa-spin" style={{ display: "none" }}></i>
-              </button>
-              <button ref={voteButtonRef} onClick={() => {
-                onVote(voteButtonRef.current);
-              }} id="voteOkButton" type="button" className="btn btn-primary">
-                Vote
-              </button>
-              <button ref={voteCancelButtonRef} onClick={() => {
-                onCancelVote(voteCancelButtonRef.current);
-              }} type="button" className="btn btn-secondary" data-dismiss="modal">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   );
 }

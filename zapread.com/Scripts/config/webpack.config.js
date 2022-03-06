@@ -8,7 +8,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
-  mode: "development",//production",//"development",
+  mode: "production",//production",//"development",
   entry: {
     account_login: "./Scripts/src/pages/account/login.js",
     account_register: "./Scripts/src/pages/account/register.js",
@@ -55,41 +55,32 @@ module.exports = {
       return subpath + "/" + filename + ".js";
     },
     chunkFilename: c => {
-      //var idlen = c.chunk.id.split("_").length;
-      var subpath = c.chunk.runtime.split("_")[0];
-      //var filename = c.chunk.id.split("_")[idlen - 2];
-      return subpath + "/" + c.chunk.id + ".js";
+      try {
+        var subpath = "0";//c.chunk.runtime.split("_")[0];
+        return subpath + "/" + c.chunk.id + ".js?v=[chunkhash]";
+      }
+      catch {
+        console.log(c);
+      }
+      return "[id].js";
     }
-    //publicPath: './Content',
-    //assetModuleFilename: (pathData) => {
-    //  console.log("assetModuleFilename", pathData);
-    //  const filepath = path
-    //    .dirname(pathData.filename)
-    //    .split("/")
-    //    .slice(1)
-    //    .join("/");
-    //  //var fn = `${filepath}/[name].[hash][ext][query]`;
-    //  var fn = "../../Content/[name][ext][query]";
-    //  console.log("fn", fn);
-    //  return fn;
-    //}
-    //'res/[name][ext][query]'
   },
-  //optimization: {
-  //  minimize: true,
-  //  minimizer: [
-  //    new TerserPlugin({
-  //      test: /\.js(\?.*)?$/i,
-  //    }),
-  //    // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-  //    // `...`,
-  //    new CssMinimizerPlugin(
-  //      //{
-  //      //test: /\index.css$/i,
-  //      //}
-  //    ),
-  //  ],
-  //},
+  optimization: {
+    minimize: true,
+    //chunkIds: "named",
+    minimizer: [
+      new TerserPlugin({
+        test: /\.js(\?.*)?$/i,
+      }),
+      // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
+      // `...`,
+      new CssMinimizerPlugin(
+        //{
+        //test: /\index.css$/i,
+        //}
+      ),
+    ],
+  },
   module: {
     rules: [
       {
@@ -170,8 +161,14 @@ module.exports = {
         return subpath + "/" + filename + ".css";
       },
       chunkFilename: c => {
-        var subpath = c.chunk.runtime.split("_")[0];
-        return subpath + "/" + c.chunk.id + ".css";
+        try {
+          var subpath = "0";//c.chunk.runtime.split("_")[0];
+          return subpath + "/" + c.chunk.id + ".css?v=[chunkhash]";
+        }
+        catch {
+          console.log(c);
+        }
+        return "[id].css";
       }
     }),
     //new PurgeCSSPlugin({

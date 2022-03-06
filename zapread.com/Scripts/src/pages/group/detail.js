@@ -4,16 +4,16 @@
 
 import '../../shared/shared';
 import '../../realtime/signalr';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import ReactDOM from "react-dom";
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
 import { postJson } from "../../utility/postData";
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
-import GroupAdminBar from "./Components/GroupAdminBar";
-import GroupModBar from "./Components/GroupModBar";
+const GroupAdminBar = React.lazy(() => import("./Components/GroupAdminBar"));
+const GroupModBar = React.lazy(() => import("./Components/GroupModBar"));
 import PostList from "../post/Components/PostList";
-import VoteModal from "../../Components/VoteModal";
+const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
 import '../../shared/postfunctions';
@@ -119,7 +119,9 @@ function Page() {
 
   return (
     <>
-      <VoteModal />
+      <Suspense fallback={<div>Loading...</div>}>
+        <VoteModal />
+      </Suspense>
       <div className="wrapper border-bottom white-bg page-heading">
         <div className="col-lg-10">
           <br />
@@ -143,8 +145,12 @@ function Page() {
         <div className="col-lg-2">
         </div>
       </div>
-      {isGroupAdmin ? (<div> <GroupAdminBar id={groupId} /> </div>) : (<div></div>)}
-      {isGroupMod ? (<div> <GroupModBar id={groupId} /> </div>) : (<div></div>)}
+      {isGroupAdmin ? (<Suspense fallback={<div>Loading Administration...</div>}>
+        <GroupAdminBar id={groupId} />
+      </Suspense>) : (<div></div>)}
+      {isGroupMod ? (<Suspense fallback={<div>Loading Moderation...</div>}>
+        <GroupModBar id={groupId} />
+      </Suspense>) : (<div></div>)}
       <div className="wrapper wrapper-content ">
         <div className="row">
           <div className="col-sm-2"></div>

@@ -31,7 +31,6 @@ import '../css/quill/quillfont.css';
 export function copyToClipboard(e, elemId) {
   var inputEl = document.getElementById(elemId);
   inputEl.focus();
-
   inputEl.select();
   inputEl.setSelectionRange(0, 99999);
   navigator.clipboard
@@ -50,7 +49,7 @@ export function copyToClipboard(e, elemId) {
 
   try {
     var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
+    //var msg = successful ? 'successful' : 'unsuccessful';
     //console.log('Copying text command was ' + msg);
     e.innerHTML = "<span class='fa fa-copy'></span> Copied";
     setTimeout(function () { e.innerHTML = "<span class='fa fa-copy'></span> Copy"; }, 10000);

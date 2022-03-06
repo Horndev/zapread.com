@@ -19,6 +19,7 @@ import { updateUserInfo } from '../userInfo';
  * @param {number} txid Transaction identifier (for vote)
  **/
 export async function oninvoicepaid(invoice, balance, txid) {
+  console.log("invoice paid");
   if (isDeposit(invoice)) {
     console.log("Deposit invoice paid");
     var resultElement = document.getElementById("lightningTransactionInvoiceResult");
@@ -92,6 +93,7 @@ export async function oninvoicepaid(invoice, balance, txid) {
       }
     });
     document.dispatchEvent(event);
+    console.log('dispached: zapread:vote:invoicePaid', txid)
 
     //if (isTip) {
     //  console.log('tip paid');
@@ -125,6 +127,10 @@ function isDeposit(invoice) {
 }
 
 function isVote(invoice) {
-  var voteInvoice = document.getElementById("voteDepositInvoiceInput").value;
-  return invoice === voteInvoice;
+  var voteInvoiceEl = document.getElementById("voteDepositInvoiceInput");
+  if (voteInvoiceEl != null) {
+    var voteInvoice = voteInvoiceEl.value;
+    return invoice === voteInvoice;
+  }
+  return false;
 }

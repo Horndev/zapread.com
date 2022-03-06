@@ -2,18 +2,21 @@
  * This is the main landing page for ZapRead
  **/
 
-import '../../shared/shared';                                               // [✓]
+import '../../shared/shared';
+//const getShared = () => import('../../shared/shared');
 import '../../utility/ui/vote';                                             // [✓]
 import '../../realtime/signalr';                                            // [✓]
-import Swal from 'sweetalert2';                                             // [✓]
+const getSwal = () => import('sweetalert2'); //import Swal from 'sweetalert2';
 const getloadMoreComments = () => import('../../comment/loadmorecomments');
 const getMicroCharts = () => import('micro-charts');
+const getVoteModal = () => import("../../Components/VoteModal");
+const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
 import { getJson } from "../../utility/getData";
 import React from "react";
 import ReactDOM from "react-dom";
 
 /* Vote Modal Component */
-import("../../Components/VoteModal").then(({ default: VoteModal }) => {
+getVoteModal().then(({ default: VoteModal }) => {
   ReactDOM.render(<VoteModal />, document.getElementById("ModalVote"));
   const event = new Event('voteReady');
   document.dispatchEvent(event);
@@ -47,44 +50,18 @@ getloadMoreComments().then(({ loadMoreComments }) => {
 
 import('../../utility/loadmore').then(({ addposts, loadmore }) => {
   window.loadmore = loadmore;
-  import('../../utility/onLoadedMorePosts').then(({ onLoadedMorePosts }) => {
+  getOnLoadedMorePosts().then(({ onLoadedMorePosts }) => {
     async function LoadTopPostsAsync() {
-      async function enableVoting(className, d, t, idel) {
-        var elements = document.querySelectorAll(className);
-        Array.prototype.forEach.call(elements, function (el, _i) {
-          var postid = el.getAttribute(idel);
-          el.addEventListener("click", (e) => {
-            // Emit vote event
-            const event = new CustomEvent('vote', {
-              detail: {
-                direction: d,
-                type: t,
-                id: postid,
-                target: e.target
-              }
-            });
-            document.dispatchEvent(event);
-          });
-        });
-      }
-      /* Does the vote/comment up/down handler attachment in parallel */
-      async function enableVotingAsync() {
-        await Promise.all([
-          enableVoting(".vote-post-up", 'up', 'post', 'data-postid'),
-          enableVoting(".vote-post-dn", 'down', 'post', 'data-postid'),
-          enableVoting(".vote-comment-up", 'up', 'comment', 'data-commentid'),
-          enableVoting(".vote-comment-dn", 'down', 'comment', 'data-commentid')
-        ]);
-      }
       await getJson('/Home/TopPosts/?sort=' + postSort).then((response) => {
         if (response.success) {
           document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
           addposts(response, onLoadedMorePosts); // Insert posts
           document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
-          enableVotingAsync(); // Done in parallel
         } else {
           // Did not work
-          Swal.fire("Error", "Error loading posts: " + response.message, "error");
+          getSwal().then(({ default: Swal }) => {
+            Swal.fire("Error", "Error loading posts: " + response.message, "error");
+          });
         }
       });
     }
@@ -119,7 +96,9 @@ async function LoadTopGroupsAsync() {
     return response.text();
   }).then(html => {
     var groupsBoxEl = document.getElementById("group-box");
-    groupsBoxEl.innerHTML = html;
+    if (groupsBoxEl != null) {
+      groupsBoxEl.innerHTML = html;
+    }
   })
 }
 LoadTopGroupsAsync();
