@@ -54,23 +54,20 @@ module.exports = {
       var filename = c.chunk.name.split("_")[1];
       return subpath + "/" + filename + ".js";
     },
-    //publicPath: './Content',
-    //assetModuleFilename: (pathData) => {
-    //  console.log("assetModuleFilename", pathData);
-    //  const filepath = path
-    //    .dirname(pathData.filename)
-    //    .split("/")
-    //    .slice(1)
-    //    .join("/");
-    //  //var fn = `${filepath}/[name].[hash][ext][query]`;
-    //  var fn = "../../Content/[name][ext][query]";
-    //  console.log("fn", fn);
-    //  return fn;
-    //}
-    //'res/[name][ext][query]'
+    chunkFilename: c => {
+      try {
+        var subpath = "0";//c.chunk.runtime.split("_")[0];
+        return subpath + "/" + c.chunk.id + ".js?v=[chunkhash]";
+      }
+      catch {
+        console.log(c);
+      }
+      return "[id].js";
+    }
   },
   optimization: {
     minimize: true,
+    //chunkIds: "named",
     minimizer: [
       new TerserPlugin({
         test: /\.js(\?.*)?$/i,
@@ -162,6 +159,16 @@ module.exports = {
         var subpath = c.chunk.name.split("_")[0];
         var filename = c.chunk.name.split("_")[1];
         return subpath + "/" + filename + ".css";
+      },
+      chunkFilename: c => {
+        try {
+          var subpath = "0";//c.chunk.runtime.split("_")[0];
+          return subpath + "/" + c.chunk.id + ".css?v=[chunkhash]";
+        }
+        catch {
+          console.log(c);
+        }
+        return "[id].css";
       }
     }),
     //new PurgeCSSPlugin({

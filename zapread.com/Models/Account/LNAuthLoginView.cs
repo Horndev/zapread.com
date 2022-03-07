@@ -20,12 +20,24 @@ namespace zapread.com.Models.Account
         /// </summary>
         public string k1 { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string client_id { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string redirect_uri { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string state { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string dataStr { get; set; }
     }
 }

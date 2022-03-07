@@ -23,12 +23,10 @@
                     <div class=" social-comment">
                         <div class="vote-actions">
                             <a href="@(Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : null, vote = 1 })+"#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
-                                @*<a href="#/" onclick="vote(@Model.CommentId, 1, 2, 100, this)" class="text-muted" id="uVotec_@Model.CommentId">*@
                                 <img src="~/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                             </a>
                             <div id="sVotec_@Model.CommentId">@Model.Score</div>
                             <a href="@(Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : null, vote = 0 })+"#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
-                                @*<a href="#/" style="position: relative;z-index: 1;" onclick="vote(@Model.CommentId, 0, 2, 100, this)" id="dVotec_@Model.CommentId">*@
                                 <img src="~/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                             </a>
                         </div>

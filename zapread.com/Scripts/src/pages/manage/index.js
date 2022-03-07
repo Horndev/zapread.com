@@ -13,7 +13,7 @@ import 'mobius1-selectr/dist/selectr.min.css'
 import 'dropzone/dist/basic.css';
 import 'dropzone/dist/dropzone.css';
 import Swal from 'sweetalert2';
-import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
+const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
 import { editComment } from '../../comment/editcomment';
@@ -28,6 +28,16 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
+import React from "react";
+import ReactDOM from "react-dom";
+const getVoteModal = () => import("../../Components/VoteModal");
+
+/* Vote Modal Component */
+getVoteModal().then(({ default: VoteModal }) => {
+  ReactDOM.render(<VoteModal />, document.getElementById("ModalVote"));
+  const event = new Event('voteReady');
+  document.dispatchEvent(event);
+});
 
 // Make global (called from html)
 window.writeComment = writeComment;
@@ -74,7 +84,9 @@ async function LoadActivityPostsAsync() {
     document.getElementById("posts-loading").classList.remove("sk-loading");
     var postsBoxEl = document.getElementById("posts");
     postsBoxEl.innerHTML = html;
-    onLoadedMorePosts();
+    getOnLoadedMorePosts().then(({ onLoadedMorePosts }) => {
+      onLoadedMorePosts();
+    });
   })
 }
 LoadActivityPostsAsync();
@@ -189,7 +201,6 @@ export function manageloadmore(userId) {
   });
 }
 window.loadmore = manageloadmore;
-onLoadedMorePosts();
 
 var elements = document.querySelectorAll(".ach-hover");
 Array.prototype.forEach.call(elements, function (el, _i) {

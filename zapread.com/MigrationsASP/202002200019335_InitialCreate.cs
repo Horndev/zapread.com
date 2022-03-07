@@ -3,8 +3,14 @@
     using System;
     using System.Data.Entity.Migrations;
     
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class InitialCreate : DbMigration
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Up()
         {
             CreateTable(
@@ -77,6 +83,9 @@
             
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Down()
         {
             DropForeignKey("dbo.AspNetUserRoles", "UserId", "dbo.AspNetUsers");

@@ -7,6 +7,12 @@
  *
 */
 
+.modal-open {
+    overflow: hidden;
+    overflow-y: scroll;
+    /*padding-right: 0 !important;*/
+}
+
 .pull-right {
     float: right;
 }
@@ -5641,7 +5647,7 @@ body.fullscreen-ibox-mode {
     }
 
 body.modal-open {
-    padding-right: inherit !important;
+    /*padding-right: inherit !important;*/
 }
 
     body.modal-open .wrapper-content.animated {

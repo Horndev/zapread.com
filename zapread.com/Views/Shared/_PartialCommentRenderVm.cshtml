@@ -56,11 +56,11 @@
                     @if (Request.IsAuthenticated && !Model.IsDeleted)
                     {
                         <div class="vote-actions" @if (isIgnoredUser) { <text> style="position: relative; display: none;" </text>  } else { <text> style="position: relative;" </text> }>
-                            <a href="#/" onclick="vote(@Model.CommentId, 1, 2, 100, this)" class="@(Model.ViewerUpvoted ? "" : "text-muted")" id="uVotec_@Model.CommentId">
+                            <a href="#/" data-commentid="@Model.CommentId" class="vote-comment-up @(Model.ViewerUpvoted ? "" : "text-muted")" id="uVotec_@Model.CommentId">
                                 <i class="fa-solid fa-chevron-up fa-lg"> </i>
                             </a>
                             <div id="sVotec_@Model.CommentId">@Model.Score</div>
-                            <a href="#/" style="position: relative;z-index: 1;" onclick="vote(@Model.CommentId, 0, 2, 100, this)" class="@(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId">
+                            <a href="#/" data-commentid="@Model.CommentId" class="@(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
                                 <i class="fa-solid fa-chevron-down fa-lg"> </i>
                             </a>
                         </div>
@@ -72,11 +72,11 @@
                     else
                     {
                         <div class="vote-actions" style="position: relative;">
-                            <a href="#/" onclick="vote(@Model.CommentId, 1, 2, 100, this)" class="text-muted" id="uVotec_@Model.CommentId">
+                            <a href="#/" data-commentid="@Model.CommentId" class="vote-comment-up text-muted" id="uVotec_@Model.CommentId">
                                 <i class="fa-solid fa-chevron-up fa-lg"> </i>
                             </a>
                             <div id="sVotec_@Model.CommentId">@Model.Score</div>
-                            <a href="#/" style="position: relative;z-index: 1;" onclick="vote(@Model.CommentId, 0, 2, 100, this)" class="text-muted" id="dVotec_@Model.CommentId">
+                            <a href="#/" data-commentid="@Model.CommentId" class="vote-comment-dn text-muted" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
                                 <i class="fa-solid fa-chevron-down fa-lg"> </i>
                             </a>
                         </div>
@@ -124,7 +124,7 @@
                                 }
                                 else
                                 {
-                                    <div style="padding-left: 18px;">@Html.Raw(Model.Text)</div>
+                                    <div style="padding: 0px 18px 0px 18px;">@Html.Raw(Model.Text)</div>
                                 }
                             }
                         </div>

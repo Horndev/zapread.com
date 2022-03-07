@@ -6,27 +6,41 @@
 import { refreshUserBalance } from '../utility/refreshUserBalance';
 import { ready } from '../utility/ready';
 import { postJson } from '../utility/postData';
+import React from "react";
+import ReactDOM from "react-dom";
+import UserBalance from "../Components/UserBalance";
+
+/* Vote Modal Component */
+var userBalanceEl = document.getElementById("topUserBalance");
+if (userBalanceEl != null) {
+  ReactDOM.render(<UserBalance />, userBalanceEl);
+}
 
 var ub = 0;
 window.ub = ub;
 
 async function GetUnreadMessages() {
-  await fetch("/Messages/RecentUnreadMessages").then(response => {
-    return response.text();
-  }).then(html => {
-    var messagesEl = document.getElementById("RecentUnreadMessages");
-    messagesEl.innerHTML += html;
-  })
+  var messagesEl = document.getElementById("RecentUnreadMessages");
+  if (messagesEl != null) {
+    await fetch("/Messages/RecentUnreadMessages").then(response => {
+      return response.text();
+    }).then(html => {
+      messagesEl.innerHTML += html;
+    })
+  }
 }
 GetUnreadMessages();
 
 async function GetUnreadAlerts() {
-  await fetch("/Messages/RecentUnreadAlerts").then(response => {
-    return response.text();
-  }).then(html => {
-    var alertsEl = document.getElementById("RecentUnreadAlerts");
-    alertsEl.innerHTML += html;
-  })
+  var alertsEl = document.getElementById("RecentUnreadAlerts");
+  if (alertsEl != null) {
+    await fetch("/Messages/RecentUnreadAlerts").then(response => {
+      return response.text();
+    }).then(html => {
+
+      alertsEl.innerHTML += html;
+    })
+  }
 }
 GetUnreadAlerts();
 

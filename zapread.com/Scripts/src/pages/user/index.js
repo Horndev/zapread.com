@@ -6,6 +6,7 @@ import '../../shared/shared';
 import '../../utility/ui/vote';
 import '../../realtime/signalr';
 import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';
+const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
 import { writeComment } from '../../comment/writecomment';
 import { replyComment } from '../../comment/replycomment';
 import { editComment } from '../../comment/editcomment';
@@ -17,6 +18,17 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
+import React from "react";
+import ReactDOM from "react-dom";
+const getVoteModal = () => import("../../Components/VoteModal");
+
+/* Vote Modal Component */
+getVoteModal().then(({ default: VoteModal }) => {
+  ReactDOM.render(<VoteModal />, document.getElementById("ModalVote"));
+  const event = new Event('voteReady');
+  document.dispatchEvent(event);
+});
+
 
 // Make global (called from html)
 window.writeComment = writeComment;
@@ -71,7 +83,9 @@ export function userloadmore(userId) {
 }
 window.loadmore = userloadmore;
 
-onLoadedMorePosts();
+getOnLoadedMorePosts().then(({ onLoadedMorePosts }) => {
+  onLoadedMorePosts();
+});
 
 export function toggleUserIgnore(id) {
   postJson("/User/ToggleIgnore/", {

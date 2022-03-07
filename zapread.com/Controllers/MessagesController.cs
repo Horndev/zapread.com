@@ -696,7 +696,6 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="count"></param>
         /// <returns></returns>
         public PartialViewResult RecentUnreadAlerts()
         {
@@ -738,7 +737,6 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="count"></param>
         /// <returns></returns>
         [HttpGet]
         public PartialViewResult RecentUnreadMessages()

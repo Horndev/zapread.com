@@ -10,44 +10,77 @@ namespace zapread.com.Models.Database
     /// </summary>
     public class Group
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key]
         public int GroupId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string GroupName { get; set; }
 
-        // When the group was created
+        /// <summary>
+        /// // When the group was created
+        /// </summary>
         public DateTime? CreationDate { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Groups")]
         public virtual ICollection<User> Members { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("IgnoredGroups")]
         public virtual ICollection<User> Ignoring { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("GroupModeration")]
         public virtual ICollection<User> Moderators { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("GroupAdministration")]
         public virtual ICollection<User> Administrators { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Group")]
         public virtual ICollection<Post> Posts { get; set; }
 
-        // These earnings need to go out
+        /// <summary>
+        /// // These earnings need to go out
+        /// </summary>
         public double TotalEarnedToDistribute { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public double TotalEarned { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public int Tier { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Tags { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Icon { get; set; }
 
-        // Unlockable description of group - set by admin
+        /// <summary>
+        /// 
+        /// </summary>
         public string ShortDescription { get; set; }
 
-        // Posts in this group are in this language by default
+        /// <summary>
+        /// // Posts in this group are in this language by default
+        /// </summary>
         public string DefaultLanguage { get; set; }
 
         /// <summary>

@@ -67,7 +67,7 @@
 /*.ql-snow .ql-editor*/ /*Apply the blockquote site-wide*/
 .ql-snow .ql-editor blockquote, blockquote {
     border-left: 5px solid #1ab394;
-    margin-bottom: 0px;
+    margin-bottom: 1rem;
     margin-top: 0px;
     padding-top: 5px;
     padding-bottom: 5px;
