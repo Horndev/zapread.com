@@ -253,19 +253,34 @@ namespace zapread.com.Models
         /// The preimage is proof that a payment was completed
         /// </summary>
         public string PaymentPreimage { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Int64 Amount { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string Memo { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsDeposit { get; set; }         // True if transaction is a deposit
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSettled { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsIgnored { get; set; }         // Don't check this invoice for payment status
 
         /// <summary>
         /// The fee which was paid (in Satoshi)
         /// </summary>
         public Int64? FeePaid_Satoshi { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string NodePubKey { get; set; }      // If known - the public key of the other node
 
         /// <summary>

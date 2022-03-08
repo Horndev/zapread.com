@@ -1,5 +1,6 @@
 ﻿namespace zapread.com.Models.Database
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public class UserSettings
     {
         public int Id { get; set; }
@@ -34,4 +35,5 @@
         public bool ViewAllLanguages { get; set; }
         public bool ViewTranslatedLanguages { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

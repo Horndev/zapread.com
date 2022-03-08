@@ -497,7 +497,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
-    <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\LanguageHelpers.cs" />
@@ -851,6 +850,10 @@
     <Compile Include="Migrations\202202181822249_AddReferralTable.designer.cs">
       <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.cs" />
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.designer.cs">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -905,7 +908,6 @@
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
-    <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Home\HomeIndexViewModel.cs" />
     <Compile Include="Models\Home\HomeTopGroupsPartialViewModel.cs" />
@@ -1574,7 +1576,6 @@
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
     <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
-    <Content Include="Views\Shared\_PartialModalVote.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
     <Content Include="Views\Group\GroupDetail.cshtml" />
     <Content Include="Views\Manage\_PartialManageGroups.cshtml" />
@@ -1677,6 +1678,7 @@
     <Content Include="Views\Home\_PartialTopGroups.cshtml" />
     <Content Include="Views\Manage\_PartialManageActivityPosts.cshtml" />
     <Content Include="Views\User\_PartialUserTopFollowers.cshtml" />
+    <Content Include="Views\Home\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -1954,6 +1956,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202202181822249_AddReferralTable.resx">
       <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202203070205053_EnableFullTextA.resx">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
