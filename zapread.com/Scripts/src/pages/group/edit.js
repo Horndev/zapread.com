@@ -16,7 +16,6 @@ import { postJson } from "../../utility/postData";
 import { putJson } from "../../utility/putData";
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
-
 import "../../shared/sharedlast";
 
 function useQuery() {

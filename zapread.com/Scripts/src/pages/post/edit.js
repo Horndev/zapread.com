@@ -4,16 +4,18 @@
 
 import '../../shared/shared';
 import '../../realtime/signalr';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';
+import React, { Suspense, useCallback, useEffect, useState, useRef } from 'react';
+import { Placeholder, Container, Row, Col, Form, CheckBox, FormGroup, FormLabel, FormCheck } from 'react-bootstrap';
 import ReactDOM from 'react-dom';
 import { useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content'
 import Input from '../../Components/Input/Input';
-import Editor from './Components/Editor';
-import DraftsTable from './Components/DraftsTable';
+//import Editor from './Components/Editor';
+const Editor = React.lazy(() => import("./Components/Editor"));
+//import DraftsTable from './Components/DraftsTable';
+const DraftsTable = React.lazy(() => import("./Components/DraftsTable"));
 import GroupPicker from './Components/GroupPicker';
 import LanguagePicker from './Components/LanguagePicker';
 import { postJson } from '../../utility/postData';
@@ -294,24 +296,32 @@ function Page() {
             <div className="savingoverlay" id="savingnotification" style={{ display: "none" }}>
               <i className="fa-solid fa-circle-notch fa-spin"></i> saving...
             </div>
-            <Editor
-              value={postContent}
-              setValue={setPostContent}
-              onSaveDraft={handleSaveDraft}
-              onSubmitPost={handleSubmitPost}
-            />
+            <Suspense fallback={<></>}>
+              {/*<Placeholder as="p" animation="glow">*/}
+              {/*  <Placeholder xs={12} />*/}
+              {/*</Placeholder>*/}
+            {/*}>*/}
+              <Editor
+                value={postContent}
+                setValue={setPostContent}
+                onSaveDraft={handleSaveDraft}
+                onSubmitPost={handleSubmitPost}
+              />
+            </Suspense>
           </Col>
         </Row>
         <Row><Col lg={12}><br /></Col></Row>
         <Row>
           <Col lg={2}></Col>
           <Col lg={8}>
-            <DraftsTable
-              title="Your saved drafts"
-              numSaves={numSaves}
-              onLoadPost={handleLoadPost}
-              onDeleteDraft={handleDeleteDraft}
-              pageSize={10} />
+            <Suspense fallback={<></>}>
+              <DraftsTable
+                title="Your saved drafts"
+                numSaves={numSaves}
+                onLoadPost={handleLoadPost}
+                onDeleteDraft={handleDeleteDraft}
+                pageSize={10} />
+            </Suspense>
           </Col>
         </Row>
         <Row><Col lg={12}><br /></Col></Row>
