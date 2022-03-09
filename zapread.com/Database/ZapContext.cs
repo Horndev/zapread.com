@@ -51,8 +51,6 @@ namespace zapread.com.Database
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
-
-            //modelBuilder.Conventions.Add(FreetextConvention.Instance);
         }
     }
 }
@@ -60,85 +58,85 @@ namespace zapread.com.Database
 /// <summary>
 /// 
 /// </summary>
-public class FreetextConvention : IStoreModelConvention<EdmModel>
-{
-    public static readonly FreetextConvention Instance = new FreetextConvention();
+//public class FreetextConvention : IStoreModelConvention<EdmModel>
+//{
+//    public static readonly FreetextConvention Instance = new FreetextConvention();
 
-    public void Apply(EdmModel item, DbModel model)
-    {
-        var valueParameter = FunctionParameter.Create("column", this.GetStorePrimitiveType(model, PrimitiveTypeKind.String), ParameterMode.In);
-        var formatParameter = FunctionParameter.Create("value", this.GetStorePrimitiveType(model, PrimitiveTypeKind.String), ParameterMode.In);
-        var returnValue = FunctionParameter.Create("result", this.GetStorePrimitiveType(model, PrimitiveTypeKind.Boolean), ParameterMode.ReturnValue);
+//    public void Apply(EdmModel item, DbModel model)
+//    {
+//        var valueParameter = FunctionParameter.Create("column", this.GetStorePrimitiveType(model, PrimitiveTypeKind.String), ParameterMode.In);
+//        var formatParameter = FunctionParameter.Create("value", this.GetStorePrimitiveType(model, PrimitiveTypeKind.String), ParameterMode.In);
+//        var returnValue = FunctionParameter.Create("result", this.GetStorePrimitiveType(model, PrimitiveTypeKind.Boolean), ParameterMode.ReturnValue);
 
-        var function = this.CreateAndAddFunction(item, "FREETEXT", new[] { valueParameter, formatParameter }, new[] { returnValue });
-    }
+//        var function = this.CreateAndAddFunction(item, "FREETEXT", new[] { valueParameter, formatParameter }, new[] { returnValue });
+//    }
 
-    protected EdmFunction CreateAndAddFunction(EdmModel item, String name, IList<FunctionParameter> parameters, IList<FunctionParameter> returnValues)
-    {
-        var payload = new EdmFunctionPayload { StoreFunctionName = name, Parameters = parameters, ReturnParameters = returnValues, Schema = this.GetDefaultSchema(item), IsBuiltIn = true };
-        var function = EdmFunction.Create(name, this.GetDefaultNamespace(item), item.DataSpace, payload, null);
+//    protected EdmFunction CreateAndAddFunction(EdmModel item, String name, IList<FunctionParameter> parameters, IList<FunctionParameter> returnValues)
+//    {
+//        var payload = new EdmFunctionPayload { StoreFunctionName = name, Parameters = parameters, ReturnParameters = returnValues, Schema = this.GetDefaultSchema(item), IsBuiltIn = true };
+//        var function = EdmFunction.Create(name, this.GetDefaultNamespace(item), item.DataSpace, payload, null);
 
-        item.AddItem(function);
+//        item.AddItem(function);
 
-        return (function);
-    }
+//        return (function);
+//    }
 
-    protected EdmType GetStorePrimitiveType(DbModel model, PrimitiveTypeKind typeKind)
-    {
-        return (model.ProviderManifest.GetStoreType(TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(typeKind))).EdmType);
-    }
+//    protected EdmType GetStorePrimitiveType(DbModel model, PrimitiveTypeKind typeKind)
+//    {
+//        return (model.ProviderManifest.GetStoreType(TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(typeKind))).EdmType);
+//    }
 
-    protected String GetDefaultNamespace(EdmModel layerModel)
-    {
-        var ns = layerModel.GlobalItems.OfType<EdmType>()
-            .Select(t => t.NamespaceName)
-            .Distinct()
-            .Single();
-        return (ns);
-    }
+//    protected String GetDefaultNamespace(EdmModel layerModel)
+//    {
+//        var ns = layerModel.GlobalItems.OfType<EdmType>()
+//            .Select(t => t.NamespaceName)
+//            .Distinct()
+//            .Single();
+//        return (ns);
+//    }
 
-    protected String GetDefaultSchema(EdmModel layerModel)
-    {
-        return (layerModel.Container.EntitySets.Select(s => s.Schema).Distinct().SingleOrDefault());
-    }
-}
+//    protected String GetDefaultSchema(EdmModel layerModel)
+//    {
+//        return (layerModel.Container.EntitySets.Select(s => s.Schema).Distinct().SingleOrDefault());
+//    }
+//}
 
-public class FreetextInterceptor : IDbCommandInterceptor
-{
-    public static readonly FreetextInterceptor Instance = new FreetextInterceptor();
+//public class FreetextInterceptor : IDbCommandInterceptor
+//{
+//    public static readonly FreetextInterceptor Instance = new FreetextInterceptor();
 
-    private static readonly Regex FreetextRegex = new Regex(@"FREETEXT\(([^)]+\))\) = 1");
+//    private static readonly Regex FreetextRegex = new Regex(@"FREETEXT\(([^)]+\))\) = 1");
 
-    public void NonQueryExecuted(DbCommand command, DbCommandInterceptionContext<Int32> interceptionContext)
-    {
-    }
+//    public void NonQueryExecuted(DbCommand command, DbCommandInterceptionContext<Int32> interceptionContext)
+//    {
+//    }
 
-    public void NonQueryExecuting(DbCommand command, DbCommandInterceptionContext<Int32> interceptionContext)
-    {
-    }
+//    public void NonQueryExecuting(DbCommand command, DbCommandInterceptionContext<Int32> interceptionContext)
+//    {
+//    }
 
-    public void ReaderExecuted(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
-    {
-    }
+//    public void ReaderExecuted(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
+//    {
+//    }
 
-    public void ReaderExecuting(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
-    {
-        var matches = FreetextRegex.Matches(command.CommandText);
+//    public void ReaderExecuting(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
+//    {
+//        var matches = FreetextRegex.Matches(command.CommandText);
 
-        if (matches.Count > 0)
-        {
-            command.CommandText = FreetextRegex.Replace(command.CommandText, "FREETEXT($1)");
-        }
-    }
+//        if (matches.Count > 0)
+//        {
+//            command.CommandText = FreetextRegex.Replace(command.CommandText, "FREETEXT($1)");
+//        }
+//    }
 
-    public void ScalarExecuted(DbCommand command, DbCommandInterceptionContext<Object> interceptionContext)
-    {
-    }
+//    public void ScalarExecuted(DbCommand command, DbCommandInterceptionContext<Object> interceptionContext)
+//    {
+//    }
 
-    public void ScalarExecuting(DbCommand command, DbCommandInterceptionContext<Object> interceptionContext)
-    {
-    }
-}
+//    public void ScalarExecuting(DbCommand command, DbCommandInterceptionContext<Object> interceptionContext)
+//    {
+//    }
+//}
 
 /// <summary>
 /// Inspired by

@@ -1186,6 +1186,7 @@
     <Content Include="Scripts\src\comment\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
