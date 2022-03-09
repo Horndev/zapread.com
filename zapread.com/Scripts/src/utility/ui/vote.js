@@ -2,12 +2,12 @@
  * User vote functions - controlling modal and ui interface
  * 
  **/
-import Swal from 'sweetalert2';
-import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4';
-import { getAntiForgeryTokenValue } from '../antiforgery';
-import { postJson } from '../postData';
-import { ready } from '../ready';
-import { updateUserInfo } from '../userInfo';
+//import Swal from 'sweetalert2';
+//import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4';
+//import { getAntiForgeryTokenValue } from '../antiforgery';
+//import { postJson } from '../postData';
+//import { ready } from '../ready';
+//import { updateUserInfo } from '../userInfo';
 
 /**
  * This should be IE compatible

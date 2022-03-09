@@ -80,6 +80,19 @@ namespace zapread.com.Tests.Controllers
         }
 
         [TestMethod]
+        public void Search()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
+
+            // Act
+            var result = controller.Search("fast");
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
         public void FAQ()
         {
             // Arrange

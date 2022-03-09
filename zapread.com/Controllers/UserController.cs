@@ -16,7 +16,6 @@ using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
-using zapread.com.Models.GroupView;
 using zapread.com.Models.UserView;
 using zapread.com.Models.UserViews;
 

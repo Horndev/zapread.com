@@ -497,7 +497,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
-    <Compile Include="Helpers\HTMLRenderHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\LanguageHelpers.cs" />
@@ -851,6 +850,10 @@
     <Compile Include="Migrations\202202181822249_AddReferralTable.designer.cs">
       <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.cs" />
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.designer.cs">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -905,7 +908,6 @@
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
-    <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Home\HomeIndexViewModel.cs" />
     <Compile Include="Models\Home\HomeTopGroupsPartialViewModel.cs" />
@@ -1050,29 +1052,41 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Scripts\dist\0\2292.js" />
-    <Content Include="Scripts\dist\0\2822.js" />
     <Content Include="Scripts\dist\0\2977.css" />
     <Content Include="Scripts\dist\0\2977.js" />
     <Content Include="Scripts\dist\0\3227.css" />
     <Content Include="Scripts\dist\0\3227.js" />
     <Content Include="Scripts\dist\0\3652.js" />
-    <Content Include="Scripts\dist\0\3768.css" />
-    <Content Include="Scripts\dist\0\3768.js" />
-    <Content Include="Scripts\dist\0\3768.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\3780.css" />
     <Content Include="Scripts\dist\0\3780.js" />
+    <Content Include="Scripts\dist\0\4007.js" />
+    <Content Include="Scripts\dist\0\4007.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\4351.js" />
     <Content Include="Scripts\dist\0\5088.js" />
+    <Content Include="Scripts\dist\0\5252.js" />
+    <Content Include="Scripts\dist\0\5580.js" />
+    <Content Include="Scripts\dist\0\5588.js" />
     <Content Include="Scripts\dist\0\5887.css" />
     <Content Include="Scripts\dist\0\5887.js" />
+    <Content Include="Scripts\dist\0\6.css" />
+    <Content Include="Scripts\dist\0\6.js" />
+    <Content Include="Scripts\dist\0\6024.css" />
+    <Content Include="Scripts\dist\0\6024.js" />
+    <Content Include="Scripts\dist\0\6466.js" />
+    <Content Include="Scripts\dist\0\6466.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\6476.js" />
+    <Content Include="Scripts\dist\0\6708.js" />
+    <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
     <Content Include="Scripts\dist\0\8135.js" />
+    <Content Include="Scripts\dist\0\8338.css" />
+    <Content Include="Scripts\dist\0\8338.js" />
     <Content Include="Scripts\dist\0\9138.js" />
-    <Content Include="Scripts\dist\0\9966.js" />
-    <Content Include="Scripts\dist\0\9966.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\9407.js" />
+    <Content Include="Scripts\dist\0\9533.js" />
+    <Content Include="Scripts\dist\0\9533.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\9844.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
@@ -1184,6 +1198,7 @@
     <Content Include="Scripts\src\comment\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1285,27 +1300,38 @@
     <Content Include="Scripts\dist\home\index.js.map" />
     <Content Include="Scripts\dist\home\install.css.map" />
     <Content Include="Scripts\dist\home\install.js.map" />
-    <Content Include="Scripts\dist\0\2292.js.map" />
-    <Content Include="Scripts\dist\0\2822.js.map" />
     <Content Include="Scripts\dist\0\2977.css.map" />
     <Content Include="Scripts\dist\0\2977.js.map" />
     <Content Include="Scripts\dist\0\3227.css.map" />
     <Content Include="Scripts\dist\0\3227.js.map" />
     <Content Include="Scripts\dist\0\3652.js.map" />
-    <Content Include="Scripts\dist\0\3768.css.map" />
-    <Content Include="Scripts\dist\0\3768.js.map" />
     <Content Include="Scripts\dist\0\3780.css.map" />
     <Content Include="Scripts\dist\0\3780.js.map" />
+    <Content Include="Scripts\dist\0\4007.js.map" />
     <Content Include="Scripts\dist\0\4351.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
+    <Content Include="Scripts\dist\0\5252.js.map" />
+    <Content Include="Scripts\dist\0\5580.js.map" />
+    <Content Include="Scripts\dist\0\5588.js.map" />
     <Content Include="Scripts\dist\0\5887.css.map" />
     <Content Include="Scripts\dist\0\5887.js.map" />
+    <Content Include="Scripts\dist\0\6.css.map" />
+    <Content Include="Scripts\dist\0\6.js.map" />
+    <Content Include="Scripts\dist\0\6024.css.map" />
+    <Content Include="Scripts\dist\0\6024.js.map" />
+    <Content Include="Scripts\dist\0\6466.js.map" />
     <Content Include="Scripts\dist\0\6476.js.map" />
+    <Content Include="Scripts\dist\0\6708.js.map" />
+    <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
+    <Content Include="Scripts\dist\0\8338.css.map" />
+    <Content Include="Scripts\dist\0\8338.js.map" />
     <Content Include="Scripts\dist\0\9138.js.map" />
-    <Content Include="Scripts\dist\0\9966.js.map" />
+    <Content Include="Scripts\dist\0\9407.js.map" />
+    <Content Include="Scripts\dist\0\9533.js.map" />
+    <Content Include="Scripts\dist\0\9844.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1574,7 +1600,6 @@
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
     <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
-    <Content Include="Views\Shared\_PartialModalVote.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
     <Content Include="Views\Group\GroupDetail.cshtml" />
     <Content Include="Views\Manage\_PartialManageGroups.cshtml" />
@@ -1677,6 +1702,7 @@
     <Content Include="Views\Home\_PartialTopGroups.cshtml" />
     <Content Include="Views\Manage\_PartialManageActivityPosts.cshtml" />
     <Content Include="Views\User\_PartialUserTopFollowers.cshtml" />
+    <Content Include="Views\Home\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -1954,6 +1980,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202202181822249_AddReferralTable.resx">
       <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202203070205053_EnableFullTextA.resx">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

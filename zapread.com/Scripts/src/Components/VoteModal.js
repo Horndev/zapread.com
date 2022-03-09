@@ -12,7 +12,7 @@
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
 const getSwal = () => import('sweetalert2'); //import Swal from 'sweetalert2';
-import { Modal, Container, Row, Col, ButtonGroup, Button, Card } from "react-bootstrap";
+import { Modal, Container, Row, Col, Button, Card } from "react-bootstrap";
 import { useUserInfo } from "./hooks/useUserInfo";
 import { on, off } from "../utility/events";
 import { refreshUserBalance } from '../utility/refreshUserBalance';
@@ -47,6 +47,8 @@ export default function VoteModal(props) {
   const inputRef = createRef();
   const invoiceInputRef = createRef();
 
+  const userInfo = useUserInfo(); // Custom hook
+
   const handleClose = () => {
     // Cleanup & reset
     setShow(false);
@@ -58,7 +60,9 @@ export default function VoteModal(props) {
     setShowQRLoading(false);
     setFooterMessage("Click vote to confirm");
   };
+
   const handleShow = () => setShow(true);
+
   const copyInvoiceToClipboard = () => {
     var inputEl = invoiceInputRef.current;
     inputEl.focus();
@@ -89,8 +93,6 @@ export default function VoteModal(props) {
 
     setCopied(true);
   }
-
-  const userInfo = useUserInfo(); // Custom hook
 
   // Monitor for changes in props
   useEffect(
@@ -189,7 +191,6 @@ export default function VoteModal(props) {
         //document.getElementById(spinElId).style.display = "none";//$("#" + $(e).data('spin-element')).hide();
         if (response.success) {
           if (response.result === true) {
-
             oninvoicepaid(response.invoice, response.balance, response.txid);
             //handleInvoicePaid(response);
             // Payment has been successfully made

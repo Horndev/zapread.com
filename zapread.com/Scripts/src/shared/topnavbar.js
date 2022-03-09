@@ -6,6 +6,7 @@
 import { refreshUserBalance } from '../utility/refreshUserBalance';
 import { ready } from '../utility/ready';
 import { postJson } from '../utility/postData';
+const getDepositWithdrawModal = () => import("../Components/DepositWithdrawModal");
 import React from "react";
 import ReactDOM from "react-dom";
 import UserBalance from "../Components/UserBalance";
@@ -14,6 +15,32 @@ import UserBalance from "../Components/UserBalance";
 var userBalanceEl = document.getElementById("topUserBalance");
 if (userBalanceEl != null) {
   ReactDOM.render(<UserBalance />, userBalanceEl);
+}
+
+var DepositModalLoaded = false;
+
+function openDepositWithdrawModal() {
+  const event = new Event('zapread:depositwithdraw');
+  document.dispatchEvent(event);
+}
+
+/* DepositWithdraw modal */
+var topBalanceEl = document.getElementById("topBalance"); // This is only there when logged in
+if (topBalanceEl != null) {
+  // Attach click
+  topBalanceEl.addEventListener("click", (e) => {
+    // If not loaded - load
+    if (!DepositModalLoaded) {
+      getDepositWithdrawModal().then(({ default: DepositWithdrawModal }) => {
+        ReactDOM.render(<DepositWithdrawModal />, document.getElementById("ModalDepositWithdraw"));
+      }).then(() => {
+        openDepositWithdrawModal();
+        DepositModalLoaded = true;
+      });
+    } else {
+      openDepositWithdrawModal();
+    }
+  });
 }
 
 var ub = 0;

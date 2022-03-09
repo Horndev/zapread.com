@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -593,6 +594,54 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+        }
+
+        public class SearchResult
+        {
+            public string Text;
+            public int CommentId;
+            public int rank;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public ActionResult Search(string str = "test")
+        {
+            using (var db = new ZapContext())
+            {
+                /* Example comment search using catalog
+                    SELECT i.rank, Text
+                    FROM freetexttable(Comment,Text,'work') as i
+                    inner join Comment a
+                    on i.[key] = a.CommentId
+                    order by i.rank desc
+                 */
+
+                var res = db.Comments
+                    .SqlQuery("SELECT i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  "+
+                    "FROM freetexttable(Comment, Text, @q) as i "+
+                    "inner join Comment a "+
+                    "on i.[key] = a.[CommentId] "+
+                    "order by i.rank desc", new SqlParameter("@q", str))
+                    .ToList();
+                //var res = db.Comments.Where(c => c.Text.Freetext("x")).ToList();
+                    
+                    //.SqlQuery("")
+
+                //var match = db.Comments
+                //    .Where(c => c.Text.Contains(str))
+                //    .Take(30)
+                //    .ToList();
+
+                //var cnt = match.Count();
+
+                ViewBag.TotalCount = res.Count;
+                ViewBag.Matches = res;
+                return View();
+            }
         }
 
         /// <summary>

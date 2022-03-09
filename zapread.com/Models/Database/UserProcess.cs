@@ -7,13 +7,23 @@ using System.Web;
 
 namespace zapread.com.Models.Database
 {
+    /// <summary>
+    /// Tracking hangfire jobs
+    /// </summary>
     public class UserProcess
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key]
         public int Id { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string JobId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string JobName { get; set; }
 
         /// <summary>

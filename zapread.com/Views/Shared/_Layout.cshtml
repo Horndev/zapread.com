@@ -25,7 +25,7 @@
     @*<script type="text/javascript" src="~/bundles/tarteaucitron"></script>*@
 </head>
 <body class="top-navigation gray-bg">
-    @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
+    <div id="ModalDepositWithdraw"></div>
     <div @*id="wrapper"*@ class="@Html.PageClass()">
         <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
             @Html.Partial("_TopNavbar")
