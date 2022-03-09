@@ -17,17 +17,29 @@ if (userBalanceEl != null) {
   ReactDOM.render(<UserBalance />, userBalanceEl);
 }
 
+var DepositModalLoaded = false;
+
+function openDepositWithdrawModal() {
+  const event = new Event('zapread:depositwithdraw');
+  document.dispatchEvent(event);
+}
+
 /* DepositWithdraw modal */
 var topBalanceEl = document.getElementById("topBalance"); // This is only there when logged in
 if (topBalanceEl != null) {
-  getDepositWithdrawModal().then(({ default: DepositWithdrawModal }) => {
-    ReactDOM.render(<DepositWithdrawModal />, document.getElementById("ModalDepositWithdraw"));
-    // Attach click
-    topBalanceEl.addEventListener("click", (e) => {
-      // Emit vote event
-      const event = new Event('zapread:depositwithdraw');
-      document.dispatchEvent(event);
-    });
+  // Attach click
+  topBalanceEl.addEventListener("click", (e) => {
+    // If not loaded - load
+    if (!DepositModalLoaded) {
+      getDepositWithdrawModal().then(({ default: DepositWithdrawModal }) => {
+        ReactDOM.render(<DepositWithdrawModal />, document.getElementById("ModalDepositWithdraw"));
+      }).then(() => {
+        openDepositWithdrawModal();
+        DepositModalLoaded = true;
+      });
+    } else {
+      openDepositWithdrawModal();
+    }
   });
 }
 

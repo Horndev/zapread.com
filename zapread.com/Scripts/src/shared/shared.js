@@ -18,7 +18,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 //import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@fortawesome/fontawesome-free/css/v4-shims.min.css';
-import '../utility/ui/paymentsscan';
+//import '../utility/ui/paymentsscan';
 import '../utility/ui/accountpayments';
 import './topnavbar';
 import '../css/quill/quillfont.css';
