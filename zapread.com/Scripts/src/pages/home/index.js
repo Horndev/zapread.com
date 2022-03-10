@@ -3,9 +3,8 @@
  **/
 
 import '../../shared/shared';
-//const getShared = () => import('../../shared/shared');
-import '../../utility/ui/vote';                                             // [✓]
-import '../../realtime/signalr';                                            // [✓]
+import '../../utility/ui/vote';
+import '../../realtime/signalr';
 const getSwal = () => import('sweetalert2'); //import Swal from 'sweetalert2';
 const getloadMoreComments = () => import('../../comment/loadmorecomments');
 const getMicroCharts = () => import('micro-charts');

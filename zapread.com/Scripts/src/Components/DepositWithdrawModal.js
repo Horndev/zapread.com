@@ -151,33 +151,16 @@ export default function DepositWithdrawModal(props) {
       if (response.success) {
         setFooterMessage("Payment successfully sent");
         setFooterBg("bg-success");
-        //document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Payment successfully sent";//$("#lightningTransactionInvoiceResult").html("Payment successfully sent.");
-        //document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-danger", "bg-muted");//$("#lightningTransactionInvoiceResult").removeClass("bg-info bg-error bg-muted");
-        //document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-success");//$("#lightningTransactionInvoiceResult").addClass("bg-success");
-        //document.getElementById("lightningTransactionInvoiceResult").style.display = '';//$("#lightningTransactionInvoiceResult").show();
         refreshUserBalance();
-        //hidePaymentModal();
       }
       else {
         setFooterMessage(response.message);
         setFooterBg("bg-danger");
-        //document.getElementById("lightningTransactionInvoiceResult").innerHTML = response.message;//$("#lightningTransactionInvoiceResult").html(response.Result);
-        //document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-success", "bg-muted");//$("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-        //document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-danger");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
-        //document.getElementById("lightningTransactionInvoiceResult").style.display = '';
       }
     }).catch((error) => {
       setShowButtonSpinner(false);
-      //document.getElementById("btnPayLNWithdraw").disabled = false;//$("#btnPayLNWithdraw").removeAttr("disabled");
-      //document.getElementById("btnVerifyLNWithdraw").style.display = '';//$('#btnVerifyLNWithdraw').show();
-      //document.getElementById("btnPayLNWithdraw").style.display = 'none';//$("#btnPayLNWithdraw").hide();
-      //document.getElementById("confirmWithdraw").style.display = 'none';//$('#confirmWithdraw').hide();
       setFooterMessage("Failed to pay invoice");
       setFooterBg("bg-error");
-      //document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Failed to receive invoice";//$("#lightningTransactionInvoiceResult").html("Failed to receive invoice");
-      //document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-success");//$("#lightningTransactionInvoiceResult").removeClass("bg-success");
-      //document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-error");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
-      //document.getElementById("lightningTransactionInvoiceResult").style.display = '';//$("#lightningTransactionInvoiceResult").show();
     });
   };
 

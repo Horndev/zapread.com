@@ -9,7 +9,6 @@ import { toggleComment } from "../shared/postui";               // [✓]
 import { replyComment } from "../comment/replycomment";         // [✓]
 import { ready } from '../utility/ready';                       // [✓]
 import { updatePostTimes } from '../utility/datetime/posttime'; // [✓]
-import { vote } from "../utility/ui/vote";                      // [✓]
 import { editComment } from "./editcomment";                    // [✓]
 import { deleteComment } from "../shared/postfunctions";        // [✓]
 import { makeQuotable } from "../utility/quotable/quotable";    // [✓]
@@ -320,90 +319,3 @@ export default function CommentsView(props) {
     </>
   );
 }
-
-//{
-//  (() => {
-//    if (post.CommentVms.length > 0) {
-//      console.log("has comments", post.CommentVms);
-
-//      var numshown = 0;
-//      var numToShow = 3;
-//      if (isDetailView) { numToShow = 50; }
-//      var showmore = false;
-//      var rootshown = [];
-
-//      var comments = post.CommentVms.filter(comment => !comment.IsReply)
-//        .sort((c1, c2) => { c1.Score < c2.Score })
-//        .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
-
-//      console.log("comments", comments);
-
-//      var numComments = comments.length;
-
-//      comments.map((cmt, index) => {
-//        var vm = {
-//          NestLevel: 1, // Root level comment
-//          ViewerIgnoredUser: cmt.ViewerIgnoredUser,
-//          ParentCommentId: cmt.ParentCommentId,
-//          ParentUserName: cmt.ParentUserName,
-//          ParentUserId: cmt.ParentUserId,
-//          CommentId: cmt.CommentId,
-//          CommentVms: post.CommentVms == null ? [] : post.CommentVms,
-//          TimeStamp: cmt.TimeStamp,
-//          TimeStampEdited: cmt.TimeStampEdited,
-//          UserId: cmt.UserId,
-//          IsDeleted: cmt.IsDeleted,
-//          IsReply: cmt.IsReply,
-//          ProfileImageVersion: cmt.ProfileImageVersion,
-//          Score: cmt.Score,
-//          StartVisible: cmt.StartVisible,
-//          Text: cmt.Text,
-//          UserName: cmt.UserName,
-//          UserAppId: cmt.UserAppId,
-//          ViewerUpvoted: cmt.ViewerUpvoted,
-//          ViewerDownvoted: cmt.ViewerDownvoted,
-//          PostId: cmt.PostId
-//        };
-
-//        if (numshown < numToShow & cmt.Score >= 0) {
-//          numshown = numshown + 1;
-//          vm.StartVisible = true;
-//          rootshown.push(comment.CommentId);
-
-//          return (<CommentView comments={vm} />)
-
-//        } else if (numshown < numToShow) {
-//          numshown += 1;
-//          vm.StartVisible = false;
-
-//          return (<CommentView comments={vm} />)
-//        }
-
-//        if (numshown > numToShow & numComments > numToShow) {
-//          showmore = true;
-//        }
-
-//        return (
-//          <></>
-//        )
-//      })
-
-//      if (showmore) {
-//        return (<>show more</>)
-//      } else {
-//        return (<></>)
-//      }
-
-//    } else {
-//      return (<></>);
-//    }
-//  })
-//}
-
-//{/*{() => {*/ }
-//{/*  if (showmore) {*/ }
-//{/*    return (<></>)*/ }
-//{/*  } else {*/ }
-//{/*    return (<></>)*/ }
-//{/*  }*/ }
-{/*}}*/ }

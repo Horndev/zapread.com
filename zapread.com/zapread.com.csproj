@@ -1500,7 +1500,6 @@
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
     <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\instascan.min.js" />
-    <Content Include="Scripts\src\utility\ui\accountpayments.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
     <Content Include="Scripts\src\shared\readmore.js" />
@@ -1515,7 +1514,6 @@
     <Content Include="Scripts\src\pages\home\faq.js" />
     <Content Include="Scripts\src\pages\home\globals.js" />
     <Content Include="Scripts\src\pages\home\index.js" />
-    <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\pages\manage\apikeys.js" />
     <Content Include="Scripts\src\pages\manage\index.js" />
     <Content Include="Scripts\src\pages\manage\financial.js" />
@@ -1554,7 +1552,6 @@
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
-    <Content Include="Scripts\src\utility\ui\updateuserbalance.js" />
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
     <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
