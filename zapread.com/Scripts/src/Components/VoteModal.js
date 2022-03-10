@@ -23,7 +23,6 @@ import { postJson } from '../utility/postData';
 export default function VoteModal(props) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [qrURL, setQrURL] = useState("");
-
   const [voteType, setVoteType] = useState("post");
   const [modalTitle, setModalTitle] = useState("Vote");
   const [footerMessage, setFooterMessage] = useState("Click vote to confirm");
@@ -40,11 +39,9 @@ export default function VoteModal(props) {
   const [showCheckPaymentSpinner, setShowCheckPaymentSpinner] = useState(false);
   const [showCheckPaymentButton, setShowCheckPaymentButton] = useState(false);
   const [showVoteButton, setShowVoteButton] = useState(true);
-
   const [show, setShow] = useState(false);
   const [showQRLoading, setShowQRLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const inputRef = createRef();
   const invoiceInputRef = createRef();
 
   const userInfo = useUserInfo(); // Custom hook
@@ -112,7 +109,6 @@ export default function VoteModal(props) {
     setShowGetInvoiceButton(true);
     setShowCheckPaymentButton(false);
     setFooterMessage("Click to get a lightning invoice");
-    //setFooterMessage("Please pay lightning invoice");
   }
 
   function setStateCheckPayment() {
@@ -121,14 +117,21 @@ export default function VoteModal(props) {
   }
 
   function handleVote() {
-    if (voteAmount > userInfo.balance) {
-      // Not enough funds for the vote
-      setStateGetInvoice();
-    }
-    else {
-      spinnerOn(voteTarget);
-      doVote();
-    }
+    // Note - don't need to check if authenticated since this only button visible when logged in.
+    refreshUserBalance().then((userBalance) => {
+      updateUserInfo({
+        balance: userBalance
+      });
+      if (voteAmount > userBalance) {
+        console.log("vote amount", voteAmount, "greater than balance", userBalance);
+        // Not enough funds for the vote
+        setStateGetInvoice();
+      }
+      else {
+        spinnerOn(voteTarget);
+        doVote();
+      }
+    });
   }
 
   /**
@@ -368,7 +371,6 @@ export default function VoteModal(props) {
                     <span>Pay{" "}</span>
                     <input
                       onChange={({ target: { value } }) => setVoteAmount(value)} // Controlled input
-                      ref={inputRef}
                       value={voteAmount}
                       type="number"
                       min={1}
