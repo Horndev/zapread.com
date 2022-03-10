@@ -32,6 +32,7 @@ export async function replyComment(commentId, postId, content) {
     '</div>';
   el.innerHTML = spinnerHTML;
 
+  // The comment box is currently rendered on server TODO: move to client-side render
   var url = '/Comment/GetInputBox' + "/" + commentId.toString();
   fetch(url).then(data => data.text()).then(data => {
     el.innerHTML = data
