@@ -84,12 +84,12 @@ function Page() {
                                       <i className="fa fa-minus-circle"></i>
                                     </span>
                                 </>)}&nbsp;
-                                <a className="post-username"
-                                  target="_blank"
-                                  href={"/Messages/Chat/" + encodeURIComponent(chat.FromName) + "/"}>
+                                <span className="post-username">
+                                  {/*target="_blank"*/}
+                                  {/*href={"/Messages/Chat/" + encodeURIComponent(chat.FromName) + "/"}>*/}
                                   <img className="img-circle" src={"/Home/UserImage/?UserID=" + chat.FromAppId + "&size=30&v=" + chat.FromProfileImageVersion} style={{paddingRight: "10px"}} />
                                     {chat.FromName}
-                                </a>
+                                </span>
                               </div>
                             </td>
                             <td>{ISOtoRelative(chat.TimeStamp)}</td>

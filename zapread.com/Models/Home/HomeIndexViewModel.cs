@@ -5,8 +5,14 @@ using System.Web;
 
 namespace zapread.com.Models.Home
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class HomeIndexViewModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Sort { get; set; }
 
         /// <summary>

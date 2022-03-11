@@ -7,7 +7,6 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import '../../css/quill/quillchat.css'; // Some custom overrides
 import '../../css/quill/quillcustom.css'; // Some custom overrides
-
 import '../../shared/shared';
 import '../../realtime/signalr';
 import Quill from 'quill';
@@ -17,7 +16,6 @@ import ImageResize from 'quill-image-resize-module';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
-
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { updatePostTimes } from '../../utility/datetime/posttime';
 import { ready } from '../../utility/ready';

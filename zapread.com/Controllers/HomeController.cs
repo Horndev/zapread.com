@@ -22,6 +22,7 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.Home;
+using zapread.com.Models.Search;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
@@ -596,15 +597,8 @@ namespace zapread.com.Controllers
             return Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
 
-        public class SearchResult
-        {
-            public string Text;
-            public int CommentId;
-            public int rank;
-        }
-
         /// <summary>
-        /// 
+        /// This is really only used for testing
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -621,15 +615,51 @@ namespace zapread.com.Controllers
                  */
 
                 var res = db.Comments
-                    .SqlQuery("SELECT i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  "+
+                    .SqlQuery("SELECT TOP 100 i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  "+
                     "FROM freetexttable(Comment, Text, @q) as i "+
                     "inner join Comment a "+
                     "on i.[key] = a.[CommentId] "+
+                    "WHERE a.IsDeleted=0 " +
                     "order by i.rank desc", new SqlParameter("@q", str))
                     .ToList();
+
+                // Order of this list matters
+                var CommentIds = res.Select(c => c.CommentId);
+
+                var resfullq = db.Comments
+                    .Where(c => CommentIds.Contains(c.CommentId))
+                    .OrderByDescending(c => c.TimeStamp) // more recent first
+                    .Select(c => new SearchResult()
+                    {
+                        Id = (int)c.CommentId,
+                        PostId = c.Post.PostId,
+                        Title = c.Post.PostTitle,
+                        Content = c.Text,
+                        UserAppId = c.UserId.AppId,
+                        PostScore = c.Post.Score,
+                        CommentScore = c.Score,
+                        TimeStamp = c.TimeStamp,
+                        AuthorName = c.UserId.Name,
+                        GroupName = c.Post.Group != null ? c.Post.Group.GroupName: "Community"
+                    })
+                    .ToList();
+
+                // inefficient sort
+                //var resfull = CommentIds.Select(c => resfullq.First(r => r.Id == c)).ToList();
+
+                var posts = db.Posts
+                    .SqlQuery("SELECT TOP 20 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " +
+                    "FROM freetexttable(Post, Content, @q) as i " +
+                    "inner join Post a " +
+                    "on i.[key] = a.[PostId] " +
+                    "WHERE a.IsDeleted=0 AND a.IsDraft>0 " + 
+                    "order by i.rank desc", new SqlParameter("@q", str))
+                    .ToList();
+
+                var PostIds = res.Select(c => c.CommentId);
                 //var res = db.Comments.Where(c => c.Text.Freetext("x")).ToList();
-                    
-                    //.SqlQuery("")
+
+                //.SqlQuery("")
 
                 //var match = db.Comments
                 //    .Where(c => c.Text.Contains(str))
@@ -639,7 +669,7 @@ namespace zapread.com.Controllers
                 //var cnt = match.Count();
 
                 ViewBag.TotalCount = res.Count;
-                ViewBag.Matches = res;
+                ViewBag.Matches = resfullq;
                 return View();
             }
         }

@@ -34,7 +34,15 @@
                     <br />
                     @foreach(var c in ViewBag.Matches)
                     {
-                        <p>@c.Text</p>
+                        <div class="search-result zr-search-hover">
+                            <h3>@c.PostScore <a href="#">@c.Title</a></h3>
+                            <div>@c.AuthorName posted in @c.GroupName</div>
+                            <a href="#" class="search-link"></a>
+                            <div class="zr-search-preview">
+                                @Html.Raw(c.Content)
+                            </div>
+                        </div>
+                        <div class="zr-search-hr"></div>
                     }
                 </div>
             </div>
