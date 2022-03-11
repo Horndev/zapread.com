@@ -122,7 +122,7 @@ export default function VoteModal(props) {
       updateUserInfo({
         balance: userBalance
       });
-      if (voteAmount > userBalance) {
+      if (parseInt(voteAmount) > parseInt(userBalance)) {
         console.log("vote amount", voteAmount, "greater than balance", userBalance);
         // Not enough funds for the vote
         setStateGetInvoice();
