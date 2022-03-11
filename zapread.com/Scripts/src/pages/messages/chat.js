@@ -2,18 +2,22 @@
  * User to user chat
  * 
  */
+
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import '../../css/quill/quillchat.css'; // Some custom overrides
+import '../../css/quill/quillcustom.css'; // Some custom overrides
+
 import '../../shared/shared';
 import '../../realtime/signalr';
 import Quill from 'quill';
 import DOMPurify from 'dompurify';
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import '../../css/quill/quillchat.css'; // Some custom overrides
 import 'quill-mention'; // This auto-registers
 import ImageResize from 'quill-image-resize-module';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
+
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { updatePostTimes } from '../../utility/datetime/posttime';
 import { ready } from '../../utility/ready';
@@ -191,41 +195,6 @@ function imageHandler(imageDataUrl, type, imageData) {
   var filename = 'pastedImage.png'
   var file = imageData.toFile(filename)
   sendImage(file);
-
-  //// generate a form data
-  //var fd = new FormData()
-  //fd.append('file', file)
-
-  //// upload image
-  ////postData('/Img/UploadImage/')
-  //const xhr = new XMLHttpRequest();
-  //// init http query
-  //xhr.open('POST', '/Img/UploadImage/', true);
-  //// add custom headers
-  //var headers = getAntiForgeryToken();
-  //for (var index in headers) {
-  //  xhr.setRequestHeader(index, headers[index]);
-  //}
-
-  //// listen callback
-  //xhr.onload = () => {
-  //  if (xhr.status === 200) {
-  //    var data = JSON.parse(xhr.responseText);
-  //    var index = (quill.getSelection() || {}).index || quill.getLength();
-  //    if (index) {
-  //      //quill.insertEmbed(index, 'image', '/Img/Content/' + data.imgId + '/', 'user');
-  //      quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
-  //    } else {
-  //      console.log({
-  //        code: xhr.status,
-  //        type: xhr.statusText,
-  //        body: xhr.responseText
-  //      });
-  //    }
-  //  };
-  //}
-
-  //xhr.send(fd);
 }
 
 /**

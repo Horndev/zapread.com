@@ -11,16 +11,11 @@ import '../utility/appinsights';                    // [✓]
  * Here, we use Bootstrap.native, which does not require jQuery.  It is much lighter, and supports
  * up to version 4.  The Bootstrap css is still imported from the bootstrap distribution.
  **/
-//import 'bootstrap';
 import 'bootstrap.native/dist/bootstrap-native-v4';
+import './topnavbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import 'font-awesome/css/font-awesome.min.css';
-//import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@fortawesome/fontawesome-free/css/v4-shims.min.css';
-//import '../utility/ui/paymentsscan';
-import '../utility/ui/accountpayments';
-import './topnavbar';
 import '../css/quill/quillfont.css';
 
 /**

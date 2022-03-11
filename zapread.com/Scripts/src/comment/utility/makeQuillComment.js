@@ -2,25 +2,27 @@
  * This file contains the common functions for commenting using Quill
  **/
 
-import Swal from 'sweetalert2';
-import Quill from 'quill';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import '../../css/quill/quilledit.css';                              // [✓]
 import '../../css/quill/quillcustom.css'; // Some custom overrides
+
+const getSwal = () => import('sweetalert2');
+import Quill from 'quill';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { postData } from '../../utility/postData';
 import 'quill-mention'; // This auto-registers
-//import 'quill-mention/dist/quill.mention.css'  // Not importing since the styles are in quillcustom.css
 import ImageResize from 'quill-image-resize-module';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
 
-Quill.register('modules/imageUpload', ImageUpload);
-Quill.register('modules/autoLinks', AutoLinks);
-Quill.register('modules/imageResize', ImageResize);
-Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
+Quill.register({
+  'modules/imageUpload': ImageUpload,
+  'modules/autoLinks': AutoLinks,
+  'modules/imageResize': ImageResize,
+  'modules/imageDropAndPaste': QuillImageDropAndPaste
+}, true); // import with warning suppression (i.e. overwriting existing function)
 
 var Image = Quill.import('formats/image');
 Image.className = 'img-post';
@@ -124,8 +126,14 @@ export function makeQuillComment(options) {
   function sendImage(file) {
     var fd = new FormData();
     fd.append('file', file);
-    document.getElementById("progressUpload").style.display = "flex";
-    document.getElementById("progressUploadBar").style.width = "1%";
+    var uploadEl = document.getElementById("progressUpload");
+    if (uploadEl != null) {
+      uploadEl.style.display = "flex";
+    }
+    var uploadBarEl = document.getElementById("progressUploadBar");
+    if (uploadBarEl != null) {
+      uploadBarEl.style.width = "1%";
+    }
     // upload image
     const xhr = new XMLHttpRequest();
     // init http query
@@ -141,16 +149,22 @@ export function makeQuillComment(options) {
       if (evt.lengthComputable) {
         var percentComplete = evt.loaded / evt.total;
         percentComplete = parseInt(percentComplete * 100);
-        document.getElementById("progressUploadBar").style.width = percentComplete.toString() + "%";
+        if (uploadBarEl != null) {
+          document.getElementById("progressUploadBar").style.width = percentComplete.toString() + "%";
+        }
         if (percentComplete === 100) {
-          document.getElementById("progressUploadBar").style.width = "100%";
+          if (uploadBarEl != null) {
+            document.getElementById("progressUploadBar").style.width = "100%";
+          }
         }
       }
     }, false);
 
     // listen callback
     xhr.onload = () => {
-      document.getElementById("progressUpload").style.display = "none";
+      if (uploadEl != null) {
+        document.getElementById("progressUpload").style.display = "none";
+      }
       if (xhr.status === 200) {
         var data = JSON.parse(xhr.responseText);
         var index = (quill.getSelection() || {}).index || quill.getLength();
@@ -184,40 +198,6 @@ export function makeQuillComment(options) {
     var filename = 'pastedImage.png'
     var file = imageData.toFile(filename)
     sendImage(file);
-
-    //// generate a form data
-    //var fd = new FormData()
-    //fd.append('file', file)
-
-    //// upload image
-    ////postData('/Img/UploadImage/')
-    //const xhr = new XMLHttpRequest();
-    //// init http query
-    //xhr.open('POST', '/Img/UploadImage/', true);
-    //// add custom headers
-    //var headers = getAntiForgeryToken();
-    //for (var index in headers) {
-    //  xhr.setRequestHeader(index, headers[index]);
-    //}
-
-    //// listen callback
-    //xhr.onload = () => {
-    //  if (xhr.status === 200) {
-    //    var data = JSON.parse(xhr.responseText);
-    //    var index = (quill.getSelection() || {}).index || quill.getLength();
-    //    if (index) {
-    //      quill.insertEmbed(index, 'image', '/i/' + data.imgIdEnc, 'user');
-    //    } else {
-    //      console.log({
-    //        code: xhr.status,
-    //        type: xhr.statusText,
-    //        body: xhr.responseText
-    //      });
-    //    }
-    //  };
-    //}
-
-    //xhr.send(fd);
   }
 
   // configure toolbar
@@ -256,12 +236,16 @@ export function makeQuillComment(options) {
       .catch((error) => {
         if (error instanceof Error) {
           hideCommentLoadingById('s' + options.uid);
-          Swal.fire("Error", `Error submitting comment: ${error.message}`, "error");
+          getSwal().then(({ default: Swal }) => {
+            Swal.fire("Error", `Error submitting comment: ${error.message}`, "error");
+          });
         }
         else {
           error.json().then(data => {
             hideCommentLoadingById('s' + options.uid);
-            Swal.fire("Error", `Error submitting comment: ${data.message}`, "error");
+            getSwal().then(({ default: Swal }) => {
+              Swal.fire("Error", `Error submitting comment: ${data.message}`, "error");
+            });
           })
         }
       })

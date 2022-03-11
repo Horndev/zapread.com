@@ -1,18 +1,11 @@
 ﻿/**
  * Handle invoicepayment being received
  * 
- * [✓] Native JS
  **/
-
-import { updateuserbalance } from '../ui/updateuserbalance'         // [✓]
-import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
-import { updateUserInfo } from '../userInfo';
 
 /**
  * Handle notification that an invoice was paid for either an 
  * anonymous vote action, or deposit.
- * 
- * [✓] Native JS implementation
  *
  * @param {string} invoice The invoice string
  * @param {string} balance New user's balance (if deposit)
@@ -38,21 +31,6 @@ export async function oninvoicepaid(invoice, balance, txid) {
   });
   document.dispatchEvent(event);
   console.log('dispached: ' + eventName, txid)
-
-  //await updateuserbalance(); // update UI
-}
-
-/**
- * [✓]
- **/
-function hidePaymentModal() {
-  if (Object.prototype.hasOwnProperty.call(document.getElementById('paymentsModal'), "Modal")) {
-    document.getElementById('paymentsModal').Modal.hide();
-  } else {
-    var ModalEl = document.getElementById('paymentsModal');
-    var ModalObj = new Modal(ModalEl);//.Modal;
-    ModalObj.hide();
-  }
 }
 
 function isDeposit(invoice) {

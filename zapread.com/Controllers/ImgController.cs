@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using ImageMagick;
+using Microsoft.AspNet.Identity;
 using QRCoder;
 using System;
 using System.Data.Entity;
@@ -511,44 +512,58 @@ namespace zapread.com.Controllers
                 if (file.ContentLength > 0)
                 {
                     string _FileName = Path.GetFileName(file.FileName);
-                    MemoryStream ms = new MemoryStream();
 
                     Image img = Image.FromStream(file.InputStream);
 
                     byte[] data;
                     string contentType = "image/jpeg";
-                    if (img.RawFormat.Equals(ImageFormat.Gif))
-                    {
-                        contentType = "image/gif";
-                    }
-                    else
-                    {
-
-                    }
 
                     int maxwidth = 720;
 
-                    if (img.Width > maxwidth)
+                    if (img.RawFormat.Equals(ImageFormat.Gif))
                     {
-                        // rescale if too large for post
-                        var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
-                        Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale));
-                       
-                        if (img.RawFormat.Equals(ImageFormat.Gif))
-                        {
-                            data = thumb.ToByteArray(ImageFormat.Gif);
-                        }
-                        else
-                        {
-                            data = thumb.ToByteArray(ImageFormat.Jpeg);
-                        }
-                    }
-                    else
-                    {
+                        maxwidth = 200;
+                        contentType = "image/gif";
                         
-                        if (img.RawFormat.Equals(ImageFormat.Gif))
+                        ImageMagick.ResourceLimits.LimitMemory(new Percentage(10)); // Don't go wild here!
+
+                        // based on https://github.com/dlemstra/Magick.NET/blob/main/docs/ResizeImage.md
+                        using (var collection = new MagickImageCollection(img.ToByteArray(ImageFormat.Gif)))
                         {
-                            data = img.ToByteArray(ImageFormat.Gif);
+                            // This will remove the optimization and change the image to how it looks at that point
+                            // during the animation. More info here: http://www.imagemagick.org/Usage/anim_basics/#coalesce
+                            collection.Coalesce();
+
+                            // Resize each image in the collection. When zero is specified for the height
+                            // the height will be calculated with the aspect ratio.
+                            if (img.Width > maxwidth)
+                            {
+                                foreach (var image in collection)
+                                {
+                                    image.Resize(maxwidth, 0);
+                                }
+                            }
+
+                            collection.Optimize();
+
+                            // stream from ImageMagick to System.Drawing
+                            using (var ms = new MemoryStream())
+                            {
+                                collection.Write(ms);
+                                Image resizedGif = Image.FromStream(ms);
+                                data = resizedGif.ToByteArray(ImageFormat.Gif);
+                            }
+                        }
+                    } 
+                    else // not gif
+                    {
+                        if (img.Width > maxwidth)
+                        {
+                            // rescale if too large for post
+                            var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
+                            Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale));
+
+                            data = thumb.ToByteArray(ImageFormat.Jpeg);
                         }
                         else
                         {
@@ -560,6 +575,11 @@ namespace zapread.com.Controllers
                         Image = data,
                         ContentType = contentType,
                     };
+
+                    if (userId != null)
+                    {
+                        i.UserAppId = userId;
+                    }
 
                     db.Images.Add(i);
                     db.SaveChanges();

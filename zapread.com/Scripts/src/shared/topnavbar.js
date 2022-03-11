@@ -10,11 +10,18 @@ const getDepositWithdrawModal = () => import("../Components/DepositWithdrawModal
 import React from "react";
 import ReactDOM from "react-dom";
 import UserBalance from "../Components/UserBalance";
+import ZapreadSearch from "../Components/ZapreadSearch";
 
 /* Vote Modal Component */
 var userBalanceEl = document.getElementById("topUserBalance");
 if (userBalanceEl != null) {
   ReactDOM.render(<UserBalance />, userBalanceEl);
+}
+
+/* Top Search */
+var searchEl = document.getElementById("ZRSearch");
+if (searchEl != null) {
+  ReactDOM.render(<ZapreadSearch />, searchEl);
 }
 
 var DepositModalLoaded = false;

@@ -1,0 +1,23 @@
+﻿
+
+.ZRSearch {
+    margin-right: 10px;
+}
+
+.zr-search-icon-stack {
+    height: 1em;
+    line-height: 1em;
+    width: 1em;
+}
+
+#input-group-dropdown-search {
+    padding: 6px;
+}
+
+.zr-search-icon-1 {
+    font-size: 22px;
+}
+
+.zr-search-icon-2 {
+    font-size: 16px;
+}
