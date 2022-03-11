@@ -17,10 +17,12 @@ import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
 
-Quill.register('modules/imageUpload', ImageUpload);
-Quill.register('modules/autoLinks', AutoLinks);
-Quill.register('modules/imageResize', ImageResize);
-Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
+Quill.register({
+  'modules/imageUpload': ImageUpload,
+  'modules/autoLinks': AutoLinks,
+  'modules/imageResize': ImageResize,
+  'modules/imageDropAndPaste': QuillImageDropAndPaste
+}, true); // import with warning suppression (i.e. overwriting existing function)
 
 var Image = Quill.import('formats/image');
 Image.className = 'img-post';

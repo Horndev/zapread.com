@@ -60,7 +60,7 @@
                                 <i class="fa-solid fa-chevron-up fa-lg"> </i>
                             </a>
                             <div id="sVotec_@Model.CommentId">@Model.Score</div>
-                            <a href="#/" data-commentid="@Model.CommentId" class="@(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
+                            <a href="#/" data-commentid="@Model.CommentId" class="vote-comment-dn @(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
                                 <i class="fa-solid fa-chevron-down fa-lg"> </i>
                             </a>
                         </div>

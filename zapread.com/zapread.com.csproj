@@ -1077,9 +1077,9 @@
     <Content Include="Scripts\dist\0\3652.js" />
     <Content Include="Scripts\dist\0\3780.css" />
     <Content Include="Scripts\dist\0\3780.js" />
-    <Content Include="Scripts\dist\0\4007.js" />
-    <Content Include="Scripts\dist\0\4007.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\4351.js" />
+    <Content Include="Scripts\dist\0\4791.js" />
+    <Content Include="Scripts\dist\0\4791.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\4833.css" />
     <Content Include="Scripts\dist\0\4833.js" />
     <Content Include="Scripts\dist\0\5088.js" />
@@ -1093,8 +1093,6 @@
     <Content Include="Scripts\dist\0\6466.js" />
     <Content Include="Scripts\dist\0\6466.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\6476.js" />
-    <Content Include="Scripts\dist\0\6708.js" />
-    <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
     <Content Include="Scripts\dist\0\8135.js" />
@@ -1102,8 +1100,6 @@
     <Content Include="Scripts\dist\0\8338.js" />
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9407.js" />
-    <Content Include="Scripts\dist\0\9533.js" />
-    <Content Include="Scripts\dist\0\9533.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\9844.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
@@ -1220,8 +1216,11 @@
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
+    <Content Include="Scripts\src\Components\ZapreadSearch.js" />
+    <Content Include="Scripts\src\Components\ZapreadSearchResultModal.js" />
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
+    <Content Include="Scripts\src\css\components\zrsearch.css" />
     <Content Include="Scripts\src\css\pages\manage\manage.css" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
@@ -1325,8 +1324,8 @@
     <Content Include="Scripts\dist\0\3652.js.map" />
     <Content Include="Scripts\dist\0\3780.css.map" />
     <Content Include="Scripts\dist\0\3780.js.map" />
-    <Content Include="Scripts\dist\0\4007.js.map" />
     <Content Include="Scripts\dist\0\4351.js.map" />
+    <Content Include="Scripts\dist\0\4791.js.map" />
     <Content Include="Scripts\dist\0\4833.css.map" />
     <Content Include="Scripts\dist\0\4833.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
@@ -1339,8 +1338,6 @@
     <Content Include="Scripts\dist\0\6024.js.map" />
     <Content Include="Scripts\dist\0\6466.js.map" />
     <Content Include="Scripts\dist\0\6476.js.map" />
-    <Content Include="Scripts\dist\0\6708.js.map" />
-    <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
@@ -1348,7 +1345,6 @@
     <Content Include="Scripts\dist\0\8338.js.map" />
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9407.js.map" />
-    <Content Include="Scripts\dist\0\9533.js.map" />
     <Content Include="Scripts\dist\0\9844.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />

@@ -62,7 +62,9 @@ export function onLoadedMorePosts() {
   // activate dropdown (done manually using bootstrap.native)
   elements = document.querySelectorAll(".dropdown-toggle");
   Array.prototype.forEach.call(elements, function (el, _i) {
-    var dropdownInit = new Dropdown(el);
+    if (el.id != 'input-group-dropdown-search') { // This is because this one is managed by React not bsn
+      var dropdownInit = new Dropdown(el);
+    }
   });
 
   // show the read more
