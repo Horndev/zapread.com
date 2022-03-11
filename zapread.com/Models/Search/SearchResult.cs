@@ -5,7 +5,6 @@ using System.Web;
 
 namespace zapread.com.Models.Search
 {
-
     /// <summary>
     /// 
     /// </summary>
