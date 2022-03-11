@@ -21,3 +21,28 @@
 .zr-search-icon-2 {
     font-size: 16px;
 }
+
+.zr-search-hover {
+    border: 1px solid transparent;
+    padding: 10px;
+}
+
+    .zr-search-hover:hover {
+        border: 1px solid;
+        border-color: #1ab394;
+        background-color: #1ab39405;
+        cursor: pointer;
+    }
+
+.zr-search-preview {
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.zr-search-hr {
+    border-top: 1px dashed #e7eaec;
+    color: #ffffff;
+    background-color: #ffffff;
+    height: 1px;
+    margin: 5px 0;
+}
