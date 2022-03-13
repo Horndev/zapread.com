@@ -1,10 +1,8 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.SqlServer;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -13,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -28,7 +25,7 @@ using zapread.com.Services;
 namespace zapread.com.Controllers
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class HomeController : Controller
     {
@@ -64,7 +61,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
@@ -139,12 +136,14 @@ namespace zapread.com.Controllers
                         {
                             Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                             byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                            UserImage img = new UserImage() {
+                            UserImage img = new UserImage()
+                            {
                                 ContentType = "image/png",
                                 Image = DBdata,
                                 XSize = 1024,
                                 YSize = 1024,
-                                Version = user.ProfileImage.Version + 1};
+                                Version = user.ProfileImage.Version + 1
+                            };
                             user.ProfileImage = img;
                             await db.SaveChangesAsync().ConfigureAwait(false);
                             return Json(new { success = true, version = img.Version });
@@ -238,13 +237,13 @@ namespace zapread.com.Controllers
                     var uimq = db.Users.Where(u => u.AppId == UserId);
 
                     //if (ver > -1)
-                    //{ 
+                    //{
                     //    uimq = uimq.Where(u => u.ProfileImage.Version == ver);
                     //}
 
                     // This is the most recent (current) user image
                     i = await uimq
-                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType, u.ProfileImage.Version})
+                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType, u.ProfileImage.Version })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -353,24 +352,26 @@ namespace zapread.com.Controllers
                         postquery = QueryHelpers.OrderPostsByScore(validposts);
                         //var numvalidposts = postquery.Count();
                         break;
+
                     case "Active":
                         postquery = QueryHelpers.OrderPostsByActive(validposts);
                         break;
+
                     default:
                         postquery = QueryHelpers.OrderPostsByNew(validposts);
                         break;
                 }
 
                 return await QueryHelpers.QueryPostsVm(
-                    start: start, 
-                    count: count, 
-                    postquery: postquery, 
+                    start: start,
+                    count: count,
+                    postquery: postquery,
                     userInfo: userInfo).ConfigureAwait(true);
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="db"></param>
         /// <param name="sort"></param>
@@ -447,16 +448,18 @@ namespace zapread.com.Controllers
             }
 
             IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
-                userLanguages: userLanguages, 
-                db: db, 
+                userLanguages: userLanguages,
+                db: db,
                 userInfo: userInfo);
 
             switch (sort)
             {
                 case "Score":
                     return QueryHelpers.OrderPostsByScore(validposts);
+
                 case "Active":
                     return QueryHelpers.OrderPostsByActive(validposts);
+
                 default:
                     return QueryHelpers.OrderPostsByNew(validposts);
             }
@@ -522,7 +525,6 @@ namespace zapread.com.Controllers
                         SpendingEvents = new List<SpendingEvent>(),
                     });
 
-                    
                     db.SaveChanges();
                 }
 
@@ -545,7 +547,7 @@ namespace zapread.com.Controllers
                     });
                     db.SaveChanges();
                 }
-                
+
                 return View();
             }
         }
@@ -587,7 +589,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -615,10 +617,10 @@ namespace zapread.com.Controllers
                  */
 
                 var res = db.Comments
-                    .SqlQuery("SELECT TOP 100 i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  "+
-                    "FROM freetexttable(Comment, Text, @q) as i "+
-                    "inner join Comment a "+
-                    "on i.[key] = a.[CommentId] "+
+                    .SqlQuery("SELECT TOP 100 i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  " +
+                    "FROM freetexttable(Comment, Text, @q) as i " +
+                    "inner join Comment a " +
+                    "on i.[key] = a.[CommentId] " +
                     "WHERE a.IsDeleted=0 " +
                     "order by i.rank desc", new SqlParameter("@q", str))
                     .ToList();
@@ -640,7 +642,7 @@ namespace zapread.com.Controllers
                         CommentScore = c.Score,
                         TimeStamp = c.TimeStamp,
                         AuthorName = c.UserId.Name,
-                        GroupName = c.Post.Group != null ? c.Post.Group.GroupName: "Community"
+                        GroupName = c.Post.Group != null ? c.Post.Group.GroupName : "Community"
                     })
                     .ToList();
 
@@ -652,7 +654,7 @@ namespace zapread.com.Controllers
                     "FROM freetexttable(Post, Content, @q) as i " +
                     "inner join Post a " +
                     "on i.[key] = a.[PostId] " +
-                    "WHERE a.IsDeleted=0 AND a.IsDraft>0 " + 
+                    "WHERE a.IsDeleted=0 AND a.IsDraft=0 " +
                     "order by i.rank desc", new SqlParameter("@q", str))
                     .ToList();
 
@@ -675,7 +677,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -692,16 +694,16 @@ namespace zapread.com.Controllers
                     return Json(new { success = false });
                 }
 
-                return Json(new 
-                { 
-                    success = true, 
-                    community=Convert.ToInt32(website.CommunityEarnedToDistribute),
+                return Json(new
+                {
+                    success = true,
+                    community = Convert.ToInt32(website.CommunityEarnedToDistribute),
                 }, JsonRequestBehavior.AllowGet);
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sort"></param>
         /// <returns></returns>
@@ -776,16 +778,16 @@ namespace zapread.com.Controllers
                             contentStr = PostsHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
                         }
                     }
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
-
                 }
                 return Json(new { success = true, HTMLString = contentStr }, JsonRequestBehavior.AllowGet);
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sort">Score, New</param>
         /// <param name="l"></param>
@@ -874,7 +876,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -914,11 +916,12 @@ namespace zapread.com.Controllers
                 .AsNoTracking()
                 .ToListAsync();
             }
-            
+
             return db.Users.Where(u => u.AppId == userAppId)
                 .SelectMany(u => u.Groups)
                 .OrderByDescending(g => g.TotalEarned)
-                .Select(g => new GroupInfo() {
+                .Select(g => new GroupInfo()
+                {
                     Id = g.GroupId,
                     IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
                     IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
@@ -1048,14 +1051,14 @@ namespace zapread.com.Controllers
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
 
                 var postquery = await GetPostsQuery(
-                    db: db, 
-                    sort: sort, 
+                    db: db,
+                    sort: sort,
                     userAppId: userAppId).ConfigureAwait(true);
 
                 var postsVm = await QueryHelpers.QueryPostsVm(
-                    start: BlockNumber, 
-                    count: BlockSize, 
-                    postquery: postquery, 
+                    start: BlockNumber,
+                    count: BlockSize,
+                    postquery: postquery,
                     userInfo: new QueryHelpers.PostQueryUserInfo()
                     {
                         Id = user == null ? 0 : user.Id,
@@ -1082,7 +1085,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="viewName"></param>
         /// <param name="model"></param>
@@ -1119,7 +1122,7 @@ namespace zapread.com.Controllers
          */
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="loc"></param>
@@ -1151,7 +1154,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -1172,7 +1175,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1183,7 +1186,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1195,7 +1198,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1206,7 +1209,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -1218,7 +1221,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [HttpGet]

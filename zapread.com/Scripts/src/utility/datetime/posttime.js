@@ -6,7 +6,7 @@
 
 import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';
 
-export function updatePostTimesOnEl(e, tzAdj = true) {
+export async function updatePostTimesOnEl(e, tzAdj = true) {
   if (tzAdj == undefined) { tzAdj = true; }
   var elements = e.querySelectorAll(".postTime");
   Array.prototype.forEach.call(elements, function (el, _i) {
@@ -23,8 +23,8 @@ export function updatePostTimesOnEl(e, tzAdj = true) {
   });
 }
 
-export function updatePostTimes() {
-  updatePostTimesOnEl(document);
+export async function updatePostTimes() {
+  await updatePostTimesOnEl(document);
 }
 
 /**

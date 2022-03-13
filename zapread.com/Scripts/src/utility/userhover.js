@@ -12,7 +12,7 @@ import { follow } from './ui/follow';               // [✓]
 // Save to window globals (part of the user hover)
 window.follow = follow;
 
-export function applyHoverToChildren(el, selector) {
+export async function applyHoverToChildren(el, selector) {
   var elements = el.querySelectorAll(selector);
   Array.prototype.forEach.call(elements, function (el, _i) {
     loaduserhover(el);

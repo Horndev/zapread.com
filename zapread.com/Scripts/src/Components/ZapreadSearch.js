@@ -56,7 +56,7 @@ export default function ZapreadSearch(props) {
             }}
           />
           <InputGroup.Append>
-            <Button variant="outline-primary" onClick={ handleSearch }>
+            <Button variant="outline-primary" onClick={handleSearch} className="zr-search-button">
               <i className="fa-solid fa-note-sticky" style={searchType == "post" ? {} : { display: "none" }}></i>
               <i className="fa-solid fa-user" style={searchType == "user" ? {} : { display: "none" }}></i>
               <i className="fa-solid fa-magnifying-glass" style={searchType == "all" ? {} : { display: "none" }}></i>

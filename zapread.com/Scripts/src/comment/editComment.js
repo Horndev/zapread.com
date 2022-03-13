@@ -9,7 +9,6 @@ import { updatePostTimes } from '../utility/datetime/posttime';         // [✓]
 const getMakeQuillComment = () => import('./utility/makeQuillComment');
 import { makeCommentsQuotable } from '../utility/quotable/quotable';    // [✓]
 
-var editingId;
 var isEditing = false;
 var initialHTML;
 /* exported editComment */

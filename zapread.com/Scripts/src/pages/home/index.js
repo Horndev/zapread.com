@@ -2,6 +2,9 @@
  * This is the main landing page for ZapRead
  **/
 
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
+import '../../css/posts.css'
 import '../../shared/shared';
 import '../../utility/ui/vote';
 import '../../realtime/signalr';
@@ -13,6 +16,11 @@ const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
 import { getJson } from "../../utility/getData";
 import React from "react";
 import ReactDOM from "react-dom";
+const getTippy = () => import('tippy.js');
+import '../../shared/postfunctions';
+import '../../shared/readmore';
+import '../../shared/postui';
+import '../../shared/sharedlast';
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {
@@ -20,18 +28,6 @@ getVoteModal().then(({ default: VoteModal }) => {
   const event = new Event('voteReady');
   document.dispatchEvent(event);
 });
-
-import '../../css/Site.css';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/light-border.css';
-import '../../css/posts.css'
-const getTippy = () => import('tippy.js');
-import '../../shared/postfunctions';
-import '../../shared/readmore';
-import '../../shared/postui';
-import '../../shared/sharedlast';
-
-//import { vote } from '../../utility/ui/vote';
 
 // Make global (called from html)
 import('../../comment/writecomment').then(({ writeComment }) => {
