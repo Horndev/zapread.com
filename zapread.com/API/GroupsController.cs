@@ -13,6 +13,7 @@ using System.Globalization;
 using zapread.com.Models.API.Groups;
 using System.Web.Http;
 using zapread.com.Helpers;
+using HtmlAgilityPack;
 
 namespace zapread.com.API
 {
@@ -245,15 +246,9 @@ namespace zapread.com.API
 
             int BlockNumber = req.blockNumber ?? 0;
 
-            var userAppId = User.Identity.GetUserId();
-
             using (var db = new ZapContext())
             {
-                //var user = await db.Users
-                //    .AsNoTracking()
-                //    .FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
-
-                //int userId = user == null ? 0 : user.Id;
+                var userAppId = User.Identity.GetUserId();
 
                 var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
                     .Select(u => new QueryHelpers.PostQueryUserInfo()
@@ -265,19 +260,37 @@ namespace zapread.com.API
                     })
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
 
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(null, db,
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
+                    userLanguages: null, 
+                    db: db,
                     userInfo: userInfo);
 
                 var groupPosts = QueryHelpers.OrderPostsByNew(validposts, req.groupId, true);
 
+                var postsVm = await QueryHelpers.QueryPostsVm(
+                        start: BlockNumber * BlockSize,
+                        count: BlockSize,
+                        postquery: groupPosts,
+                        userInfo: userInfo).ConfigureAwait(true);
+
+                // Make images lazy TODO: apply this when submitting new posts
+                postsVm.ForEach(post =>
+                {
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(post.Content);
+
+                    var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
+                    foreach (var postImage in postImages)
+                    {
+                        postImage.SetAttributeValue("loading", "lazy");
+                    }
+                    post.Content = postDocument.DocumentNode.OuterHtml;
+                });
+
                 var response = new GetGroupPostsResponse()
                 {
-                    HasMorePosts = groupPosts.Count() >= 10,
-                    Posts = await QueryHelpers.QueryPostsVm(
-                        start: BlockNumber*BlockSize, 
-                        count: BlockSize, 
-                        postquery: groupPosts, 
-                        userInfo: userInfo).ConfigureAwait(true),
+                    HasMorePosts = groupPosts.Count() >= BlockNumber*BlockSize,
+                    Posts = postsVm,
                     success = true,
                 };
 
