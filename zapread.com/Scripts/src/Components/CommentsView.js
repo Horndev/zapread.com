@@ -5,14 +5,14 @@
 import React, { useCallback, useEffect, useState, createRef } from "react";
 import { Container, Row, Col, ButtonGroup, Button, Dropdown } from "react-bootstrap";
 
-import { toggleComment } from "../shared/postui";               // [✓]
-import { replyComment } from "../comment/replycomment";         // [✓]
-import { ready } from '../utility/ready';                       // [✓]
-import { updatePostTimes } from '../utility/datetime/posttime'; // [✓]
-import { editComment } from "./editcomment";                    // [✓]
-import { deleteComment } from "../shared/postfunctions";        // [✓]
-import { makeQuotable } from "../utility/quotable/quotable";    // [✓]
-import { applyHoverToChildren } from '../utility/userhover';             // [✓]
+import { toggleComment } from "../shared/postui";
+import { replyComment } from "../comment/replycomment";
+import { ready } from '../utility/ready';
+import { editComment } from "../comment/editcomment";
+import { deleteComment } from "../shared/postfunctions";
+import { makeQuotable } from "../utility/quotable/quotable";
+import { applyHoverToChildren } from '../utility/userhover';
+import { ISOtoRelative } from "../utility/datetime/posttime"
 
 import '../css/posts.css'
 
@@ -48,7 +48,7 @@ function Comment(props) {
         var commentRootElement = commentRootRef.current;
 
         ready(function () {
-          updatePostTimes();  // --- relative times
+          //updatePostTimes();  // --- relative times
 
           makeQuotable(commentElement, false);
           commentElement.classList.remove("comment-quotable");
@@ -83,7 +83,6 @@ function Comment(props) {
               <a id={"cid_" + props.comment.CommentId}></a>
               <Dropdown
                 className="pull-right social-action"
-                style={props.comment.IsReply ? { left: "15px" } : {}}
                 id={"menu_comment_" + props.comment.CommentId}>
                 <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white"></Dropdown.Toggle>
                 <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right ift-xs">
@@ -134,63 +133,62 @@ function Comment(props) {
             </>) : (<></>)}
           <div className={props.comment.IsReply ? "social-footer-reply" : "social-footer"}>
             <div className={props.comment.IsReply ? "" : "social-comment"} style={props.comment.IsDeleted ? { minHeight: "1px" } : {}}>
-              {props.comment.IsDeleted ? (<>
-                {/* Don't show score for deleted comments */ }
-              </>) : (
-                <div className="vote-actions" style={isIgnoredUser ? { display: none } : {}}>
-                  <a role="button" onClick={() => {
-                      const event = new CustomEvent('vote', {
-                        detail: {
-                          direction: 'up',
-                          type: 'comment',
-                          id: props.comment.CommentId,
-                          target: upVoteRef.current
-                        }
-                      });
-                      document.dispatchEvent(event);
-                    }}
-                    className={props.comment.ViewerUpvoted ? "" : "text-muted"} id={"uVotec_" + props.comment.CommentId}>
-                      <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
-                  </a>
-                  <div id={"sVotec_" + props.comment.CommentId}>
-                    {props.comment.Score}
-                  </div>
-                  <a role="button" style={{ position: "relative", zIndex: 1 }} onClick={() => {
+              <div style={{ marginLeft: "22px", marginBottom: "5px"}}>
+                {props.comment.IsDeleted ? (<>
+                  {/* Don't show score for deleted comments */ }
+                </>) : (
+                  <div className="vote-actions" style={isIgnoredUser ? { display: none } : { position: "relative" }}>
+                    <a role="button" onClick={() => {
                         const event = new CustomEvent('vote', {
                           detail: {
-                            direction: 'down',
+                            direction: 'up',
                             type: 'comment',
                             id: props.comment.CommentId,
-                            target: downVoteRef.current
+                            target: upVoteRef.current
                           }
                         });
                         document.dispatchEvent(event);
-                    }}
-                    className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
-                      <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
-                  </a>
-                </div>
-              )}
-
-              {props.comment.IsDeleted || isIgnoredUser ? (<></>) : (<>
-                <a href={"/User/" + encodeURIComponent(props.comment.UserName) + "/"}>
-                  <img className={
-                    "img-circle user-image-30"
-                  } loading="lazy" width="30" height="30" src={
-                    "/Home/UserImage/?size=30&UserId=" + encodeURIComponent(props.comment.UserAppId) + "&v=" + props.comment.ProfileImageVersion
-                  } style={{ marginBottom: "16px", marginTop: "8px" }} />
-                </a>
-              </>)}
-
-              <div className="media-body" style={{ display: "inline" }}>
-                {props.comment.IsDeleted ? (<>&nbsp;deleted&nbsp;</>) : (
-                  <>
-                    <a className="post-username userhint" data-userid={props.comment.UserId} data-userappid={props.comment.UserAppId} href={
-                      "/User/" + encodeURIComponent(props.comment.UserName) + "/"
-                    }>
-                      {props.comment.isIgnoredUser ? (<>&nbsp;(Ignored)&nbsp;</>) : (<>&nbsp;{props.comment.UserName}&nbsp;</>)}
+                      }}
+                      className={props.comment.ViewerUpvoted ? "" : "text-muted"} id={"uVotec_" + props.comment.CommentId}>
+                        <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
                     </a>
-                  </>)}
+                    <div id={"sVotec_" + props.comment.CommentId}>
+                      {props.comment.Score}
+                    </div>
+                    <a role="button" style={{ position: "relative", zIndex: 1 }} onClick={() => {
+                          const event = new CustomEvent('vote', {
+                            detail: {
+                              direction: 'down',
+                              type: 'comment',
+                              id: props.comment.CommentId,
+                              target: downVoteRef.current
+                            }
+                          });
+                          document.dispatchEvent(event);
+                      }}
+                      className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
+                        <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
+                    </a>
+                  </div>
+                )}
+
+                {props.comment.IsDeleted || isIgnoredUser ? (<></>) : (<>
+                  <a href={"/User/" + encodeURIComponent(props.comment.UserName) + "/"}>
+                    <img className={
+                      "img-circle user-image-30"
+                    } loading="lazy" width="30" height="30" src={
+                      "/Home/UserImage/?size=30&UserId=" + encodeURIComponent(props.comment.UserAppId) + "&v=" + props.comment.ProfileImageVersion
+                    } style={{ marginBottom: "16px", marginTop: "8px" }} />
+                  </a>
+                </>)}
+
+                {props.comment.IsDeleted ? (<>&nbsp;deleted&nbsp;</>) : (<>
+                  <a className="post-username userhint" data-userid={props.comment.UserId} data-userappid={props.comment.UserAppId} href={
+                    "/User/" + encodeURIComponent(props.comment.UserName) + "/"
+                  }>
+                    {props.comment.isIgnoredUser ? (<>&nbsp;(Ignored)&nbsp;</>) : (<>&nbsp;{props.comment.UserName}&nbsp;</>)}
+                  </a>
+                </>)}
 
                 <small style={{ display: "inline-block" }}>
                   {" "}-{" "}
@@ -208,31 +206,37 @@ function Comment(props) {
                       &nbsp;commented&nbsp;
                     </>)}
                 </small>
-                <small className="postTime text-muted">{props.comment.TimeStamp}</small>
+
+                <small className="text-muted">{ISOtoRelative(props.comment.TimeStamp)}</small>
                 {props.comment.TimeStampEdited != null ? (
                   <>
                     <span className="text-muted" style={{ display: "inline" }}>&nbsp;edited&nbsp;</span>
-                    <small className="postTime text-muted" style={{ display: "inline" }}>{props.comment.TimeStampEdited}</small>
+                    <small className="text-muted" style={{ display: "inline" }}>{ISOtoRelative(props.comment.TimeStampEdited)}</small>
                   </>) : (<></>)}
-                <div className="row">
-                  <div className="col">
-                    <div className="ql-comment post-comment comment-quotable"
-                      ref={commentTextRef}
-                      id={"commentText_" + props.comment.CommentId}
-                      style={{ position: "relative" }}
-                      data-postid={props.comment.PostId}
-                      data-commentid={props.comment.CommentId}>
-                      {isIgnoredUser ? (<><span><br /></span></>) : (
-                        <>
-                          {props.comment.IsDeleted ? (<></>) : (<div dangerouslySetInnerHTML={{ __html: props.comment.Text }} />)}
-                        </>)}
-                    </div>
+
+              </div>
+
+              <div className="media-body" style={{ display: "inline" }}>
+                <div style={{paddingLeft: "4px"}}>
+                  <div className="ql-comment post-comment comment-quotable"
+                    ref={commentTextRef}
+                    id={"commentText_" + props.comment.CommentId}
+                    style={{ position: "relative" }}
+                    data-postid={props.comment.PostId}
+                    data-commentid={props.comment.CommentId}>
+                    {isIgnoredUser ? (<><span><br /></span></>) : (
+                      <>
+                        {props.comment.IsDeleted ? (<></>) : (
+                          <div style={{ padding: "0px 18px 0px 18px"}}
+                            dangerouslySetInnerHTML={{ __html: props.comment.Text }} />
+                        )}
+                      </>)}
                   </div>
                 </div>
               </div>
 
               {props.isLoggedIn && !props.comment.IsDeleted ? (
-                <div style={{ position: "relative", marginLeft: "8px", top: "-25px", height: "0px" }}>
+                <div style={{ position: "relative", left: "12px", top: "-20px", height: "6px" }}>
                   <a role="button" onClick={
                     () => {
                       replyComment(props.comment.CommentId, props.comment.PostId);
@@ -298,24 +302,20 @@ export default function CommentsView(props) {
 
   return (
     <>
-
       {comments.length > 0 ? (
         <>
           {commentsToRender.map((cmt, index) => (
             <Comment key={cmt.CommentId.toString()} comment={cmt} comments={props.comments} nestLevel={1} startVisible={true} isLoggedIn={props.isLoggedIn} />
           ))}
-
           {hasMoreComments ? (<><br />More comments</>) : (<></>)}
         </>
       ) : (<></>)}
 
       {/* new comments appear below this line */}
       <div className="insertComments" id={"mc_" + postId}></div>
-
       {
         // <div onClick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div>
       }
-
     </>
   );
 }

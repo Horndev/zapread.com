@@ -1212,7 +1212,7 @@
     <Content Include="Scripts\dist\user\index.css" />
     <Content Include="Scripts\dist\user\index.js" />
     <Content Include="Scripts\dist\user\index.js.LICENSE.txt" />
-    <Content Include="Scripts\src\comment\CommentsView.js" />
+    <Content Include="Scripts\src\Components\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />

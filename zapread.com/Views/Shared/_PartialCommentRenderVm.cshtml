@@ -85,7 +85,8 @@
                     @if (!isIgnoredUser && !Model.IsDeleted)
                     {
                         <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName.Trim() })">
-                            <img class="img-circle@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-30":"")" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" style="margin-bottom: 16px;margin-top: 8px;" />
+                            <img class="img-circle@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-30":"")" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" 
+                                 style="margin-bottom: 16px;margin-top: 8px;" />
                         </a>
                     }
                     @if (Model.IsDeleted)
@@ -96,6 +97,7 @@
                     {
                         @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = isIgnoredUser })
                     }
+
                     <small style="display: inline-block;">
                         -@if (Model.IsReply)
                         {<text> replied to <a class="userhint" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
@@ -109,9 +111,9 @@
                     }
                 </div>
                 <div class="media-body" style="display:inline;">
-                    
                     <div style="padding-left: 4px;">
-                        <div class="ql-comment post-comment comment-quotable" id="commentText_@Model.CommentId" data-postid="@Model.PostId" data-commentid="@Model.CommentId">
+                        <div class="ql-comment post-comment comment-quotable" id="commentText_@Model.CommentId" 
+                             data-postid="@Model.PostId" data-commentid="@Model.CommentId">
                             @if (isIgnoredUser)
                             {
                                 <span><br /></span>

@@ -13,7 +13,7 @@ import { setPostLanguage, nsfwPost, stickyPost } from "../shared/postfunctions";
 import { makeQuotable } from "../utility/quotable/quotable";
 import { ISOtoRelative } from "../utility/datetime/posttime"
 import PostVoteButtons from "./PostVoteButtons";
-const CommentsView = React.lazy(() => import("../comment/CommentsView"));
+const CommentsView = React.lazy(() => import("./CommentsView"));
 
 export default function PostView(props) {
   const [post, setPost] = useState(props.post);
@@ -295,7 +295,7 @@ export default function PostView(props) {
           </>
         ) : (<></>)}
 
-        <div className="social-comment-box" id={"comments_" + post.PostId}>
+        <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
           <Suspense fallback={<></>}>
             <CommentsView comments={post.CommentVms} isLoggedIn={props.isLoggedIn} postId={post.PostId} />
           </Suspense>
