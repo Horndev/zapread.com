@@ -136,11 +136,11 @@ function Comment(props) {
                       </button>
                     </Dropdown.Item>
                   </>) : (<></>)}
-                  <Dropdown.Item as="li" >
-                    <button disabled className="btn btn-link btn-sm">
-                      CommentId: { props.comment.CommentId }
-                    </button>
-                  </Dropdown.Item>
+                  {/*<Dropdown.Item as="li" >*/}
+                  {/*  <button disabled className="btn btn-link btn-sm">*/}
+                  {/*    CommentId: { props.comment.CommentId }*/}
+                  {/*  </button>*/}
+                  {/*</Dropdown.Item>*/}
                 </Dropdown.Menu>
               </Dropdown>
             </>) : (<></>)}

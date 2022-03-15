@@ -10,11 +10,12 @@ const getMakeQuillComment = () => import('./utility/makeQuillComment');
 import { makeCommentsQuotable } from '../utility/quotable/quotable';    // [✓]
 
 var isEditing = false;
+//var editingId;
 var initialHTML;
 /* exported editComment */
 export function editComment(commentId) {
   if (!isEditing) {
-    editingId = commentId;
+    //editingId = commentId;
     isEditing = true;
     initialHTML = document.getElementById('commentText_' + commentId.toString()).innerHTML;
     console.log("edit " + commentId.toString());
