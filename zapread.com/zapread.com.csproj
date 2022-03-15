@@ -902,6 +902,8 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
@@ -1072,6 +1074,7 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\dist\0\1919.js" />
     <Content Include="Scripts\dist\0\2977.css" />
     <Content Include="Scripts\dist\0\2977.js" />
     <Content Include="Scripts\dist\0\3227.css" />
@@ -1085,9 +1088,13 @@
     <Content Include="Scripts\dist\0\4833.css" />
     <Content Include="Scripts\dist\0\4833.js" />
     <Content Include="Scripts\dist\0\5088.js" />
+    <Content Include="Scripts\dist\0\5213.css" />
+    <Content Include="Scripts\dist\0\5213.js" />
     <Content Include="Scripts\dist\0\5252.js" />
     <Content Include="Scripts\dist\0\5580.js" />
     <Content Include="Scripts\dist\0\5588.js" />
+    <Content Include="Scripts\dist\0\5727.css" />
+    <Content Include="Scripts\dist\0\5727.js" />
     <Content Include="Scripts\dist\0\5887.css" />
     <Content Include="Scripts\dist\0\5887.js" />
     <Content Include="Scripts\dist\0\6024.css" />
@@ -1101,8 +1108,10 @@
     <Content Include="Scripts\dist\0\8135.js" />
     <Content Include="Scripts\dist\0\8338.css" />
     <Content Include="Scripts\dist\0\8338.js" />
+    <Content Include="Scripts\dist\0\8759.js" />
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9407.js" />
+    <Content Include="Scripts\dist\0\9787.js" />
     <Content Include="Scripts\dist\0\9844.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
@@ -1212,11 +1221,12 @@
     <Content Include="Scripts\dist\user\index.css" />
     <Content Include="Scripts\dist\user\index.js" />
     <Content Include="Scripts\dist\user\index.js.LICENSE.txt" />
-    <Content Include="Scripts\src\comment\CommentsView.js" />
+    <Content Include="Scripts\src\Components\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
+    <Content Include="Scripts\src\Components\LoadingBounce.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
     <Content Include="Scripts\src\Components\ZapreadSearch.js" />
@@ -1320,6 +1330,7 @@
     <Content Include="Scripts\dist\home\index.js.map" />
     <Content Include="Scripts\dist\home\install.css.map" />
     <Content Include="Scripts\dist\home\install.js.map" />
+    <Content Include="Scripts\dist\0\1919.js.map" />
     <Content Include="Scripts\dist\0\2977.css.map" />
     <Content Include="Scripts\dist\0\2977.js.map" />
     <Content Include="Scripts\dist\0\3227.css.map" />
@@ -1332,9 +1343,13 @@
     <Content Include="Scripts\dist\0\4833.css.map" />
     <Content Include="Scripts\dist\0\4833.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
+    <Content Include="Scripts\dist\0\5213.css.map" />
+    <Content Include="Scripts\dist\0\5213.js.map" />
     <Content Include="Scripts\dist\0\5252.js.map" />
     <Content Include="Scripts\dist\0\5580.js.map" />
     <Content Include="Scripts\dist\0\5588.js.map" />
+    <Content Include="Scripts\dist\0\5727.css.map" />
+    <Content Include="Scripts\dist\0\5727.js.map" />
     <Content Include="Scripts\dist\0\5887.css.map" />
     <Content Include="Scripts\dist\0\5887.js.map" />
     <Content Include="Scripts\dist\0\6024.css.map" />
@@ -1347,8 +1362,10 @@
     <Content Include="Scripts\dist\0\8135.js.map" />
     <Content Include="Scripts\dist\0\8338.css.map" />
     <Content Include="Scripts\dist\0\8338.js.map" />
+    <Content Include="Scripts\dist\0\8759.js.map" />
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9407.js.map" />
+    <Content Include="Scripts\dist\0\9787.js.map" />
     <Content Include="Scripts\dist\0\9844.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
@@ -1466,10 +1483,10 @@
     <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
     <Content Include="Scripts\src\pages\post\Components\GroupPicker.js" />
     <Content Include="Scripts\src\Components\Input\Input.js" />
-    <Content Include="Scripts\src\pages\post\Components\PostAuthorName.js" />
-    <Content Include="Scripts\src\pages\post\Components\PostView.js" />
-    <Content Include="Scripts\src\pages\post\Components\PostList.js" />
-    <Content Include="Scripts\src\pages\post\Components\PostVoteButtons.js" />
+    <Content Include="Scripts\src\Components\PostAuthorName.js" />
+    <Content Include="Scripts\src\Components\PostView.js" />
+    <Content Include="Scripts\src\Components\PostList.js" />
+    <Content Include="Scripts\src\Components\PostVoteButtons.js" />
     <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\subscription\unsubscribe.js" />

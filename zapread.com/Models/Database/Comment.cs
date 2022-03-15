@@ -25,6 +25,7 @@ namespace zapread.com.Models.Database
         /// </summary>
         [InverseProperty("Replies")]
         public Comment Parent { get; set; }
+
         /// <summary>
         /// 
         /// </summary>

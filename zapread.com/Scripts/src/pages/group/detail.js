@@ -10,9 +10,10 @@ import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-ro
 import { postJson } from "../../utility/postData";
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
+import LoadingBounce from "../../Components/LoadingBounce";
 const GroupAdminBar = React.lazy(() => import("./Components/GroupAdminBar"));
 const GroupModBar = React.lazy(() => import("./Components/GroupModBar"));
-import PostList from "../post/Components/PostList";
+const PostList = React.lazy(() => import("../../Components/PostList"));
 const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
@@ -20,6 +21,12 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
+
+// Force prefetching code in parallel... (https://stackoverflow.com/questions/58687397/react-lazy-and-prefetching-components)
+//import("./Components/GroupAdminBar"); //
+//import("./Components/GroupModBar"); //
+import("../../Components/PostList");
+import("../../Components/VoteModal");
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -33,6 +40,7 @@ function Page() {
   const [groupEarned, setGroupEarned] = useState(0);
   const [numMembers, setNumMembers] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [postsLoaded, setPostsLoaded] = useState(false);
   const [isIgnoring, setIsIgnoring] = useState(false);
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [isGroupMod, setIsGroupMod] = useState(false);
@@ -68,6 +76,7 @@ function Page() {
         if (response.success) {
           var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
           setPosts(postlist);
+          setPostsLoaded(true);
           setHasMorePosts(response.HasMorePosts);
           if (response.HasMorePosts) {
             setPostBlockNumber(postBlockNumber + 1);
@@ -83,43 +92,47 @@ function Page() {
     }
   }
 
+  async function loadGroupInfo() {
+    if (pgroupId != null & pgroupId > 0 & !isLoaded) {
+      setGroupId(pgroupId);
+      await postJson("/api/v1/groups/load/", {
+        groupId: pgroupId
+      }).then((response) => {
+        if (response.success) {
+          window.document.title = response.group.Name + " " + response.group.ShortDescription;
+          setIsLoaded(true);
+          setGroupId(response.group.Id);
+          setgroupName(response.group.Name);
+          setgroupDescription(response.group.ShortDescription);
+          setImageId(response.group.IconId);
+          setNumMembers(response.group.NumMembers);
+          setIsGroupAdmin(response.group.IsAdmin);
+          setIsGroupMod(response.group.IsMod);
+          setIsGroupMember(response.group.IsMember);
+          setIsIgnoring(response.group.IsIgnoring);
+          setGroupTier(response.group.Level);
+          setGroupEarned(response.group.Earned);
+          setIsLoggedIn(response.IsLoggedIn);
+
+          // Needed for the vote.js to work.  [TODO] make this non-global
+          window.IsAuthenticated = response.IsLoggedIn;
+          window.UserName = response.UserName;
+        }
+      });
+    }
+  }
+
   useEffect(() => {
     async function initialize() {
-      if (pgroupId != null & pgroupId > 0 & !isLoaded) {
-        setGroupId(pgroupId);
-        await postJson("/api/v1/groups/load/", {
-          groupId: pgroupId
-        }).then((response) => {
-          if (response.success) {
-            setIsLoaded(true);
-            setGroupId(response.group.Id);
-            setgroupName(response.group.Name);
-            setgroupDescription(response.group.ShortDescription);
-            setImageId(response.group.IconId);
-            setNumMembers(response.group.NumMembers);
-            setIsGroupAdmin(response.group.IsAdmin);
-            setIsGroupMod(response.group.IsMod);
-            setIsGroupMember(response.group.IsMember);
-            setIsIgnoring(response.group.IsIgnoring);
-            setGroupTier(response.group.Level);
-            setGroupEarned(response.group.Earned);
-            setIsLoggedIn(response.IsLoggedIn);
-
-            // Needed for the vote.js to work.  [TODO] make this non-global
-            window.IsAuthenticated = response.IsLoggedIn;
-            window.UserName = response.UserName;
-          }
-        });
-
-        getMorePosts();
-      }
+      // Do this in parallel
+      await Promise.all([getMorePosts(), loadGroupInfo()]);
     }
     initialize();
   }, [pgroupId]); // Fire once
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<></>}>
         <VoteModal />
       </Suspense>
       <div className="wrapper border-bottom white-bg page-heading">
@@ -129,8 +142,11 @@ function Page() {
             <a className="btn btn-sm btn-link" href={"/Group/Members/" + groupId}>
               <i className="fa fa-users"></i> <span id={"group_membercount_" + groupId}>{numMembers}</span> Members
             </a>
-            <IgnoreButton isIgnoring={isIgnoring} id={groupId}/>
-            <JoinLeaveButton isMember={isGroupMember} id={groupId} />
+            {/*Only show if logged in*/}
+            {isLoggedIn ? (<>
+              <IgnoreButton isIgnoring={isIgnoring} id={groupId} />
+              <JoinLeaveButton isMember={isGroupMember} id={groupId} />
+            </>) : (<></>)}
           </p>
           <h2>
             <i className=""></i> <span className={isLoaded ? "" : "placeholder col-8 bg-light"}>{groupName}</span>&nbsp;-&nbsp;<span className={isLoaded ? "" : "placeholder col-12 bg-light"}>{groupDescription}</span>
@@ -145,12 +161,22 @@ function Page() {
         <div className="col-lg-2">
         </div>
       </div>
-      {isGroupAdmin ? (<Suspense fallback={<div>Loading Administration...</div>}>
+      {isGroupAdmin ? (<Suspense fallback={
+        <div className="ibox" style={{marginBottom: "0px"}}>
+          <div className="ibox-title bg-warning">
+            Loading Administration...
+          </div>
+        </div>}>
         <GroupAdminBar id={groupId} />
-      </Suspense>) : (<div></div>)}
-      {isGroupMod ? (<Suspense fallback={<div>Loading Moderation...</div>}>
+      </Suspense>) : (<></>)}
+      {isGroupMod ? (<Suspense fallback={
+        <div className="ibox" style={{ marginBottom: "0px" }}>
+          <div className="ibox-title bg-info">
+            Loading Moderation...
+          </div>
+        </div>}>
         <GroupModBar id={groupId} />
-      </Suspense>) : (<div></div>)}
+      </Suspense>) : (<></>)}
       <div className="wrapper wrapper-content ">
         <div className="row">
           <div className="col-sm-2"></div>
@@ -158,7 +184,6 @@ function Page() {
             <div className="social-feed-box-nb">
               <span></span>
             </div>
-
             <div className="social-feed-box-nb">
               <button onClick={() => {
                   location.href = "/Post/Edit/?groupId=" + groupId;
@@ -168,19 +193,16 @@ function Page() {
               </button>
             </div>
 
-            <PostList posts={posts} isLoggedIn={isLoggedIn} isGroupMod={isGroupMod}/>
-
-            {hasMorePosts ? (
-              <div className="social-feed-box-nb" id="showmore">
-                <button id="btnLoadmore" className="btn btn-primary btn-block"
-                  onClick={() => {
-                    getMorePosts();
-                  }}>
-                  <i className="fa-solid fa-arrow-down"></i>&nbsp;Show More&nbsp;<i id="loadmore" className="fa-solid fa-circle-notch fa-spin" style={{display:"none"}}></i>
-                </button>
-              </div>
-              ) : (<></>)
-            }
+            {postsLoaded ? (<>
+              <Suspense fallback={<><LoadingBounce /></>}>
+                <PostList
+                  posts={posts}
+                  isLoggedIn={isLoggedIn}
+                  isGroupMod={isGroupMod}
+                  hasMorePosts={hasMorePosts}
+                  onMorePosts={() => { getMorePosts(); } } />
+              </Suspense>
+            </>) : (<><LoadingBounce/></>)}
             <div className="social-feed-box-nb">
               <span></span>
             </div>

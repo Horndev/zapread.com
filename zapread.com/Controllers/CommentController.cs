@@ -467,14 +467,18 @@ namespace zapread.com.Controllers
 
         /// <summary>
         /// [ ] TODO: update the view model
+        /// 
+        /// 
+        /// 
         /// </summary>
         /// <param name="postId"></param>
         /// <param name="commentId"></param>
         /// <param name="nestLevel"></param>
         /// <param name="rootshown"></param>
+        /// <param name="render"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> LoadMoreComments(int postId, int? commentId, int? nestLevel, string rootshown)
+        public async Task<ActionResult> LoadMoreComments(int postId, int? commentId, int? nestLevel, string rootshown, bool render = true)
         {
             using (var db = new ZapContext())
             {
@@ -513,18 +517,19 @@ namespace zapread.com.Controllers
                     .ToList();
 
                 // All the comments related to this post
-                var postComments = await db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.Comments)
-                    .Include(p => p.Comments.Select(c => c.Parent))
-                    .Include(p => p.Comments.Select(c => c.VotesUp))
-                    .Include(p => p.Comments.Select(c => c.VotesDown))
-                    .Include(p => p.Comments.Select(c => c.UserId))
-                    .Where(p => p.PostId == postId)
-                    .SelectMany(p => p.Comments)
-                    .ToListAsync().ConfigureAwait(true);
+                //var postComments = await db.Posts
+                //    .Include(p => p.Group)
+                //    .Include(p => p.Comments)
+                //    .Include(p => p.Comments.Select(c => c.Parent))
+                //    .Include(p => p.Comments.Select(c => c.VotesUp))
+                //    .Include(p => p.Comments.Select(c => c.VotesDown))
+                //    .Include(p => p.Comments.Select(c => c.UserId))
+                //    .Where(p => p.PostId == postId)
+                //    .SelectMany(p => p.Comments)
+                //    .ToListAsync().ConfigureAwait(true);
 
                 string CommentHTMLString = "";
+                List<PostCommentsViewModel> comments = new List<PostCommentsViewModel>();
 
                 foreach (var cid in commentIds.Take(3)) // Comments in 3's
                 {
@@ -549,43 +554,70 @@ namespace zapread.com.Controllers
                         });
                     }
 
-                    // Render the comment to be inserted to HTML
-                    string aCommentHTMLString = RenderPartialViewToString(
-                        viewName: "_PartialCommentRenderVm",
-                        model: new PostCommentsViewModel()
-                        {
-                            PostId = postId,
-                            StartVisible = true,
-                            CommentId = cmt.CommentId,
-                            IsReply = cmt.IsReply,
-                            IsDeleted = cmt.IsDeleted,
-                            CommentVms = new List<PostCommentsViewModel>(),
-                            NestLevel = 0,
-                            ParentUserId = comment == null ? 0 : comment.UserId.Id,
-                            UserId = cmt.UserId.Id,
-                            Score = cmt.Score,
-                            ParentUserName = comment == null ? "" : comment.UserId.Name,
-                            ProfileImageVersion = cmt.UserId.ProfileImage.Version,
-                            Text = cmt.Text,
-                            TimeStamp = cmt.TimeStamp,
-                            TimeStampEdited = cmt.TimeStampEdited,
-                            UserAppId = cmt.UserId.AppId,
-                            UserName = cmt.UserId.Name,
-                            ViewerDownvoted = false,
-                            ViewerIgnoredUser = false,
-                            ParentCommentId = comment == null ? 0 : comment.CommentId,
-                        });
+                    comments.Add(new PostCommentsViewModel()
+                    {
+                        PostId = postId,
+                        StartVisible = true,
+                        CommentId = cmt.CommentId,
+                        IsReply = cmt.IsReply,
+                        IsDeleted = cmt.IsDeleted,
+                        CommentVms = new List<PostCommentsViewModel>(),
+                        NestLevel = 0,
+                        ParentUserId = comment == null ? 0 : comment.UserId.Id,
+                        UserId = cmt.UserId.Id,
+                        Score = cmt.Score,
+                        ParentUserName = comment == null ? "" : comment.UserId.Name,
+                        ProfileImageVersion = cmt.UserId.ProfileImage.Version,
+                        Text = cmt.Text,
+                        TimeStamp = cmt.TimeStamp,
+                        TimeStampEdited = cmt.TimeStampEdited,
+                        UserAppId = cmt.UserId.AppId,
+                        UserName = cmt.UserId.Name,
+                        ViewerDownvoted = false,
+                        ViewerIgnoredUser = false,
+                        ParentCommentId = comment == null ? 0 : comment.CommentId,
+                    });
 
-                    CommentHTMLString += aCommentHTMLString;
+                    if (render)
+                    {
+                        // Render the comment to be inserted to HTML
+                        string aCommentHTMLString = RenderPartialViewToString(
+                            viewName: "_PartialCommentRenderVm",
+                            model: new PostCommentsViewModel()
+                            {
+                                PostId = postId,
+                                StartVisible = true,
+                                CommentId = cmt.CommentId,
+                                IsReply = cmt.IsReply,
+                                IsDeleted = cmt.IsDeleted,
+                                CommentVms = new List<PostCommentsViewModel>(),
+                                NestLevel = 0,
+                                ParentUserId = comment == null ? 0 : comment.UserId.Id,
+                                UserId = cmt.UserId.Id,
+                                Score = cmt.Score,
+                                ParentUserName = comment == null ? "" : comment.UserId.Name,
+                                ProfileImageVersion = cmt.UserId.ProfileImage.Version,
+                                Text = cmt.Text,
+                                TimeStamp = cmt.TimeStamp,
+                                TimeStampEdited = cmt.TimeStampEdited,
+                                UserAppId = cmt.UserId.AppId,
+                                UserName = cmt.UserId.Name,
+                                ViewerDownvoted = false,
+                                ViewerIgnoredUser = false,
+                                ParentCommentId = comment == null ? 0 : comment.CommentId,
+                            });
+                        CommentHTMLString += aCommentHTMLString;
+                    }
                     shown.Add(cmt.CommentId);
                 }
-
+                
                 return Json(new
                 {
                     success = true,
                     shown = String.Join(";", shown),
                     hasMore = commentIds.Count > 3,
-                    HTMLString = CommentHTMLString
+                    HTMLString = CommentHTMLString,
+                    comments = comments
                 });
             }
         }

@@ -2,19 +2,18 @@
  * A Single Post
  */
 
-import React, { useEffect, useState, createRef } from "react";
+import React, { Suspense, useCallback, useEffect, useState, createRef } from "react";
 import { Dropdown } from "react-bootstrap";
-import { readMoreButton } from "../../../shared/readmore";            // [✓]
-import { deletePost } from "../../../shared/postfunctions";           // [✓]
-import { ready } from '../../../utility/ready';                       // [✓]
-import { applyHoverToChildren } from '../../../utility/userhover';    // [✓]
-import { loadgrouphover } from '../../../utility/grouphover';         // [✓]
-import { updatePostTimes } from '../../../utility/datetime/posttime'; // [✓]
-import { writeComment } from '../../../comment/writecomment'          // [✓]
-import { setPostLanguage, nsfwPost, stickyPost } from "../../../shared/postfunctions";      // [✓]
-import { makeQuotable } from "../../../utility/quotable/quotable";
+import { readMoreButton } from "../shared/readmore";
+import { deletePost } from "../shared/postfunctions";
+import { applyHoverToChildren } from '../utility/userhover';
+import { loadgrouphover } from '../utility/grouphover';
+import { writeComment } from '../comment/writecomment'
+import { setPostLanguage, nsfwPost, stickyPost } from "../shared/postfunctions";
+import { makeQuotable } from "../utility/quotable/quotable";
+import { ISOtoRelative } from "../utility/datetime/posttime"
 import PostVoteButtons from "./PostVoteButtons";
-import CommentsView from "../../../comment/CommentsView";
+const CommentsView = React.lazy(() => import("./CommentsView"));
 
 export default function PostView(props) {
   const [post, setPost] = useState(props.post);
@@ -24,14 +23,64 @@ export default function PostView(props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMod, setIsMod] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [impressions, setImpressions] = useState(0);
 
-  const postContentRef = createRef();
-  const readMoreButtonRef = createRef();
   const toggleVisibleIconRef = createRef();
+
+  var impressionObserver = new IntersectionObserver(function (entries) {
+    // since there is a single target to be observed, there will be only one entry
+    if (entries[0]['isIntersecting'] === true) {
+      var url = "/Post/Impressions/" + props.post.PostId;
+      fetch(url).then(function (response) {
+        return response.text();
+      }).then(function (html) {
+        setImpressions(html);
+      });
+    }
+  }, { threshold: [0.1] });
+
+  async function initializeHover() {
+    await applyHoverToChildren(document, ".userhint");
+  }
+
+  async function initialize() {
+    // Do this in parallel
+    await Promise.all([initializeHover()]);
+  }
+
+  const groupLabelRef = useCallback(node => {
+    if (node !== null) {
+      loadgrouphover(node)
+    }
+  }, []);
+
+  const postContentRef = useCallback(node => {
+    if (node !== null) {
+      impressionObserver.observe(node);
+      makeQuotable(node, true);
+      node.classList.remove("post-quotable");
+
+      // This will trigger after render - check if the readmore button needs to be displayed
+      window.requestAnimationFrame(function () {
+        if (node !== undefined) {
+          var height = parseFloat(getComputedStyle(node, null).height.replace("px", ""));
+          if (height >= 800) {
+            var readmoreButtonEl = node.querySelectorAll(".read-more-button").item(0);
+            if (readmoreButtonEl != null) {
+              readmoreButtonEl.style.display = "initial";
+            }          
+          }
+        }
+      });
+
+      return () => {
+        console.log("unmounted observer", impressionObserver, node);
+        impressionObserver.unobserve(node);
+      }
+    }
+  }, []);
 
   // Monitor for changes in props
   useEffect(
@@ -49,57 +98,14 @@ export default function PostView(props) {
         setIsSiteAdmin(true);
       }
 
-      async function loadImpressions() {
-        const url = "/Post/Impressions/" + props.post.PostId
-        await fetch(url)
-          .then(function (response) {
-            return response.text();
-          })
-          .then(function (html) {
-            setImpressions(html);
-          });
-      }
+      initialize();
 
-      loadImpressions();
+      return () => {
+        // cleanup
+      }
     },
     [props.post, props.isLoggedIn, props.isGroupMod]
   );
-
-  useEffect(() => {
-    if (!isInitialized) {
-
-      var postElement = postContentRef.current; // save a ref to use in ready function
-
-      ready(function () {
-        var elements = document.querySelectorAll(".pop");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-          el.classList.remove('pop');
-        });
-
-        applyHoverToChildren(document, ".userhint");
-
-        elements = document.querySelectorAll(".grouphint");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-          loadgrouphover(el);
-          el.classList.remove('grouphint');
-        });
-
-        // --- relative times
-        updatePostTimes();
-
-        // configure read more
-        if (parseFloat(getComputedStyle(postContentRef.current, null).height.replace("px", "")) >= 800) {
-          readMoreButtonRef.current.style.display = "initial";
-        }
-
-        // Make post quotable
-        makeQuotable(postElement, true);
-        postElement.classList.remove("post-quotable");
-      });
-
-      setIsInitialized(true);
-    }
-  }, []);
 
   function toggleVisible() {
     if (isVisible) {
@@ -222,23 +228,27 @@ export default function PostView(props) {
                 </span>
               ) : (<></>)}
               &nbsp;posted in&nbsp;
-              <a className="post-groupname grouphint" data-groupid={post.GroupId} href={
-                "/Group/Detail/" + post.GroupId
-                //"@Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new {id = Model.GroupId})"
-              } style={{ fontSize: "small", display: "inline" }}>
+              <a
+                ref={groupLabelRef}
+                className="post-groupname"
+                data-groupid={post.GroupId}
+                href={
+                  "/Group/Detail/" + post.GroupId
+                }
+                style={{ fontSize: "small", display: "inline" }}>
                 {post.GroupName}
               </a>
               {" "}
-              <small className="postTime text-muted" style={{ display: "none" }}>
-                {post.TimeStamp}
+              <small className="text-muted">
+                {ISOtoRelative(post.TimeStamp)}
               </small>
               {post.TimeStampEdited ? (
                 <>
-                  <span className="text-muted" style={{ display: "inline" }}>
+                  <span className="text-muted">
                     &nbsp;edited&nbsp;
                   </span>
-                  <small className="postTime text-muted" style={{ display: "none" }}>
-                    {post.TimeStampEdited}
+                  <small className="text-muted">
+                    {ISOtoRelative(post.TimeStampEdited)}
                   </small>
                 </>
               ) : (<></>)}
@@ -258,7 +268,7 @@ export default function PostView(props) {
                 <div className="post-content ql-container ql-snow">
                   <div dangerouslySetInnerHTML={{ __html: post.Content }} />
                 </div>
-                <p className="read-more-button" ref={readMoreButtonRef}>
+                <p className="read-more-button">
                   <a role="button" className="button btn btn-primary"
                     onClick={(e) => {
                       readMoreButton(e.target);
@@ -285,8 +295,10 @@ export default function PostView(props) {
           </>
         ) : (<></>)}
 
-        <div className="social-comment-box" id={"comments_" + post.PostId}>
-          <CommentsView comments={post.CommentVms} isLoggedIn={props.isLoggedIn} postId={post.PostId}/>
+        <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
+          <Suspense fallback={<></>}>
+            <CommentsView comments={post.CommentVms} numRootComments={post.NumRootComments} isLoggedIn={props.isLoggedIn} postId={post.PostId} />
+          </Suspense>
         </div>
       </div >
     </>

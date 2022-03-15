@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace zapread.com.Models.Manage
+namespace zapread.com.Models.API.Post
 {
     /// <summary>
     /// 
     /// </summary>
-    public class UpdatedUserAliasView
+    public class GetMoreCommentsParameters
     {
         /// <summary>
         /// 
         /// </summary>
-        public string NewUserName { get; set; }
+        public int PostId { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public string OldUserName { get; set; }
+        public string Rootshown { get; set; }
 
         /// <summary>
-        /// 
+        /// Default -1 means root
         /// </summary>
-        public Database.User User { get; set; }
+        public int ParentCommentId { get; set; }
     }
 }

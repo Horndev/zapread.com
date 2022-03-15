@@ -2,12 +2,12 @@
  * Top Zapread Search
  */
 
-import "../css/components/zrsearch.css";
 import React, { useCallback, useEffect, useState, createRef } from "react";
 import { InputGroup, FormControl, DropdownButton, Dropdown, Modal, Container, Row, Col, Button, Card } from "react-bootstrap";
 import ZapreadSearchResultModal from "./ZapreadSearchResultModal";
 import { getJson } from '../utility/getData';
 const getSwal = () => import('sweetalert2');
+import "../css/components/zrsearch.css";
 
 export default function ZapreadSearch(props) {
   const [query, setQuery] = useState("");
@@ -56,7 +56,7 @@ export default function ZapreadSearch(props) {
             }}
           />
           <InputGroup.Append>
-            <Button variant="outline-primary" onClick={ handleSearch }>
+            <Button id="zrsearch" variant="outline-primary" onClick={handleSearch} className="zr-search-button">
               <i className="fa-solid fa-note-sticky" style={searchType == "post" ? {} : { display: "none" }}></i>
               <i className="fa-solid fa-user" style={searchType == "user" ? {} : { display: "none" }}></i>
               <i className="fa-solid fa-magnifying-glass" style={searchType == "all" ? {} : { display: "none" }}></i>

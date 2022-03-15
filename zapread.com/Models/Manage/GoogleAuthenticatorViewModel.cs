@@ -15,6 +15,9 @@ namespace zapread.com.Models.Manage
         /// </summary>
         public string Code { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string SecretKey { get; set; }
     }
 }

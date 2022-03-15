@@ -4,8 +4,8 @@
 
 import "../css/components/zrsearch.css";
 
-import React, { useCallback, useEffect, useState, createRef } from "react";
-import { InputGroup, FormControl, DropdownButton, Dropdown, Modal, Container, Row, Col, Button, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Modal } from "react-bootstrap";
 import { ISOtoRelative } from "../utility/datetime/posttime"
 
 export default function ZapreadSearchResultModal(props) {
@@ -55,7 +55,6 @@ export default function ZapreadSearchResultModal(props) {
                 //window.location = '/p/' + result.EncPostId;
                 window.open("/p/" + result.EncPostId, '_blank').focus();
               }}>
-              {console.log(result)}
               <h3>{result.Type == "post" ? result.PostScore : result.CommentScore} <a href="#">{result.Title}</a></h3>
               <div className="search-link">{result.AuthorName}{" "}{result.Type == "post" ? <>posted</> : <>commented</>}{" "}in{" "}{result.GroupName}</div>
               <small className="text-muted">{ISOtoRelative(result.TimeStamp)}</small>
@@ -63,7 +62,7 @@ export default function ZapreadSearchResultModal(props) {
                 dangerouslySetInnerHTML={{ __html: result.Content }}
                 className="zr-search-preview"></div>
             </div>
-            <div class="zr-search-hr"></div>
+            <div className="zr-search-hr"></div>
           </>
         ))}
       </Modal.Body>
