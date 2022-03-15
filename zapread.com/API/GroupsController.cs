@@ -271,7 +271,8 @@ namespace zapread.com.API
                         start: BlockNumber * BlockSize,
                         count: BlockSize,
                         postquery: groupPosts,
-                        userInfo: userInfo).ConfigureAwait(true);
+                        userInfo: userInfo,
+                        limitComments: true).ConfigureAwait(true);
 
                 // Make images lazy TODO: apply this when submitting new posts
                 postsVm.ForEach(post =>
