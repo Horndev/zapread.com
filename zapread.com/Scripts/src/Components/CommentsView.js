@@ -2,7 +2,7 @@
  * Render a comment
  */
 
-import React, { useCallback, useEffect, useState, createRef } from "react";
+import React, { useCallback, useEffect, useState, createRef, useMemo } from "react";
 import { Container, Row, Col, ButtonGroup, Button, Dropdown } from "react-bootstrap";
 
 import { toggleComment } from "../shared/postui";
@@ -32,6 +32,13 @@ function Comment(props) {
   const commentTextRef = createRef();
   const commentRootRef = createRef();
 
+  function allChildren(cmt, subcomments) {
+    var children = subcomments.filter(c => c.ParentCommentId == cmt.CommentId);
+    var subchildren = children.map(c => allChildren(c, subcomments))
+    var allchildren = [...children, ...subchildren.flat()];
+    return allchildren;
+  }
+
   useEffect(
     () => {
       setComment(props.comment);
@@ -39,7 +46,7 @@ function Comment(props) {
       setIsLoggedIn(props.isLoggedIn);
       setNestLevel(props.nestLevel);
 
-      var thisChildComments = props.comments.filter(cmt => cmt.ParentCommentId == props.comment.CommentId)
+      var thisChildComments = props.children.filter(cmt => cmt.ParentCommentId == props.comment.CommentId)
         .sort((c1, c2) => { c1.Score < c2.Score })
         .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
 
@@ -52,17 +59,14 @@ function Comment(props) {
         var commentRootElement = commentRootRef.current;
 
         ready(function () {
-          //updatePostTimes();  // --- relative times
-
           makeQuotable(commentElement, false);
           commentElement.classList.remove("comment-quotable");
-
           applyHoverToChildren(commentRootElement,".userhint")
         });
         setIsInitialized(true);
       }
     },
-    [props.comment, props.startVisible, props.isLoggedIn, props.nestLevel]
+    [props.children, props.startVisible, props.isLoggedIn, props.nestLevel]
   );
 
   return (
@@ -266,7 +270,7 @@ function Comment(props) {
                     key={cmt.CommentId.toString()}
                     comment={cmt}
                     root={[...props.root, cmt.CommentId]} // Append this comment for the root path array
-                    comments={props.comments}
+                    children={allChildren(cmt, props.children)}
                     nestLevel={props.nestLevel + 1}
                     startVisible={true /*props.nestLevel < 4*/}
                     isLoggedIn={props.isLoggedIn}
@@ -324,6 +328,24 @@ export default function CommentsView(props) {
     [props.comments, props.postId, props.numRootComments]
   );
 
+  function allChildren(cmt, subcomments) {
+    var children = subcomments.filter(c => c.ParentCommentId == cmt.CommentId);
+    //console.log("subcomments-children", children);
+    var subchildren = children.map(c => allChildren(c, subcomments))
+    //console.log("subcomments-subchildren", children);
+    var allchildren = [...children, ...subchildren.flat()];
+    return allchildren;
+  }
+
+  //useEffect(() => {
+  //  if (comments.length > 1) {
+  //    console.log("comments", comments);
+  //    var cmt = comments[0];
+  //    var children = allChildren(cmt, comments);
+  //    console.log(cmt, "children", children);
+  //  }
+  //}, [comments]);
+
   function handleLoadMoreComments(parentCommentId, rootPath, rootshown) {
     //console.log("handleLoadMoreComments", parentCommentId)
     // rootshow is the list of currently shown comments on the current level/thread
@@ -366,7 +388,7 @@ export default function CommentsView(props) {
             <Comment
               key={cmt.CommentId.toString() + ":" + cmt.updates.toString()}
               comment={cmt}
-              comments={comments}
+              children={allChildren(cmt, comments)}
               numReplies={cmt.NumReplies}
               nestLevel={1}
               startVisible={true}
