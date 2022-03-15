@@ -21,6 +21,8 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
+import '../../css/quill/quillcustom.css';
+import '../../css/posts.css'
 
 // Force prefetching code in parallel... (https://stackoverflow.com/questions/58687397/react-lazy-and-prefetching-components)
 //import("./Components/GroupAdminBar"); //
@@ -99,7 +101,7 @@ function Page() {
         groupId: pgroupId
       }).then((response) => {
         if (response.success) {
-          window.document.title = response.group.Name + " " + response.group.ShortDescription;
+          window.document.title = response.group.Name + response.group.ShortDescription != null ? (" " + response.group.ShortDescription) : "";
           setIsLoaded(true);
           setGroupId(response.group.Id);
           setgroupName(response.group.Name);

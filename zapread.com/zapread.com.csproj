@@ -1088,7 +1088,6 @@
     <Content Include="Scripts\dist\0\4833.css" />
     <Content Include="Scripts\dist\0\4833.js" />
     <Content Include="Scripts\dist\0\5088.js" />
-    <Content Include="Scripts\dist\0\5213.css" />
     <Content Include="Scripts\dist\0\5213.js" />
     <Content Include="Scripts\dist\0\5252.js" />
     <Content Include="Scripts\dist\0\5580.js" />
@@ -1343,7 +1342,6 @@
     <Content Include="Scripts\dist\0\4833.css.map" />
     <Content Include="Scripts\dist\0\4833.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
-    <Content Include="Scripts\dist\0\5213.css.map" />
     <Content Include="Scripts\dist\0\5213.js.map" />
     <Content Include="Scripts\dist\0\5252.js.map" />
     <Content Include="Scripts\dist\0\5580.js.map" />

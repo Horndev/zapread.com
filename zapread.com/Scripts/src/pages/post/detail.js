@@ -15,6 +15,8 @@ import '../../shared/sharedlast';
 import React from "react";
 import ReactDOM from "react-dom";
 const getVoteModal = () => import("../../Components/VoteModal");
+import '../../css/quill/quillcustom.css';
+import '../../css/posts.css'
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {
