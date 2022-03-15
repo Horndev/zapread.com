@@ -337,8 +337,11 @@ namespace zapread.com.API
                             IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(groupId),
                         }).FirstOrDefaultAsync().ConfigureAwait(true);
 
-                    userId = userInfo.Id;
-                    isIgnoring = userInfo.IsIgnored;
+                    if (userInfo != null)
+                    {
+                        userId = userInfo.Id;
+                        isIgnoring = userInfo.IsIgnored;
+                    }
                 }
 
                 var reqGroupQ = await db.Groups

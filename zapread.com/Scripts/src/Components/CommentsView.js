@@ -316,8 +316,7 @@ export default function CommentsView(props) {
 
       var comments = props.comments.filter(cmt => !cmt.IsReply)
         .sort((c1, c2) => { c1.Score < c2.Score })
-        .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp })
-        .map(c => ({...c, updates: 0}));
+        .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
 
       if (props.numRootComments > numToShow) {
         setHasMoreComments(true);
@@ -330,49 +329,26 @@ export default function CommentsView(props) {
 
   function allChildren(cmt, subcomments) {
     var children = subcomments.filter(c => c.ParentCommentId == cmt.CommentId);
-    //console.log("subcomments-children", children);
     var subchildren = children.map(c => allChildren(c, subcomments))
-    //console.log("subcomments-subchildren", children);
     var allchildren = [...children, ...subchildren.flat()];
     return allchildren;
   }
 
-  //useEffect(() => {
-  //  if (comments.length > 1) {
-  //    console.log("comments", comments);
-  //    var cmt = comments[0];
-  //    var children = allChildren(cmt, comments);
-  //    console.log(cmt, "children", children);
-  //  }
-  //}, [comments]);
-
   function handleLoadMoreComments(parentCommentId, rootPath, rootshown) {
-    //console.log("handleLoadMoreComments", parentCommentId)
-    // rootshow is the list of currently shown comments on the current level/thread
-    // var rootshown = commentsToRender.map(c => c.CommentId).join(';');
-    //console.log("parentCommentId", parentCommentId, "rootshown", rootshown);
     postJson("/api/v1/post/comments/loadmore", {
       PostId: postId,
       Rootshown: rootshown,
       ParentCommentId: parentCommentId
     }).then((response) => {
       if (response.success) {
-        var newCommentsToAdd = response.Comments.map(c => ({ ...c, updates: 0 }));
         if (parentCommentId < 0) {
           // Comments on post root
-          setCommentsToRender([...commentsToRender, ...newCommentsToAdd.filter(cmt => !cmt.IsReply)]);
-          setComments([...comments, ...newCommentsToAdd])
+          setCommentsToRender([...commentsToRender, ...response.Comments.filter(cmt => !cmt.IsReply)]);
+          setComments([...comments, ...response.Comments])
           setHasMoreComments(response.HasMoreComments);
         } else {
-          setComments([...comments, ...newCommentsToAdd]);
-          // We have to update the root updates property to get React to render
-          var newCommentsToRender = commentsToRender.map(c => {
-            if (rootPath.includes(c.CommentId)) {
-              c.updates++;
-            }
-            return c;
-          });
-          setCommentsToRender(newCommentsToRender);
+          setComments([...comments, ...response.Comments]);
+          setCommentsToRender([...commentsToRender]);
         }
       } else {
 
@@ -386,7 +362,7 @@ export default function CommentsView(props) {
         <>
           {commentsToRender.map((cmt, index) => (
             <Comment
-              key={cmt.CommentId.toString() + ":" + cmt.updates.toString()}
+              key={cmt.CommentId.toString()}
               comment={cmt}
               children={allChildren(cmt, comments)}
               numReplies={cmt.NumReplies}
@@ -411,9 +387,6 @@ export default function CommentsView(props) {
 
       {/* new comments appear below this line - deprecated*/}
       <div className="insertComments" id={"mc_" + postId}></div>
-      {
-        // <div onClick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div>
-      }
     </>
   );
 }
