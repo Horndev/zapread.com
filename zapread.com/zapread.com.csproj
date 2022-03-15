@@ -1074,6 +1074,7 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\dist\0\1919.js" />
     <Content Include="Scripts\dist\0\2977.css" />
     <Content Include="Scripts\dist\0\2977.js" />
     <Content Include="Scripts\dist\0\3227.css" />
@@ -1329,6 +1330,7 @@
     <Content Include="Scripts\dist\home\index.js.map" />
     <Content Include="Scripts\dist\home\install.css.map" />
     <Content Include="Scripts\dist\home\install.js.map" />
+    <Content Include="Scripts\dist\0\1919.js.map" />
     <Content Include="Scripts\dist\0\2977.css.map" />
     <Content Include="Scripts\dist\0\2977.js.map" />
     <Content Include="Scripts\dist\0\3227.css.map" />

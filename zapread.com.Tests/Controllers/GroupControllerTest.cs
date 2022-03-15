@@ -88,7 +88,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.GroupDetail(1).Result as ViewResult;
+            ViewResult result = controller.GroupDetail(1) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -109,7 +109,7 @@ namespace zapread.com.Tests.Controllers
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            ViewResult result = controller.GroupDetail(1).Result as ViewResult;
+            ViewResult result = controller.GroupDetail(1) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);

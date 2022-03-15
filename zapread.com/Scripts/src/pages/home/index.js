@@ -4,7 +4,6 @@
 
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
-import '../../css/posts.css'
 import '../../shared/shared';
 import '../../utility/ui/vote';
 import '../../realtime/signalr';
@@ -22,6 +21,8 @@ import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
 import '../../css/Site.css';
+import '../../css/quill/quillcustom.css';
+import '../../css/posts.css'
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {

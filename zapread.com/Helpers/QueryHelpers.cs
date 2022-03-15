@@ -465,7 +465,6 @@ namespace zapread.com.Helpers
                 .AsNoTracking()
                 .ToListAsync().ConfigureAwait(true);
                 return sposts;
-
             } 
             else
             {
