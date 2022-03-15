@@ -21,6 +21,7 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
+import '../../css/Site.css';
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {

@@ -827,9 +827,55 @@ namespace zapread.com.Controllers
 
             try
             {
+                var userAppId = User.Identity.GetUserId();
+
                 using (var db = new ZapContext())
                 {
-                    var userAppId = User.Identity.GetUserId();
+                    // Some debugging code to figure out how to sub-filter comments
+                    //var test = db.Posts
+                    //    .Where(p => p.PostId == 81)
+                    //    .Select(p => new {
+                    //        p,
+                    //        RootComments = p.Comments
+                    //            .Where(c => !c.IsReply)
+                    //            .OrderByDescending(c => c.Score)
+                    //            .Select(c => c.CommentId),
+                    //        Comments = p.Comments.Where(c => !c.IsReply)
+                    //            .OrderByDescending(c => c.Score)
+                    //            .Take(3)
+                    //            .SelectMany(c =>
+                    //                c.Replies
+                    //                    .Union(c.Replies
+                    //                        .SelectMany(cr => cr.Replies))
+                    //                    .Union(new List<Comment>() { c })
+                    //                ).ToList() // Return replies 3 layers deep
+                    //    })
+                    //    .Select(p => new
+                    //    {
+                    //        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                    //        {
+                    //            PostId = p.p.PostId,
+                    //            CommentId = c.CommentId,
+                    //            Text = c.Text,
+                    //            Score = c.Score,
+                    //            IsReply = c.IsReply,
+                    //            IsDeleted = c.IsDeleted,
+                    //            TimeStamp = c.TimeStamp,
+                    //            TimeStampEdited = c.TimeStampEdited,
+                    //            UserId = c.UserId.Id,
+                    //            UserName = c.UserId.Name,
+                    //            UserAppId = c.UserId.AppId,
+                    //            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                    //            ViewerUpvoted = c.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                    //            ViewerDownvoted = c.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                    //            ViewerIgnoredUser = c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                    //            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                    //            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                    //            ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
+                    //            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                    //        })
+                    //    })
+                    //    .FirstOrDefault();
                     //int userId = 0;
                     //List<GroupInfo> subscribedGroups;
 

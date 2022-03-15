@@ -280,11 +280,14 @@ namespace zapread.com.API
                     postDocument.LoadHtml(post.Content);
 
                     var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
-                    foreach (var postImage in postImages)
+                    if (postImages != null)
                     {
-                        postImage.SetAttributeValue("loading", "lazy");
+                        foreach (var postImage in postImages)
+                        {
+                            postImage.SetAttributeValue("loading", "lazy");
+                        }
+                        post.Content = postDocument.DocumentNode.OuterHtml;
                     }
-                    post.Content = postDocument.DocumentNode.OuterHtml;
                 });
 
                 var response = new GetGroupPostsResponse()

@@ -246,6 +246,10 @@ namespace zapread.com.Helpers
                 .Select(p => new PostQueryInfo()
                 {
                     p = p.p,
+                    RootComments = p.p.Comments
+                                .Where(c => !c.IsReply)
+                                .OrderByDescending(c => c.Score)
+                                .Select(c => c.CommentId),
                     hot = 0,
                     active = (p.sign * p.order) + (p.dt / 2000000.0) // Reduced time effect
                 })
@@ -269,7 +273,11 @@ namespace zapread.com.Helpers
                 .Select(p => new PostQueryInfo() {
                 p = p,
                 hot = 0,
-            });
+                RootComments = p.Comments
+                            .Where(c => !c.IsReply)
+                            .OrderByDescending(c => c.Score)
+                            .Select(c => c.CommentId),
+                });
 
             // filter by group
             if (groupId > 0)
@@ -294,6 +302,16 @@ namespace zapread.com.Helpers
         /// </summary>
         public class PostQueryInfo
         {
+            /// <summary>
+            /// The list of CommentIDs in the root of a post
+            /// </summary>
+            public IEnumerable<long> RootComments { get; set; }
+
+            /// <summary>
+            /// This is the list of comments which are to be included in the query
+            /// </summary>
+            public IEnumerable<Comment> InitialComments { get; set; }
+            
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             public Post p;
             public double? hot;
@@ -343,7 +361,10 @@ namespace zapread.com.Helpers
                     order2 = p.order2,
                     sign = p.sign,
                     dt = p.dt,
-                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0))
+                    hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0)),
+                    RootComments = p.p.Comments
+                                .Where(c => !c.IsReply)
+                                .Select(c => c.CommentId),
                 })
                 .OrderByDescending(p => p.hot);
             //.Select(p => p.p);
@@ -395,13 +416,33 @@ namespace zapread.com.Helpers
                     ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId),
                     ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
                     ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
-                    CommentVms = p.p.Comments.Select(c => new PostCommentsViewModel()
+                    NumRootComments = p.RootComments.Count(),
+                    CommentVms = p.p.Comments.Where(c => !c.IsReply) // Initial posts only
+                        .OrderByDescending(c => c.Score)
+                        .ThenBy(c => c.TimeStamp)
+                        .Take(3)
+                        .SelectMany(rootComment =>
+                            rootComment.Replies
+                                .OrderByDescending(c1 => c1.Score)
+                                .ThenBy(c1 => c1.TimeStamp)
+                                .Take(3)
+                                .Union(rootComment.Replies
+                                    .SelectMany(rcreplies => rcreplies.Replies
+                                        .OrderByDescending(c1 => c1.Score)
+                                        .ThenBy(c1 => c1.TimeStamp)
+                                        .Take(3)
+                                    )
+                                )
+                                .Union(new List<Comment>() { rootComment })
+                            ) // Return replies 3 layers deep
+                        .Select(c => new PostCommentsViewModel()
                     {
                         PostId = p.p.PostId,
                         CommentId = c.CommentId,
                         Text = c.Text,
                         Score = c.Score,
                         IsReply = c.IsReply,
+                        NumReplies = c.Replies.Count(),
                         IsDeleted = c.IsDeleted,
                         TimeStamp = c.TimeStamp,
                         TimeStampEdited = c.TimeStampEdited,
@@ -409,9 +450,9 @@ namespace zapread.com.Helpers
                         UserName = c.UserId.Name,
                         UserAppId = c.UserId.AppId,
                         ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        ViewerUpvoted = c.VotesUp.Select(v => v.AppId).Contains(userAppId),
-                        ViewerDownvoted = c.VotesDown.Select(v => v.AppId).Contains(userAppId),
-                        ViewerIgnoredUser = c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                        ViewerUpvoted = userAppId == null ? false : c.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                        ViewerDownvoted = userAppId == null ? false : c.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                        ViewerIgnoredUser = userAppId == null ? false : c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                         ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                         ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
                         ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,

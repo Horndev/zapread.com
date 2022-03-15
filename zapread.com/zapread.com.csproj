@@ -902,6 +902,8 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />

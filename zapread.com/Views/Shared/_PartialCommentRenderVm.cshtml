@@ -51,7 +51,7 @@
             </div>
         }
         <div class="@if (Model.IsReply) { <text>social-footer-reply</text> } else { <text>social-footer</text> }">
-            <div class=@if (Model.IsReply) { <text>" "</text> } else { <text>"social-comment"</text> }>
+            <div class=@if (Model.IsReply) { <text>" "</text> } else { <text>" social-comment"</text> }>
                 <div style="margin-left: 22px;margin-bottom:5px;">
                     @if (Request.IsAuthenticated && !Model.IsDeleted)
                     {
@@ -85,7 +85,7 @@
                     @if (!isIgnoredUser && !Model.IsDeleted)
                     {
                         <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName.Trim() })">
-                            <img class="img-circle@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-30":"")" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" 
+                            <img class="img-circle@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-30":"")" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })"
                                  style="margin-bottom: 16px;margin-top: 8px;" />
                         </a>
                     }
@@ -112,7 +112,7 @@
                 </div>
                 <div class="media-body" style="display:inline;">
                     <div style="padding-left: 4px;">
-                        <div class="ql-comment post-comment comment-quotable" id="commentText_@Model.CommentId" 
+                        <div class="ql-comment post-comment comment-quotable" id="commentText_@Model.CommentId"
                              data-postid="@Model.PostId" data-commentid="@Model.CommentId">
                             @if (isIgnoredUser)
                             {
@@ -136,6 +136,12 @@
                 {
                     <div style="position: relative;left: 12px;top: -20px;height: 6px;">
                         <a href="javascript:void(0);" onclick="replyComment(@Model.CommentId,@Model.PostId);" class="btn-link btn btn-sm"><i class="fa fa-reply"></i></a>
+                    </div>
+                }
+                else
+                {
+                    <div style="position: relative;left: 12px;top: -20px;height: 6px;">
+                        &nbsp;
                     </div>
                 }
 

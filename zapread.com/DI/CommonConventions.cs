@@ -124,7 +124,7 @@ namespace DI
         /// <param name="registerMethod">The method of the DI container used to register an array of implementations, which will be 
         /// called only one time to register all of the implementations of the type. Should be in the format 
         /// (interfaceType, implementationTypes) => SomeMethod(interfaceType, implementationTypes) or similar, where
-        /// implementationTypes is a <see cref="System.Collections.Generic.IEnumerable{System.Type}"/>.</param>
+        /// implementationTypes is a System.Collections.Generic.IEnumerable{System.Type}</param>
         /// <param name="interfaceTypes">The interfaces to limit the registration to. If empty, no types will be registered.</param>
         /// <param name="implementationAssemblies">An array of assemblies to scan for the implementation types. 
         /// This array should contain all of the assemblies where you have defined types that will be injected 

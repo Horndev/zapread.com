@@ -297,7 +297,7 @@ export default function PostView(props) {
 
         <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
           <Suspense fallback={<></>}>
-            <CommentsView comments={post.CommentVms} isLoggedIn={props.isLoggedIn} postId={post.PostId} />
+            <CommentsView comments={post.CommentVms} numRootComments={post.NumRootComments} isLoggedIn={props.isLoggedIn} postId={post.PostId} />
           </Suspense>
         </div>
       </div >

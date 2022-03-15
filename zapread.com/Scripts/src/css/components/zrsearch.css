@@ -22,7 +22,7 @@
     font-size: 16px;
 }
 
-.zr-search-button {
+button.zr-search-button#zrsearch {
     border-color: #1ab39444; /*Make the border lighter color (alpha) on the top search*/
 }
 

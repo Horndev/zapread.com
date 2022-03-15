@@ -32,11 +32,15 @@ namespace zapread.com.Models
         public bool IsNSFW { get; set; }
         public bool IsSticky { get; set; }
         public IEnumerable<PostCommentsViewModel> CommentVms { get; set; }
+
+        /// <summary>
+        /// Number of comments at root level
+        /// </summary>
+        public int NumRootComments { get; set; }
         public bool ViewerIsMod { get; set; }        // User has moderation privilage on this post
         public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
         public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
         public bool ViewerIgnoredUser { get; set; }  // If the user has ignored the user
-        public int NumComments { get; set; }
         public bool IsDetailView { get; set; }       // If the post is being viewed by itself
         public bool IsFirstPost { get; set; }        // If the post is the first post on a page
 
@@ -122,6 +126,11 @@ namespace zapread.com.Models
         public int ParentScore { get; set; }
 
         public bool IsReply { get; set; }
+
+        /// <summary>
+        /// Does this comment have a reply to it?
+        /// </summary>
+        public int NumReplies { get; set; }
 
         public bool IsDeleted { get; set; }
 

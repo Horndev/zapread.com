@@ -13,7 +13,7 @@ import { deleteComment } from "../shared/postfunctions";
 import { makeQuotable } from "../utility/quotable/quotable";
 import { applyHoverToChildren } from '../utility/userhover';
 import { ISOtoRelative } from "../utility/datetime/posttime"
-
+import { postJson } from "../utility/postData";
 import '../css/posts.css'
 
 function Comment(props) {
@@ -21,6 +21,7 @@ function Comment(props) {
   const [childComments, setChildComments] = useState([]);
   const [isIgnoredUser, setIsIgnoredUser] = useState(false);
   const [startVisible, setStartVisible] = useState(props.startVisible);
+  const [nestLevel, setNestLevel] = useState(props.nestLevel);
   const [comment, setComment] = useState(props.comment);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -36,10 +37,13 @@ function Comment(props) {
       setComment(props.comment);
       setStartVisible(props.startVisible);
       setIsLoggedIn(props.isLoggedIn);
+      setNestLevel(props.nestLevel);
 
       var thisChildComments = props.comments.filter(cmt => cmt.ParentCommentId == props.comment.CommentId)
         .sort((c1, c2) => { c1.Score < c2.Score })
         .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
+
+      //console.log("thisChildComments", thisChildComments, "NumReplies", props.comment.NumReplies);
 
       setChildComments(thisChildComments);
       if (!isInitialized) {
@@ -58,7 +62,7 @@ function Comment(props) {
         setIsInitialized(true);
       }
     },
-    [props.comment, props.startVisible, props.isLoggedIn]
+    [props.comment, props.startVisible, props.isLoggedIn, props.nestLevel]
   );
 
   return (
@@ -128,6 +132,11 @@ function Comment(props) {
                       </button>
                     </Dropdown.Item>
                   </>) : (<></>)}
+                  <Dropdown.Item as="li" >
+                    <button disabled className="btn btn-link btn-sm">
+                      CommentId: { props.comment.CommentId }
+                    </button>
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </>) : (<></>)}
@@ -171,7 +180,6 @@ function Comment(props) {
                     </a>
                   </div>
                 )}
-
                 {props.comment.IsDeleted || isIgnoredUser ? (<></>) : (<>
                   <a href={"/User/" + encodeURIComponent(props.comment.UserName) + "/"}>
                     <img className={
@@ -189,7 +197,6 @@ function Comment(props) {
                     {props.comment.isIgnoredUser ? (<>&nbsp;(Ignored)&nbsp;</>) : (<>&nbsp;{props.comment.UserName}&nbsp;</>)}
                   </a>
                 </>)}
-
                 <small style={{ display: "inline-block" }}>
                   {" "}-{" "}
                   {props.comment.IsReply ? (
@@ -206,16 +213,13 @@ function Comment(props) {
                       &nbsp;commented&nbsp;
                     </>)}
                 </small>
-
-                <small className="text-muted">{ISOtoRelative(props.comment.TimeStamp)}</small>
+                <small className="text-muted" title={props.comment.TimeStamp}>{ISOtoRelative(props.comment.TimeStamp)}</small>
                 {props.comment.TimeStampEdited != null ? (
                   <>
                     <span className="text-muted" style={{ display: "inline" }}>&nbsp;edited&nbsp;</span>
-                    <small className="text-muted" style={{ display: "inline" }}>{ISOtoRelative(props.comment.TimeStampEdited)}</small>
+                    <small className="text-muted" style={{ display: "inline" }} title={props.comment.TimeStampEdited}>{ISOtoRelative(props.comment.TimeStampEdited)}</small>
                   </>) : (<></>)}
-
               </div>
-
               <div className="media-body" style={{ display: "inline" }}>
                 <div style={{paddingLeft: "4px"}}>
                   <div className="ql-comment post-comment comment-quotable"
@@ -245,9 +249,15 @@ function Comment(props) {
                     <i className="fa fa-reply"></i>
                   </a>
                 </div>
-              ) : (<></>)}
+              ) : (
+                <>
+                  {/*This was added in to prevent the white bar at the bottom of comments*/}
+                  <div style={{ position: "relative", left: "12px", top: "-20px", height: "6px" }}>
+                    &nbsp;
+                  </div>
+                </>)}
 
-              {/*This is the element where the comment box will render*/}
+              {/*This is the element where the comment box will render - not sure this is still needed*/}
               <div id={"reply_c" + props.comment.CommentId} style={{ display: "none" }}></div>
 
               <div id={"rcomments_" + props.comment.CommentId}>
@@ -255,12 +265,26 @@ function Comment(props) {
                   <Comment
                     key={cmt.CommentId.toString()}
                     comment={cmt}
+                    root={[...props.root, cmt.CommentId]} // Append this comment for the root path array
                     comments={props.comments}
                     nestLevel={props.nestLevel + 1}
-                    startVisible={props.nestLevel < 4}
+                    startVisible={true /*props.nestLevel < 4*/}
                     isLoggedIn={props.isLoggedIn}
+                    handleLoadMoreComments={props.handleLoadMoreComments}
+                    numReplies={cmt.NumReplies}
                   />
                 ))}
+
+                {props.numReplies > childComments.length ? (
+                  <>
+                    <div style={{ background: "#f9f9f9", borderRadius: "0px 0px 10px 10px", padding: "0px 3px 3px 3px" }}>
+                      <Button size="sm" variant="link" onClick={() => {
+                        props.handleLoadMoreComments(props.comment.CommentId, props.root, childComments.map(c => c.CommentId).join(';'))
+                      }}>
+                        Continue thread {/*<small>({props.numReplies - childComments.length} more)</small>*/} <i className="fa-solid fa-arrow-turn-down"></i>
+                      </Button>
+                    </div>
+                  </>) : (<></>)}
               </div>
             </div>
           </div>
@@ -289,29 +313,81 @@ export default function CommentsView(props) {
       var comments = props.comments.filter(cmt => !cmt.IsReply)
         .sort((c1, c2) => { c1.Score < c2.Score })
         .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp })
-        .slice(0, numToShow);
+        .map(c => ({...c, updates: 0}));
 
-      if (props.comments.length > numToShow) {
+      if (props.numRootComments > numToShow) {
         setHasMoreComments(true);
       }
 
       setCommentsToRender(comments);
     },
-    [props.comments, props.postId]
+    [props.comments, props.postId, props.numRootComments]
   );
+
+  function handleLoadMoreComments(parentCommentId, rootPath, rootshown) {
+    //console.log("handleLoadMoreComments", parentCommentId)
+    // rootshow is the list of currently shown comments on the current level/thread
+    // var rootshown = commentsToRender.map(c => c.CommentId).join(';');
+    //console.log("parentCommentId", parentCommentId, "rootshown", rootshown);
+    postJson("/api/v1/post/comments/loadmore", {
+      PostId: postId,
+      Rootshown: rootshown,
+      ParentCommentId: parentCommentId
+    }).then((response) => {
+      if (response.success) {
+        var newCommentsToAdd = response.Comments.map(c => ({ ...c, updates: 0 }));
+        if (parentCommentId < 0) {
+          // Comments on post root
+          setCommentsToRender([...commentsToRender, ...newCommentsToAdd.filter(cmt => !cmt.IsReply)]);
+          setComments([...comments, ...newCommentsToAdd])
+          setHasMoreComments(response.HasMoreComments);
+        } else {
+          setComments([...comments, ...newCommentsToAdd]);
+          // We have to update the root updates property to get React to render
+          var newCommentsToRender = commentsToRender.map(c => {
+            if (rootPath.includes(c.CommentId)) {
+              c.updates++;
+            }
+            return c;
+          });
+          setCommentsToRender(newCommentsToRender);
+        }
+      } else {
+
+      }
+    });
+  }
 
   return (
     <>
       {comments.length > 0 ? (
         <>
           {commentsToRender.map((cmt, index) => (
-            <Comment key={cmt.CommentId.toString()} comment={cmt} comments={props.comments} nestLevel={1} startVisible={true} isLoggedIn={props.isLoggedIn} />
+            <Comment
+              key={cmt.CommentId.toString() + ":" + cmt.updates.toString()}
+              comment={cmt}
+              comments={comments}
+              numReplies={cmt.NumReplies}
+              nestLevel={1}
+              startVisible={true}
+              handleLoadMoreComments={handleLoadMoreComments}
+              root={[cmt.CommentId]}
+              isLoggedIn={props.isLoggedIn} />
           ))}
-          {hasMoreComments ? (<><br />More comments</>) : (<></>)}
+
+          {hasMoreComments ? (<>
+            <div style={{ background: "#f9f9f9", borderRadius: "0px 0px 10px 10px", padding: "0px 3px 3px 3px"}}>
+              <Button size="sm" variant="link" onClick={() => {
+                handleLoadMoreComments(-1, -1, commentsToRender.map(c => c.CommentId).join(';'))
+              }}>
+                <i className="fa-solid fa-plus"></i> Load more comments
+              </Button>
+            </div>
+          </>) : (<></>)}
         </>
       ) : (<></>)}
 
-      {/* new comments appear below this line */}
+      {/* new comments appear below this line - deprecated*/}
       <div className="insertComments" id={"mc_" + postId}></div>
       {
         // <div onClick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div>
