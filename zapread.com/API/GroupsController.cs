@@ -143,7 +143,7 @@ namespace zapread.com.API
             Group matched = await db.Groups.Where(g => g.GroupName == GroupName).FirstOrDefaultAsync().ConfigureAwait(true);
             if (matched != null)
             {
-                if(groupId.HasValue && matched.GroupId != groupId.Value)
+                if (groupId.HasValue && matched.GroupId != groupId.Value)
                 {
                     return true;
                 }
@@ -237,7 +237,12 @@ namespace zapread.com.API
                 return BadRequest();
             }
 
-            if (req.groupId < 1)
+            if (req.groupId.HasValue && req.groupId < 1)
+            {
+                return BadRequest();
+            }
+
+            if (!req.groupId.HasValue && String.IsNullOrEmpty(req.groupName))
             {
                 return BadRequest();
             }
@@ -261,11 +266,35 @@ namespace zapread.com.API
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
-                    userLanguages: null, 
+                    userLanguages: null,
                     db: db,
                     userInfo: userInfo);
 
-                var groupPosts = QueryHelpers.OrderPostsByNew(validposts, req.groupId, true);
+                var groupId = 0;
+
+                if (!req.groupId.HasValue)
+                {
+                    //
+                    var nameQuery = req.groupName.Replace("-", " ").ToUpperInvariant();
+
+                    var groupIdRes = await db.Groups
+                        .Where(g => g.GroupName.ToUpperInvariant() == nameQuery)
+                        .Select(g => new { g.GroupId })
+                        .FirstOrDefaultAsync();
+
+                    if (groupIdRes == null)
+                    {
+                        return NotFound();
+                    }
+
+                    groupId = groupIdRes.GroupId;
+                }
+                else
+                {
+                    groupId = req.groupId.Value;
+                }
+
+                var groupPosts = QueryHelpers.OrderPostsByNew(validposts, groupId, true);
 
                 var postsVm = await QueryHelpers.QueryPostsVm(
                         start: BlockNumber * BlockSize,
@@ -293,7 +322,7 @@ namespace zapread.com.API
 
                 var response = new GetGroupPostsResponse()
                 {
-                    HasMorePosts = groupPosts.Count() >= BlockNumber*BlockSize,
+                    HasMorePosts = groupPosts.Count() >= BlockNumber * BlockSize,
                     Posts = postsVm,
                     success = true,
                 };
@@ -317,7 +346,12 @@ namespace zapread.com.API
                 return BadRequest();
             }
 
-            if (groupInfo.groupId == 0)
+            if (groupInfo.groupId.HasValue && groupInfo.groupId == 0)
+            {
+                return BadRequest();
+            }
+
+            if (!groupInfo.groupId.HasValue && String.IsNullOrEmpty(groupInfo.groupName))
             {
                 return BadRequest();
             }
@@ -326,8 +360,31 @@ namespace zapread.com.API
             {
                 var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
                 int userId = 0;
-                var groupId = groupInfo.groupId;
+                var groupId = 0;
                 var isIgnoring = false;
+
+                if (!groupInfo.groupId.HasValue)
+                {
+                    //
+                    var nameQuery = groupInfo.groupName.Replace("-", " ").ToUpperInvariant();
+
+                    var groupIdRes = await db.Groups
+                        .Where(g => g.GroupName.ToUpperInvariant() == nameQuery)
+                        .Select(g => new { g.GroupId})
+                        .FirstOrDefaultAsync();
+
+                    if (groupIdRes == null)
+                    {
+                        return NotFound();
+                    }
+
+                    groupId = groupIdRes.GroupId;
+                }
+                else
+                {
+                    groupId = groupInfo.groupId.Value;
+                }
+
                 if (userAppId != null)
                 {
                     var userInfo = await db.Users
