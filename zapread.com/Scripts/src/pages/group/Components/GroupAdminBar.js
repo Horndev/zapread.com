@@ -21,7 +21,7 @@ export default function GroupAdminBar(props) {
 
   return (
     <>
-      <CollapseBar title={"Group Administration : You have administration privilages for this group"} bg={"bg-warning"}>
+      <CollapseBar title={"Group Administration : You have administration privilages for this group"} bg={"bg-warning"} isCollapsed={true}>
         <h2>
           Group Actions
         </h2>
