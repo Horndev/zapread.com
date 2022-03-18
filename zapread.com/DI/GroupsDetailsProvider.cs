@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using zapread.com.Database;
+using zapread.com.Helpers;
 
 namespace zapread.com.DI
 {
@@ -24,7 +25,8 @@ namespace zapread.com.DI
                 // Create a node for each post
                 var groups = db.Groups
                     .Select(g => new {
-                        g,
+                        g.GroupName,
+                        g.GroupId,
                         timeUpdated = g.Posts.OrderByDescending(c => c.TimeStamp)
                             .Select(c => c.TimeStamp)
                             .FirstOrDefault(),
@@ -33,9 +35,13 @@ namespace zapread.com.DI
                 foreach (var group in groups)
                 {
                     DynamicNode dynamicNode = new DynamicNode();
-                    dynamicNode.Title = group.g.GroupName;
+                    
+                    dynamicNode.Title = group.GroupName;
                     //dynamicNode.ParentKey = "Detail_" + post.Group.GroupName;
-                    dynamicNode.RouteValues.Add("id", group.g.GroupId);
+
+                    dynamicNode.RouteValues.Add("id", group.GroupId);
+                    //dynamicNode.RouteValues.Add("name", group.GroupName.MakeURLFriendly());
+
                     dynamicNode.Protocol = "https";
                     // Re-index every month (for searching comments)
                     //dynamicNode.ChangeFrequency = ChangeFrequency.Monthly;

@@ -89,6 +89,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "1,000 Impressions"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -110,6 +116,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "500 Impressions"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -131,6 +143,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "100 Impressions"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -152,6 +170,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First LN Withdraw"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -173,6 +197,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First LN Deposit"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -194,6 +224,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "100,000 Reputation"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -215,6 +251,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "10,000 Reputation"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -236,6 +278,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "1000 Reputation"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -257,6 +305,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First Comment"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -278,6 +332,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First Followed"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -299,6 +359,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First Following"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
@@ -320,6 +386,12 @@ namespace zapread.com.Services
         /// </summary>
         public string Name { get => "First Post"; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria

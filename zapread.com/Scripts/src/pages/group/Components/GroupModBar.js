@@ -5,8 +5,7 @@
 
 import React, { useCallback, useEffect, useState, createRef } from "react";
 import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
-
-import CollapseBar from "./CollapseBar";
+import CollapseBar from "../../../Components/CollapseBar";
 
 export default function GroupAdminBar(props) {
   const [groupId, setGroupId] = useState(props.id);
@@ -21,7 +20,7 @@ export default function GroupAdminBar(props) {
 
   return (
     <>
-      <CollapseBar title={"Group Moderation : You have moderation privilages for this group"} bg={"bg-info"}>
+      <CollapseBar title={"Group Moderation : You have moderation privilages for this group"} bg={"bg-info"} isCollapsed={true}>
         <h2>
           Group Actions (will be implemented here)
         </h2>

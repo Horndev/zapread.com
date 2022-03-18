@@ -528,6 +528,12 @@ namespace zapread.com.Services
                 return output.ToArray();
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="hrp"></param>
+            /// <param name="s"></param>
+            /// <returns></returns>
             public static string EncodeString(string hrp, string s)
             {
                 //var data = ByteSquasher(Encoding.Default.GetBytes(s), 8, 5);

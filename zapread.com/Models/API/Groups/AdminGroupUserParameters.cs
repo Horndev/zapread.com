@@ -6,18 +6,18 @@ using System.Web;
 namespace zapread.com.Models.API.Groups
 {
     /// <summary>
-    /// At least one of groupid and groupName must be valid
+    /// 
     /// </summary>
-    public class LoadGroupParameters
+    public class AdminGroupUserParameters
     {
         /// <summary>
         /// 
         /// </summary>
-        public int? groupId { get; set; }
+        public string UserAppId { get; set; }
 
         /// <summary>
-        /// Group name
+        /// 
         /// </summary>
-        public string groupName { get; set; }
+        public int GroupId { get; set; }
     }
 }

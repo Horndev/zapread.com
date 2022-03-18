@@ -836,18 +836,22 @@ namespace zapread.com.Controllers
         /// View posts in a group.
         /// </summary>
         /// <param name="id">Group id</param>
+        /// <param name="name">Group id</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("Group/Detail/{id}/{name?}")]
+        [Route("Group/GroupDetail/{id}/{name?}")]
+        [Route("g/{id}/{name?}")]
         [MvcSiteMapNodeAttribute(Title = "Details", ParentKey = "Group", DynamicNodeProvider = "zapread.com.DI.GroupsDetailsProvider, zapread.com")]
-        public ActionResult GroupDetail(int? id)
+        public ActionResult GroupDetail(int? id, string name = null)
         {
             XFrameOptionsDeny();
-            if (!id.HasValue)
+            if (!id.HasValue && name == null)
             {
                 return RedirectToAction(actionName:"Index", controllerName:"Home");
             }
 
-            return View();
+            return View("GroupDetail");
 
             //var userAppId = User.Identity.GetUserId();
             //using (var db = new ZapContext())

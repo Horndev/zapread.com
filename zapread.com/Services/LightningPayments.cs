@@ -15,7 +15,9 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Services
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class LightningPayments : ILightningPayments
     {
         /// <summary>
@@ -86,6 +88,7 @@ namespace zapread.com.Services
         /// <param name="request"></param>
         /// <param name="userAppId"></param>
         /// <param name="lndClient"></param>
+        /// <param name="ip"></param>
         /// <returns></returns>
         public object TryWithdrawal(Models.LNTransaction request, string userAppId, string ip, LndRpcClient lndClient)
         {

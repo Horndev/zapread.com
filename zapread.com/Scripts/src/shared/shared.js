@@ -17,6 +17,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@fortawesome/fontawesome-free/css/v4-shims.min.css';
 import '../css/quill/quillfont.css';
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import '../css/quill/quilledit.css';                              // [✓]
+import '../css/quill/quillcustom.css'; // Some custom overrides
 
 /**
  * 

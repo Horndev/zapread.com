@@ -1303,6 +1303,7 @@ namespace zapread.com.Controllers
                         break;
                     case "twoFactor":
                         await UserManager.SetTwoFactorEnabledAsync(userId, value);
+                        
                         break;
                     case "emailTwoFactor":
                         var aspUser = await UserManager.FindByIdAsync(userId).ConfigureAwait(true);

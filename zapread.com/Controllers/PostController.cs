@@ -694,8 +694,8 @@ namespace zapread.com.Controllers
         /// <param name="postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNode(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
-        [Route("Post/Detail/{PostId?}/{postTitle?}")]
         [Route("p/{postIdEnc?}/{postTitle?}", Order = 1)]
+        [Route("Post/Detail/{PostId?}/{postTitle?}")]
         [HttpGet]
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         public async Task<ActionResult> Detail(int? PostId = null, string postIdEnc = null, string postTitle = null, int? vote = null)

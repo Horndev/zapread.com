@@ -11,9 +11,13 @@ namespace zapread.com.Models.API.Groups
     public class GetGroupPostsParameters
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public string groupName { get; set; }
+        /// <summary>
         /// Groupid of the group to get posts from
         /// </summary>
-        public int groupId { get; set; }
+        public int? groupId { get; set; }
 
         /// <summary>
         /// Block of posts index - starting at 0

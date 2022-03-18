@@ -55,7 +55,7 @@ function Page() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [postBlockNumber, setPostBlockNumber] = useState(0);
 
-  const { pgroupId } = useParams();
+  const { pgroupId, pgroupname } = useParams();
 
   let query = useQuery();
 
@@ -69,6 +69,7 @@ function Page() {
       
       await postJson("/api/v1/groups/posts/", {
         groupId: pgroupId,
+        groupName: pgroupname,
         blockNumber: postBlockNumber
       }).then((response) => {
         if (document.querySelectorAll('#loadmore').length) {
@@ -98,7 +99,8 @@ function Page() {
     if (pgroupId != null & pgroupId > 0 & !isLoaded) {
       setGroupId(pgroupId);
       await postJson("/api/v1/groups/load/", {
-        groupId: pgroupId
+        groupId: pgroupId,
+        groupName: pgroupname
       }).then((response) => {
         if (response.success) {
           window.document.title = response.group.Name + response.group.ShortDescription != null ? (" " + response.group.ShortDescription) : "";
@@ -130,7 +132,7 @@ function Page() {
       await Promise.all([getMorePosts(), loadGroupInfo()]);
     }
     initialize();
-  }, [pgroupId]); // Fire once
+  }, [pgroupId, pgroupname]); // Fire once
 
   return (
     <>
@@ -220,7 +222,13 @@ function Page() {
 
 ReactDOM.render(
   <Router>
-    <Route path="/Group/GroupDetail/:pgroupId">
+    <Route path="/Group/GroupDetail/:pgroupId/:pgroupname?">
+      <Page />
+    </Route>
+    <Route path="/Group/Detail/:pgroupId/:pgroupname?">
+      <Page />
+    </Route>
+    <Route path="/g/:pgroupId/:pgroupname?">
       <Page />
     </Route>
   </Router>

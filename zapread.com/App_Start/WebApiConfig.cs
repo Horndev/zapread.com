@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Swashbuckle.Application;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.WebHost;
@@ -20,6 +23,7 @@ namespace zapread.com.App_Start
         /// <param name="config"></param>
         public static void Register(HttpConfiguration config)
         {
+            
             // Web API configuration and services
 
             // Web API routes
@@ -40,6 +44,28 @@ namespace zapread.com.App_Start
                 routeTemplate: "api/v1/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+        }
+
+        private static string ResolveBasePath(HttpRequestMessage message)
+        {
+            var virtualPathRoot = message.GetRequestContext().VirtualPathRoot;
+
+            var schemeAndHost = message.RequestUri.Scheme + "://" + message.RequestUri.Host;
+            if (message.RequestUri.Scheme == "http" && message.RequestUri.Port != 80)
+            {
+                schemeAndHost += ":" + message.RequestUri.Port;
+            }
+            if (message.RequestUri.Scheme == "https" && message.RequestUri.Port != 443)
+            {
+                schemeAndHost += ":" + message.RequestUri.Port;
+            }
+            var val = new Uri(new Uri(schemeAndHost, UriKind.Absolute), virtualPathRoot).AbsoluteUri;
+
+            if (val.EndsWith("/", true, CultureInfo.InvariantCulture))
+            {
+                val = val.TrimEnd('/');
+            }
+            return val;
         }
 
         /// <summary>

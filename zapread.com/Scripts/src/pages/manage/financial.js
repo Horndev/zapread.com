@@ -51,7 +51,7 @@ function Page() {
               <FinancialSummaryBox
                 title="Earning Summary"
                 subtitle="Earnings"
-                subtitle2="Net Flow"
+                subtitle2="Total Earned"
                 value2="..."
                 units="Satoshi"
                 idsummary="earningsBalance"
