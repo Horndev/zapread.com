@@ -41,8 +41,31 @@ export default function GroupAdminBar(props) {
       setIsLoading(false);
       //console.log("response", response);
       if (response.success) {
+        handleAdminExpand();
+        handleModExpand();
         getSwal().then(({ default: Swal }) => {
           Swal.fire("Success", "User " + userName + " granted", "success");
+        });
+      } else {
+        getSwal().then(({ default: Swal }) => {
+          Swal.fire("Error", "Error: " + response.message, "error");
+        });
+      }
+    });
+  };
+
+  const revoke = (grantType) => {
+    setIsLoading(true);
+    postJson("/api/v1/groups/admin/revoke/" + grantType, {
+      UserAppId: userAppId,
+      GroupId: groupId
+    }).then((response) => {
+      setIsLoading(false);
+      if (response.success) {
+        handleAdminExpand();
+        handleModExpand();
+        getSwal().then(({ default: Swal }) => {
+          Swal.fire("Success", "User " + userName + " revoked", "success");
         });
       } else {
         getSwal().then(({ default: Swal }) => {
@@ -85,7 +108,7 @@ export default function GroupAdminBar(props) {
   return (
     <>
       <CollapseBar
-        isDisabled={isLoading}
+        isDisabled={false}
         title={"Group Administration : You have administration privilages for this group"}
         bg={"bg-warning"}
         isCollapsed={true}>
@@ -118,18 +141,19 @@ export default function GroupAdminBar(props) {
                   <i className="fa-solid fa-user-xmark"></i> Revoke
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#/action-1">Admin</Dropdown.Item>
-                  <Dropdown.Item href="#/action-2">Moderation</Dropdown.Item>
-                  <Dropdown.Item href="#/action-3">Membership</Dropdown.Item>
+                  <Dropdown.Item onClick={() => revoke("admin")}>Admin</Dropdown.Item>
+                  <Dropdown.Item onClick={() => revoke("mod")}>Moderation</Dropdown.Item>
+                  <Dropdown.Item onClick={() => revoke("membership")}>Membership</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
 
               <Dropdown>
                 <Dropdown.Toggle variant="danger" id="dropdown-basic">
-                  <i className="fa-solid fa-ban"></i> Ban
+                  <i className="fa-solid fa-ban"></i> Banish
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#/action-1" disabled>Permanent</Dropdown.Item>
+                  <Dropdown.Item href="#/action-1" disabled>Not yet implemented</Dropdown.Item>
+                  <Dropdown.Item href="#/action-1" disabled>Maximum</Dropdown.Item>
                   <Dropdown.Item href="#/action-2" disabled>Silent</Dropdown.Item>
                   <Dropdown.Item href="#/action-3" disabled>Reputation</Dropdown.Item>
                   <Dropdown.Item href="#/action-4" disabled>Day</Dropdown.Item>

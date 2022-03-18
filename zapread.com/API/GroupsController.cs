@@ -84,7 +84,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/grant/{role}")]
-        public async Task<IHttpActionResult> GrantMod(AdminGroupUserParameters req, [FromUri] string role)
+        public async Task<IHttpActionResult> GrantRole(AdminGroupUserParameters req, [FromUri] string role)
         {
             if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
             {
@@ -124,6 +124,64 @@ namespace zapread.com.API
                 } else if (role == "membership")
                 {
                     group.Members.Add(userToGrant);
+                }
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/admin/revoke/{role}")]
+        public async Task<IHttpActionResult> RevokeRole(AdminGroupUserParameters req, [FromUri] string role)
+        {
+            if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Check if requestor is authorized
+                var userAppId = User.Identity.GetUserId();
+
+                var isAdmin = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
+                    .AnyAsync().ConfigureAwait(true);
+
+                if (!isAdmin)
+                {
+                    return Unauthorized();
+                }
+
+                var userToGrant = await db.Users
+                    .Where(u => u.AppId == req.UserAppId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                //Grant
+                if (role == "mod")
+                {
+                    group.Moderators.Remove(userToGrant);
+                }
+                else if (role == "admin")
+                {
+                    group.Administrators.Remove(userToGrant);
+                }
+                else if (role == "membership")
+                {
+                    group.Members.Remove(userToGrant);
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
