@@ -14,6 +14,8 @@ using zapread.com.Models.API.Groups;
 using System.Web.Http;
 using zapread.com.Helpers;
 using HtmlAgilityPack;
+using zapread.com.Models.API;
+using zapread.com.Models.API.User;
 
 namespace zapread.com.API
 {
@@ -22,6 +24,114 @@ namespace zapread.com.API
     /// </summary>
     public class GroupsController : ApiController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/list/{role}")]
+        public async Task<IHttpActionResult> ListMods(GroupUsersParameters req, [FromUri] string role)
+        {
+            if (req == null || req.GroupId < 1 || String.IsNullOrEmpty(role))
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var groupq = db.Groups
+                    .Where(g => g.GroupId == req.GroupId);
+
+                IQueryable<User> usersq;
+                
+                if (role == "mod")
+                {
+                    usersq = groupq
+                        .SelectMany(g => g.Moderators);
+                } else if (role == "admin")
+                {
+                    usersq = groupq
+                        .SelectMany(g => g.Administrators);
+                } else
+                {
+                    usersq = groupq
+                        .SelectMany(g => g.Members);
+                }
+
+                var users = await usersq
+                    .Select(u => new UserResultInfo()
+                    {
+                        UserAppId = u.AppId,
+                        UserName = u.Name,
+                        ProfileImageVersion = u.ProfileImage.Version
+                    }).ToListAsync().ConfigureAwait(false);
+
+                return Ok(new UserSearchResponse()
+                {
+                    success = true,
+                    Users = users
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/admin/grant/{role}")]
+        public async Task<IHttpActionResult> GrantMod(AdminGroupUserParameters req, [FromUri] string role)
+        {
+            if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Check if requestor is authorized
+                var userAppId = User.Identity.GetUserId();
+
+                var isAdmin = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
+                    .AnyAsync().ConfigureAwait(true);
+
+                if (!isAdmin)
+                {
+                    return Unauthorized();
+                }
+
+                var userToGrant = await db.Users
+                    .Where(u => u.AppId == req.UserAppId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                //Grant
+                if (role == "mod")
+                {
+                    group.Moderators.Add(userToGrant);
+                } else if (role == "admin")
+                {
+                    group.Administrators.Add(userToGrant);
+                } else if (role == "membership")
+                {
+                    group.Members.Add(userToGrant);
+                }
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

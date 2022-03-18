@@ -20,9 +20,38 @@ namespace zapread.com.API
     /// <summary>
     /// API for ZapRead users
     /// </summary>
-    
     public class UserController : ApiController
     {
+        /// <summary>
+        /// Find a user
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/search")]
+        public async Task<IHttpActionResult> Search(UserSearchRequest req)
+        {
+            if (req == null || req.Prefix == null || req.Max < 1)
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var users = await db.Users
+                    .Where(u => u.Name.Contains(req.Prefix))
+                    .Take(req.Max)
+                    .Select(u => new UserResultInfo()
+                    {
+                        UserName = u.Name,
+                        UserAppId = u.AppId,
+                        ProfileImageVersion = u.ProfileImage.Version
+                    }).ToListAsync().ConfigureAwait(false);
+
+                return Ok(new UserSearchResponse() { Users = users});
+            }
+        }
+
         // GET api/v1/user
         /// <summary>
         /// Test call - doesn't do anything right now

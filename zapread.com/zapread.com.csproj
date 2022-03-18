@@ -273,9 +273,6 @@
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Swashbuckle.MVC.Handler, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Swashbuckle.MVC.1.0.0.3\lib\Swashbuckle.MVC.Handler.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -477,8 +474,6 @@
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
-    <Compile Include="App_Start\SwaggerConfig.cs" />
-    <Compile Include="App_Start\SwashbuckleMVC.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
@@ -891,8 +886,10 @@
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\AdminGroupUserParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
+    <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
     <Compile Include="Models\API\Groups\GroupInfo.cs" />
@@ -908,6 +905,8 @@
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
+    <Compile Include="Models\API\User\UserSearchRequest.cs" />
+    <Compile Include="Models\API\User\UserSearchResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
@@ -1226,6 +1225,7 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
     <Content Include="Scripts\src\Components\ZapreadSearch.js" />
@@ -1459,7 +1459,7 @@
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
-    <Content Include="Scripts\src\pages\group\Components\CollapseBar.js" />
+    <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
@@ -1702,7 +1702,6 @@
     <Content Include="Views\Feed\Index.cshtml" />
     <Content Include="Views\Mailer\NewCommentReply.cshtml" />
     <Content Include="Views\Mailer\NewChat.cshtml" />
-    <Content Include="Views\SwashbuckleMVC\Index.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapTitleHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapPathHelperModel.cshtml" />

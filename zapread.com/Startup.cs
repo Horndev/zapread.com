@@ -2,6 +2,7 @@
 using Microsoft.Owin;
 using Owin;
 using System.Web;
+using System.Web.Http;
 
 [assembly: OwinStartupAttribute(typeof(zapread.com.Startup))]
 namespace zapread.com
@@ -18,7 +19,7 @@ namespace zapread.com
         public void Configuration(IAppBuilder app)
         {
             // Set DB used by Hangfire
-            GlobalConfiguration.Configuration.UseSqlServerStorage(System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"]);
+            Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage(System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"]);
 
             ConfigureAuth(app);
 

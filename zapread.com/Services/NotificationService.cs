@@ -42,6 +42,13 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="callback"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async static Task SendLnAuthLoginNotification(string userId, string callback, string token)
         {
             var url = ConfigurationManager.AppSettings.Get("wshost");
@@ -62,6 +69,14 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="userId"></param>
+        /// <param name="reason"></param>
+        /// <param name="clickUrl"></param>
+        /// <returns></returns>
         public async static Task SendIncomeNotification(double amount, string userId, string reason, string clickUrl)
         {
             string message = "You just earned " + amount.ToString("0.##", CultureInfo.InvariantCulture) + " Satoshi.";
@@ -94,6 +109,14 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="userId"></param>
+        /// <param name="reason"></param>
+        /// <param name="clickUrl"></param>
+        /// <returns></returns>
         public async static Task SendPrivateMessage(string content, string userId, string reason, string clickUrl)
         {
             //var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();

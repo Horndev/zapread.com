@@ -6,6 +6,7 @@ import { ready } from '../utility/ready';
 import '../css/Site.css';
 import '../css/roundlinks.css';
 import '../css/hover.css';
+import '../css/quill/quillfont.css';
 import "tarteaucitronjs/css/tarteaucitron.css";
 
 var tarteaucitronForceCDN = '/Content/';

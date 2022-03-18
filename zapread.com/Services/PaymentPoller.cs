@@ -12,6 +12,9 @@ namespace zapread.com.Services
     /// </summary>
     public class PaymentPoller
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "<Pending>")]
         public static void Subscribe()
         {
