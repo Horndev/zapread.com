@@ -26,8 +26,17 @@ namespace zapread.com.Models.Database
         [InverseProperty("Posts")]
         public virtual User UserId { get; set; }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
         [InverseProperty("HiddenPosts")]
         public virtual User HiddenBy { get; set; }
+
+        [InverseProperty("FollowingPosts")]
+        public virtual ICollection<User> FollowedByUsers { get; set; }
+
+        [InverseProperty("IgnoringPosts")]
+        public virtual ICollection<User> IgnoredByUsers { get; set; }
 
         // Language post is written in
         public string Language { get; set; }
@@ -42,6 +51,8 @@ namespace zapread.com.Models.Database
 
         [InverseProperty("Post")]
         public virtual ICollection<Comment> Comments { get; set; }
+
+
         public virtual ICollection<UserImage> Images { get; set; }
 
         // Post flags

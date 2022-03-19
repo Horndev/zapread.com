@@ -40,6 +40,12 @@ namespace zapread.com.Models.Database
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }
 
+        [InverseProperty("FollowedByUsers")]
+        public virtual ICollection<Post> FollowingPosts { get; set; }
+
+        [InverseProperty("IgnoredByUsers")]
+        public virtual ICollection<Post> IgnoringPosts { get; set; }
+
         [InverseProperty("IgnoredByUsers")]
         public virtual ICollection<User> IgnoringUsers { get; set; }
 
@@ -81,6 +87,12 @@ namespace zapread.com.Models.Database
         /// </summary>
         [InverseProperty("Administrators")]
         public virtual ICollection<Group> GroupAdministration { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("User")]
+        public virtual ICollection<GroupBanished> GroupBanished { get; set; }
 
         /// <summary>
         /// 
