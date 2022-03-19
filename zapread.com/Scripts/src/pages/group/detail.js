@@ -171,7 +171,11 @@ function Page() {
             Loading Administration...
           </div>
         </div>}>
-        <GroupAdminBar id={groupId} />
+        <GroupAdminBar
+          id={groupId}
+          onUpdateDescription={(description) => setgroupDescription(description)}
+          tier={groupTier}
+        />
       </Suspense>) : (<></>)}
       {isGroupMod ? (<Suspense fallback={
         <div className="ibox" style={{ marginBottom: "0px" }}>
@@ -179,7 +183,7 @@ function Page() {
             Loading Moderation...
           </div>
         </div>}>
-        <GroupModBar id={groupId} />
+        <GroupModBar id={groupId} tier={groupTier}/>
       </Suspense>) : (<></>)}
       <div className="wrapper wrapper-content ">
         <div className="row">

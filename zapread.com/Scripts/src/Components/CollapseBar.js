@@ -46,7 +46,7 @@ export default function CollapseBar(props) {
                   <a className="collapse-link" onClick={() => { setIsCollapsed(!isCollapsed);}}>
                     <i className={isCollapsed ? "fa-solid fa-chevron-down" : "fa-solid fa-chevron-up"}></i>
                   </a>
-                  <a className="close-link" onClick={() => {
+                  <a style={props.showClose ? {} : {display: "none"} } className="close-link" onClick={() => {
                     setIsClosed(true);
                   }}>
                     <i className="fa-solid fa-xmark"></i>

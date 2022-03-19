@@ -105,6 +105,43 @@ export default function GroupAdminBar(props) {
     });
   };
 
+  const onSetDescription = () => {
+    if (props.tier < 1) {
+      getSwal().then(({ default: Swal }) => {
+        Swal.fire("Error", "This function requires a group to be at least tier 1", "error");
+      });
+    } else {
+      getSwal().then(({ default: Swal }) => {
+        Swal.fire({
+          title: "Set group description",
+          showCancelButton: true,
+          html: '<label>Set your group short description:</label><input type="text" id="description" class="swal2-input">',
+          focusConfirm: false,
+          preConfirm: () => {
+            const description = Swal.getPopup().querySelector('#description').value
+            if (!description) {
+              Swal.showValidationMessage(`Please enter description`)
+            }
+            return { description: description }
+          }
+        }).then((result) => {
+          postJson('/api/v1/groups/admin/setdescription', {
+            description: result.value.description,
+            groupId: groupId
+          }).then(response => {
+            if (response.success) {
+              Swal.fire("Success", "Description updated", "success");
+              props.onUpdateDescription(result.value.description);
+            }
+            else {
+              Swal.fire("Error", `${response.message}`, "error");
+            }
+          });
+        })
+      });
+    }
+  }
+
   return (
     <>
       <CollapseBar
@@ -115,7 +152,9 @@ export default function GroupAdminBar(props) {
         <h2>
           Group Actions
         </h2>
-        <a className="btn btn-link btn-sm" href={"/Group/Edit?groupId=" + groupId} ><i className="fa-solid fa-edit"></i> Edit Group</a>
+        <a className="btn btn-link btn-sm" href={"/Group/Edit?groupId=" + groupId} ><i className="fa-solid fa-edit"></i> Edit Group <i className="fa-solid fa-up-right-from-square"></i></a>
+        <br/>
+        <button className="btn btn-link btn-sm" onClick={onSetDescription}><i className="fa-solid fa-pen"></i> [Tier 1] Set Description</button>
         <h2>
           User Administration
         </h2>
@@ -168,6 +207,7 @@ export default function GroupAdminBar(props) {
           <Col lg={4}>
             <CollapseBar
               isDisabled={false}
+              showClose={false}
               onExpand={handleAdminExpand}
               title={"Administrators"}
               bg={"gray-bg"}
@@ -182,6 +222,7 @@ export default function GroupAdminBar(props) {
           <Col lg={4}>
             <CollapseBar
               isDisabled={false}
+              showClose={false}
               onExpand={handleModExpand}
               title={"Moderators"}
               bg={"gray-bg"}
@@ -196,6 +237,7 @@ export default function GroupAdminBar(props) {
           <Col lg={4}>
             <CollapseBar
               isDisabled={false}
+              showClose={false}
               title={"Banished"}
               bg={"gray-bg"}
               isCollapsed={true}>

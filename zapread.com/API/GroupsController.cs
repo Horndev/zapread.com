@@ -28,6 +28,47 @@ namespace zapread.com.API
         /// 
         /// </summary>
         /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/admin/setdescription")]
+        public async Task<IHttpActionResult> SetDescription(SetGroupDescriptionParameters req)
+        {
+            if (req == null || req.GroupId < 1 || String.IsNullOrEmpty(req.Description))
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Check if requestor is authorized
+                var userAppId = User.Identity.GetUserId();
+
+                var isAdmin = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
+                    .AnyAsync().ConfigureAwait(true);
+
+                if (!isAdmin)
+                {
+                    return Unauthorized();
+                }
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                group.ShortDescription = req.Description;
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
         /// <param name="role"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]

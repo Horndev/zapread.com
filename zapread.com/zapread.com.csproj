@@ -890,6 +890,7 @@
     <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
     <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
+    <Compile Include="Models\API\Groups\SetGroupDescriptionParameters.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
     <Compile Include="Models\API\Groups\GroupInfo.cs" />

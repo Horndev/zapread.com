@@ -40,6 +40,7 @@ namespace zapread.com.API
             {
                 var users = await db.Users
                     .Where(u => u.Name.Contains(req.Prefix))
+                    .OrderByDescending(u => u.DateLastActivity)
                     .Take(req.Max)
                     .Select(u => new UserResultInfo()
                     {
