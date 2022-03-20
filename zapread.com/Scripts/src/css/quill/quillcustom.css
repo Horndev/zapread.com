@@ -5,10 +5,13 @@
     color: white;
 }
 
-/*Comments*/
+.quill {
+    border: 0px !important;
+}
 
-/* This style sets the comment input editor to not be too large as is the default quill style*/
-.ql-comment .ql-editor {
+/*Comments*/
+    /* This style sets the comment input editor to not be too large as is the default quill style*/
+    .ql-comment .ql-editor {
     min-height: 20px;
 }
 

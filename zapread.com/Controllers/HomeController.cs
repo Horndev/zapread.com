@@ -807,6 +807,8 @@ namespace zapread.com.Controllers
             //LNNodeMonitor a = new LNNodeMonitor();
             //a.UpdateHourly();
 
+            //PayoutsService.UpdateBanished();
+
             try
             {
                 if (Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "0"))

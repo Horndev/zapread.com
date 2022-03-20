@@ -3,7 +3,14 @@
 <div class="white-bg">
     <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
         <div id="goHome">
-            <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
+            @if (Request.IsAuthenticated)
+            {
+                <a class="navbar-brand" href="/?l=1" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
+            }
+            else
+            {
+                <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
+            }
         </div>
         <div class="d-flex flex-row order-2 order-lg-3">
             <ul class="nav navbar-nav flex-row" style="margin-left: 10px;">

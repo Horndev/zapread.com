@@ -148,9 +148,26 @@ namespace zapread.com.API
                     .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
                     .AnyAsync().ConfigureAwait(true);
 
+                // This funciton is checked for moderator only when role is a moderator role.
+                // This is to reduce the number of calls to the DB.
                 if (!isAdmin)
                 {
-                    return Unauthorized();
+                    // sub-select moderator roles to pass
+                    if (role == "banish")
+                    {
+                        var isMod = await db.Groups
+                            .Where(g => g.GroupId == req.GroupId)
+                            .Where(g => g.Moderators.Select(ga => ga.AppId).Contains(userAppId))
+                            .AnyAsync().ConfigureAwait(true);
+                        if (!isMod)
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
                 }
 
                 var userToGrant = await db.Users
@@ -165,7 +182,8 @@ namespace zapread.com.API
                 if (role == "mod")
                 {
                     group.Moderators.Add(userToGrant);
-                } else if (role == "admin")
+                } 
+                else if (role == "admin")
                 {
                     group.Administrators.Add(userToGrant);
                 }
@@ -238,7 +256,14 @@ namespace zapread.com.API
                 }
                 else if (role == "admin")
                 {
-                    group.Administrators.Remove(userToGrant);
+                    if (group.Administrators.Count() == 1)
+                    {
+                        return Ok(new ZapReadResponse() { success = false, message = "Group must have at least one administrator." });
+                    }
+                    else
+                    {
+                        group.Administrators.Remove(userToGrant);
+                    }
                 }
                 else if (role == "banish")
                 {
