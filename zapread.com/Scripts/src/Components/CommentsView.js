@@ -4,7 +4,6 @@
 
 import React, { useCallback, useEffect, useState, createRef, useMemo } from "react";
 import { Container, Row, Col, ButtonGroup, Button, Dropdown } from "react-bootstrap";
-
 import { toggleComment } from "../shared/postui";
 import { replyComment } from "../comment/replycomment";
 import { ready } from '../utility/ready';
@@ -14,6 +13,7 @@ import { makeQuotable } from "../utility/quotable/quotable";
 import { applyHoverToChildren } from '../utility/userhover';
 import { ISOtoRelative } from "../utility/datetime/posttime"
 import { postJson } from "../utility/postData";
+const getSwal = () => import('sweetalert2');
 import '../css/posts.css'
 
 function Comment(props) {
@@ -168,7 +168,12 @@ function Comment(props) {
                     <div id={"sVotec_" + props.comment.CommentId}>
                       {props.comment.Score}
                     </div>
-                    <a role="button" style={{ position: "relative", zIndex: 1 }} onClick={() => {
+                      <a role="button" style={{ position: "relative", zIndex: 1 }} onClick={() => {
+                        if (props.viewerIsBanished) {
+                          getSwal().then(({ default: Swal }) => {
+                            Swal.fire("Error", "You are banished from this group and can't vote down", "error");
+                          });
+                        } else {
                           const event = new CustomEvent('vote', {
                             detail: {
                               direction: 'down',
@@ -178,9 +183,14 @@ function Comment(props) {
                             }
                           });
                           document.dispatchEvent(event);
+                        }
                       }}
-                      className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
-                        <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
+                        className={props.comment.ViewerDownvoted ? "" : "text-muted"} id={"dVotec_" + props.comment.CommentId}>
+                        {props.viewerIsBanished ? (<>
+                          <i ref={downVoteRef} className="fa-solid fa-minus fa-lg"> </i>
+                        </>) : (<>
+                          <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
+                        </>)}
                     </a>
                   </div>
                 )}
@@ -273,6 +283,7 @@ function Comment(props) {
                     children={allChildren(cmt, props.children)}
                     nestLevel={props.nestLevel + 1}
                     startVisible={true /*props.nestLevel < 4*/}
+                    viewerIsBanished={props.viewerIsBanished}
                     isLoggedIn={props.isLoggedIn}
                     handleLoadMoreComments={props.handleLoadMoreComments}
                     numReplies={cmt.NumReplies}
@@ -368,6 +379,7 @@ export default function CommentsView(props) {
               numReplies={cmt.NumReplies}
               nestLevel={1}
               startVisible={true}
+              viewerIsBanished={props.viewerIsBanished}
               handleLoadMoreComments={handleLoadMoreComments}
               root={[cmt.CommentId]}
               isLoggedIn={props.isLoggedIn} />

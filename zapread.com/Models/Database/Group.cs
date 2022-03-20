@@ -26,25 +26,35 @@ namespace zapread.com.Models.Database
         public DateTime? CreationDate { get; set; }
 
         /// <summary>
-        /// 
+        /// Users who are members of this group
         /// </summary>
         [InverseProperty("Groups")]
         public virtual ICollection<User> Members { get; set; }
+        
         /// <summary>
-        /// 
+        /// Users who are ignoring this group and will not see posts from it
         /// </summary>
         [InverseProperty("IgnoredGroups")]
         public virtual ICollection<User> Ignoring { get; set; }
+        
         /// <summary>
-        /// 
+        /// Users with moderation privilages
         /// </summary>
         [InverseProperty("GroupModeration")]
         public virtual ICollection<User> Moderators { get; set; }
+        
         /// <summary>
-        /// 
+        /// Users with administration privilages
         /// </summary>
         [InverseProperty("GroupAdministration")]
         public virtual ICollection<User> Administrators { get; set; }
+
+        /// <summary>
+        /// Users with administration privilages
+        /// </summary>
+        [InverseProperty("Group")]
+        public virtual ICollection<GroupBanished> Banished { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -68,6 +78,7 @@ namespace zapread.com.Models.Database
         /// 
         /// </summary>
         public string Tags { get; set; }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -92,5 +103,10 @@ namespace zapread.com.Models.Database
         /// Group can add a background image over the header.
         /// </summary>
         public UserImage GroupHeaderImage { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string CustomTemplate { get; set; }
     }
 }

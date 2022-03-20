@@ -775,7 +775,7 @@ namespace zapread.com.Controllers
                         else
                         {
                             // filter youtube nocookie anyway
-                            contentStr = PostsHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
+                            contentStr = PostsHTMLString;//.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
                         }
                     }
                 }
@@ -806,6 +806,8 @@ namespace zapread.com.Controllers
             //a.CheckAchievements();
             //LNNodeMonitor a = new LNNodeMonitor();
             //a.UpdateHourly();
+
+            //PayoutsService.UpdateBanished();
 
             try
             {

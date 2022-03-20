@@ -26,7 +26,7 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("subBtnText");
                 if (el !== null) {
-                    el.innerHTML = "Unsubscribe"; //$('#subBtnText').html("Unsubscribe");
+                    el.innerHTML = "Un-Follow"; //$('#subBtnText').html("Unsubscribe");
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {
@@ -40,7 +40,7 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("subBtnText");
                 if (el !== null) {
-                    el.innerHTML = "Subscribe"; //$('#subBtnText').html("Subscribe");
+                    el.innerHTML = "Follow"; //$('#subBtnText').html("Subscribe");
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {

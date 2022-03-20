@@ -868,6 +868,10 @@
     <Compile Include="Migrations\202203070205053_EnableFullTextA.designer.cs">
       <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.cs" />
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.designer.cs">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -890,6 +894,7 @@
     <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
     <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
+    <Compile Include="Models\API\Groups\SetGroupDescriptionParameters.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
     <Compile Include="Models\API\Groups\GroupInfo.cs" />
@@ -914,6 +919,7 @@
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
+    <Compile Include="Models\Database\GroupBanished.cs" />
     <Compile Include="Models\Database\Post.cs" />
     <Compile Include="Models\Database\Referral.cs" />
     <Compile Include="Models\Database\User.cs" />
@@ -1082,18 +1088,20 @@
     <Content Include="Scripts\dist\0\2977.js" />
     <Content Include="Scripts\dist\0\3227.css" />
     <Content Include="Scripts\dist\0\3227.js" />
+    <Content Include="Scripts\dist\0\3652.css" />
     <Content Include="Scripts\dist\0\3652.js" />
     <Content Include="Scripts\dist\0\3780.css" />
     <Content Include="Scripts\dist\0\3780.js" />
     <Content Include="Scripts\dist\0\4045.css" />
     <Content Include="Scripts\dist\0\4045.js" />
+    <Content Include="Scripts\dist\0\4351.css" />
+    <Content Include="Scripts\dist\0\4351.js" />
     <Content Include="Scripts\dist\0\4791.js" />
     <Content Include="Scripts\dist\0\4791.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\5088.js" />
     <Content Include="Scripts\dist\0\5213.js" />
     <Content Include="Scripts\dist\0\5252.js" />
     <Content Include="Scripts\dist\0\5580.js" />
-    <Content Include="Scripts\dist\0\5776.js" />
     <Content Include="Scripts\dist\0\5886.js" />
     <Content Include="Scripts\dist\0\5887.css" />
     <Content Include="Scripts\dist\0\5887.js" />
@@ -1104,12 +1112,12 @@
     <Content Include="Scripts\dist\0\6466.js" />
     <Content Include="Scripts\dist\0\6466.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\6476.js" />
-    <Content Include="Scripts\dist\0\6550.css" />
-    <Content Include="Scripts\dist\0\6550.js" />
+    <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
     <Content Include="Scripts\dist\0\8135.js" />
     <Content Include="Scripts\dist\0\8338.js" />
+    <Content Include="Scripts\dist\0\8808.js" />
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9407.js" />
     <Content Include="Scripts\dist\0\9787.js" />
@@ -1341,17 +1349,19 @@
     <Content Include="Scripts\dist\0\2977.js.map" />
     <Content Include="Scripts\dist\0\3227.css.map" />
     <Content Include="Scripts\dist\0\3227.js.map" />
+    <Content Include="Scripts\dist\0\3652.css.map" />
     <Content Include="Scripts\dist\0\3652.js.map" />
     <Content Include="Scripts\dist\0\3780.css.map" />
     <Content Include="Scripts\dist\0\3780.js.map" />
     <Content Include="Scripts\dist\0\4045.css.map" />
     <Content Include="Scripts\dist\0\4045.js.map" />
+    <Content Include="Scripts\dist\0\4351.css.map" />
+    <Content Include="Scripts\dist\0\4351.js.map" />
     <Content Include="Scripts\dist\0\4791.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
     <Content Include="Scripts\dist\0\5213.js.map" />
     <Content Include="Scripts\dist\0\5252.js.map" />
     <Content Include="Scripts\dist\0\5580.js.map" />
-    <Content Include="Scripts\dist\0\5776.js.map" />
     <Content Include="Scripts\dist\0\5886.js.map" />
     <Content Include="Scripts\dist\0\5887.css.map" />
     <Content Include="Scripts\dist\0\5887.js.map" />
@@ -1361,12 +1371,12 @@
     <Content Include="Scripts\dist\0\6455.js.map" />
     <Content Include="Scripts\dist\0\6466.js.map" />
     <Content Include="Scripts\dist\0\6476.js.map" />
-    <Content Include="Scripts\dist\0\6550.css.map" />
-    <Content Include="Scripts\dist\0\6550.js.map" />
+    <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
     <Content Include="Scripts\dist\0\8338.js.map" />
+    <Content Include="Scripts\dist\0\8808.js.map" />
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9407.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
@@ -2018,6 +2028,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202203070205053_EnableFullTextA.resx">
       <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.resx">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -60,8 +60,15 @@
                                 <i class="fa-solid fa-chevron-up fa-lg"> </i>
                             </a>
                             <div id="sVotec_@Model.CommentId">@Model.Score</div>
-                            <a href="#/" data-commentid="@Model.CommentId" class="vote-comment-dn @(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
-                                <i class="fa-solid fa-chevron-down fa-lg"> </i>
+                            <a href="#/" data-commentid="@Model.CommentId" data-isbanished="@Model.ViewerIsBanishedGroup" class="vote-comment-dn @(Model.ViewerDownvoted ? "" : "text-muted")" id="dVotec_@Model.CommentId" style="position: relative;z-index: 1;">
+                                @if (Model.ViewerIsBanishedGroup)
+                                {
+                                    <i class="fa-solid fa-minus fa-lg"> </i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-chevron-down fa-lg"> </i>
+                                }
                             </a>
                         </div>
                     }
@@ -173,6 +180,7 @@
                                 UserAppId = cmt.UserAppId,
                                 ViewerUpvoted = cmt.ViewerUpvoted,
                                 ViewerDownvoted = cmt.ViewerDownvoted,
+                                ViewerIsBanishedGroup = Model.ViewerIsBanishedGroup,
                                 PostId = cmt.PostId,
                             };
                             @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)

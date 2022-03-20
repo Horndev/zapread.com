@@ -7,22 +7,31 @@ import { applyHoverToChildren } from './userhover';                             
 import { loadgrouphover } from './grouphover';                                  // [✓]
 import { updatePostTimes } from './datetime/posttime';                          // [✓]
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
+const getSwal = () => import('sweetalert2');
 
 async function enableVoting(className, d, t, idel) {
   var elements = document.querySelectorAll("." + className);
   Array.prototype.forEach.call(elements, function (el, _i) {
     var postid = el.getAttribute(idel);
+    var isBanished = el.getAttribute("data-isbanished");
     el.addEventListener("click", (e) => {
       // Emit vote event
-      const event = new CustomEvent('vote', {
-        detail: {
-          direction: d,
-          type: t,
-          id: postid,
-          target: e.target
-        }
-      });
-      document.dispatchEvent(event);
+      if (isBanished == "True" && d == "down") {
+        // Note that we compare against the string True since the data element is not a bool
+        getSwal().then(({ default: Swal }) => {
+          Swal.fire("Error", "You are banished from this group and can't vote down", "error");
+        });
+      } else {
+        const event = new CustomEvent('vote', {
+          detail: {
+            direction: d,
+            type: t,
+            id: postid,
+            target: e.target
+          }
+        });
+        document.dispatchEvent(event);
+      }
     });
     // remove className to indicate event handler is attached
     el.classList.remove(className);

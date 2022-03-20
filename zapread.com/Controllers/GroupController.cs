@@ -1317,7 +1317,10 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
+                var userAppId = User.Identity.GetUserId();
+
                 var query = db.Groups
+                    .Where(g => !g.Banished.Where(b => b.User.AppId == userAppId).Any())
                     .Select(g => new
                     {
                         g.GroupName,
@@ -1329,6 +1332,8 @@ namespace zapread.com.Controllers
                         //ImageId = g.GroupImage == null ? 3 : g.GroupImage.ImageId,
                         numMembers = g.Members.Count,
                     });
+
+                
 
                 if (String.IsNullOrEmpty(prefix))
                 {

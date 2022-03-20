@@ -148,6 +148,35 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void UpdateBanished()
+        {
+            using (var db = new ZapContext())
+            {
+                var groupsWithBan = db.Groups
+                    .Where(g => g.Banished.Count > 0)
+                    .Include(g => g.Banished)
+                    .ToList();
+
+                var now = DateTime.UtcNow;
+                foreach (var group in groupsWithBan)
+                {
+                    var expiredBans = group.Banished
+                        .Where(b => b.TimeStampExpired.HasValue && b.TimeStampExpired.Value > now)
+                        .ToList();
+
+                    foreach (var ban in expiredBans)
+                    {
+                        group.Banished.Remove(ban);
+                    }
+                }
+
+                db.SaveChanges();
+            }
+        }
+
         private static void DistributeCommunityFunds(ZapContext db, ZapReadGlobals website, Dictionary<int, double> payoutUserAmount)
         {
             var distributed = 0.0;
@@ -185,6 +214,18 @@ namespace zapread.com.Services
 
             using (var db = new ZapContext())
             {
+                // Update users who are banished and should no longer be
+                try
+                {
+                    UpdateBanished();
+                }
+                catch (Exception ex)
+                {
+                    Services.MailingService.SendErrorNotification(
+                        title: "UpdateBanished failed in GroupsPayout",
+                        message: ex.Message + ex.ToString());
+                }
+
                 // GROUP PAYOUTS
                 var gids = db.Groups.Select(g => g.GroupId).ToList();
                 double toDistribute = 0.0;

@@ -28,11 +28,52 @@ namespace zapread.com.API
         /// 
         /// </summary>
         /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/admin/setdescription")]
+        public async Task<IHttpActionResult> SetDescription(SetGroupDescriptionParameters req)
+        {
+            if (req == null || req.GroupId < 1 || String.IsNullOrEmpty(req.Description))
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                // Check if requestor is authorized
+                var userAppId = User.Identity.GetUserId();
+
+                var isAdmin = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
+                    .AnyAsync().ConfigureAwait(true);
+
+                if (!isAdmin)
+                {
+                    return Unauthorized();
+                }
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                group.ShortDescription = req.Description.CleanUnicode().SanitizeXSS();
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
         /// <param name="role"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/list/{role}")]
-        public async Task<IHttpActionResult> ListMods(GroupUsersParameters req, [FromUri] string role)
+        public async Task<IHttpActionResult> ListRole(GroupUsersParameters req, [FromUri] string role)
         {
             if (req == null || req.GroupId < 1 || String.IsNullOrEmpty(role))
             {
@@ -54,7 +95,13 @@ namespace zapread.com.API
                 {
                     usersq = groupq
                         .SelectMany(g => g.Administrators);
-                } else
+                }
+                else if (role == "banished")
+                {
+                    usersq = groupq
+                        .SelectMany(g => g.Banished.Select(b => b.User));
+                }
+                else
                 {
                     usersq = groupq
                         .SelectMany(g => g.Members);
@@ -101,9 +148,26 @@ namespace zapread.com.API
                     .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
                     .AnyAsync().ConfigureAwait(true);
 
+                // This funciton is checked for moderator only when role is a moderator role.
+                // This is to reduce the number of calls to the DB.
                 if (!isAdmin)
                 {
-                    return Unauthorized();
+                    // sub-select moderator roles to pass
+                    if (role == "banish")
+                    {
+                        var isMod = await db.Groups
+                            .Where(g => g.GroupId == req.GroupId)
+                            .Where(g => g.Moderators.Select(ga => ga.AppId).Contains(userAppId))
+                            .AnyAsync().ConfigureAwait(true);
+                        if (!isMod)
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
                 }
 
                 var userToGrant = await db.Users
@@ -118,10 +182,25 @@ namespace zapread.com.API
                 if (role == "mod")
                 {
                     group.Moderators.Add(userToGrant);
-                } else if (role == "admin")
+                } 
+                else if (role == "admin")
                 {
                     group.Administrators.Add(userToGrant);
-                } else if (role == "membership")
+                }
+                else if (role == "banish")
+                {
+                    var ban = new GroupBanished()
+                    {
+                        BanishmentType = 0, // Group Admin
+                        Group = group,
+                        User = userToGrant,
+                        TimeStampStarted = DateTime.UtcNow,
+                        TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
+                        Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
+                    };
+                    group.Banished.Add(ban);
+                }
+                else if (role == "membership")
                 {
                     group.Members.Add(userToGrant);
                 }
@@ -177,7 +256,24 @@ namespace zapread.com.API
                 }
                 else if (role == "admin")
                 {
-                    group.Administrators.Remove(userToGrant);
+                    if (group.Administrators.Count() == 1)
+                    {
+                        return Ok(new ZapReadResponse() { success = false, message = "Group must have at least one administrator." });
+                    }
+                    else
+                    {
+                        group.Administrators.Remove(userToGrant);
+                    }
+                }
+                else if (role == "banish")
+                {
+                    var ban = group.Banished
+                        .Where(b => b.User.AppId == req.UserAppId)
+                        .FirstOrDefault();
+                    if (ban != null)
+                    {
+                        group.Banished.Remove(ban);
+                    }
                 }
                 else if (role == "membership")
                 {
@@ -586,6 +682,8 @@ namespace zapread.com.API
                         IsMember = g.Members.Select(m => m.Id).Contains(userId),
                         IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
                         IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+                        IsBanished = g.Banished.Select(b => b.User.Id).Contains(userId),
+                        BanishExpires = g.Banished.Select(b => b.User.Id).Contains(userId) ? g.Banished.Where(b => b.User.Id == userId).Select(b => b.TimeStampExpired).FirstOrDefault() : null
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (reqGroupQ == null)
@@ -609,6 +707,8 @@ namespace zapread.com.API
                     IsIgnoring = isIgnoring,
                     Level = reqGroupQ.Tier,
                     Earned = Convert.ToUInt64(reqGroupQ.Earned),
+                    BanishExpires = reqGroupQ.BanishExpires,
+                    IsBanished = reqGroupQ.IsBanished
                 };
 
                 return Ok(new LoadGroupResponse() { 

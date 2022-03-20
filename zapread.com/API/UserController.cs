@@ -40,12 +40,13 @@ namespace zapread.com.API
             {
                 var users = await db.Users
                     .Where(u => u.Name.Contains(req.Prefix))
+                    .OrderByDescending(u => u.DateLastActivity)
                     .Take(req.Max)
                     .Select(u => new UserResultInfo()
                     {
                         UserName = u.Name,
                         UserAppId = u.AppId,
-                        ProfileImageVersion = u.ProfileImage.Version
+                        ProfileImageVersion = u.ProfileImage != null ? u.ProfileImage.Version: 0
                     }).ToListAsync().ConfigureAwait(false);
 
                 return Ok(new UserSearchResponse() { Users = users});

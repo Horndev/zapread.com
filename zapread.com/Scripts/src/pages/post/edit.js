@@ -21,6 +21,11 @@ import LanguagePicker from './Components/LanguagePicker';
 import { postJson } from '../../utility/postData';
 import PageHeading from '../../components/page-heading';
 import '../../shared/sharedlast';
+import '../../css/quill/quillfont.css';
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import '../../css/quill/quilledit.css';                              // [✓]
+import '../../css/quill/quillcustom.css'; // Some custom overrides
 
 const RSwal = withReactContent(Swal)
 
