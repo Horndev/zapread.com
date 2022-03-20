@@ -26,7 +26,6 @@ export default function PostView(props) {
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [impressions, setImpressions] = useState(0);
-
   const toggleVisibleIconRef = createRef();
 
   var impressionObserver = new IntersectionObserver(function (entries) {
@@ -198,7 +197,13 @@ export default function PostView(props) {
         </Dropdown>
 
         <div className="social-avatar" style={{ paddingBottom: "15px" }}>
-          <PostVoteButtons postId={post.PostId} postScore={post.Score} viewerUpvoted={post.ViewerUpvoted} viewerDownvoted={post.ViewerDownvoted} />
+          <PostVoteButtons
+            postId={post.PostId}
+            postScore={post.Score}
+            viewerUpvoted={post.ViewerUpvoted}
+            viewerDownvoted={post.ViewerDownvoted}
+            viewerIsBanished={post.ViewerIsBanishedGroup}
+          />
 
           {!isIgnored ? (
             <a href={"/user/" + encodeURIComponent(post.UserName)} className="pull-left" style={{ paddingTop: "8px" }}>
@@ -297,7 +302,12 @@ export default function PostView(props) {
 
         <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
           <Suspense fallback={<></>}>
-            <CommentsView comments={post.CommentVms} numRootComments={post.NumRootComments} isLoggedIn={props.isLoggedIn} postId={post.PostId} />
+            <CommentsView
+              comments={post.CommentVms}
+              numRootComments={post.NumRootComments}
+              isLoggedIn={props.isLoggedIn}
+              viewerIsBanished={post.ViewerIsBanishedGroup}
+              postId={post.PostId} />
           </Suspense>
         </div>
       </div >

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace zapread.com.Models.API.Groups
 {
@@ -63,6 +64,17 @@ namespace zapread.com.Models.API.Groups
         /// 
         /// </summary>
         public bool IsLoggedIn { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsBanished { get; set; }
+
+        /// <summary>
+        /// UTC time banishment expires
+        /// </summary>
+        public DateTime? BanishExpires { get; set; }
+
         /// <summary>
         /// 
         /// </summary>

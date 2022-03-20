@@ -440,7 +440,15 @@ namespace zapread.com.Controllers
                 // Cleanup post HTML
                 string contentStr = CleanContent(content);
 
-                var postGroup = await db.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
+                var postGroup = await db.Groups
+                    .Include(g => g.Banished)
+                    .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
+
+                if (postGroup.Banished.Where(b => b.User.AppId == userId).Any())
+                {
+                    Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    return Json(new { success = false, message = "You are banished from this group and can not post to it." });
+                }
 
                 string postLanguage = LanguageHelpers.NameToISO(language);
 

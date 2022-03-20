@@ -7,7 +7,9 @@ import '../../realtime/signalr';
 import React, { Suspense, useEffect, useState } from 'react';
 import ReactDOM from "react-dom";
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
+import { Container, Row, Col, DropdownButton, Dropdown, ButtonGroup, Button } from "react-bootstrap";
 import { postJson } from "../../utility/postData";
+import { ISOtoRelative } from "../../utility/datetime/posttime"
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
 import LoadingBounce from "../../Components/LoadingBounce";
@@ -46,6 +48,8 @@ function Page() {
   const [isIgnoring, setIsIgnoring] = useState(false);
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [isGroupMod, setIsGroupMod] = useState(false);
+  const [isGroupBanished, setIsGroupBanished] = useState(false);
+  const [banishedExpires, setBanishedExpires] = useState(null);
   const [isGroupMember, setIsGroupMember] = useState(false);
   const [imageId, setImageId] = useState(0);
   const [posts, setPosts] = useState([]);
@@ -103,7 +107,7 @@ function Page() {
         groupName: pgroupname
       }).then((response) => {
         if (response.success) {
-          window.document.title = response.group.Name + response.group.ShortDescription != null ? (" " + response.group.ShortDescription) : "";
+          window.document.title = response.group.Name + (response.group.ShortDescription != null ? " " + response.group.ShortDescription : "");
           setIsLoaded(true);
           setGroupId(response.group.Id);
           setgroupName(response.group.Name);
@@ -117,6 +121,8 @@ function Page() {
           setGroupTier(response.group.Level);
           setGroupEarned(response.group.Earned);
           setIsLoggedIn(response.IsLoggedIn);
+          setIsGroupBanished(response.group.IsBanished);
+          setBanishedExpires(response.group.BanishExpires);
 
           // Needed for the vote.js to work.  [TODO] make this non-global
           window.IsAuthenticated = response.IsLoggedIn;
@@ -165,6 +171,14 @@ function Page() {
         <div className="col-lg-2">
         </div>
       </div>
+      {isGroupBanished ? (
+        <>
+          <Row>
+            <Col className="red-bg" style={{margin:"15px", padding: "15px"}}>
+              <i className="fa-solid fa-triangle-exclamation" style={{ color: "red" }}></i> You are banished from this group.  Your banishment expires { banishedExpires == null ? "soon": ISOtoRelative(banishedExpires, true)}.  You can't vote down or make posts to this group.
+            </Col>
+          </Row>
+        </>) : (<></>)}
       {isGroupAdmin ? (<Suspense fallback={
         <div className="ibox" style={{marginBottom: "0px"}}>
           <div className="ibox-title bg-warning">
@@ -192,15 +206,16 @@ function Page() {
             <div className="social-feed-box-nb">
               <span></span>
             </div>
-            <div className="social-feed-box-nb">
-              <button onClick={() => {
+            {isGroupBanished ? (<></>) : (<>
+              <div className="social-feed-box-nb">
+                <button onClick={() => {
                   location.href = "/Post/Edit/?groupId=" + groupId;
                 }}
-                className="btn btn-primary btn-outline btn-block">
-                <i className="fa fa-plus"></i>{" "}Add Post
-              </button>
-            </div>
-
+                  className="btn btn-primary btn-outline btn-block">
+                  <i className="fa fa-plus"></i>{" "}Add Post
+                </button>
+              </div>
+            </>)}
             {postsLoaded ? (<>
               <Suspense fallback={<><LoadingBounce /></>}>
                 <PostList

@@ -46,7 +46,7 @@ namespace zapread.com.API
                     {
                         UserName = u.Name,
                         UserAppId = u.AppId,
-                        ProfileImageVersion = u.ProfileImage.Version
+                        ProfileImageVersion = u.ProfileImage != null ? u.ProfileImage.Version: 0
                     }).ToListAsync().ConfigureAwait(false);
 
                 return Ok(new UserSearchResponse() { Users = users});

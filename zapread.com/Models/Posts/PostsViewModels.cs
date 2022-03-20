@@ -41,6 +41,10 @@ namespace zapread.com.Models
         public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
         public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
         public bool ViewerIgnoredUser { get; set; }  // If the user has ignored the user
+        /// <summary>
+        /// Viewer is banished from this group
+        /// </summary>
+        public bool ViewerIsBanishedGroup { get; set; }
         public bool IsDetailView { get; set; }       // If the post is being viewed by itself
         public bool IsFirstPost { get; set; }        // If the post is the first post on a page
 
@@ -152,6 +156,7 @@ namespace zapread.com.Models
         public bool ViewerUpvoted;      // If the user has upvoted this comment
         public bool ViewerDownvoted;    // If the user has downvoted this comment
         public bool ViewerIgnoredUser;  // If the user has ignored the user
+        public bool ViewerIsBanishedGroup;
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

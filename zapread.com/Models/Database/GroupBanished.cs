@@ -22,13 +22,13 @@ namespace zapread.com.Models.Database
         /// Users with administration privilages
         /// </summary>
         [InverseProperty("GroupBanished")]
-        public virtual ICollection<User> User { get; set; }
+        public virtual User User { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         [InverseProperty("Banished")]
-        public virtual ICollection<Group> Group { get; set; }
+        public virtual Group Group { get; set; }
 
         /// <summary>
         /// 

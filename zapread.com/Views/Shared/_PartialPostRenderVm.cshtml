@@ -111,8 +111,15 @@
                         <i class="fa-solid fa-chevron-up fa-lg"> </i>
                     </a>
                     <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
-                    <a href="#/" data-postid="@Model.PostId" class="vote-post-dn @(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.PostId">
-                        <i class="fa-solid fa-chevron-down fa-lg"> </i>
+                    <a href="#/" data-postid="@Model.PostId" data-isbanished="@Model.ViewerIsBanishedGroup" class="vote-post-dn @(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.PostId">
+                        @if (Model.ViewerIsBanishedGroup)
+                        {
+                            <i class="fa-solid fa-minus fa-lg"> </i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-chevron-down fa-lg"> </i>
+                        }
                     </a>
                 </div>
             </div>
@@ -216,6 +223,7 @@
                         UserAppId = cmt.UserAppId,
                         ViewerUpvoted = cmt.ViewerUpvoted,
                         ViewerDownvoted = cmt.ViewerDownvoted,
+                        ViewerIsBanishedGroup = Model.ViewerIsBanishedGroup,
                         PostId = cmt.PostId,
                     };
 

@@ -13,9 +13,9 @@
 }
 
 .ql-container, .ql-comment.ql-container.ql-snow {
-    border: 0px;
-    font-size: 12px;
-    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 0px !important;
+    font-size: 12px !important;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 .ql-mention-list-container {
@@ -60,18 +60,18 @@
     margin-right: 2px;
 }
 
-.mention > span {
-    margin: 0 3px;
-}
+    .mention > span {
+        margin: 0 3px !important;
+    }
 
 /*.ql-snow .ql-editor*/ /*Apply the blockquote site-wide*/
 .ql-snow .ql-editor blockquote, blockquote {
-    border-left: 5px solid #1ab394;
-    margin-bottom: 1rem;
-    margin-top: 0px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 16px;
+    border-left: 5px solid #1ab394 !important;
+    margin-bottom: 1rem !important;
+    margin-top: 0px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    padding-left: 16px !important;
 }
 
 button.ql-submit:hover {
@@ -81,9 +81,9 @@ button.ql-submit:hover {
 }
 
 button.ql-submit {
-    min-width: 90px;
-    font-size: 14px;
-    color: green;
+    min-width: 90px !important;
+    font-size: 14px !important;
+    color: green !important;
     padding-top: 1px !important;
 }
 
@@ -101,24 +101,24 @@ button.ql-cancel {
 }
 
 .ql-toolbar, .ql-toolbar.ql-snow {
-    background-color: #f3f3f4;
-    border-radius: 10px 10px 0px 0px;
+    background-color: #f3f3f4 !important;
+    border-radius: 10px 10px 0px 0px !important;
     /*border: 0px;*/
 }
 
 .ql-container, .ql-container.ql-snow {
-    border: 0px;
+    border: 0px !important;
 }
 
 /* Created to put border around content input*/
 .ql-content {
-    border-radius: 10px;
+    border-radius: 10px !important;
     /*border: 1px solid;
     border-color: #ccc;*/
 }
 
 .ql-editor {
-    background-color: #fff;
+    background-color: #fff !important;
     border-radius: 0px 0px 10px 10px;
     height: auto;
     border: 1px solid;
@@ -126,21 +126,21 @@ button.ql-cancel {
 }
 
 .ql-snow.ql-toolbar button {
-    background: #fff;
-    border: 1px solid;
-    border-color: #dae0e5;
-    margin-right: 2px;
-    margin-top: 2px;
-    border-radius: 3px;
+    background: #fff !important;
+    border: 1px solid !important;
+    border-color: #dae0e5 !important;
+    margin-right: 2px !important;
+    margin-top: 2px !important;
+    border-radius: 3px !important;
 }
 
 .ql-snow .ql-picker {
-    background: #fff;
-    border: 1px solid;
-    border-color: #dae0e5;
-    margin-right: 2px;
-    margin-top: 2px;
-    border-radius: 3px;
+    background: #fff !important;
+    border: 1px solid !important;
+    border-color: #dae0e5 !important;
+    margin-right: 2px !important;
+    margin-top: 2px !important;
+    border-radius: 3px !important;
 }
 
 .ql-snow code,
@@ -168,31 +168,31 @@ button.ql-cancel {
 }
 
 .ql-snow img {
-    max-width: 100%;
+    max-width: 100% !important;
 }
 
 /*Not sure why this icon isn't properly aligned.  This seems to fix it.*/
 .ql-color-picker .ql-picker-label svg, .ql-snow .ql-icon-picker .ql-picker-label svg {
-    vertical-align: top;
+    vertical-align: top !important;
 }
 
 .ql-toolbar.ql-snow .ql-formats {
-    margin-right: 5px;
+    margin-right: 5px !important;
 }
 
 .ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
     /* margin:0; */
     /* padding:0; */
-    margin-top: 0;
-    margin-bottom: 1rem;
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
     /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
 }
 
 .ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
     /* margin:0; */
     /* padding:0; */
-    margin-top: 0;
-    margin-bottom: 1rem;
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
     /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
 }
 
@@ -212,8 +212,8 @@ button.ql-cancel {
 .ql-snow .ql-toolbar .ql-picker-item:hover,
 .ql-snow.ql-toolbar .ql-picker-item.ql-selected,
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
-    color: #fff;
-    background-color: #18a689;
+    color: #fff !important;
+    background-color: #18a689 !important;
 }
 
     .ql-snow.ql-toolbar button:hover .ql-fill,
@@ -244,7 +244,7 @@ button.ql-cancel {
     .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
     .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill,
     .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
-        fill: #fff;
+        fill: #fff !important;
     }
 
     .ql-snow.ql-toolbar button:hover .ql-stroke,
@@ -275,7 +275,7 @@ button.ql-cancel {
     .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
     .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter,
     .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
-        stroke: #fff;
+        stroke: #fff !important;
     }
 
 @media (pointer: coarse) {

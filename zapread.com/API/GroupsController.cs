@@ -57,7 +57,7 @@ namespace zapread.com.API
                     .Where(g => g.GroupId == req.GroupId)
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                group.ShortDescription = req.Description;
+                group.ShortDescription = req.Description.CleanUnicode().SanitizeXSS();
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
 
@@ -73,7 +73,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/list/{role}")]
-        public async Task<IHttpActionResult> ListMods(GroupUsersParameters req, [FromUri] string role)
+        public async Task<IHttpActionResult> ListRole(GroupUsersParameters req, [FromUri] string role)
         {
             if (req == null || req.GroupId < 1 || String.IsNullOrEmpty(role))
             {
@@ -95,7 +95,13 @@ namespace zapread.com.API
                 {
                     usersq = groupq
                         .SelectMany(g => g.Administrators);
-                } else
+                }
+                else if (role == "banished")
+                {
+                    usersq = groupq
+                        .SelectMany(g => g.Banished.Select(b => b.User));
+                }
+                else
                 {
                     usersq = groupq
                         .SelectMany(g => g.Members);
@@ -162,7 +168,21 @@ namespace zapread.com.API
                 } else if (role == "admin")
                 {
                     group.Administrators.Add(userToGrant);
-                } else if (role == "membership")
+                }
+                else if (role == "banish")
+                {
+                    var ban = new GroupBanished()
+                    {
+                        BanishmentType = 0, // Group Admin
+                        Group = group,
+                        User = userToGrant,
+                        TimeStampStarted = DateTime.UtcNow,
+                        TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
+                        Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
+                    };
+                    group.Banished.Add(ban);
+                }
+                else if (role == "membership")
                 {
                     group.Members.Add(userToGrant);
                 }
@@ -219,6 +239,16 @@ namespace zapread.com.API
                 else if (role == "admin")
                 {
                     group.Administrators.Remove(userToGrant);
+                }
+                else if (role == "banish")
+                {
+                    var ban = group.Banished
+                        .Where(b => b.User.AppId == req.UserAppId)
+                        .FirstOrDefault();
+                    if (ban != null)
+                    {
+                        group.Banished.Remove(ban);
+                    }
                 }
                 else if (role == "membership")
                 {
@@ -627,6 +657,8 @@ namespace zapread.com.API
                         IsMember = g.Members.Select(m => m.Id).Contains(userId),
                         IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
                         IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
+                        IsBanished = g.Banished.Select(b => b.User.Id).Contains(userId),
+                        BanishExpires = g.Banished.Select(b => b.User.Id).Contains(userId) ? g.Banished.Where(b => b.User.Id == userId).Select(b => b.TimeStampExpired).FirstOrDefault() : null
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (reqGroupQ == null)
@@ -650,6 +682,8 @@ namespace zapread.com.API
                     IsIgnoring = isIgnoring,
                     Level = reqGroupQ.Tier,
                     Earned = Convert.ToUInt64(reqGroupQ.Earned),
+                    BanishExpires = reqGroupQ.BanishExpires,
+                    IsBanished = reqGroupQ.IsBanished
                 };
 
                 return Ok(new LoadGroupResponse() { 

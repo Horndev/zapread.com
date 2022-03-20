@@ -3,10 +3,7 @@
  */
 
 import React, { useCallback, useEffect, useState, createRef } from "react";
-//import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
-
-//import { postJson } from "../utility/postData";
-//import { vote } from "../utility/ui/vote";
+const getSwal = () => import('sweetalert2');
 
 export default function PostVoteButtons(props) {
   const [postId, setPostId] = useState(0);
@@ -28,38 +25,58 @@ export default function PostVoteButtons(props) {
     [props.viewerUpvoted, props.viewerDownvoted, props.postScore, props.postId]
   );
 
+  const handleVoteUp = () => {
+    const event = new CustomEvent('vote', {
+      detail: {
+        direction: 'up',
+        type: 'post',
+        id: postId,
+        target: upVoteRef.current
+      }
+    });
+    document.dispatchEvent(event);
+  }
+
+  const handleVoteDown = () => {
+    if (props.viewerIsBanished) {
+      getSwal().then(({ default: Swal }) => {
+        Swal.fire("Error", "You are banished from this group and can't vote down", "error");
+      });
+    } else {
+      const event = new CustomEvent('vote', {
+        detail: {
+          direction: 'down',
+          type: 'post',
+          id: postId,
+          target: downVoteRef.current
+        }
+      });
+      document.dispatchEvent(event);
+    }
+  };
+
   return (
     <>
       <div className="col-sm-auto vote-actions" style={{ paddingLeft: "0px" }}>
         <div className="vote-actions">
-          <a role="button" onClick={() => {
-              const event = new CustomEvent('vote', {
-                detail: {
-                  direction: 'up',
-                  type: 'post',
-                  id: postId,
-                  target: upVoteRef.current
-                }
-              });
-              document.dispatchEvent(event);
-            }} className={viewerUpvoted ? "" : "text-muted"} id={"uVote_" + postId}>
+          <a role="button"
+            onClick={handleVoteUp}
+            className={viewerUpvoted ? "" : "text-muted"}
+            id={"uVote_" + postId}>
             <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
           </a>
           <div id={"sVote_" + postId}>
             {postScore}
           </div>
-          <a role="button" onClick={() => {
-              const event = new CustomEvent('vote', {
-                detail: {
-                  direction: 'down',
-                  type: 'post',
-                  id: postId,
-                  target: downVoteRef.current
-                }
-              });
-              document.dispatchEvent(event);
-            }} className={viewerDownvoted ? "" : "text-muted"} id={"dVote_" + postId}>
-            <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
+          <a role="button"
+            onClick={handleVoteDown}
+            className={viewerDownvoted ? "" : "text-muted"}
+            id={"dVote_" + postId}>
+            {props.viewerIsBanished ? (<>
+              <i ref={downVoteRef} className="fa-solid fa-minus fa-lg"> </i>
+            </>) : (<>
+              <i ref={downVoteRef} className="fa-solid fa-chevron-down fa-lg"> </i>
+            </>)}
           </a>
         </div>
       </div>

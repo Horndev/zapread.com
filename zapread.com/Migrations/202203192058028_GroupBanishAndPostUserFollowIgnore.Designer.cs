@@ -13,7 +13,7 @@ namespace zapread.com.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202203191945484_GroupBanishAndPostUserFollowIgnore"; }
+            get { return "202203192058028_GroupBanishAndPostUserFollowIgnore"; }
         }
         
         string IMigrationMetadata.Source

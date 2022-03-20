@@ -868,9 +868,9 @@
     <Compile Include="Migrations\202203070205053_EnableFullTextA.designer.cs">
       <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202203191945484_GroupBanishAndPostUserFollowIgnore.cs" />
-    <Compile Include="Migrations\202203191945484_GroupBanishAndPostUserFollowIgnore.designer.cs">
-      <DependentUpon>202203191945484_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.cs" />
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.designer.cs">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
@@ -2025,8 +2025,8 @@
     <EmbeddedResource Include="Migrations\202203070205053_EnableFullTextA.resx">
       <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202203191945484_GroupBanishAndPostUserFollowIgnore.resx">
-      <DependentUpon>202203191945484_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.resx">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
