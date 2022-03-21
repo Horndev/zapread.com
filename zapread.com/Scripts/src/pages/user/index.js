@@ -35,11 +35,15 @@ window.writeComment = writeComment;
 window.replyComment = replyComment;
 window.editComment = editComment;
 window.loadMoreComments = loadMoreComments;
-window.loadachhover = loadachhover;
 window.toggleUserIgnore = toggleUserIgnore;
 window.BlockNumber = 10;                        // Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
+
+var elements = document.querySelectorAll(".ach-hover");
+Array.prototype.forEach.call(elements, function (el, _i) {
+  loadachhover(el);
+});
 
 /**
  * userAppId is set externally in the razor view
