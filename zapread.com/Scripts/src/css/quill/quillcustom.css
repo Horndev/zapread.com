@@ -15,10 +15,20 @@
     min-height: 20px;
 }
 
+.chat-message-form .ql-editor {
+    min-height: 20px;
+}
+
+.chat-message-form .ql-container {
+    border: 0px;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 .ql-container, .ql-comment.ql-container.ql-snow {
-    border: 0px !important;
-    font-size: 12px !important;
-    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    border: 0px;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .ql-mention-list-container {
