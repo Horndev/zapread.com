@@ -29,5 +29,10 @@ namespace zapread.com.Models.API.User
         /// Is this user actively paying out Referral bonuses
         /// </summary>
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// How many Sats have been earned from referrals
+        /// </summary>
+        public int ReferralEarned { get; set; }
     }
 }

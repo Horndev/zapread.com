@@ -67,7 +67,6 @@ module.exports = {
   },
   optimization: {
     minimize: true,
-    //chunkIds: "named",
     minimizer: [
       new TerserPlugin({
         test: /\.js(\?.*)?$/i,

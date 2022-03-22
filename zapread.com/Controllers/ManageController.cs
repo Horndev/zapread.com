@@ -686,6 +686,7 @@ namespace zapread.com.Controllers
                         u.ProfileImage.Version,
                         u.AboutMe,
                         u.Name,
+                        WasReferred = u.ReferralInfo != null && u.ReferralInfo.ReferredByAppId != null,
                         TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
                             .Select(us => new UserFollowView()
                             {
@@ -743,6 +744,7 @@ namespace zapread.com.Controllers
                 // This is a mess - need to split it up
                 var model = new ManageUserViewModel
                 {
+                    CanGiftReferral = userInfo.WasReferred == false,
                     HasPassword = HasPassword(),
                     UserName = userInfo.Name,
                     UserAppId = userInfo.AppId,

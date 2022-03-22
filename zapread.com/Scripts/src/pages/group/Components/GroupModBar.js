@@ -8,7 +8,6 @@ import { Container, Row, Col, DropdownButton, Dropdown, ButtonGroup, Button } fr
 import { postJson } from '../../../utility/postData';
 import UserAutosuggest from "../../../Components/UserAutosuggest";
 import CollapseBar from "../../../Components/CollapseBar";
-
 const getSwal = () => import('sweetalert2');
 
 export default function GroupAdminBar(props) {
