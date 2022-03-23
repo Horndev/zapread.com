@@ -27,6 +27,11 @@ namespace zapread.com.Models
         public IList<string> Languages { get; set; }
         public IList<string> KnownLanguages { get; set; }
         public UserSettings Settings { get; set; }
+
+        /// <summary>
+        /// If the user was not referred - then this flag determines if the user can gift their referral to another user
+        /// </summary>
+        public bool CanGiftReferral { get; set; }
     }
 
     /// <summary>

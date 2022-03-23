@@ -46,10 +46,10 @@ namespace zapread.com.API
                     {
                         UserName = u.Name,
                         UserAppId = u.AppId,
-                        ProfileImageVersion = u.ProfileImage != null ? u.ProfileImage.Version: 0
+                        ProfileImageVersion = u.ProfileImage != null ? u.ProfileImage.Version : 0
                     }).ToListAsync().ConfigureAwait(false);
 
-                return Ok(new UserSearchResponse() { Users = users});
+                return Ok(new UserSearchResponse() { Users = users });
             }
         }
 
@@ -79,7 +79,7 @@ namespace zapread.com.API
             string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
 
             HttpContext.Current.Response.Headers.Add("X-Frame-Options", "DENY");
-            return new UserBalanceResponse() { success = true, balance=balance };
+            return new UserBalanceResponse() { success = true, balance = balance };
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace zapread.com.API
                 var referralInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Where(u => u.ReferralInfo != null)
-                    .Select(u=> u.ReferralInfo)
+                    .Select(u => u.ReferralInfo)
                     .FirstOrDefaultAsync()
                     .ConfigureAwait(true);
 
@@ -123,6 +123,46 @@ namespace zapread.com.API
                     TotalReferredActive = numActive,
                     IsActive = referralInfo != null && (dateNow - referralInfo.TimeStamp) < TimeSpan.FromDays(6 * 30),
                 });
+            }
+        }
+
+        /// <summary>
+        /// If not signed up for a referral, you can add another user as a referral.
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/user/giftreferral")]
+        public async Task<IHttpActionResult> GiftReferral(UserRefGiftRequest req)
+        {
+            if (req == null || String.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null)
+            {
+                return Unauthorized();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (user.ReferralInfo != null)
+                {
+                    return BadRequest();
+                }
+
+                user.ReferralInfo = new Models.Database.Referral()
+                {
+                    ReferredByAppId = req.UserAppId,
+                    TimeStamp = DateTime.UtcNow,
+                };
+
+                await db.SaveChangesAsync();
+
+                return Ok(new UserRefGiftResponse() { success = true });
             }
         }
 

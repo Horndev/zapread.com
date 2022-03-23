@@ -6,7 +6,7 @@
 }
 
 .quill {
-    border: 0px !important;
+    border: 0 !important;
 }
 
 /*Comments*/
@@ -15,10 +15,20 @@
     min-height: 20px;
 }
 
+.chat-message-form .ql-editor {
+    min-height: 20px;
+}
+
+.chat-message-form .ql-container {
+    border: 0;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 .ql-container, .ql-comment.ql-container.ql-snow {
-    border: 0px !important;
-    font-size: 12px !important;
-    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    border: 0;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .ql-mention-list-container {
@@ -71,7 +81,7 @@
 .ql-snow .ql-editor blockquote, blockquote {
     border-left: 5px solid #1ab394 !important;
     margin-bottom: 1rem !important;
-    margin-top: 0px !important;
+    margin-top: 0 !important;
     padding-top: 5px !important;
     padding-bottom: 5px !important;
     padding-left: 16px !important;
@@ -105,12 +115,12 @@ button.ql-cancel {
 
 .ql-toolbar, .ql-toolbar.ql-snow {
     background-color: #f3f3f4 !important;
-    border-radius: 10px 10px 0px 0px !important;
+    border-radius: 10px 10px 0 0 !important;
     /*border: 0px;*/
 }
 
 .ql-container, .ql-container.ql-snow {
-    border: 0px !important;
+    border: 0 !important;
 }
 
 /* Created to put border around content input*/
@@ -122,7 +132,7 @@ button.ql-cancel {
 
 .ql-editor {
     background-color: #fff !important;
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 0 0 10px 10px;
     height: auto;
     border: 1px solid;
     border-color: #ccc;

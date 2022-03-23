@@ -910,6 +910,8 @@
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
+    <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
+    <Compile Include="Models\API\User\UserRefGiftResponse.cs" />
     <Compile Include="Models\API\User\UserSearchRequest.cs" />
     <Compile Include="Models\API\User\UserSearchResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
@@ -1094,6 +1096,8 @@
     <Content Include="Scripts\dist\0\3780.js" />
     <Content Include="Scripts\dist\0\4045.css" />
     <Content Include="Scripts\dist\0\4045.js" />
+    <Content Include="Scripts\dist\0\4052.css" />
+    <Content Include="Scripts\dist\0\4052.js" />
     <Content Include="Scripts\dist\0\4351.css" />
     <Content Include="Scripts\dist\0\4351.js" />
     <Content Include="Scripts\dist\0\4791.js" />
@@ -1355,6 +1359,8 @@
     <Content Include="Scripts\dist\0\3780.js.map" />
     <Content Include="Scripts\dist\0\4045.css.map" />
     <Content Include="Scripts\dist\0\4045.js.map" />
+    <Content Include="Scripts\dist\0\4052.css.map" />
+    <Content Include="Scripts\dist\0\4052.js.map" />
     <Content Include="Scripts\dist\0\4351.css.map" />
     <Content Include="Scripts\dist\0\4351.js.map" />
     <Content Include="Scripts\dist\0\4791.js.map" />
@@ -1488,6 +1494,7 @@
     <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
+    <Content Include="Scripts\src\pages\manage\Components\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />

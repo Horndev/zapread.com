@@ -31,6 +31,7 @@ import '../../shared/sharedlast';
 import React from "react";
 import ReactDOM from "react-dom";
 const getVoteModal = () => import("../../Components/VoteModal");
+const getGiftReferralModal = () => import("./Components/GiftReferralModal");
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {
@@ -48,6 +49,20 @@ window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
 
+
+// Register click handler for referral button
+const giftBtnClicked = (e) => {
+  getGiftReferralModal().then(({ default: GiftReferralModal }) => {
+    e.target.removeEventListener(e, giftBtnClicked);
+    ReactDOM.render(<GiftReferralModal show={true} />, document.getElementById("GiftReferralModal"));
+  });
+};
+
+var giftbtn = document.getElementById("giftReferalBtn");
+if (giftbtn != null) {
+  giftbtn.addEventListener('click', giftBtnClicked);
+}
+
 async function LoadReferralStats() {
   await fetch("/api/v1/user/referralstats").then(response => {
     return response.json();
@@ -58,7 +73,7 @@ async function LoadReferralStats() {
     var activeEl = document.getElementById("refTotalActive");
     activeEl.innerHTML = data.TotalReferredActive;
     var enrolledEl = document.getElementById("refEnrolled");
-    enrolledEl.innerHTML = data.IsActive ? "Referral Active" : "Referral Inactive";
+    enrolledEl.innerHTML = data.IsActive ? "Referral Active" : "";
   })
 }
 LoadReferralStats();
