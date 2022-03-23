@@ -19,7 +19,7 @@
     min-height: 20px;
 }
 
-.chat-message-form .ql-container {
+.chat-message-form .ql-editor {
     border: 0;
     font-size: 12px;
     font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;

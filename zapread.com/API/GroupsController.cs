@@ -131,6 +131,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/grant/{role}")]
+        [ValidateJsonAntiForgeryToken]
         public async Task<IHttpActionResult> GrantRole(AdminGroupUserParameters req, [FromUri] string role)
         {
             if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
@@ -181,28 +182,40 @@ namespace zapread.com.API
                 //Grant
                 if (role == "mod")
                 {
-                    group.Moderators.Add(userToGrant);
+                    if (!group.Moderators.Contains(userToGrant))
+                    {
+                        group.Moderators.Add(userToGrant);
+                    }
                 } 
                 else if (role == "admin")
                 {
-                    group.Administrators.Add(userToGrant);
+                    if (!group.Administrators.Contains(userToGrant))
+                    {
+                        group.Administrators.Add(userToGrant);
+                    }
                 }
                 else if (role == "banish")
                 {
-                    var ban = new GroupBanished()
+                    if (!group.Banished.Select(b => b.User).Contains(userToGrant))
                     {
-                        BanishmentType = 0, // Group Admin
-                        Group = group,
-                        User = userToGrant,
-                        TimeStampStarted = DateTime.UtcNow,
-                        TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
-                        Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
-                    };
-                    group.Banished.Add(ban);
+                        var ban = new GroupBanished()
+                        {
+                            BanishmentType = 0, // Group Admin
+                            Group = group,
+                            User = userToGrant,
+                            TimeStampStarted = DateTime.UtcNow,
+                            TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
+                            Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
+                        };
+                        group.Banished.Add(ban);
+                    }
                 }
                 else if (role == "membership")
                 {
-                    group.Members.Add(userToGrant);
+                    if (!group.Members.Contains(userToGrant))
+                    {
+                        group.Members.Add(userToGrant);
+                    }
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
@@ -219,6 +232,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/revoke/{role}")]
+        [ValidateJsonAntiForgeryToken]
         public async Task<IHttpActionResult> RevokeRole(AdminGroupUserParameters req, [FromUri] string role)
         {
             if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)

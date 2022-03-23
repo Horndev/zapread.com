@@ -234,6 +234,9 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static class Bech32
         {
             // used for polymod
@@ -259,10 +262,14 @@ namespace zapread.com.Services
             1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1
         };
 
-            // PolyMod takes a byte slice and returns the 32-bit BCH checksum.
-            // Note that the input bytes to PolyMod need to be squashed to 5-bits tall
-            // before being used in this function.  And this function will not error,
-            // but instead return an unsuable checksum, if you give it full-height bytes.
+            /// <summary>
+            /// PolyMod takes a byte slice and returns the 32-bit BCH checksum.
+            /// Note that the input bytes to PolyMod need to be squashed to 5-bits tall
+            /// before being used in this function.  And this function will not error,
+            /// but instead return an unsuable checksum, if you give it full-height bytes.
+            /// </summary>
+            /// <param name="values"></param>
+            /// <returns></returns>
             public static uint PolyMod(byte[] values)
             {
                 uint chk = 1;
@@ -385,7 +392,12 @@ namespace zapread.com.Services
                 return squashed;
             }
 
-            // we encode the data and the human readable prefix
+            /// <summary>
+            /// // we encode the data and the human readable prefix
+            /// </summary>
+            /// <param name="hrp"></param>
+            /// <param name="data"></param>
+            /// <returns></returns>
             public static string Encode(string hrp, byte[] data)
             {
                 var base5 = Bytes8to5(data);
