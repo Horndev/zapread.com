@@ -7,7 +7,7 @@ import "../../realtime/signalr";
 
 import React, { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import PageHeading from "../../components/page-heading";
+import PageHeading from "../../components/PageHeading";
 import KeysTable from "./keystable";
 
 import "../../shared/sharedlast";

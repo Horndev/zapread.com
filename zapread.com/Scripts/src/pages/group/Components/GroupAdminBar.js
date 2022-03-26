@@ -9,9 +9,11 @@ import { postJson } from '../../../utility/postData';
 import UserAutosuggest from "../../../Components/UserAutosuggest";
 import CollapseBar from "../../../Components/CollapseBar";
 const getSwal = () => import('sweetalert2');
+const getSwalReact = () => import('sweetalert2-react-content'); //import withReactContent from
 
 export default function GroupAdminBar(props) {
   const [groupId, setGroupId] = useState(props.id);
+  const [tier, setTier] = useState(props.tier);
   const [userAppId, setUserAppId] = useState("");
   const [userName, setUserName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +25,9 @@ export default function GroupAdminBar(props) {
   useEffect(
     () => {
       setGroupId(props.id);
+      setTier(props.tier);
     },
-    [props.id]
+    [props.id, props.tier]
   );
 
   function onSelected(values) {
@@ -114,7 +117,6 @@ export default function GroupAdminBar(props) {
     postJson("/api/v1/groups/list/mod", {
       GroupId: groupId
     }).then((response) => {
-      //console.log("list/mod response", response);
       if (response.success) {
         setModUsers(response.Users);
       } else {
@@ -162,6 +164,42 @@ export default function GroupAdminBar(props) {
     }
   }
 
+  const onSetHeaderColor = () => {
+    getSwal().then(({ default: Swal }) => {
+      Swal.fire({
+        title: "Set group header color",
+        input: 'select',
+        inputOptions: {
+          red: 'Red',
+          blue: 'Blue',
+          navy: 'Navy',
+          yellow: 'Yellow',
+          black: 'Black',
+          lazur: 'Lazur',
+          white: 'White',
+          grey: 'Grey'
+        },
+        inputPlaceholder: 'Select a color',
+        showCancelButton: true,
+      }).then((result) => {
+        postJson('/api/v1/groups/admin/theme/update', {
+          GroupId: groupId,
+          Key: "headerBgColor",
+          Value: result.value
+        }).then(response => {
+          if (response.success) {
+            Swal.fire("Success", "Background updated", "success");
+            //props.onUpdateBgColor(result.value.color);
+            props.onUpdateBgColor(result.value);
+          }
+          else {
+            Swal.fire("Error", `${response.message}`, "error");
+          }
+        });
+      })
+    });
+  }
+
   return (
     <>
       <CollapseBar
@@ -173,12 +211,29 @@ export default function GroupAdminBar(props) {
           Group Actions
         </h2>
         <a className="btn btn-link btn-sm" href={"/Group/Edit?groupId=" + groupId} ><i className="fa-solid fa-edit"></i> Edit Group <i className="fa-solid fa-up-right-from-square"></i></a>
-        <br/>
-        <button className="btn btn-link btn-sm" onClick={onSetDescription}><i className="fa-solid fa-pen"></i> [Tier 1] Set Description</button>
-        <br />
-        <button className="btn btn-link btn-sm" onClick={() => { alert('not yet implemented') }}><i className="fa-solid fa-pen"></i> [Tier 2] Set Static Background Image</button>
-        <br />
-        <button className="btn btn-link btn-sm" onClick={() => { alert('not yet implemented') }}><i className="fa-solid fa-pen"></i> [Tier 3] Set Animated Background Image</button>
+        {tier >= 1 ? (
+          <>
+            <br />
+            <button className="btn btn-link btn-sm" onClick={onSetDescription}><i className="fa-solid fa-pen"></i> [Tier 1] Set Description</button>
+          </>) : (<></>)}
+        {tier >= 2 ? (
+          <>
+            <br />
+            <button className="btn btn-link btn-sm" onClick={onSetHeaderColor}><i className="fa-solid fa-pen"></i> [Tier 2] Set Static Header Color</button>
+          </>
+        ): (<></>)}
+        {tier >= 3 ? (
+          <>
+            <br />
+            <button className="btn btn-link btn-sm" onClick={() => { alert('not yet implemented') }}><i className="fa-solid fa-pen"></i> [Tier 3] Set Static Background Image</button>
+          </>
+        ) : (<></>)}
+        {tier >= 4 ? (
+          <>
+            <br />
+            <button className="btn btn-link btn-sm" onClick={() => { alert('not yet implemented') }}><i className="fa-solid fa-pen"></i> [Tier 4] Set Animated Background Image</button>
+          </>
+        ) : (<></>)}
         <h2>
           User Administration
         </h2>

@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Form, Button, Container } from "react-bootstrap";
 import ReactDOM from "react-dom";
-import PageHeading from "../../components/page-heading";
+import PageHeading from "../../components/PageHeading";
 import { MultiSelect, SimpleSelect } from "react-selectize";
 import { getAntiForgeryToken } from "../../utility/antiforgery";
 import { postJson } from "../../utility/postData";

@@ -95,5 +95,10 @@ namespace zapread.com.Models.API.Groups
         /// 
         /// </summary>
         public string DefaultLanguage { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string CustomTemplate { get; set; }
     }
 }
