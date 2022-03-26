@@ -1120,6 +1120,8 @@
     <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
+    <Content Include="Scripts\dist\0\7630.js" />
+    <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\8135.js" />
     <Content Include="Scripts\dist\0\8338.js" />
     <Content Include="Scripts\dist\0\8808.js" />
@@ -1382,6 +1384,7 @@
     <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
+    <Content Include="Scripts\dist\0\7630.js.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
     <Content Include="Scripts\dist\0\8338.js.map" />
     <Content Include="Scripts\dist\0\8808.js.map" />
