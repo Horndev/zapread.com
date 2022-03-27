@@ -16,6 +16,7 @@ using zapread.com.Helpers;
 using HtmlAgilityPack;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
+using System.Text;
 
 namespace zapread.com.API
 {
@@ -131,6 +132,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/grant/{role}")]
+        [ValidateJsonAntiForgeryToken]
         public async Task<IHttpActionResult> GrantRole(AdminGroupUserParameters req, [FromUri] string role)
         {
             if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
@@ -181,28 +183,40 @@ namespace zapread.com.API
                 //Grant
                 if (role == "mod")
                 {
-                    group.Moderators.Add(userToGrant);
+                    if (!group.Moderators.Contains(userToGrant))
+                    {
+                        group.Moderators.Add(userToGrant);
+                    }
                 } 
                 else if (role == "admin")
                 {
-                    group.Administrators.Add(userToGrant);
+                    if (!group.Administrators.Contains(userToGrant))
+                    {
+                        group.Administrators.Add(userToGrant);
+                    }
                 }
                 else if (role == "banish")
                 {
-                    var ban = new GroupBanished()
+                    if (!group.Banished.Select(b => b.User).Contains(userToGrant))
                     {
-                        BanishmentType = 0, // Group Admin
-                        Group = group,
-                        User = userToGrant,
-                        TimeStampStarted = DateTime.UtcNow,
-                        TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
-                        Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
-                    };
-                    group.Banished.Add(ban);
+                        var ban = new GroupBanished()
+                        {
+                            BanishmentType = 0, // Group Admin
+                            Group = group,
+                            User = userToGrant,
+                            TimeStampStarted = DateTime.UtcNow,
+                            TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
+                            Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
+                        };
+                        group.Banished.Add(ban);
+                    }
                 }
                 else if (role == "membership")
                 {
-                    group.Members.Add(userToGrant);
+                    if (!group.Members.Contains(userToGrant))
+                    {
+                        group.Members.Add(userToGrant);
+                    }
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
@@ -219,6 +233,7 @@ namespace zapread.com.API
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/revoke/{role}")]
+        [ValidateJsonAntiForgeryToken]
         public async Task<IHttpActionResult> RevokeRole(AdminGroupUserParameters req, [FromUri] string role)
         {
             if (req == null || String.IsNullOrEmpty(req.UserAppId) || String.IsNullOrEmpty(role) || req.GroupId < 1)
@@ -596,6 +611,93 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [ValidateJsonAntiForgeryToken]
+        [Route("api/v1/groups/admin/theme/update")]
+        public async Task<IHttpActionResult> UpdateTheme(UpdateThemeParameters req)
+        {
+            if (req == null || req.GroupId < 1 || string.IsNullOrEmpty(req.Key)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var isAdmin = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
+                    .AnyAsync().ConfigureAwait(true);
+
+                if (!isAdmin)
+                {
+                    return Unauthorized();
+                }
+
+                var group = await db.Groups
+                    .Where(g => g.GroupId == req.GroupId)
+                    .FirstOrDefaultAsync();
+
+                var groupTheme = group.CustomTemplate;
+                if (groupTheme == null)
+                {
+                    groupTheme = "";
+                }
+
+                var newKvps = new Dictionary<string, string>();
+                var kvps = groupTheme.Split(';');
+                bool updated = false;
+                foreach(var kvp in kvps)
+                {
+                    var kvpsplit = kvp.Split('=');
+                    if (kvpsplit.Length < 2)
+                        continue;
+                    var key = kvpsplit[0];
+                    if (key == req.Key)
+                    {
+                        updated = true;
+                        // update existing key
+                        if (req.Value != null) // not deleting
+                        {
+                            newKvps.Add(key, req.Value);
+                        }
+                    }
+                    else
+                    {
+                        newKvps.Add(key, kvpsplit[1]);
+                    }
+                }
+                if (!updated)
+                {
+                    newKvps.Add(req.Key, req.Value);
+                }
+
+                // convert to string
+                var sb = new StringBuilder();
+
+                bool first = true;
+                foreach (var kv in newKvps)
+                {
+                    if (!first)
+                    {
+                        sb.Append(";");
+                    }
+                    sb.Append(kv.Key + "=" + kv.Value);
+                    first = false;
+                }
+
+                group.CustomTemplate = sb.ToString();
+
+                await db.SaveChangesAsync();
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
         /// Loads the information on a specified group
         /// </summary>
         /// <param name="groupInfo"></param>
@@ -676,6 +778,7 @@ namespace zapread.com.API
                         g.Tags,
                         g.ShortDescription,
                         g.Tier,
+                        g.CustomTemplate,
                         Earned = g.TotalEarned + g.TotalEarnedToDistribute,
                         NumMembers = g.Members.Count,
                         NumPosts = g.Posts.Count,
@@ -708,7 +811,8 @@ namespace zapread.com.API
                     Level = reqGroupQ.Tier,
                     Earned = Convert.ToUInt64(reqGroupQ.Earned),
                     BanishExpires = reqGroupQ.BanishExpires,
-                    IsBanished = reqGroupQ.IsBanished
+                    IsBanished = reqGroupQ.IsBanished,
+                    CustomTemplate = reqGroupQ.CustomTemplate
                 };
 
                 return Ok(new LoadGroupResponse() { 

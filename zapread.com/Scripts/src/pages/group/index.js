@@ -10,7 +10,7 @@ import "../../realtime/signalr";
 import React from "react";
 import { Row, Col } from "react-bootstrap";
 import ReactDOM from "react-dom";
-import PageHeading from "../../components/page-heading";
+import PageHeading from "../../components/PageHeading";
 import GroupsTable from "./Components/GroupsTable";
 
 import "../../shared/sharedlast";

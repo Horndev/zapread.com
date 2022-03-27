@@ -8,7 +8,7 @@ import '../../realtime/signalr';
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap';
 import ReactDOM from 'react-dom';
-import PageHeading from '../../components/page-heading';
+import PageHeading from '../../components/PageHeading';
 import { ISOtoRelative } from "../../utility/datetime/posttime"
 import '../../shared/sharedlast';
 

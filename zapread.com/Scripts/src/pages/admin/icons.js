@@ -17,7 +17,7 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import { Row, Col, Form, Button, Container } from "react-bootstrap";
-import PageHeading from "../../components/page-heading";
+import PageHeading from "../../components/PageHeading";
 import IconsTable from "./Components/IconsTable";
 import { useDropzone } from "react-dropzone";
 import { getAntiForgeryToken } from "../../utility/antiforgery";

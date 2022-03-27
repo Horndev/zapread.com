@@ -1305,7 +1305,12 @@ namespace zapread.com.Controllers
                         break;
                     case "twoFactor":
                         await UserManager.SetTwoFactorEnabledAsync(userId, value);
-                        
+
+                        var AppUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                        if (AppUser != null)
+                        {
+                            await SignInManager.SignInAsync(AppUser, isPersistent: false, rememberBrowser: false);
+                        }
                         break;
                     case "emailTwoFactor":
                         var aspUser = await UserManager.FindByIdAsync(userId).ConfigureAwait(true);

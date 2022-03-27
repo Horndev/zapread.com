@@ -904,6 +904,7 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
+    <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
@@ -1119,6 +1120,8 @@
     <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
+    <Content Include="Scripts\dist\0\7630.js" />
+    <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\8135.js" />
     <Content Include="Scripts\dist\0\8338.js" />
     <Content Include="Scripts\dist\0\8808.js" />
@@ -1240,6 +1243,7 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1380,6 +1384,7 @@
     <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
+    <Content Include="Scripts\dist\0\7630.js.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
     <Content Include="Scripts\dist\0\8338.js.map" />
     <Content Include="Scripts\dist\0\8808.js.map" />
@@ -1562,7 +1567,7 @@
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
-    <Content Include="Scripts\src\Components\page-heading.js" />
+    <Content Include="Scripts\src\Components\PageHeading.js" />
     <Content Include="Scripts\src\css\Site.css" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />

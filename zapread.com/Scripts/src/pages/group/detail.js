@@ -12,11 +12,13 @@ import { postJson } from "../../utility/postData";
 import { ISOtoRelative } from "../../utility/datetime/posttime"
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
+import PageHeading from "../../Components/PageHeading";
 import LoadingBounce from "../../Components/LoadingBounce";
 const GroupAdminBar = React.lazy(() => import("./Components/GroupAdminBar"));
 const GroupModBar = React.lazy(() => import("./Components/GroupModBar"));
 const PostList = React.lazy(() => import("../../Components/PostList"));
 const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
+import {ThemeColorContext} from "../../Components/Theme/ThemeContext";
 import "react-selectize/themes/base.css";
 import "react-selectize/themes/index.css";
 import '../../shared/postfunctions';
@@ -55,10 +57,9 @@ function Page() {
   const [posts, setPosts] = useState([]);
   const [hasMorePosts, setHasMorePosts] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [postBlockNumber, setPostBlockNumber] = useState(0);
-
+  const [bgColor, setBgColor] = useState("white");
   const { pgroupId, pgroupname } = useParams();
 
   let query = useQuery();
@@ -99,6 +100,21 @@ function Page() {
     }
   }
 
+  const getTemplateValue = (template, key, defaultValue) => {
+    if (template == null) return defaultValue;
+    var ret = defaultValue;
+    const kvps = template.split(';');
+    kvps.every(kvp => {      
+      const kv = kvp.split('=');
+      if (kv[0] === key) {
+        ret = kv[1];
+        return false;
+      }
+      return true;
+    });
+    return ret;
+  };
+
   async function loadGroupInfo() {
     if (pgroupId != null & pgroupId > 0 & !isLoaded) {
       setGroupId(pgroupId);
@@ -124,6 +140,10 @@ function Page() {
           setIsGroupBanished(response.group.IsBanished);
           setBanishedExpires(response.group.BanishExpires);
 
+          var template = response.group.CustomTemplate;
+          var newBgColor = getTemplateValue(template, 'headerBgColor', bgColor);
+          setBgColor(newBgColor);
+
           // Needed for the vote.js to work.  [TODO] make this non-global
           window.IsAuthenticated = response.IsLoggedIn;
           window.UserName = response.UserName;
@@ -140,37 +160,45 @@ function Page() {
     initialize();
   }, [pgroupId, pgroupname]); // Fire once
 
+  function changeBgColor(color) {
+    setBgColor(color);
+  }
+
   return (
     <>
       <Suspense fallback={<></>}>
         <VoteModal />
       </Suspense>
-      <div className="wrapper border-bottom white-bg page-heading">
-        <div className="col-lg-10">
-          <br />
-          <p className="pull-right">
-            <a className="btn btn-sm btn-link" href={"/Group/Members/" + groupId}>
-              <i className="fa fa-users"></i> <span id={"group_membercount_" + groupId}>{numMembers}</span> Members
-            </a>
-            {/*Only show if logged in*/}
-            {isLoggedIn ? (<>
-              <IgnoreButton isIgnoring={isIgnoring} id={groupId} />
-              <JoinLeaveButton isMember={isGroupMember} id={groupId} />
-            </>) : (<></>)}
-          </p>
-          <h2>
-            <i className=""></i> <span className={isLoaded ? "" : "placeholder col-8 bg-light"}>{groupName}</span>&nbsp;-&nbsp;<span className={isLoaded ? "" : "placeholder col-12 bg-light"}>{groupDescription}</span>
-          </h2>
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item"><a href="/">Home</a></li>
-            <li className="breadcrumb-item"><a href="/Group">Groups</a></li>
-            <li className="breadcrumb-item active">{groupName}</li>
-          </ol>
+
+      <ThemeColorContext.Provider
+        value={{ bgColor: bgColor, changeBgColor: changeBgColor }}
+      >
+        <PageHeading
+          pretitle={
+            <>
+              <p className="pull-right">
+                <a className="btn btn-sm btn-link" href={"/Group/Members/" + groupId}>
+                  <i className="fa fa-users"></i> <span id={"group_membercount_" + groupId}>{numMembers}</span> Members
+                </a>
+                {isLoggedIn ? (<>
+                  <IgnoreButton isIgnoring={isIgnoring} id={groupId} />
+                  <JoinLeaveButton isMember={isGroupMember} id={groupId} />
+                </>) : (<></>)}
+              </p>
+            </>}
+          title={
+            <>
+              <span className={isLoaded ? "" : "placeholder col-8 bg-light"}>{groupName}</span>&nbsp;-&nbsp;<span className={isLoaded ? "" : "placeholder col-12 bg-light"}>{groupDescription}</span>
+            </>
+          }
+          controller="Home"
+          method="Groups"
+          function={groupName}
+        >
           <small>Tier&nbsp;{groupTier}&nbsp;-&nbsp;{groupEarned}&nbsp;Satoshi earned</small>
-        </div>
-        <div className="col-lg-2">
-        </div>
-      </div>
+        </PageHeading>
+      </ThemeColorContext.Provider>
+
       {isGroupBanished ? (
         <>
           <Row>
@@ -189,6 +217,7 @@ function Page() {
           id={groupId}
           onUpdateDescription={(description) => setgroupDescription(description)}
           tier={groupTier}
+          onUpdateBgColor={(color) => setBgColor(color)}
         />
       </Suspense>) : (<></>)}
       {isGroupMod ? (<Suspense fallback={

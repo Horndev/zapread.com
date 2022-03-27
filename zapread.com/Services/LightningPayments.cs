@@ -165,7 +165,7 @@ namespace zapread.com.Services
                     {
                         db.SaveChanges();  // Synchronous to ensure balance is locked.
                     }
-                    catch (DbUpdateConcurrencyException ex)
+                    catch (DbUpdateConcurrencyException)
                     {
                         // The balance has changed - don't do withdraw.
                         // This may trigger if the user also gets funds added - such as a tip.
@@ -194,7 +194,7 @@ namespace zapread.com.Services
                     {
                         db.SaveChanges();
                     }
-                    catch (DbUpdateConcurrencyException ex)
+                    catch (DbUpdateConcurrencyException)
                     {
                         // Remove this request from the lock so the user can retry.
                         WithdrawRequests.TryRemove(request.PaymentRequest, out DateTime reqInitTimeReset);

@@ -12,14 +12,12 @@ import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, val
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content'
 import Input from '../../Components/Input/Input';
-//import Editor from './Components/Editor';
 const Editor = React.lazy(() => import("./Components/Editor"));
-//import DraftsTable from './Components/DraftsTable';
 const DraftsTable = React.lazy(() => import("./Components/DraftsTable"));
 import GroupPicker from './Components/GroupPicker';
 import LanguagePicker from './Components/LanguagePicker';
 import { postJson } from '../../utility/postData';
-import PageHeading from '../../components/page-heading';
+import PageHeading from '../../components/PageHeading';
 import '../../shared/sharedlast';
 import '../../css/quill/quillfont.css';
 import 'quill/dist/quill.core.css'

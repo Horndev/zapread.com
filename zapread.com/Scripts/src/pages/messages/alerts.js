@@ -8,7 +8,7 @@ import "../../realtime/signalr";
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Button } from "react-bootstrap";
 import ReactDOM from "react-dom";
-import PageHeading from "../../components/page-heading";
+import PageHeading from "../../components/PageHeading";
 import { deleteJson } from "../../utility/deleteData";
 import { putJson } from "../../utility/putData";
 import { ISOtoRelative } from "../../utility/datetime/posttime"
