@@ -1,18 +1,27 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Mailer
 {
     [TestClass]
     public class MailerTest
     {
+        [TestMethod]
+        public void TestPostalMailerService()
+        {
+            var res = zapread.com.Services.MailingService.TestMailer().Result;
+            Assert.IsTrue(res);
+        }
+
         [TestMethod]
         public void TestGenerate()
         {

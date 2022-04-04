@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using Hangfire;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -9,6 +10,7 @@ using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Email;
 using zapread.com.Models.Manage;
 using zapread.com.Services;
 
@@ -28,6 +30,26 @@ namespace zapread.com.Controllers
         public ActionResult Index()
         {
             return View();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public ActionResult MailerTest()
+        {
+            var emailModel = new Models.Email.TestEmail()
+            {
+                To = "Nobody",
+                Comment = "Test"
+            };
+
+            BackgroundJob.Enqueue<MailingService>(
+                 methodCall: x => x.BackgroundMailTestPage());
+
+            return View("Test", emailModel);
         }
 
         /// <summary>
@@ -74,11 +96,19 @@ namespace zapread.com.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> MailerNewComment(int? id)
         {
+            // This is all that should be needed
+            BackgroundJob.Enqueue<MailingService>(
+                 methodCall: x => x.MailPostComment(
+                     id.Value, // commentId
+                     true // isTest
+                     ));
+
+            // Render for preview
             using (var db = new ZapContext())
             {
                 var vm = await db.Comments
                     .Where(cmt => cmt.CommentId == id)
-                    .Select(c => new PostCommentsViewModel()
+                    .Select(c => new Models.Email.PostCommentEmail()
                     {
                         CommentId = c.CommentId,
                         Score = c.Score,
@@ -92,43 +122,15 @@ namespace zapread.com.Controllers
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                return View(vm);
+                if (vm == null)
+                {
+                    return View("PostComment", new Models.Email.PostCommentEmail() { 
+                        Text = "Comment Not Found"
+                    });
+                }
+
+                return View("PostComment", vm);
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
-        /// <param name="subject"></param>
-        /// <returns></returns>
-        public async Task<bool> SendPostComment(long id, string email, string subject)
-        {
-            using (var db = new ZapContext())
-            {
-                var vm = await db.Comments
-                    .Where(cmt => cmt.CommentId == id)
-                    .Select(c => new PostCommentsViewModel()
-                    {
-                        CommentId = c.CommentId,
-                        Score = c.Score,
-                        Text = c.Text,
-                        UserId = c.UserId.Id,
-                        UserName = c.UserId.Name,
-                        UserAppId = c.UserId.AppId,
-                        ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
-                        PostId = c.Post == null ? 0 : c.Post.PostId,
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                ViewBag.Message = subject;
-                string HTMLString = RenderViewToString("MailerNewComment", vm);
-
-                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
-            }
-            return true;
         }
 
         /// <summary>
@@ -145,7 +147,7 @@ namespace zapread.com.Controllers
             {
                 var vm = await db.Comments
                     .Where(cmt => cmt.CommentId == id)
-                    .Select(c => new PostCommentsViewModel()
+                    .Select(c => new PostCommentReplyEmail()
                     {
                         CommentId = c.CommentId,
                         Score = c.Score,
@@ -156,7 +158,6 @@ namespace zapread.com.Controllers
                         ProfileImageVersion = c.UserId.ProfileImage.Version,
                         PostTitle = c.Post == null ? "" : c.Post.PostTitle,
                         PostId = c.Post == null ? 0 : c.Post.PostId,
-                        IsReply = c.IsReply,
                         ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
                         ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
                         ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
@@ -167,7 +168,7 @@ namespace zapread.com.Controllers
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                return View(viewName: "NewCommentReply", model: vm);
+                return View(viewName: "PostCommentReply", model: vm);
             }
         }
 

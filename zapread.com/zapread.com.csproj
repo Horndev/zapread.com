@@ -259,6 +259,9 @@
     <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
       <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Postal, Version=1.0.0.0, Culture=neutral, PublicKeyToken=45719375b8b4d528, processorArchitecture=MSIL">
+      <HintPath>..\packages\Postal.Mvc5.1.2.0\lib\net45\Postal.dll</HintPath>
+    </Reference>
     <Reference Include="PreMailer.Net, Version=2.2.0.0, Culture=neutral, PublicKeyToken=23e3f43e29cae17f, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.2.0\lib\net461\PreMailer.Net.dll</HintPath>
     </Reference>
@@ -266,6 +269,9 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="QRCoder, Version=1.4.3.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.4.3\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="RazorEngine, Version=3.4.1.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
+      <HintPath>..\packages\RazorEngine.3.4.1\lib\net45\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp, Version=107.3.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.107.3.0\lib\netstandard2.0\RestSharp.dll</HintPath>
@@ -514,6 +520,7 @@
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\LanguageHelpers.cs" />
+    <Compile Include="Helpers\MailViewHelper.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
     <Compile Include="Helpers\QueryHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
@@ -905,6 +912,7 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
+    <Compile Include="Models\API\Post\FollowPostParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
@@ -935,6 +943,9 @@
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
+    <Compile Include="Models\Email\PostCommentEmail.cs" />
+    <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
+    <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
@@ -971,8 +982,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Services\AchievementsService.cs" />
+    <Compile Include="Services\AlertsService.cs" />
     <Compile Include="Services\CaptchaService.cs" />
     <Compile Include="Services\CryptoService.cs" />
+    <Compile Include="Services\EventService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -1702,7 +1715,7 @@
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
     <Content Include="Views\Mailer\MailerNewPost.cshtml" />
-    <Content Include="Views\Mailer\MailerNewComment.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />
     <Content Include="Views\Messages\Alerts.cshtml" />
@@ -1728,7 +1741,7 @@
     <Content Include="Views\Shared\_PartialGroupLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
     <Content Include="Views\Feed\Index.cshtml" />
-    <Content Include="Views\Mailer\NewCommentReply.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\PostCommentReply.cshtml" />
     <Content Include="Views\Mailer\NewChat.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapTitleHelperModel.cshtml" />
@@ -1760,6 +1773,8 @@
     <Content Include="Views\Manage\_PartialManageActivityPosts.cshtml" />
     <Content Include="Views\User\_PartialUserTopFollowers.cshtml" />
     <Content Include="Views\Home\Search.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\Test.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

@@ -11,11 +11,6 @@ namespace zapread.com.Models.UserViews
         /// <summary>
         /// 
         /// </summary>
-        [Obsolete]
-        public User User { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
         public int UserId { get; set; }
         /// <summary>
         /// 

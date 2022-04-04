@@ -18,23 +18,38 @@ namespace zapread.com.Models.Database
         [Required, StringLength(100)]
         public string Name { get; set; }
 
+        /// <summary>
+        /// This links the zapread database user to the ASP user for login/OWIN
+        /// </summary>
         [Required]
         [Column(TypeName = "VARCHAR")]
         [StringLength(37)]                  // should be 36, added 1 char for buffer
         [Index]                             // often queried on, so index added
         public string AppId { get; set; }
+
         public string AboutMe { get; set; }
+
         public DateTime? DateJoined { get; set; }
+
         public DateTime? DateLastActivity { get; set; }
+
         public Int64 Reputation { get; set; }
+
+        /// <summary>
+        /// This was supposed to be for encryption/signatures but is now used to track hangfire jobs [TODO: refactor]
+        /// </summary>
         public string PGPPubKey { get; set; }
+
         public bool IsOnline { get; set; }
+
         // Comma-separated list of language codes. e.g.: en,es,it,fr
         public string Languages { get; set; }
         //Earnings including direct, group, community
         public double TotalEarned { get; set; }
+
         public virtual ICollection<EarningEvent> EarningEvents { get; set; }
         public virtual ICollection<SpendingEvent> SpendingEvents { get; set; }
+        
         public virtual UserSettings Settings { get; set; }
         public virtual UserFunds Funds { get; set; }
         public virtual UserImage ThumbImage { get; set; }

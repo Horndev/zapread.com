@@ -1,0 +1,29 @@
+﻿@model zapread.com.Models.Email.TestEmail
+@using zapread.com.Helpers;
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+    <div id="wrapper">
+        <div id="page-wrapper" class="gray-bg">
+            <p>
+                To: @Model.To
+            </p><p>
+                From: accounts@zapread.com
+            </p><p>
+                Subject: New comment posted
+            </p><p>
+                Hello, <br />
+                There is a new comment from @Model.UserName:<br />
+                <br />
+                @Model.Comment<br />
+                <br />
+                yes!<br />
+            <p>
+        </div>
+    </div>
+</body>
+</html>

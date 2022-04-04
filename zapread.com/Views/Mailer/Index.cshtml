@@ -11,17 +11,18 @@
     </div>
 </div>
 <div class="row">
-    @*<div class="col-lg-2">
-        </div>*@
     <div class="col-lg-12">
+        <p>
+            <a href="@Url.Action("MailerTest", "Mailer")" class="btn btn-primary">Basic Test</a>
+        </p>
         <p>
             <a href="@Url.Action("MailerNewPost", "Mailer", routeValues: new { id = 6196 })" class="btn btn-primary">New Post Template</a>
         </p>
         <p>
-            <a href="@Url.Action("MailerNewComment", "Mailer", routeValues: new { id = 214 })" class="btn btn-primary">New Comment Template</a>
+            <a href="@Url.Action("MailerNewComment", "Mailer", routeValues: new { id = 53 })" class="btn btn-primary">New Comment Template</a>
         </p>
         <p>
-            <a href="@Url.Action("MailerCommentReply", "Mailer", routeValues: new { id = 34007 })" class="btn btn-primary">New Comment Reply Template</a>
+            <a href="@Url.Action("MailerCommentReply", "Mailer", routeValues: new { id = 80 })" class="btn btn-primary">New Comment Reply Template</a>
         </p>
         <p>
             <a href="@Url.Action("MailerNewChat", "Mailer", routeValues: new { id = 6215 })" class="btn btn-primary">New Chat Template</a>

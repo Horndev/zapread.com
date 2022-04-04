@@ -14,6 +14,11 @@ namespace zapread.com.Services
     /// </summary>
     public class PostService
     {
+        public static async Task<bool> OnComment()
+        {
+            return await Task.FromResult(true);
+        }
+
         /// <summary>
         /// Batch service method to update post scores
         /// </summary>

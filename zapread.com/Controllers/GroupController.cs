@@ -1510,78 +1510,7 @@ namespace zapread.com.Controllers
 
             NewGroupViewModel vm = new NewGroupViewModel();
             return View(vm);
-            //using (var db = new ZapContext())
-            //{
-            //    NewGroupViewModel vm = new NewGroupViewModel();
-            //    vm.Icons = db.Icons.Select(i => i.Icon).ToList();
-
-            //    // List of languages known
-            //    var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-            //        .GroupBy(ci => ci.TwoLetterISOLanguageName)
-            //        .Select(g => g.First())
-            //        .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-            //    vm.Language = "en";
-            //    vm.Languages = languages;
-            //}
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult New(NewGroupViewModel m)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        // Validation error - send back to user
-        //        using (var db = new ZapContext())
-        //        {
-        //            m.Icons = db.Icons.Select(i => i.Icon).ToList();
-        //            // List of languages known
-        //            var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-        //                .GroupBy(ci => ci.TwoLetterISOLanguageName)
-        //                .Select(g => g.First())
-        //                .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-        //            m.Languages = languages;
-        //            return View(m);
-        //        }
-        //    }
-        //    using (var db = new ZapContext())
-        //    {
-        //        var userId = User.Identity.GetUserId();
-        //        // Ensure not a duplicate group!
-        //        var cleanName = m.GroupName.CleanUnicode().Trim();
-        //        if (db.Groups.Select(grp => grp.GroupName).Contains(cleanName))
-        //        {
-        //            ModelState.AddModelError("GroupName", "Group already exists!");
-        //            m.Icons = db.Icons.Select(i => i.Icon).ToList();
-        //            return View(m);
-        //        }
-        //        Group g = new Group()
-        //        {
-        //            GroupName = cleanName,
-        //            TotalEarned = 0.0,
-        //            TotalEarnedToDistribute = 0.0,
-        //            Moderators = new List<User>(),
-        //            Members = new List<User>(),
-        //            Administrators = new List<User>(),
-        //            Tags = m.Tags,
-        //            Icon = m.Icon,
-        //            CreationDate = DateTime.UtcNow,
-        //            DefaultLanguage = m.Language,
-        //        };
-        //        var u = db.Users.Where(us => us.AppId == userId).First();
-        //        g.Members.Add(u);
-        //        g.Moderators.Add(u);
-        //        g.Administrators.Add(u);
-        //        db.Groups.Add(g);
-        //        db.SaveChanges();
-        //        return RedirectToAction(actionName: "GroupDetail", routeValues: new { id = g.GroupId });
-        //    }
-        //}
 
         /// <summary>
         /// 

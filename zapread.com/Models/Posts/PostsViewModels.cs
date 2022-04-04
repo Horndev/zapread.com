@@ -97,14 +97,6 @@ namespace zapread.com.Models
 
     public class PostCommentsViewModel
     {
-        [Obsolete]
-        public Comment Comment { get; set; }
-        [Obsolete]
-        public Comment ParentComment { get; set; }
-
-        [Obsolete]
-        public PostCommentsViewModel ParentCommentVm { get; set; }
-
         public long ParentCommentId { get; set; }
 
         public int ParentUserId { get; set; }
@@ -116,11 +108,9 @@ namespace zapread.com.Models
         // Used for mailer
         public string ParentCommentText { get; set; }
 
-        [Obsolete]
-        public List<Comment> Comments { get; set; } // All comments
-
         [Obsolete("Use ViewerIgnoredUser instead of this list.")]
         public List<int> ViewerIgnoredUsers;        // If the user has ignored the user
+
         public bool StartVisible { get; set; }
         public int NestLevel { get; set; }          // How far down the comment nesting is
 

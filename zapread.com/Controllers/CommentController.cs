@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using Hangfire;
+using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
@@ -378,10 +379,7 @@ namespace zapread.com.Controllers
                 if (!c.IsTest)
                 {
                     db.Comments.Add(comment);
-
-                    // Done synchronously since we can get errors when trying to render post HTML later.
-                    await db.SaveChangesAsync()
-                        .ConfigureAwait(true);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 
                 // Find user mentions
@@ -395,7 +393,14 @@ namespace zapread.com.Controllers
                         foreach (var s in spans)
                         {
                             if (!c.IsTest)
-                                await NotifyUserMentioned(db, user, post, comment, s).ConfigureAwait(true);
+                            {
+                                var mentionedAppId = getUserAppIdFromSpan(s);
+                                if (!string.IsNullOrEmpty(mentionedAppId))
+                                {
+                                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnUserMentionedInComment(comment.CommentId, mentionedAppId, false));
+                                }
+                                //await NotifyUserMentioned(db, user, post, comment, s).ConfigureAwait(true);
+                            }
                         }
                     }
                 }
@@ -411,23 +416,20 @@ namespace zapread.com.Controllers
                     });
                 }
 
-                // Only send messages if not own post.
-                // TODO: move this to hangfire queue
-                if (!c.IsReply && (postOwner.AppId != user.AppId))
+                if (!c.IsReply && !c.IsTest)
                 {
-                    if (!c.IsTest)
-                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner)
-                            .ConfigureAwait(true);
+                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnPostComment(comment.CommentId, false));
                 }
 
-                if (c.IsReply && commentOwner.AppId != user.AppId)
+                if (c.IsReply && !c.IsTest)
                 {
-                    if (!c.IsTest)
-                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner)
-                            .ConfigureAwait(true);
+                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnCommentReply(comment.CommentId, false));
+                    //await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner)
+                    //    .ConfigureAwait(true);
                 }
 
-                // Render the comment to be inserted to HTML
+                // Render the comment to HTML
+                // TODO: this will be replaced with returning json object instead of server-rendered HTML
                 string CommentHTMLString = RenderPartialViewToString(
                     viewName: "_PartialCommentRenderVm", 
                     model: new PostCommentsViewModel() 
@@ -515,18 +517,6 @@ namespace zapread.com.Controllers
                     .ThenByDescending(c => c.TimeStamp)
                     .Select(c => c.CommentId)
                     .ToList();
-
-                // All the comments related to this post
-                //var postComments = await db.Posts
-                //    .Include(p => p.Group)
-                //    .Include(p => p.Comments)
-                //    .Include(p => p.Comments.Select(c => c.Parent))
-                //    .Include(p => p.Comments.Select(c => c.VotesUp))
-                //    .Include(p => p.Comments.Select(c => c.VotesDown))
-                //    .Include(p => p.Comments.Select(c => c.UserId))
-                //    .Where(p => p.PostId == postId)
-                //    .SelectMany(p => p.Comments)
-                //    .ToListAsync().ConfigureAwait(true);
 
                 string CommentHTMLString = "";
                 List<PostCommentsViewModel> comments = new List<PostCommentsViewModel>();
@@ -663,6 +653,27 @@ namespace zapread.com.Controllers
             return sanitizedComment;
         }
 
+        private string getUserAppIdFromSpan(HtmlNode s)
+        {
+            using (var db = new ZapContext())
+            {
+                if (s.Attributes.Count(a => a.Name == "class") > 0)
+                {
+                    var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
+                    if (cls.Value.Contains("userhint"))
+                    {
+                        var username = s.InnerHtml.Replace("@", "");
+                        var mentioneduserAppId = db.Users
+                            .Where(u => u.Name == username)
+                            .Select(u => u.AppId)
+                            .FirstOrDefault();
+                        return mentioneduserAppId;
+                    }
+                }
+                return null;
+            }
+        }
+
         private async Task NotifyUserMentioned(ZapContext db, User user, Post post, Comment comment, HtmlNode s)
         {
             if (s.Attributes.Count(a => a.Name == "class") > 0)
@@ -685,42 +696,6 @@ namespace zapread.com.Controllers
                         // Send Email
                         SendMentionedEmail(user, post, comment, mentioneduser);
                     }
-                }
-            }
-        }
-
-        private async Task NotifyPostOwnerOfComment(ZapContext db, User user, Post post, Comment comment, User postOwner)
-        {
-            // Add Alert
-            if (postOwner.Settings == null)
-            {
-                postOwner.Settings = new UserSettings();
-            }
-
-            if (postOwner.Settings.AlertOnOwnPostCommented)
-            {
-                UserAlert alert = CreateCommentedAlert(user, post, comment, postOwner);
-                postOwner.Alerts.Add(alert);
-                await db.SaveChangesAsync().ConfigureAwait(true);
-            }
-
-            // Send Email
-            if (postOwner.Settings.NotifyOnOwnPostCommented)
-            {
-                string subject = "New comment on your post: " + post.PostTitle;
-                string ownerEmail = UserManager.FindById(postOwner.AppId).Email;
-
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                try
-                {
-                    await mailer.SendPostComment(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
-                }
-                catch (System.Net.Mail.SmtpException)
-                {
-                    // Could not send the email
-                    // [TODO] set up logging for this
                 }
             }
         }
@@ -772,22 +747,6 @@ namespace zapread.com.Controllers
                 PostLink = post,
                 From = user,
             };
-        }
-
-        private UserAlert CreateCommentedAlert(User user, Post post, Comment comment, User postOwner)
-        {
-            var alert = new UserAlert()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "New comment on your post: <a href=" + @Url.Action("Detail", "Post", new { post.PostId, postTitle = post.PostTitle?.MakeURLFriendly() }) + ">" + post.PostTitle + "</a>",
-                Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",//< br/> " + c.CommentContent,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = postOwner,
-                PostLink = post,
-            };
-            return alert;
         }
 
         private void SendMentionedEmail(User user, Post post, Comment comment, User mentioneduser)
