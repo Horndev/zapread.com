@@ -18,6 +18,17 @@ namespace zapread.com.Controllers
 {
     /// <summary>
     /// Controller for the mailer (generate email content)
+    /// 
+    /// Emails sent.  ✓ indicates it is using the background mailer
+    /// 
+    /// [✓] MailerNewComment - New comment on a post authored
+    /// [✓] MailerNewComment - New comment on a post followed
+    /// [ ] MailerCommentReply - New reply to a comment
+    /// [ ]  - User mentioned
+    /// [ ]  - New Follower
+    /// [ ]  - (weekly) payout summary
+    /// [ ]  - New post by user followed
+    /// 
     /// </summary>
     public class MailerController : Controller
     {
@@ -62,6 +73,24 @@ namespace zapread.com.Controllers
         {
             using (var db = new ZapContext())
             {
+                var vm = db.Posts
+                    .Where(p => p.PostId == id)
+                    .Select(p => new NewPostEmail()
+                    {
+                        PostId = p.PostId,
+                        PostTitle = p.PostTitle,
+                        Score = p.Score,
+                        UserName = p.UserId.Name,
+                        UserAppId = p.UserId.AppId,
+                        ProfileImageVersion = p.UserId.ProfileImage.Version,
+                        GroupName = p.Group.GroupName,
+                        GroupId = p.Group.GroupId,
+                        Content = p.Content,
+                    })
+                    .FirstOrDefault();
+
+                return View("NewPost", vm);
+
                 Post pst = db.Posts
                     .Include(p => p.Group)
                     .Include(p => p.UserId)
@@ -76,7 +105,7 @@ namespace zapread.com.Controllers
                     return RedirectToAction("PostNotFound");
                 }
 
-                PostViewModel vm = new PostViewModel()
+                PostViewModel vmx = new PostViewModel()
                 {
                     Post = pst,
                     PostTitle = pst.PostTitle,
@@ -88,7 +117,9 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// Mailer renders HTML for comment on post
+        /// Mailer renders HTML for comment on post.
+        /// 
+        /// [✓] Works without HttpContext
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -96,7 +127,7 @@ namespace zapread.com.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> MailerNewComment(int? id)
         {
-            // This is all that should be needed
+            // This is all that should be needed.  Test will email to the exception address
             BackgroundJob.Enqueue<MailingService>(
                  methodCall: x => x.MailPostComment(
                      id.Value, // commentId
@@ -141,8 +172,15 @@ namespace zapread.com.Controllers
         [Route("Mailer/Template/CommentReply/{id}")]
         [HttpGet]
         [Authorize(Roles = "Administrator")]
-        public async Task<ActionResult> MailerCommentReply(int id)
+        public async Task<ActionResult> MailerCommentReply(int? id)
         {
+            // This is all that should be needed.  Test will email to the exception address
+            BackgroundJob.Enqueue<MailingService>(
+                 methodCall: x => x.MailPostCommentReply(
+                     id.Value, // commentId
+                     true // isTest
+                     ));
+
             using (var db = new ZapContext())
             {
                 var vm = await db.Comments
@@ -392,6 +430,12 @@ namespace zapread.com.Controllers
             return true;
         }
 
+        /// <summary>
+        /// This method should not be needed here anymore.  The pre-mailing happens now in MailingService
+        /// </summary>
+        /// <param name="HTMLString"></param>
+        /// <returns></returns>
+        [Obsolete]
         private string CleanMail(string HTMLString)
         {
             PreMailer.Net.InlineResult result;
@@ -452,6 +496,7 @@ namespace zapread.com.Controllers
         /// <param name="viewName"></param>
         /// <param name="model"></param>
         /// <returns></returns>
+        [Obsolete("Should use MailerService and non-http method to render views")]
         protected string RenderViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))

@@ -31,6 +31,16 @@ namespace zapread.com.Helpers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static string GroupURI(int groupId)
+        {
+            return "https://www.zapread.com/Group/Detail/" + Convert.ToString(groupId) + "/";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
         public static string UserLink(string username)

@@ -30,7 +30,7 @@
                                         <a href="@("https://www.zapread.com/p/" + zapread.com.Services.CryptoService.IntIdToString(Model.PostId) + "/" + Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : "" + "/" +"?vote=1#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
                                             <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                         </a>
-                                        <div id="sVotec_@Model.CommentId">@Model.Score</div>
+                                        <div id="sVotec_@Model.CommentId">@Model.Score.ToAbbrString()</div>
                                         <a href="@("https://www.zapread.com/p/" + zapread.com.Services.CryptoService.IntIdToString(Model.PostId) + "/" + Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : "" + "/" +"?vote=0#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
                                             <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                         </a>

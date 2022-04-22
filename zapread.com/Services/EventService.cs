@@ -51,6 +51,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public bool OnUserMentionedInComment(long commentId, string userAppId, bool isTest = false)
         {
+
             return true;
         }
     }

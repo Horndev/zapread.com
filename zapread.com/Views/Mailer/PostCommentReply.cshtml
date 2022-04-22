@@ -17,7 +17,8 @@
             <div class="col-lg-8">
                 <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
                     <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId)">
-                    <h3 style="display:inline-block">New reply to your comment in post @Model.PostTitle</h3></a>
+                        <h3 style="display:inline-block">New reply to your comment in post @Model.PostTitle</h3>
+                    </a>
                     <hr />
                 </div>
                 <div class="container" style="background-color:white;margin-bottom: 0px;">
@@ -26,26 +27,29 @@
                             @*Voting on parent comment*@
                             <div class="vote-actions">
                                 <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.ParentCommentId, 1)" class="text-muted">
-                                    <img src="~/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                    <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                 </a>
-                                <div id="sVotec_@Model.CommentId">@Model.ParentScore</div>
+                                <div id="sVotec_@Model.CommentId">@Model.ParentScore.ToAbbrString()</div>
                                 <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.ParentCommentId, 0)" class="text-muted">
-                                    <img src="~/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                    <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                 </a>
                             </div>
 
                             <a href="@MailViewHelper.UserLink(Model.ParentUserName)" class="pull-left">
-                                <img class="img-circle" src="
-                                     @Url.Action("UserImage", "Home", new { size = 30, UserId = Model.ParentUserAppId, v = Model.ParentUserProfileImageVersion })
-                                     " />
+                                <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.ParentUserAppId, Model.ParentUserProfileImageVersion, 30)" />
                             </a>
 
                             <div class="media-body" style="display:inline;">
-                                @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.ParentUserId, UserName = Model.ParentUserName, IsIgnored = false })
+                                <a class="post-username userhint" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId"
+                                   href="@MailViewHelper.UserLink(Model.ParentUserName)">
+                                    @Model.ParentUserName
+                                </a>
                                 <br /><br />
                                 <div class="row" style="margin-left: 40px;">
                                     <div id="commentText_@Model.ParentCommentId" style="position: relative;">
-                                        <div>@Html.Raw(Model.ParentCommentText)</div><br />
+                                        <div>
+                                            @(new RazorEngine.Text.RawString(Model.ParentCommentText))
+                                        </div><br />
                                     </div>
                                 </div>
                             </div>
@@ -54,29 +58,31 @@
                             <div id=@("rcomments_" + @Model.ParentCommentId.ToString())>
                                 <div class="media-body" id="comment_@Model.CommentId" style="min-height: 24px;">
                                     <div class="container">
-
                                         <div class="social-footer-reply" style="padding-bottom: 0px;">
                                             <div>
                                                 <div class="vote-actions">
-                                                    <a href="@(Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : null, vote = 1 })+"#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
-                                                        <img src="~/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId, 1)" class="text-muted">
+                                                        <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                                     </a>
-                                                    <div id="sVotec_@Model.CommentId">@Model.Score</div>
-                                                    <a href="@(Url.Action("Detail", "Post", new { PostId = Model.PostId, postTitle = Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : null, vote = 0 })+"#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
-                                                        <img src="~/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                                    <div id="sVotec_@Model.CommentId">@Model.Score.ToAbbrString()</div>
+                                                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId, 0)" class="text-muted">
+                                                        <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
                                                     </a>
                                                 </div>
 
-                                                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName.Trim() })" class="pull-left">
-                                                    <img class="img-circle" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.UserAppId, v = Model.ProfileImageVersion })" />
+                                                <a href="@MailViewHelper.UserLink(Model.UserName)" class="pull-left">
+                                                    <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.UserAppId, Model.ProfileImageVersion, 30)" />
                                                 </a>
 
                                                 <div class="media-body" style="display:inline;">
-                                                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserName = Model.UserName, IsIgnored = false })
+                                                    <a class="post-username userhint" data-userappid="@Model.UserAppId" data-userid="@Model.UserId"
+                                                       href="@MailViewHelper.UserLink(Model.UserName)">
+                                                        @Model.UserName
+                                                    </a>
                                                     <br /><br />
                                                     <div class="row" style="margin-left: 40px;">
                                                         <div id="commentText_@Model.CommentId" style="position: relative;">
-                                                            <div>@Html.Raw(Model.Text)</div><br />
+                                                            <div>@(new RazorEngine.Text.RawString(Model.Text))</div><br />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -89,10 +95,12 @@
                     </div>
                 </div>
                 <div class="container" style="background-color:white;">
-
+                    <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/A/">Unsubscribe</a> from these emails.
+                </div>
+                <div class="container" style="background-color:white;">
                     <br />
                     <hr />
-                    Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+                    You may also log into <a href="https://www.zapread.com">ZapRead.com</a> to configure your email subscriptions.
                     <br />
                     <br />
                 </div>

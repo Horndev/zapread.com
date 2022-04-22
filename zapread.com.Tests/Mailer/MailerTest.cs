@@ -23,6 +23,36 @@ namespace zapread.com.Tests.Mailer
         }
 
         [TestMethod]
+        public void TestPostCommentEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailPostCommentHTML(1);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestPostCommentReplyEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailPostCommentReplyHTML(80);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestNewPostEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailNewPostHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
         public void TestGenerate()
         {
             var request = new Mock<HttpRequestBase>();

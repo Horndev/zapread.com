@@ -89,12 +89,11 @@ namespace zapread.com.Services
         }
 
         /// <summary>
-        /// Handle the mailing of notifications that there was a new comment on a post
+        /// 
         /// </summary>
         /// <param name="commentId"></param>
-        /// <param name="isTest"></param>
         /// <returns></returns>
-        public bool MailPostComment(long commentId, bool isTest = false)
+        public string GenerateMailPostCommentHTML(long commentId)
         {
             using (var db = new ZapContext())
             {
@@ -116,6 +115,91 @@ namespace zapread.com.Services
 
                 var emailContent = renderEmail(commentInfo);
 
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public string GenerateMailPostCommentReplyHTML(long commentId)
+        {
+            using (var db = new ZapContext())
+            {
+                var commentInfo = db.Comments
+                    .Where(cmt => cmt.CommentId == commentId)
+                    .Select(c => new PostCommentReplyEmail()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
+                        ParentUserProfileImageVersion = c.Parent == null ? 0 : c.Parent.UserId.ProfileImage.Version,
+                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        ParentCommentText = c.Parent == null ? "" : c.Parent.Text,
+                        ParentScore = c.Parent == null ? 0 : c.Parent.Score,
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(commentInfo);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public string GenerateMailNewPostHTML(int postId)
+        {
+            using (var db = new ZapContext())
+            {
+                var postInfo = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .Select(p => new NewPostEmail()
+                    {
+                        PostId = p.PostId,
+                        PostTitle = p.PostTitle,
+                        Score = p.Score,
+                        UserName = p.UserId.Name,
+                        UserAppId = p.UserId.AppId,
+                        ProfileImageVersion = p.UserId.ProfileImage.Version,
+                        GroupName = p.Group.GroupName,
+                        GroupId = p.Group.GroupId,
+                        Content = p.Content,
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(postInfo);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// Handle the mailing of notifications that there was a new comment on a post
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public string MailPostComment(long commentId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var emailContent = GenerateMailPostCommentHTML(commentId);
+
                 if (isTest)
                 {
                     var emailDestination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
@@ -128,7 +212,7 @@ namespace zapread.com.Services
                         Name = "zapread.com",
                         Subject = "New Comment on Post",
                     }, "Notify", true);
-                    return true;
+                    return emailContent;
                 }
 
                 // Send to post author and followers ...
@@ -136,6 +220,7 @@ namespace zapread.com.Services
                     .Where(c => c.CommentId == commentId)
                     .Select(c => new
                     {
+                        UserAppId = c.UserId.AppId,
                         c.Post.UserId.Settings.NotifyOnOwnPostCommented,
                         c.Post.UserId.AppId,
                         FollowerAppIds = c.Post.FollowedByUsers.Select(u => u.AppId)
@@ -144,7 +229,7 @@ namespace zapread.com.Services
 
                 // Post Author Notify
                 if (postInfo != null
-                    && postInfo.AppId != commentInfo.UserAppId // Don't send to author if author commented on own post
+                    && postInfo.AppId != postInfo.UserAppId // Don't send to author if author commented on own post
                     && postInfo.NotifyOnOwnPostCommented) // Only send if author wants to be notified
                 {
                     using (var appDB = new ApplicationDbContext()) // Tie into user database in order to get user emails
@@ -193,8 +278,8 @@ namespace zapread.com.Services
                         }
                     }
                 }
+                return emailContent;
             }
-            return true;
         }
 
         /// <summary>
@@ -202,35 +287,29 @@ namespace zapread.com.Services
         /// </summary>
         /// <param name="commentId"></param>
         /// <param name="isTest"></param>
-        /// <returns></returns>
-        public bool MailPostCommentReply(long commentId, bool isTest = false)
+        /// <returns>email content as HTML</returns>
+        public string MailPostCommentReply(long commentId, bool isTest = false)
         {
             using (var db = new ZapContext())
             {
-                var commentInfo = db.Comments
-                    .Where(cmt => cmt.CommentId == commentId)
-                    .Select(c => new PostCommentReplyEmail()
-                    {
-                        CommentId = c.CommentId,
-                        Score = c.Score,
-                        Text = c.Text,
-                        UserId = c.UserId.Id,
-                        UserName = c.UserId.Name,
-                        UserAppId = c.UserId.AppId,
-                        ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
-                        PostId = c.Post == null ? 0 : c.Post.PostId,
-                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
-                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
-                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
-                        ParentUserProfileImageVersion = c.Parent == null ? 0 : c.Parent.UserId.ProfileImage.Version,
-                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
-                        ParentCommentText = c.Parent == null ? "" : c.Parent.Text,
-                        ParentScore = c.Parent == null ? 0 : c.Parent.Score,
-                    })
-                    .FirstOrDefault();
+                var emailContent = GenerateMailPostCommentReplyHTML(commentId);
 
-                return true;
+                if (isTest)
+                {
+                    var emailDestination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+
+                    SendI(new UserEmailModel()
+                    {
+                        Destination = emailDestination,
+                        Body = emailContent,
+                        Email = "",
+                        Name = "zapread.com",
+                        Subject = "New reply to your comment",
+                    }, "Notify", true);
+                    return emailContent;
+                }
+
+                return emailContent;
             }
         }
 

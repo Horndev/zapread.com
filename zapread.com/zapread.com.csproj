@@ -945,6 +945,7 @@
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Email\PostCommentEmail.cs" />
     <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
+    <Compile Include="Models\Email\NewPostEmail.cs" />
     <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
@@ -1714,7 +1715,7 @@
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
-    <Content Include="Views\Mailer\MailerNewPost.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />

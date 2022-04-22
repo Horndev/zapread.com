@@ -6,47 +6,14 @@ using System.Web;
 namespace zapread.com.Models.Email
 {
     /// <summary>
-    /// Model for a comment reply to a post (root)
-    /// 
-    /// Also should send if a post is being followed by a user
-    /// 
+    /// Model for Post for when by a user being followed
     /// </summary>
-    public class PostCommentEmail: Postal.Email
+    public class NewPostEmail : Postal.Email
     {
         /// <summary>
         /// 
         /// </summary>
-        public Int64 CommentId { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int Score { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Text { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int UserId { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string UserAppId { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string UserName { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int ProfileImageVersion { get; set; }
+        public int PostId { get; set; }
 
         /// <summary>
         /// 
@@ -56,11 +23,36 @@ namespace zapread.com.Models.Email
         /// <summary>
         /// 
         /// </summary>
-        public int PostId { get; set; }
+        public int Score { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public string PostIdEnc { get; set; }
+        public string UserName { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string UserAppId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int ProfileImageVersion { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int GroupId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Content { get; set; }
     }
 }
