@@ -31,6 +31,17 @@ namespace zapread.com.Controllers
     {
         private ApplicationUserManager _userManager;
 
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public CommentController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -418,14 +429,12 @@ namespace zapread.com.Controllers
 
                 if (!c.IsReply && !c.IsTest)
                 {
-                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnPostComment(comment.CommentId, false));
+                    await eventService.OnPostCommentAsync(comment.CommentId);
                 }
 
                 if (c.IsReply && !c.IsTest)
                 {
-                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnCommentReply(comment.CommentId, false));
-                    //await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner)
-                    //    .ConfigureAwait(true);
+                    await eventService.OnCommentReplyAsync(comment.CommentId);
                 }
 
                 // Render the comment to HTML
@@ -698,55 +707,6 @@ namespace zapread.com.Controllers
                     }
                 }
             }
-        }
-
-        private async Task NotifyCommentOwnerOfReply(ZapContext db, User user, Post post, Comment comment, User commentOwner)
-        {
-            UserMessage message = CreateCommentRepliedMessage(user, post, comment, commentOwner);
-
-            commentOwner.Messages.Add(message);
-            await db.SaveChangesAsync().ConfigureAwait(true);
-
-            if (commentOwner.Settings == null)
-            {
-                commentOwner.Settings = new UserSettings();
-            }
-
-            // Send Email
-            if (commentOwner.Settings.NotifyOnOwnCommentReplied)
-            {
-                string subject = "New reply to your comment in post: " + post.PostTitle;
-                string ownerEmail = UserManager.FindById(commentOwner.AppId).Email;
-
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                try
-                {
-                    await mailer.SendPostCommentReply(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
-                }
-                catch (System.Net.Mail.SmtpException)
-                {
-                    // Could not send the email
-                    // [TODO] set up logging for this
-                }
-            }
-        }
-
-        private UserMessage CreateCommentRepliedMessage(User user, Post post, Comment comment, User commentOwner)
-        {
-            return new UserMessage()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "New reply to your comment in post: <a href='" + Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { id = post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
-                Content = comment.Text,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = commentOwner,
-                PostLink = post,
-                From = user,
-            };
         }
 
         private void SendMentionedEmail(User user, Post post, Comment comment, User mentioneduser)

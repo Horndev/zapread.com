@@ -1,7 +1,12 @@
 ﻿using RestSharp;
 using System.Configuration;
+using System.Data.Entity;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using zapread.com.Database;
 
 namespace zapread.com.Services
 {
@@ -10,6 +15,76 @@ namespace zapread.com.Services
     /// </summary>
     public class NotificationService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public async static Task NotifyNewPostToFollowers(int postId)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public async static Task NotifyPostCommentToFollowers(long commentId)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public async static Task NotifyPostCommentToAuthor(long commentId)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public async static Task NotifyPostCommentReplyToAuthor(long commentId)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <returns></returns>
+        public async static Task NotifyNewChat(int chatId)
+        {
+            // await NotificationService.SendPrivateMessage(cleanContent, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
+            using (var db = new ZapContext())
+            {
+                var msg = await db.Messages
+                    .Where(m => m.Id == chatId)
+                    .Select(m => new
+                    {
+                        ReceiverOnline = m.To.IsOnline,
+                        ReceiverAppId = m.To.AppId,
+                        SenderName = m.From.Name,
+                        Content = m.Content,
+                    })
+                    .FirstOrDefaultAsync();
+
+                var urlHelper = new UrlHelper(HttpContext.Current.Request.RequestContext);
+
+                await SendPrivateMessage(
+                    msg.Content, 
+                    msg.ReceiverAppId, "Private Message From " + msg.SenderName, 
+                    urlHelper.Action("Chat", "Messages", new { username = msg.SenderName }));
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

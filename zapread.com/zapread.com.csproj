@@ -943,10 +943,12 @@
     <Compile Include="Models\Email\EmailModels.cs" />
     <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
+    <Compile Include="Models\Email\NewChatEmail.cs" />
     <Compile Include="Models\Email\PostCommentEmail.cs" />
     <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
     <Compile Include="Models\Email\NewPostEmail.cs" />
     <Compile Include="Models\Email\TestEmail.cs" />
+    <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
@@ -987,6 +989,7 @@
     <Compile Include="Services\CaptchaService.cs" />
     <Compile Include="Services\CryptoService.cs" />
     <Compile Include="Services\EventService.cs" />
+    <Compile Include="Services\IEventService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -1727,7 +1730,7 @@
     <Content Include="Views\Test\UploadImage.cshtml" />
     <Content Include="Views\User\_PartialUserHover.cshtml" />
     <Content Include="Views\Test\UserHover.cshtml" />
-    <Content Include="Views\Mailer\MailerUpdatedUserAlias.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UpdatedUserAlias.cshtml" />
     <Content Include="Views\Admin\Jobs.cshtml" />
     <Content Include="Views\Admin\Achievements.cshtml" />
     <Content Include="Views\User\_PartialUserAchievement.cshtml" />
@@ -1743,7 +1746,7 @@
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
     <Content Include="Views\Feed\Index.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostCommentReply.cshtml" />
-    <Content Include="Views\Mailer\NewChat.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewChat.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapTitleHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapPathHelperModel.cshtml" />

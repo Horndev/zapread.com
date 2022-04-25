@@ -27,67 +27,6 @@ namespace zapread.com.Services
     /// </summary>
     public class MailingService
     {
-        private static Postal.EmailViewRenderer getRenderer()
-        {
-            var engines = new ViewEngineCollection();
-            var assembiles = AppDomain.CurrentDomain.GetAssemblies();
-            var zr = assembiles.SingleOrDefault(assembly => assembly.GetName().Name == "zapread.com");
-            engines.Add(new Postal.ResourceRazorViewEngine(
-                viewSourceAssembly: zr,
-                viewPathRoot: "zapread.com.Views.Mailer"
-                ));
-            var emailViewRenderer = new Postal.EmailViewRenderer(engines);
-            return emailViewRenderer;
-        }
-
-        private static string renderEmail(Postal.Email email, string baseUriString = "https://www.zapread.com/")
-        {
-            var emailViewRenderer = getRenderer();
-            string HTMLString = emailViewRenderer.Render(email);
-
-            // premailer cleanup
-            PreMailer.Net.InlineResult result;
-            var baseUri = new Uri(baseUriString);
-            result = PreMailer.Net.PreMailer.MoveCssInline(
-                baseUri: baseUri,
-                html: HTMLString,
-                removeComments: true,
-                removeStyleElements: true,
-                stripIdAndClassAttributes: true
-                );
-
-            var cleanHTMLString = result.Html;
-            return cleanHTMLString;
-        }
-
-        /// <summary>
-        /// Background mailer for test page
-        /// </summary>
-        /// <returns></returns>
-        public bool BackgroundMailTestPage()
-        {
-            var email = new Models.Email.TestEmail()
-            {
-                To = "Nobody",
-                Comment = "Test"
-            };
-
-            var emailContent = renderEmail(email);
-
-            var emailDestination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
-
-            SendI(new UserEmailModel()
-            {
-                Destination = emailDestination,
-                Body = emailContent,
-                Email = "",
-                Name = "zapread.com",
-                Subject = "TestMail",
-            }, "Notify", true);
-
-            return true;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -185,6 +124,109 @@ namespace zapread.com.Services
                 var emailContent = renderEmail(postInfo);
 
                 return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <returns></returns>
+        public string GenerateNewChatHTML(int chatId)
+        {
+            using (var db = new ZapContext())
+            {
+                var chatInfo = db.Messages
+                    .Where(m => m.Id == chatId)
+                    .Select(m => new NewChatEmail()
+                    {
+                        FromName = m.From.Name,
+                        FromAppId = m.From.AppId,
+                        FromProfileImgVersion = m.From.ProfileImage.Version,
+                        IsReceived = true,
+                        Content = m.Content,
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(chatInfo);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
+        public string GenerateUpdatedUserAliasHTML(int userId, string oldName, string newName)
+        {
+            var updateInfo = new UpdatedUserAliasEmail()
+            {
+                OldUserName = oldName,
+                NewUserName = newName,
+            };
+
+            var emailContent = renderEmail(updateInfo);
+
+            return emailContent;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
+        public bool MailUpdatedUserAlias(int userId, string oldName, string newName, bool isTest)
+        {
+            using (var db = new ZapContext())
+            {
+                var userInfo = db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new
+                    {
+                        u.AppId
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = GenerateUpdatedUserAliasHTML(userId, oldName, newName);
+
+                if (isTest)
+                {
+                    var emailDestination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+
+                    SendI(new UserEmailModel()
+                    {
+                        Destination = emailDestination,
+                        Body = emailContent,
+                        Email = "",
+                        Name = "zapread.com",
+                        Subject = "User alias updated",
+                    }, "Notify", true);
+
+                    return true;
+                }
+
+                using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                {
+                    string receiverEmail = userManager.FindById(userInfo.AppId).Email;
+
+                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                        new UserEmailModel()
+                        {
+                            Destination = receiverEmail,
+                            Body = emailContent,
+                            Email = "",
+                            Name = "zapread.com",
+                            Subject = "Your Zapread Username has been updated",
+                        }, "Notify", true));
+
+                    return true;
+                }
             }
         }
 
@@ -314,6 +356,141 @@ namespace zapread.com.Services
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool MailNewPostToFollowers(int postId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var emailContent = GenerateMailNewPostHTML(postId);
+
+                if (isTest)
+                {
+                    var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                    var userUnsubscribeId = CryptoService.EncryptString(key, "test");
+                    emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                    return SendTestEmail(emailContent, "New post by user you are following");
+                }
+
+                var followUsers = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.UserId.Followers)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.AppId,
+                        u.Settings.NotifyOnNewPostSubscribedUser,
+                        u.Settings.AlertOnNewPostSubscribedUser,
+                        user = u,
+                    }).ToList();
+
+                if (followUsers.Any())
+                {
+                    // Tie into user database in order to get user emails
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        foreach (var follower in followUsers)
+                        {
+                            //Email
+                            if (follower.NotifyOnNewPostSubscribedUser)
+                            {
+                                string followerEmail = userManager.FindById(follower.AppId).Email;
+                                var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                                var userUnsubscribeId = CryptoService.EncryptString(key, follower.AppId);
+                                emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                    new UserEmailModel()
+                                    {
+                                        Destination = followerEmail,
+                                        Body = emailContent,
+                                        Email = "",
+                                        Name = "zapread.com",
+                                        Subject = "New post by user you are following",
+                                    }, "Notify", true));
+                            }
+                        }
+
+                        db.SaveChanges();
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool MailNewChatToUser(int chatId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                // Check if receiver is online
+                var msgInfo = db.Messages
+                    .Where(m => m.Id == chatId)
+                    .Select(m => new
+                    {
+                        SenderName = m.From.Name,
+                        m.To.AppId,
+                        m.To.IsOnline,
+                        m.To.Settings.NotifyOnPrivateMessage,
+                    })
+                    .FirstOrDefault();
+
+                // Only send email if offline
+                if (msgInfo != null && !msgInfo.IsOnline)
+                {
+                    var emailContent = GenerateNewChatHTML(chatId);
+
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        if (msgInfo.NotifyOnPrivateMessage)
+                        {
+                            string receiverEmail = userManager.FindById(msgInfo.AppId).Email;
+                            var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                            var userUnsubscribeId = CryptoService.EncryptString(key, msgInfo.AppId);
+
+                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                new UserEmailModel()
+                                {
+                                    Destination = receiverEmail,
+                                    Body = emailContent,
+                                    Email = "",
+                                    Name = "zapread.com",
+                                    Subject = "New private ZapRead message from " + msgInfo.SenderName,
+                                }, "Notify", true));
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        private bool SendTestEmail(string emailContent, string subject)
+        {
+            var emailDestination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
+            SendI(new UserEmailModel()
+            {
+                Destination = emailDestination,
+                Body = emailContent,
+                Email = "",
+                Name = "zapread.com",
+                Subject = subject,
+            }, "Notify", true);
+            return true;
+        }
+
+        /// <summary>
         /// This mailer should be able to run on HangFire without an HttpContext
         /// </summary>
         /// <returns></returns>
@@ -341,102 +518,37 @@ namespace zapread.com.Services
             return await Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Sends emails out to followers of the supplied postId
-        /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="postBody"></param>
-        /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public bool MailNewPostToFollowers(int postId, string postBody)
+        private static Postal.EmailViewRenderer getRenderer()
         {
-            using (var db = new ZapContext())
-            {
-                var postInfo = db.Posts
-                    .Where(p => p.PostId == postId)
-                    .Select(p => new
-                    {
-                        authorUserId = p.UserId.Id,
-                        p.UserId.Name,
-                        post = p
-                    })
-                    .FirstOrDefault();
-                
-                if (postInfo == null) return false;
+            var engines = new ViewEngineCollection();
+            var assembiles = AppDomain.CurrentDomain.GetAssemblies();
+            var zr = assembiles.SingleOrDefault(assembly => assembly.GetName().Name == "zapread.com");
+            engines.Add(new Postal.ResourceRazorViewEngine(
+                viewSourceAssembly: zr,
+                viewPathRoot: "zapread.com.Views.Mailer"
+                ));
+            var emailViewRenderer = new Postal.EmailViewRenderer(engines);
+            return emailViewRenderer;
+        }
 
-                var followUsers = db.Users
-                    .Where(u => u.Id == postInfo.authorUserId)
-                    .SelectMany(u => u.Followers)
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.AppId,
-                        u.Settings.NotifyOnNewPostSubscribedUser,
-                        u.Settings.AlertOnNewPostSubscribedUser,
-                        user = u,
-                    }).ToList();
+        private static string renderEmail(Postal.Email email, string baseUriString = "https://www.zapread.com/")
+        {
+            var emailViewRenderer = getRenderer();
+            string HTMLString = emailViewRenderer.Render(email);
 
-                if (followUsers.Any())
-                {
-                    // Tie into user database in order to get user emails
-                    using (var appDB = new ApplicationDbContext())
-                    {
-                        using (var userStore = new UserStore<ApplicationUser>(appDB))
-                        {
-                            using (var userManager = new ApplicationUserManager(userStore))
-                            {
-                                foreach (var follower in followUsers)
-                                {
-                                    // Add Alert
-                                    if (follower.AlertOnNewPostSubscribedUser) 
-                                    {
-                                        var alert = new UserAlert()
-                                        {
-                                            TimeStamp = DateTime.Now,
-                                            Title = "New post by a user you are following: <a href='/User/" + Uri.EscapeDataString(postInfo.Name) + "'>" + postInfo.Name + "</a>",
-                                            Content = "",
-                                            IsDeleted = false,
-                                            IsRead = false,
-                                            To = follower.user,
-                                            PostLink = postInfo.post,                                            
-                                        };
+            // premailer cleanup
+            PreMailer.Net.InlineResult result;
+            var baseUri = new Uri(baseUriString);
+            result = PreMailer.Net.PreMailer.MoveCssInline(
+                baseUri: baseUri,
+                html: HTMLString,
+                removeComments: true,
+                removeStyleElements: true,
+                stripIdAndClassAttributes: true
+                );
 
-                                        follower.user.Alerts.Add(alert);
-
-                                        if (follower.user.Settings == null)
-                                        {
-                                            follower.user.Settings = new UserSettings();
-                                        }
-                                    }
-
-                                    //Email
-                                    if (follower.NotifyOnNewPostSubscribedUser)
-                                    {
-                                        string followerEmail = userManager.FindById(follower.AppId).Email;
-                                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
-                                        var userUnsubscribeId = CryptoService.EncryptString(key, follower.AppId);
-
-                                        postBody = postBody.Replace("[userUnsubscribeId]", userUnsubscribeId);
-
-                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                                            new UserEmailModel()
-                                            {
-                                                Destination = followerEmail,
-                                                Body = postBody,
-                                                Email = "",
-                                                Name = "zapread.com",
-                                                Subject = "New post by user you are following",
-                                            }, "Notify", true));
-                                    }
-                                }
-
-                                db.SaveChanges();
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
+            var cleanHTMLString = result.Html;
+            return cleanHTMLString;
         }
 
         /// <summary>

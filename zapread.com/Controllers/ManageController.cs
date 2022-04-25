@@ -39,6 +39,7 @@ namespace zapread.com.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IEventService eventService;
 
         /// <summary>
         /// default constructor
@@ -50,8 +51,9 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
-        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, IEventService eventService)
         {
+            this.eventService = eventService;
             UserManager = userManager;
             SignInManager = signInManager;
         }
@@ -1134,9 +1136,11 @@ namespace zapread.com.Controllers
                 user.Name = cleanName;
                 await db.SaveChangesAsync();
 
+                await eventService.OnUpdateUserAliasAsync(user.Id, oldName, cleanName);
+
                 // Send a security notification to user
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                await SendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
+                //var mailer = DependencyResolver.Current.GetService<MailerController>();
+                //await SendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
 
                 return Json(new { success = true, result = "Success" });
             }

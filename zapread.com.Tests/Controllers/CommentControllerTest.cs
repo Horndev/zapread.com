@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Controllers
 {
@@ -65,7 +66,7 @@ namespace zapread.com.Tests.Controllers
             ViewEngines.Engines.Clear();
             ViewEngines.Engines.Add(engine.Object);
 
-            CommentController controller = new CommentController();
+            CommentController controller = new CommentController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, routeData, controller);
 
             var newComment = new CommentController.NewComment()

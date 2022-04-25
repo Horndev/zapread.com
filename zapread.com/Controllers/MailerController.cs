@@ -23,15 +23,28 @@ namespace zapread.com.Controllers
     /// 
     /// [✓] MailerNewComment - New comment on a post authored
     /// [✓] MailerNewComment - New comment on a post followed
+    /// [✓] MailerNewChat - New chat message when offline
+    /// [ ] MailerUpdatedUserAlias - User updated their user alias
     /// [ ] MailerCommentReply - New reply to a comment
     /// [ ]  - User mentioned
     /// [ ]  - New Follower
     /// [ ]  - (weekly) payout summary
-    /// [ ]  - New post by user followed
+    /// [✓]  - New post by user followed
     /// 
     /// </summary>
     public class MailerController : Controller
     {
+        private IEventService eventService;
+
+        /// <summary>
+        /// Constructor with DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public MailerController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// // GET: Mailer
         /// </summary>
@@ -44,33 +57,15 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Authorize(Roles = "Administrator")]
-        public ActionResult MailerTest()
-        {
-            var emailModel = new Models.Email.TestEmail()
-            {
-                To = "Nobody",
-                Comment = "Test"
-            };
-
-            BackgroundJob.Enqueue<MailingService>(
-                 methodCall: x => x.BackgroundMailTestPage());
-
-            return View("Test", emailModel);
-        }
-
-        /// <summary>
         /// Mailer renders HTML for new Post.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Administrator")]
-        public ActionResult MailerNewPost(int id)
+        public async Task<ActionResult> MailerNewPost(int id)
         {
+            await eventService.OnNewPostAsync(id, isTest: true);
+
             using (var db = new ZapContext())
             {
                 var vm = db.Posts
@@ -90,29 +85,6 @@ namespace zapread.com.Controllers
                     .FirstOrDefault();
 
                 return View("NewPost", vm);
-
-                Post pst = db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking()
-                    .FirstOrDefault(p => p.PostId == id);
-
-                List<int> viewerIgnoredUsers = new List<int>();
-
-                if (pst == null)
-                {
-                    return RedirectToAction("PostNotFound");
-                }
-
-                PostViewModel vmx = new PostViewModel()
-                {
-                    Post = pst,
-                    PostTitle = pst.PostTitle,
-                };
-
-                ViewBag.Message = "New post from a user you are following: " + pst.UserId.Name;
-                return View(vm);
             }
         }
 
@@ -127,12 +99,7 @@ namespace zapread.com.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> MailerNewComment(int? id)
         {
-            // This is all that should be needed.  Test will email to the exception address
-            BackgroundJob.Enqueue<MailingService>(
-                 methodCall: x => x.MailPostComment(
-                     id.Value, // commentId
-                     true // isTest
-                     ));
+            await eventService.OnPostCommentAsync(Convert.ToInt64(id));
 
             // Render for preview
             using (var db = new ZapContext())
@@ -214,58 +181,33 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="email"></param>
-        /// <param name="subject"></param>
-        /// <returns></returns>
-        public async Task<bool> SendPostCommentReply(long id, string email, string subject)
-        {
-            using (var db = new ZapContext())
-            {
-                var vm = await db.Comments
-                    .Where(cmt => cmt.CommentId == id)
-                    .Select(c => new PostCommentsViewModel()
-                    {
-                        CommentId = c.CommentId,
-                        Score = c.Score,
-                        Text = c.Text,
-                        UserId = c.UserId.Id,
-                        UserName = c.UserId.Name,
-                        UserAppId = c.UserId.AppId,
-                        ProfileImageVersion = c.UserId.ProfileImage.Version,
-                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
-                        PostId = c.Post == null ? 0 : c.Post.PostId,
-                        IsReply = c.IsReply,
-                        ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
-                        ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
-                        ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
-                        ParentUserProfileImageVersion = c.Parent == null ? 0 : c.Parent.UserId.ProfileImage.Version,
-                        ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
-                        ParentCommentText = c.Parent == null ? "" : c.Parent.Text,
-                        ParentScore = c.Parent == null ? 0 : c.Parent.Score,
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                ViewBag.Message = subject;
-                string HTMLString = RenderViewToString("NewCommentReply", vm);
-
-                await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
         [Route("Mailer/Template/NewChat/{id}")]
         [HttpGet]
         [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> MailerNewChat(int id)
         {
+            await eventService.OnNewChatAsync(id);
+
             using (var db = new ZapContext())
             {
                 var vm = await db.Messages
+                    .Where(m => m.Id == id)
+                    .Select(m => new NewChatEmail()
+                    {
+                        FromName = m.From.Name,
+                        FromAppId = m.From.AppId,
+                        FromProfileImgVersion = m.From.ProfileImage.Version,
+                        IsReceived = true,
+                        Content = m.Content
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                return View("NewChat", vm);
+
+                // OLD:
+
+                var vmx = await db.Messages
                     .Where(m => m.Id == id)
                     .Select(m => new ChatMessageViewModel()
                     {

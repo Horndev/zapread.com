@@ -112,6 +112,89 @@ namespace zapread.com.Services
             }
             return true;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public bool AlertPostCommentReply(long commentId)
+        {
+            return true;
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public bool AlertNewPost(long postId)
+        {
+            using (var db = new ZapContext())
+            {
+                var followUsers = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.UserId.Followers)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.AppId,
+                        u.Settings.NotifyOnNewPostSubscribedUser,
+                        u.Settings.AlertOnNewPostSubscribedUser,
+                        user = u,
+                    }).ToList();
+
+                if (followUsers.Any())
+                {
+                    var postInfo = db.Posts
+                        .Where(p => p.PostId == postId)
+                        .Select(p => new
+                        {
+                            Post = p,
+                            p.UserId.Name
+                        })
+                        .FirstOrDefault();
+
+                    foreach (var follower in followUsers)
+                    {
+                        // Add Alert
+                        if (follower.AlertOnNewPostSubscribedUser)
+                        {
+                            var alert = new UserAlert()
+                            {
+                                TimeStamp = DateTime.Now,
+                                Title = "New post by a user you are following: <a href='/User/" + Uri.EscapeDataString(postInfo.Name) + "'>" + postInfo.Name + "</a>",
+                                Content = "",
+                                IsDeleted = false,
+                                IsRead = false,
+                                To = follower.user,
+                                PostLink = postInfo.Post,
+                            };
+
+                            follower.user.Alerts.Add(alert);
+
+                            if (follower.user.Settings == null)
+                            {
+                                follower.user.Settings = new UserSettings();
+                            }
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+                return true;
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <returns></returns>
+        public bool AlertNewChat(int chatId)
+        {
+            return true;
+        }
     }
 }
 

@@ -31,6 +31,16 @@ namespace zapread.com.Controllers
     {
         private ApplicationRoleManager _roleManager;
         private ApplicationUserManager _userManager;
+        private IEventService eventService;
+
+        /// <summary>
+        /// Constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public PostController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
 
         /// <summary>
         /// Access for Owin user manager
@@ -490,20 +500,22 @@ namespace zapread.com.Controllers
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
-                            // Send alerts to users subscribed to users
-                            try
-                            {
-                                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-                                string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+                            await eventService.OnNewPostAsync(postId).ConfigureAwait(true);
 
-                                BackgroundJob.Enqueue<MailingService>(
-                                    methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
-                            }
-                            catch (Exception)
-                            {
-                                // noted.
-                            }
+                            // Old version:
+                            //// Send alerts to users subscribed to users
+                            //try
+                            //{
+                            //    var mailer = DependencyResolver.Current.GetService<MailerController>();
+                            //    mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                            //    string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+                            //    BackgroundJob.Enqueue<MailingService>(
+                            //        methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
+                            //}
+                            //catch (Exception)
+                            //{
+                            //    // noted.
+                            //}
                         }
                     }
                     else if (!post.IsDraft && isDraft) // Editing a previously published post
@@ -544,12 +556,15 @@ namespace zapread.com.Controllers
                     {
                         try
                         {
-                            var mailer = DependencyResolver.Current.GetService<MailerController>();
-                            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-                            string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+                            await eventService.OnNewPostAsync(postId).ConfigureAwait(true);
 
-                            BackgroundJob.Enqueue<MailingService>(
-                                methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
+                            // Old version:
+                            //var mailer = DependencyResolver.Current.GetService<MailerController>();
+                            //mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
+                            //string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
+
+                            //BackgroundJob.Enqueue<MailingService>(
+                            //    methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                         }
                         catch (Exception)
                         {

@@ -141,6 +141,15 @@ namespace zapread.com.Controllers
                     case "A":
                         function = "followed user post notifications";
                         break;
+                    case "B":
+                        function = "followed post notifications";
+                        break;
+                    case "C":
+                        function = "comments on post";
+                        break;
+                    case "D":
+                        function = "reply to comments";
+                        break;
                     default:
                         break;
                 }

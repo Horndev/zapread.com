@@ -53,6 +53,26 @@ namespace zapread.com.Tests.Mailer
         }
 
         [TestMethod]
+        public void TestNewChatEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateNewChatHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestUserAliasUpdatedEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateUpdatedUserAliasHTML(0, "olduser", "newuser");
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
         public void TestGenerate()
         {
             var request = new Mock<HttpRequestBase>();
@@ -89,7 +109,7 @@ namespace zapread.com.Tests.Mailer
             ViewEngines.Engines.Clear();
             ViewEngines.Engines.Add(engine.Object);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
 
             controller.ControllerContext = new ControllerContext(context.Object, routeData, controller);
 

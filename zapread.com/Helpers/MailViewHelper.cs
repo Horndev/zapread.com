@@ -65,5 +65,15 @@ namespace zapread.com.Helpers
                 + System.Web.HttpUtility.UrlEncode(userAppId)
                 + "&v=" + Convert.ToString(profileImageVersion);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public static string ChatMessageURI(string username)
+        {
+            return "https://www.zapread.com/Messages/Chat/" + System.Web.HttpUtility.UrlEncode(username.Trim()) + "/";
+        }
     }
 }
