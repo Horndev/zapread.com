@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Post;
@@ -21,6 +22,80 @@ namespace zapread.com.API
     /// </summary>
     public class PostController : ApiController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/unfollow")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> UnFollow(FollowPostParameters req)
+        {
+            if (req == null || req.PostId < 1) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.FollowingPosts)
+                    .FirstOrDefaultAsync(u => u.AppId == userAppId)
+                    .ConfigureAwait(true); // keep context
+
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == req.PostId)
+                    .ConfigureAwait(true); // keep context 
+
+                if (user.FollowingPosts.Contains(post))
+                {
+                    user.FollowingPosts.Remove(post);
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// Follow a post
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/follow")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> Follow(FollowPostParameters req)
+        {
+            if (req == null || req.PostId < 1) return BadRequest();
+            
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.FollowingPosts)
+                    .FirstOrDefaultAsync(u => u.AppId == userAppId)
+                    .ConfigureAwait(true); // keep context
+
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == req.PostId)
+                    .ConfigureAwait(true); // keep context 
+
+                if (!user.FollowingPosts.Contains(post))
+                {
+                    user.FollowingPosts.Add(post);
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
         /// <summary>
         /// Get information about a post
         /// </summary>

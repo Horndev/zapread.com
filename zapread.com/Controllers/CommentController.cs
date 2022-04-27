@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using Hangfire;
+using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
@@ -29,6 +30,17 @@ namespace zapread.com.Controllers
     public class CommentController : Controller
     {
         private ApplicationUserManager _userManager;
+
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public CommentController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
 
         /// <summary>
         /// 
@@ -378,56 +390,40 @@ namespace zapread.com.Controllers
                 if (!c.IsTest)
                 {
                     db.Comments.Add(comment);
-
-                    // Done synchronously since we can get errors when trying to render post HTML later.
-                    await db.SaveChangesAsync()
-                        .ConfigureAwait(true);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 
                 // Find user mentions
                 try
                 {
+                    // This could just move into the OnComment event and get processed in background?
                     var doc = new HtmlDocument();
                     doc.LoadHtml(comment.Text);
-                    var spans = doc.DocumentNode.SelectNodes("//span");
-                    if (spans != null)
+
+                    if (hasUserMention(doc))
                     {
-                        foreach (var s in spans)
-                        {
-                            if (!c.IsTest)
-                                await NotifyUserMentioned(db, user, post, comment, s).ConfigureAwait(true);
-                        }
+                        await eventService.OnUserMentionedInComment(comment.CommentId);
                     }
                 }
                 catch (Exception e)
                 {
-                    MailingService.Send(new UserEmailModel()
-                    {
-                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId,
-                        Email = "",
-                        Name = "zapread.com Exception",
-                        Subject = "User comment error",
-                    });
+                    MailingService.SendErrorNotification(
+                        title: "User comment error",
+                        message: " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId);
                 }
 
-                // Only send messages if not own post.
-                // TODO: move this to hangfire queue
-                if (!c.IsReply && (postOwner.AppId != user.AppId))
+                if (!c.IsReply && !c.IsTest)
                 {
-                    if (!c.IsTest)
-                        await NotifyPostOwnerOfComment(db, user, post, comment, postOwner)
-                            .ConfigureAwait(true);
+                    await eventService.OnPostCommentAsync(comment.CommentId);
                 }
 
-                if (c.IsReply && commentOwner.AppId != user.AppId)
+                if (c.IsReply && !c.IsTest)
                 {
-                    if (!c.IsTest)
-                        await NotifyCommentOwnerOfReply(db, user, post, comment, commentOwner)
-                            .ConfigureAwait(true);
+                    await eventService.OnCommentReplyAsync(comment.CommentId);
                 }
 
-                // Render the comment to be inserted to HTML
+                // Render the comment to HTML
+                // TODO: this will be replaced with returning json object instead of server-rendered HTML
                 string CommentHTMLString = RenderPartialViewToString(
                     viewName: "_PartialCommentRenderVm", 
                     model: new PostCommentsViewModel() 
@@ -463,6 +459,27 @@ namespace zapread.com.Controllers
                     comment.CommentId,
                 });
             }
+        }
+
+        private bool hasUserMention(HtmlDocument doc)
+        {
+            var spans = doc.DocumentNode.SelectNodes("//span");
+
+            if (spans != null)
+            {
+                foreach (var s in spans)
+                {
+                    if (s.Attributes.Count(a => a.Name == "class") > 0)
+                    {
+                        var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
+                        if (cls.Value.Contains("userhint"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -515,18 +532,6 @@ namespace zapread.com.Controllers
                     .ThenByDescending(c => c.TimeStamp)
                     .Select(c => c.CommentId)
                     .ToList();
-
-                // All the comments related to this post
-                //var postComments = await db.Posts
-                //    .Include(p => p.Group)
-                //    .Include(p => p.Comments)
-                //    .Include(p => p.Comments.Select(c => c.Parent))
-                //    .Include(p => p.Comments.Select(c => c.VotesUp))
-                //    .Include(p => p.Comments.Select(c => c.VotesDown))
-                //    .Include(p => p.Comments.Select(c => c.UserId))
-                //    .Where(p => p.PostId == postId)
-                //    .SelectMany(p => p.Comments)
-                //    .ToListAsync().ConfigureAwait(true);
 
                 string CommentHTMLString = "";
                 List<PostCommentsViewModel> comments = new List<PostCommentsViewModel>();
@@ -663,184 +668,6 @@ namespace zapread.com.Controllers
             return sanitizedComment;
         }
 
-        private async Task NotifyUserMentioned(ZapContext db, User user, Post post, Comment comment, HtmlNode s)
-        {
-            if (s.Attributes.Count(a => a.Name == "class") > 0)
-            {
-                var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
-                if (cls.Value.Contains("userhint"))
-                {
-                    var username = s.InnerHtml.Replace("@", "");
-                    var mentioneduser = db.Users
-                        .Include(usr => usr.Settings)
-                        .FirstOrDefault(u => u.Name == username);
-
-                    if (mentioneduser != null)
-                    {
-                        // Add Message
-                        UserMessage message = CreateMentionedMessage(user, post, comment, mentioneduser);
-                        mentioneduser.Messages.Add(message);
-                        await db.SaveChangesAsync();
-
-                        // Send Email
-                        SendMentionedEmail(user, post, comment, mentioneduser);
-                    }
-                }
-            }
-        }
-
-        private async Task NotifyPostOwnerOfComment(ZapContext db, User user, Post post, Comment comment, User postOwner)
-        {
-            // Add Alert
-            if (postOwner.Settings == null)
-            {
-                postOwner.Settings = new UserSettings();
-            }
-
-            if (postOwner.Settings.AlertOnOwnPostCommented)
-            {
-                UserAlert alert = CreateCommentedAlert(user, post, comment, postOwner);
-                postOwner.Alerts.Add(alert);
-                await db.SaveChangesAsync().ConfigureAwait(true);
-            }
-
-            // Send Email
-            if (postOwner.Settings.NotifyOnOwnPostCommented)
-            {
-                string subject = "New comment on your post: " + post.PostTitle;
-                string ownerEmail = UserManager.FindById(postOwner.AppId).Email;
-
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                try
-                {
-                    await mailer.SendPostComment(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
-                }
-                catch (System.Net.Mail.SmtpException)
-                {
-                    // Could not send the email
-                    // [TODO] set up logging for this
-                }
-            }
-        }
-
-        private async Task NotifyCommentOwnerOfReply(ZapContext db, User user, Post post, Comment comment, User commentOwner)
-        {
-            UserMessage message = CreateCommentRepliedMessage(user, post, comment, commentOwner);
-
-            commentOwner.Messages.Add(message);
-            await db.SaveChangesAsync().ConfigureAwait(true);
-
-            if (commentOwner.Settings == null)
-            {
-                commentOwner.Settings = new UserSettings();
-            }
-
-            // Send Email
-            if (commentOwner.Settings.NotifyOnOwnCommentReplied)
-            {
-                string subject = "New reply to your comment in post: " + post.PostTitle;
-                string ownerEmail = UserManager.FindById(commentOwner.AppId).Email;
-
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                try
-                {
-                    await mailer.SendPostCommentReply(comment.CommentId, ownerEmail, subject).ConfigureAwait(true);
-                }
-                catch (System.Net.Mail.SmtpException)
-                {
-                    // Could not send the email
-                    // [TODO] set up logging for this
-                }
-            }
-        }
-
-        private UserMessage CreateCommentRepliedMessage(User user, Post post, Comment comment, User commentOwner)
-        {
-            return new UserMessage()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "New reply to your comment in post: <a href='" + Url.Action(actionName: "Detail", controllerName: "Post", routeValues: new { id = post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
-                Content = comment.Text,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = commentOwner,
-                PostLink = post,
-                From = user,
-            };
-        }
-
-        private UserAlert CreateCommentedAlert(User user, Post post, Comment comment, User postOwner)
-        {
-            var alert = new UserAlert()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "New comment on your post: <a href=" + @Url.Action("Detail", "Post", new { post.PostId, postTitle = post.PostTitle?.MakeURLFriendly() }) + ">" + post.PostTitle + "</a>",
-                Content = "From: <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",//< br/> " + c.CommentContent,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = postOwner,
-                PostLink = post,
-            };
-            return alert;
-        }
-
-        private void SendMentionedEmail(User user, Post post, Comment comment, User mentioneduser)
-        {
-            if (mentioneduser.Settings == null)
-            {
-                mentioneduser.Settings = new UserSettings();
-            }
-
-            if (mentioneduser.Settings.NotifyOnMentioned)
-            {
-                var cdoc = new HtmlDocument();
-                cdoc.LoadHtml(comment.Text);
-                var baseUri = new Uri("https://www.zapread.com/");
-                var imgs = cdoc.DocumentNode.SelectNodes("//img/@src");
-                if (imgs != null)
-                {
-                    foreach (var item in imgs)
-                    {
-                        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                    }
-                }
-                string commentContent = cdoc.DocumentNode.OuterHtml;
-
-                string mentionedEmail = UserManager.FindById(mentioneduser.AppId).Email;
-                MailingService.Send(user: "Notify",
-                    message: new UserEmailModel()
-                    {
-                        Subject = "New mention in comment",
-                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='https://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='https://www.zapread.com'>zapread.com</a>",
-                        Destination = mentionedEmail,
-                        Email = "",
-                        Name = "ZapRead.com Notify"
-                    });
-            }
-        }
-
-        private UserMessage CreateMentionedMessage(User user, Post post, Comment comment, User mentioneduser)
-        {
-            return new UserMessage()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "You were mentioned in a comment by <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
-                Content = comment.Text,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = mentioneduser,
-                PostLink = post,
-                From = user,
-            };
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -863,27 +690,6 @@ namespace zapread.com.Controllers
                 viewResult.View.Render(viewContext, sw);
 
                 return sw.GetStringBuilder().ToString();
-            }
-        }
-
-        private async Task EnsureUserExists(string userId, ZapContext db)
-        {
-            if (db.Users.Where(u => u.AppId == userId).Count() == 0)
-            {
-                // no user entry
-                User u = new User()
-                {
-                    AboutMe = "Nothing to tell.",
-                    AppId = userId,
-                    Name = User.Identity.Name,
-                    ProfileImage = new UserImage(),
-                    ThumbImage = new UserImage(),
-                    Funds = new UserFunds(),
-                    Settings = new UserSettings(),
-                    DateJoined = DateTime.UtcNow,
-                };
-                db.Users.Add(u);
-                await db.SaveChangesAsync();
             }
         }
 

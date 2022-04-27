@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Hangfire;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using System;
@@ -220,14 +221,15 @@ namespace zapread.com.Controllers
             }
             catch (Exception e)
             {
-                MailingService.Send(new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userAppId,
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "Account Controller error",
-                });
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                    new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userAppId,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "Account Controller error",
+                    }, "Accounts", true));
 
                 // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
                 balance = 0.0;
@@ -341,14 +343,15 @@ namespace zapread.com.Controllers
             }
             catch (Exception e)
             {
-                MailingService.Send(new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + userId,
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "Account Controller error",
-                });
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                    new UserEmailModel()
+                    {
+                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + userId,
+                        Email = "",
+                        Name = "zapread.com Exception",
+                        Subject = "Account Controller error",
+                    }, "Accounts", true));
 
                 // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
                 amount = 0.0;

@@ -39,19 +39,26 @@ namespace zapread.com.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IEventService eventService;
 
         /// <summary>
         /// default constructor
         /// </summary>
-        public ManageController() { }
+        /// <param name="eventService"></param>
+        public ManageController(IEventService eventService) 
+        {
+            this.eventService = eventService;
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
-        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        /// <param name="eventService"></param>
+        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager, IEventService eventService)
         {
+            this.eventService = eventService;
             UserManager = userManager;
             SignInManager = signInManager;
         }
@@ -1134,40 +1141,10 @@ namespace zapread.com.Controllers
                 user.Name = cleanName;
                 await db.SaveChangesAsync();
 
-                // Send a security notification to user
-                var mailer = DependencyResolver.Current.GetService<MailerController>();
-                await SendUpdateUserAliasEmailNotification(cleanName, oldName, user, aspUser, mailer);
+                await eventService.OnUpdateUserAliasAsync(user.Id, oldName, cleanName);
 
-                return Json(new { success = true, result = "Success" });
+                return Json(new { success = true, newName=cleanName, result = "Success" });
             }
-        }
-
-        private async Task SendUpdateUserAliasEmailNotification(string cleanName, string oldName, User user, ApplicationUser aspUser, MailerController mailer)
-        {
-            // Sets the mailer controller context for views to be rendered.
-            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-            string subject = "Your Zapread Username has been updated";
-            string emailBody = await mailer.GenerateUpdatedUserAliasEmailBod(
-                id: user.Id,
-                userName: cleanName,
-                oldUserName: oldName).ConfigureAwait(true);
-
-            string userEmail = aspUser.Email;
-
-            // Enqueue emails for sending out.  Don't need to wait for this to finish before returning client response
-            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                new UserEmailModel()
-                {
-                    Destination = userEmail,
-                    Body = emailBody,
-                    Email = "",
-                    Name = "zapread.com",
-                    Subject = subject,
-                }, 
-                "Notify", // account
-                true // useSSL
-                ));
         }
 
         /// <summary>

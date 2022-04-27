@@ -1,0 +1,111 @@
+﻿@using Microsoft.AspNet.Identity;
+@using zapread.com.Helpers;
+@using zapread.com.Models;
+@using zapread.com.Models.UserViews;
+@using System.Globalization;
+@model zapread.com.Models.Email.PostCommentReplyEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId)">
+                        <h3 style="display:inline-block">New reply to your comment in post @Model.PostTitle</h3>
+                    </a>
+                    <hr />
+                </div>
+                <div class="container" style="background-color:white;margin-bottom: 0px;">
+                    <div class="social-footer">
+                        <div class=" social-comment">
+                            @*Voting on parent comment*@
+                            <div class="vote-actions">
+                                <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.ParentCommentId, 1)" class="text-muted">
+                                    <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                </a>
+                                <div id="sVotec_@Model.CommentId">@Model.ParentScore.ToAbbrString()</div>
+                                <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.ParentCommentId, 0)" class="text-muted">
+                                    <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                </a>
+                            </div>
+
+                            <a href="@MailViewHelper.UserLink(Model.ParentUserName)" class="pull-left">
+                                <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.ParentUserAppId, Model.ParentUserProfileImageVersion, 30)" />
+                            </a>
+
+                            <div class="media-body" style="display:inline;">
+                                <a class="post-username userhint" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId"
+                                   href="@MailViewHelper.UserLink(Model.ParentUserName)">
+                                    @Model.ParentUserName
+                                </a>
+                                <br /><br />
+                                <div class="row" style="margin-left: 40px;">
+                                    <div id="commentText_@Model.ParentCommentId" style="position: relative;">
+                                        <div>
+                                            @(new RazorEngine.Text.RawString(Model.ParentCommentText))
+                                        </div><br />
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*Insert Reply Here*@
+                            <div id=@("rcomments_" + @Model.ParentCommentId.ToString())>
+                                <div class="media-body" id="comment_@Model.CommentId" style="min-height: 24px;">
+                                    <div class="container">
+                                        <div class="social-footer-reply" style="padding-bottom: 0px;">
+                                            <div>
+                                                <div class="vote-actions">
+                                                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId, 1)" class="text-muted">
+                                                        <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                                    </a>
+                                                    <div id="sVotec_@Model.CommentId">@Model.Score.ToAbbrString()</div>
+                                                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId, 0)" class="text-muted">
+                                                        <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                                    </a>
+                                                </div>
+
+                                                <a href="@MailViewHelper.UserLink(Model.UserName)" class="pull-left">
+                                                    <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.UserAppId, Model.ProfileImageVersion, 30)" />
+                                                </a>
+
+                                                <div class="media-body" style="display:inline;">
+                                                    <a class="post-username userhint" data-userappid="@Model.UserAppId" data-userid="@Model.UserId"
+                                                       href="@MailViewHelper.UserLink(Model.UserName)">
+                                                        @Model.UserName
+                                                    </a>
+                                                    <br /><br />
+                                                    <div class="row" style="margin-left: 40px;">
+                                                        <div id="commentText_@Model.CommentId" style="position: relative;">
+                                                            <div>@(new RazorEngine.Text.RawString(Model.Text))</div><br />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" style="background-color:white;">
+                    <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/">Unsubscribe</a> from these emails.
+                </div>
+                <div class="container" style="background-color:white;">
+                    <br />
+                    <hr />
+                    You may also log into <a href="https://www.zapread.com">ZapRead.com</a> to configure your email subscriptions.
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

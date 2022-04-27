@@ -1,18 +1,87 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Mailer
 {
     [TestClass]
     public class MailerTest
     {
+        [TestMethod]
+        public void TestPostalMailerService()
+        {
+            var res = zapread.com.Services.MailingService.TestMailer().Result;
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void TestPostCommentEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailPostCommentHTML(1);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestPostCommentReplyEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailPostCommentReplyHTML(80);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestNewPostEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailNewPostHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestNewChatEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateNewChatHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestUserAliasUpdatedEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateUpdatedUserAliasHTML(0, "olduser", "newuser");
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestUserMentionedInCommentEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateUserMentionedInCommentHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
         [TestMethod]
         public void TestGenerate()
         {
@@ -50,7 +119,7 @@ namespace zapread.com.Tests.Mailer
             ViewEngines.Engines.Clear();
             ViewEngines.Engines.Add(engine.Object);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
 
             controller.ControllerContext = new ControllerContext(context.Object, routeData, controller);
 

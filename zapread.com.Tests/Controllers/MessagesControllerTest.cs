@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Controllers
 {
@@ -16,7 +17,7 @@ namespace zapread.com.Tests.Controllers
         public void TestMessagesRecentUnreadMessages()
         {
             // Arrange
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
 
             // Act
             ActionResult result = controller.RecentUnreadMessages() as ActionResult;
@@ -36,7 +37,7 @@ namespace zapread.com.Tests.Controllers
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -57,7 +58,7 @@ namespace zapread.com.Tests.Controllers
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -78,7 +79,7 @@ namespace zapread.com.Tests.Controllers
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -99,7 +100,7 @@ namespace zapread.com.Tests.Controllers
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 
-            MessagesController controller = new MessagesController();
+            MessagesController controller = new MessagesController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act

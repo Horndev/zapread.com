@@ -7,6 +7,7 @@ import { refreshUserBalance } from '../utility/refreshUserBalance';
 import { ready } from '../utility/ready';
 import { postJson } from '../utility/postData';
 const getDepositWithdrawModal = () => import("../Components/DepositWithdrawModal");
+
 import React from "react";
 import ReactDOM from "react-dom";
 import UserBalance from "../Components/UserBalance";

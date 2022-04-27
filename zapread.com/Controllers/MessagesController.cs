@@ -29,6 +29,17 @@ namespace zapread.com.Controllers
     {
         private ApplicationUserManager _userManager;
 
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor with DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public MessagesController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// User Manager to access Owin users and properties.
         /// </summary>
@@ -1097,28 +1108,12 @@ namespace zapread.com.Controllers
 
                     HTMLString = RenderPartialViewToString("_PartialChatMessage", mvm);
 
-                    // Send stream update
+                    await eventService.OnNewChatAsync(msg.Id);
+
+                    // Send stream update (to update UI)
+                    // [ ] TODO - this should send just the json data instead of HTML and render client-side
                     await NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
 
-                    // Send stream update popup
-                    await NotificationService.SendPrivateMessage(cleanContent, receiver.AppId, "Private Message From " + sender.Name, Url.Action("Chat", "Messages", new { username = sender.Name }));
-
-                    // email if not in chat
-                    isChat = false;
-                    if (isChat == null || (isChat != null && !isChat.Value))
-                    {
-                        // Send email
-                        if (receiver.Settings != null && receiver.Settings.NotifyOnPrivateMessage)
-                        {
-                            string mentionedEmail = (await UserManager.FindByIdAsync(receiver.AppId).ConfigureAwait(true)).Email;
-
-                            var mailer = DependencyResolver.Current.GetService<MailerController>();
-                            mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-
-                            string subject = "New private ZapRead message from " + sender.Name;
-                            await mailer.SendNewChat(msg.Id, mentionedEmail, subject).ConfigureAwait(true);
-                        }
-                    }
                     return Json(new { success = true, result = "Success", id = msg.Id });
                 }
             }

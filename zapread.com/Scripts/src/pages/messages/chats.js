@@ -24,7 +24,7 @@ function Page() {
     await fetch(`/api/v1/chats/list/${chatsPage}/`)
       .then(response => response.json())
       .then(json => {
-        console.log(json);
+        //console.log(json);
         setChats(json.chats);
         setNumChats(json.numChats);
         chatsLoadingRef.current.classList.remove("sk-loading");

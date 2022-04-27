@@ -16,7 +16,6 @@ namespace zapread.com.Models.Subscription
         public string UnsubFunction { get; set; }
         public string UserEmail { get; set; }
         public string UserUnsubscribeId { get; set; }
-        public string SubscriptionType { get; set; }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

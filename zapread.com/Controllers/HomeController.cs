@@ -911,14 +911,9 @@ namespace zapread.com.Controllers
             }
             catch (Exception e)
             {
-                MailingService.Send(new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + User.Identity.GetUserId() ?? "anonymous",
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "Exception on index",
-                });
+                MailingService.SendErrorNotification(
+                    title: "Exception on index", 
+                    message: " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + User.Identity.GetUserId() ?? "anonymous");
                 throw e;
             }
         }
@@ -1190,13 +1185,10 @@ namespace zapread.com.Controllers
 
             uid = User.Identity.GetUserId();
 
-            UserEmailModel message = new UserEmailModel();
-            message.Email = "";
-            message.Name = "ZapRead Feedback";
-            message.Subject = "ZapRead Feedback";
-            message.Body = msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid;
-            message.Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
-            MailingService.Send(message);
+            // maybe use a better method?
+            MailingService.SendErrorNotification(
+                title: "ZapRead Feedback",
+                message: msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid);
 
             return Json(new { result = "success" });
         }

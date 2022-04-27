@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Controllers
 {
@@ -28,7 +29,7 @@ namespace zapread.com.Tests.Controllers
             SetupUserLoggedIn(out context, out userManager, out signInManager);
 
             // Act
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
+            ManageController controller = new ManageController(userManager.Object, signInManager.Object, new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Assert
@@ -45,7 +46,7 @@ namespace zapread.com.Tests.Controllers
             Mock<ApplicationSignInManager> signInManager;
             SetupUserLoggedIn(out context, out userManager, out signInManager);
 
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
+            ManageController controller = new ManageController(userManager.Object, signInManager.Object, new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -81,7 +82,7 @@ namespace zapread.com.Tests.Controllers
             userManager.Setup(x => x.GetTwoFactorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
             userManager.Setup(x => x.GetLoginsAsync(It.IsAny<string>())).Returns(Task.FromResult(userlogins));
 
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
+            ManageController controller = new ManageController(userManager.Object, signInManager.Object, new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -129,7 +130,7 @@ namespace zapread.com.Tests.Controllers
             userManager.Setup(x => x.GetTwoFactorEnabledAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
             userManager.Setup(x => x.GetLoginsAsync(It.IsAny<string>())).Returns(Task.FromResult(userlogins));
 
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
+            ManageController controller = new ManageController(userManager.Object, signInManager.Object, new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
@@ -151,7 +152,7 @@ namespace zapread.com.Tests.Controllers
             Mock<ApplicationSignInManager> signInManager;
             SetupUserLoggedIn(out context, out userManager, out signInManager);
 
-            ManageController controller = new ManageController(userManager.Object, signInManager.Object);
+            ManageController controller = new ManageController(userManager.Object, signInManager.Object, new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
