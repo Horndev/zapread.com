@@ -45,30 +45,10 @@ namespace zapread.com
                         "~/Scripts/Partial/summaryStatistics.js")
                         .WithLastModifiedToken());
 
-            // Partial script - top navbar
-            //bundles.Add(new ScriptBundle("~/bundles/partial/topnavbar").Include(
-            //            "~/Scripts/Partial/topnavbar.js")
-            //            .WithLastModifiedToken());
-
-            //// Partial script - vote modal
-            //bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
-            //            "~/Scripts/Partial/vote.js")
-            //            .WithLastModifiedToken());
-
-            // Partial script - group edit tags
-            //bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
-            //            "~/Scripts/Groups/tags.js")
-            //            .WithLastModifiedToken());
-
             // Partial script - group admin bar
             bundles.Add(new ScriptBundle("~/bundles/partial/group/adminbar").Include(
                         "~/Scripts/Groups/adminbar.js")
                         .WithLastModifiedToken());
-
-            // Partial script - group user Roles
-            //bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
-            //            "~/Scripts/Groups/userRoles.js")
-            //            .WithLastModifiedToken());
 
             // Partial script - group edit icon
             bundles.Add(new ScriptBundle("~/bundles/partial/group/editIcon").Include(
@@ -79,11 +59,6 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/partial/messageCompose").Include(
                         "~/Scripts/Partial/messageCompose.js")
                         .WithLastModifiedToken());
-
-            // Partial scripts - manage
-            //bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
-            //            "~/Scripts/Manage/updateAlias.js")
-            //            .WithLastModifiedToken());
 
             #endregion
 

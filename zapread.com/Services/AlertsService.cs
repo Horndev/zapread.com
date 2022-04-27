@@ -172,7 +172,7 @@ namespace zapread.com.Services
                         TimeStamp = DateTime.Now,
                         Title = "New reply to <a href='" +
                             "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
-                                commentInfo.PostTitle?.MakeURLFriendly() + "/" + "#c_" + Convert.ToString(commentInfo.CommentId) +
+                                commentInfo.PostTitle?.MakeURLFriendly() + "/" + "#cid_" + Convert.ToString(commentInfo.CommentId) +
                             "'>" + "your comment" + "</a>",
                         Content = "From: <a href='" +
                             "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +

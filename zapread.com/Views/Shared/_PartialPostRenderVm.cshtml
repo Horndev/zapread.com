@@ -163,7 +163,10 @@
             <div class="row">
                 <div class="col">
                     <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userappid="@Model.UserAppId" data-userid="@Model.UserId">
-                        <div @if (!Model.IsDetailView) { <text> class="post-content ql-container ql-snow" </text> }>
+                        <div class="@if (!Model.IsDetailView) 
+                            { <text> post-content ql-editor ql-container ql-snow </text> }
+                            else { <text> post-content ql-editor ql-container ql-snow </text> }"
+                        >
                             @Html.Raw(Model.Content)
                         </div>
                         @if (Model.IsNSFW)

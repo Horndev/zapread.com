@@ -118,6 +118,13 @@ button.ql-cancel {
 
 .ql-container, .ql-container.ql-snow {
     border: 0 !important;
+    white-space: inherit !important;
+}
+
+/* Don't expand height for short posts when not editing */
+.post-content.ql-editor {
+    min-height: 0px !important;
+    border: 0px !important;
 }
 
 /* Created to put border around content input*/
@@ -128,6 +135,14 @@ button.ql-cancel {
 }
 
 .ql-editor {
+    background-color: #fff !important;
+    border-radius: 0 0 10px 10px;
+    height: auto;
+    border: 1px solid;
+    border-color: #ccc;
+}
+
+.ql-comment .ql-editor {
     background-color: #fff !important;
     border-radius: 0 0 10px 10px;
     height: auto;
