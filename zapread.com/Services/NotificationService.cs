@@ -22,7 +22,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyNewPostToFollowers(int postId)
         {
-
+            // Not yet implemented
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyPostCommentToFollowers(long commentId)
         {
-
+            // Not yet implemented
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyPostCommentToAuthor(long commentId)
         {
-
+            // Not yet implemented
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyPostCommentReplyToAuthor(long commentId)
         {
-
+            // Not yet implemented
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyUserMentionedInComment(long commentId)
         {
-
+            // Not yet implemented
         }
 
         /// <summary>

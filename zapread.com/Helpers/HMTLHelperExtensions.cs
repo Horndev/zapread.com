@@ -10,7 +10,6 @@ namespace zapread.com
     /// </summary>
     public static class HMTLHelperExtensions
     {
-
         /// <summary>
         /// 
         /// </summary>
