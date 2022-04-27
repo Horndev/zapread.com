@@ -48,6 +48,23 @@ namespace zapread.com.Services
     /// </summary>
     public class MailingService
     {
+        private string makeImagesFQDN(string emailContent)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(emailContent);
+            var baseUri = new Uri("https://www.zapread.com/");
+            var imgs = doc.DocumentNode.SelectNodes("//img/@src");
+            if (imgs != null)
+            {
+                foreach (var item in imgs)
+                {
+                    item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
+                }
+            }
+            string newContent = doc.DocumentNode.OuterHtml;
+            return newContent;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -74,6 +91,9 @@ namespace zapread.com.Services
                     .FirstOrDefault();
 
                 var emailContent = renderEmail(commentInfo);
+
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
 
                 return emailContent;
             }
@@ -113,6 +133,9 @@ namespace zapread.com.Services
 
                 var emailContent = renderEmail(commentInfo);
 
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
+
                 return emailContent;
             }
         }
@@ -143,6 +166,9 @@ namespace zapread.com.Services
                     .FirstOrDefault();
                 
                 var emailContent = renderEmail(postInfo);
+
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
 
                 return emailContent;
             }
