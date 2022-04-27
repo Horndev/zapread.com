@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 using zapread.com.Database;
 using zapread.com.Helpers;
 using zapread.com.Models.Database;
@@ -29,8 +30,13 @@ namespace zapread.com.Services
                     .Where(c => c.CommentId == commentId)
                     .Select(c => new 
                     {
+                        c.Text,
                         c.Post.PostId,
                         c.Post.PostTitle,
+                        To = c.Post.UserId,
+                        From = c.UserId,
+                        c.Post,
+                        Comment = c,
                         CommentUserName = c.UserId.Name
                     }).FirstOrDefault();
 
@@ -74,6 +80,27 @@ namespace zapread.com.Services
                         PostLink = db.Posts.FirstOrDefault(p => p.PostId == commentInfo.PostId),
                     };
                     postOwner.Alerts.Add(alert);
+
+                    UserMessage message = new UserMessage()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "New comment on your post: "
+                            + "<a href='" +
+                            "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
+                                commentInfo.PostTitle?.MakeURLFriendly() + "/" +
+                            "'>" + commentInfo.PostTitle + "</a>"
+                            + (commentInfo.PostTitle != null ? commentInfo.PostTitle : "Post") + "</a>",
+                        Content = commentInfo.Text,
+                        CommentLink = commentInfo.Comment,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = commentInfo.To,
+                        PostLink = commentInfo.Post,
+                        From = commentInfo.From,
+                    };
+
+                    postOwner.Messages.Add(message);
+
                     db.SaveChanges();
                 }
 
@@ -91,10 +118,10 @@ namespace zapread.com.Services
                             UserAlert alert = new UserAlert()
                             {
                                 TimeStamp = DateTime.Now,
-                                Title = "New comment on a post you are following: <a href=" +
+                                Title = "New comment on a post you are following: <a href='" +
                                     "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
                                         commentInfo.PostTitle?.MakeURLFriendly() + "/" +
-                                    ">" + commentInfo.PostTitle + "</a>",
+                                    "'>" + commentInfo.PostTitle + "</a>",
                                 Content = "From: <a href='" +
                                     "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
                                     "'>" + commentInfo.CommentUserName + "</a>",
@@ -120,7 +147,70 @@ namespace zapread.com.Services
         /// <returns></returns>
         public bool AlertPostCommentReply(long commentId)
         {
-            return true;
+            using (var db = new ZapContext())
+            {
+                var commentInfo = db.Comments
+                    .Where(c => c.CommentId == commentId)
+                    .Select(c => new {
+                        c.Parent.UserId.Settings.AlertOnOwnCommentReplied,
+                        c.CommentId,
+                        CommentUserName = c.UserId.Name,
+                        To = c.Parent.UserId,
+                        From = c.UserId,
+                        c.Post,
+                        c.Post.PostId,
+                        c.Post.PostTitle,
+                        c.Text,
+                        Comment = c
+                    })
+                    .FirstOrDefault();
+
+                if (commentInfo != null && commentInfo.AlertOnOwnCommentReplied)
+                {
+                    UserAlert alert = new UserAlert()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "New reply to <a href='" +
+                            "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
+                                commentInfo.PostTitle?.MakeURLFriendly() + "/" + "#c_" + Convert.ToString(commentInfo.CommentId) +
+                            "'>" + "your comment" + "</a>",
+                        Content = "From: <a href='" +
+                            "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
+                            "'>" + commentInfo.CommentUserName + "</a>",
+                        CommentLink = commentInfo.Comment,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = commentInfo.To,
+                        PostLink = commentInfo.Post,
+                    };
+
+                    commentInfo.To.Alerts.Add(alert);
+
+                    UserMessage message = new UserMessage()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "New reply to your comment in post: "
+                            + "<a href='" +
+                                "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
+                                    commentInfo.PostTitle?.MakeURLFriendly() + "/" +
+                                "'>" + commentInfo.PostTitle + "</a>"
+                            + (commentInfo.PostTitle != null ? commentInfo.PostTitle : "Post") + "</a>",
+                        Content = commentInfo.Text,
+                        CommentLink = commentInfo.Comment,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = commentInfo.To,
+                        PostLink = commentInfo.Post,
+                        From = commentInfo.From,
+                    };
+
+                    commentInfo.To.Messages.Add(message);
+
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
         }
     
         /// <summary>

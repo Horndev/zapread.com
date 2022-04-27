@@ -949,6 +949,7 @@
     <Compile Include="Models\Email\NewPostEmail.cs" />
     <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
+    <Compile Include="Models\Email\UserMentionedInCommentEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
@@ -1779,6 +1780,7 @@
     <Content Include="Views\Home\Search.cshtml" />
     <EmbeddedResource Include="Views\Mailer\Test.cshtml" />
     <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

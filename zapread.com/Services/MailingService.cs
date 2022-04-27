@@ -19,11 +19,24 @@ using System.IO;
 using System.Web.Routing;
 using System.Web.Hosting;
 using zapread.com.Models.Email;
+using HtmlAgilityPack;
 
 namespace zapread.com.Services
 {
     /// <summary>
     /// Background jobs for mailer (to be used with Hangfire)
+    /// 
+    /// List of email types / events
+    /// 
+    /// [ ] New Post
+    /// [ ] New Comment
+    /// [ ] New Comment Reply
+    /// [ ] User Alias changed
+    /// [ ] User Mentioned
+    /// 
+    /// Issues
+    /// [ ] User mentioned & comment / comment reply (receive only once?)
+    /// 
     /// </summary>
     public class MailingService
     {
@@ -177,11 +190,43 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        public string GenerateUserMentionedInCommentHTML(long commentId)
+        {
+            using (var db = new ZapContext())
+            {
+                var mentionInfo = db.Comments
+                    .Where(c => c.CommentId == commentId)
+                    .Select(c => new UserMentionedInCommentEmail()
+                    {
+                        CommentId = c.CommentId,
+                        Score = c.Score,
+                        Text = c.Text,
+                        UserId = c.UserId.Id,
+                        UserName = c.UserId.Name,
+                        UserAppId = c.UserId.AppId,
+                        ProfileImageVersion = c.UserId.ProfileImage.Version,
+                        PostTitle = c.Post == null ? "" : c.Post.PostTitle,
+                        PostId = c.Post == null ? 0 : c.Post.PostId,
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(mentionInfo);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userId"></param>
         /// <param name="oldName"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool MailUpdatedUserAlias(int userId, string oldName, string newName, bool isTest)
+        public bool MailUpdatedUserAlias(int userId, string oldName, string newName, bool isTest = false)
         {
             using (var db = new ZapContext())
             {
@@ -351,7 +396,112 @@ namespace zapread.com.Services
                     return emailContent;
                 }
 
+                var commentInfo = db.Comments
+                    .Where(c => c.CommentId == commentId)
+                    .Select(c => new
+                    {
+                        c.Parent.UserId.AppId,
+                        c.Parent.UserId.Settings.NotifyOnOwnCommentReplied,
+                        FollowerAppIds = c.Post.FollowedByUsers.Select(u => u.AppId)
+                    })
+                    .FirstOrDefault();
+
+                if (commentInfo != null && commentInfo.NotifyOnOwnCommentReplied)
+                {
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        string receiverEmail = userManager.FindById(commentInfo.AppId).Email;
+
+                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                        var userUnsubscribeId = CryptoService.EncryptString(key, commentInfo.AppId);
+                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                            new UserEmailModel()
+                            {
+                                Destination = receiverEmail,
+                                Body = emailContent,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = "New reply to your comment",
+                            }, "Notify", true));
+
+                    }
+                }
+
                 return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool MailUserMentionedInComment(long commentId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var mentionInfo = db.Comments
+                    .Where(c => c.CommentId == commentId)
+                    .Select(c => new
+                    {
+                        c.Text,
+                        FromUserName = c.UserId.Name
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = GenerateUserMentionedInCommentHTML(commentId);
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(mentionInfo.Text);
+                var spans = doc.DocumentNode.SelectNodes("//span");
+                if (spans != null)
+                {
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        foreach (var s in spans)
+                        {
+                            if (s.Attributes.Count(a => a.Name == "class") > 0)
+                            {
+                                var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
+                                if (cls.Value.Contains("userhint"))
+                                {
+                                    var username = s.InnerHtml.Replace("@", "");
+                                    var mentionedUserInfo = db.Users
+                                        .Where(u => u.Name == username)
+                                        .Select(u => new { 
+                                            u.Settings.NotifyOnMentioned,
+                                            u.AppId 
+                                        })
+                                        .FirstOrDefault();
+
+                                    if (mentionedUserInfo.NotifyOnMentioned)
+                                    {
+                                        string receiverEmail = userManager.FindById(mentionedUserInfo.AppId).Email;
+
+                                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
+                                        var userUnsubscribeId = CryptoService.EncryptString(key, mentionedUserInfo.AppId);
+                                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                            new UserEmailModel()
+                                            {
+                                                Destination = receiverEmail,
+                                                Body = emailContent,
+                                                Email = "",
+                                                Name = "zapread.com",
+                                                Subject = "You were mentioned in a comment by " + mentionInfo.FromUserName,
+                                            }, "Notify", true));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true;
             }
         }
 
@@ -562,7 +712,7 @@ namespace zapread.com.Services
         {
             // Plug in your email service here to send an email.
             var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
-            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"], CultureInfo.InvariantCulture);
             var emailuser = System.Configuration.ConfigurationManager.AppSettings[user + "EmailUser"];
             var emailpass = System.Configuration.ConfigurationManager.AppSettings[user + "EmailPass"];
 

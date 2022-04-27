@@ -52,5 +52,14 @@ namespace zapread.com.Services
         /// <param name="isTest"></param>
         /// <returns></returns>
         Task<bool> OnUpdateUserAliasAsync(int userId, string oldName, string newName, bool isTest = false);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="userAppId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        Task<bool> OnUserMentionedInComment(long commentId, bool isTest = false);
     }
 }

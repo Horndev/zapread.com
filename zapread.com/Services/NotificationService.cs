@@ -58,6 +58,17 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        public async static Task NotifyUserMentionedInComment(long commentId)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="chatId"></param>
         /// <returns></returns>
         public async static Task NotifyNewChat(int chatId)

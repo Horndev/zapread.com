@@ -9,6 +9,15 @@ namespace zapread.com.Services
 {
     /// <summary>
     /// Service handler for Zapread
+    /// 
+    /// Events
+    /// 
+    /// New Post
+    ///     [ ] Email Followers
+    ///     [ ] Alert Followers
+    /// Post Comment
+    /// Post Comment Reply
+    /// 
     /// </summary>
     public class EventService : IEventService
     {
@@ -51,8 +60,11 @@ namespace zapread.com.Services
         /// <param name="userAppId"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
-        public bool OnUserMentionedInComment(long commentId, string userAppId, bool isTest = false)
+        public async Task<bool> OnUserMentionedInComment(long commentId, bool isTest = false)
         {
+            BackgroundJob.Enqueue<MailingService>(methodCall: x => x.MailUserMentionedInComment(commentId, isTest));
+
+            await NotificationService.NotifyUserMentionedInComment(commentId);
 
             return true;
         }
@@ -96,7 +108,9 @@ namespace zapread.com.Services
         /// <param name="newName"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<bool> OnUpdateUserAliasAsync(int userId, string oldName, string newName, bool isTest = false)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             BackgroundJob.Enqueue<MailingService>(methodCall: x => x.MailUpdatedUserAlias(userId, oldName, newName, isTest));
             

@@ -398,33 +398,23 @@ namespace zapread.com.Controllers
                 {
                     var doc = new HtmlDocument();
                     doc.LoadHtml(comment.Text);
-                    var spans = doc.DocumentNode.SelectNodes("//span");
-                    if (spans != null)
+
+                    if (hasUserMention(doc))
                     {
-                        foreach (var s in spans)
-                        {
-                            if (!c.IsTest)
-                            {
-                                var mentionedAppId = getUserAppIdFromSpan(s);
-                                if (!string.IsNullOrEmpty(mentionedAppId))
-                                {
-                                    BackgroundJob.Enqueue<EventService>(methodCall: x => x.OnUserMentionedInComment(comment.CommentId, mentionedAppId, false));
-                                }
-                                //await NotifyUserMentioned(db, user, post, comment, s).ConfigureAwait(true);
-                            }
-                        }
+                        await eventService.OnUserMentionedInComment(comment.CommentId);
                     }
                 }
                 catch (Exception e)
                 {
-                    MailingService.Send(new UserEmailModel()
-                    {
-                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId,
-                        Email = "",
-                        Name = "zapread.com Exception",
-                        Subject = "User comment error",
-                    });
+                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                        new UserEmailModel()
+                        {
+                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
+                            Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId,
+                            Email = "",
+                            Name = "zapread.com Exception",
+                            Subject = "User comment error",
+                        }, "Accounts", true));
                 }
 
                 if (!c.IsReply && !c.IsTest)
@@ -474,6 +464,27 @@ namespace zapread.com.Controllers
                     comment.CommentId,
                 });
             }
+        }
+
+        private bool hasUserMention(HtmlDocument doc)
+        {
+            var spans = doc.DocumentNode.SelectNodes("//span");
+
+            if (spans != null)
+            {
+                foreach (var s in spans)
+                {
+                    if (s.Attributes.Count(a => a.Name == "class") > 0)
+                    {
+                        var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
+                        if (cls.Value.Contains("userhint"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -662,104 +673,6 @@ namespace zapread.com.Controllers
             return sanitizedComment;
         }
 
-        private string getUserAppIdFromSpan(HtmlNode s)
-        {
-            using (var db = new ZapContext())
-            {
-                if (s.Attributes.Count(a => a.Name == "class") > 0)
-                {
-                    var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
-                    if (cls.Value.Contains("userhint"))
-                    {
-                        var username = s.InnerHtml.Replace("@", "");
-                        var mentioneduserAppId = db.Users
-                            .Where(u => u.Name == username)
-                            .Select(u => u.AppId)
-                            .FirstOrDefault();
-                        return mentioneduserAppId;
-                    }
-                }
-                return null;
-            }
-        }
-
-        private async Task NotifyUserMentioned(ZapContext db, User user, Post post, Comment comment, HtmlNode s)
-        {
-            if (s.Attributes.Count(a => a.Name == "class") > 0)
-            {
-                var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
-                if (cls.Value.Contains("userhint"))
-                {
-                    var username = s.InnerHtml.Replace("@", "");
-                    var mentioneduser = db.Users
-                        .Include(usr => usr.Settings)
-                        .FirstOrDefault(u => u.Name == username);
-
-                    if (mentioneduser != null)
-                    {
-                        // Add Message
-                        UserMessage message = CreateMentionedMessage(user, post, comment, mentioneduser);
-                        mentioneduser.Messages.Add(message);
-                        await db.SaveChangesAsync();
-
-                        // Send Email
-                        SendMentionedEmail(user, post, comment, mentioneduser);
-                    }
-                }
-            }
-        }
-
-        private void SendMentionedEmail(User user, Post post, Comment comment, User mentioneduser)
-        {
-            if (mentioneduser.Settings == null)
-            {
-                mentioneduser.Settings = new UserSettings();
-            }
-
-            if (mentioneduser.Settings.NotifyOnMentioned)
-            {
-                var cdoc = new HtmlDocument();
-                cdoc.LoadHtml(comment.Text);
-                var baseUri = new Uri("https://www.zapread.com/");
-                var imgs = cdoc.DocumentNode.SelectNodes("//img/@src");
-                if (imgs != null)
-                {
-                    foreach (var item in imgs)
-                    {
-                        item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                    }
-                }
-                string commentContent = cdoc.DocumentNode.OuterHtml;
-
-                string mentionedEmail = UserManager.FindById(mentioneduser.AppId).Email;
-                MailingService.Send(user: "Notify",
-                    message: new UserEmailModel()
-                    {
-                        Subject = "New mention in comment",
-                        Body = "From: " + user.Name + "<br/> " + commentContent + "<br/><br/>Go to <a href='https://www.zapread.com/Post/Detail/" + post.PostId.ToString() + "'>post</a> at <a href='https://www.zapread.com'>zapread.com</a>",
-                        Destination = mentionedEmail,
-                        Email = "",
-                        Name = "ZapRead.com Notify"
-                    });
-            }
-        }
-
-        private UserMessage CreateMentionedMessage(User user, Post post, Comment comment, User mentioneduser)
-        {
-            return new UserMessage()
-            {
-                TimeStamp = DateTime.Now,
-                Title = "You were mentioned in a comment by <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = user.Name }) + "'>" + user.Name + "</a>",
-                Content = comment.Text,
-                CommentLink = comment,
-                IsDeleted = false,
-                IsRead = false,
-                To = mentioneduser,
-                PostLink = post,
-                From = user,
-            };
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -782,27 +695,6 @@ namespace zapread.com.Controllers
                 viewResult.View.Render(viewContext, sw);
 
                 return sw.GetStringBuilder().ToString();
-            }
-        }
-
-        private async Task EnsureUserExists(string userId, ZapContext db)
-        {
-            if (db.Users.Where(u => u.AppId == userId).Count() == 0)
-            {
-                // no user entry
-                User u = new User()
-                {
-                    AboutMe = "Nothing to tell.",
-                    AppId = userId,
-                    Name = User.Identity.Name,
-                    ProfileImage = new UserImage(),
-                    ThumbImage = new UserImage(),
-                    Funds = new UserFunds(),
-                    Settings = new UserSettings(),
-                    DateJoined = DateTime.UtcNow,
-                };
-                db.Users.Add(u);
-                await db.SaveChangesAsync();
             }
         }
 

@@ -73,6 +73,16 @@ namespace zapread.com.Tests.Mailer
         }
 
         [TestMethod]
+        public void TestUserMentionedInCommentEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateUserMentionedInCommentHTML(2);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
         public void TestGenerate()
         {
             var request = new Mock<HttpRequestBase>();

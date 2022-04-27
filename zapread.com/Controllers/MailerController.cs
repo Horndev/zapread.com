@@ -204,23 +204,6 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 return View("NewChat", vm);
-
-                // OLD:
-
-                var vmx = await db.Messages
-                    .Where(m => m.Id == id)
-                    .Select(m => new ChatMessageViewModel()
-                    {
-                        Content = m.Content,
-                        TimeStamp = m.TimeStamp.Value,
-                        FromName = m.From.Name,
-                        FromAppId = m.From.AppId,
-                        IsReceived = true,
-                        FromProfileImgVersion = m.From.ProfileImage.Version,
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                return View("NewChat", vm);
             }
         }
 
@@ -263,6 +246,7 @@ namespace zapread.com.Controllers
         /// <param name="userName"></param>
         /// <param name="oldUserName"></param>
         /// <returns></returns>
+        [Obsolete]
         public async Task<string> GenerateUpdatedUserAliasEmailBod(int id, string userName, string oldUserName)
         {
             using (var db = new ZapContext())
@@ -329,50 +313,6 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
-        /// <param name="subject"></param>
-        /// <returns></returns>
-        public async Task<bool> SendNewPost(int id, string email, string subject)
-        {
-            using (var db = new ZapContext())
-            {
-                Post pst = await db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.PostId == id);
-
-                var groups = db.Groups
-                        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                        .AsNoTracking()
-                        .ToListAsync();
-
-                if (pst == null)
-                {
-                    return false;
-                }
-
-                PostViewModel vm = new PostViewModel()
-                {
-                    Post = pst,
-                };
-
-                ViewBag.Message = subject;
-                string HTMLString = RenderViewToString("MailerNewPost", vm);
-
-                //debug
-                //email = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
-
-                await SendMailAsync(HTMLString, email, subject);
-            }
-            return true;
-        }
-
-        /// <summary>
         /// This method should not be needed here anymore.  The pre-mailing happens now in MailingService
         /// </summary>
         /// <param name="HTMLString"></param>
@@ -417,21 +357,6 @@ namespace zapread.com.Controllers
             return msgHTML;
         }
 
-        private Task SendMailAsync(string HTMLString, string email, string subject)
-        {
-            string msgHTML = CleanMail(HTMLString);
-
-            return MailingService.SendAsync(user: "Notify",
-                message: new UserEmailModel()
-                {
-                    Destination = email,
-                    Body = msgHTML,
-                    Email = "",
-                    Name = "zapread.com",
-                    Subject = subject,
-                });
-        }
-
         /// <summary>
         /// // https://www.codemag.com/article/1312081/Rendering-ASP.NET-MVC-Razor-Views-to-String
         /// </summary>
@@ -458,4 +383,4 @@ namespace zapread.com.Controllers
             }
         }
     }
-}//
+}

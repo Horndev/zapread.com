@@ -6,12 +6,9 @@ using System.Web;
 namespace zapread.com.Models.Email
 {
     /// <summary>
-    /// Model for a comment reply to a post (root)
-    /// 
-    /// Also should send if a post is being followed by a user
     /// 
     /// </summary>
-    public class PostCommentEmail: Postal.Email
+    public class UserMentionedInCommentEmail : Postal.Email
     {
         /// <summary>
         /// 
