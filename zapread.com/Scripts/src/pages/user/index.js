@@ -68,8 +68,23 @@ async function LoadFollowingAsync() {
   })
 }
 
-LoadFollowersAsync();
-LoadFollowingAsync();
+async function AddBlockClickHandler() {
+  var buttonEl = document.getElementById("btnBlockUser");
+  var userId = buttonEl.getAttribute("data-userid");
+  buttonEl.addEventListener("click", (e) => {
+    toggleUserBlock(userId);
+  });
+}
+
+async function Initialize() {
+  await Promise.all([
+    AddBlockClickHandler(),
+    LoadFollowersAsync(),
+    LoadFollowingAsync()
+  ]);
+}
+
+Initialize();
 
 /**
  * Wrapper for loadmore
@@ -101,6 +116,22 @@ export function toggleUserIgnore(id) {
       }
       else {
         document.getElementById('i_' + id.toString()).innerHTML = "<i class='fa-solid fa-ban'></i> Ignore ";
+      }
+    }
+  });
+  return false;
+}
+
+export function toggleUserBlock(id) {
+  postJson("/User/ToggleBlock/", {
+    id: id
+  }).then((response) => {
+    if (response.success) {
+      if (!response.added) {
+        document.getElementById("btnBlockUser").innerHTML = "<i class='fa-solid fa-comment-slash'></i> Block ";
+      }
+      else {
+        document.getElementById("btnBlockUser").innerHTML = "<i class='fa-solid fa-comment'></i> Un-Block ";
       }
     }
   });

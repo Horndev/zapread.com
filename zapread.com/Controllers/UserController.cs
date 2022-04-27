@@ -479,6 +479,7 @@ namespace zapread.com.Controllers
                 double userFunds = 0;
                 bool isFollowing = false;
                 bool isIgnoring = false;
+                bool isBlocking = false;
 
                 var userInfo = await db.Users
                     .Where(u => u.Name == username)
@@ -517,6 +518,7 @@ namespace zapread.com.Controllers
                             u.Funds.Balance,
                             isFollowing = u.Following.Select(us => us.Id).Contains(userId),
                             isIgnoring = u.IgnoringUsers.Select(us => us.Id).Contains(userId),
+                            isBlocking = u.BlockingUsers.Select(us => us.Id).Contains(userId),
                         })
                         .AsNoTracking()
                         .FirstOrDefaultAsync().ConfigureAwait(true);
@@ -529,6 +531,7 @@ namespace zapread.com.Controllers
                     userFunds = loggedInUserInfo == null ? 0 : loggedInUserInfo.Balance;
                     isFollowing = loggedInUserInfo.isFollowing;
                     isIgnoring = loggedInUserInfo.isIgnoring;
+                    isBlocking = loggedInUserInfo.isBlocking;
                 }
 
                 var activityposts = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.AppId).ConfigureAwait(true); //await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
@@ -587,6 +590,7 @@ namespace zapread.com.Controllers
                     NumFollowing = numFollowing,
                     IsFollowing = isFollowing,
                     IsIgnoring = isIgnoring,
+                    IsBlocked = isBlocking,
                     ActivityPosts = activityposts,
                     UserBalance = userFunds,
                     AchievementsViewModel = uavm,
@@ -955,6 +959,7 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("ToggleIgnore")]
+        [ValidateJsonAntiForgeryToken]
         public ActionResult ToggleIgnore(int id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -1000,6 +1005,68 @@ namespace zapread.com.Controllers
                 else
                 {
                     user.IgnoringUsers.Add(ignoredUser);
+                    added = true;
+                }
+
+                db.SaveChanges();
+
+                return Json(new { success = true, result = "success", added });
+            }
+        }
+
+        /// <summary>
+        /// Toggle ignore on a user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("ToggleBlock")]
+        [ValidateJsonAntiForgeryToken]
+        public ActionResult ToggleBlock(int id)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return new HttpUnauthorizedResult("User not authorized");
+            }
+
+            var userAppId = User.Identity.GetUserId();
+
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .Include(usr => usr.BlockingUsers)
+                    .FirstOrDefault(u => u.AppId == userAppId);
+
+                if (user == null)
+                {
+                    user = new User()
+                    {
+                        BlockingUsers = new List<User>()
+                    };
+                }
+
+                var blockedUser = db.Users
+                    .FirstOrDefault(u => u.Id == id);
+
+                if (blockedUser == null)
+                {
+                    return Json(new { success = false, result = "error", message = "user not found." });
+                }
+
+                bool added = false;
+
+                if (user.BlockingUsers == null)
+                {
+                    user.BlockingUsers = new List<User>();
+                }
+
+                if (user.BlockingUsers.Select(u => u.Id).Contains(id))
+                {
+                    user.BlockingUsers.Remove(blockedUser);
+                }
+                else
+                {
+                    user.BlockingUsers.Add(blockedUser);
                     added = true;
                 }
 

@@ -17,9 +17,9 @@
                 <li>
                     <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
                 </li>
-                @*<li>
-                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> @Model.Impressions Impression(s)</button>
-                </li>*@
+                <li>
+                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
+                </li>
                 @if (Model.ViewerIgnoredUser)
                 {
                     <li>
@@ -28,17 +28,6 @@
                 }
                 @if (User != null && (User.Identity.Name == Model.UserName || User.IsInRole("Administrator")))
                 {
-                    @*using (Html.BeginForm("Edit", "Post",
-                new { ReturnUrl = ViewBag.ReturnUrl },
-                FormMethod.Post,
-                new { role = "form" }))
-            {
-                @Html.AntiForgeryToken()
-                @Html.Hidden("PostId", Model.PostId)
-                <li>
-                    <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-edit"></i> Edit</button>
-                </li>
-            }*@
                     <li>
                         <a class="btn btn-link btn-sm" href="/Post/Edit?postId=@Model.PostId"><i class="fa fa-edit"></i> Edit</a>
                     </li>
@@ -55,20 +44,15 @@
                         <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-flag"></i> Report Spam</button>
                     </li>
                 }
-
                 @if (User != null && User.IsInRole("Administrator"))
                 {
                     <li>
                         Hot: @Model.Hot
                     </li>
                     <li>
-                        <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete (Admin)</button>
-                    </li>
-                    <li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="setPostLanguage(@Model.PostId)"><i class="fa fa-times"></i> Set Language (Admin)</button>
                     </li>
                 }
-
                 @if (Model.ViewerIsMod || (User != null && User.Identity.Name == Model.UserName) || (User != null && User.IsInRole("Administrator")))
                 {
                     <li>
@@ -84,7 +68,6 @@
                         <button class="btn btn-link btn-sm" onclick="alert('Not yet implemented.  Feature coming soon.');"><i class="fa fa-exclamation-triangle"></i> Report NSFW</button>
                     </li>
                 }
-
                 @if (Model.ViewerIsMod)
                 {
                     <li>
