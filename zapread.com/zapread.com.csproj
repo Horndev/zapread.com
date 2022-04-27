@@ -1102,7 +1102,6 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Scripts\dist\0\168.js" />
-    <Content Include="Scripts\dist\0\1919.js" />
     <Content Include="Scripts\dist\0\2674.js" />
     <Content Include="Scripts\dist\0\2839.css" />
     <Content Include="Scripts\dist\0\2839.js" />
@@ -1368,7 +1367,6 @@
     <Content Include="Scripts\dist\home\install.css.map" />
     <Content Include="Scripts\dist\home\install.js.map" />
     <Content Include="Scripts\dist\0\168.js.map" />
-    <Content Include="Scripts\dist\0\1919.js.map" />
     <Content Include="Scripts\dist\0\2674.js.map" />
     <Content Include="Scripts\dist\0\2839.css.map" />
     <Content Include="Scripts\dist\0\2839.js.map" />
