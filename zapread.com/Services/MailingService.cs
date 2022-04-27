@@ -20,6 +20,7 @@ using System.Web.Routing;
 using System.Web.Hosting;
 using zapread.com.Models.Email;
 using HtmlAgilityPack;
+using zapread.com.Models.Subscription;
 
 namespace zapread.com.Services
 {
@@ -29,13 +30,20 @@ namespace zapread.com.Services
     /// List of email types / events
     /// 
     /// [ ] New Post
+    ///     [✓] Can Unsubscribe directly
+    ///     [ ] Followers of User
     /// [ ] New Comment
+    ///     [✓] Can Unsubscribe directly
     /// [ ] New Comment Reply
+    ///     [✓] Can Unsubscribe directly
+    /// [ ] New Chat
+    ///     [✓] Can Unsubscribe directly
     /// [ ] User Alias changed
     /// [ ] User Mentioned
+    ///     [✓] Can Unsubscribe directly
     /// 
     /// Issues
-    /// [ ] User mentioned & comment / comment reply (receive only once?)
+    /// [ ] User mentioned & comment / comment reply (receive only once?)  - move mention check into oncomment
     /// 
     /// </summary>
     public class MailingService
@@ -133,7 +141,7 @@ namespace zapread.com.Services
                         Content = p.Content,
                     })
                     .FirstOrDefault();
-
+                
                 var emailContent = renderEmail(postInfo);
 
                 return emailContent;
@@ -319,23 +327,22 @@ namespace zapread.com.Services
                     && postInfo.AppId != postInfo.UserAppId // Don't send to author if author commented on own post
                     && postInfo.NotifyOnOwnPostCommented) // Only send if author wants to be notified
                 {
-                    using (var appDB = new ApplicationDbContext()) // Tie into user database in order to get user emails
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
-                        using (var userStore = new UserStore<ApplicationUser>(appDB))
+                        var userUnsubscribeId = CryptoService.EncryptString(
+                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                            postInfo.AppId + ":" + SubscriptionTypes.OwnPostComment);
+                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                        string postAuthorEmail = userManager.FindById(postInfo.AppId).Email;
+                        SendI(new UserEmailModel()
                         {
-                            using (var userManager = new ApplicationUserManager(userStore))
-                            {
-                                string postAuthorEmail = userManager.FindById(postInfo.AppId).Email;
-                                SendI(new UserEmailModel()
-                                {
-                                    Destination = postAuthorEmail,
-                                    Body = emailContent,
-                                    Email = "",
-                                    Name = "zapread.com",
-                                    Subject = "New comment on your post",
-                                }, "Notify", true);
-                            }
-                        }
+                            Destination = postAuthorEmail,
+                            Body = emailContent,
+                            Email = "",
+                            Name = "zapread.com",
+                            Subject = "New comment on your post",
+                        }, "Notify", true);
                     }
                 }
 
@@ -343,25 +350,24 @@ namespace zapread.com.Services
                     && postInfo.FollowerAppIds.Any())
                 {
                     // Tie into user database in order to get user emails
-                    using (var appDB = new ApplicationDbContext())
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
-                        using (var userStore = new UserStore<ApplicationUser>(appDB))
+                        foreach (var followerAppId in postInfo.FollowerAppIds)
                         {
-                            using (var userManager = new ApplicationUserManager(userStore))
+                            var userUnsubscribeId = CryptoService.EncryptString(
+                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                followerAppId + ":" + SubscriptionTypes.FollowedPostComment);
+                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                            string postFollowerEmail = userManager.FindById(followerAppId).Email;
+                            SendI(new UserEmailModel()
                             {
-                                foreach (var followerAppId in postInfo.FollowerAppIds)
-                                {
-                                    string postFollowerEmail = userManager.FindById(followerAppId).Email;
-                                    SendI(new UserEmailModel()
-                                    {
-                                        Destination = postFollowerEmail,
-                                        Body = emailContent,
-                                        Email = "",
-                                        Name = "zapread.com",
-                                        Subject = "New comment on a post you are following",
-                                    }, "Notify", true);
-                                }
-                            }
+                                Destination = postFollowerEmail,
+                                Body = emailContent,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = "New comment on a post you are following",
+                            }, "Notify", true);
                         }
                     }
                 }
@@ -412,8 +418,9 @@ namespace zapread.com.Services
                     {
                         string receiverEmail = userManager.FindById(commentInfo.AppId).Email;
 
-                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
-                        var userUnsubscribeId = CryptoService.EncryptString(key, commentInfo.AppId);
+                        var userUnsubscribeId = CryptoService.EncryptString(
+                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                            commentInfo.AppId + ":" + SubscriptionTypes.OwnCommentReply);
                         emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
                         BackgroundJob.Enqueue<MailingService>(x => x.SendI(
@@ -425,7 +432,6 @@ namespace zapread.com.Services
                                 Name = "zapread.com",
                                 Subject = "New reply to your comment",
                             }, "Notify", true));
-
                     }
                 }
 
@@ -480,9 +486,9 @@ namespace zapread.com.Services
                                     if (mentionedUserInfo.NotifyOnMentioned)
                                     {
                                         string receiverEmail = userManager.FindById(mentionedUserInfo.AppId).Email;
-
-                                        var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
-                                        var userUnsubscribeId = CryptoService.EncryptString(key, mentionedUserInfo.AppId);
+                                        var userUnsubscribeId = CryptoService.EncryptString(
+                                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                            mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
                                         emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
                                         BackgroundJob.Enqueue<MailingService>(x => x.SendI(
@@ -548,8 +554,9 @@ namespace zapread.com.Services
                             if (follower.NotifyOnNewPostSubscribedUser)
                             {
                                 string followerEmail = userManager.FindById(follower.AppId).Email;
-                                var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
-                                var userUnsubscribeId = CryptoService.EncryptString(key, follower.AppId);
+                                var userUnsubscribeId = CryptoService.EncryptString(
+                                    System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"], 
+                                    follower.AppId + ":" + SubscriptionTypes.FollowedUserNewPost);
                                 emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
                                 BackgroundJob.Enqueue<MailingService>(x => x.SendI(
@@ -604,9 +611,9 @@ namespace zapread.com.Services
                         if (msgInfo.NotifyOnPrivateMessage)
                         {
                             string receiverEmail = userManager.FindById(msgInfo.AppId).Email;
-                            var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"];
-                            var userUnsubscribeId = CryptoService.EncryptString(key, msgInfo.AppId);
-
+                            var userUnsubscribeId = CryptoService.EncryptString(
+                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                msgInfo.AppId + ":" + SubscriptionTypes.NewChat);
                             emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
                             BackgroundJob.Enqueue<MailingService>(x => x.SendI(

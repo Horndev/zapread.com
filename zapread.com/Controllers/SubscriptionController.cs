@@ -79,7 +79,7 @@ namespace zapread.com.Controllers
             {
                 var userAppId = User.Identity.GetUserId();
 
-                var userUnsubscribeId = CryptoService.EncryptString(key, userAppId);
+                var userUnsubscribeId = CryptoService.EncryptString(key, userAppId) + ":" + SubscriptionTypes.FollowedUserNewPost;
 
                 var userInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
@@ -93,9 +93,8 @@ namespace zapread.com.Controllers
                 {
                     Name = userInfo.Name,
                     UnsubFunction = "followed user post notifications",
-                    UserEmail = UserManager.FindByIdAsync(userAppId).Result.Email,
+                    UserEmail = UserManager.FindById(userAppId).Email,
                     UserUnsubscribeId = userUnsubscribeId,
-                    SubscriptionType = "A",
                 };
                 return View(vm);
             }
@@ -104,19 +103,21 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Link to unsubscribe a user
         /// </summary>
-        /// <param name="userUnsubscribeId">encrypted and uri-escaped user id</param>
-        /// <param name="subscriptionType"></param>
+        /// <param name="userUnsubscribeId">encrypted and uri-escaped user id and values</param>
         /// <returns></returns>
-        [Route("Subscription/Unsubscribe/{userUnsubscribeId}/{subscriptionType}")]
+        [Route("Subscription/Unsubscribe/{userUnsubscribeId}")]
         [HttpGet]
-        public async Task<ActionResult> Unsubscribe(string userUnsubscribeId, string subscriptionType)
+        public async Task<ActionResult> Unsubscribe(string userUnsubscribeId)
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
-            var userAppId = CryptoService.DecryptString(key, userUnsubscribeId);
+            var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
+            var values = unsubscribeInfo.Split(':');
+            var userAppId = values[0];
+            var subType = values[1];
 
             using (var db = new ZapContext())
             {
@@ -136,19 +137,28 @@ namespace zapread.com.Controllers
 
                 string function = "";
 
-                switch (subscriptionType)
+                switch (subType)
                 {
-                    case "A":
+                    case SubscriptionTypes.FollowedUserNewPost:
                         function = "followed user post notifications";
                         break;
                     case "B":
                         function = "followed post notifications";
                         break;
-                    case "C":
-                        function = "comments on post";
+                    case SubscriptionTypes.OwnPostComment:
+                        function = "comments on your posts";
                         break;
-                    case "D":
+                    case SubscriptionTypes.FollowedPostComment:
+                        function = "comments on folllowed posts";
+                        break;
+                    case SubscriptionTypes.OwnCommentReply:
                         function = "reply to comments";
+                        break;
+                    case SubscriptionTypes.NewChat:
+                        function = "new private chats";
+                        break;
+                    case SubscriptionTypes.UserMentionedInComment:
+                        function = "user mentions";
                         break;
                     default:
                         break;
@@ -158,9 +168,8 @@ namespace zapread.com.Controllers
                 {
                     Name = userInfo.Name,
                     UnsubFunction = function,
-                    UserEmail = UserManager.FindByIdAsync(userAppId).Result.Email,
-                    UserUnsubscribeId = userUnsubscribeId,
-                    SubscriptionType = subscriptionType,
+                    UserEmail = UserManager.FindById(userAppId).Email,
+                    UserUnsubscribeId = userUnsubscribeId
                 };
 
                 return View(vm);
@@ -173,17 +182,19 @@ namespace zapread.com.Controllers
         /// <param name="userUnsubscribeId"></param>
         /// <param name="subscriptionType"></param>
         /// <returns></returns>
-        [Route("Subscription/Confirm/{userUnsubscribeId}/{subscriptionType}")]
+        [Route("Subscription/Confirm/{userUnsubscribeId}")]
         [HttpGet]
-        public async Task<ActionResult> Confirm(string userUnsubscribeId, string subscriptionType)
+        public async Task<ActionResult> Confirm(string userUnsubscribeId)
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
-            var userAppId = CryptoService.DecryptString(key, userUnsubscribeId);
-
+            var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
+            var values = unsubscribeInfo.Split(':');
+            var userAppId = values[0];
+            var subscriptionType = values[1];
             using (var db = new ZapContext())
             {
                 var user = await db.Users
@@ -202,10 +213,30 @@ namespace zapread.com.Controllers
 
                 switch(subscriptionType)
                 {
-                    case "A":
+                    case SubscriptionTypes.FollowedUserNewPost:
                         function = "followed user post notifications";
                         user.Settings.NotifyOnNewPostSubscribedUser = false;
                         success = true;
+                        break;
+                    case SubscriptionTypes.OwnPostComment:
+                        function = "comments on your posts";
+                        user.Settings.NotifyOnOwnPostCommented = false;
+                        break;
+                    case SubscriptionTypes.FollowedPostComment:
+                        function = "comments on folllowed posts";
+                        // TODO
+                        break;
+                    case SubscriptionTypes.OwnCommentReply:
+                        function = "reply to comments";
+                        user.Settings.NotifyOnOwnCommentReplied = false;
+                        break;
+                    case SubscriptionTypes.NewChat:
+                        function = "new private chats";
+                        user.Settings.NotifyOnPrivateMessage = false;
+                        break;
+                    case SubscriptionTypes.UserMentionedInComment:
+                        function = "user mentions";
+                        user.Settings.NotifyOnMentioned = false;
                         break;
                     default:
                         break;
@@ -226,9 +257,8 @@ namespace zapread.com.Controllers
                     Success = success,
                     Name = user.Name,
                     UnsubFunction = function,
-                    UserEmail = UserManager.FindByIdAsync(userAppId).Result.Email,
-                    UserUnsubscribeId = userUnsubscribeId,
-                    SubscriptionType = subscriptionType,
+                    UserEmail = UserManager.FindById(userAppId).Email,
+                    UserUnsubscribeId = userUnsubscribeId
                 };
 
                 return View(vm);
@@ -241,16 +271,19 @@ namespace zapread.com.Controllers
         /// <param name="userUnsubscribeId"></param>
         /// <param name="subscriptionType"></param>
         /// <returns></returns>
-        [Route("Subscription/Subscribe/{userUnsubscribeId}/{subscriptionType}")]
+        [Route("Subscription/Subscribe/{userUnsubscribeId}")]
         [HttpGet]
-        public async Task<ActionResult> Subscribe(string userUnsubscribeId, string subscriptionType)
+        public async Task<ActionResult> Subscribe(string userUnsubscribeId)
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
 
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
-            var userAppId = CryptoService.DecryptString(key, userUnsubscribeId);
+            var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
+            var values = unsubscribeInfo.Split(':');
+            var userAppId = values[0];
+            var subscriptionType = values[1];
 
             using (var db = new ZapContext())
             {
@@ -270,10 +303,30 @@ namespace zapread.com.Controllers
 
                 switch (subscriptionType)
                 {
-                    case "A":
+                    case SubscriptionTypes.FollowedUserNewPost:
                         function = "followed user post notifications";
                         user.Settings.NotifyOnNewPostSubscribedUser = true;
                         success = true;
+                        break;
+                    case SubscriptionTypes.OwnPostComment:
+                        function = "comments on your posts";
+                        user.Settings.NotifyOnOwnPostCommented = true;
+                        break;
+                    case SubscriptionTypes.FollowedPostComment:
+                        function = "comments on folllowed posts";
+                        // TODO
+                        break;
+                    case SubscriptionTypes.OwnCommentReply:
+                        function = "reply to comments";
+                        user.Settings.NotifyOnOwnCommentReplied = true;
+                        break;
+                    case SubscriptionTypes.NewChat:
+                        function = "new private chats";
+                        user.Settings.NotifyOnPrivateMessage = true;
+                        break;
+                    case SubscriptionTypes.UserMentionedInComment:
+                        function = "user mentions";
+                        user.Settings.NotifyOnMentioned = true;
                         break;
                     default:
                         break;
@@ -294,9 +347,8 @@ namespace zapread.com.Controllers
                     Success = success,
                     Name = user.Name,
                     UnsubFunction = function,
-                    UserEmail = UserManager.FindByIdAsync(userAppId).Result.Email,
-                    UserUnsubscribeId = userUnsubscribeId,
-                    SubscriptionType = subscriptionType,
+                    UserEmail = UserManager.FindById(userAppId).Email,
+                    UserUnsubscribeId = userUnsubscribeId
                 };
 
                 return View(vm);

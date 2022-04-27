@@ -396,6 +396,7 @@ namespace zapread.com.Controllers
                 // Find user mentions
                 try
                 {
+                    // This could just move into the OnComment event and get processed in background?
                     var doc = new HtmlDocument();
                     doc.LoadHtml(comment.Text);
 
@@ -406,15 +407,9 @@ namespace zapread.com.Controllers
                 }
                 catch (Exception e)
                 {
-                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                        new UserEmailModel()
-                        {
-                            Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                            Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId,
-                            Email = "",
-                            Name = "zapread.com Exception",
-                            Subject = "User comment error",
-                        }, "Accounts", true));
+                    MailingService.SendErrorNotification(
+                        title: "User comment error",
+                        message: " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId);
                 }
 
                 if (!c.IsReply && !c.IsTest)

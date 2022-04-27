@@ -500,7 +500,7 @@ namespace zapread.com.Controllers
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
-                            await eventService.OnNewPostAsync(postId).ConfigureAwait(true);
+                            await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
 
                             // Old version:
                             //// Send alerts to users subscribed to users
@@ -556,7 +556,7 @@ namespace zapread.com.Controllers
                     {
                         try
                         {
-                            await eventService.OnNewPostAsync(postId).ConfigureAwait(true);
+                            await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
 
                             // Old version:
                             //var mailer = DependencyResolver.Current.GetService<MailerController>();
