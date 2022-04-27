@@ -270,7 +270,7 @@ export default function PostView(props) {
                 data-postid={post.PostId}
                 data-userappid={post.UserAppId}
                 data-userid={post.UserId}>
-                <div className="post-content ql-container ql-snow">
+                <div className="post-content ql-editor ql-container ql-snow">
                   <div dangerouslySetInnerHTML={{ __html: post.Content }} />
                 </div>
                 <p className="read-more-button">

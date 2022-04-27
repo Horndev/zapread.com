@@ -11,8 +11,13 @@
 
 /*Comments*/
     /* This style sets the comment input editor to not be too large as is the default quill style*/
-    .ql-comment .ql-editor {
+.ql-comment .ql-editor {
     min-height: 20px;
+    background-color: #fff !important;
+    border-radius: 0 0 10px 10px;
+    height: auto;
+    border: 1px solid;
+    border-color: #ccc;
 }
 
 .chat-message-form .ql-editor {
@@ -117,6 +122,13 @@ button.ql-cancel {
 }
 
 .ql-container, .ql-container.ql-snow {
+    border: 0 !important;
+    white-space: inherit !important;
+}
+
+/* Don't expand height for short posts when not editing */
+.post-content.ql-editor {
+    min-height: 0 !important;
     border: 0 !important;
 }
 
