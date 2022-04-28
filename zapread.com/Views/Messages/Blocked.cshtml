@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "You are blocked from chatting with that user";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Chat with user</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Messages</a></li>
+            <li class="breadcrumb-item active">Blocked</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="passwordBox animated fadeInDown">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox-content">
+                <h2 class="font-bold">User has blocked you</h2>
+                <p>
+                    You are blocked from chatting with this user
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/account/login/css")  @*same css and scripts*@
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/account/login")
+}

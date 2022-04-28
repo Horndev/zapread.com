@@ -580,6 +580,12 @@ namespace zapread.com.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult Blocked()
+        {
+            return View();
+        }
+
         /// <summary>
         /// Chat view with a user
         /// </summary>
@@ -600,21 +606,31 @@ namespace zapread.com.Controllers
             {
                 var vm = new ChatMessagesViewModel();
 
-                var otherUser = await db.Users
+                var otherUserInfo = await db.Users
                     .Where(u => u.Name == username)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        User = u,
+                        IsBlocking = u.BlockingUsers.Select(bu => bu.AppId).Contains(userAppId)
+                    })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (otherUserInfo.IsBlocking)
+                {
+                    return RedirectToAction("Blocked");
+                }
 
                 var userId = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Select(u => u.Id)
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                vm.OtherUser = otherUser;
-                vm.Messages = otherUser == null ? new List<ChatMessageViewModel> () 
-                    : await GetChats(db, userId, otherUser.Id, 10, 0).ConfigureAwait(true);
+                vm.Messages = otherUserInfo == null ? new List<ChatMessageViewModel> () 
+                    : await GetChats(db, userId, otherUserInfo.Id, 10, 0).ConfigureAwait(true);
 
-                if (otherUser == null)
+                if (otherUserInfo == null)
                 {
                     vm.OtherUser = new User()
                     {
@@ -623,7 +639,8 @@ namespace zapread.com.Controllers
                         AppId = ""
                     };
                 } else {
-                    if (otherUser.Id == userId) { // disallow chatting with yourself
+                    vm.OtherUser = otherUserInfo.User;
+                    if (otherUserInfo.Id == userId) { // disallow chatting with yourself
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -1072,6 +1089,16 @@ namespace zapread.com.Controllers
                         return Json(new { success = false, result = "Failure", message = "User not found." });
                     }
 
+                    var isBlocked = await db.Users
+                        .Where(u => u.Id == id)
+                        .Select(u => u.BlockingUsers.Select(bu => bu.AppId).Contains(userId))
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (isBlocked)
+                    {
+                        return Json(new { success = false, result = "Failure", message = "User is blocking." });
+                    }
+
                     // Sanitize the message to prevent XSS attacks.
                     var cleanContent = content.SanitizeXSS();
 
@@ -1100,7 +1127,7 @@ namespace zapread.com.Controllers
                         FromName = msg.From.Name,
                         TimeStamp = msg.TimeStamp.Value,
                         IsReceived = true,
-
+                        FromProfileImgVersion = msg.From.ProfileImage.Version,
                         Message = msg,
                         From = msg.From,
                         To = msg.To,

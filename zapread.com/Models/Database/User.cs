@@ -67,6 +67,15 @@ namespace zapread.com.Models.Database
         [InverseProperty("IgnoringUsers")]
         public virtual ICollection<User> IgnoredByUsers { get; set; }
 
+        /// <summary>
+        /// Blocking users means that you will not get chats/messages from the user
+        /// </summary>
+        [InverseProperty("BlockedByUsers")]
+        public virtual ICollection<User> BlockingUsers { get; set; }
+
+        [InverseProperty("BlockingUsers")]
+        public virtual ICollection<User> BlockedByUsers { get; set; }
+
         [InverseProperty("VotesUp")]
         public virtual ICollection<Post> PostVotesUp { get; set; }
 

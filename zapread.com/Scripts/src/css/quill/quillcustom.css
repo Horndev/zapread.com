@@ -130,7 +130,13 @@ button.ql-cancel {
 .post-content.ql-editor {
     min-height: 0 !important;
     border: 0 !important;
+    cursor: auto !important;
 }
+
+    /* make iframes clickable */
+    .post-content.ql-editor iframe {
+        pointer-events: auto;
+    }
 
 /* Created to put border around content input*/
 .ql-content {

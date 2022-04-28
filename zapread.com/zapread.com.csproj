@@ -879,6 +879,10 @@
     <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.designer.cs">
       <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202204271751451_UserAddBlocking.cs" />
+    <Compile Include="Migrations\202204271751451_UserAddBlocking.designer.cs">
+      <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1718,6 +1722,9 @@
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
+    <EmbeddedResource Include="Migrations\202204271751451_UserAddBlocking.resx">
+      <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
@@ -1780,6 +1787,7 @@
     <EmbeddedResource Include="Views\Mailer\Test.cshtml" />
     <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
+    <Content Include="Views\Messages\Blocked.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

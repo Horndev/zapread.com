@@ -29,6 +29,12 @@ namespace zapread.com.Models
         /// 
         /// </summary>
         public bool IsFollowing { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsBlocked { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
