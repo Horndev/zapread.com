@@ -1787,6 +1787,7 @@
     <EmbeddedResource Include="Views\Mailer\Test.cshtml" />
     <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
+    <Content Include="Views\Messages\Blocked.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
