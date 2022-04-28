@@ -9,7 +9,7 @@ import { updatePostTimes } from './datetime/posttime';                          
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
 const getSwal = () => import('sweetalert2');
 
-async function enableVoting(className, d, t, idel) {
+export async function enableVoting(className, d, t, idel) {
   var elements = document.querySelectorAll("." + className);
   Array.prototype.forEach.call(elements, function (el, _i) {
     var postid = el.getAttribute(idel);
@@ -148,6 +148,7 @@ export function onLoadedMorePosts() {
 
   // Make comments quotable
   makeCommentsQuotable();
+
   try {
     (tarteaucitron.job = tarteaucitron.job || []).push('zyoutube');
     (tarteaucitron.job = tarteaucitron.job || []).push('zapreadARRA');
