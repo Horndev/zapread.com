@@ -17,9 +17,18 @@
                 <li>
                     <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
                 </li>
-                <li>
-                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
-                </li>
+                @if (Model.ViewerIsFollowing)
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm btnFollowPost" data-follow="1" data-postid="@Model.PostId"><i class="fa-regular fa-bell-slash"></i> Stop following</button>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <button class="btn btn-link btn-sm btnFollowPost" data-follow="0" data-postid="@Model.PostId"><i class="fa-regular fa-bell"></i> Follow post</button>
+                    </li>
+                }
                 @if (Model.ViewerIgnoredUser)
                 {
                     <li>
@@ -179,7 +188,7 @@
             @if (Model.CommentVms.Any())
             {
                 var numshown = 0;
-                var numToShow = 3;
+                var numToShow = 5;
                 if (Model.IsDetailView) { numToShow = 50; }
                 bool showmore = false;
                 List<long> rootshown = new List<long>();
@@ -213,7 +222,7 @@
                         PostId = cmt.PostId,
                     };
 
-                    // Have the top 3 root comments start visible
+                    // Have the top n root comments start visible
                     if (numshown < numToShow && cmt.Score >= 0)
                     {
                         numshown += 1;

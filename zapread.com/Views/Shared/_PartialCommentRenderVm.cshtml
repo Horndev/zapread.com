@@ -164,7 +164,7 @@
                                 ParentCommentId = cmt.ParentCommentId,
                                 ParentUserName = cmt.ParentUserName,
                                 ParentUserId = cmt.ParentUserId,
-                                StartVisible = Model.NestLevel < 4,
+                                StartVisible = Model.NestLevel < 8,
                                 ViewerIgnoredUser = cmt.ViewerIgnoredUser,
                                 CommentId = cmt.CommentId,
                                 CommentVms = Model.CommentVms == null ? new List<PostCommentsViewModel>() : Model.CommentVms.ToList(),

@@ -37,6 +37,7 @@ namespace zapread.com.Models
         /// Number of comments at root level
         /// </summary>
         public int NumRootComments { get; set; }
+        public bool ViewerIsFollowing { get; set; }
         public bool ViewerIsMod { get; set; }        // User has moderation privilage on this post
         public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
         public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
