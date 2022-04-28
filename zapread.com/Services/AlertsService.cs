@@ -63,23 +63,23 @@ namespace zapread.com.Services
                         .FirstOrDefault();
 
                     // TODO: change the CommentLink and PostLink to reference just the ids instead of full objects
-                    UserAlert alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "New comment on your post: <a href=" +
-                            "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
-                                commentInfo.PostTitle?.MakeURLFriendly() + "/" +
-                            ">" + commentInfo.PostTitle + "</a>",
-                        Content = "From: <a href='" +
-                            "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
-                            "'>" + commentInfo.CommentUserName + "</a>",
-                        CommentLink = db.Comments.FirstOrDefault(c => c.CommentId == commentId),
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = postOwner,
-                        PostLink = db.Posts.FirstOrDefault(p => p.PostId == commentInfo.PostId),
-                    };
-                    postOwner.Alerts.Add(alert);
+                    //UserAlert alert = new UserAlert()
+                    //{
+                    //    TimeStamp = DateTime.Now,
+                    //    Title = "New comment on your post: <a href=" +
+                    //        "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
+                    //            commentInfo.PostTitle?.MakeURLFriendly() + "/" +
+                    //        ">" + commentInfo.PostTitle + "</a>",
+                    //    Content = "From: <a href='" +
+                    //        "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
+                    //        "'>" + commentInfo.CommentUserName + "</a>",
+                    //    CommentLink = db.Comments.FirstOrDefault(c => c.CommentId == commentId),
+                    //    IsDeleted = false,
+                    //    IsRead = false,
+                    //    To = postOwner,
+                    //    PostLink = db.Posts.FirstOrDefault(p => p.PostId == commentInfo.PostId),
+                    //};
+                    //postOwner.Alerts.Add(alert);
 
                     UserMessage message = new UserMessage()
                     {
@@ -167,24 +167,23 @@ namespace zapread.com.Services
 
                 if (commentInfo != null && commentInfo.AlertOnOwnCommentReplied)
                 {
-                    UserAlert alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = "New reply to <a href='" +
-                            "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
-                                commentInfo.PostTitle?.MakeURLFriendly() + "/" + "#cid_" + Convert.ToString(commentInfo.CommentId) +
-                            "'>" + "your comment" + "</a>",
-                        Content = "From: <a href='" +
-                            "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
-                            "'>" + commentInfo.CommentUserName + "</a>",
-                        CommentLink = commentInfo.Comment,
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = commentInfo.To,
-                        PostLink = commentInfo.Post,
-                    };
-
-                    commentInfo.To.Alerts.Add(alert);
+                    //UserAlert alert = new UserAlert()
+                    //{
+                    //    TimeStamp = DateTime.Now,
+                    //    Title = "New reply to <a href='" +
+                    //        "/p/" + CryptoService.IntIdToString(commentInfo.PostId) + "/" +
+                    //            commentInfo.PostTitle?.MakeURLFriendly() + "/" + "#cid_" + Convert.ToString(commentInfo.CommentId) +
+                    //        "'>" + "your comment" + "</a>",
+                    //    Content = "From: <a href='" +
+                    //        "/user/" + HttpUtility.UrlEncode(commentInfo.CommentUserName) +
+                    //        "'>" + commentInfo.CommentUserName + "</a>",
+                    //    CommentLink = commentInfo.Comment,
+                    //    IsDeleted = false,
+                    //    IsRead = false,
+                    //    To = commentInfo.To,
+                    //    PostLink = commentInfo.Post,
+                    //};
+                    //commentInfo.To.Alerts.Add(alert);
 
                     UserMessage message = new UserMessage()
                     {
