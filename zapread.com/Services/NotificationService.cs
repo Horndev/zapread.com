@@ -18,6 +18,17 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userIdFollowed"></param>
+        /// <param name="userIdFollowing"></param>
+        /// <returns></returns>
+        public async static Task NotifyNewUserFollowing(int userIdFollowed, int userIdFollowing)
+        {
+            // Not yet implemented
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="postId"></param>
         /// <returns></returns>
         public async static Task NotifyNewPostToFollowers(int postId)

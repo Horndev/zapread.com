@@ -41,9 +41,11 @@ namespace zapread.com.Services
     /// [ ] User Alias changed
     /// [ ] User Mentioned
     ///     [✓] Can Unsubscribe directly
+    /// [ ] User Following
+    ///     [ ] Can Unsubscribe directly
     /// 
     /// Issues
-    /// [ ] User mentioned & comment / comment reply (receive only once?)  - move mention check into oncomment
+    /// [ ] User mentioned and comment / comment reply (receive only once?)  - move mention check into oncomment
     /// 
     /// </summary>
     public class MailingService
@@ -63,6 +65,34 @@ namespace zapread.com.Services
             }
             string newContent = doc.DocumentNode.OuterHtml;
             return newContent;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public string GenerateMailNewUserFollowing(int userId)
+        {
+            using (var db = new ZapContext())
+            {
+                var userInfo = db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new NewUserFollowerEmail()
+                    {
+                        UserName = u.Name,
+                        UserAppId = u.AppId,
+                        ProfileImageVersion = u.ProfileImage.Version
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(userInfo);
+
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
+
+                return emailContent;
+            }
         }
 
         /// <summary>
@@ -462,6 +492,54 @@ namespace zapread.com.Services
                 }
 
                 return emailContent;
+            }
+        }
+
+        public bool MailUserNewFollower(int userIdFollowed, int userIdFollowing, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var emailContent = GenerateMailNewUserFollowing(userIdFollowing);
+
+                var userInfo = db.Users
+                    .Where(u => u.Id == userIdFollowed)
+                    .Select(u => new
+                    {
+                        u.AppId
+                    })
+                    .FirstOrDefault();
+
+                var otherUserInfo = db.Users
+                    .Where(u => u.Id == userIdFollowing)
+                    .Select(u => new
+                    {
+                        u.AppId,
+                        u.Name
+                    })
+                    .FirstOrDefault();
+
+                if (userInfo != null)
+                {
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        string receiverEmail = userManager.FindById(userInfo.AppId).Email;
+                        var userUnsubscribeId = CryptoService.EncryptString(
+                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                            userInfo.AppId + ":" + SubscriptionTypes.NewUserFollowing);
+                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                            new UserEmailModel()
+                            {
+                                Destination = receiverEmail,
+                                Body = emailContent,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = otherUserInfo.Name + " is now following you",
+                            }, "Notify", true));
+    }
+                }
+                return true;
             }
         }
 

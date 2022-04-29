@@ -948,6 +948,7 @@
     <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Email\NewChatEmail.cs" />
+    <Compile Include="Models\Email\NewUserFollowerEmail.cs" />
     <Compile Include="Models\Email\PostCommentEmail.cs" />
     <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
     <Compile Include="Models\Email\NewPostEmail.cs" />
@@ -1788,6 +1789,7 @@
     <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
     <Content Include="Views\Messages\Blocked.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewUserFollower.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

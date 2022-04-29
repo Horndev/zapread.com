@@ -61,5 +61,14 @@ namespace zapread.com.Services
         /// <param name="isTest"></param>
         /// <returns></returns>
         Task<bool> OnUserMentionedInComment(long commentId, bool isTest = false);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userIdFollowed"></param>
+        /// <param name="userIdFollowing"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        Task<bool> OnNewUserFollowingAsync(int userIdFollowed, int userIdFollowing, bool isTest = false);
     }
 }

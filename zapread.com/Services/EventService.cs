@@ -56,6 +56,22 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userIdFollowed"></param>
+        /// <param name="userIdFollowing"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public async Task<bool> OnNewUserFollowingAsync(int userIdFollowed, int userIdFollowing, bool isTest = false)
+        {
+            BackgroundJob.Enqueue<MailingService>(methodCall: x => x.MailUserNewFollower(userIdFollowed, userIdFollowing, isTest));
+
+            await NotificationService.NotifyNewUserFollowing(userIdFollowed, userIdFollowing);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="commentId"></param>
         /// <param name="userAppId"></param>
         /// <param name="isTest"></param>

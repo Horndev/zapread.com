@@ -41,6 +41,15 @@ namespace zapread.com.Tests.Mailer
 
             Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
         }
+        [TestMethod]
+        public void TestNewUserFollowingEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            var emailHTML = mailingService.GenerateMailNewUserFollowing(1);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
 
         [TestMethod]
         public void TestNewPostEmailGeneration()

@@ -17,6 +17,7 @@ namespace zapread.com.Models.Subscription
         public const string OwnCommentReply = "CommentReply";
         public const string UserMentionedInComment = "CommentMentioned";
         public const string NewChat = "NewChat";
+        public const string NewUserFollowing = "UserFollowing";
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

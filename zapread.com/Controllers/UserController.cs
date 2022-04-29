@@ -18,6 +18,7 @@ using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.UserView;
 using zapread.com.Models.UserViews;
+using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
@@ -29,11 +30,15 @@ namespace zapread.com.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IEventService eventService;
 
         /// <summary>
         /// Empty constructor
         /// </summary>
-        public UserController() { }
+        public UserController(IEventService eventService) 
+        { 
+            this.eventService = eventService;
+        }
 
         /// <summary>
         /// 
@@ -765,7 +770,7 @@ namespace zapread.com.Controllers
         [Route("SetFollowing")]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public JsonResult SetFollowing(int id, int s)
+        public async Task<JsonResult> SetFollowing(int id, int s)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -822,6 +827,10 @@ namespace zapread.com.Controllers
                     if (!loggedInUser.Following.Select(f => f.Id).Contains(user.Id))
                     {
                         loggedInUser.Following.Add(user);
+
+                        await eventService.OnNewUserFollowingAsync(
+                            userIdFollowed: user.Id,
+                            userIdFollowing: loggedInUser.Id);
                     }
                     if (!user.Followers.Select(f => f.Id).Contains(loggedInUser.Id))
                     {
@@ -840,7 +849,7 @@ namespace zapread.com.Controllers
         /// <param name="username"></param>
         /// <returns></returns>
         [Route("Follow/{username?}")]
-        public ActionResult Follow(string username)
+        public async Task <ActionResult> Follow(string username)
         {
             if (username == null)
             {
@@ -881,6 +890,10 @@ namespace zapread.com.Controllers
                 if (!loggedInUser.Following.Select(f => f.Id).Contains(user.Id))
                 {
                     loggedInUser.Following.Add(user);
+
+                    await eventService.OnNewUserFollowingAsync(
+                        userIdFollowed: user.Id,
+                        userIdFollowing: loggedInUser.Id);
                 }
 
                 if (!user.Followers.Select(f => f.Id).Contains(loggedInUser.Id))
