@@ -495,6 +495,13 @@ namespace zapread.com.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userIdFollowed"></param>
+        /// <param name="userIdFollowing"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
         public bool MailUserNewFollower(int userIdFollowed, int userIdFollowing, bool isTest = false)
         {
             using (var db = new ZapContext())

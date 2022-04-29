@@ -19,6 +19,60 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userIdFollowed"></param>
+        /// <param name="userIdFollowing"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool AlertUserNewFollower(int userIdFollowed, int userIdFollowing, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var userInfo = db.Users
+                    .Where(u => u.Id == userIdFollowed)
+                    .Select(u => new
+                    {
+                        u.AppId,
+                        User = u
+                    })
+                    .FirstOrDefault();
+
+                var otherUserInfo = db.Users
+                    .Where(u => u.Id == userIdFollowing)
+                    .Select(u => new
+                    {
+                        u.AppId,
+                        u.Name
+                    })
+                    .FirstOrDefault();
+
+                if (userInfo != null && otherUserInfo != null)
+                {
+                    UserAlert alert = new UserAlert()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "<a href=" +
+                            "/user/" + HttpUtility.UrlEncode(otherUserInfo.Name.Trim()) + "/" +
+                            ">" + otherUserInfo.Name + "</a> " +
+                            "is now following you!",
+                        Content = "",
+                        CommentLink = null,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = userInfo.User,
+                        PostLink = null,
+                    };
+
+                    userInfo.User.Alerts.Add(alert);
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="commentId"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
