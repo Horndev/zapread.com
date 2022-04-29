@@ -1,0 +1,42 @@
+﻿@using zapread.com.Helpers;
+@using zapread.com.Models.UserViews;
+@using System.Globalization;
+@using System.Web.Mvc;
+@model zapread.com.Models.Email.NewUserFollowerEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <a href="@MailViewHelper.UserLink(Model.UserName)" class="pull-left">
+                        <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.UserAppId, Model.ProfileImageVersion)" />
+                    </a>
+                    <a href="@MailViewHelper.UserLink(Model.UserName)">
+                        <h3 style="display:inline-block">&nbsp;&nbsp; @Model.UserName is now following you!</h3>
+                    </a>
+                    <hr />
+                </div>
+                <div class="container" style="background-color:white;margin-bottom: 0px;">
+                    <div class="post-content">
+                        <p>Look like you're getting popular!</p>
+                        <p><a href="@MailViewHelper.ChatMessageURI(Model.UserName)">Say thanks</a>, or <a href="@MailViewHelper.UserLink(Model.UserName)">follow them back.</a></p>
+                    </div>
+                    <br />
+                    <hr />
+                    Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

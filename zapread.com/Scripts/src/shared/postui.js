@@ -5,10 +5,32 @@
  */
 
 import { toggleHidden } from '../utility/toolbox';
+import { postJson } from "../utility/postData";
 
 function findAncestor(el, sel) {
   while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el, sel)));
   return el;
+}
+
+export function togglePostFollow(e) {
+  let isFollowing = e.getAttribute("data-follow") == "1";
+  let id = e.getAttribute("data-postid");
+  var url = isFollowing ? "/api/v1/post/unfollow/" : "/api/v1/post/follow/"
+  postJson(url, {
+    PostId: id
+  }).then((response) => {
+    if (response.success) {
+      if (!isFollowing) {
+        e.innerHTML = "<i class='fa-regular fa-bell-slash'></i> Stop following";
+        e.setAttribute("data-follow", "1");
+      }
+      else {
+        e.innerHTML = "<i class='fa-regular fa-bell'></i> Follow post";
+        e.setAttribute("data-follow", "0");
+      }
+    }
+  });
+  return false;
 }
 
 /**

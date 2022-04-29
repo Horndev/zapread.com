@@ -256,6 +256,9 @@
     <Reference Include="Ninject.Web.WebApi, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.1\lib\net45\Ninject.Web.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject.Web.WebApi.WebHost, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.WebApi.WebHost.3.3.1\lib\net45\Ninject.Web.WebApi.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
       <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
     </Reference>
@@ -948,6 +951,7 @@
     <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
     <Compile Include="Models\Database\Financial\FinanceModels.cs" />
     <Compile Include="Models\Email\NewChatEmail.cs" />
+    <Compile Include="Models\Email\NewUserFollowerEmail.cs" />
     <Compile Include="Models\Email\PostCommentEmail.cs" />
     <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
     <Compile Include="Models\Email\NewPostEmail.cs" />
@@ -1115,19 +1119,20 @@
     <Content Include="Scripts\dist\0\3227.js" />
     <Content Include="Scripts\dist\0\3652.css" />
     <Content Include="Scripts\dist\0\3652.js" />
-    <Content Include="Scripts\dist\0\3780.css" />
-    <Content Include="Scripts\dist\0\3780.js" />
     <Content Include="Scripts\dist\0\4045.css" />
     <Content Include="Scripts\dist\0\4045.js" />
     <Content Include="Scripts\dist\0\4052.css" />
     <Content Include="Scripts\dist\0\4052.js" />
     <Content Include="Scripts\dist\0\4351.css" />
     <Content Include="Scripts\dist\0\4351.js" />
+    <Content Include="Scripts\dist\0\4420.css" />
+    <Content Include="Scripts\dist\0\4420.js" />
     <Content Include="Scripts\dist\0\4791.js" />
     <Content Include="Scripts\dist\0\4791.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\5088.js" />
     <Content Include="Scripts\dist\0\5213.js" />
     <Content Include="Scripts\dist\0\5252.js" />
+    <Content Include="Scripts\dist\0\555.js" />
     <Content Include="Scripts\dist\0\5580.js" />
     <Content Include="Scripts\dist\0\5886.js" />
     <Content Include="Scripts\dist\0\5887.css" />
@@ -1138,12 +1143,12 @@
     <Content Include="Scripts\dist\0\6455.js" />
     <Content Include="Scripts\dist\0\6466.js" />
     <Content Include="Scripts\dist\0\6466.js.LICENSE.txt" />
-    <Content Include="Scripts\dist\0\6476.js" />
     <Content Include="Scripts\dist\0\6760.js" />
     <Content Include="Scripts\dist\0\6938.css" />
     <Content Include="Scripts\dist\0\6938.js" />
     <Content Include="Scripts\dist\0\7630.js" />
     <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\8135.css" />
     <Content Include="Scripts\dist\0\8135.js" />
     <Content Include="Scripts\dist\0\8338.js" />
     <Content Include="Scripts\dist\0\8808.js" />
@@ -1380,18 +1385,19 @@
     <Content Include="Scripts\dist\0\3227.js.map" />
     <Content Include="Scripts\dist\0\3652.css.map" />
     <Content Include="Scripts\dist\0\3652.js.map" />
-    <Content Include="Scripts\dist\0\3780.css.map" />
-    <Content Include="Scripts\dist\0\3780.js.map" />
     <Content Include="Scripts\dist\0\4045.css.map" />
     <Content Include="Scripts\dist\0\4045.js.map" />
     <Content Include="Scripts\dist\0\4052.css.map" />
     <Content Include="Scripts\dist\0\4052.js.map" />
     <Content Include="Scripts\dist\0\4351.css.map" />
     <Content Include="Scripts\dist\0\4351.js.map" />
+    <Content Include="Scripts\dist\0\4420.css.map" />
+    <Content Include="Scripts\dist\0\4420.js.map" />
     <Content Include="Scripts\dist\0\4791.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
     <Content Include="Scripts\dist\0\5213.js.map" />
     <Content Include="Scripts\dist\0\5252.js.map" />
+    <Content Include="Scripts\dist\0\555.js.map" />
     <Content Include="Scripts\dist\0\5580.js.map" />
     <Content Include="Scripts\dist\0\5886.js.map" />
     <Content Include="Scripts\dist\0\5887.css.map" />
@@ -1401,11 +1407,11 @@
     <Content Include="Scripts\dist\0\6024.js.map" />
     <Content Include="Scripts\dist\0\6455.js.map" />
     <Content Include="Scripts\dist\0\6466.js.map" />
-    <Content Include="Scripts\dist\0\6476.js.map" />
     <Content Include="Scripts\dist\0\6760.js.map" />
     <Content Include="Scripts\dist\0\6938.css.map" />
     <Content Include="Scripts\dist\0\6938.js.map" />
     <Content Include="Scripts\dist\0\7630.js.map" />
+    <Content Include="Scripts\dist\0\8135.css.map" />
     <Content Include="Scripts\dist\0\8135.js.map" />
     <Content Include="Scripts\dist\0\8338.js.map" />
     <Content Include="Scripts\dist\0\8808.js.map" />
@@ -1788,6 +1794,7 @@
     <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
     <Content Include="Views\Messages\Blocked.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewUserFollower.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

@@ -763,6 +763,7 @@ namespace zapread.com.Controllers
                         TimeStamp = p.TimeStamp,
                         TimeStampEdited = p.TimeStampEdited,
                         IsNSFW = p.IsNSFW,
+                        ViewerIsFollowing = userId.HasValue ? p.FollowedByUsers.Select(v => v.Id).Contains(userId.Value) : false,
                         ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false,
                         ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
                         ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,

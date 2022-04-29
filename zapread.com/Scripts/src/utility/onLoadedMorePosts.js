@@ -7,9 +7,20 @@ import { applyHoverToChildren } from './userhover';                             
 import { loadgrouphover } from './grouphover';                                  // [✓]
 import { updatePostTimes } from './datetime/posttime';                          // [✓]
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
+import { togglePostFollow } from "../shared/postui";
 const getSwal = () => import('sweetalert2');
 
-async function enableVoting(className, d, t, idel) {
+export async function addPostFollowClickHandler() {
+  var elements = document.querySelectorAll(".btnFollowPost");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    el.addEventListener("click", (e) => {
+      togglePostFollow(el);
+    });
+    el.classList.remove('btnFollowPost');
+  });
+}
+
+export async function enableVoting(className, d, t, idel) {
   var elements = document.querySelectorAll("." + className);
   Array.prototype.forEach.call(elements, function (el, _i) {
     var postid = el.getAttribute(idel);
@@ -107,6 +118,9 @@ export function onLoadedMorePosts() {
     impressionObserver.observe(el);
     el.classList.remove('post-observe');
   });
+
+  addPostFollowClickHandler();
+
   //Array.prototype.forEach.call(elements, function (el, _i) {
   //    var url = el.getAttribute('data-url');
   //    fetch(url).then(function (response) {
@@ -148,6 +162,7 @@ export function onLoadedMorePosts() {
 
   // Make comments quotable
   makeCommentsQuotable();
+
   try {
     (tarteaucitron.job = tarteaucitron.job || []).push('zyoutube');
     (tarteaucitron.job = tarteaucitron.job || []).push('zapreadARRA');

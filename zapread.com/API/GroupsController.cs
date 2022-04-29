@@ -17,6 +17,7 @@ using HtmlAgilityPack;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
 using System.Text;
+using zapread.com.Services;
 
 namespace zapread.com.API
 {
@@ -25,6 +26,17 @@ namespace zapread.com.API
     /// </summary>
     public class GroupsController : ApiController
     {
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public GroupsController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -186,6 +198,10 @@ namespace zapread.com.API
                     if (!group.Moderators.Contains(userToGrant))
                     {
                         group.Moderators.Add(userToGrant);
+
+                        await eventService.OnNewGroupModGrantedAsync(
+                            groupId: req.GroupId,
+                            userId: userToGrant.Id);
                     }
                 } 
                 else if (role == "admin")
@@ -193,6 +209,10 @@ namespace zapread.com.API
                     if (!group.Administrators.Contains(userToGrant))
                     {
                         group.Administrators.Add(userToGrant);
+
+                        await eventService.OnNewGroupAdminGrantedAsync(
+                            groupId: req.GroupId,
+                            userId: userToGrant.Id);
                     }
                 }
                 else if (role == "banish")

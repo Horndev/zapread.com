@@ -128,6 +128,7 @@ namespace zapread.com.Helpers
                         TimeStamp = p.TimeStamp,
                         TimeStampEdited = p.TimeStampEdited,
                         IsNSFW = p.IsNSFW,
+                        ViewerIsFollowing = p.FollowedByUsers.Select(v => v.AppId).Contains(userAppId),
                         ViewerIsMod = p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
                         ViewerUpvoted = p.VotesUp.Select(v => v.AppId).Contains(userAppId),
                         ViewerDownvoted = p.VotesDown.Select(v => v.AppId).Contains(userAppId),
@@ -382,7 +383,7 @@ namespace zapread.com.Helpers
         /// <param name="numComments"></param>
         /// <param name="limitComments"></param>
         /// <returns></returns>
-        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, PostQueryUserInfo userInfo = null, int numComments = 3, bool limitComments = false)
+        public static async Task<List<PostViewModel>> QueryPostsVm(int start, int count, IQueryable<PostQueryInfo> postquery, PostQueryUserInfo userInfo = null, int numComments = 5, bool limitComments = false)
         {
             int userId = 0;
             string userAppId = null;
@@ -415,6 +416,7 @@ namespace zapread.com.Helpers
                     TimeStamp = p.p.TimeStamp,
                     TimeStampEdited = p.p.TimeStampEdited,
                     IsNSFW = p.p.IsNSFW,
+                    ViewerIsFollowing = p.p.FollowedByUsers.Select(v => v.AppId).Contains(userAppId),
                     ViewerIsMod = p.p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
                     ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId),
                     ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
@@ -489,6 +491,7 @@ namespace zapread.com.Helpers
                     TimeStamp = p.p.TimeStamp,
                     TimeStampEdited = p.p.TimeStampEdited,
                     IsNSFW = p.p.IsNSFW,
+                    ViewerIsFollowing = p.p.FollowedByUsers.Select(v => v.AppId).Contains(userAppId),
                     ViewerIsMod = p.p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
                     ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId),
                     ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
