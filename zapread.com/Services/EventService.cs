@@ -22,6 +22,38 @@ namespace zapread.com.Services
     public class EventService : IEventService
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public async Task<bool> OnNewGroupModGrantedAsync(int groupId, int userId, bool isTest = false)
+        {
+            BackgroundJob.Enqueue<AlertsService>(methodCall: x => x.AlertGroupModGranted(groupId, userId, isTest));
+
+            await NotificationService.NotifyGroupModAdded(groupId, userId, isTest);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public async Task<bool> OnNewGroupAdminGrantedAsync(int groupId, int userId, bool isTest = false)
+        {
+            BackgroundJob.Enqueue<AlertsService>(methodCall: x => x.AlertGroupAdminGranted(groupId, userId, isTest));
+
+            await NotificationService.NotifyGroupAdminAdded(groupId, userId, isTest);
+
+            return true;
+        }
+
+        /// <summary>
         /// Handle when a new comment is made on a post (root comment)
         /// </summary>
         /// <param name="commentId"></param>

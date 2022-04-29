@@ -19,6 +19,106 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool AlertGroupModGranted(int groupId, int userId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var groupInfo = db.Groups
+                    .Where(g => g.GroupId == groupId)
+                    .Select(g => new
+                    {
+                        g.GroupName
+                    })
+                    .FirstOrDefault();
+
+                var userInfo = db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new
+                    {
+                        User = u
+                    })
+                    .FirstOrDefault();
+
+                if (groupInfo != null && userInfo != null)
+                {
+                    UserAlert alert = new UserAlert()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "Group moderation granted",
+                        Content = "You have been granted moderation priviliages in " +
+                            "<a href='/Group/Detail/" + Convert.ToString(groupId) + "/'>" + groupInfo.GroupName + "</a>.",
+                        CommentLink = null,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = userInfo.User,
+                        PostLink = null,
+                    };
+
+                    userInfo.User.Alerts.Add(alert);
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool AlertGroupAdminGranted(int groupId, int userId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var groupInfo = db.Groups
+                    .Where(g => g.GroupId == groupId)
+                    .Select(g => new
+                    {
+                        g.GroupName
+                    })
+                    .FirstOrDefault();
+
+                var userInfo = db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new
+                    {
+                        User = u
+                    })
+                    .FirstOrDefault();
+
+                if (groupInfo != null && userInfo != null)
+                {
+                    UserAlert alert = new UserAlert()
+                    {
+                        TimeStamp = DateTime.Now,
+                        Title = "Group administration granted",
+                        Content = "You have been granted administration priviliages in " +
+                            "<a href='/Group/Detail/" + Convert.ToString(groupId) + "/'>" + groupInfo.GroupName + "</a>.",
+                        CommentLink = null,
+                        IsDeleted = false,
+                        IsRead = false,
+                        To = userInfo.User,
+                        PostLink = null,
+                    };
+
+                    userInfo.User.Alerts.Add(alert);
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userIdFollowed"></param>
         /// <param name="userIdFollowing"></param>
         /// <param name="isTest"></param>

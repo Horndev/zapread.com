@@ -18,6 +18,66 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public async static Task NotifyGroupAdminAdded(int groupId, int userId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var notificationInfo = await db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new
+                    {
+                        UserAppId = u.AppId,
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var urlHelper = new UrlHelper(HttpContext.Current.Request.RequestContext);
+
+                await PostMessage(
+                    userId: notificationInfo.UserAppId,
+                    reason: "Group administration granted",
+                    clickUrl: urlHelper.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = groupId }),
+                    message: "You are now an administrator of " + db.Groups.Where(g => g.GroupId == groupId).Select(g => g.GroupName).FirstOrDefault())
+                    .ConfigureAwait(true);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public async static Task NotifyGroupModAdded(int groupId, int userId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var notificationInfo = await db.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new
+                    {
+                        UserAppId = u.AppId
+                    })
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var urlHelper = new UrlHelper(HttpContext.Current.Request.RequestContext);
+
+                await PostMessage(
+                    userId: notificationInfo.UserAppId, 
+                    reason: "Group moderation granted", 
+                    clickUrl: urlHelper.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = groupId }), 
+                    message: "You are now a moderator of " + db.Groups.Where(g => g.GroupId == groupId).Select(g => g.GroupName).FirstOrDefault())
+                    .ConfigureAwait(true);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userIdFollowed"></param>
         /// <param name="userIdFollowing"></param>
         /// <returns></returns>
