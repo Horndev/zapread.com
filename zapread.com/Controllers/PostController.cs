@@ -768,6 +768,7 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
                         ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
                         ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                        ViewerIgnoredPost = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
                             PostId = p.PostId,

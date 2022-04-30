@@ -1583,6 +1583,7 @@
     <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
+    <Content Include="Scripts\src\utility\stringExtensions.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />

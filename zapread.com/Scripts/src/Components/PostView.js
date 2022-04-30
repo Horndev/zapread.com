@@ -11,7 +11,8 @@ import { loadgrouphover } from '../utility/grouphover';
 import { writeComment } from '../comment/writecomment'
 import { setPostLanguage, nsfwPost, stickyPost } from "../shared/postfunctions";
 import { makeQuotable } from "../utility/quotable/quotable";
-import { ISOtoRelative } from "../utility/datetime/posttime"
+import { ISOtoRelative } from "../utility/datetime/posttime";
+import { postJson } from "../utility/postData";
 import PostVoteButtons from "./PostVoteButtons";
 const CommentsView = React.lazy(() => import("./CommentsView"));
 
@@ -22,6 +23,7 @@ export default function PostView(props) {
   const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMod, setIsMod] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -88,6 +90,7 @@ export default function PostView(props) {
       setIsIgnored(props.post.ViewerIgnoredUser);
       setIsLoggedIn(props.isLoggedIn);
       setIsMod(props.isGroupMod);
+      setIsFollowing(props.post.ViewerIsFollowing);
 
       if (window.UserName == props.post.UserName) {
         setIsAuthor(true);
@@ -117,6 +120,17 @@ export default function PostView(props) {
     setIsVisible(!isVisible);
   }
 
+  function toggleFollow() {
+    var url = isFollowing ? "/api/v1/post/unfollow/" : "/api/v1/post/follow/"
+    postJson(url, {
+      PostId: post.PostId
+    }).then((response) => {
+      if (response.success) {
+        setIsFollowing(!isFollowing);
+      }
+    });
+  }
+
   return (
     <>
       <div className="social-feed-box" id={"post_" + post.PostId}>
@@ -135,6 +149,19 @@ export default function PostView(props) {
                 <i className="fa fa-eye"></i>&nbsp;{impressions}&nbsp;Impression(s)
               </button>
             </Dropdown.Item>
+            {isFollowing ? (
+              <Dropdown.Item as="li" onClick={toggleFollow}>
+                <button className="btn btn-link btn-sm">
+                  <i className="fa-regular fa-bell-slash"></i>&nbsp;Stop following
+                </button>
+              </Dropdown.Item>
+            ) : (
+              <Dropdown.Item as="li" onClick={toggleFollow}>
+                <button className="btn btn-link btn-sm">
+                    <i className="fa-regular fa-bell"></i>&nbsp;Follow post
+                </button>
+              </Dropdown.Item>
+            ) }
             { post.ViewerIgnoredUser ? (
               <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
                 <button className="btn btn-link btn-sm">

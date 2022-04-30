@@ -398,7 +398,6 @@ namespace zapread.com.API
                     success = true,
                     draw = dataTableParameters.Draw,
                     recordsTotal = await groupsQ.CountAsync().ConfigureAwait(false),
-                    //await db.Groups.CountAsync().ConfigureAwait(false),
                     recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false),
                     data = values
                 };

@@ -180,7 +180,6 @@ namespace zapread.com.Controllers
         /// Do the unsubscribe
         /// </summary>
         /// <param name="userUnsubscribeId"></param>
-        /// <param name="subscriptionType"></param>
         /// <returns></returns>
         [Route("Subscription/Confirm/{userUnsubscribeId}")]
         [HttpGet]
@@ -269,7 +268,6 @@ namespace zapread.com.Controllers
         /// Re-subscribe
         /// </summary>
         /// <param name="userUnsubscribeId"></param>
-        /// <param name="subscriptionType"></param>
         /// <returns></returns>
         [Route("Subscription/Subscribe/{userUnsubscribeId}")]
         [HttpGet]

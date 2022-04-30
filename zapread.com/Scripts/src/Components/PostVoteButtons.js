@@ -3,6 +3,7 @@
  */
 
 import React, { useCallback, useEffect, useState, createRef } from "react";
+import { numToAbbrString } from "../utility/stringExtensions";
 const getSwal = () => import('sweetalert2');
 
 export default function PostVoteButtons(props) {
@@ -66,7 +67,7 @@ export default function PostVoteButtons(props) {
             <i ref={upVoteRef} className="fa-solid fa-chevron-up fa-lg"> </i>
           </a>
           <div id={"sVote_" + postId}>
-            {postScore}
+            { numToAbbrString(postScore) }
           </div>
           <a role="button"
             onClick={handleVoteDown}

@@ -42,6 +42,11 @@ namespace zapread.com.Models
         public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
         public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
         public bool ViewerIgnoredUser { get; set; }  // If the user has ignored the user
+
+        /// <summary>
+        /// When a the user is ignoring the post
+        /// </summary>
+        public bool ViewerIgnoredPost { get; set; }
         /// <summary>
         /// Viewer is banished from this group
         /// </summary>

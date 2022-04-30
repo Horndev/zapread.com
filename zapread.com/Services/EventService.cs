@@ -106,7 +106,6 @@ namespace zapread.com.Services
         /// 
         /// </summary>
         /// <param name="commentId"></param>
-        /// <param name="userAppId"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
         public async Task<bool> OnUserMentionedInComment(long commentId, bool isTest = false)
