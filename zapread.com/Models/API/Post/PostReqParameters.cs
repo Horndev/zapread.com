@@ -8,7 +8,7 @@ namespace zapread.com.Models.API.Post
     /// <summary>
     /// 
     /// </summary>
-    public class FollowPostParameters
+    public class PostReqParameters
     {
         /// <summary>
         /// The post to follow

@@ -40,6 +40,11 @@ namespace zapread.com.Helpers
             /// 
             /// </summary>
             public List<int> IgnoredGroups;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public List<int> IgnoredPosts;
         }
 
         /// <summary>
@@ -60,6 +65,10 @@ namespace zapread.com.Helpers
                 var ig = userInfo.IgnoredGroups;
                 validposts = validposts
                     .Where(p => !ig.Contains(p.Group.GroupId));
+
+                var ip = userInfo.IgnoredPosts;
+                validposts = validposts
+                    .Where(p => !ip.Contains(p.PostId));
 
                 var allLang = userInfo.ViewAllLanguages;
                 if (!allLang)
@@ -133,6 +142,7 @@ namespace zapread.com.Helpers
                         ViewerUpvoted = p.VotesUp.Select(v => v.AppId).Contains(userAppId),
                         ViewerDownvoted = p.VotesDown.Select(v => v.AppId).Contains(userAppId),
                         ViewerIgnoredUser = p.UserId.AppId == userAppId ? false : p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                        ViewerIgnoredPost = p.UserId.AppId == userAppId ? false : p.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
                             PostId = p.PostId,
@@ -422,6 +432,7 @@ namespace zapread.com.Helpers
                     ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
                     ViewerIsBanishedGroup = p.p.Group.Banished.Any(g => g.User.AppId == userAppId) ? true : false,
                     ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                    ViewerIgnoredPost = p.p.UserId.AppId == userAppId ? false : p.p.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                     NumRootComments = p.RootComments.Count(),
                     CommentVms = p.p.Comments.Where(c => !c.IsReply) // Initial posts only
                         .OrderByDescending(c => c.Score)
@@ -497,6 +508,7 @@ namespace zapread.com.Helpers
                     ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
                     ViewerIsBanishedGroup = p.p.Group.Banished.Any(g => g.User.AppId == userAppId) ? true : false,
                     ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                    ViewerIgnoredPost = p.p.UserId.AppId == userAppId ? false : p.p.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
                     NumRootComments = p.RootComments.Count(),
                     CommentVms = p.p.Comments.Select(c => new PostCommentsViewModel()
                         {

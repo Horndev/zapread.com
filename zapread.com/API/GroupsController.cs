@@ -398,7 +398,6 @@ namespace zapread.com.API
                     success = true,
                     draw = dataTableParameters.Draw,
                     recordsTotal = await groupsQ.CountAsync().ConfigureAwait(false),
-                    //await db.Groups.CountAsync().ConfigureAwait(false),
                     recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false),
                     data = values
                 };
@@ -561,6 +560,7 @@ namespace zapread.com.API
                         AppId = u.AppId,
                         ViewAllLanguages = u.Settings.ViewAllLanguages,
                         IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                        IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(),
                     })
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
 

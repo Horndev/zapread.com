@@ -126,6 +126,7 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
                         ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
                         ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        ViewerIgnoredPost = p.UserId.Id == userId ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
                             CommentId = c.CommentId,
@@ -178,6 +179,7 @@ namespace zapread.com.Controllers
                         ViewerUpvoted = p.VotesUp.Select(v => v.Id).Contains(userId),
                         ViewerDownvoted = p.VotesDown.Select(v => v.Id).Contains(userId),
                         ViewerIgnoredUser = p.UserId.Id == userId ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId),
+                        ViewerIgnoredPost = p.UserId.Id == userId ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId),
                         CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
                         {
                             CommentId = c.CommentId,

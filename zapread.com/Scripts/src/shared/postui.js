@@ -6,6 +6,7 @@
 
 import { toggleHidden } from '../utility/toolbox';
 import { postJson } from "../utility/postData";
+const getSwal = () => import('sweetalert2');
 
 function findAncestor(el, sel) {
   while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el, sel)));
@@ -15,7 +16,7 @@ function findAncestor(el, sel) {
 export function togglePostFollow(e) {
   let isFollowing = e.getAttribute("data-follow") == "1";
   let id = e.getAttribute("data-postid");
-  var url = isFollowing ? "/api/v1/post/unfollow/" : "/api/v1/post/follow/"
+  var url = isFollowing ? "/api/v1/post/unfollow/" : "/api/v1/post/follow/";
   postJson(url, {
     PostId: id
   }).then((response) => {
@@ -30,6 +31,36 @@ export function togglePostFollow(e) {
       }
     }
   });
+  return false;
+}
+
+export function postIgnore(e) {
+  let id = e.getAttribute("data-postid");
+  var url = "/api/v1/post/ignore/";
+
+  getSwal().then(({ default: Swal }) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once ignored, you will not see this post.",
+      icon: "warning",
+      showCancelButton: true
+    }).then(function (willIgnore) {
+      if (willIgnore.value) {
+        postJson(url, {
+          PostId: id
+        }).then((response) => {
+          if (response.success) {
+            // hide post
+            var postel = document.getElementById("post_" + id.toString());
+            postel.style.display = "none";
+          }
+        });
+      } else {
+        console.log("cancelled ignore");
+      }
+    });
+  });
+
   return false;
 }
 

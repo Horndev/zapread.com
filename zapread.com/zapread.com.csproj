@@ -919,7 +919,7 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
-    <Compile Include="Models\API\Post\FollowPostParameters.cs" />
+    <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
@@ -1119,8 +1119,8 @@
     <Content Include="Scripts\dist\0\3227.js" />
     <Content Include="Scripts\dist\0\3652.css" />
     <Content Include="Scripts\dist\0\3652.js" />
-    <Content Include="Scripts\dist\0\4045.css" />
-    <Content Include="Scripts\dist\0\4045.js" />
+    <Content Include="Scripts\dist\0\39.css" />
+    <Content Include="Scripts\dist\0\39.js" />
     <Content Include="Scripts\dist\0\4052.css" />
     <Content Include="Scripts\dist\0\4052.js" />
     <Content Include="Scripts\dist\0\4351.css" />
@@ -1385,8 +1385,8 @@
     <Content Include="Scripts\dist\0\3227.js.map" />
     <Content Include="Scripts\dist\0\3652.css.map" />
     <Content Include="Scripts\dist\0\3652.js.map" />
-    <Content Include="Scripts\dist\0\4045.css.map" />
-    <Content Include="Scripts\dist\0\4045.js.map" />
+    <Content Include="Scripts\dist\0\39.css.map" />
+    <Content Include="Scripts\dist\0\39.js.map" />
     <Content Include="Scripts\dist\0\4052.css.map" />
     <Content Include="Scripts\dist\0\4052.js.map" />
     <Content Include="Scripts\dist\0\4351.css.map" />
@@ -1583,6 +1583,7 @@
     <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
+    <Content Include="Scripts\src\utility\stringExtensions.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />

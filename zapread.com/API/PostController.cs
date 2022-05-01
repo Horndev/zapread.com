@@ -27,10 +27,84 @@ namespace zapread.com.API
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
+        [Route("api/v1/post/unignore")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> UnIgnore(PostReqParameters req)
+        {
+            if (req == null || req.PostId < 1) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.IgnoringPosts)
+                    .FirstOrDefaultAsync(u => u.AppId == userAppId)
+                    .ConfigureAwait(true); // keep context
+
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == req.PostId)
+                    .ConfigureAwait(true); // keep context 
+
+                if (user.IgnoringPosts.Contains(post))
+                {
+                    user.IgnoringPosts.Remove(post);
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// Follow a post
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/ignore")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> Ignore(PostReqParameters req)
+        {
+            if (req == null || req.PostId < 1) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.IgnoringPosts)
+                    .FirstOrDefaultAsync(u => u.AppId == userAppId)
+                    .ConfigureAwait(true); // keep context
+
+                var post = await db.Posts
+                    .FirstOrDefaultAsync(p => p.PostId == req.PostId)
+                    .ConfigureAwait(true); // keep context 
+
+                if (!user.IgnoringPosts.Contains(post))
+                {
+                    user.IgnoringPosts.Add(post);
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [Route("api/v1/post/unfollow")]
         [AcceptVerbs("POST")]
         [ValidateJsonAntiForgeryToken]
-        public async Task<IHttpActionResult> UnFollow(FollowPostParameters req)
+        public async Task<IHttpActionResult> UnFollow(PostReqParameters req)
         {
             if (req == null || req.PostId < 1) return BadRequest();
 
@@ -67,7 +141,7 @@ namespace zapread.com.API
         [Route("api/v1/post/follow")]
         [AcceptVerbs("POST")]
         [ValidateJsonAntiForgeryToken]
-        public async Task<IHttpActionResult> Follow(FollowPostParameters req)
+        public async Task<IHttpActionResult> Follow(PostReqParameters req)
         {
             if (req == null || req.PostId < 1) return BadRequest();
             
