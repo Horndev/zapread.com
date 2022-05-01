@@ -7,7 +7,7 @@ import { applyHoverToChildren } from './userhover';                             
 import { loadgrouphover } from './grouphover';                                  // [✓]
 import { updatePostTimes } from './datetime/posttime';                          // [✓]
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
-import { togglePostFollow } from "../shared/postui";
+import { togglePostFollow, postIgnore } from "../shared/postui";
 const getSwal = () => import('sweetalert2');
 
 export async function addPostFollowClickHandler() {
@@ -17,6 +17,16 @@ export async function addPostFollowClickHandler() {
       togglePostFollow(el);
     });
     el.classList.remove('btnFollowPost');
+  });
+}
+
+export async function addPostIgnoreClickHandler() {
+  var elements = document.querySelectorAll(".btnIgnorePost");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    el.addEventListener("click", (e) => {
+      postIgnore(el);
+    });
+    el.classList.remove('btnIgnorePost');
   });
 }
 
@@ -120,6 +130,7 @@ export function onLoadedMorePosts() {
   });
 
   addPostFollowClickHandler();
+  addPostIgnoreClickHandler();
 
   //Array.prototype.forEach.call(elements, function (el, _i) {
   //    var url = el.getAttribute('data-url');

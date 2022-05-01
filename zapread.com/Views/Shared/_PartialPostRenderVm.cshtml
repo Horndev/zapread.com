@@ -29,6 +29,9 @@
                         <button class="btn btn-link btn-sm btnFollowPost" data-follow="0" data-postid="@Model.PostId"><i class="fa-regular fa-bell"></i> Follow post</button>
                     </li>
                 }
+                <li>
+                    <button class="btn btn-link btn-sm btnIgnorePost" data-postid="@Model.PostId"><i class="fa-regular fa-eye-slash"></i> Ignore post</button>
+                </li>
                 @if (Model.ViewerIgnoredUser)
                 {
                     <li>

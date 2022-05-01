@@ -40,6 +40,11 @@ namespace zapread.com.Helpers
             /// 
             /// </summary>
             public List<int> IgnoredGroups;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public List<int> IgnoredPosts;
         }
 
         /// <summary>
@@ -60,6 +65,10 @@ namespace zapread.com.Helpers
                 var ig = userInfo.IgnoredGroups;
                 validposts = validposts
                     .Where(p => !ig.Contains(p.Group.GroupId));
+
+                var ip = userInfo.IgnoredPosts;
+                validposts = validposts
+                    .Where(p => !ip.Contains(p.PostId));
 
                 var allLang = userInfo.ViewAllLanguages;
                 if (!allLang)

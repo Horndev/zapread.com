@@ -474,6 +474,7 @@ namespace zapread.com.Controllers
                         AppId = u.AppId,
                         ViewAllLanguages = u.Settings.ViewAllLanguages,
                         IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                        IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(),
                     })
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
 

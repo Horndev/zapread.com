@@ -15,9 +15,11 @@ import { ISOtoRelative } from "../utility/datetime/posttime";
 import { postJson } from "../utility/postData";
 import PostVoteButtons from "./PostVoteButtons";
 const CommentsView = React.lazy(() => import("./CommentsView"));
+const getSwal = () => import('sweetalert2');
 
 export default function PostView(props) {
   const [post, setPost] = useState(props.post);
+  const [isHidden, setIsHidden] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isIgnored, setIsIgnored] = useState(true);
   const [isSiteAdmin, setIsSiteAdmin] = useState(false);
@@ -131,9 +133,33 @@ export default function PostView(props) {
     });
   }
 
+  function ignorePost() {
+    getSwal().then(({ default: Swal }) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Once ignored, you will not see this post.",
+        icon: "warning",
+        showCancelButton: true
+      }).then(function (willIgnore) {
+        if (willIgnore.value) {
+          postJson("/api/v1/post/ignore/", {
+            PostId: post.PostId
+          }).then((response) => {
+            if (response.success) {
+              // hide post
+              setIsHidden(true);
+            }
+          });
+        } else {
+          console.log("cancelled ignore");
+        }
+      });
+    });
+  }
+
   return (
     <>
-      <div className="social-feed-box" id={"post_" + post.PostId}>
+      <div className="social-feed-box" id={"post_" + post.PostId} style={isHidden ? { display: "none" } : {}}>
         <button className="pull-left btn btn-sm btn-link" style={{
           display: "flex",
           paddingLeft: "4px"
@@ -161,7 +187,12 @@ export default function PostView(props) {
                     <i className="fa-regular fa-bell"></i>&nbsp;Follow post
                 </button>
               </Dropdown.Item>
-            ) }
+            )}
+            <Dropdown.Item as="li" onClick={ignorePost}>
+              <button className="btn btn-link btn-sm">
+                <i className="fa-regular fa-eye-slash"></i>&nbsp;Ignore post
+              </button>
+            </Dropdown.Item>
             { post.ViewerIgnoredUser ? (
               <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
                 <button className="btn btn-link btn-sm">

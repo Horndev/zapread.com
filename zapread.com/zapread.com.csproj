@@ -919,7 +919,7 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
-    <Compile Include="Models\API\Post\FollowPostParameters.cs" />
+    <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
