@@ -462,21 +462,28 @@ namespace zapread.com.Services
                     .Where(c => c.CommentId == commentId)
                     .Select(c => new
                     {
-                        c.Parent.UserId.AppId,
+                        CommenterAppId = c.UserId.AppId,
+                        ParentAppId = c.Parent.UserId.AppId,
                         c.Parent.UserId.Settings.NotifyOnOwnCommentReplied,
                         FollowerAppIds = c.Post.FollowedByUsers.Select(u => u.AppId)
                     })
                     .FirstOrDefault();
 
+                // Don't email replies to own comment
+                if (commentInfo.ParentAppId == commentInfo.CommenterAppId)
+                {
+                    return "Not mailed to own comment.";
+                }
+
                 if (commentInfo != null && commentInfo.NotifyOnOwnCommentReplied)
                 {
                     using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
-                        string receiverEmail = userManager.FindById(commentInfo.AppId).Email;
+                        string receiverEmail = userManager.FindById(commentInfo.ParentAppId).Email;
 
                         var userUnsubscribeId = CryptoService.EncryptString(
                             System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                            commentInfo.AppId + ":" + SubscriptionTypes.OwnCommentReply);
+                            commentInfo.ParentAppId + ":" + SubscriptionTypes.OwnCommentReply);
                         emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
                         BackgroundJob.Enqueue<MailingService>(x => x.SendI(

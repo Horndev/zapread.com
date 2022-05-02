@@ -311,6 +311,8 @@ namespace zapread.com.Services
                         CommentUserName = c.UserId.Name,
                         To = c.Parent.UserId,
                         From = c.UserId,
+                        ToAppId = c.Parent.UserId.AppId,
+                        FromAppId = c.UserId.AppId,
                         c.Post,
                         c.Post.PostId,
                         c.Post.PostTitle,
@@ -318,6 +320,12 @@ namespace zapread.com.Services
                         Comment = c
                     })
                     .FirstOrDefault();
+
+                // Don't alert self if commenting to self
+                if (commentInfo.ToAppId == commentInfo.FromAppId)
+                {
+                    return true;
+                }
 
                 if (commentInfo != null && commentInfo.AlertOnOwnCommentReplied)
                 {
