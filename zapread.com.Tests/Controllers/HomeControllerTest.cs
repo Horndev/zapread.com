@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
 using zapread.com.Models;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.Controllers
 {
@@ -28,7 +29,7 @@ namespace zapread.com.Tests.Controllers
             var principal = new GenericPrincipal(identity, new[] { "user" });
             context.Setup(s => s.User).Returns(principal);
 
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             var userStore = new Mock<IUserStore<ApplicationUser>>();
@@ -57,7 +58,7 @@ namespace zapread.com.Tests.Controllers
         public void About()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             ViewResult result = controller.About() as ViewResult;
@@ -70,7 +71,7 @@ namespace zapread.com.Tests.Controllers
         public void Contact()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             ViewResult result = controller.Contact() as ViewResult;
@@ -83,7 +84,7 @@ namespace zapread.com.Tests.Controllers
         public void Search()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             var result = controller.Search("fast");
@@ -96,7 +97,7 @@ namespace zapread.com.Tests.Controllers
         public void FAQ()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             ViewResult result = controller.FAQ() as ViewResult;
@@ -109,7 +110,7 @@ namespace zapread.com.Tests.Controllers
         public void Feedback()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             ViewResult result = controller.Feedback() as ViewResult;
@@ -122,7 +123,7 @@ namespace zapread.com.Tests.Controllers
         public void FeedbackSuccess()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController controller = new HomeController(new EventService());
 
             // Act
             ViewResult result = controller.FeedbackSuccess() as ViewResult;

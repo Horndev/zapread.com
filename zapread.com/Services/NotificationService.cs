@@ -130,7 +130,6 @@ namespace zapread.com.Services
         /// 
         /// </summary>
         /// <param name="commentId"></param>
-        /// <param name="userAppId"></param>
         /// <returns></returns>
         public async static Task NotifyUserMentionedInComment(long commentId)
         {

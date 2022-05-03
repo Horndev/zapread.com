@@ -24,6 +24,18 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        public async Task<bool> OnUserActivityAsync(string userAppId)
+        {
+            // Do in background and return quickly
+            BackgroundJob.Enqueue<UserState>(methodCall: x => x.UserOnline(userAppId));
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="groupId"></param>
         /// <param name="userId"></param>
         /// <param name="isTest"></param>

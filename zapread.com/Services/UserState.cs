@@ -13,6 +13,21 @@ namespace zapread.com.Services
     public class UserState
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAppid"></param>
+        public void UserOnline(string userAppid)
+        {
+            using (var db = new ZapContext())
+            {
+                var user = db.Users
+                    .SingleOrDefault(u => u.AppId == userAppid);
+
+                user.DateLastActivity = DateTime.UtcNow;
+                db.SaveChanges();
+            }
+        }
+        /// <summary>
         /// Checks if user is still online - if not, marks as offline.
         /// </summary>
         /// <param name="appId"></param>

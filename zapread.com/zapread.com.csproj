@@ -958,6 +958,7 @@
     <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
     <Compile Include="Models\Email\UserMentionedInCommentEmail.cs" />
+    <Compile Include="Models\Email\WeeklySummaryEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
@@ -1796,6 +1797,7 @@
     <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
     <Content Include="Views\Messages\Blocked.cshtml" />
     <EmbeddedResource Include="Views\Mailer\NewUserFollower.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\WeeklySummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

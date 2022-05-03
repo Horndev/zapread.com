@@ -14,7 +14,7 @@ namespace zapread.com.Helpers
         /// <returns></returns>
         public static string ToAbbrString(this double number)
         {
-            string ret = Convert.ToString(number);
+            string ret = number.ToString("0.");
             if (Math.Abs(number) > 1000000000)
                 ret = (number / 1000000000.0).ToString("0.#") + "G";
             else if (Math.Abs(number) > 1000000)

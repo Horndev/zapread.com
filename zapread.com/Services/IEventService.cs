@@ -11,6 +11,8 @@ namespace zapread.com.Services
     /// </summary>
     public interface IEventService
     {
+        Task<bool> OnUserActivityAsync(string userAppId);
+
         /// <summary>
         /// 
         /// </summary>
