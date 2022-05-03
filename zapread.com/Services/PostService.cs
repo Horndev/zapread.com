@@ -14,6 +14,10 @@ namespace zapread.com.Services
     /// </summary>
     public class PostService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static async Task<bool> OnComment()
         {
             return await Task.FromResult(true);

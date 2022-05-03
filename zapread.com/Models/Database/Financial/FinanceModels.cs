@@ -57,7 +57,7 @@ namespace zapread.com.Models
         public int Type { get; set; }
 
         /// <summary>
-        /// 0=post, 1=comment, 3=tip
+        /// 0=post, 1=comment, 3=tip, 4=referral bonus
         /// </summary>
         public int OriginType { get; set; }
 

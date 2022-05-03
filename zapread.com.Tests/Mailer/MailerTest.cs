@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using zapread.com.Controllers;
+using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Services;
@@ -89,6 +90,21 @@ namespace zapread.com.Tests.Mailer
             var emailHTML = mailingService.GenerateUserMentionedInCommentHTML(2);
 
             Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+        }
+
+        [TestMethod]
+        public void TestMailWeeklySummaryEmailGeneration()
+        {
+            MailingService mailingService = new MailingService();
+
+            using (var db = new ZapContext())
+            {
+                var userAppId = db.Users.First().AppId;
+
+                var emailHTML = mailingService.GenerateMailWeeklySummary(userAppId);
+
+                Assert.IsTrue(!string.IsNullOrEmpty(emailHTML));
+            }
         }
 
         [TestMethod]

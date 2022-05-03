@@ -1375,6 +1375,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = false });
             }
 
+            if (jobid == "MailWeeklySummary")
+            {
+                RecurringJob.Trigger("MailingService.MailWeeklySummaries");
+                return Json(new { success = true });
+            }
+
             if (jobid == "CheckLNTransactions")
             {
                 RecurringJob.Trigger("LNTransactionMonitor.CheckLNTransactions");
@@ -1421,6 +1427,14 @@ namespace zapread.com.Controllers
             if (jobid == null)
             {
                 return Json(new { success = false });
+            }
+
+            if (jobid == "MailWeeklySummary")
+            {
+                RecurringJob.AddOrUpdate<MailingService>(
+                    x => x.MailWeeklySummaries(),
+                    "0 0 * * */5"); // Every friday at midnight
+                return Json(new { success = true });
             }
 
             if (jobid == "CheckLNTransactions")

@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -132,6 +133,102 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Route("Mailer/Template/WeeklySummary")]
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<ActionResult> MailerWeeklySummary()
+        {
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+
+                var startTime = DateTime.Now - TimeSpan.FromDays(7);
+                var startTimePrev = DateTime.Now - TimeSpan.FromDays(14);
+
+                var refCode = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ReferralCode)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (refCode == null)
+                {
+                    var user = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    if (user != null)
+                    {
+                        user.ReferralCode = CryptoService.GetNewRefCode();
+                        refCode = user.ReferralCode;
+                        await db.SaveChangesAsync().ConfigureAwait(true);
+                    }
+                }
+
+                var vm = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new WeeklySummaryEmail()
+                    {
+                        RefCode = refCode,
+                        TotalEarnedLastWeek = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTimePrev && e.TimeStamp < startTime)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedWeek = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedReferral = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 4)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedPosts = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.OriginType == 0)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedComments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.OriginType == 1)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalGroupPayments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 1)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalCommunityPayments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 2)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalPostsWeek = u.Posts.Where(p => p.TimeStamp > startTime)
+                            .Count(),
+                        TotalCommentsWeek = u.Comments.Where(c => c.TimeStamp > startTime)
+                            .Count(),
+                        TopGroups = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 1)
+                            .GroupBy(e => e.OriginId)
+                            .Select(e => new
+                            {
+                                GroupId = e.Key,
+                                Count = e.Count(),
+                                Amount = e.Sum(v => ((double?)v.Amount)) ?? 0,
+                            })
+                            .Join(db.Groups, e => e.GroupId, g => g.GroupId, (i, o) => new TopGroup()
+                            {
+                                GroupName = o.GroupName,
+                                GroupId = i.GroupId,
+                                AmountEarned = i.Amount
+                            })
+                            .OrderByDescending(c => c.AmountEarned)
+                            .Take(3)
+                            .ToList(),
+                    })
+                    .FirstOrDefaultAsync();
+
+                return View("WeeklySummary", vm);
+            }
+        }
+
+        /// <summary>
         /// Render HTML for comment reply
         /// </summary>
         /// <param name="id"></param>
@@ -205,156 +302,6 @@ namespace zapread.com.Controllers
 
                 return View("NewChat", vm);
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
-        /// <param name="subject"></param>
-        /// <returns></returns>
-        public async Task<bool> SendNewChat(long id, string email, string subject)
-        {
-            using (var db = new ZapContext())
-            {
-                var vm = await db.Messages
-                    .Where(m => m.Id == id)
-                    .Select(m => new ChatMessageViewModel()
-                    {
-                        Content = m.Content,
-                        TimeStamp = m.TimeStamp.Value,
-                        FromName = m.From.Name,
-                        FromAppId = m.From.AppId,
-                        IsReceived = true,
-                        FromProfileImgVersion = m.From.ProfileImage.Version,
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                ViewBag.Message = subject;
-                string HTMLString = RenderViewToString("NewChat", vm);
-
-                //await SendMailAsync(HTMLString, email, subject).ConfigureAwait(true);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Generates the HTML to be mailed out
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="userName"></param>
-        /// <param name="oldUserName"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public async Task<string> GenerateUpdatedUserAliasEmailBod(int id, string userName, string oldUserName)
-        {
-            using (var db = new ZapContext())
-            {
-                var u = await db.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(usr => usr.Id == id);
-
-                UpdatedUserAliasView vm = new UpdatedUserAliasView()
-                {
-                    OldUserName = oldUserName,
-                    NewUserName = userName,
-                    User = u
-                };
-
-                ViewBag.Message = "User Alias Updated";
-                string HTMLString = RenderViewToString("MailerUpdatedUserAlias", vm);
-
-                string msgHTML = CleanMail(HTMLString);
-
-                return msgHTML;
-            }
-        }
-
-        /// <summary>
-        /// Generates the HTML to be mailed out
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public async Task<string> GenerateNewPostEmailBody(int id)
-        {
-            // TODO: convert youtube embeds to images to mail out: https://img.youtube.com/vi/ifesHElrfuo/hqdefault.jpg
-            using (var db = new ZapContext())
-            {
-                Post pst = await db.Posts
-                    .Include(p => p.Group)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(true);
-
-                //var groups = db.Groups
-                //        .Select(gr => new { gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                //        .AsNoTracking()
-                //        .ToListAsync();
-
-                if (pst == null)
-                {
-                    return null;
-                }
-
-                PostViewModel vm = new PostViewModel()
-                {
-                    Post = pst,
-                };
-
-                ViewBag.Message = "New post by user you are following";
-                string HTMLString = RenderViewToString("MailerNewPost", vm);
-
-                string msgHTML = CleanMail(HTMLString);
-
-                return msgHTML;
-            }
-        }
-
-        /// <summary>
-        /// This method should not be needed here anymore.  The pre-mailing happens now in MailingService
-        /// </summary>
-        /// <param name="HTMLString"></param>
-        /// <returns></returns>
-        [Obsolete]
-        private string CleanMail(string HTMLString)
-        {
-            PreMailer.Net.InlineResult result;
-            string msgHTML;
-            var baseUri = new Uri("https://www.zapread.com/");
-            result = PreMailer.Net.PreMailer.MoveCssInline(
-                                baseUri: baseUri,
-                                html: HTMLString,
-                                removeComments: true,
-                                stripIdAndClassAttributes: true
-                                );
-            string msgHTMLPre = result.Html;
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(msgHTMLPre);
-            var imgs = doc.DocumentNode.SelectNodes("//img/@src");
-            if (imgs != null)
-            {
-                foreach (var item in imgs)
-                {
-                    // TODO: check if external url
-                    item.SetAttributeValue("src", new Uri(baseUri, item.GetAttributeValue("src", "")).AbsoluteUri);
-                }
-            }
-
-            var links = doc.DocumentNode.SelectNodes("//a/@href");
-            if (links != null)
-            {
-                foreach (var link in links)
-                {
-                    // TODO: check if external url
-                    link.SetAttributeValue("href", new Uri(baseUri, link.GetAttributeValue("href", "")).AbsoluteUri);
-                }
-            }
-
-            msgHTML = doc.DocumentNode.OuterHtml;
-            return msgHTML;
         }
 
         /// <summary>

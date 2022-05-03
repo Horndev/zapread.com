@@ -70,6 +70,103 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        public string GenerateMailWeeklySummary(string userAppId)
+        {
+            using (var db = new ZapContext())
+            {
+                var startTime = DateTime.Now - TimeSpan.FromDays(7);
+                var startTimePrev = DateTime.Now - TimeSpan.FromDays(14);
+
+                var refCode = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.ReferralCode)
+                    .FirstOrDefault();
+
+                if (refCode == null)
+                {
+                    var user = db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .FirstOrDefault();
+
+                    if (user != null)
+                    {
+                        user.ReferralCode = CryptoService.GetNewRefCode();
+                        refCode = user.ReferralCode;
+                        db.SaveChanges();
+                    }
+                }
+
+                var viewInfo = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new WeeklySummaryEmail()
+                    {
+                        RefCode = refCode,
+                        TotalEarnedLastWeek = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTimePrev && e.TimeStamp < startTime)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedWeek = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedReferral = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 4)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedPosts = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.OriginType == 0)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalEarnedComments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.OriginType == 1)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalGroupPayments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 1)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalCommunityPayments = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 2)
+                            .Sum(e => ((double?)e.Amount)) ?? 0,
+                        TotalPostsWeek = u.Posts.Where(p => p.TimeStamp > startTime)
+                            .Count(),
+                        TotalCommentsWeek = u.Comments.Where(c => c.TimeStamp > startTime)
+                            .Count(),
+                        TopGroups = u.EarningEvents
+                            .Where(e => e.TimeStamp > startTime)
+                            .Where(e => e.Type == 1)
+                            .GroupBy(e => e.OriginId)
+                            .Select(e => new
+                            {
+                                GroupId = e.Key,
+                                Count = e.Count(),
+                                Amount = e.Sum(v => ((double?)v.Amount)) ?? 0,
+                            })
+                            .Join(db.Groups, e => e.GroupId, g => g.GroupId, (i, o) => new TopGroup()
+                            {
+                                GroupName = o.GroupName,
+                                GroupId = i.GroupId,
+                                AmountEarned = i.Amount
+                            })
+                            .OrderByDescending(c => c.AmountEarned)
+                            .Take(3)
+                            .ToList(),
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(viewInfo);
+
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
         public string GenerateMailNewUserFollowing(int userId)
@@ -286,9 +383,72 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
+        public bool MailWeeklySummary(string userAppId)
+        {
+            using (var db = new ZapContext())
+            {
+                var emailContent = GenerateMailWeeklySummary(userAppId);
+
+                using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                {
+                    string receiverEmail = userManager.FindById(userAppId).Email;
+
+                    // Debug
+                    if (true)
+                    {
+                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                        new UserEmailModel()
+                        {
+                            Destination = receiverEmail,
+                            Body = emailContent,
+                            Email = "",
+                            Name = "zapread.com",
+                            Subject = "Your Zapread Weekly Summary",
+                        }, "Notify", true));
+                    }
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// This should only be fired once a week
+        /// </summary>
+        /// <returns></returns>
+        public bool MailWeeklySummaries()
+        {
+            using (var db = new ZapContext())
+            {
+                var cutoffTime = DateTime.Now - TimeSpan.FromDays(15);
+
+                var usersToMailInfo = db.Users
+                    .Where(u => u.DateLastActivity > cutoffTime)
+                    .Select(u => new
+                    {
+                        u.AppId
+                    })
+                    .ToList();
+
+                var delay = 0;
+                foreach (var ui in usersToMailInfo)
+                {
+                    // rate limit emails
+                    delay += 3;
+                    BackgroundJob.Schedule<MailingService>(x => x.MailWeeklySummary(ui.AppId), TimeSpan.FromSeconds(delay));
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userId"></param>
         /// <param name="oldName"></param>
         /// <param name="newName"></param>
+        /// <param name="isTest"></param>
         /// <returns></returns>
         public bool MailUpdatedUserAlias(int userId, string oldName, string newName, bool isTest = false)
         {

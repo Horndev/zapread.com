@@ -29,6 +29,17 @@ namespace zapread.com.Controllers
     /// </summary>
     public class HomeController : Controller
     {
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public HomeController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// For bots
         /// </summary>
@@ -888,18 +899,12 @@ namespace zapread.com.Controllers
                     if (userAppId == null)
                     {
                         // Not logged in
-                        //subscribedGroups = new List<GroupInfo>();
                     }
                     else
                     {
-                        //User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line (for now, only used when logged in)
-                        //if (user == null)
-                        //{
-                        //    return RedirectToAction(actionName: "Login", controllerName: "Account");
-                        //}
-                        ////subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
-                        //userId = user.Id;
                         await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
+
+                        await eventService.OnUserActivityAsync(userAppId).ConfigureAwait(true);
                     }
 
                     //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
