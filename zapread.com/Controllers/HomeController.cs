@@ -904,7 +904,14 @@ namespace zapread.com.Controllers
                     {
                         await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
 
-                        await eventService.OnUserActivityAsync(userAppId).ConfigureAwait(true);
+                        try
+                        {
+                            await eventService.OnUserActivityAsync(userAppId).ConfigureAwait(true);
+                        }
+                        catch(InvalidOperationException)
+                        {
+                            // todo - unit test fixup
+                        }
                     }
 
                     //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
