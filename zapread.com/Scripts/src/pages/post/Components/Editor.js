@@ -54,8 +54,8 @@ class EmbedResponsive extends BlockEmbed {
 Quill.register(EmbedResponsive);
 
 var FontAttributor = Quill.import('attributors/class/font');
-console.log(FontAttributor.whitelist);
-console.log(FontAttributor);
+//console.log(FontAttributor.whitelist);
+//console.log(FontAttributor);
 FontAttributor.whitelist = [
   'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
   'open', 'roboto', 'tahoma', 'times', 'trebuchet', 'verdana'

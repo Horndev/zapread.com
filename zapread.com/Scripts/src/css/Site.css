@@ -277,15 +277,6 @@
         width: 100%;
     }
 
-/*This makes the summernote toolbar right aligned.*/
-/*.note-toolbar {
-    text-align: right;
-}
-
-.note-toolbar.btn-toolbar .btn-group {
-    float: none;
-}*/
-
 .note-editor { 
     overflow: visible;
 }

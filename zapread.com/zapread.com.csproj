@@ -1644,7 +1644,6 @@
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
-    <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
     <Content Include="Scripts\src\utility\userInfo.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">

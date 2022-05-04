@@ -210,7 +210,7 @@ export function sendMessage(id) {
     return;
   }
 
-  document.getElementById("chatReply").classList.add("sk-loading");   //$('#chatReply').addClass('sk-loading');
+  document.getElementById("chatReply").classList.add("sk-loading");
 
   postJson("/Messages/SendMessage/", {
     id: id,
@@ -219,10 +219,9 @@ export function sendMessage(id) {
   })
     .then((response) => {
       if (response.success) {
-        //$(".m_input").summernote('reset');
         contentEl.innerHTML = "";
         postJson("/Messages/GetMessage/", { 'id': response.id }).then((result) => {
-          document.getElementById("endMessages").innerHTML += result.HTMLString;  //$("#endMessages").append(result.HTMLString);
+          document.getElementById("endMessages").innerHTML += result.HTMLString;
           updatePostTimes();
           window.scrollTo(0, document.body.scrollHeight + 10);
         });
