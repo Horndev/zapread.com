@@ -17,3 +17,7 @@
 [submodule "zapread.com/Scripts/src/quill-image-resize-module"]
 	path = zapread.com/Scripts/src/quill-image-resize-module
 	url = https://github.com/Horndev/quill-image-resize-module.git
+[submodule "zapread.com/Scripts/src/quill/quill-mention"]
+	path = zapread.com/Scripts/src/quill/quill-mention
+	url = https://github.com/Horndev/quill-mention.git
+	branch = master
