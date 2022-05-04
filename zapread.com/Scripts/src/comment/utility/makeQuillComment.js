@@ -12,7 +12,7 @@ import Quill from 'quill';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { postData } from '../../utility/postData';
 import 'quill-mention'; // This auto-registers
-import ImageResize from 'quill-image-resize-module';
+import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
