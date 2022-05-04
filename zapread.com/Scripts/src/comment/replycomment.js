@@ -7,6 +7,7 @@ import { applyHoverToChildren } from '../utility/userhover';
 import { updatePostTimes } from '../utility/datetime/posttime';
 const getMakeQuillComment = () => import('./utility/makeQuillComment');
 import { makeCommentsQuotable } from '../utility/quotable/quotable';
+import { enableVoting } from '../utility/onLoadedMorePosts';
 
 /**
  * Handle the loading of the comment reply into the DOM, and creation of
@@ -62,6 +63,9 @@ export async function replyComment(commentId, postId, content) {
           updatePostTimes();
           // Make new comment quotable
           makeCommentsQuotable();
+          // make comment voteable
+          enableVoting("vote-comment-up", 'up', 'comment', 'data-commentid', commentsEl);
+          enableVoting("vote-comment-dn", 'down', 'comment', 'data-commentid', commentsEl);
         },
         submitCallback: function (commentHTML) {
           // Submit comment

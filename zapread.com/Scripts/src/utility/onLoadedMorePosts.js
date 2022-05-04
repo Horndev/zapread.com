@@ -30,8 +30,11 @@ export async function addPostIgnoreClickHandler() {
   });
 }
 
-export async function enableVoting(className, d, t, idel) {
-  var elements = document.querySelectorAll("." + className);
+export async function enableVoting(className, d, t, idel, container) {
+  if (!container) {
+    container = document;
+  }
+  var elements = container.querySelectorAll("." + className);
   Array.prototype.forEach.call(elements, function (el, _i) {
     var postid = el.getAttribute(idel);
     var isBanished = el.getAttribute("data-isbanished");

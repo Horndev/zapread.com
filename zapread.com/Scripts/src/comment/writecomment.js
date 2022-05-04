@@ -9,6 +9,7 @@ import { updatePostTimesOnEl } from '../utility/datetime/posttime';
 //import { makeQuillComment } from './utility/makeQuillComment';
 const getMakeQuillComment = () => import('./utility/makeQuillComment');
 import { makeCommentsQuotable } from '../utility/quotable/quotable';
+import { enableVoting } from '../utility/onLoadedMorePosts';
 
 /**
  * @name writeComment
@@ -78,6 +79,9 @@ export async function writeComment(postId, content) {
           // activate dropdown (done manually using bootstrap.native)
           var menuDropdownEl = newCommentEl.querySelector(".dropdown-toggle");
           var dropdownInit = new Dropdown(menuDropdownEl);
+          // make comment voteable
+          enableVoting("vote-comment-up", 'up', 'comment', 'data-commentid', newCommentEl);
+          enableVoting("vote-comment-dn", 'down', 'comment', 'data-commentid', newCommentEl);
         },
         submitCallback: function (commentHTML) {
           // Submit comment
