@@ -1547,7 +1547,7 @@
     <Content Include="Scripts\src\pages\user\achievements.js" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
-    <Content Include="Scripts\src\quill-image-resize-module\image-resize.min.js" />
+    <None Include="Scripts\src\quill-image-resize-module\image-resize.min.js.bak" />
     <Content Include="Scripts\src\quill-image-resize-module\src\DefaultOptions.js" />
     <Content Include="Scripts\src\quill-image-resize-module\src\ImageResize.js" />
     <Content Include="Scripts\src\quill-image-resize-module\src\modules\BaseModule.js" />

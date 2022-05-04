@@ -8,13 +8,10 @@ import Delta from 'quill-delta';
 import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
 import 'react-quill/dist/quill.snow.css';                               // [✓]
 import '../../../css/quill/quilledit.css';                              // [✓]
-//import '../../../quill/StickyToolbar/quill-sticky-toolbar';
-import ImageResize from '../../../quill-image-resize-module';          // [✓] Import from source
-//import { ImageUpload } from 'quill-image-upload';
+import ImageResize from '../../../quill-image-resize-module/src/ImageResize';           // [✓] Import from source
 import { ImageUpload } from '../../../quill/image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from '../../../quill/QuillImageDropAndPaste';
-import Button from 'react-bootstrap/Button';
 
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
 Quill.register('modules/imageUpload', ImageUpload);

@@ -77,11 +77,6 @@ export function onLoadedMorePosts() {
   //console.log('[DEBUG] onLoadedMorePosts');
   // User mention hover
   applyHoverToChildren(document, ".userhint");
-  //var elements = document.querySelectorAll(".userhint");
-  //Array.prototype.forEach.call(elements, function (el, _i) {
-  //    loaduserhover(el);
-  //    el.classList.remove('userhint');
-  //});
 
   var elements = document.querySelectorAll(".grouphint");
   Array.prototype.forEach.call(elements, function (el, _i) {
@@ -131,16 +126,6 @@ export function onLoadedMorePosts() {
 
   addPostFollowClickHandler();
   addPostIgnoreClickHandler();
-
-  //Array.prototype.forEach.call(elements, function (el, _i) {
-  //    var url = el.getAttribute('data-url');
-  //    fetch(url).then(function (response) {
-  //        return response.text();
-  //    }).then(function (html) {
-  //        el.innerHTML = html;
-  //        el.classList.remove('impression');
-  //    });
-  //});
 
   // --- relative times
   updatePostTimes();
