@@ -9,8 +9,10 @@ import { onLoadedMorePosts } from './onLoadedMorePosts';    // [✓]
 import Swal from 'sweetalert2';                             // [✓]
 
 export function addposts(data, callback) {
-    document.querySelectorAll('#posts').item(0).innerHTML += data.HTMLString; //.appendChild(data);
-    callback();
+  var newData = document.createElement('template');
+  newData.innerHTML = data.HTMLString;
+  document.getElementById('posts').appendChild(newData.content);
+  callback();
 }
 
 export function loadmore(options) {
