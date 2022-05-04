@@ -11,7 +11,7 @@ const getSwal = () => import('sweetalert2');
 import Quill from 'quill';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { postData } from '../../utility/postData';
-import 'quill-mention'; // This auto-registers
+import Mention from '../../quill/quill-mention/src/quill.mention';
 import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
@@ -20,6 +20,7 @@ import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
 Quill.register({
   'modules/imageUpload': ImageUpload,
   'modules/autoLinks': AutoLinks,
+  'modules/mention': Mention,
   'modules/imageResize': ImageResize,
   'modules/imageDropAndPaste': QuillImageDropAndPaste
 }, true); // import with warning suppression (i.e. overwriting existing function)
@@ -82,7 +83,7 @@ export function makeQuillComment(options) {
         // optional
         // add callback when a image have been chosen
         checkBeforeSend: (file, next) => {
-          console.log(file);
+          //console.log(file);
           next(file); // go back to component and send to the server
         }
       },

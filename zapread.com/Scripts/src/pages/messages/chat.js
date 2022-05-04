@@ -11,7 +11,8 @@ import '../../shared/shared';
 import '../../realtime/signalr';
 import Quill from 'quill';
 import DOMPurify from 'dompurify';
-import 'quill-mention'; // This auto-registers
+//import 'quill-mention'; // This auto-registers
+import Mention from '../../quill/quill-mention/src/quill.mention';
 import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
