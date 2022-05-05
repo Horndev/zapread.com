@@ -100,6 +100,11 @@ module.exports = {
         ]
       },
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         use: {
           loader: "babel-loader",
           options: { cacheDirectory: true }
@@ -145,6 +150,9 @@ module.exports = {
         }
       }
     ]
+  },
+  resolve: {
+    extensions: [".svg",".js", ".json", ".ts", ".tsx", "ttf", "woff2", "png", "css", "scss", "sass"],
   },
   plugins: [
     new webpack.ProvidePlugin({
