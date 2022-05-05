@@ -87,6 +87,9 @@ export function makeQuillComment(options) {
           next(file); // go back to component and send to the server
         }
       },
+      uploader: {
+        mimetypes: []
+      },
       imageDropAndPaste: {
         // add an custom image handler
         handler: imageHandler

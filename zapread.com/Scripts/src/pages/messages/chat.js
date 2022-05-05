@@ -131,6 +131,7 @@ var quill = new Quill("#editor-container", {
         next(file); // go back to component and send to the server
       }
     },
+    uploader: false,
     imageDropAndPaste: {
       // add an custom image handler
       handler: imageHandler

@@ -3,20 +3,21 @@
  **/
 
 import React, { useCallback, useState, useRef } from 'react';           // [✓]
-import ReactQuill, { Quill } from 'react-quill';                        // [✓]
+import ReactQuill, { Quill } from '../../../quill/react-quill/src/index';                        // [✓]
 import Delta from 'quill-delta';
 import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
-import 'react-quill/dist/quill.snow.css';                               // [✓]
+//import 'react-quill/dist/quill.snow.css';                               // [✓]
 import '../../../css/quill/quilledit.css';                              // [✓]
 import ImageResize from '../../../quill-image-resize-module/src/ImageResize';           // [✓] Import from source
 import { ImageUpload } from '../../../quill/image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from '../../../quill/QuillImageDropAndPaste';
+import Toolbar from '../../../quill/zr-toolbar';
 
-Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
-Quill.register('modules/imageUpload', ImageUpload);
-Quill.register('modules/autoLinks', AutoLinks);
-Quill.register('modules/imageResize', ImageResize);
+Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste, true);
+Quill.register('modules/imageUpload', ImageUpload, true);
+Quill.register('modules/autoLinks', AutoLinks, true);
+Quill.register('modules/imageResize', ImageResize, true);
 
 var Image = Quill.import('formats/image');
 Image.className = 'img-post';
@@ -51,7 +52,7 @@ class EmbedResponsive extends BlockEmbed {
     return iframe.getAttribute('src');
   }
 }
-Quill.register(EmbedResponsive);
+Quill.register(EmbedResponsive, true);
 
 var FontAttributor = Quill.import('attributors/class/font');
 //console.log(FontAttributor.whitelist);
@@ -62,9 +63,12 @@ FontAttributor.whitelist = [
 ];
 Quill.register(FontAttributor, true);
 
+Quill.register('modules/toolbar', Toolbar, true);
+
 var icons = Quill.import('ui/icons');
 icons['submit'] = '<i class="fa fa-check"></i> Submit';
 icons['save'] = '<i class="fa fa-save"></i> Save';
+Quill.register(icons,true);
 
 window.change = new Delta();
 window.editcontent = "";
@@ -110,6 +114,7 @@ export default class Editor extends React.Component {
           }
         }
       },
+      uploader: false,
       //videoResize: {
       //},
       imageUpload: {

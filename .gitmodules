@@ -21,3 +21,7 @@
 	path = zapread.com/Scripts/src/quill/quill-mention
 	url = https://github.com/Horndev/quill-mention.git
 	branch = master
+[submodule "zapread.com/Scripts/src/quill/react-quill"]
+	path = zapread.com/Scripts/src/quill/react-quill
+	url = https://github.com/Horndev/react-quill.git
+	branch = master
