@@ -271,7 +271,7 @@ namespace zapread.com.Controllers
                 {
                     return Json(new { success = false, message = "User does not have rights to edit comment." });
                 }
-                comment.Text = SanitizeCommentXSS(c.CommentContent);
+                comment.Text = SanitizeCommentXSS(c.CommentContent.Replace("<p><br></p>", ""));
                 comment.TimeStampEdited = DateTime.UtcNow;
                 db.SaveChanges();
             }
@@ -631,7 +631,7 @@ namespace zapread.com.Controllers
         {
             // Sanitize for XSS
             string commentText = c.CommentContent;
-            string sanitizedComment = SanitizeCommentXSS(commentText);
+            string sanitizedComment = SanitizeCommentXSS(commentText.Replace("<p><br></p>", ""));
 
             return new Comment()
             {
@@ -656,12 +656,17 @@ namespace zapread.com.Controllers
             commentText = Encoding.Unicode.GetString(bytes);
 
             var sanitizer = new Ganss.XSS.HtmlSanitizer(
-                allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-right", "width" }
+                allowedCssProperties: new[] { "color", "display", "text-align", "font-size", "margin-top", "margin-right", "margin-bottom", "margin-left", "margin", "float", "width" }
                 //allowedCssClasses: new[] { "badge", "badge-info", "userhint", "blockquote", "img-fluid" }
                 );
 
             sanitizer.AllowedTags.Remove("button");
             sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Add("data-index");
+            sanitizer.AllowedAttributes.Add("data-denotation-char");
+            sanitizer.AllowedAttributes.Add("data-id");
+            sanitizer.AllowedAttributes.Add("data-value");
+            sanitizer.AllowedAttributes.Add("contenteditable");
             sanitizer.AllowedAttributes.Remove("id");
 
             var sanitizedComment = sanitizer.Sanitize(commentText);

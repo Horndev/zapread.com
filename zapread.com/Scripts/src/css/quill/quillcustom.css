@@ -18,6 +18,7 @@
     height: auto;
     border: 1px solid;
     border-color: #ccc;
+
 }
 
 .chat-message-form .ql-editor {
@@ -146,7 +147,7 @@ button.ql-cancel {
     cursor: auto !important;
     background-color: transparent;
     padding: 0;
-    white-space: normal;
+    white-space: normal; /*needed to make comment more compressed*/
     overflow-y: visible; /*needed for popups*/
 }
 
@@ -161,6 +162,10 @@ button.ql-cancel {
     height: auto;
     border: 1px solid;
     border-color: #ccc;
+}
+
+.ql-snow a {
+    color: #06c;
 }
 
 .ql-snow.ql-toolbar button {

@@ -8,6 +8,11 @@
  *   Modified
 */
 
+/* Fix for post drop down edit button */
+a.zr-post-dropdown.btn.btn-link.btn-sm {
+    padding: 0.25rem 0.5rem;
+}
+
 /* Fix for header background colour override */
 .page-heading .breadcrumb {
     background-color: inherit;

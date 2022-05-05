@@ -41,7 +41,7 @@
                 @if (User != null && (User.Identity.Name == Model.UserName || User.IsInRole("Administrator")))
                 {
                     <li>
-                        <a class="btn btn-link btn-sm" href="/Post/Edit?postId=@Model.PostId"><i class="fa fa-edit"></i> Edit</a>
+                        <a class="btn btn-link btn-sm zr-post-dropdown" href="/Post/Edit?postId=@Model.PostId"><i class="fa fa-edit"></i> Edit</a>
                     </li>
                     <li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="deletePost(@Model.PostId)"><i class="fa fa-times"></i> Delete</button>

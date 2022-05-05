@@ -1568,6 +1568,7 @@
     <Content Include="Scripts\src\quill\quill-mention\src\utils\index.js" />
     <Content Include="Scripts\src\quill\quill-mention\test.js" />
     <Content Include="Scripts\src\quill\QuillImageDropAndPaste.js" />
+    <Content Include="Scripts\src\quill\QuillStyledImage.js" />
     <Content Include="Scripts\src\quill\react-quill\demo\index.html" />
     <Content Include="Scripts\src\quill\react-quill\demo\index.js" />
     <Content Include="Scripts\src\quill\react-quill\demo\quill.snow.css" />
