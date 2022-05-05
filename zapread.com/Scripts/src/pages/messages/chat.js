@@ -11,8 +11,9 @@ import '../../shared/shared';
 import '../../realtime/signalr';
 import Quill from 'quill';
 import DOMPurify from 'dompurify';
-import 'quill-mention'; // This auto-registers
-import ImageResize from 'quill-image-resize-module';
+//import 'quill-mention'; // This auto-registers
+import Mention from '../../quill/quill-mention/src/quill.mention';
+import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
@@ -130,6 +131,7 @@ var quill = new Quill("#editor-container", {
         next(file); // go back to component and send to the server
       }
     },
+    uploader: false,
     imageDropAndPaste: {
       // add an custom image handler
       handler: imageHandler
@@ -210,7 +212,7 @@ export function sendMessage(id) {
     return;
   }
 
-  document.getElementById("chatReply").classList.add("sk-loading");   //$('#chatReply').addClass('sk-loading');
+  document.getElementById("chatReply").classList.add("sk-loading");
 
   postJson("/Messages/SendMessage/", {
     id: id,
@@ -219,10 +221,9 @@ export function sendMessage(id) {
   })
     .then((response) => {
       if (response.success) {
-        //$(".m_input").summernote('reset');
         contentEl.innerHTML = "";
         postJson("/Messages/GetMessage/", { 'id': response.id }).then((result) => {
-          document.getElementById("endMessages").innerHTML += result.HTMLString;  //$("#endMessages").append(result.HTMLString);
+          document.getElementById("endMessages").innerHTML += result.HTMLString;
           updatePostTimes();
           window.scrollTo(0, document.body.scrollHeight + 10);
         });

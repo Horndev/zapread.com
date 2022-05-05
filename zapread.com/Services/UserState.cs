@@ -23,8 +23,11 @@ namespace zapread.com.Services
                 var user = db.Users
                     .SingleOrDefault(u => u.AppId == userAppid);
 
-                user.DateLastActivity = DateTime.UtcNow;
-                db.SaveChanges();
+                if (user != null)
+                {
+                    user.DateLastActivity = DateTime.UtcNow;
+                    db.SaveChanges();
+                }
             }
         }
         /// <summary>

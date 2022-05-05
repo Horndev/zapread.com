@@ -40,6 +40,8 @@ export function editComment(commentId) {
           contentEl.innerHTML = contentEl.querySelectorAll('.ql-editor').item(0).innerHTML;
           var editToolbar = contentEl.parentElement.querySelectorAll('.ql-toolbar').item(0);
           contentEl.parentElement.removeChild(editToolbar);
+          contentEl.classList.remove('ql-snow');
+          contentEl.classList.remove('ql-container');
           isEditing = false;
 
           //var commentsEl = document.getElementById('rcomments_' + commentId.toString());

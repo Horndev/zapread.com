@@ -18,6 +18,7 @@
     height: auto;
     border: 1px solid;
     border-color: #ccc;
+
 }
 
 .chat-message-form .ql-editor {
@@ -63,9 +64,9 @@
     text-decoration: none;
 }
 
-.mention {
+.ql-editor .mention {
     height: 24px;
-    /*width: 65px;*/
+    width: auto;
     display: inline-flex;
     border-radius: 6px;
     background-color: #23c6c8;
@@ -128,15 +129,27 @@ button.ql-cancel {
 
 /* Don't expand height for short posts when not editing */
 .post-content.ql-editor {
+    background-color: #fff !important;
     min-height: 0 !important;
     border: 0 !important;
     cursor: auto !important;
+    border-radius: 0 0 10px 10px;
 }
 
     /* make iframes clickable */
     .post-content.ql-editor iframe {
         pointer-events: auto;
     }
+
+.post-comment.ql-editor {
+    min-height: 0 !important;
+    border: 0 !important;
+    cursor: auto !important;
+    background-color: transparent;
+    padding: 0;
+    white-space: normal; /*needed to make comment more compressed*/
+    overflow-y: visible; /*needed for popups*/
+}
 
 /* Created to put border around content input*/
 .ql-content {
@@ -146,11 +159,13 @@ button.ql-cancel {
 }
 
 .ql-editor {
-    background-color: #fff !important;
-    border-radius: 0 0 10px 10px;
     height: auto;
     border: 1px solid;
     border-color: #ccc;
+}
+
+.ql-snow a {
+    color: #06c;
 }
 
 .ql-snow.ql-toolbar button {

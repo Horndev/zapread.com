@@ -139,9 +139,9 @@
     text-decoration: none;
 }
 
-.mention {
+.ql-editor .mention {
     height: 24px;
-    /*width: 65px;*/
+    width: auto;
     display: inline-flex;
     border-radius: 6px;
     background-color: #23c6c8;

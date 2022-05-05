@@ -11,8 +11,8 @@ const getSwal = () => import('sweetalert2');
 import Quill from 'quill';
 import { getAntiForgeryToken } from '../../utility/antiforgery';
 import { postData } from '../../utility/postData';
-import 'quill-mention'; // This auto-registers
-import ImageResize from 'quill-image-resize-module';
+import Mention from '../../quill/quill-mention/src/quill.mention';
+import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
@@ -20,13 +20,72 @@ import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
 Quill.register({
   'modules/imageUpload': ImageUpload,
   'modules/autoLinks': AutoLinks,
+  'modules/mention': Mention,
   'modules/imageResize': ImageResize,
   'modules/imageDropAndPaste': QuillImageDropAndPaste
 }, true); // import with warning suppression (i.e. overwriting existing function)
 
-var Image = Quill.import('formats/image');
-Image.className = 'img-post';
-Quill.register(Image, true);
+const BaseImage = Quill.import('formats/image');
+
+const ATTRIBUTES = [
+  'alt',
+  'height',
+  'width',
+  'style'
+];
+
+const WHITE_STYLE = [
+  'margin',
+  'margin-left',
+  'margin-right',
+  'display',
+  'float'
+];
+
+class StyledImage extends BaseImage {
+  static formats(domNode) {
+    return ATTRIBUTES.reduce(function (formats, attribute) {
+      if (domNode.hasAttribute(attribute)) {
+        formats[attribute] = domNode.getAttribute(attribute);
+      }
+      return formats;
+    }, {});
+  }
+
+  format(name, value) {
+    if (ATTRIBUTES.indexOf(name) > -1) {
+      if (value) {
+        if (name === 'style') {
+          value = this.sanitize_style(value);
+        }
+        this.domNode.setAttribute(name, value);
+      } else {
+        this.domNode.removeAttribute(name);
+      }
+    } else {
+      super.format(name, value);
+    }
+  }
+
+  sanitize_style(style) {
+    let style_arr = style.split(";")
+    let allow_style = "";
+    style_arr.forEach((v, i) => {
+      if (WHITE_STYLE.indexOf(v.trim().split(":")[0]) !== -1) {
+        allow_style += v + ";"
+      }
+    })
+    return allow_style;
+  }
+}
+StyledImage.className = 'img-post';
+Quill.register('formats/image', StyledImage, true);
+
+//var BaseImage = Quill.import('formats/image');
+//BaseImage.className = 'img-post';
+//Quill.register(BaseImage, true);
+
+//Quill.register('formats/image', Image, true);
 
 var toolbarOptions = {
   container: [
@@ -82,9 +141,12 @@ export function makeQuillComment(options) {
         // optional
         // add callback when a image have been chosen
         checkBeforeSend: (file, next) => {
-          console.log(file);
+          //console.log(file);
           next(file); // go back to component and send to the server
         }
+      },
+      uploader: {
+        mimetypes: []
       },
       imageDropAndPaste: {
         // add an custom image handler
