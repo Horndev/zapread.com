@@ -61,6 +61,13 @@ namespace zapread.com.Models.Database
         /// </summary>
         [InverseProperty("CommentVotesDown")]
         public virtual ICollection<User> VotesDown { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("Comments")]
+        public virtual ICollection<CommentReaction> CommentReactions { get; set; }
+
         /// <summary>
         /// 
         /// </summary>

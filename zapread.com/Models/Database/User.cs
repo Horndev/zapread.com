@@ -182,6 +182,16 @@ namespace zapread.com.Models.Database
         public virtual ICollection<UserAchievement> Achievements { get; set; }
 
         /// <summary>
+        /// Navigation property
+        /// </summary>
+        public ICollection<PostReaction> PostReactions { get; set; }
+
+        /// <summary>
+        /// Navigation property
+        /// </summary>
+        public ICollection<CommentReaction> CommentReactions { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="v"></param>

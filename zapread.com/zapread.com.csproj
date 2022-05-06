@@ -886,6 +886,10 @@
     <Compile Include="Migrations\202204271751451_UserAddBlocking.designer.cs">
       <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205062112134_AddReactionsUserSettingsTags.cs" />
+    <Compile Include="Migrations\202205062112134_AddReactionsUserSettingsTags.designer.cs">
+      <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -934,12 +938,16 @@
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
+    <Compile Include="Models\Database\CommentReaction.cs" />
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
     <Compile Include="Models\Database\GroupBanished.cs" />
     <Compile Include="Models\Database\Post.cs" />
+    <Compile Include="Models\Database\PostReaction.cs" />
+    <Compile Include="Models\Database\Reaction.cs" />
     <Compile Include="Models\Database\Referral.cs" />
+    <Compile Include="Models\Database\Tag.cs" />
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
@@ -1755,6 +1763,9 @@
     <Content Include="Views\Mailer\Index.cshtml" />
     <EmbeddedResource Include="Migrations\202204271751451_UserAddBlocking.resx">
       <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205062112134_AddReactionsUserSettingsTags.resx">
+      <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
