@@ -42,7 +42,9 @@ namespace zapread.com.Models.Database
 
         public bool IsOnline { get; set; }
 
-        // Comma-separated list of language codes. e.g.: en,es,it,fr
+        /// <summary>
+        /// Comma-separated list of language codes. e.g.: en,es,it,fr
+        /// </summary>
         public string Languages { get; set; }
         //Earnings including direct, group, community
         public double TotalEarned { get; set; }

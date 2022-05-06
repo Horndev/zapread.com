@@ -39,5 +39,9 @@ namespace zapread.com.Models.UserViews
         /// 
         /// </summary>
         public bool IsOnline { get; set; }
+        /// <summary>
+        /// Hover is on currently logged in user
+        /// </summary>
+        public bool IsSelf { get; set; }
     }
 }

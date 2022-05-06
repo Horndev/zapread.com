@@ -48,11 +48,8 @@ namespace zapread.com.Models.Database
         public virtual ICollection<User> VotesUp { get; set; }
         [InverseProperty("PostVotesDown")]
         public virtual ICollection<User> VotesDown { get; set; }
-
         [InverseProperty("Post")]
         public virtual ICollection<Comment> Comments { get; set; }
-
-
         public virtual ICollection<UserImage> Images { get; set; }
 
         // Post flags
@@ -60,6 +57,10 @@ namespace zapread.com.Models.Database
         public bool IsSticky { get; set; }
         public bool IsNSFW { get; set; }
         public bool IsDraft { get; set; }
+        
+        /// <summary>
+        /// Not sure if this is needed.  !IsDraft should be published
+        /// </summary>
         public bool IsPublished { get; set; }
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
