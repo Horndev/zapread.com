@@ -107,7 +107,7 @@
 
                     <small style="display: inline-block;">
                         -@if (Model.IsReply)
-                        {<text> replied to <a class="userhint" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
+                        {<text> replied to <a class="userhint post-comment-reply-username" data-userappid="@Model.ParentUserAppId" data-userid="@Model.ParentUserId" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.ParentUserName.Trim() })">@@@Model.ParentUserName</a> &nbsp; </text> }
                     else
                     { <text> commented&nbsp; </text>}
                     </small><small class="postTime text-muted">@Model.TimeStamp.Value.ToString("o")</small>

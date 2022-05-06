@@ -130,6 +130,11 @@ a.zr-post-dropdown.btn.btn-link.btn-sm {
     color: #676a6c;
 }
 
+.post-comment-reply-username {
+    font-weight: 600;
+    color: #676a6c;
+}
+
 .dataTables_filter {
     display: inline-block;
     text-align: center;

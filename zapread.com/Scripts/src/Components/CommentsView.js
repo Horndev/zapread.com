@@ -216,7 +216,7 @@ function Comment(props) {
                   {props.comment.IsReply ? (
                     <>
                       &nbsp;replied to&nbsp;
-                      <a className="userhint" data-userid={props.comment.ParentUserId} data-userappid={props.comment.ParentUserAppId} href={
+                      <a className="userhint post-comment-reply-username" data-userid={props.comment.ParentUserId} data-userappid={props.comment.ParentUserAppId} href={
                         "/User/" + encodeURIComponent(props.comment.ParentUserName) + "/"
                         //"@Url.Action(actionName: " Index", controllerName: "User", routeValues: new {username = Model.ParentUserName.Trim()})"
                       }>
@@ -236,7 +236,7 @@ function Comment(props) {
               </div>
               <div className="media-body" style={{ display: "inline" }}>
                 <div style={{paddingLeft: "4px"}}>
-                  <div className="ql-comment post-comment comment-quotable"
+                  <div className="ql-comment post-comment comment-quotable clearfix"
                     ref={commentTextRef}
                     id={"commentText_" + props.comment.CommentId}
                     style={{ position: "relative" }}
