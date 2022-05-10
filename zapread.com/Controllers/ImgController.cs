@@ -172,6 +172,31 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <param name="file"></param>
+        /// <param name="reactionId"></param>
+        /// <returns></returns>
+        [Route("Img/Reaction/Icon/{reactionId}")]
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> SetReactionIcon([System.Web.Http.FromBody] HttpPostedFileBase file, int? reactionId)
+        {
+            if (file == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new { success = false, message = "no file" });
+            }
+
+            using (var db = new ZapContext())
+            {
+
+
+                return Json(new { success = true, reactionId });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
         /// <param name="groupId"></param>
         /// <returns></returns>
         [Route("Img/Group/Icon/{groupId}")]

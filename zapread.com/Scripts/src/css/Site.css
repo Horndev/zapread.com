@@ -8,6 +8,63 @@
  *   Modified
 */
 
+/* Post Reactions */
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+.reaction-icon-more {
+    font-size: 18px;
+    padding: 0;
+    border-bottom-width: 5px;
+    margin: 0 4px;
+}
+
+.zr-reactions {
+    font-size: 18px;
+    letter-spacing: -5px;
+    position: relative;
+    bottom: 28px;
+    padding-right: 11px;
+    padding-left: 0px;
+    height: 0;
+}
+
+.reaction-count {
+    position: relative;
+    left: -2px;
+    bottom: -3px;
+    font-size: 10px;
+    display: inline;
+    font-weight: bold;
+    width: 0px;
+}
+
+.reaction-icon-add-post {
+    padding-right: 5px;
+}
+
+.zr-reactions-bar {
+    float: right;
+}
+
 /* Fix for post drop down edit button */
 a.zr-post-dropdown.btn.btn-link.btn-sm {
     padding: 0.25rem 0.5rem;

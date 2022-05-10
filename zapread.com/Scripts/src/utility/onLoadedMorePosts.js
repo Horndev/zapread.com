@@ -2,6 +2,8 @@
  *
  * [✓] Native JS
  */
+import React from "react";
+import ReactDOM from "react-dom";
 import { Dropdown } from 'bootstrap.native/dist/bootstrap-native-v4';
 import { applyHoverToChildren } from './userhover';                             // [✓]
 import { loadgrouphover } from './grouphover';                                  // [✓]
@@ -9,6 +11,7 @@ import { updatePostTimes } from './datetime/posttime';                          
 import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  // [✓]
 import { togglePostFollow, postIgnore } from "../shared/postui";
 const getSwal = () => import('sweetalert2');
+import ReactionBar from '../Components/ReactionBar';
 
 export async function addPostFollowClickHandler() {
   var elements = document.querySelectorAll(".btnFollowPost");
@@ -85,6 +88,14 @@ export function onLoadedMorePosts() {
   Array.prototype.forEach.call(elements, function (el, _i) {
     loadgrouphover(el);
     el.classList.remove('grouphint');
+  });
+
+  // Render reactions UI
+  elements = document.querySelectorAll(".post-reaction-bar");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    console.log(el);
+    var postId = el.getAttribute("data-postid");
+    ReactDOM.render(<ReactionBar postId={postId}/>, el);
   });
 
   // activate dropdown (done manually using bootstrap.native)

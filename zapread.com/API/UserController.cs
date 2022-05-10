@@ -24,6 +24,37 @@ namespace zapread.com.API
     public class UserController : ApiController
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/user/reactions/list")]
+        public async Task<IHttpActionResult> GetReactions()
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+            {
+                return Ok(new GetReactionsResponse()
+                {
+                    Reactions = new List<Models.Database.Reaction>()
+                });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var reactions = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(u => u.AvailableReactions)
+                    .ToListAsync().ConfigureAwait(true);
+
+                return Ok(new GetReactionsResponse()
+                {
+                    Reactions = reactions
+                });
+            }
+        }
+
+        /// <summary>
         /// Find a user
         /// </summary>
         /// <param name="req"></param>

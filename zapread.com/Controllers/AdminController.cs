@@ -266,6 +266,24 @@ namespace zapread.com.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Reactions()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Tags()
+        {
+            return View();
+        }
+
         //public class DataItem
         //{
         //    public string Icon { get; set; }

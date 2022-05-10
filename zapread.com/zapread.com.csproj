@@ -890,6 +890,14 @@
     <Compile Include="Migrations\202205062112134_AddReactionsUserSettingsTags.designer.cs">
       <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205101555380_AddUserReactionUnlocks.cs" />
+    <Compile Include="Migrations\202205101555380_AddUserReactionUnlocks.designer.cs">
+      <DependentUpon>202205101555380_AddUserReactionUnlocks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205101610041_AddUserReactionUnlockAll.cs" />
+    <Compile Include="Migrations\202205101610041_AddUserReactionUnlockAll.designer.cs">
+      <DependentUpon>202205101610041_AddUserReactionUnlockAll.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -901,7 +909,11 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\API\Admin\AddReactionParameters.cs" />
+    <Compile Include="Models\API\Admin\AddReactionResponse.cs" />
     <Compile Include="Models\API\Admin\APIAdminAccountingSummaryResponse.cs" />
+    <Compile Include="Models\API\Admin\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\Admin\GrantReactionParameters.cs" />
     <Compile Include="Models\API\Core\GetLanguagesResponse.cs" />
     <Compile Include="Models\API\DataTables\DataTableParameters.cs" />
     <Compile Include="Models\API\Account\Transactions\LightningTransactionsPageResponse.cs" />
@@ -926,8 +938,11 @@
     <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
+    <Compile Include="Models\API\ReactionItem.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
+    <Compile Include="Models\API\User\GetReactionsRequest.cs" />
+    <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
     <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
@@ -1278,6 +1293,7 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
@@ -1519,6 +1535,7 @@
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
+    <Content Include="Scripts\src\pages\admin\reactions.js" />
     <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
@@ -1767,6 +1784,12 @@
     <EmbeddedResource Include="Migrations\202205062112134_AddReactionsUserSettingsTags.resx">
       <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205101555380_AddUserReactionUnlocks.resx">
+      <DependentUpon>202205101555380_AddUserReactionUnlocks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205101610041_AddUserReactionUnlockAll.resx">
+      <DependentUpon>202205101610041_AddUserReactionUnlockAll.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
@@ -1853,6 +1876,8 @@
     <Content Include="Scripts\src\quill\react-quill\README.md" />
     <Content Include="Scripts\src\quill\react-quill\tsconfig.json" />
     <Content Include="Scripts\src\quill\react-quill\yarn.lock" />
+    <Content Include="Views\Admin\Reactions.cshtml" />
+    <Content Include="Views\Admin\Tags.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

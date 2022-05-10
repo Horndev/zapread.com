@@ -146,7 +146,8 @@ export function makeQuillComment(options) {
         }
       },
       uploader: {
-        mimetypes: []
+        mimetypes: [],
+        handler: (range, files) => { } // Disable uploading with default module since we have the image drop and paste module
       },
       imageDropAndPaste: {
         // add an custom image handler

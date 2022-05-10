@@ -180,12 +180,16 @@
         </div>
         @if (Request.IsAuthenticated)
         {
-            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
-                <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+            <div>
+                <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
+                    <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+                </div>
+                <div class="post-reaction-bar" data-postid="@Model.PostId"></div>
             </div>
             <div id="reply_p@(Model.PostId.ToString())" style="display: none;">
                 @*This is where the post reply comment input will be inserted.*@
             </div>
+            
         }
         <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
             @if (Model.CommentVms.Any())

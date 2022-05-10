@@ -131,7 +131,10 @@ var quill = new Quill("#editor-container", {
         next(file); // go back to component and send to the server
       }
     },
-    uploader: false,
+    uploader: {
+      mimetypes: [],
+      handler: (range, files) => { } // Disable uploading with default module since we have the image drop and paste module
+    },
     imageDropAndPaste: {
       // add an custom image handler
       handler: imageHandler

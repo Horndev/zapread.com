@@ -4,41 +4,10 @@
 
 <div id="root"></div>
 
-
-@*<div class="row">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
-        <div class="form-group">
-            <label class="col-sm-2 control-label">Name</label>
-            <div class="col-sm-10">
-                <input id="newIcon" type="text" class="form-control">
-            </div>
-        </div>
-        <br />
-        <a href="" class="btn btn-primary btn-outline" onclick="add()">Add</a>
-        <br />
-        <table id="iconsTable" class="table table-striped" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Graphic</th>
-                    <th>Icon</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>*@
-
-
 @section Styles {
     @Styles.Render("~/bundles/admin/icons/css")
 }
 
 @section Scripts {
-    @*<script type="text/javascript">
-        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
-    </script>*@
-
     @Scripts.Render("~/bundles/admin/icons")
 }

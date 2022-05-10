@@ -182,6 +182,12 @@ namespace zapread.com.Models.Database
         public virtual ICollection<UserAchievement> Achievements { get; set; }
 
         /// <summary>
+        /// Reactions unlocked by this user
+        /// </summary>
+        [InverseProperty("UnlockedBy")]
+        public virtual ICollection<Reaction> AvailableReactions { get; set; }
+
+        /// <summary>
         /// Navigation property
         /// </summary>
         public ICollection<PostReaction> PostReactions { get; set; }

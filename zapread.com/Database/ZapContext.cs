@@ -47,6 +47,12 @@ namespace zapread.com.Database
         public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
         public DbSet<LNNode> LNNodes { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
+
+        /// <summary>
+        /// Reactions used for posts and comments
+        /// </summary>
+        public DbSet<Reaction> Reactions { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
