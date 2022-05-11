@@ -935,6 +935,9 @@
     <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
     <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
+    <Compile Include="Models\API\Post\AddReactionRequest.cs" />
+    <Compile Include="Models\API\Post\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Post\GetReactionsResponse.cs" />
     <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />

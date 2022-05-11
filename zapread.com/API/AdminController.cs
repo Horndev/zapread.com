@@ -67,6 +67,19 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
+                var alreadyHasReaction = await db.Users
+                    .Where(u => u.AppId == value.UserAppId)
+                    .Select(u => u.AvailableReactions.Any(r => r.ReactionId == value.ReactionId))
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (alreadyHasReaction)
+                {
+                    return Ok(new ZapReadResponse()
+                    {
+                        success = true,
+                    });
+                }
+
                 var user = await db.Users
                     .Where(u => u.AppId == value.UserAppId)
                     .FirstOrDefaultAsync().ConfigureAwait(true);

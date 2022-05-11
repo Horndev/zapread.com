@@ -36,7 +36,7 @@ namespace zapread.com.API
             {
                 return Ok(new GetReactionsResponse()
                 {
-                    Reactions = new List<Models.Database.Reaction>()
+                    Reactions = new List<ReactionItem>()
                 });
             }
 
@@ -45,6 +45,13 @@ namespace zapread.com.API
                 var reactions = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .SelectMany(u => u.AvailableReactions)
+                    .Select(i => new ReactionItem()
+                    {
+                        Description = i.Description,
+                        ReactionIcon = i.ReactionIcon,
+                        ReactionName = i.ReactionName,
+                        ReactionId = i.ReactionId,
+                    })
                     .ToListAsync().ConfigureAwait(true);
 
                 return Ok(new GetReactionsResponse()

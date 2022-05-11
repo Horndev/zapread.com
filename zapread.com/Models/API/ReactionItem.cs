@@ -29,5 +29,15 @@ namespace zapread.com.Models.API
         /// 
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> UserNames { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int NumReactions { get; set; }
     }
 }

@@ -27,6 +27,152 @@ namespace zapread.com.API
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
+        [Route("api/v1/post/reactions/add")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> AddReaction(AddReactionRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var alreadyReacted = await db.Posts
+                    .Where(p => p.PostId == req.PostId)
+                    .Select(p => p.PostReactions.Any(r => r.Reaction.ReactionId == req.ReactionId && r.User.AppId == userAppId))
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                List<ReactionItem> reactions = new List<ReactionItem>();
+
+                if (alreadyReacted)
+                {
+                    var postToRemoveReaction = await db.Posts
+                        .Where(p => p.PostId == req.PostId)
+                        .Include(p => p.PostReactions)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    var reactionToRemove = await db.Posts
+                        .Where(p => p.PostId == req.PostId)
+                        .Select(p => p.PostReactions
+                            .Where(r => r.Reaction.ReactionId == req.ReactionId && r.User.AppId == userAppId)
+                            .FirstOrDefault())
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                    postToRemoveReaction.PostReactions.Remove(reactionToRemove);
+
+                    await db.SaveChangesAsync();
+
+                    reactions = await db.Posts
+                        .Where(p => p.PostId == req.PostId)
+                        .SelectMany(p => p.PostReactions)
+                        .GroupBy(r => r.Reaction)
+                        .Select(g => new ReactionItem()
+                        {
+                            ReactionId = g.Key.ReactionId,
+                            ReactionIcon = g.Key.ReactionIcon,
+                            NumReactions = g.Count(),
+                            UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                        })
+                        .ToListAsync().ConfigureAwait(false);
+
+                    return Ok(new AddReactionResponse()
+                    {
+                        Reactions = reactions,
+                        AlreadyReacted = true,
+                        success = true,
+                    });
+                }
+
+                var post = await db.Posts
+                    .Where(p => p.PostId == req.PostId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var user = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Where(u => u.AvailableReactions.Select(r => r.ReactionId).Contains(req.ReactionId))
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                // If user hasn't unlocked reaction
+                if (user == null) return Unauthorized();
+
+                var reaction = await db.Reactions
+                    .Where(r => r.ReactionId == req.ReactionId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var postReaction = new PostReaction()
+                {
+                    Reaction = reaction,
+                    User = user
+                };
+
+                post.PostReactions.Add(postReaction);
+
+                await db.SaveChangesAsync();
+
+                reactions = await db.Posts
+                    .Where(p => p.PostId == req.PostId)
+                    .SelectMany(p => p.PostReactions)
+                    .GroupBy(r => r.Reaction)
+                    .Select(g => new ReactionItem()
+                    {
+                        ReactionId = g.Key.ReactionId,
+                        ReactionIcon = g.Key.ReactionIcon,
+                        NumReactions = g.Count(),
+                        UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                    })
+                    .ToListAsync().ConfigureAwait(false);
+
+                return Ok(new AddReactionResponse()
+                {
+                    Reactions = reactions,
+                    AlreadyReacted = false,
+                    success = true,
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/reactions/list/{postId}")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetReactions(int postId)
+        {
+            if (postId < 1) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var reactions = await db.Posts
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.PostReactions)
+                    .GroupBy(r => r.Reaction)
+                    .Select(g => new ReactionItem()
+                    {
+                        ReactionId = g.Key.ReactionId,
+                        ReactionIcon = g.Key.ReactionIcon,
+                        NumReactions = g.Count(),
+                        UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                    })
+                    .ToListAsync().ConfigureAwait(false);
+
+                return Ok(new GetReactionsResponse()
+                {
+                    Reactions = reactions,
+                    success = true
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [Route("api/v1/post/unignore")]
         [AcceptVerbs("POST")]
         [ValidateJsonAntiForgeryToken]

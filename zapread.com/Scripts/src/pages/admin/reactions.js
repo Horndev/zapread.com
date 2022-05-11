@@ -121,10 +121,10 @@ function Page() {
       ReactionId: reactionId
     }
 
-    postJson("/api/v1/admin/reactions/grant", grantData).then(response => {
+    postJson("/api/v1/admin/reactions/grant/", grantData).then(response => {
       console.log(response);
       if (response.success) {
-        Swal.Fire("success", "Reaction Granted", "success");
+        Swal.fire("success", "Reaction Granted", "success");
       }
     }).catch(error => {
       console.log("error", error);
@@ -206,12 +206,14 @@ function Page() {
               <Button>
                 Grant to All Users
               </Button>
-              <Button onclick={() => { grant(reaction.ReactionId); }}>
+              <Button onClick={() => { grant(reaction.ReactionId); }}>
                 Grant to User
               </Button>
             </Col>
           </Row>
         ))}
+        <Col><Row><br /></Row></Col>
+        <Col><Row><br /></Row></Col>
       </Container>
     </>
   );
