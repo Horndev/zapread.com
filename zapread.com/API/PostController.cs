@@ -106,7 +106,6 @@ namespace zapread.com.API
                 // If user hasn't unlocked reaction
                 if (user == null)
                 {
-
                     return Ok(new AddReactionResponse()
                     {
                         NotAvailable = true,

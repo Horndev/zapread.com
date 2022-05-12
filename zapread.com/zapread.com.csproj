@@ -948,7 +948,6 @@
     <Compile Include="Models\API\ReactionItem.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
-    <Compile Include="Models\API\User\GetReactionsRequest.cs" />
     <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />

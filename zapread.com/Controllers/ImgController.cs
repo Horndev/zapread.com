@@ -187,8 +187,6 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-
-
                 return Json(new { success = true, reactionId });
             }
         }
