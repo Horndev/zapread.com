@@ -95,7 +95,8 @@ export function onLoadedMorePosts() {
   Array.prototype.forEach.call(elements, function (el, _i) {
     console.log(el);
     var postId = el.getAttribute("data-postid");
-    ReactDOM.render(<ReactionBar postId={postId}/>, el);
+    var l = el.getAttribute("data-l");
+    ReactDOM.render(<ReactionBar l={l} postId={postId}/>, el);
   });
 
   // activate dropdown (done manually using bootstrap.native)

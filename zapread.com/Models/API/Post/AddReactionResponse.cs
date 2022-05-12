@@ -19,5 +19,10 @@ namespace zapread.com.Models.API.Post
         /// 
         /// </summary>
         public bool AlreadyReacted { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool NotAvailable { get; set; }
     }
 }

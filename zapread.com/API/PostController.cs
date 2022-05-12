@@ -40,6 +40,11 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
+                var userPostReactions = db.Posts
+                   .Where(p => p.PostId == req.PostId)
+                   .SelectMany(p => p.PostReactions.Where(r => r.User.AppId == userAppId))
+                   .Select(r => r.Reaction.ReactionId);
+
                 var alreadyReacted = await db.Posts
                     .Where(p => p.PostId == req.PostId)
                     .Select(p => p.PostReactions.Any(r => r.Reaction.ReactionId == req.ReactionId && r.User.AppId == userAppId))
@@ -74,7 +79,8 @@ namespace zapread.com.API
                             ReactionId = g.Key.ReactionId,
                             ReactionIcon = g.Key.ReactionIcon,
                             NumReactions = g.Count(),
-                            UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                            UserNames = g.Select(r => r.User.Name).Take(5).ToList(),
+                            IsApplied = userPostReactions.Contains(g.Key.ReactionId)
                         })
                         .ToListAsync().ConfigureAwait(false);
 
@@ -92,11 +98,22 @@ namespace zapread.com.API
 
                 var user = await db.Users
                     .Where(u => u.AppId == userAppId)
-                    .Where(u => u.AvailableReactions.Select(r => r.ReactionId).Contains(req.ReactionId))
+                    .Where(u => u.AvailableReactions
+                        .Union(db.Reactions.Where(r => r.UnlockedAll))
+                        .Select(r => r.ReactionId).Contains(req.ReactionId))
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 // If user hasn't unlocked reaction
-                if (user == null) return Unauthorized();
+                if (user == null)
+                {
+
+                    return Ok(new AddReactionResponse()
+                    {
+                        NotAvailable = true,
+                        AlreadyReacted = false,
+                        success = false,
+                    });
+                }
 
                 var reaction = await db.Reactions
                     .Where(r => r.ReactionId == req.ReactionId)
@@ -105,7 +122,8 @@ namespace zapread.com.API
                 var postReaction = new PostReaction()
                 {
                     Reaction = reaction,
-                    User = user
+                    User = user,
+                    TimeStamp = DateTime.UtcNow,
                 };
 
                 post.PostReactions.Add(postReaction);
@@ -121,7 +139,8 @@ namespace zapread.com.API
                         ReactionId = g.Key.ReactionId,
                         ReactionIcon = g.Key.ReactionIcon,
                         NumReactions = g.Count(),
-                        UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                        UserNames = g.Select(r => r.User.Name).Take(5).ToList(),
+                        IsApplied = userPostReactions.Contains(g.Key.ReactionId)
                     })
                     .ToListAsync().ConfigureAwait(false);
 
@@ -144,9 +163,15 @@ namespace zapread.com.API
         public async Task<IHttpActionResult> GetReactions(int postId)
         {
             if (postId < 1) return BadRequest();
+            var userAppId = User.Identity.GetUserId();
 
             using (var db = new ZapContext())
             {
+                var userPostReactions = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.PostReactions.Where(r => r.User.AppId == userAppId))
+                    .Select(r => r.Reaction.ReactionId);
+
                 var reactions = await db.Posts
                     .Where(p => p.PostId == postId)
                     .SelectMany(p => p.PostReactions)
@@ -156,7 +181,8 @@ namespace zapread.com.API
                         ReactionId = g.Key.ReactionId,
                         ReactionIcon = g.Key.ReactionIcon,
                         NumReactions = g.Count(),
-                        UserNames = g.Select(r => r.User.Name).Take(5).ToList()
+                        UserNames = g.Select(r => r.User.Name).Take(5).ToList(),
+                        IsApplied = userPostReactions.Contains(g.Key.ReactionId)
                     })
                     .ToListAsync().ConfigureAwait(false);
 

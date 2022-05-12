@@ -31,5 +31,10 @@ namespace zapread.com.Models.Database
         /// 
         /// </summary>
         public User User { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime? TimeStamp { get; set; }
     }
 }

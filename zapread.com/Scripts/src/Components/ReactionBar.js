@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState, forwardRef } from "react";
 import { Modal, Container, Row, Col, Button, Card } from "react-bootstrap";
 import Tippy from '@tippyjs/react';
 import { postJson } from "../utility/postData";
+const getSwal = () => import('sweetalert2');
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 
@@ -18,12 +19,14 @@ export default function ReactionBar(props) {
   const [addShown, setAddShown] = useState(true);
   const [availableReactions, setAvailableReactions] = useState([]);
   const [reactions, setReactions] = useState([]);
+  const [commonReactions, setCommonReactions] = useState([]);
 
   async function getAvailableReactions() {
-    await fetch('/api/v1/user/reactions/list/')
+    await fetch('/api/v1/user/reactions/list/' + props.postId + '/')
       .then(response => response.json())
       .then(json => {
         setAvailableReactions(json.Reactions);
+        setCommonReactions(json.CommonReactions);
       });
   }
 
@@ -43,6 +46,13 @@ export default function ReactionBar(props) {
   }
 
   async function react(reactionId) {
+    if (props.l != "1") {
+      getSwal().then(({ default: Swal }) => {
+        Swal.fire("Please log in to add a reaction.");
+        return;
+      });
+    }
+
     var reactionData = {
       ReactionId: reactionId,
       PostId: props.postId
@@ -51,12 +61,21 @@ export default function ReactionBar(props) {
     postJson("/api/v1/post/reactions/add", reactionData).then(response => {
       console.log(response);
       if (response.success) {
+        getAvailableReactions();
         //const newReactions = [...reactions, response.Reaction];
         if (response.AlreadyReacted) {
           // do nothing?  remove?
           setReactions(response.Reactions);
         } else {
           setReactions(response.Reactions);
+        }
+      }
+      else {
+        if (response.NotAvailable) {
+          getSwal().then(({ default: Swal }) => {
+            Swal.fire("Reaction not unlocked.");
+            return;
+          });
         }
       }
     }).catch(error => {
@@ -90,17 +109,34 @@ export default function ReactionBar(props) {
                   letterSpacing: "normal",
                   fontSize: "18px",
                   width: "200px",
-                  maxHeight: "50px",
+                  maxHeight: "180px",
                   overflowY: "scroll"
                 }}>
                   <Row>
                     <Col>
-                      {availableReactions.map((reaction, index) => (
+                      <div className="strike">
+                        <span>Frequently Used</span>
+                      </div>
+                      {commonReactions.map((reaction, index) => (
                         <a key={reaction.ReactionId} role="button"
-                          style={{paddingLeft: "4px"}}
                           className="zr-reaction-icon btn btn-link"
                           onClick={() => react(reaction.ReactionId)}>
-                          <span key={reaction.ReactionId} className="reaction-icon" dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}></span>
+                          <span key={reaction.ReactionId}
+                            className="reaction-icon"
+                            dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}></span>
+                          {reaction.IsApplied ? (<span className="reaction-applied">✓</span>) : (<><span className="reaction-applied">&nbsp;</span></>)}
+                        </a>
+                      ))}
+                      <div className="strike">
+                        <span>Available Reactions</span>
+                      </div>
+                      {availableReactions.map((reaction, index) => (
+                        <a key={reaction.ReactionId} role="button"
+                          className="zr-reaction-icon btn btn-link"
+                          onClick={() => react(reaction.ReactionId)}>
+                          <span key={reaction.ReactionId}
+                            className="reaction-icon" dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}></span>
+                          {reaction.IsApplied ? (<span className="reaction-applied">✓</span>) : (<><span className="reaction-applied">&nbsp;</span></>)}
                         </a>
                       ))}
                     </Col>
@@ -110,13 +146,15 @@ export default function ReactionBar(props) {
               <span className="reaction-icon-add-post btn btn-link" style={addShown ? {} : { display: "none" }}><i className="fa-solid fa-plus"></i></span>
             </Tippy>
           </>) : (<>
-            <span className="reaction-icon-add-post btn btn-link"
-              onMouseOver={() => { initialize() }}
-              style={addShown ? {} : { display: "none" }}><i className="fa-solid fa-plus"></i></span>
+            {props.l == "1" ? (
+              <span className="reaction-icon-add-post btn btn-link"
+                onMouseOver={() => { initialize() }}
+                style={addShown ? {} : { display: "none" }}><i className="fa-solid fa-plus"></i></span>
+            ): (<></>)}
           </>)}
 
           {reactions.slice(0,4).map((reaction, index) => (
-            <a key={reaction.ReactionId} role="button" className="zr-reaction-icon" onClick={() => react(reaction.ReactionId)}>
+            <a key={reaction.ReactionId} role="button" className="zr-reaction-icon zr-reaction-icon-main" onClick={() => react(reaction.ReactionId)}>
               <span
                 title={reaction.UserNames.join(" ")}
                 className="reaction-icon" dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}>
@@ -124,16 +162,9 @@ export default function ReactionBar(props) {
               {reaction.NumReactions > 1 ? (<span className="reaction-count">
                 {reaction.NumReactions}
               </span>) : (<></>)}
+              {reaction.IsApplied ? (<span className="reaction-applied">✓</span>) : (<><span className="reaction-applied">&nbsp;</span></>)}
             </a>
           ))}
-
-          {/*<a role="button" className="zr-reaction-icon">*/}
-          {/*  <span className="reaction-icon">😀</span>*/}
-          {/*</a>*/}
-          {/*<a role="button" className="zr-reaction-icon">*/}
-          {/*  <span className="reaction-icon">🤩</span>*/}
-          {/*  <span className="reaction-count">3</span>*/}
-          {/*</a>*/}
 
           {reactions.length > 4 ? (<>
             <Tippy
@@ -150,40 +181,25 @@ export default function ReactionBar(props) {
                 }}>
                   <Row>
                     <Col>
-                      <h4>More Reactions</h4>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
+                      <div className="strike">
+                        <span>More Reactions</span>
+                      </div>
                       {reactions.slice(4).map((reaction, index) => (
-                        <a key={reaction.ReactionId} role="button" className="zr-reaction-icon" onClick={() => react(reaction.ReactionId)}>
+                        <a key={reaction.ReactionId}
+                          style={{ paddingLeft: "4px" }}
+                          role="button"
+                          className="zr-reaction-icon btn btn-link"
+                          onClick={() => react(reaction.ReactionId)}>
                           <span
                             title={reaction.UserNames.join(" ")}
-                            className="reaction-icon" dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}></span>
+                            className="reaction-icon"
+                            dangerouslySetInnerHTML={{ __html: reaction.ReactionIcon }}></span>
                           {reaction.NumReactions > 1 ? (<span className="reaction-count">
                             {reaction.NumReactions}
                           </span>) : (<></>)}
+                          {reaction.IsApplied ? (<span className="reaction-applied">✓</span>) : (<><span className="reaction-applied">&nbsp;</span></>)}
                         </a>
                       ))}
-                      {/*<span className="reaction-icon" title="1">⚡</span>*/}
-                      {/*<span className="reaction-icon">💕</span>*/}
-                      {/*<span className="reaction-icon">❤️</span>*/}
-                      {/*<span className="reaction-count">9</span>*/}
-                      {/*<span className="reaction-icon">✨</span>*/}
-                      {/*<span className="reaction-icon">🎉</span>*/}
-                      {/*<span className="reaction-icon">🔥</span>*/}
-                      {/*<span className="reaction-icon">₿</span>*/}
-                      {/*<span className="reaction-icon">🚩</span>*/}
-                      {/*<span className="reaction-count">9</span>*/}
-                      {/*<span className="reaction-icon">😀</span>*/}
-                      {/*<span className="reaction-icon">🚀</span>*/}
-                      {/*<span className="reaction-icon">😀</span>*/}
-                      {/*<span className="reaction-icon">🍆</span>*/}
-                      {/*<span className="reaction-icon">😀</span>*/}
-                      {/*<span className="reaction-icon">☘️</span>*/}
-                      {/*<span className="reaction-icon">🛸</span>*/}
-                      {/*<span className="reaction-icon">🎂</span>*/}
-                      {/*<span className="reaction-icon">😀</span>*/}
                     </Col>
                   </Row>
                 </Container>

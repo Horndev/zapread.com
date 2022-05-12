@@ -114,14 +114,19 @@ function Page() {
     setUserName(values.userName);
   }
 
-  function grant(reactionId) {
+  function grant(reactionId, toall) {
 
+    var url = "/api/v1/admin/reactions/grant/"
+    if (toall) {
+      url = "/api/v1/admin/reactions/grantall/"
+    }
+    
     var grantData = {
       UserAppId: userAppId,
       ReactionId: reactionId
     }
 
-    postJson("/api/v1/admin/reactions/grant/", grantData).then(response => {
+    postJson(url, grantData).then(response => {
       console.log(response);
       if (response.success) {
         Swal.fire("success", "Reaction Granted", "success");
@@ -203,7 +208,7 @@ function Page() {
               <Button>
                 Delete
               </Button>
-              <Button>
+              <Button onClick={() => { grant(reaction.ReactionId, true); }}>
                 Grant to All Users
               </Button>
               <Button onClick={() => { grant(reaction.ReactionId); }}>

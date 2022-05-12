@@ -51,6 +51,35 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/reactions/grantall")]
+        [AcceptVerbs("POST")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GrantReactionAll(GrantReactionParameters value)
+        {
+            if (value == null)
+            {
+                return BadRequest();
+            }
+            using (var db = new ZapContext())
+            {
+                var reaction = await db.Reactions
+                    .Where(r => r.ReactionId == value.ReactionId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                reaction.UnlockedAll = !reaction.UnlockedAll;
+
+                await db.SaveChangesAsync();
+                return Ok(new ZapReadResponse()
+                {
+                    success = true,
+                });
+            }
+        }
+        /// <summary>
         /// Grants the reaction to specified user
         /// </summary>
         /// <param name="value"></param>

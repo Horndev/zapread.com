@@ -14,6 +14,7 @@ using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
+using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.API
@@ -28,8 +29,8 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
-        [Route("api/v1/user/reactions/list")]
-        public async Task<IHttpActionResult> GetReactions()
+        [Route("api/v1/user/reactions/list/{postId}")]
+        public async Task<IHttpActionResult> GetReactions(int postId)
         {
             var userAppId = User.Identity.GetUserId();
             if (userAppId == null)
@@ -42,21 +43,57 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var reactions = await db.Users
+                var userPostReactions = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .SelectMany(p => p.PostReactions.Where(r => r.User.AppId == userAppId))
+                    .Select(r => r.Reaction.ReactionId);
+                    //.ToListAsync().ConfigureAwait(true);
+
+                // Most commonly used reactions will appear first
+                var commonReactions = await db.Users
                     .Where(u => u.AppId == userAppId)
-                    .SelectMany(u => u.AvailableReactions)
+                    .SelectMany(u => u.PostReactions)
+                    .GroupBy(pr => pr.Reaction)
+                    .Select(prg => new
+                    {
+                        Count = prg.Count(),
+                        Reaction = prg.Key
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .Take(5)
+                    .Select(i => new ReactionItem()
+                    {
+                        Description = i.Reaction.Description,
+                        ReactionIcon = i.Reaction.ReactionIcon,
+                        ReactionName = i.Reaction.ReactionName,
+                        ReactionId = i.Reaction.ReactionId,
+                        IsApplied = userPostReactions.Contains(i.Reaction.ReactionId)
+                    }).ToListAsync().ConfigureAwait(true);
+
+                var availableReactions = db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .SelectMany(u => u.AvailableReactions);
+
+                var universalReactions = db.Reactions
+                    .Where(r => r.UnlockedAll);
+
+                var reactions = await availableReactions
+                    .Union(universalReactions)
+                    .Distinct()
                     .Select(i => new ReactionItem()
                     {
                         Description = i.Description,
                         ReactionIcon = i.ReactionIcon,
                         ReactionName = i.ReactionName,
                         ReactionId = i.ReactionId,
+                        IsApplied = userPostReactions.Contains(i.ReactionId)
                     })
-                    .ToListAsync().ConfigureAwait(true);
+                    .ToListAsync().ConfigureAwait(true);  
 
                 return Ok(new GetReactionsResponse()
                 {
-                    Reactions = reactions
+                    Reactions = reactions,
+                    CommonReactions = commonReactions
                 });
             }
         }

@@ -39,5 +39,7 @@ namespace zapread.com.Models.API
         /// 
         /// </summary>
         public int NumReactions { get; set; }
+
+        public bool IsApplied { get; set; }
     }
 }

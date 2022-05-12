@@ -15,5 +15,10 @@ namespace zapread.com.Models.API.User
         /// 
         /// </summary>
         public List<ReactionItem> Reactions { get; set; }
+
+        /// <summary>
+        /// Reactions most used by user
+        /// </summary>
+        public List<ReactionItem> CommonReactions { get; set; }
     }
 }
