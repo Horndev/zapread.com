@@ -9,6 +9,14 @@ namespace zapread.com.Models.Database
 {
     /// <summary>
     /// 
+    /// https://emojipedia.org/star-struck/
+    /// 
+    /// [ ] star-eyes       🤩   Follow someone
+    /// [ ] raising-hands   🙌   Someone following you
+    /// [ ] bolt            ⚡   LN Deposit
+    /// [ ] rocket          🚀   LN Withdraw
+    /// [ ] green-check     ✅   First Vote
+    /// 
     /// </summary>
     public class Reaction
     {

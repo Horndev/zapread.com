@@ -824,6 +824,9 @@ namespace zapread.com.Controllers
 
             //PayoutsService.UpdateBanished();
 
+            //var s = new AchievementsService();
+            //s.CheckAchievements();
+
             try
             {
                 if (Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "0"))
