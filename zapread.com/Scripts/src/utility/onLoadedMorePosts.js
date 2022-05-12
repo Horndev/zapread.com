@@ -93,7 +93,7 @@ export function onLoadedMorePosts() {
   // Render reactions UI
   elements = document.querySelectorAll(".post-reaction-bar");
   Array.prototype.forEach.call(elements, function (el, _i) {
-    console.log(el);
+    //console.log(el);
     var postId = el.getAttribute("data-postid");
     var l = el.getAttribute("data-l");
     ReactDOM.render(<ReactionBar l={l} postId={postId}/>, el);

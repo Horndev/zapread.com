@@ -1213,6 +1213,9 @@
     <Content Include="Scripts\dist\admin\lightning.css" />
     <Content Include="Scripts\dist\admin\lightning.js" />
     <Content Include="Scripts\dist\admin\lightning.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\reactions.css" />
+    <Content Include="Scripts\dist\admin\reactions.js" />
+    <Content Include="Scripts\dist\admin\reactions.js.LICENSE.txt" />
     <Content Include="Scripts\dist\admin\users.css" />
     <Content Include="Scripts\dist\admin\users.js" />
     <Content Include="Scripts\dist\admin\users.js.LICENSE.txt" />
@@ -1451,6 +1454,8 @@
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
+    <Content Include="Scripts\dist\admin\reactions.css.map" />
+    <Content Include="Scripts\dist\admin\reactions.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
