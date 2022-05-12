@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using zapread.com.Database;
 using zapread.com.Models.API;
+using zapread.com.Models.API.Admin;
+using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.API
@@ -45,6 +47,146 @@ namespace zapread.com.API
                 await db.SaveChangesAsync().ConfigureAwait(true);
 
                 return new ZapReadResponse() { success = true };
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/reactions/grantall")]
+        [AcceptVerbs("POST")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GrantReactionAll(GrantReactionParameters value)
+        {
+            if (value == null)
+            {
+                return BadRequest();
+            }
+            using (var db = new ZapContext())
+            {
+                var reaction = await db.Reactions
+                    .Where(r => r.ReactionId == value.ReactionId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                reaction.UnlockedAll = !reaction.UnlockedAll;
+
+                await db.SaveChangesAsync();
+                return Ok(new ZapReadResponse()
+                {
+                    success = true,
+                });
+            }
+        }
+        /// <summary>
+        /// Grants the reaction to specified user
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/reactions/grant")]
+        [AcceptVerbs("POST")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GrantReaction(GrantReactionParameters value)
+        {
+            if (value == null)
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var alreadyHasReaction = await db.Users
+                    .Where(u => u.AppId == value.UserAppId)
+                    .Select(u => u.AvailableReactions.Any(r => r.ReactionId == value.ReactionId))
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (alreadyHasReaction)
+                {
+                    return Ok(new ZapReadResponse()
+                    {
+                        success = true,
+                    });
+                }
+
+                var user = await db.Users
+                    .Where(u => u.AppId == value.UserAppId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                var reaction = await db.Reactions
+                    .Where(r => r.ReactionId == value.ReactionId)
+                    .FirstOrDefaultAsync().ConfigureAwait(true);
+
+                user.AvailableReactions.Add(reaction);
+
+                await db.SaveChangesAsync();
+                return Ok(new ZapReadResponse()
+                {
+                    success = true,
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [Route("api/v1/admin/reactions/add")]
+        [AcceptVerbs("POST")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> AddReaction(AddReactionParameters value)
+        {
+            if (value == null)
+            {
+                return BadRequest();
+            }
+
+            using (var db = new ZapContext())
+            {
+                var newReaction = new Reaction()
+                {
+                    ReactionIcon = value.ReactionIcon,
+                    ReactionName = value.ReactionName,
+                    Description = value.ReactionDescription
+                };
+
+                db.Reactions.Add(newReaction);
+
+                await db.SaveChangesAsync();
+                return Ok(new AddReactionResponse()
+                {
+                    Reaction = newReaction,
+                    success = true
+                });
+            }
+        }
+
+        /// <summary>
+        /// List the available (installed reactions)
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/admin/reactions/list")]
+        [AcceptVerbs("GET")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IHttpActionResult> GetReactions()
+        {
+            using (var db = new ZapContext())
+            {
+                var reactions = await db.Reactions
+                    .Select(r => new ReactionItem()
+                    {
+                        Description = r.Description,
+                        ReactionIcon = r.ReactionIcon,
+                        ReactionId = r.ReactionId,
+                        ReactionName = r.ReactionName,
+                    })
+                    .ToListAsync();
+
+                return Ok(new GetReactionsResponse() { 
+                    Reactions = reactions,
+                    success = true
+                });
             }
         }
 

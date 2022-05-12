@@ -665,7 +665,7 @@ namespace zapread.com.Controllers
                 //var resfull = CommentIds.Select(c => resfullq.First(r => r.Id == c)).ToList();
 
                 var posts = db.Posts
-                    .SqlQuery("SELECT TOP 20 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " +
+                    .SqlQuery("SELECT TOP 20 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsNonIncome, a.LockComments, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " +
                     "FROM freetexttable(Post, Content, @q) as i " +
                     "inner join Post a " +
                     "on i.[key] = a.[PostId] " +
@@ -823,6 +823,9 @@ namespace zapread.com.Controllers
             //a.UpdateHourly();
 
             //PayoutsService.UpdateBanished();
+
+            //var s = new AchievementsService();
+            //s.CheckAchievements();
 
             try
             {

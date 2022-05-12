@@ -28,6 +28,7 @@ namespace zapread.com.Services
             new HunderedImpressions(),
             new FiveHunderedImpressions(),
             new ThousandImpressions(),
+            new FirstVote(),
         };
 
         /// <summary>
@@ -50,8 +51,6 @@ namespace zapread.com.Services
 
                     var newUsers = a.GetNewUsers(db, dba);
 
-                    var c = newUsers.Count();
-
                     // We need to use a dictionary to save the results before applying to db since the next
                     // foreach will be an open DB connection (can't query and apply at same time).
                     Dictionary<User, UserAchievement> uas = new Dictionary<User, UserAchievement>();
@@ -65,6 +64,8 @@ namespace zapread.com.Services
                             DateAchieved = DateTime.UtcNow,
                         };
                         uas.Add(u, ua);
+
+                        // Send an email about achievement
                     }
 
                     // Apply db updates to users
@@ -74,8 +75,72 @@ namespace zapread.com.Services
                     }
 
                     db.SaveChanges();
+
+                    // Achievement Gifts - reactions
+                    if (!string.IsNullOrEmpty(a.ReactionGrant))
+                    {
+                        var giftReactionUsers = a.GetUsersGiftReactions(db, dba);
+
+                        var reaction = db.Reactions
+                            .Where(r => r.ReactionName == a.ReactionGrant)
+                            .FirstOrDefault();
+                        if (reaction != null)
+                        {
+                            foreach (var u in giftReactionUsers.ToList())
+                            {
+                                u.AvailableReactions.Add(reaction);
+
+                                db.SaveChanges();
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// First vote
+    /// </summary>
+    public class FirstVote : IAchievementCriteria
+    {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
+        public string Name { get => "First Vote"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReactionGrant { get => "green-check"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.PostVotesUp.Any() || u.PostVotesDown.Any() || u.CommentVotesUp.Any() || u.CommentVotesDown.Any());
+
+            return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -92,6 +157,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -103,6 +173,18 @@ namespace zapread.com.Services
                 .Where(u => u.Posts.Where(p => p.Impressions >= 1000).Any());
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -119,6 +201,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -130,6 +217,18 @@ namespace zapread.com.Services
                 .Where(u => u.Posts.Where(p => p.Impressions >= 500).Any());
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -146,6 +245,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -157,6 +261,18 @@ namespace zapread.com.Services
                 .Where(u => u.Posts.Where(p => p.Impressions >= 100).Any());
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -173,6 +289,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -184,6 +305,18 @@ namespace zapread.com.Services
                 .Where(u => u.LNTransactions.Where(t => !t.IsDeposit && t.IsSettled).Count() > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -200,6 +333,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -211,6 +349,18 @@ namespace zapread.com.Services
                 .Where(u => u.LNTransactions.Where(t => t.IsDeposit && t.IsSettled).Count() > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -227,6 +377,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -238,6 +393,18 @@ namespace zapread.com.Services
                 .Where(u => u.Reputation >= 100000);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -254,6 +421,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -265,6 +437,18 @@ namespace zapread.com.Services
                 .Where(u => u.Reputation >= 10000);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -281,6 +465,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -292,6 +481,18 @@ namespace zapread.com.Services
                 .Where(u => u.Reputation >= 1000);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -308,6 +509,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -319,6 +525,18 @@ namespace zapread.com.Services
                 .Where(u => u.Comments.Count > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -335,6 +553,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -346,6 +569,18 @@ namespace zapread.com.Services
                 .Where(u => u.Followers.Count > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -362,6 +597,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -373,6 +613,18 @@ namespace zapread.com.Services
                 .Where(u => u.Following.Count > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -389,6 +641,11 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        public string ReactionGrant { get => ""; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="db"></param>
         /// <param name="dba"></param>
         /// <returns></returns>
@@ -400,6 +657,18 @@ namespace zapread.com.Services
                 .Where(u => u.Posts.Count > 0);
 
             return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            // Not implemented - return empty query
+            return db.Users.Where(u => false);
         }
     }
 
@@ -421,5 +690,17 @@ namespace zapread.com.Services
         /// <returns></returns>
         IQueryable<User> GetNewUsers(ZapContext db, Achievement dba);
 
+        /// <summary>
+        /// Get the list of users who should be gifted a reaction
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba);
+
+        /// <summary>
+        /// Reaction to grant
+        /// </summary>
+        string ReactionGrant { get; }
     }
 }

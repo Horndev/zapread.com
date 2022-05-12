@@ -14,6 +14,7 @@ import { makeQuotable } from "../utility/quotable/quotable";
 import { ISOtoRelative } from "../utility/datetime/posttime";
 import { postJson } from "../utility/postData";
 import PostVoteButtons from "./PostVoteButtons";
+import ReactionBar from './ReactionBar';
 const CommentsView = React.lazy(() => import("./CommentsView"));
 const getSwal = () => import('sweetalert2');
 
@@ -354,9 +355,12 @@ export default function PostView(props) {
                 {" "}<i className="fa fa-comments"></i>{" "}Write a comment
               </span>
             </div>
+            <ReactionBar l={"1"} postId={post.PostId} />
             <div id={"reply_p" + post.PostId} style={{ display: "none" }}></div>
           </>
-        ) : (<></>)}
+        ) : (<>
+            <ReactionBar l={"0"} postId={post.PostId} />
+        </>)}
 
         <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
           <Suspense fallback={<></>}>

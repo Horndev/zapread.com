@@ -8,6 +8,137 @@
  *   Modified
 */
 
+/* Post Reactions */
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+.zr-reaction-icon-main > .reaction-applied {
+    left: 2px;
+}
+
+.zr-reaction-icon.zr-reaction-icon-main {
+    padding: 0px 4px 0px 0px;
+}
+
+.zr-reaction-icon {
+    border-radius: 5px;
+    padding: 6px 0px 6px 0px;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+    .zr-reaction-icon:hover {
+        background-color: #18a689;
+        border-color: #18a689;
+        color: #fff;
+    }
+
+.reaction-icon-add-post {
+    font-size: 18px;
+    padding: 0;
+    border-bottom-width: 5px;
+    margin: 0 4px;
+}
+
+.reaction-icon-more {
+    font-size: 18px;
+    padding: 0;
+    border-bottom-width: 5px;
+    margin: 0 4px;
+}
+
+.zr-reactions {
+    font-size: 18px;
+    letter-spacing: -5px;
+    position: relative;
+    bottom: 30px;
+    padding-right: 11px;
+    padding-left: 0px;
+    height: 0;
+}
+
+.reaction-count {
+    position: relative;
+    left: -2px;
+    bottom: -3px;
+    font-size: 10px;
+    display: inline-flex;
+    font-weight: bold;
+    width: 0px;
+    letter-spacing: normal;
+}
+
+.reaction-applied {
+    position: relative;
+    left: -4px;
+    top: -10px;
+    font-size: 10px;
+    display: inline-flex;
+    font-weight: bold;
+    width: 0px;
+    letter-spacing: normal;
+}
+
+.reaction-icon-add-post {
+    padding-right: 5px;
+}
+
+.zr-reactions-bar {
+    float: right;
+}
+
+/* HR with text */
+
+.strike {
+    display: block;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: small;
+}
+
+    .strike > span {
+        position: relative;
+        display: inline-block;
+    }
+
+        .strike > span:before,
+        .strike > span:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 9999px;
+            height: 1px;
+            background: #1ab394;
+        }
+
+        .strike > span:before {
+            right: 100%;
+            margin-right: 15px;
+        }
+
+        .strike > span:after {
+            left: 100%;
+            margin-left: 15px;
+        }
+
 /* Fix for post drop down edit button */
 a.zr-post-dropdown.btn.btn-link.btn-sm {
     padding: 0.25rem 0.5rem;

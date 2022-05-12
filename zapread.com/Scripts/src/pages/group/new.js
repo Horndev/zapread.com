@@ -234,21 +234,6 @@ function Page() {
                     <Form.Group>
                       <Form.Label>Icon</Form.Label>
                       <Form.Row>
-                        {/*
-                       * <div class="container-fluid">
-                       * <div class="row align-items-center">
-                       * <div class="col-md-auto">
-                       *  <input type="file" id="file" accept="image" style="display: none;">
-                       *  <img src="/Img/Group/IconById/0/?s=100">
-                       * </div>
-                       * <div class="col-md-auto">
-                       * </div>
-                       * <div class="col">
-                       *  <button type="button" class="btn btn-outline-primary btn-sm" style="margin-top: 10px;margin-bottom: 10px;">Change Icon</button>
-                       * </div>
-                       * </div>
-                       * </div>
-                       **/}
                         <Container fluid>
                           <Row className="align-items-center">
                             <Col xs="auto" sm="auto" md="auto">

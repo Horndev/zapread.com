@@ -166,7 +166,10 @@ export default class Editor extends React.Component {
           }
         }
       },
-      uploader: false,
+      uploader: {
+        mimetypes: [],
+        handler: (range, files) => { } // Disable uploading with default module since we have the image drop and paste module
+      },
       //videoResize: {
       //},
       imageUpload: {
