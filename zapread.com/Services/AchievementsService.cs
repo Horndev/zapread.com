@@ -289,7 +289,7 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        public string ReactionGrant { get => ""; }
+        public string ReactionGrant { get => "rocket"; }
 
         /// <summary>
         /// 
@@ -315,8 +315,9 @@ namespace zapread.com.Services
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            // Not implemented - return empty query
-            return db.Users.Where(u => false);
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -333,7 +334,7 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        public string ReactionGrant { get => ""; }
+        public string ReactionGrant { get => "bolt"; }
 
         /// <summary>
         /// 
@@ -359,8 +360,9 @@ namespace zapread.com.Services
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            // Not implemented - return empty query
-            return db.Users.Where(u => false);
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -553,7 +555,7 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        public string ReactionGrant { get => ""; }
+        public string ReactionGrant { get => "raising-hands"; }
 
         /// <summary>
         /// 
@@ -579,8 +581,9 @@ namespace zapread.com.Services
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            // Not implemented - return empty query
-            return db.Users.Where(u => false);
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -597,7 +600,7 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        public string ReactionGrant { get => ""; }
+        public string ReactionGrant { get => "star-eyes"; }
 
         /// <summary>
         /// 
@@ -623,8 +626,9 @@ namespace zapread.com.Services
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            // Not implemented - return empty query
-            return db.Users.Where(u => false);
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 

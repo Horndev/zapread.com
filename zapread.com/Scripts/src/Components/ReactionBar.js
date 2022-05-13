@@ -19,6 +19,7 @@ export default function ReactionBar(props) {
   const [addShown, setAddShown] = useState(true);
   const [availableReactions, setAvailableReactions] = useState([]);
   const [reactions, setReactions] = useState([]);
+  const [tip, setTip] = useState(null);
   const [commonReactions, setCommonReactions] = useState([]);
 
   async function getAvailableReactions() {
@@ -100,6 +101,7 @@ export default function ReactionBar(props) {
         <div className="zr-reactions" style={{}}>
           {isLoaded && availableReactions.length > 0 ? (<>
             <Tippy
+              onCreate={tip => { setTip(tip); tip.show(); }}
               theme="light-border"
               interactive={true}
               interactiveBorder={30}
@@ -149,6 +151,7 @@ export default function ReactionBar(props) {
             {props.l == "1" ? (
               <span className="reaction-icon-add-post btn btn-link"
                 onMouseOver={() => { initialize() }}
+                onClick={() => { initialize() }}
                 style={addShown ? {} : { display: "none" }}><i className="fa-solid fa-plus"></i></span>
             ): (<></>)}
           </>)}

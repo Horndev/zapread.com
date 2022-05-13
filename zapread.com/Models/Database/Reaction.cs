@@ -11,11 +11,14 @@ namespace zapread.com.Models.Database
     /// 
     /// https://emojipedia.org/star-struck/
     /// 
-    /// [ ] star-eyes       🤩   Follow someone
-    /// [ ] raising-hands   🙌   Someone following you
-    /// [ ] bolt            ⚡   LN Deposit
-    /// [ ] rocket          🚀   LN Withdraw
-    /// [ ] green-check     ✅   First Vote
+    /// [X] happy-face
+    /// [X] thumbs-up
+    /// [X] heart
+    /// [X] star-eyes       🤩   [X] Follow someone
+    /// [X] raising-hands   🙌   [X] Someone following you
+    /// [X] bolt            ⚡   [X] LN Deposit
+    /// [X] rocket          🚀   [X] LN Withdraw
+    /// [X] green-check     ✅   [X] First Vote
     /// 
     /// </summary>
     public class Reaction
