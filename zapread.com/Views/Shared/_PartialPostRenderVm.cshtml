@@ -5,12 +5,12 @@
 @using zapread.com.Models.GroupViews;
 @model zapread.com.Models.PostViewModel
 
-    <div class="social-feed-box" id=@("post_" + @Model.PostId.ToString())>
-        <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
-            <i class="fa fa-minus-square togglebutton"></i>
-        </button>
-        @if (Request.IsAuthenticated)
-        {
+<div class="social-feed-box" id=@("post_" + @Model.PostId.ToString())>
+    <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
+        <i class="fa fa-minus-square togglebutton"></i>
+    </button>
+    @if (Request.IsAuthenticated)
+    {
         <div class="pull-right social-action dropdown">
             <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu dropdown-menu-right m-t-xs" style="left: auto;">
@@ -91,172 +91,172 @@
 
                 }
                 @*<li class="dropdown-submenu pull-left">
-            <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
-            <ul class="dropdown-menu">
-                <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
-            </ul>
-        </li>*@
+                        <button class="ddsm btn btn-link btn-sm" onclick="$(this).next('ul').toggle();event.stopPropagation();event.preventDefault();"><i class="fa fa-share-alt"></i> Share</button>
+                        <ul class="dropdown-menu">
+                            <li><div class="sharing" data-url="@Url.Action("Detail", "Post", new { PostId = Model.PostId }, Request.Url.Scheme)" data-sharetext="ZapRead.com post: @Model.PostTitle"></div></li>
+                        </ul>
+                    </li>*@
             </ul>
         </div>
-        }
-        <div class="social-avatar" style="padding-bottom: 15px;">
-            <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
-                <div class="vote-actions">
-                    <a href="#/" data-postid="@Model.PostId" class="vote-post-up @(Model.ViewerUpvoted ? "" : "text-muted ")" id="uVote_@Model.PostId">
-                        <i class="fa-solid fa-chevron-up fa-lg"> </i>
-                    </a>
-                    <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
-                    <a href="#/" data-postid="@Model.PostId" data-isbanished="@Model.ViewerIsBanishedGroup" class="vote-post-dn @(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.PostId">
-                        @if (Model.ViewerIsBanishedGroup)
-                        {
-                            <i class="fa-solid fa-minus fa-lg"> </i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-chevron-down fa-lg"> </i>
-                        }
-                    </a>
-                </div>
-            </div>
-            @if (!Model.ViewerIgnoredUser)
-            {
-                <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
-                    <img class="img-circle post-image-45@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-45": "")" loading="lazy" width="45" height="45" data-userappid="@Model.UserAppId" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+    }
+    <div class="social-avatar" style="padding-bottom: 15px;">
+        <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
+            <div class="vote-actions">
+                <a href="#/" data-postid="@Model.PostId" class="vote-post-up @(Model.ViewerUpvoted ? "" : "text-muted ")" id="uVote_@Model.PostId">
+                    <i class="fa-solid fa-chevron-up fa-lg"> </i>
                 </a>
-            }
-            <div class="media-body">
-                <a class="vote-title" href="@Url.Action("Detail", "Post", 
-                                           new { 
-                                               postIdEnc = zapread.com.Services.CryptoService.IntIdToString(Model.PostId), 
-                                               postTitle = !String.IsNullOrEmpty(Model.PostTitle) ? Model.PostTitle.MakeURLFriendly() : (Model.UserName + " posted in " + Model.GroupName).MakeURLFriendly()
-                                           })" style="margin-left: 110px;">
-                    @if (String.IsNullOrEmpty(Model.PostTitle))
+                <div id="sVote_@Model.PostId">@Model.Score.ToAbbrString()</div>
+                <a href="#/" data-postid="@Model.PostId" data-isbanished="@Model.ViewerIsBanishedGroup" class="vote-post-dn @(Model.ViewerDownvoted ? "" : "text-muted ")" id="dVote_@Model.PostId">
+                    @if (Model.ViewerIsBanishedGroup)
                     {
-                        <text>Post</text>
+                        <i class="fa-solid fa-minus fa-lg"> </i>
                     }
                     else
                     {
-                        @Model.PostTitle
+                        <i class="fa-solid fa-chevron-down fa-lg"> </i>
                     }
                 </a>
-                <div class="vote-info" style="margin-left: 110px;">
-                    @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() {UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = false })@if (Model.IsSticky)
-                    {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
-                    @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = false })
-
-                    <small class="postTime text-muted" style="display: none">@Model.TimeStamp.Value.ToString("o")</small>
-                    @if (Model.TimeStampEdited != null)
-                    {
-                        <span class="text-muted" style="display:inline"> edited </span>
-                        <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
-                    }
-                    <span class="appear" data-src="/Post/Impressions/@Model.PostId"></span>
-                </div>
             </div>
         </div>
-        <div class="social-body post-observe" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
-            <div class="row">
-                <div class="col">
-                    <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userappid="@Model.UserAppId" data-userid="@Model.UserId">
-                        <div class="@if (!Model.IsDetailView) 
-                            { <text> post-content ql-editor ql-container ql-snow </text> }
-                            else { <text> post-content ql-editor ql-container ql-snow </text> }"
-                        >
-                            @Html.Raw(Model.Content)
-                        </div>
-                        @if (Model.IsNSFW)
-                        {
-                            <div id="nsfw_@Model.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
-                            <button id="nsfwb_@Model.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.PostId)">Show NSFW</button>
-                        }
-                        @if (!Model.IsDetailView)
-                        {
-                            <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
-                        }
-                    </div>
-                    @*<br />*@
-                </div>
-            </div>
-        </div>
-        @if (Request.IsAuthenticated)
+        @if (!Model.ViewerIgnoredUser)
         {
-            <div>
-                <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
-                    <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
-                </div>
-                <div class="post-reaction-bar" data-l="1" data-postid="@Model.PostId"></div>
-            </div>
-            <div id="reply_p@(Model.PostId.ToString())" style="display: none;">
-                @*This is where the post reply comment input will be inserted.*@
-            </div>
-        } else
-        {
-            <div>
-                <div class="post-reaction-bar" data-l="0" data-postid="@Model.PostId"></div>
-            </div>
+            <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.UserName })" class="pull-left" style=" padding-top: 8px;">
+                <img class="img-circle post-image-45@((User != null && Model.UserAppId == User.Identity.GetUserId()) ? " user-image-45": "")" loading="lazy" width="45" height="45" data-userappid="@Model.UserAppId" data-userid="@Model.UserId" src="@Url.Action("UserImage", "Home", new { size = 45, UserId = Model.UserAppId, v = Model.UserProfileImageVersion })" />
+            </a>
         }
-        <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
-            @if (Model.CommentVms.Any())
-            {
-                var numshown = 0;
-                var numToShow = 5;
-                if (Model.IsDetailView) { numToShow = 50; }
-                bool showmore = false;
-                List<long> rootshown = new List<long>();
-                var comments = Model.CommentVms.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
-                var numComments = comments.Count();
-                foreach (var cmt in comments)
+        <div class="media-body">
+            <a class="vote-title" href="@Url.Action("Detail", "Post",
+                                           new {
+                                               postIdEnc = zapread.com.Services.CryptoService.IntIdToString(Model.PostId),
+                                               postTitle = !String.IsNullOrEmpty(Model.PostTitle) ? Model.PostTitle.MakeURLFriendly() : (Model.UserName + " posted in " + Model.GroupName).MakeURLFriendly()
+                                           })" style="margin-left: 110px;">
+                @if (String.IsNullOrEmpty(Model.PostTitle))
                 {
-                    var vm = new PostCommentsViewModel
-                    {
-                        NestLevel = 1, // Root level comment
-                        ViewerIgnoredUser = cmt.ViewerIgnoredUser,
-                        ParentCommentId = cmt.ParentCommentId,
-                        ParentUserName = cmt.ParentUserName,
-                        ParentUserId = cmt.ParentUserId,
-                        CommentId = cmt.CommentId,
-                        CommentVms = Model.CommentVms == null ? new List<PostCommentsViewModel>() : Model.CommentVms.ToList(),//cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
-                        TimeStamp = cmt.TimeStamp,
-                        TimeStampEdited = cmt.TimeStampEdited,
-                        UserId = cmt.UserId,
-                        IsDeleted = cmt.IsDeleted,
-                        IsReply = cmt.IsReply,
-                        ProfileImageVersion = cmt.ProfileImageVersion,
-                        Score = cmt.Score,
-                        StartVisible = cmt.StartVisible,
-                        Text = cmt.Text,
-                        UserName = cmt.UserName,
-                        UserAppId = cmt.UserAppId,
-                        ViewerUpvoted = cmt.ViewerUpvoted,
-                        ViewerDownvoted = cmt.ViewerDownvoted,
-                        ViewerIsBanishedGroup = Model.ViewerIsBanishedGroup,
-                        PostId = cmt.PostId,
-                    };
+                    <text>Post</text>
+                }
+                else
+                {
+                    @Model.PostTitle
+                }
+            </a>
+            <div class="vote-info" style="margin-left: 110px;">
+                @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = false })@if (Model.IsSticky)
+                {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
+                @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = false })
 
-                    // Have the top n root comments start visible
-                    if (numshown < numToShow && cmt.Score >= 0)
-                    {
-                        numshown += 1;
-                        vm.StartVisible = true;
-                        @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
-                        rootshown.Add(cmt.CommentId);
-                    }
-                    else if (numshown < numToShow)
-                    {
-                        numshown += 1;
-                        vm.StartVisible = false;
-                        @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
-                    }
-                    if (numshown >= numToShow && numComments > numToShow)
-                    {
-                        showmore = true;
-                    }
-                }
-                if (showmore)
+                <small class="postTime text-muted" style="display: none">@Model.TimeStamp.Value.ToString("o")</small>
+                @if (Model.TimeStampEdited != null)
                 {
-                    <div class="insertComments" id="mc_@Model.PostId"></div> @*new comments appear below this div*@
-                    <text><div onclick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div></text>
+                    <span class="text-muted" style="display:inline"> edited </span>
+                    <small class="postTime text-muted" style="display: none">@Model.TimeStampEdited.Value.ToString("o")</small>
                 }
-            }
+                <span class="appear" data-src="/Post/Impressions/@Model.PostId"></span>
+            </div>
         </div>
     </div>
+    <div class="social-body post-observe" @if (Model.ViewerIgnoredUser) { <text> style="display: none" </text> }>
+        <div class="row">
+            <div class="col">
+                <div class="post-quotable post-content ql-container ql-snow @if (!Model.IsDetailView) { <text> post-box </text> }" data-postid="@Model.PostId" data-userappid="@Model.UserAppId" data-userid="@Model.UserId">
+                    <div class="@if (!Model.IsDetailView)
+                            { <text> post-content ql-editor ql-container ql-snow </text> }
+                            else { <text> post-content ql-editor ql-container ql-snow </text> }">
+                        @Html.Raw(Model.Content)
+                    </div>
+                    @if (Model.IsNSFW)
+                    {
+                        <div id="nsfw_@Model.PostId" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white"></div>
+                        <button id="nsfwb_@Model.PostId" class="btn btn-danger" style="position:absolute;top:0;left:0" onclick="showNSFW(@Model.PostId)">Show NSFW</button>
+                    }
+                    @if (!Model.IsDetailView)
+                    {
+                        <p class="read-more-button"><a href="javascript:void(0);" class="button btn btn-primary" onclick="readMoreButton(this);">Read More</a></p>
+                    }
+                </div>
+                @*<br />*@
+            </div>
+        </div>
+    </div>
+    @if (Request.IsAuthenticated)
+    {
+        <div>
+            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
+                <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+            </div>
+        </div>
+        <div class="post-reaction-bar" data-l="1" data-postid="@Model.PostId"></div>
+        <div id="reply_p@(Model.PostId.ToString())" style="display: none;">
+            @*This is where the post reply comment input will be inserted.*@
+        </div>
+    }
+    else
+    {
+        <div>
+            <div class="post-reaction-bar" data-l="0" data-postid="@Model.PostId"></div>
+        </div>
+    }
+    <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
+        @if (Model.CommentVms.Any())
+        {
+            var numshown = 0;
+            var numToShow = 5;
+            if (Model.IsDetailView) { numToShow = 50; }
+            bool showmore = false;
+            List<long> rootshown = new List<long>();
+            var comments = Model.CommentVms.Where(cmt => !cmt.IsReply).OrderByDescending(cmt => cmt.Score).ThenByDescending(cmt => cmt.TimeStamp);
+            var numComments = comments.Count();
+            foreach (var cmt in comments)
+            {
+                var vm = new PostCommentsViewModel
+                {
+                    NestLevel = 1, // Root level comment
+                    ViewerIgnoredUser = cmt.ViewerIgnoredUser,
+                    ParentCommentId = cmt.ParentCommentId,
+                    ParentUserName = cmt.ParentUserName,
+                    ParentUserId = cmt.ParentUserId,
+                    CommentId = cmt.CommentId,
+                    CommentVms = Model.CommentVms == null ? new List<PostCommentsViewModel>() : Model.CommentVms.ToList(),//cmt.CommentVms == null ? new List<PostCommentsViewModel>() : cmt.CommentVms.ToList(),
+                    TimeStamp = cmt.TimeStamp,
+                    TimeStampEdited = cmt.TimeStampEdited,
+                    UserId = cmt.UserId,
+                    IsDeleted = cmt.IsDeleted,
+                    IsReply = cmt.IsReply,
+                    ProfileImageVersion = cmt.ProfileImageVersion,
+                    Score = cmt.Score,
+                    StartVisible = cmt.StartVisible,
+                    Text = cmt.Text,
+                    UserName = cmt.UserName,
+                    UserAppId = cmt.UserAppId,
+                    ViewerUpvoted = cmt.ViewerUpvoted,
+                    ViewerDownvoted = cmt.ViewerDownvoted,
+                    ViewerIsBanishedGroup = Model.ViewerIsBanishedGroup,
+                    PostId = cmt.PostId,
+                };
+
+                // Have the top n root comments start visible
+                if (numshown < numToShow && cmt.Score >= 0)
+                {
+                    numshown += 1;
+                    vm.StartVisible = true;
+                    @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
+                    rootshown.Add(cmt.CommentId);
+                }
+                else if (numshown < numToShow)
+                {
+                    numshown += 1;
+                    vm.StartVisible = false;
+                    @Html.Partial(partialViewName: "_PartialCommentRenderVm", model: vm)
+                }
+                if (numshown >= numToShow && numComments > numToShow)
+                {
+                    showmore = true;
+                }
+            }
+            if (showmore)
+            {
+                <div class="insertComments" id="mc_@Model.PostId"></div> @*new comments appear below this div*@
+                <text><div onclick="loadMoreComments(this);" data-postid="@Model.PostId" data-shown="@String.Join(";",rootshown)" data-commentid="0" data-nest="1"><span class="btn btn-link btn-sm"><i class="fa fa-plus"></i> Load more comments</span></div></text>
+            }
+        }
+    </div>
+</div>
