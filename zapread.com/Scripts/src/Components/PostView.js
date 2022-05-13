@@ -345,17 +345,19 @@ export default function PostView(props) {
 
         {isLoggedIn ? (
           <>
-            <div id={"wc_" + post.PostId} onClick={() => {
-              writeComment(post.PostId);
-            }}>
-              <span className="btn btn-link btn-sm">
-                <span className="badge badge-light">
-                  {post.CommentVms.length}
-                </span>
-                {" "}<i className="fa fa-comments"></i>{" "}Write a comment
-              </span>
-            </div>
             <ReactionBar l={"1"} postId={post.PostId} />
+            <div style={{height:"30px"}}>
+              <div id={"wc_" + post.PostId} onClick={() => {
+                writeComment(post.PostId);
+              }}>
+                <span className="btn btn-link btn-sm">
+                  <span className="badge badge-light">
+                    {post.CommentVms.length}
+                  </span>
+                  {" "}<i className="fa fa-comments"></i>{" "}Write a comment
+                </span>
+              </div>
+            </div>
             <div id={"reply_p" + post.PostId} style={{ display: "none" }}></div>
           </>
         ) : (<>
