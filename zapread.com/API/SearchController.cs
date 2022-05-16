@@ -48,7 +48,7 @@ namespace zapread.com.API
                     .ToListAsync();
 
                 var posts = await db.Posts
-                    .SqlQuery("SELECT TOP 100 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " +
+                    .SqlQuery("SELECT TOP 100 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsNonIncome, a.LockComments, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " +
                     "FROM freetexttable(Post, Content, @q) as i " +
                     "inner join Post a " +
                     "on i.[key] = a.[PostId] " +

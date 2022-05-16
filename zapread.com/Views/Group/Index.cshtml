@@ -11,4 +11,8 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/group/index")
+
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
 }

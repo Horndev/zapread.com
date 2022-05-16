@@ -43,6 +43,15 @@ const WHITE_STYLE = [
 ];
 
 class StyledImage extends BaseImage {
+  static create(value) {
+    const node = super.create(value);
+    if (typeof value === 'string') {
+      node.setAttribute('src', this.sanitize(value));
+      node.setAttribute('style', "margin-top: auto; margin-bottom: auto; margin-left: 0;");
+    }
+    return node;
+  }
+
   static formats(domNode) {
     return ATTRIBUTES.reduce(function (formats, attribute) {
       if (domNode.hasAttribute(attribute)) {

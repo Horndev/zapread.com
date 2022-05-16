@@ -1451,7 +1451,7 @@ namespace zapread.com.Controllers
             {
                 RecurringJob.AddOrUpdate<MailingService>(
                     x => x.MailWeeklySummaries(),
-                    "0 0 * * */5"); // Every friday at midnight
+                    "0 0 * * FRI"); // Every friday at midnight
                 return Json(new { success = true });
             }
 

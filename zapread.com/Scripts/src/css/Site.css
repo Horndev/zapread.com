@@ -8,6 +8,12 @@
  *   Modified
 */
 
+.top-groups-btn {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: normal;
+}
+
 /* Post Reactions */
 
 /* width */
@@ -68,7 +74,6 @@
     font-size: 18px;
     letter-spacing: -5px;
     position: relative;
-    bottom: 30px;
     padding-right: 11px;
     padding-left: 0px;
     height: 0;

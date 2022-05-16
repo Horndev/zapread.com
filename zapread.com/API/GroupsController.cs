@@ -522,6 +522,66 @@ namespace zapread.com.API
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/groups/top/list")]
+        public async Task<IHttpActionResult> GetTopGroups()
+        {
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+
+                var subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
+
+                return Ok(new GetTopGroupsResponse()
+                {
+                    Groups = subscribedGroups,
+                    success = true
+                });
+            }
+        }
+
+        private static Task<List<GroupInfo>> GetUserGroups(string userAppId, ZapContext db)
+        {
+            if (userAppId == null)
+            {
+                return db.Groups
+                    .OrderByDescending(g => g.TotalEarned)
+                    .Take(20)
+                    .Select(g => new GroupInfo()
+                    {
+                        Id = g.GroupId,
+                        IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
+                        IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
+                        Name = g.GroupName,
+                        Icon = g.Icon,
+                        Level = g.Tier,
+                        Progress = 36,
+                    })
+                .AsNoTracking()
+                .ToListAsync();
+            }
+
+            return db.Users.Where(u => u.AppId == userAppId)
+                .SelectMany(u => u.Groups)
+                .OrderByDescending(g => g.TotalEarned)
+                .Select(g => new GroupInfo()
+                {
+                    Id = g.GroupId,
+                    IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
+                    IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
+                    Name = g.GroupName,
+                    Icon = g.Icon,
+                    Level = g.Tier,
+                    Progress = 36,
+                })
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// Get posts from the group
         /// </summary>
         /// <param name="req">query parameters</param>
