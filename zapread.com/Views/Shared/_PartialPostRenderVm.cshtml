@@ -140,7 +140,10 @@
                 }
             </a>
             <div class="vote-info" style="margin-left: 110px;">
-                @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = false })@if (Model.IsSticky)
+                @Html.Partial("_PartialUserLinkVm", new UserLinkViewModel() { UserId = Model.UserId, UserAppId = Model.UserAppId, UserName = Model.UserName, IsIgnored = Model.ViewerIgnoredUser, IsFirstPost = false })
+                @if (Model.IsNonIncome)
+                {<span title="Non-Income Post"><i class="fa-solid fa-hand-holding-heart" style="color: blueviolet;"></i></span>}
+                @if (Model.IsSticky)
                 {<span title="Sticky"><i class="fa fa-map-pin" style="color: lightgreen;"></i></span>}posted in
                 @Html.Partial("_PartialGroupLinkVm", new GroupLinkViewModel() { GroupId = Model.GroupId, GroupName = Model.GroupName, IsFirstPost = false })
 
@@ -191,9 +194,8 @@
     }
     else
     {
-        <div>
-            <div class="post-reaction-bar" data-l="0" data-postid="@Model.PostId"></div>
-        </div>
+        <div class="post-reaction-bar" data-l="0" data-postid="@Model.PostId"></div>
+        <div style="height:32px;"></div>
     }
     <div class="social-comment-box" id="@("comments_" + @Model.PostId.ToString())">
         @if (Model.CommentVms.Any())

@@ -426,13 +426,14 @@ namespace zapread.com.Controllers
         /// <param name="isDraft"></param>
         /// <param name="isNSFW"></param>
         /// <param name="postQuietly"></param>
+        /// <param name="isNonIncome"></param>
         /// <param name="language"></param>
         /// <returns></returns>
         [Route("Post/Submit")]
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Token in JSON header")]
-        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, bool postQuietly, string language)
+        public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, bool postQuietly, bool isNonIncome, string language)
         {
             var userId = User.Identity.GetUserId();
 
@@ -485,6 +486,7 @@ namespace zapread.com.Controllers
                     post.Content = contentStr;
                     post.Language = postLanguage ?? post.Language;
                     post.IsNSFW = isNSFW;
+                    post.IsNonIncome = isNonIncome;
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -548,6 +550,7 @@ namespace zapread.com.Controllers
                         IsDraft = isDraft,
                         Language = postLanguage,
                         IsNSFW = isNSFW,
+                        IsNonIncome = isNonIncome,
                     };
 
                     db.Posts.Add(post);
@@ -558,14 +561,6 @@ namespace zapread.com.Controllers
                         try
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
-
-                            // Old version:
-                            //var mailer = DependencyResolver.Current.GetService<MailerController>();
-                            //mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-                            //string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
-
-                            //BackgroundJob.Enqueue<MailingService>(
-                            //    methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
                         }
                         catch (Exception)
                         {
@@ -763,6 +758,7 @@ namespace zapread.com.Controllers
                         TimeStamp = p.TimeStamp,
                         TimeStampEdited = p.TimeStampEdited,
                         IsNSFW = p.IsNSFW,
+                        IsNonIncome = p.IsNonIncome,
                         ViewerIsFollowing = userId.HasValue ? p.FollowedByUsers.Select(v => v.Id).Contains(userId.Value) : false,
                         ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false,
                         ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,

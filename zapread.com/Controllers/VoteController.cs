@@ -49,6 +49,7 @@ namespace zapread.com.Controllers
                     .Select(p => new
                     {
                         p.Score,
+                        p.IsNonIncome,
                         p.UserId.Reputation
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
@@ -121,7 +122,7 @@ namespace zapread.com.Controllers
                     success = true,
                     delta = v.d == 1 ? 1 : -1,
                     scoreStr = newScore.ToAbbrString(),
-                    deltaCommunity = Convert.ToInt32(v.a*0.1*(v.d == 1 ? 1.0 : -1.0))
+                    deltaCommunity = postInfo.IsNonIncome ? Convert.ToInt32(v.a * (v.d == 1 ? 0.4 : 0.1)) : Convert.ToInt32(v.a * 0.1)
                 });
             }
         }

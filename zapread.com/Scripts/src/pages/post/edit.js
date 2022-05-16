@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom';
 import { useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
 import Swal from 'sweetalert2';
+import Tippy from '@tippyjs/react';
 import withReactContent from 'sweetalert2-react-content'
 import Input from '../../Components/Input/Input';
 const Editor = React.lazy(() => import("./Components/Editor"));
@@ -19,6 +20,8 @@ import LanguagePicker from './Components/LanguagePicker';
 import { postJson } from '../../utility/postData';
 import PageHeading from '../../components/PageHeading';
 import '../../shared/sharedlast';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
 import '../../css/quill/quillfont.css';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
@@ -45,6 +48,7 @@ function Page() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [postNSFW, setPostNSFW] = useState(false);
   const [postQuietly, setPostQuietly] = useState(false);
+  const [postNonIncome, setPostNonIncome] = useState(false);
 
   let query = useQuery();
 
@@ -93,6 +97,7 @@ function Page() {
         language: postLanguage,
         isDraft: true,
         isNSFW: postNSFW,
+        isNonIncome: postNonIncome,
         postQuietly: postQuietly
       };
 
@@ -175,7 +180,8 @@ function Page() {
       language: postLanguage,
       isDraft: false,
       isNSFW: postNSFW,
-      postQuietly: postQuietly
+      postQuietly: postQuietly,
+      isNonIncome: postNonIncome
     };
 
     document.getElementById("submitnotification").style.display = "";
@@ -231,58 +237,85 @@ function Page() {
   }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);
 
   return (
-    <div>
+    <>
       <PageHeading title="New Post" controller="Post" method="Edit" function="New" />
-      <div>
-        <Row>
-          <Col lg={2}></Col>
-          <Col lg={8}>
-            <div className="ibox-title" style={{ display: "inline-flex", width: "100%", marginTop: "8px" }}>
-              <div className="social-avatar" style={{ paddingTop: "5px" }}>
-                <img className="img-circle user-image-45" width="45" height="45" src={"/Home/UserImage/?size=45&UserId=" + userAppId + "&v=" + userImgVer} />
-              </div>
-              <Input
-                id="postTitle"
-                label="Title"
-                value={postTitle}
-                setValue={setPostTitle}
-                predicted=""
-                locked={false}
-                active={false}
+      <Row>
+        <Col lg={2}></Col>
+        <Col lg={8}>
+          <div className="ibox-title" style={{ display: "inline-flex", width: "100%", marginTop: "8px" }}>
+            <div className="social-avatar" style={{ paddingTop: "5px" }}>
+              <img className="img-circle user-image-45" width="45" height="45" src={"/Home/UserImage/?size=45&UserId=" + userAppId + "&v=" + userImgVer} />
+            </div>
+            <Input
+              id="postTitle"
+              label="Title"
+              value={postTitle}
+              setValue={setPostTitle}
+              predicted=""
+              locked={false}
+              active={false}
+            />
+          </div>
+          <div className="ibox-title" style={{ display: "flex" }}>
+            <GroupPicker
+              label="Group"
+              value={groupName}
+              setValue={(v) => { setGroupName(v.groupName); setGroupId(v.groupId); }}
+            />
+            <div style={{
+              paddingLeft: "20px",
+              display: "flex"
+            }}>
+              <LanguagePicker
+                label={"\uf1ab"}
+                value={postLanguage}
+                setValue={setPostLanguage}
               />
             </div>
-            <div className="ibox-title" style={{ display: "flex" }}>
-              <GroupPicker
-                label="Group"
-                value={groupName}
-                setValue={(v) => { setGroupName(v.groupName); setGroupId(v.groupId); }}
-              />
-              <div style={{
-                paddingLeft: "20px",
-                display: "flex"
-              }}>
-                <LanguagePicker
-                  label={"\uf1ab"}
-                  value={postLanguage}
-                  setValue={setPostLanguage}
+          </div>
+          <Row className="ibox-title" style={{margin: "0"}}>
+            <Col md={6}>
+              <Form.Group controlId="NSFWCheck">
+                <Form.Check type="checkbox" label="Mark post Not Safe For Work (NSFW)"
+                  checked={postNSFW}
+                  onChange={e => setPostNSFW(e.target.checked)}
                 />
-              </div>
-            </div>
-            <div className="ibox-title" style={{ display: "flex" }}>
-              <Form.Check type="checkbox" label="Mark post Not Safe For Work (NSFW)"
-                checked={postNSFW}
-                onChange={e => setPostNSFW(e.target.checked)}
-              />
-            </div>
-            <div className="ibox-title" style={{ display: "flex" }}>
-              <Form.Check type="checkbox" label="Post quietly (don't notify followers)"
-                checked={postQuietly}
-                onChange={e => { console.log("setPostQuietly", e.target.checked); setPostQuietly(e.target.checked) }}
-              />
-            </div>
-          </Col>
-        </Row>
-      </div>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Tippy theme="light-border" content={
+                <>
+                  Emails and Alerts will not be sent.
+                </>
+              }>
+                <Form.Group controlId="PostQuietCheck">
+                  <Form.Check type="checkbox" label="Post quietly (don't notify followers)"
+                    checked={postQuietly}
+                    onChange={e => { console.log("setPostQuietly", e.target.checked); setPostQuietly(e.target.checked) }}
+                    />
+                </Form.Group>
+              </Tippy>
+            </Col>
+          </Row>
+          <Row className="ibox-title" style={{ margin: "0" }}>
+            <Col md={6}>
+              <Tippy theme="light-border" content={
+                <>
+                  Non-income posts send rewards to the group and community.
+                </>
+              }>
+                <Form.Group controlId="NonIncomeCheck">
+                  <Form.Check type="checkbox" label="Make Post Non-Income"
+                    checked={postNonIncome}
+                    onChange={e => setPostNonIncome(e.target.checked)}
+                  />
+                </Form.Group>
+              </Tippy>
+            </Col>
+            <Col md={6}></Col>
+          </Row>
+        </Col>
+      </Row>
       <div className="wrapper wrapper-content">
         <Row>
           <Col lg={2}></Col>
@@ -300,10 +333,6 @@ function Page() {
               <i className="fa-solid fa-circle-notch fa-spin"></i> saving...
             </div>
             <Suspense fallback={<></>}>
-              {/*<Placeholder as="p" animation="glow">*/}
-              {/*  <Placeholder xs={12} />*/}
-              {/*</Placeholder>*/}
-            {/*}>*/}
               <Editor
                 value={postContent}
                 setValue={setPostContent}
@@ -329,7 +358,7 @@ function Page() {
         </Row>
         <Row><Col lg={12}><br /></Col></Row>
       </div>
-    </div>
+    </>
   );
 }
 

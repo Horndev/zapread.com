@@ -55,12 +55,14 @@ namespace zapread.com.Services
                         .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30)
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
+                        .Where(p => !p.IsNonIncome)
                         .ToList();
                     var sitePostsOld = db.Posts
                         .Where(p => p.Score > 0)
                         .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30)
                         .Where(p => !p.IsDeleted)
                         .Where(p => !p.IsDraft)
+                        .Where(p => !p.IsNonIncome)
                         .ToList();
 
                     var numPostsOld = sitePostsOld.Count;
@@ -249,12 +251,14 @@ namespace zapread.com.Services
                             .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30)
                             .Where(p => !p.IsDeleted)
                             .Where(p => !p.IsDraft)
+                            .Where(p => !p.IsNonIncome)
                             .ToList();
                         var groupPostsOld = db.Posts
                             .Where(p => p.Group.GroupId == gid && p.Score > 0)
                             .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30)
                             .Where(p => !p.IsDeleted)
                             .Where(p => !p.IsDraft)
+                            .Where(p => !p.IsNonIncome)
                             .ToList();
 
                         var numPostsOld = groupPostsOld.Count;

@@ -285,10 +285,14 @@ export default function PostView(props) {
                 href={"/User/" + post.UserName}>
                 {isIgnored ? (<>(Ignored)</>) : (<>{post.UserName}</>)}
               </a>
-
+              {post.IsNonIncome ? (
+                <span title="Non-Income Post">
+                  &nbsp;<i className="fa-solid fa-hand-holding-heart" style={{ color: "blueviolet" }}></i>&nbsp;
+                </span>
+              ) : (<></>)}
               {post.IsSticky ? (
                 <span title="Sticky">
-                  <i className="fa fa-map-pin" style={{ color: "lightgreen" }}></i>
+                  &nbsp;<i className="fa fa-map-pin" style={{ color: "lightgreen" }}></i>&nbsp;
                 </span>
               ) : (<></>)}
               &nbsp;posted in&nbsp;
@@ -362,6 +366,7 @@ export default function PostView(props) {
           </>
         ) : (<>
             <ReactionBar l={"0"} postId={post.PostId} />
+            <div style={{ height: "30px" }}></div>
         </>)}
 
         <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
