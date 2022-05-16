@@ -205,6 +205,18 @@ namespace zapread.com.Services
                 }
 
                 // FINANCIAL
+                double amountTo = isUpvote ? 0.6 * amount : 0;
+                double amountCommunity = 0.1 * amount;
+                double amountGroup = isUpvote ? 0.2 * amount : 0.8 * amount;
+                if (post.IsNonIncome)
+                {
+                    // If the author declared the post as non-income, instead of getting
+                    // money themselves, the author's payment goes to the community and group.
+                    amountCommunity += amountTo * 0.5;
+                    amountGroup += amountTo * 0.5;
+                    amountTo = 0;
+                }
+
                 RecordFundTransfers(
                     from: isAnonymous ? null    : fromFunds,
                     to:   isUpvote    ? toFunds : null,
@@ -213,9 +225,9 @@ namespace zapread.com.Services
                     originType: 0,
                     originId: post.PostId,
                     amountFrom: amount,
-                    amountTo: isUpvote      ? 0.6 * amount   : 0,
-                    amountGroup: isUpvote   ? 0.2 * amount   : 0.8 * amount,
-                    amountCommunity: 0.1 * amount,
+                    amountTo: amountTo,
+                    amountGroup: amountGroup,
+                    amountCommunity: amountCommunity,
                     amountZapread:   0.1 * amount);
                 // END FINANCIAL
 
@@ -224,20 +236,26 @@ namespace zapread.com.Services
                 post.UserId.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
 
                 // Keep track of how much this post has made for the owner
-                post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
+                if (!post.IsNonIncome)
+                {
+                    post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
+                }
 
                 // Earning event for post owner
                 if (isUpvote)
                 {
-                    post.UserId.EarningEvents.Add(new EarningEvent()
+                    if (!post.IsNonIncome)
                     {
-                        Amount = 0.6 * amount,
-                        OriginType = 0,
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,
-                        OriginId = post.PostId,
-                    });
-                    post.UserId.TotalEarned += 0.6 * amount;
+                        post.UserId.EarningEvents.Add(new EarningEvent()
+                        {
+                            Amount = 0.6 * amount,
+                            OriginType = 0,
+                            TimeStamp = DateTime.UtcNow,
+                            Type = 0,
+                            OriginId = post.PostId,
+                        });
+                        post.UserId.TotalEarned += 0.6 * amount;
+                    }
 
                     if (referalFunds != null)
                     {
@@ -311,7 +329,7 @@ namespace zapread.com.Services
 
                 db.SaveChanges();
 
-                if (isUpvote)
+                if (isUpvote && !post.IsNonIncome)
                 {
                     _ = NotificationService.SendIncomeNotification(
                         0.6 * amount,

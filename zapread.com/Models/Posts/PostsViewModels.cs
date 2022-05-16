@@ -31,6 +31,7 @@ namespace zapread.com.Models
         public DateTime? TimeStampEdited { get; set; }
         public bool IsNSFW { get; set; }
         public bool IsSticky { get; set; }
+        public bool IsNonIncome { get; set; }
         public IEnumerable<PostCommentsViewModel> CommentVms { get; set; }
 
         /// <summary>

@@ -1,4 +1,8 @@
 ﻿/**
+ * Post editor using Quill
+ * 
+ * TODO
+ * [ ] Embed images from more sources
  * 
  **/
 
@@ -107,8 +111,7 @@ class EmbedResponsive extends BlockEmbed {
 Quill.register(EmbedResponsive, true);
 
 var FontAttributor = Quill.import('attributors/class/font');
-//console.log(FontAttributor.whitelist);
-//console.log(FontAttributor);
+
 FontAttributor.whitelist = [
   'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
   'open', 'roboto', 'tahoma', 'times', 'trebuchet', 'verdana'
@@ -147,7 +150,7 @@ export default class Editor extends React.Component {
           [{
             'font': [
               'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
-              'open', 'roboto', 'tahoma', /*'times',*/ 'trebuchet', 'verdana'
+              'open', 'roboto', 'tahoma', 'trebuchet', 'verdana'
             ]
           }],
           [{ 'align': [] }],
@@ -157,11 +160,9 @@ export default class Editor extends React.Component {
           ['clean']],
         handlers: {
           'save': function () {
-            //console.log('save clicked');
             self.props.onSaveDraft();
           },
           'submit': function () {
-            //console.log('submit clicked');
             self.props.onSubmitPost();
           }
         }
@@ -170,8 +171,6 @@ export default class Editor extends React.Component {
         mimetypes: [],
         handler: (range, files) => { } // Disable uploading with default module since we have the image drop and paste module
       },
-      //videoResize: {
-      //},
       imageUpload: {
         url: '/Img/UploadImage/', // server url. If the url is empty then the base64 returns
         method: 'POST', // change query method, default 'POST'
