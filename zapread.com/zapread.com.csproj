@@ -927,6 +927,7 @@
     <Compile Include="Models\API\Groups\AdminGroupUserParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetTopGroupsResponse.cs" />
     <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
     <Compile Include="Models\API\Groups\SetGroupDescriptionParameters.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
@@ -1305,6 +1306,7 @@
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
+    <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1409,6 +1411,8 @@
     <Content Include="Scripts\dist\home\index.js.map" />
     <Content Include="Scripts\dist\home\install.css.map" />
     <Content Include="Scripts\dist\home\install.js.map" />
+    <Content Include="Scripts\dist\admin\reactions.css.map" />
+    <Content Include="Scripts\dist\admin\reactions.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
     <Content Include="Scripts\dist\0\1104.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
@@ -1454,8 +1458,6 @@
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
-    <Content Include="Scripts\dist\admin\reactions.css.map" />
-    <Content Include="Scripts\dist\admin\reactions.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />

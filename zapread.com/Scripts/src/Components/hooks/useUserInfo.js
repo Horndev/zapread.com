@@ -20,7 +20,8 @@ export function useUserInfo() {
       //console.log('userInfo not in window');
       return {
         balance: 0,
-        defaultVote: 10
+        defaultVote: 10,
+        isAuthenticated: false
       }; // initialize
     }
     //console.log('userInfo is in window', window.userInfo);
