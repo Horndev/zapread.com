@@ -20,10 +20,7 @@ namespace zapread.com.Controllers
         [Route("tags")]
         public ActionResult Index()
         {
-            var vm = new TagsViewModel()
-            {
-
-            };
+            var vm = new TagsViewModel();
 
             return View(vm);
         }
