@@ -653,7 +653,10 @@ namespace zapread.com.API
                     groupId = req.groupId.Value;
                 }
 
-                var groupPosts = QueryHelpers.OrderPostsByNew(validposts, groupId, true);
+                var groupPosts = QueryHelpers.OrderPostsByNew(
+                    validposts: validposts, 
+                    groupId: groupId, 
+                    stickyPostOnTop: true);
 
                 var postsVm = await QueryHelpers.QueryPostsVm(
                         start: BlockNumber * BlockSize,

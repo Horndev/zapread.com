@@ -98,7 +98,8 @@
   },
   "dependencies": {
     "@tippyjs/react": "^4.2.6",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "react-responsive-masonry": "^2.1.4"
   },
   "optionalDependencies": {
     "fsevents": "*"

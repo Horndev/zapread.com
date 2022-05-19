@@ -352,7 +352,6 @@ namespace zapread.com.Services
         /// 
         /// </summary>
         /// <param name="commentId"></param>
-        /// <param name="appId"></param>
         /// <returns></returns>
         public string GenerateUserMentionedInCommentHTML(long commentId)
         {

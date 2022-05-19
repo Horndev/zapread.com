@@ -489,7 +489,10 @@ namespace zapread.com.Controllers
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(null, db, userInfo);
 
-                var postquery = QueryHelpers.OrderPostsByNew(validposts, groupId, true);
+                var postquery = QueryHelpers.OrderPostsByNew(
+                    validposts: validposts, 
+                    groupId: groupId, 
+                    stickyPostOnTop: true);
 
                 var postsVm = await QueryHelpers.QueryPostsVm(
                     start: BlockNumber, 

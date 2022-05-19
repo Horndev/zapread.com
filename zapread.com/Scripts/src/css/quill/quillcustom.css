@@ -65,7 +65,8 @@
 }
 
 .ql-editor .mention {
-    height: 24px;
+    height: auto;
+    /*height: 24px;*/
     width: auto;
     display: inline-flex;
     border-radius: 6px;

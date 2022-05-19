@@ -40,6 +40,9 @@ namespace zapread.com.Models.API
         /// </summary>
         public int NumReactions { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsApplied { get; set; }
     }
 }
