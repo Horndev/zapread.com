@@ -469,6 +469,7 @@ namespace zapread.com.Controllers
                     // Updated post
                     post = await db.Posts
                         .Include(pst => pst.UserId)
+                        .Include(pst => pst.Tags)
                         .Where(pst => pst.PostId == postId)
                         .FirstOrDefaultAsync().ConfigureAwait(true);
 
@@ -487,6 +488,7 @@ namespace zapread.com.Controllers
                     post.Language = postLanguage ?? post.Language;
                     post.IsNSFW = isNSFW;
                     post.IsNonIncome = isNonIncome;
+                    post.Tags = new List<Tag>(); // Reset
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -500,25 +502,60 @@ namespace zapread.com.Controllers
                     if (post.IsDraft && !isDraft) // Post was a draft, now published
                     {
                         post.IsDraft = isDraft;
+                        
+                        // Check for new tags
+                        HtmlDocument postDocument = new HtmlDocument();
+                        postDocument.LoadHtml(content);
+
+                        var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+                        if (allTags != null)
+                        {
+                            foreach (var tag in allTags)
+                            {
+                                var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+                                var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
+                                if (isNew)
+                                {
+                                    Tag newTag = new Tag()
+                                    {
+                                        TagName = tagname
+                                    };
+
+                                    // ensure it does not already exist (e.g. created since post is draft)
+                                    var postTag = await db.Tags
+                                        .Where(t => t.TagName == tagname)
+                                        .FirstOrDefaultAsync();
+
+                                    if (postTag != null)
+                                    {
+                                        newTag = postTag;
+                                    }
+
+                                    db.Tags.Add(newTag);
+
+                                    post.Tags.Add(newTag);
+                                }
+                                else
+                                {
+                                    var postTag = await db.Tags
+                                        .Where(t => t.TagName == tagname)
+                                        .FirstOrDefaultAsync();
+
+                                    post.Tags.Add(postTag);
+                                }
+                            }
+                        }
+
                         await db.SaveChangesAsync().ConfigureAwait(true);
+
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
+                        }
 
-                            // Old version:
-                            //// Send alerts to users subscribed to users
-                            //try
-                            //{
-                            //    var mailer = DependencyResolver.Current.GetService<MailerController>();
-                            //    mailer.ControllerContext = new ControllerContext(this.Request.RequestContext, mailer);
-                            //    string emailBody = await mailer.GenerateNewPostEmailBody(post.PostId).ConfigureAwait(true);
-                            //    BackgroundJob.Enqueue<MailingService>(
-                            //        methodCall: x => x.MailNewPostToFollowers(post.PostId, emailBody));
-                            //}
-                            //catch (Exception)
-                            //{
-                            //    // noted.
-                            //}
+                        if (postDocument.HasUserMention())
+                        {
+                            await eventService.OnUserMentionedInPost(post.PostId);
                         }
                     }
                     else if (!post.IsDraft && isDraft) // Editing a previously published post
@@ -561,6 +598,8 @@ namespace zapread.com.Controllers
                         try
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
+
+                            // this submission is rare (i.e. autosave didn't trigger)
                         }
                         catch (Exception)
                         {

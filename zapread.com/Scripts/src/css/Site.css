@@ -8,6 +8,37 @@
  *   Modified
 */
 
+.user-mention {
+
+}
+
+    .user-mention a,
+    .user-mention i {
+        color: #676a6c;
+    }
+
+    .post-username a,
+    .post-username i 
+    {
+        color: #676a6c;
+    }
+
+.ql-snow .ql-editor .tag-mention {
+    color: gray;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+.ql-snow .tag-mention a {
+    font-weight: bold;
+    color: gray;
+}
+
+.tag-mention a {
+    font-weight: bold;
+    color: gray;
+}
+
 .top-groups-btn {
     white-space: normal;
     word-wrap: break-word;
@@ -343,7 +374,8 @@ a.zr-post-dropdown.btn.btn-link.btn-sm {
 .post-box {
     max-height: 800px;
     position: relative;  /*This is needed to correctly calculate size of post for read-more*/
-    overflow: hidden;
+    /*overflow: hidden;*/
+    /*overflow-y: visible;*/
 }
 
 .post-box .read-more-button {
@@ -7211,8 +7243,9 @@ table.shoping-cart-table {
     }
 
     .vote-info,
+    .vote-info i,
     .vote-info a {
-        color: #b4b6b8;
+        color: #676a6c;
         font-size: 12px;
     }
 

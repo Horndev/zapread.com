@@ -370,7 +370,7 @@ namespace zapread.com.Controllers
                         break;
 
                     default:
-                        postquery = QueryHelpers.OrderPostsByNew(validposts);
+                        postquery = QueryHelpers.OrderPostsByNew(validposts: validposts);
                         break;
                 }
 
@@ -476,7 +476,7 @@ namespace zapread.com.Controllers
                     return QueryHelpers.OrderPostsByActive(validposts);
 
                 default:
-                    return QueryHelpers.OrderPostsByNew(validposts);
+                    return QueryHelpers.OrderPostsByNew(validposts: validposts);
             }
         }
 

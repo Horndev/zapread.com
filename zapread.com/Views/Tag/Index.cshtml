@@ -1,0 +1,18 @@
+﻿@model zapread.com.Models.Tag.TagsViewModel
+@{
+    ViewBag.Title = "Tags";
+}
+
+<div id="root"></div>
+
+@section Styles {
+    @Styles.Render("~/bundles/tag/index/css")
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/tag/index")
+
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
+}

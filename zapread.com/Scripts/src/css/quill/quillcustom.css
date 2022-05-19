@@ -65,7 +65,8 @@
 }
 
 .ql-editor .mention {
-    height: 24px;
+    height: auto;
+    /*height: 24px;*/
     width: auto;
     display: inline-flex;
     border-radius: 6px;
@@ -134,6 +135,7 @@ button.ql-cancel {
     border: 0 !important;
     cursor: auto !important;
     border-radius: 0 0 10px 10px;
+    overflow-y: visible; /*needed for popups*/
 }
 
     /* make iframes clickable */

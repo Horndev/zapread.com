@@ -83,7 +83,14 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async static Task NotifyNewUserFollowing(int userIdFollowed, int userIdFollowing)
         {
-            // Not yet implemented
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Where(u => u.Id == userIdFollowed)
+                    .FirstOrDefaultAsync();
+
+                // Not yet implemented
+            }
         }
 
         /// <summary>
@@ -132,6 +139,11 @@ namespace zapread.com.Services
         /// <param name="commentId"></param>
         /// <returns></returns>
         public async static Task NotifyUserMentionedInComment(long commentId)
+        {
+            // Not yet implemented
+        }
+
+        public async static Task NotifyUserMentionedInPost(long postId)
         {
             // Not yet implemented
         }

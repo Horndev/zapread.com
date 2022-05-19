@@ -400,7 +400,7 @@ namespace zapread.com.Controllers
                     var doc = new HtmlDocument();
                     doc.LoadHtml(comment.Text);
 
-                    if (hasUserMention(doc))
+                    if (doc.HasUserMention())
                     {
                         await eventService.OnUserMentionedInComment(comment.CommentId);
                     }
@@ -459,27 +459,6 @@ namespace zapread.com.Controllers
                     comment.CommentId,
                 });
             }
-        }
-
-        private bool hasUserMention(HtmlDocument doc)
-        {
-            var spans = doc.DocumentNode.SelectNodes("//span");
-
-            if (spans != null)
-            {
-                foreach (var s in spans)
-                {
-                    if (s.Attributes.Count(a => a.Name == "class") > 0)
-                    {
-                        var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
-                        if (cls.Value.Contains("userhint"))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         /// <summary>

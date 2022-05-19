@@ -14,12 +14,16 @@ import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
 import '../../../css/quill/quilledit.css';                              // [✓]
 import ImageResize from '../../../quill-image-resize-module/src/ImageResize';           // [✓] Import from source
 import { ImageUpload } from '../../../quill/image-upload';
+import Mention from '../../../quill/quill-mention/src/quill.mention';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from '../../../quill/QuillImageDropAndPaste';
 import Toolbar from '../../../quill/zr-toolbar';
+import { suggestUsers } from '../../../Components/utility/suggestUsers';
+import { suggestTags } from '../../../Components/utility/suggestTags';
 
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste, true);
 Quill.register('modules/imageUpload', ImageUpload, true);
+Quill.register('modules/mention', Mention, true);
 Quill.register('modules/autoLinks', AutoLinks, true);
 Quill.register('modules/imageResize', ImageResize, true);
 
@@ -194,6 +198,39 @@ export default class Editor extends React.Component {
       imageDropAndPaste: {
         // add an custom image handler
         handler: this.imageHandler.bind(this)
+      },
+      mention: {
+        minChars: 1,
+        onSelect: function onSelect(item, insertItem, mentionChar) {
+          if (mentionChar === "@") {
+            item.value = `<span class='userhint user-mention'>${item.value}</span>`;
+          }
+          if (mentionChar === "#") {
+            item.value = `<span class='taghint'>${item.value}</span>`;
+          }
+
+          insertItem(item);
+        },
+        allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+        mentionDenotationChars: ["@", "#"],
+        dataAttributes: ["id", "value", "denotationChar", "link", "target", "disabled", "newtag"],
+        source: async function (searchTerm, renderList, mentionChar) {
+          if (mentionChar === "@") {
+            const matchedUsers = await suggestUsers(searchTerm);
+            renderList(matchedUsers, searchTerm);
+          }
+
+          if (mentionChar === "#") {
+            const matchedTags = await suggestTags(searchTerm);
+            //const matchedTags = [
+            //  { id: 0, newtag: true, value: searchTerm, link: "/Tag/" + encodeURIComponent(searchTerm) + "/" },
+            //  { id: 1, value: "Test", link: "/Home/About" },
+            //  { id: 2, value: "Crypto" },
+            //  { id: 3, value: "Zapread" }
+            //]
+            renderList(matchedTags, searchTerm);
+          }
+        }
       },
       autoLinks: true,
       imageResize: {},

@@ -16,6 +16,7 @@ import ImageResize from '../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
+import { suggestUsers } from '../../Components/utility/suggestUsers';
 
 Quill.register({
   'modules/imageUpload': ImageUpload,
@@ -328,14 +329,14 @@ export function makeQuillComment(options) {
   });
 }
 
-export async function suggestUsers(searchTerm) {
-  var matchedUsers = [];
-  var data = await postData("/Comment/Mentions/", {
-    searchstr: searchTerm.toString() // not sure if toString is needed here...
-  });
-  matchedUsers = data.users;
-  return matchedUsers;
-}
+//export async function suggestUsers(searchTerm) {
+//  var matchedUsers = [];
+//  var data = await postData("/Comment/Mentions/", {
+//    searchstr: searchTerm.toString() // not sure if toString is needed here...
+//  });
+//  matchedUsers = data.users;
+//  return matchedUsers;
+//}
 
 function showCommentLoadingById(id) {
   var el = document.getElementById(id);

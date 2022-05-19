@@ -474,6 +474,7 @@
     <Compile Include="API\PostController.cs" />
     <Compile Include="API\SearchController.cs" />
     <Compile Include="API\StreamController.cs" />
+    <Compile Include="API\TagController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -501,6 +502,7 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\SwashbuckleMVCController.cs" />
+    <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\VoteController.cs" />
@@ -520,6 +522,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
+    <Compile Include="Helpers\HtmlDocumentHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\LanguageHelpers.cs" />
@@ -948,6 +951,14 @@
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
     <Compile Include="Models\API\ReactionItem.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagPostsParameters.cs" />
+    <Compile Include="Models\API\Tag\GetTagPostsResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagInfoRequest.cs" />
+    <Compile Include="Models\API\Tag\GetTagInfoResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagsResponse.cs" />
+    <Compile Include="Models\API\Tag\MentionTagRequest.cs" />
+    <Compile Include="Models\API\Tag\MentionTagResponse.cs" />
+    <Compile Include="Models\API\Tag\TagItem.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
     <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
@@ -987,6 +998,7 @@
     <Compile Include="Models\Email\NewPostEmail.cs" />
     <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
+    <Compile Include="Models\Email\UserMentionedInPostEmail.cs" />
     <Compile Include="Models\Email\UserMentionedInCommentEmail.cs" />
     <Compile Include="Models\Email\WeeklySummaryEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
@@ -1013,6 +1025,7 @@
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
     <Compile Include="Models\Subscription\SubscriptionTypes.cs" />
     <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
+    <Compile Include="Models\Tag\TagsViewModel.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
@@ -1141,12 +1154,14 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Scripts\dist\0\1035.js" />
-    <Content Include="Scripts\dist\0\1104.js" />
+    <Content Include="Scripts\dist\0\1750.js" />
     <Content Include="Scripts\dist\0\2238.css" />
     <Content Include="Scripts\dist\0\228.js" />
     <Content Include="Scripts\dist\0\2307.js" />
     <Content Include="Scripts\dist\0\2674.js" />
     <Content Include="Scripts\dist\0\2720.js" />
+    <Content Include="Scripts\dist\0\3215.css" />
+    <Content Include="Scripts\dist\0\3215.js" />
     <Content Include="Scripts\dist\0\3876.css" />
     <Content Include="Scripts\dist\0\3876.js" />
     <Content Include="Scripts\dist\0\3903.css" />
@@ -1164,8 +1179,6 @@
     <Content Include="Scripts\dist\0\5580.js" />
     <Content Include="Scripts\dist\0\5759.css" />
     <Content Include="Scripts\dist\0\5759.js" />
-    <Content Include="Scripts\dist\0\5763.css" />
-    <Content Include="Scripts\dist\0\5763.js" />
     <Content Include="Scripts\dist\0\586.css" />
     <Content Include="Scripts\dist\0\586.js" />
     <Content Include="Scripts\dist\0\595.js" />
@@ -1176,7 +1189,6 @@
     <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\7630.js" />
     <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
-    <Content Include="Scripts\dist\0\7716.js" />
     <Content Include="Scripts\dist\0\7939.js" />
     <Content Include="Scripts\dist\0\823.css" />
     <Content Include="Scripts\dist\0\823.js" />
@@ -1186,6 +1198,8 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
+    <Content Include="Scripts\dist\0\9466.css" />
+    <Content Include="Scripts\dist\0\9466.js" />
     <Content Include="Scripts\dist\0\9787.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
@@ -1292,6 +1306,10 @@
     <Content Include="Scripts\dist\subscription\unsubscribe.css" />
     <Content Include="Scripts\dist\subscription\unsubscribe.js" />
     <Content Include="Scripts\dist\subscription\unsubscribe.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\tag\detail.css" />
+    <Content Include="Scripts\dist\tag\detail.js" />
+    <Content Include="Scripts\dist\tag\index.css" />
+    <Content Include="Scripts\dist\tag\index.js" />
     <Content Include="Scripts\dist\user\achievements.css" />
     <Content Include="Scripts\dist\user\achievements.js" />
     <Content Include="Scripts\dist\user\achievements.js.LICENSE.txt" />
@@ -1309,6 +1327,8 @@
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\UserBalance.js" />
+    <Content Include="Scripts\src\Components\utility\suggestTags.js" />
+    <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
     <Content Include="Scripts\src\Components\ZapreadSearch.js" />
     <Content Include="Scripts\src\Components\ZapreadSearchResultModal.js" />
@@ -1413,13 +1433,19 @@
     <Content Include="Scripts\dist\home\install.js.map" />
     <Content Include="Scripts\dist\admin\reactions.css.map" />
     <Content Include="Scripts\dist\admin\reactions.js.map" />
+    <Content Include="Scripts\dist\tag\detail.css.map" />
+    <Content Include="Scripts\dist\tag\detail.js.map" />
+    <Content Include="Scripts\dist\tag\index.css.map" />
+    <Content Include="Scripts\dist\tag\index.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
-    <Content Include="Scripts\dist\0\1104.js.map" />
+    <Content Include="Scripts\dist\0\1750.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
     <Content Include="Scripts\dist\0\228.js.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
     <Content Include="Scripts\dist\0\2674.js.map" />
     <Content Include="Scripts\dist\0\2720.js.map" />
+    <Content Include="Scripts\dist\0\3215.css.map" />
+    <Content Include="Scripts\dist\0\3215.js.map" />
     <Content Include="Scripts\dist\0\3876.css.map" />
     <Content Include="Scripts\dist\0\3876.js.map" />
     <Content Include="Scripts\dist\0\3903.css.map" />
@@ -1437,8 +1463,6 @@
     <Content Include="Scripts\dist\0\5580.js.map" />
     <Content Include="Scripts\dist\0\5759.css.map" />
     <Content Include="Scripts\dist\0\5759.js.map" />
-    <Content Include="Scripts\dist\0\5763.css.map" />
-    <Content Include="Scripts\dist\0\5763.js.map" />
     <Content Include="Scripts\dist\0\586.css.map" />
     <Content Include="Scripts\dist\0\586.js.map" />
     <Content Include="Scripts\dist\0\595.js.map" />
@@ -1447,7 +1471,6 @@
     <Content Include="Scripts\dist\0\6969.js.map" />
     <Content Include="Scripts\dist\0\7524.js.map" />
     <Content Include="Scripts\dist\0\7630.js.map" />
-    <Content Include="Scripts\dist\0\7716.js.map" />
     <Content Include="Scripts\dist\0\7939.js.map" />
     <Content Include="Scripts\dist\0\823.css.map" />
     <Content Include="Scripts\dist\0\823.js.map" />
@@ -1457,6 +1480,8 @@
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
+    <Content Include="Scripts\dist\0\9466.css.map" />
+    <Content Include="Scripts\dist\0\9466.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
@@ -1583,6 +1608,8 @@
     <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
     <Content Include="Scripts\src\pages\subscription\unsubscribe.js" />
+    <Content Include="Scripts\src\pages\tag\detail.js" />
+    <Content Include="Scripts\src\pages\tag\index.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
@@ -1897,6 +1924,9 @@
     <Content Include="Scripts\src\quill\react-quill\yarn.lock" />
     <Content Include="Views\Admin\Reactions.cshtml" />
     <Content Include="Views\Admin\Tags.cshtml" />
+    <Content Include="Views\Tag\Index.cshtml" />
+    <Content Include="Views\Tag\Detail.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UserMentionedInPost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

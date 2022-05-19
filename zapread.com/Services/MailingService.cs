@@ -39,7 +39,9 @@ namespace zapread.com.Services
     /// [ ] New Chat
     ///     [✓] Can Unsubscribe directly
     /// [ ] User Alias changed
-    /// [ ] User Mentioned
+    /// [ ] User Mentioned in Comment
+    ///     [✓] Can Unsubscribe directly
+    /// [ ] User Mentioned in Post
     ///     [✓] Can Unsubscribe directly
     /// [ ] User Following
     ///     [ ] Can Unsubscribe directly
@@ -352,7 +354,6 @@ namespace zapread.com.Services
         /// 
         /// </summary>
         /// <param name="commentId"></param>
-        /// <param name="appId"></param>
         /// <returns></returns>
         public string GenerateUserMentionedInCommentHTML(long commentId)
         {
@@ -375,6 +376,40 @@ namespace zapread.com.Services
                     .FirstOrDefault();
 
                 var emailContent = renderEmail(mentionInfo);
+
+                return emailContent;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
+        public string GenerateUserMentionedInPostHTML(long postId)
+        {
+            using (var db = new ZapContext())
+            {
+                var postInfo = db.Posts
+                    .Where(p => p.PostId == postId)
+                    .Select(p => new UserMentionedInPostEmail()
+                    {
+                        PostId = p.PostId,
+                        PostTitle = p.PostTitle,
+                        Score = p.Score,
+                        UserName = p.UserId.Name,
+                        UserAppId = p.UserId.AppId,
+                        ProfileImageVersion = p.UserId.ProfileImage.Version,
+                        GroupName = p.Group.GroupName,
+                        GroupId = p.Group.GroupId,
+                        Content = p.Content,
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = renderEmail(postInfo);
+
+                // Make images resolve to zapread
+                emailContent = makeImagesFQDN(emailContent);
 
                 return emailContent;
             }
@@ -713,6 +748,78 @@ namespace zapread.com.Services
                             }, "Notify", true));
     }
                 }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        public bool MailUserMentionedInPost(long postId, bool isTest = false)
+        {
+            using (var db = new ZapContext())
+            {
+                var mentionInfo = db.Posts
+                    .Where(c => c.PostId == postId)
+                    .Select(c => new
+                    {
+                        Text = c.Content,
+                        FromUserName = c.UserId.Name
+                    })
+                    .FirstOrDefault();
+
+                var emailContent = GenerateUserMentionedInPostHTML(postId);
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(mentionInfo.Text);
+                var spans = doc.DocumentNode.SelectNodes("//span");
+                if (spans != null)
+                {
+                    using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                    {
+                        foreach (var s in spans)
+                        {
+                            if (s.Attributes.Count(a => a.Name == "class") > 0)
+                            {
+                                var cls = s.Attributes.FirstOrDefault(a => a.Name == "class");
+                                if (cls.Value.Contains("userhint"))
+                                {
+                                    var username = s.InnerHtml.Replace("@", "");
+                                    var mentionedUserInfo = db.Users
+                                        .Where(u => u.Name == username)
+                                        .Select(u => new {
+                                            u.Settings.NotifyOnMentioned,
+                                            u.AppId
+                                        })
+                                        .FirstOrDefault();
+
+                                    if (mentionedUserInfo.NotifyOnMentioned)
+                                    {
+                                        string receiverEmail = userManager.FindById(mentionedUserInfo.AppId).Email;
+                                        var userUnsubscribeId = CryptoService.EncryptString(
+                                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                            mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
+                                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                            new UserEmailModel()
+                                            {
+                                                Destination = receiverEmail,
+                                                Body = emailContent,
+                                                Email = "",
+                                                Name = "zapread.com",
+                                                Subject = "You were mentioned in a post by " + mentionInfo.FromUserName,
+                                            }, "Notify", true));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return true;
             }
         }

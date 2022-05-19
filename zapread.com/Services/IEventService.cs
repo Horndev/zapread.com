@@ -11,6 +11,11 @@ namespace zapread.com.Services
     /// </summary>
     public interface IEventService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAppId"></param>
+        /// <returns></returns>
         Task<bool> OnUserActivityAsync(string userAppId);
 
         /// <summary>
@@ -62,6 +67,14 @@ namespace zapread.com.Services
         /// <param name="isTest"></param>
         /// <returns></returns>
         Task<bool> OnUserMentionedInComment(long commentId, bool isTest = false);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        Task<bool> OnUserMentionedInPost(long postId, bool isTest = false);
 
         /// <summary>
         /// 

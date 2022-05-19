@@ -276,9 +276,10 @@ namespace zapread.com.Helpers
         /// </summary>
         /// <param name="validposts"></param>
         /// <param name="groupId"></param>
+        /// <param name="tagId"></param>
         /// <param name="stickyPostOnTop"></param>
         /// <returns></returns>
-        public static IQueryable<PostQueryInfo> OrderPostsByNew(IQueryable<Post> validposts, int groupId = 0, bool stickyPostOnTop = false)
+        public static IQueryable<PostQueryInfo> OrderPostsByNew(IQueryable<Post> validposts, int groupId = 0, int tagId = 0, bool stickyPostOnTop = false)
         {
             IQueryable<PostQueryInfo> sposts = validposts
                 .Where(p => p.Score > -50)
@@ -295,6 +296,11 @@ namespace zapread.com.Helpers
             if (groupId > 0)
             {
                 sposts = sposts.Where(p => p.p.Group.GroupId == groupId);
+            }
+
+            if (tagId > 0)
+            {
+                sposts = sposts.Where(p => p.p.Tags.Select(t => t.TagId).Contains(tagId));
             }
 
             if (stickyPostOnTop)

@@ -64,6 +64,9 @@
                 <li id="navGroups" class="nav-item">
                     @Html.ActionLink("Groups", "Index", "Group", new { area = "" }, new { @class = "nav-link" })
                 </li>
+                <li id="navGroups" class="nav-item">
+                    @Html.ActionLink("Tags", "Index", "Tag", new { area = "" }, new { @class = "nav-link" })
+                </li>
                 <li class="nav-item">
                     @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
                 </li>
@@ -73,19 +76,6 @@
             </ul>
             <div class="mx-2 w-100">
                 <div id="ZRSearch"></div>
-                @*<gcse:searchresults-only id="gcse_searchresults"></gcse:searchresults-only>*@
-                @*<script>
-                    (function () {
-                        var cx = '011527487946990464906:hzzt0pfk0iu';
-                        var gcse = document.createElement('script');
-                        gcse.type = 'text/javascript';
-                        gcse.async = true;
-                        gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-                        var s = document.getElementsByTagName('script')[0];
-                        s.parentNode.insertBefore(gcse, s);
-                    })();
-                </script>
-                <gcse:search></gcse:search>*@
             </div>
             @if (Request.IsAuthenticated)
             {

@@ -53,6 +53,11 @@ namespace zapread.com.Database
         /// </summary>
         public DbSet<Reaction> Reactions { get; set; }
 
+        /// <summary>
+        /// Existing and known tags
+        /// </summary>
+        public DbSet<Tag> Tags { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {

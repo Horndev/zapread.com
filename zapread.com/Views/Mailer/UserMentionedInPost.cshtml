@@ -1,0 +1,84 @@
+﻿@using zapread.com.Helpers;
+@using zapread.com.Models;
+@using zapread.com.Models.UserViews;
+@model zapread.com.Models.Email.UserMentionedInPostEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle)">
+                        <h3 style="display:inline-block">You were mentioned in a post</h3>
+                    </a>
+                    <hr />
+                </div>
+                <div class="social-feed-box">
+                    <div class="social-avatar">
+                        <div class="col-sm-auto vote-actions" style="padding-left: 0px;">
+                            <div class="vote-actions">
+                                <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, vote: 1)" class="text-muted">
+                                    <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px;" />
+                                </a>
+                                <div>@Model.Score.ToAbbrString()</div>
+                                <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, vote: 0)" class="text-muted">
+                                    <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px;" />
+                                </a>
+                            </div>
+                        </div>
+
+                        <a href="@MailViewHelper.UserLink(Model.UserName)" class="pull-left" style=" padding-top: 8px;">
+                            <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.UserAppId, Model.ProfileImageVersion, 45)" />
+                        </a>
+                        <a class="vote-title" href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle)" style="margin-left: 110px;">
+                            @if (Model.PostTitle == null)
+                            {
+                                <text>Post</text>
+                            }
+                            else
+                            {
+                                @Model.PostTitle
+                            }
+                        </a>
+                        <div class="vote-info" style="margin-left: 110px;">
+                            <a class="post-username" href="@MailViewHelper.UserLink(Model.UserName)">
+                                @Model.UserName
+                            </a>
+                            posted in
+                            <a class="post-groupname grouphint" href="@MailViewHelper.GroupURI(Model.GroupId)" style="font-size: small; display: inline">
+                                @Model.GroupName
+                            </a>
+                            <h3 style="display: block;">
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="social-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="post-quotable post-content ql-container ql-snow" data-postid="@Model.PostId">
+                                    <div class="post-content ql-container ql-snow">
+                                        @(new RazorEngine.Text.RawString(Model.Content))
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" style="background-color:white;">
+                    <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/">Unsubscribe</a> from these emails.
+                </div>
+                @*<div class="container" style="background-color:white;">
+            Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+        </div>*@
+            </div>
+        </div>
+    </div>
+</body>
+</html>

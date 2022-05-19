@@ -27,6 +27,12 @@ namespace zapread.com.Helpers
             sanitizer.AllowedAttributes.Add("frameborder");
             sanitizer.AllowedAttributes.Add("allowfullscreen");
             sanitizer.AllowedAttributes.Add("seamless");
+            sanitizer.AllowedAttributes.Add("data-index");
+            sanitizer.AllowedAttributes.Add("data-denotation-char");
+            sanitizer.AllowedAttributes.Add("data-id");
+            sanitizer.AllowedAttributes.Add("data-newtag");
+            sanitizer.AllowedAttributes.Add("data-value");
+            sanitizer.AllowedAttributes.Add("contenteditable");
             sanitizer.AllowedAttributes.Remove("id");
             sanitizer.AllowedAttributes.Remove("onload");
             sanitizer.AllowedAttributes.Remove("onmousemove");

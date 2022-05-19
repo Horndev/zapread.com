@@ -98,20 +98,10 @@ namespace zapread.com
             BundlePage(bundles, "post", "newpost");
             BundlePage(bundles, "post", "postnotfound");
             BundlePage(bundles, "subscription", "unsubscribe");
+            BundlePage(bundles, "tag", "detail");
+            BundlePage(bundles, "tag", "index");
             BundlePage(bundles, "user", "achievements");
             BundlePage(bundles, "user", "index");
-
-            //// User/{username}
-            //bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-            //            "~/Scripts/Users/index.js",
-            //            "~/Scripts/dist/user_index.js")
-            //            .WithLastModifiedToken());
-
-            //// Post/NewPost & Edit scripts
-            //bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
-            //            "~/Scripts/dist/post_edit.js",
-            //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
-            //            .WithLastModifiedToken());
 
             /* Tarteaucitron */
             bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(

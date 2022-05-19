@@ -45,6 +45,8 @@ module.exports = {
     post_edit:      "./Scripts/src/pages/post/edit.js",
     post_postnotfound: "./Scripts/src/pages/post/postnotfound.js",
     subscription_unsubscribe: "./Scripts/src/pages/subscription/unsubscribe.js",
+    tag_detail: "./Scripts/src/pages/tag/detail.js",
+    tag_index: "./Scripts/src/pages/tag/index.js",
     user_achievements: "./Scripts/src/pages/user/achievements.js",
     user_index:     "./Scripts/src/pages/user/index.js"
   },
