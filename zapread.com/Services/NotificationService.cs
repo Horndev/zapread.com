@@ -143,6 +143,11 @@ namespace zapread.com.Services
             // Not yet implemented
         }
 
+        public async static Task NotifyUserMentionedInPost(long postId)
+        {
+            // Not yet implemented
+        }
+
         /// <summary>
         /// 
         /// </summary>

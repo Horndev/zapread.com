@@ -508,38 +508,41 @@ namespace zapread.com.Controllers
                         postDocument.LoadHtml(content);
 
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
-                        foreach (var tag in allTags)
+                        if (allTags != null)
                         {
-                            var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                            var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
-                            if (isNew)
+                            foreach (var tag in allTags)
                             {
-                                Tag newTag = new Tag()
+                                var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+                                var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
+                                if (isNew)
                                 {
-                                    TagName = tagname
-                                };
+                                    Tag newTag = new Tag()
+                                    {
+                                        TagName = tagname
+                                    };
 
-                                // ensure it does not already exist (e.g. created since post is draft)
-                                var postTag = await db.Tags
-                                    .Where(t => t.TagName == tagname)
-                                    .FirstOrDefaultAsync();
+                                    // ensure it does not already exist (e.g. created since post is draft)
+                                    var postTag = await db.Tags
+                                        .Where(t => t.TagName == tagname)
+                                        .FirstOrDefaultAsync();
 
-                                if (postTag != null)
-                                {
-                                    newTag = postTag;
+                                    if (postTag != null)
+                                    {
+                                        newTag = postTag;
+                                    }
+
+                                    db.Tags.Add(newTag);
+
+                                    post.Tags.Add(newTag);
                                 }
+                                else
+                                {
+                                    var postTag = await db.Tags
+                                        .Where(t => t.TagName == tagname)
+                                        .FirstOrDefaultAsync();
 
-                                db.Tags.Add(newTag);
-
-                                post.Tags.Add(newTag);
-                            }
-                            else
-                            {
-                                var postTag = await db.Tags
-                                    .Where(t => t.TagName == tagname)
-                                    .FirstOrDefaultAsync();
-
-                                post.Tags.Add(postTag);
+                                    post.Tags.Add(postTag);
+                                }
                             }
                         }
 
@@ -548,6 +551,11 @@ namespace zapread.com.Controllers
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
+                        }
+
+                        if (postDocument.HasUserMention())
+                        {
+                            await eventService.OnUserMentionedInPost(post.PostId);
                         }
                     }
                     else if (!post.IsDraft && isDraft) // Editing a previously published post

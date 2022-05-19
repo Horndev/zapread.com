@@ -112,6 +112,9 @@ export function onLoadedMorePosts() {
   Array.prototype.forEach.call(elements, function (el, _i) {
     if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
       el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
+      el.style.overflowY = "hidden";
+    } else {
+      el.style.overflowY = "visible";
     }
   });
 

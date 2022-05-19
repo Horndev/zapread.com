@@ -522,6 +522,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
+    <Compile Include="Helpers\HtmlDocumentHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
     <Compile Include="Helpers\LanguageHelpers.cs" />
@@ -997,6 +998,7 @@
     <Compile Include="Models\Email\NewPostEmail.cs" />
     <Compile Include="Models\Email\TestEmail.cs" />
     <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
+    <Compile Include="Models\Email\UserMentionedInPostEmail.cs" />
     <Compile Include="Models\Email\UserMentionedInCommentEmail.cs" />
     <Compile Include="Models\Email\WeeklySummaryEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
@@ -1924,6 +1926,7 @@
     <Content Include="Views\Admin\Tags.cshtml" />
     <Content Include="Views\Tag\Index.cshtml" />
     <Content Include="Views\Tag\Detail.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UserMentionedInPost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

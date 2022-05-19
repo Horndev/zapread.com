@@ -71,6 +71,14 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        Task<bool> OnUserMentionedInPost(long postId, bool isTest = false);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="userIdFollowed"></param>
         /// <param name="userIdFollowing"></param>
         /// <param name="isTest"></param>

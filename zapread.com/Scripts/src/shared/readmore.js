@@ -25,6 +25,7 @@ export function readMoreButton(e) {
 
   up.style.height = 'auto'; //totalHeight.toString() + "px";
   up.style.maxHeight = "9999px";
+  up.style.overflowY = "visible";
   up.classList.add('read-more-expanded');
 
   // fade out read-more

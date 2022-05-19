@@ -135,6 +135,21 @@ namespace zapread.com.Services
         /// <param name="postId"></param>
         /// <param name="isTest"></param>
         /// <returns></returns>
+        public async Task<bool> OnUserMentionedInPost(long postId, bool isTest = false)
+        {
+            BackgroundJob.Enqueue<MailingService>(methodCall: x => x.MailUserMentionedInPost(postId, isTest));
+
+            await NotificationService.NotifyUserMentionedInPost(postId);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
         public async Task<bool> OnNewPostAsync(int postId, bool isTest = false)
         {
             BackgroundJob.Enqueue<MailingService>(methodCall: x => x.MailNewPostToFollowers(postId, isTest));
