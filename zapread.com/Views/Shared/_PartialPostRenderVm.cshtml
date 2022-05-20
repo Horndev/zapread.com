@@ -184,8 +184,9 @@
     {
         <div class="post-reaction-bar" data-l="1" data-postid="@Model.PostId"></div>
         <div style="height:32px;">
-            <div id="wc_@Model.PostId.ToString()" onclick="writeComment(@Model.PostId);">
-                <span class="btn btn-link btn-sm"><span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+            <div id="wc_@Model.PostId.ToString()">
+                <span class="btn btn-link btn-sm" onclick="writeComment(@Model.PostId);">
+                <span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
             </div>
         </div>
         <div id="reply_p@(Model.PostId.ToString())" style="display: none;">

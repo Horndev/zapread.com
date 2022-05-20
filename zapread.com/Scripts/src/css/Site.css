@@ -375,7 +375,7 @@ a.zr-post-dropdown.btn.btn-link.btn-sm {
     max-height: 800px;
     position: relative;  /*This is needed to correctly calculate size of post for read-more*/
     /*overflow: hidden;*/
-    /*overflow-y: visible;*/
+    overflow-y: hidden;
 }
 
 .post-box .read-more-button {

@@ -10,7 +10,7 @@ Current version is: 0.4-beta.  You can track progress to the next version on the
 
 ## ZapRead.com Mission
 
-1) To create a social economy.  To turn social media and networking upside-down.  To give users and the community control over their content.  Stop the selling of user data and innunduation of advertising without compensation.
+1) To create a social economy.  To turn social media and networking upside-down.  To give users and the community control over their content.  Stop the selling of user data and inundation of advertising without compensation.
 
 2) To create a new publishing model.  Previously, authors paid publishers who then charged users but this is not reflective of the value of authors.  Both consumers and authors were at the mercy of the publisher.  *Authors should be properly compensated for their work - by the value as determined by the consumers.*
 
