@@ -905,6 +905,10 @@
     <Compile Include="Migrations\202205111740172_AddUserReactionTimestamps.designer.cs">
       <DependentUpon>202205111740172_AddUserReactionTimestamps.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205201736487_AddCommentTags.cs" />
+    <Compile Include="Migrations\202205201736487_AddCommentTags.designer.cs">
+      <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1835,6 +1839,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205111740172_AddUserReactionTimestamps.resx">
       <DependentUpon>202205111740172_AddUserReactionTimestamps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205201736487_AddCommentTags.resx">
+      <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
