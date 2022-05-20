@@ -74,7 +74,10 @@ export default function PostView(props) {
             var readmoreButtonEl = node.querySelectorAll(".read-more-button").item(0);
             if (readmoreButtonEl != null) {
               readmoreButtonEl.style.display = "initial";
-            }          
+            }
+            node.style.overflowY = "hidden";
+          } else {
+            node.style.overflowY = "visible";
           }
         }
       });
@@ -351,10 +354,10 @@ export default function PostView(props) {
           <>
             <ReactionBar l={"1"} postId={post.PostId} />
             <div style={{height:"30px"}}>
-              <div id={"wc_" + post.PostId} onClick={() => {
-                writeComment(post.PostId);
-              }}>
-                <span className="btn btn-link btn-sm">
+              <div id={"wc_" + post.PostId}>
+                <span className="btn btn-link btn-sm" onClick={() => {
+                  writeComment(post.PostId);
+                }}>
                   <span className="badge badge-light">
                     {post.CommentVms.length}
                   </span>
