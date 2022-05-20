@@ -30,8 +30,13 @@ namespace zapread.com.Models.API.Tag
         public bool newtag { get; set; }
 
         /// <summary>
-        /// 
+        /// Number of posts
         /// </summary>
         public int count { get; set; }
+
+        /// <summary>
+        /// Number of comments
+        /// </summary>
+        public int CommentCount { get; set; }
     }
 }

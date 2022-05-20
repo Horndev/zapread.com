@@ -516,35 +516,20 @@ namespace zapread.com.Controllers
                             foreach (var tag in allTags)
                             {
                                 var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                                var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
-                                if (isNew)
+
+                                var postTag = await db.Tags
+                                    .Where(t => t.TagName == tagname)
+                                    .FirstOrDefaultAsync();
+
+                                if (postTag != null)
                                 {
-                                    Tag newTag = new Tag()
-                                    {
-                                        TagName = tagname
-                                    };
-
-                                    // ensure it does not already exist (e.g. created since post is draft)
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    if (postTag != null)
-                                    {
-                                        newTag = postTag;
-                                    }
-
-                                    db.Tags.Add(newTag);
-
-                                    post.Tags.Add(newTag);
+                                    post.Tags.Add(postTag);
                                 }
                                 else
                                 {
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    post.Tags.Add(postTag);
+                                    Tag newTag = new Tag() { TagName = tagname };
+                                    db.Tags.Add(newTag);
+                                    post.Tags.Add(newTag);
                                 }
                             }
                         }
@@ -576,43 +561,19 @@ namespace zapread.com.Controllers
                             foreach (var tag in allTags)
                             {
                                 var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                                var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
-                                if (isNew)
+                                var postTag = await db.Tags
+                                    .Where(t => t.TagName == tagname)
+                                    .FirstOrDefaultAsync();
+
+                                if (postTag != null)
                                 {
-                                    Tag newTag = new Tag()
-                                    {
-                                        TagName = tagname
-                                    };
-
-                                    // ensure it does not already exist (e.g. created since post is draft)
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    if (postTag != null)
-                                    {
-                                        newTag = postTag;
-                                    }
-
-                                    // Tag it only once
-                                    if (!post.Tags.Select(t => t.TagName).Contains(tagname))
-                                    {
-                                        db.Tags.Add(newTag);
-                                        post.Tags.Add(newTag);
-                                    }
-
+                                    post.Tags.Add(postTag);
                                 }
                                 else
                                 {
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-                                    
-                                    // Tag it only once
-                                    if (!post.Tags.Select(t => t.TagName).Contains(tagname))
-                                    {
-                                        post.Tags.Add(postTag);
-                                    }
+                                    Tag newTag = new Tag() { TagName = tagname };
+                                    db.Tags.Add(newTag);
+                                    post.Tags.Add(newTag);
                                 }
                             }
                         }
@@ -657,40 +618,19 @@ namespace zapread.com.Controllers
                         {
                             post.Tags = new List<Tag>();
                             var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                            var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
-                            if (isNew)
-                            {
-                                Tag newTag = new Tag()
-                                {
-                                    TagName = tagname
-                                };
-
-                                // ensure it does not already exist (e.g. created since post is draft)
-                                var postTag = await db.Tags
+                            var postTag = await db.Tags
                                     .Where(t => t.TagName == tagname)
                                     .FirstOrDefaultAsync();
 
-                                if (postTag != null)
-                                {
-                                    newTag = postTag;
-                                }
-
-                                if (!post.Tags.Select(t => t.TagName).Contains(tagname))
-                                {
-                                    db.Tags.Add(newTag);
-                                    post.Tags.Add(newTag);
-                                }
+                            if (postTag != null)
+                            {
+                                post.Tags.Add(postTag);
                             }
                             else
                             {
-                                if (!post.Tags.Select(t => t.TagName).Contains(tagname))
-                                {
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    post.Tags.Add(postTag);
-                                }
+                                Tag newTag = new Tag() { TagName = tagname };
+                                db.Tags.Add(newTag);
+                                post.Tags.Add(newTag);
                             }
                         }
                     }

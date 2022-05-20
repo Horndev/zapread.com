@@ -251,7 +251,7 @@ namespace zapread.com.Controllers
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public ActionResult UpdateComment(NewComment c)
+        public async Task<ActionResult> UpdateComment(NewComment c)
         {
             if (!ModelState.IsValid)
             {
@@ -273,7 +273,37 @@ namespace zapread.com.Controllers
                 }
                 comment.Text = SanitizeCommentXSS(c.CommentContent.Replace("<p><br></p>", ""));
                 comment.TimeStampEdited = DateTime.UtcNow;
-                db.SaveChanges();
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(comment.Text);
+
+                comment.Tags = new List<Tag>();
+                var allTags = doc.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+
+                if (allTags != null)
+                {
+                    foreach (var tag in allTags)
+                    {
+                        var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+
+                        var commentTag = await db.Tags
+                            .Where(t => t.TagName == tagname)
+                            .FirstOrDefaultAsync();
+
+                        if (commentTag != null)
+                        {
+                            comment.Tags.Add(commentTag);
+                        }
+                        else
+                        {
+                            Tag newTag = new Tag() { TagName = tagname };
+                            db.Tags.Add(newTag);
+                            comment.Tags.Add(newTag);
+                        }
+                    }
+                }
+
+                await db.SaveChangesAsync().ConfigureAwait(true);
             }
 
             return Json(new
@@ -387,18 +417,38 @@ namespace zapread.com.Controllers
                     post.Comments.Add(comment);
                 }
 
-                if (!c.IsTest)
-                {
-                    db.Comments.Add(comment);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-                }
-
-                // Find user mentions
+                // Find user mentions and tags
                 try
                 {
                     // This could just move into the OnComment event and get processed in background?
                     var doc = new HtmlDocument();
                     doc.LoadHtml(comment.Text);
+
+                    comment.Tags = new List<Tag>();
+                    var allTags = doc.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+
+                    if (allTags != null)
+                    {
+                        foreach (var tag in allTags)
+                        {
+                            var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+
+                            var commentTag = await db.Tags
+                                .Where(t => t.TagName == tagname)
+                                .FirstOrDefaultAsync();
+
+                            if (commentTag != null)
+                            {
+                                comment.Tags.Add(commentTag);
+                            }
+                            else
+                            {
+                                Tag newTag = new Tag() { TagName = tagname };
+                                db.Tags.Add(newTag);
+                                comment.Tags.Add(newTag);
+                            }
+                        }
+                    }
 
                     if (doc.HasUserMention())
                     {
@@ -410,6 +460,12 @@ namespace zapread.com.Controllers
                     MailingService.SendErrorNotification(
                         title: "User comment error",
                         message: " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n comment: " + c.CommentContent + "\r\n user: " + userAppId);
+                }
+
+                if (!c.IsTest)
+                {
+                    db.Comments.Add(comment);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 
                 if (!c.IsReply && !c.IsTest)

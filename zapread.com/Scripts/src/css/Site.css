@@ -23,20 +23,18 @@
         color: #676a6c;
     }
 
-.ql-snow .ql-editor .tag-mention {
+.ql-snow .ql-editor .tag-mention,
+.ql-editor .tag-mention {
     color: gray;
     background-color: transparent;
     text-decoration: underline;
 }
 
-.ql-snow .tag-mention a {
-    font-weight: bold;
-    color: gray;
-}
-
+.ql-snow .tag-mention a,
 .tag-mention a {
     font-weight: bold;
     color: gray;
+    text-decoration: underline;
 }
 
 .top-groups-btn {
