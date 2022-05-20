@@ -25,7 +25,6 @@
                 .ForeignKey("dbo.Tag", t => t.Tag_TagId, cascadeDelete: true)
                 .Index(t => t.Comment_CommentId)
                 .Index(t => t.Tag_TagId);
-            
         }
         
         /// <summary>

@@ -497,8 +497,6 @@ namespace zapread.com.Controllers
                     else // Post has been published, don't update timestamp, update edit timestamp.
                     {
                         post.TimeStampEdited = DateTime.UtcNow;
-
-
                     }
 
                     HtmlDocument postDocument = new HtmlDocument();
@@ -601,8 +599,6 @@ namespace zapread.com.Controllers
                         IsNSFW = isNSFW,
                         IsNonIncome = isNonIncome,
                     };
-
-                    
 
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
