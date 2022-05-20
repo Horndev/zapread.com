@@ -108,15 +108,42 @@ export function onLoadedMorePosts() {
   });
 
   // show the read more
-  elements = document.querySelectorAll(".post-box");
-  Array.prototype.forEach.call(elements, function (el, _i) {
-    if (parseFloat(getComputedStyle(el, null).height.replace("px", "")) >= 800) {
-      el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
-      el.style.overflowY = "hidden";
-    } else {
-      el.style.overflowY = "visible";
-    }
-  });
+  setTimeout(() => {
+    var postElements = document.querySelectorAll(".post-box");
+    Array.prototype.forEach.call(postElements, function (el, _i) {
+      var elHeight = parseFloat(getComputedStyle(el, null).height.replace("px", ""));
+      console.log(elHeight, el);
+      if (elHeight >= 800) {
+        el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
+        el.style.overflowY = "hidden";
+      } else {
+        el.style.overflowY = "visible";
+      }
+    });
+  }, 3000); // Timer is a quickfix, need to make a more event-driven solution which works once post size is known.  This could fail still if loading images is slow.
+
+  //var postElements = document.querySelectorAll(".post-box");
+  //Array.prototype.forEach.call(postElements, function (el, _i) {
+  //  var loadscript = document.createElement('script');
+  //  loadscript.type = 'text/javascript';
+  //  var code = 'console.log("!");';
+  //  loadscript.appendChild(document.createTextNode(code));
+  //  el.appendChild(loadscript);
+  //});
+
+  //var loadedCallback = function (mutationsList) {
+  //  for (var mutation of mutationsList) {
+  //    if (mutation.type == "attributes") {
+  //      console.log(mutation);
+  //      console.log('The ' + mutation.attributeName + ' attribute was modified.');
+  //      if (targetNode.style.display == "block") {
+  //        document.getElementById("textToHide").style.display = "none";
+  //      }
+  //    }
+  //  }
+  //}
+
+  //var observer = new MutationObserver(loadedCallback);
 
   // --- update impressions counts
   var impressionObserver = new IntersectionObserver(function (entries) {
@@ -136,6 +163,7 @@ export function onLoadedMorePosts() {
       }
     }
   }, { threshold: [0.1] });
+
   elements = document.querySelectorAll(".post-observe");
   Array.prototype.forEach.call(elements, function (el, _i) {
     impressionObserver.observe(el);
