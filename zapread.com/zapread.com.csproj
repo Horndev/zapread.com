@@ -1158,12 +1158,12 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Scripts\dist\0\1035.js" />
-    <Content Include="Scripts\dist\0\1750.js" />
     <Content Include="Scripts\dist\0\2238.css" />
     <Content Include="Scripts\dist\0\228.js" />
     <Content Include="Scripts\dist\0\2307.js" />
     <Content Include="Scripts\dist\0\2674.js" />
     <Content Include="Scripts\dist\0\2720.js" />
+    <Content Include="Scripts\dist\0\2855.js" />
     <Content Include="Scripts\dist\0\3215.css" />
     <Content Include="Scripts\dist\0\3215.js" />
     <Content Include="Scripts\dist\0\3876.css" />
@@ -1175,6 +1175,8 @@
     <Content Include="Scripts\dist\0\4090.css" />
     <Content Include="Scripts\dist\0\4090.js" />
     <Content Include="Scripts\dist\0\4283.js" />
+    <Content Include="Scripts\dist\0\4368.css" />
+    <Content Include="Scripts\dist\0\4368.js" />
     <Content Include="Scripts\dist\0\4791.js" />
     <Content Include="Scripts\dist\0\5088.js" />
     <Content Include="Scripts\dist\0\5252.js" />
@@ -1202,8 +1204,6 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
-    <Content Include="Scripts\dist\0\9466.css" />
-    <Content Include="Scripts\dist\0\9466.js" />
     <Content Include="Scripts\dist\0\9787.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
@@ -1442,12 +1442,12 @@
     <Content Include="Scripts\dist\tag\index.css.map" />
     <Content Include="Scripts\dist\tag\index.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
-    <Content Include="Scripts\dist\0\1750.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
     <Content Include="Scripts\dist\0\228.js.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
     <Content Include="Scripts\dist\0\2674.js.map" />
     <Content Include="Scripts\dist\0\2720.js.map" />
+    <Content Include="Scripts\dist\0\2855.js.map" />
     <Content Include="Scripts\dist\0\3215.css.map" />
     <Content Include="Scripts\dist\0\3215.js.map" />
     <Content Include="Scripts\dist\0\3876.css.map" />
@@ -1459,6 +1459,8 @@
     <Content Include="Scripts\dist\0\4090.css.map" />
     <Content Include="Scripts\dist\0\4090.js.map" />
     <Content Include="Scripts\dist\0\4283.js.map" />
+    <Content Include="Scripts\dist\0\4368.css.map" />
+    <Content Include="Scripts\dist\0\4368.js.map" />
     <Content Include="Scripts\dist\0\4791.js.map" />
     <Content Include="Scripts\dist\0\5088.js.map" />
     <Content Include="Scripts\dist\0\5252.js.map" />
@@ -1484,8 +1486,6 @@
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
-    <Content Include="Scripts\dist\0\9466.css.map" />
-    <Content Include="Scripts\dist\0\9466.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
