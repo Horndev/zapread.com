@@ -71,6 +71,12 @@ namespace zapread.com.Models.Database
         /// <summary>
         /// 
         /// </summary>
+        [InverseProperty("Comments")]
+        public ICollection<Tag> Tags { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsDeleted { get; set; }
         /// <summary>
         /// 

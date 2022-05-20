@@ -499,49 +499,35 @@ namespace zapread.com.Controllers
                         post.TimeStampEdited = DateTime.UtcNow;
                     }
 
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(content);
+
                     if (post.IsDraft && !isDraft) // Post was a draft, now published
                     {
                         post.IsDraft = isDraft;
-                        
-                        // Check for new tags
-                        HtmlDocument postDocument = new HtmlDocument();
-                        postDocument.LoadHtml(content);
 
+                        // Check for new tags
+                        post.Tags = new List<Tag>();
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
                         if (allTags != null)
                         {
                             foreach (var tag in allTags)
                             {
                                 var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                                var isNew = tag.Attributes["data-newtag"] != null && tag.Attributes["data-newtag"].Value == "true";
-                                if (isNew)
+
+                                var postTag = await db.Tags
+                                    .Where(t => t.TagName == tagname)
+                                    .FirstOrDefaultAsync();
+
+                                if (postTag != null)
                                 {
-                                    Tag newTag = new Tag()
-                                    {
-                                        TagName = tagname
-                                    };
-
-                                    // ensure it does not already exist (e.g. created since post is draft)
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    if (postTag != null)
-                                    {
-                                        newTag = postTag;
-                                    }
-
-                                    db.Tags.Add(newTag);
-
-                                    post.Tags.Add(newTag);
+                                    post.Tags.Add(postTag);
                                 }
                                 else
                                 {
-                                    var postTag = await db.Tags
-                                        .Where(t => t.TagName == tagname)
-                                        .FirstOrDefaultAsync();
-
-                                    post.Tags.Add(postTag);
+                                    Tag newTag = new Tag() { TagName = tagname };
+                                    db.Tags.Add(newTag);
+                                    post.Tags.Add(newTag);
                                 }
                             }
                         }
@@ -553,7 +539,7 @@ namespace zapread.com.Controllers
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
                         }
 
-                        if (postDocument.HasUserMention())
+                        if (postDocument.HasUserMention() && !post.TimeStampEdited.HasValue)
                         {
                             await eventService.OnUserMentionedInPost(post.PostId);
                         }
@@ -566,6 +552,30 @@ namespace zapread.com.Controllers
                     else
                     {
                         //post.IsDraft = isDraft; // Don't set draft again after published
+                        post.Tags = new List<Tag>();
+                        var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+                        if (allTags != null)
+                        {
+                            foreach (var tag in allTags)
+                            {
+                                var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+                                var postTag = await db.Tags
+                                    .Where(t => t.TagName == tagname)
+                                    .FirstOrDefaultAsync();
+
+                                if (postTag != null)
+                                {
+                                    post.Tags.Add(postTag);
+                                }
+                                else
+                                {
+                                    Tag newTag = new Tag() { TagName = tagname };
+                                    db.Tags.Add(newTag);
+                                    post.Tags.Add(newTag);
+                                }
+                            }
+                        }
+
                         await db.SaveChangesAsync().ConfigureAwait(true);
                         return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
                     }
@@ -592,6 +602,41 @@ namespace zapread.com.Controllers
 
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    // Check for new tags
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(content);
+
+                    var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+                    if (allTags != null)
+                    {
+                        foreach (var tag in allTags)
+                        {
+                            post.Tags = new List<Tag>();
+                            var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
+                            var postTag = await db.Tags
+                                    .Where(t => t.TagName == tagname)
+                                    .FirstOrDefaultAsync();
+
+                            if (postTag != null)
+                            {
+                                post.Tags.Add(postTag);
+                            }
+                            else
+                            {
+                                Tag newTag = new Tag() { TagName = tagname };
+                                db.Tags.Add(newTag);
+                                post.Tags.Add(newTag);
+                            }
+                        }
+                    }
+
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    if (postDocument.HasUserMention())
+                    {
+                        await eventService.OnUserMentionedInPost(post.PostId);
+                    }
 
                     if (!isDraft && !postQuietly)
                     {

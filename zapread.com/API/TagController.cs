@@ -166,13 +166,14 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var tags = await db.Tags
-                    .OrderByDescending(t => t.Posts.Count)
+                    .OrderByDescending(t => t.Posts.Count + t.Comments.Count)
                     .Take(100)
                     .Select(t => new TagItem()
                     {
                         value = t.TagName,
                         id = t.TagId,
-                        count = t.Posts.Count
+                        count = t.Posts.Count,
+                        CommentCount = t.Comments.Count
                     })
                     .ToListAsync();
 

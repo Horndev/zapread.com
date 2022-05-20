@@ -17,6 +17,7 @@ import { ImageUpload } from 'quill-image-upload';
 import AutoLinks from 'quill-auto-links';
 import QuillImageDropAndPaste from 'quill-image-drop-and-paste';
 import { suggestUsers } from '../../Components/utility/suggestUsers';
+import { suggestTags } from '../../Components/utility/suggestTags';
 
 Quill.register({
   'modules/imageUpload': ImageUpload,
@@ -168,15 +169,29 @@ export function makeQuillComment(options) {
       //imageRotate: {},
       mention: {
         minChars: 1,
-        onSelect: function onSelect(item, insertItem) {
-          item.value = `<span class='userhint'>${item.value}</span>`;
+        onSelect: function onSelect(item, insertItem, mentionChar) {
+          if (mentionChar === "@") {
+            item.value = `<span class='userhint user-mention'>${item.value}</span>`;
+          }
+          if (mentionChar === "#") {
+            item.value = `<span class='taghint'>${item.value}</span>`;
+          }
+
           insertItem(item);
         },
         allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
-        mentionDenotationChars: ["@"],
-        source: async function (searchTerm, renderList) {
-          const matchedUsers = await suggestUsers(searchTerm);
-          renderList(matchedUsers);
+        mentionDenotationChars: ["@", "#"],
+        dataAttributes: ["id", "value", "denotationChar", "link", "target", "disabled", "newtag"],
+        source: async function (searchTerm, renderList, mentionChar) {
+          if (mentionChar === "@") {
+            const matchedUsers = await suggestUsers(searchTerm);
+            renderList(matchedUsers, searchTerm);
+          }
+
+          if (mentionChar === "#") {
+            const matchedTags = await suggestTags(searchTerm);
+            renderList(matchedTags, searchTerm);
+          }
         }
       },
       toolbar: toolbarOptions

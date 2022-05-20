@@ -26,5 +26,11 @@ namespace zapread.com.Models.Database
         /// </summary>
         [InverseProperty("Tags")]
         public virtual ICollection<Post> Posts { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("Tags")]
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

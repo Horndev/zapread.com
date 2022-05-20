@@ -222,12 +222,6 @@ export default class Editor extends React.Component {
 
           if (mentionChar === "#") {
             const matchedTags = await suggestTags(searchTerm);
-            //const matchedTags = [
-            //  { id: 0, newtag: true, value: searchTerm, link: "/Tag/" + encodeURIComponent(searchTerm) + "/" },
-            //  { id: 1, value: "Test", link: "/Home/About" },
-            //  { id: 2, value: "Crypto" },
-            //  { id: 3, value: "Zapread" }
-            //]
             renderList(matchedTags, searchTerm);
           }
         }

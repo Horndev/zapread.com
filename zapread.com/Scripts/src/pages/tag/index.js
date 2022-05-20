@@ -73,7 +73,13 @@ function Page() {
                               </span>
                             </Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">
-                              {tag.count} post{tag.count > 1 ? "s" : ""}
+                              {tag.count > 0 ? (<>
+                                {tag.count} post{tag.count > 1 ? "s" : ""}
+                              </>) : (<></>)}
+                              {tag.count > 0 && tag.CommentCount > 0 ? (<>,&nbsp;</>) : (<></>)}
+                              {tag.CommentCount > 0 ? (<>
+                                {tag.CommentCount} comment{tag.CommentCount > 1 ? "s" : ""}
+                              </>) : (<></>)}
                             </Card.Subtitle>
                           </Card.Body>
                         </Card>

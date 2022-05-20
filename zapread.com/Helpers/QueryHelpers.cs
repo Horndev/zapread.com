@@ -300,7 +300,7 @@ namespace zapread.com.Helpers
 
             if (tagId > 0)
             {
-                sposts = sposts.Where(p => p.p.Tags.Select(t => t.TagId).Contains(tagId));
+                sposts = sposts.Where(p => p.p.Tags.Select(t => t.TagId).Contains(tagId) || p.p.Comments.SelectMany(c => c.Tags).Select(t => t.TagId).Contains(tagId));
             }
 
             if (stickyPostOnTop)
