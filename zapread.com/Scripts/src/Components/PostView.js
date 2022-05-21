@@ -66,8 +66,7 @@ export default function PostView(props) {
       makeQuotable(node, true);
       node.classList.remove("post-quotable");
 
-      // This will trigger after render - check if the readmore button needs to be displayed
-      window.requestAnimationFrame(function () {
+      setTimeout(() => {
         if (node !== undefined) {
           var height = parseFloat(getComputedStyle(node, null).height.replace("px", ""));
           if (height >= 800) {
@@ -80,7 +79,23 @@ export default function PostView(props) {
             node.style.overflowY = "visible";
           }
         }
-      });
+      }, 3000);
+
+      // This will trigger after render - check if the readmore button needs to be displayed
+      //window.requestAnimationFrame(function () {
+      //  if (node !== undefined) {
+      //    var height = parseFloat(getComputedStyle(node, null).height.replace("px", ""));
+      //    if (height >= 800) {
+      //      var readmoreButtonEl = node.querySelectorAll(".read-more-button").item(0);
+      //      if (readmoreButtonEl != null) {
+      //        readmoreButtonEl.style.display = "initial";
+      //      }
+      //      node.style.overflowY = "hidden";
+      //    } else {
+      //      node.style.overflowY = "visible";
+      //    }
+      //  }
+      //});
 
       return () => {
         console.log("unmounted observer", impressionObserver, node);
