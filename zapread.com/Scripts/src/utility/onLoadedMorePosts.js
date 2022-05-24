@@ -112,7 +112,6 @@ export function onLoadedMorePosts() {
     var postElements = document.querySelectorAll(".post-box");
     Array.prototype.forEach.call(postElements, function (el, _i) {
       var elHeight = parseFloat(getComputedStyle(el, null).height.replace("px", ""));
-      console.log(elHeight, el);
       if (elHeight >= 800) {
         el.querySelectorAll(".read-more-button").item(0).style.display = 'initial';
         el.style.overflowY = "hidden";

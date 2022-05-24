@@ -167,13 +167,15 @@ namespace zapread.com.API
             {
                 var tags = await db.Tags
                     .OrderByDescending(t => t.Posts.Count + t.Comments.Count)
+                    .Where(t => t.Posts.Where(p => !p.IsDeleted && !p.IsDraft).Count() > 0 
+                        || t.Comments.Where(c => !c.IsDeleted && !c.Post.IsDeleted && !c.Post.IsDraft).Count() > 0)
                     .Take(100)
                     .Select(t => new TagItem()
                     {
                         value = t.TagName,
                         id = t.TagId,
-                        count = t.Posts.Count,
-                        CommentCount = t.Comments.Count
+                        count = t.Posts.Where(p=> !p.IsDeleted && !p.IsDraft).Count(),
+                        CommentCount = t.Comments.Where(c => !c.IsDeleted && !c.Post.IsDeleted && !c.Post.IsDraft).Count()
                     })
                     .ToListAsync();
 
