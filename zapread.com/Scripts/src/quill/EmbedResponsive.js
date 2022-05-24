@@ -4,30 +4,32 @@ const BlockEmbed = Quill.import("blots/block/embed");
 const Link = Quill.import("formats/link");
 
 class EmbedResponsive extends BlockEmbed {
-    static create(value) {
+  static create(value) {
 
-        const node = super.create(value);
-        node.classList.add("embed-responsive-16by9");
+    const node = super.create(value);
+    node.classList.add("embed-responsive-16by9");
 
-        const child = document.createElement("iframe");
-        child.setAttribute('frameborder', '0');
-        child.setAttribute('allowfullscreen', true);
-        child.setAttribute('src', this.sanitize(value));
-        child.classList.add("embed-responsive-item");
+    const child = document.createElement("iframe");
+    child.setAttribute('frameborder', '0');
+    child.setAttribute('allowfullscreen', true);
+    child.setAttribute('src', this.sanitize(value));
+    child.classList.add("embed-responsive-item");
 
-        node.appendChild(child);
+    node.appendChild(child);
+    return node;
+  }
 
-        return node;
-    }
+  static sanitize(url) {
+    return Link.sanitize(url);
+  }
 
-    static sanitize(url) {
-        return Link.sanitize(url);
-    }
+  static value(domNode) {
+    const iframe = domNode.querySelector('iframe');
 
-    static value(domNode) {
-        const iframe = domNode.querySelector('iframe');
-        return iframe.getAttribute('src');
-    }
+    const val = iframe.getAttribute('src');
+    //console.log("src=", val);
+    return val;
+  }
 }
 EmbedResponsive.blotName = "embed-responsive";
 EmbedResponsive.tagName = "DIV";

@@ -21,6 +21,12 @@ import Toolbar from '../../../quill/zr-toolbar';
 import { suggestUsers } from '../../../Components/utility/suggestUsers';
 import { suggestTags } from '../../../Components/utility/suggestTags';
 
+import BaseTheme, { BaseTooltip } from 'quill/themes/base';
+import { Range } from 'quill/core/selection';
+import LinkBlot from 'quill/formats/link';
+import Emitter from 'quill/core/emitter';
+import merge from 'lodash.merge';
+
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste, true);
 Quill.register('modules/imageUpload', ImageUpload, true);
 Quill.register('modules/mention', Mention, true);
@@ -114,8 +120,197 @@ class EmbedResponsive extends BlockEmbed {
 }
 Quill.register(EmbedResponsive, true);
 
-var FontAttributor = Quill.import('attributors/class/font');
+// video embed updates
+const Theme = Quill.import("themes/snow");
 
+
+class SnowTooltip extends BaseTooltip {
+  constructor(quill, bounds) {
+    super(quill, bounds);
+    this.preview = this.root.querySelector('a.ql-preview');
+  }
+
+  listen() {
+    super.listen();
+    this.root.querySelector('a.ql-action').addEventListener('click', event => {
+      if (this.root.classList.contains('ql-editing')) {
+        this.save();
+      } else {
+        this.edit('link', this.preview.textContent);
+      }
+      event.preventDefault();
+    });
+    this.root.querySelector('a.ql-remove').addEventListener('click', event => {
+      if (this.linkRange != null) {
+        const range = this.linkRange;
+        this.restoreFocus();
+        this.quill.formatText(range, 'link', false, Emitter.sources.USER);
+        delete this.linkRange;
+      }
+      event.preventDefault();
+      this.hide();
+    });
+    this.quill.on(
+      Emitter.events.SELECTION_CHANGE,
+      (range, oldRange, source) => {
+        if (range == null) return;
+        if (range.length === 0 && source === Emitter.sources.USER) {
+          const [link, offset] = this.quill.scroll.descendant(
+            LinkBlot,
+            range.index,
+          );
+          if (link != null) {
+            this.linkRange = new Range(range.index - offset, link.length());
+            const preview = LinkBlot.formats(link.domNode);
+            this.preview.textContent = preview;
+            this.preview.setAttribute('href', preview);
+            this.show();
+            this.position(this.quill.getBounds(this.linkRange));
+            return;
+          }
+        } else {
+          delete this.linkRange;
+        }
+        this.hide();
+      },
+    );
+  }
+
+  show() {
+    super.show();
+    this.root.removeAttribute('data-mode');
+  }
+
+  save() {
+    let { value } = this.textbox;
+    switch (this.root.getAttribute('data-mode')) {
+      case 'link': {
+        const { scrollTop } = this.quill.root;
+        if (this.linkRange) {
+          this.quill.formatText(
+            this.linkRange,
+            'link',
+            value,
+            Emitter.sources.USER,
+          );
+          delete this.linkRange;
+        } else {
+          this.restoreFocus();
+          this.quill.format('link', value, Emitter.sources.USER);
+        }
+        this.quill.root.scrollTop = scrollTop;
+        break;
+      }
+      case 'video': {
+        value = extractVideoUrl(value);
+      } // eslint-disable-next-line no-fallthrough
+      case 'formula': {
+        if (!value) break;
+        const range = this.quill.getSelection(true);
+        if (range != null) {
+          const index = range.index + range.length;
+          this.quill.insertEmbed(
+            index,
+            this.root.getAttribute('data-mode'),
+            value,
+            Emitter.sources.USER,
+          );
+          if (this.root.getAttribute('data-mode') === 'formula') {
+            this.quill.insertText(index + 1, ' ', Emitter.sources.USER);
+          }
+          this.quill.setSelection(index + 2, Emitter.sources.USER);
+        }
+        break;
+      }
+      default:
+    }
+    this.textbox.value = '';
+    this.hide();
+  }
+}
+SnowTooltip.TEMPLATE = [
+  '<a class="ql-preview" rel="noopener noreferrer" target="_blank" href="about:blank"></a>',
+  '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">',
+  '<a class="ql-action"></a>',
+  '<a class="ql-remove"></a>',
+].join('');
+
+class ModTheme extends Theme {
+  constructor(quill, options) {
+    super(quill, options);
+  }
+
+  extendToolbar(toolbar) {
+    toolbar.container.classList.add('ql-snow');
+    this.buildButtons(toolbar.container.querySelectorAll('button'), icons);
+    this.buildPickers(toolbar.container.querySelectorAll('select'), icons);
+    this.tooltip = new SnowTooltip(this.quill, this.options.bounds);
+    if (toolbar.container.querySelector('.ql-link')) {
+      this.quill.keyboard.addBinding(
+        { key: 'k', shortKey: true },
+        (range, context) => {
+          toolbar.handlers.link.call(toolbar, !context.format.link);
+        },
+      );
+    }
+  }
+}
+ModTheme.DEFAULTS = merge({}, BaseTheme.DEFAULTS, {
+  modules: {
+    toolbar: {
+      handlers: {
+        link(value) {
+          if (value) {
+            const range = this.quill.getSelection();
+            if (range == null || range.length === 0) return;
+            let preview = this.quill.getText(range);
+            if (
+              /^\S+@\S+\.\S+$/.test(preview) &&
+              preview.indexOf('mailto:') !== 0
+            ) {
+              preview = `mailto:${preview}`;
+            }
+            const { tooltip } = this.quill.theme;
+            tooltip.edit('link', preview);
+          } else {
+            this.quill.format('link', false);
+          }
+        },
+      },
+    },
+  },
+});
+
+function extractVideoUrl(url) {
+  // Youtube
+  let match =
+    url.match(/^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtube\.com\/watch.*v=([a-zA-Z0-9_-]+)/) ||
+    url.match(/^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtu\.be\/([a-zA-Z0-9_-]+)/);
+
+  if (match) {
+    return `${match[1] || 'https'}://www.youtube.com/embed/${match[2]
+      }?showinfo=0`;
+  }
+
+  // Odysee
+  match = url.match(/^(?:(https?):\/\/)?(?:(?:www|m)\.)?odysee\.com\/.*\/([a-zA-Z0-9_-]+)[:]/,)
+
+  if (match) {
+    return `${match[1] || 'https'}://odysee.com/$/embed/${match[2]}`;
+  }
+
+  // Vimeo
+  match = url.match(/^(?:(https?):\/\/)?(?:www\.)?vimeo\.com\/(\d+)/);
+  if (match) {
+    return `${match[1] || 'https'}://player.vimeo.com/video/${match[2]}/`;
+  }
+  return url;
+}
+
+// override function
+Quill.register("themes/zapread", ModTheme, true);
+
+var FontAttributor = Quill.import('attributors/class/font');
 FontAttributor.whitelist = [
   'serif', 'monospace', 'arial', 'calibri', 'courier', 'georgia', 'lucida',
   'open', 'roboto', 'tahoma', 'times', 'trebuchet', 'verdana'
@@ -127,7 +322,7 @@ Quill.register('modules/toolbar', Toolbar, true);
 var icons = Quill.import('ui/icons');
 icons['submit'] = '<i class="fa fa-check"></i> Submit';
 icons['save'] = '<i class="fa fa-save"></i> Save';
-Quill.register(icons,true);
+Quill.register(icons, true);
 
 window.change = new Delta();
 window.editcontent = "";
@@ -191,7 +386,6 @@ export default class Editor extends React.Component {
         // optional
         // add callback when a image have been chosen
         checkBeforeSend: (file, next) => {
-          //console.log(file);
           next(file); // go back to component and send to the server
         }
       },
@@ -229,7 +423,6 @@ export default class Editor extends React.Component {
       autoLinks: true,
       imageResize: {},
     }
-
     window.handleSaveDraft = this.props.onSaveDraft;
     window.handleUpdateContent = this.props.setValue;
   }
@@ -343,13 +536,13 @@ export default class Editor extends React.Component {
   render() {
     return (
       <>
-        <div id="progressUpload" className="progress" style={{ display:"none" }}>
-          <div id="progressUploadBar" className="progress-bar progress-bar-striped progress-bar-animated" style={{ width:"0%"}}>
+        <div id="progressUpload" className="progress" style={{ display: "none" }}>
+          <div id="progressUploadBar" className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: "0%" }}>
           </div>
         </div>
         <ReactQuill
           ref={(el) => { this.reactQuillRef = el }}
-          theme="snow"
+          theme="zapread"
           value={this.props.value}
           scrollingContainer="body"
           onChange={this.handleChange}
