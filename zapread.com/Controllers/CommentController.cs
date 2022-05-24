@@ -262,7 +262,10 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var comment = db.Comments.FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
+                var comment = db.Comments
+                    .Include(cmt => cmt.Tags)
+                    .FirstOrDefault(cmt => cmt.CommentId == c.CommentId);
+
                 if (comment == null)
                 {
                     return Json(new { success = false, message = "Comment not found." });
@@ -277,8 +280,10 @@ namespace zapread.com.Controllers
                 var doc = new HtmlDocument();
                 doc.LoadHtml(comment.Text);
 
-                comment.Tags = new List<Tag>();
+                //comment.Tags = new List<Tag>();
                 var allTags = doc.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+
+                var tagsToAdd = new List<Tag>();
 
                 if (allTags != null)
                 {
@@ -290,17 +295,38 @@ namespace zapread.com.Controllers
                             .Where(t => t.TagName == tagname)
                             .FirstOrDefaultAsync();
 
-                        if (commentTag != null)
+                        if (commentTag != null && !comment.Tags.Contains(commentTag))
                         {
-                            comment.Tags.Add(commentTag);
+                            tagsToAdd.Add(commentTag);
                         }
                         else
                         {
                             Tag newTag = new Tag() { TagName = tagname };
                             db.Tags.Add(newTag);
-                            comment.Tags.Add(newTag);
+                            tagsToAdd.Add(newTag);
                         }
                     }
+                }
+
+                var tagsToRemove = new List<Tag>();
+                var tagsToAddNames = tagsToAdd.Select(t => t.TagName);
+
+                foreach (var tag in comment.Tags)
+                {
+                    if (!tagsToAddNames.Contains(tag.TagName))
+                    {
+                        tagsToRemove.Add(tag);
+                    }
+                }
+
+                foreach(var tag in tagsToRemove)
+                {
+                    comment.Tags.Remove(tag);
+                }
+
+                foreach(var tag in tagsToAdd)
+                {
+                    comment.Tags.Add(tag);
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
