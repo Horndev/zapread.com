@@ -107,30 +107,9 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(
                         "~/node_modules/tarteaucitronjs/tarteaucitron.js"));
 
-            /* Datatables */
-            bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
-                        "~/node_modules/datatables.net/js/jquery.dataTables.min.js",
-                        "~/node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
-                        "~/node_modules/datatables.net-scroller-bs4/js/scroller.bootstrap4.min.js"));
-
-            bundles.Add(new StyleBundle("~/bundles/css/datatables").Include(
-                      "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
-                      "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
-
-            bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
-                      "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
-
             bundles.Add(new StyleBundle("~/Content/css-dark").Include(
                       "~/Content/Site_dark.css")
                       .WithLastModifiedToken());
-
-            // jsSocials - Social Shares
-            bundles.Add(new ScriptBundle("~/bundles/jssocials").Include(
-                        "~/node_modules/jssocials/dist/jssocials.min.js"));
-
-            bundles.Add(new StyleBundle("~/Content/style/jssocials").Include(
-                      "~/node_modules/jssocials/dist/jssocials.css",
-                      "~/node_modules/jssocials/dist/jssocials-theme-flat.css"));
 
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/textspinners").Include(
@@ -139,30 +118,6 @@ namespace zapread.com
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/social").Include(
                       "~/Content/bootstrap-social.css"));
-
-            // SlimScroll
-            bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(
-                      "~/node_modules/jquery-slimscroll/jquery.slimscroll.min.js"));
-
-            // selectize 
-            bundles.Add(new ScriptBundle("~/plugins/selectize").Include(
-                      "~/node_modules/selectize/dist/js/standalone/selectize.min.js")
-                      .WithLastModifiedToken());
-
-            // selectize 
-            bundles.Add(new StyleBundle("~/Content/plugins/selectize").Include(
-                      "~/node_modules/selectize/dist/css/selectize.css",
-                      "~/node_modules/selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css")
-                      .WithLastModifiedToken());
-
-            // Flot chart
-            bundles.Add(new ScriptBundle("~/plugins/flot").Include(
-                      "~/node_modules/jquery.flot/jquery.flot.js",
-                      "~/node_modules/jquery.flot.tooltip/js/jquery.flot.tooltip.min.js",
-                      "~/node_modules/jquery.flot/jquery.flot.resize.js",
-                      "~/node_modules/jquery.flot/jquery.flot.pie.js",
-                      "~/node_modules/jquery.flot/jquery.flot.time.js"));
-            /*"~/node_modules/jquery.flot/jquery.flot.spline.js"));*/
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = false;// false;
