@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.Database.Financial;
@@ -832,6 +833,143 @@ namespace zapread.com.Controllers
             return File(AudioData, "audio/mpeg");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Email"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> UpdateEmail(string Email)
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Json(new { success = false });
+
+            var userInfo = await UserManager.FindByIdAsync(userAppId);
+
+            if (userInfo.Email == Email)
+            {
+                return Json(new { success = false, message = "Requested email address is the same as existing." });
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.Funds)
+                    .Include(u => u.Funds.Locks)
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefaultAsync();
+
+                if (user == null) return Json(new { success = false });
+                
+                string code = await UserManager.GenerateUserTokenAsync("LockAccount", userInfo.Id).ConfigureAwait(true);
+                var lockUrl = Url.Action("LockAccount", "Account", new { userId = userAppId, code = code }, protocol: Request.Url.Scheme);
+
+                await UserManager.SendEmailAsync(
+                    userId: userInfo.Id,
+                    subject: "Email updated",
+                    body: "Your email address has been updated to " + Email
+                    + "<br/>"
+                    + "<br/>"
+                    + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance."
+                    + "<br/>"
+                    ).ConfigureAwait(true);
+
+                userInfo.Email = Email;
+                userInfo.EmailConfirmed = false;
+
+                await UserManager.UpdateAsync(userInfo);
+
+                code = await UserManager.GenerateEmailConfirmationTokenAsync(userAppId).ConfigureAwait(true);
+
+                var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userAppId, code = code }, protocol: Request.Url.Scheme);
+
+                await UserManager.SendEmailAsync(
+                    userId: userInfo.Id,
+                    subject: "Confirm your email",
+                    body: "Your email address has been updated."
+                    + "<br/>"
+                    + "<br/>"
+                    + "Please confirm your new email by clicking or navigating to the following link: <br/><a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>"
+                    + "<br/>"
+                    + "<br/>"
+                    + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance."
+                    ).ConfigureAwait(true);
+
+                user.Funds.Locks.Add(new FundsLock()
+                {
+                    WithdrawLocked = true,
+                    TimeStampStarted = DateTime.UtcNow,
+                    TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(1),
+                    Description = "Email address updated",
+                    Reason = UserFundLockType.UserUpdatedEmail
+                });
+
+                await db.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+        }
+
+        /// <summary>
+        /// Lock a user account, require admin to release
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> LockAccount(string userId, string code)
+        {
+            XFrameOptionsDeny();
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            // validate code
+            if (!(await UserManager.VerifyUserTokenAsync(userId, "LockAccount", code)))
+            {
+                return View("Error");
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.Funds)
+                    .Include(u => u.Funds.Locks)
+                    .Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return View("Error");
+                }
+
+                var lockoutEnd = DateTime.UtcNow + TimeSpan.FromDays(365);
+
+                user.Funds.Locks.Add(new FundsLock()
+                {
+                    TimeStampStarted = DateTime.UtcNow,
+                    TimeStampExpired = lockoutEnd,
+                    Reason = UserFundLockType.UserRequestedLock,
+                    DepositLocked = false,
+                    SpendLocked = true,
+                    TransferLocked = true,
+                    WithdrawLocked = true,
+                });
+
+                await db.SaveChangesAsync();
+
+                await UserManager.SetLockoutEnabledAsync(userId, true);
+                await UserManager.SetLockoutEndDateAsync(userId, lockoutEnd);
+
+                AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+
+                return View("Locked");
+            }
+        }
         //
         // GET: /Account/ConfirmEmail
         /// <summary>
@@ -850,6 +988,28 @@ namespace zapread.com.Controllers
                 return View("Error");
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code).ConfigureAwait(true);
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users
+                    .Include(u => u.Funds)
+                    .Include(u => u.Funds.Locks)
+                    .Where(u => u.AppId == userId)
+                    .FirstOrDefaultAsync();
+
+                var locksToRemove = user.Funds.Locks
+                    .Where(l => l.Reason == UserFundLockType.UserUpdatedEmail)
+                    .ToList();
+
+                db.Locks.RemoveRange(locksToRemove);
+                //foreach(var l in locksToRemove)
+                //{    
+                //    user.Funds.Locks.Remove(l);
+                //}
+
+                await db.SaveChangesAsync();
+            }
+
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 

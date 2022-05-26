@@ -909,6 +909,10 @@
     <Compile Include="Migrations\202205201736487_AddCommentTags.designer.cs">
       <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202205250145143_AddFundsLock.cs" />
+    <Compile Include="Migrations\202205250145143_AddFundsLock.designer.cs">
+      <DependentUpon>202205250145143_AddFundsLock.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -967,6 +971,9 @@
     <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
+    <Compile Include="Models\API\User\GetUserEmailResponse.cs" />
+    <Compile Include="Models\API\User\UpdateEmailRequest.cs" />
+    <Compile Include="Models\API\User\UpdateEmailResponse.cs" />
     <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
     <Compile Include="Models\API\User\UserRefGiftResponse.cs" />
     <Compile Include="Models\API\User\UserSearchRequest.cs" />
@@ -976,6 +983,7 @@
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
+    <Compile Include="Models\Database\Financial\FundsLock.cs" />
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
@@ -1032,6 +1040,7 @@
     <Compile Include="Models\Tag\TagsViewModel.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
+    <Compile Include="Models\User\UserFundLockType.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
     <Compile Include="Models\User\UserLinkViewModel.cs" />
     <Compile Include="Models\User\UserTopFollowingPartialViewModel.cs" />
@@ -1595,6 +1604,7 @@
     <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
+    <Content Include="Scripts\src\pages\manage\Components\UpdateEmailModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
@@ -1843,6 +1853,9 @@
     <EmbeddedResource Include="Migrations\202205201736487_AddCommentTags.resx">
       <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205250145143_AddFundsLock.resx">
+      <DependentUpon>202205250145143_AddFundsLock.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
@@ -1934,6 +1947,7 @@
     <Content Include="Views\Tag\Index.cshtml" />
     <Content Include="Views\Tag\Detail.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInPost.cshtml" />
+    <Content Include="Views\Shared\Locked.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

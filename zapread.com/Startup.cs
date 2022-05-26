@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.Owin;
+using Microsoft.Owin.Security.DataProtection;
 using Owin;
 using System.Web;
 using System.Web.Http;
@@ -24,7 +25,8 @@ namespace zapread.com
             ConfigureAuth(app);
 
             //app.MapSignalR();
-
+            //var dpp = app.GetDataProtectionProvider();
+            
             var options = new DashboardOptions
             {
                 AppPath = VirtualPathUtility.ToAbsolute("~"),

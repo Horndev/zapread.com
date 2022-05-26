@@ -32,6 +32,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 const getVoteModal = () => import("../../Components/VoteModal");
 const getGiftReferralModal = () => import("./Components/GiftReferralModal");
+const getUpdateEmailModal = () => import("./Components/UpdateEmailModal");
 
 /* Vote Modal Component */
 getVoteModal().then(({ default: VoteModal }) => {
@@ -48,6 +49,26 @@ window.loadMoreComments = loadMoreComments;
 window.BlockNumber = 10;  //Infinite Scroll starts from second block
 window.NoMoreData = false;
 window.inProgress = false;
+
+const emailModalLoaded = false;
+
+const updateEmailBtnClicked = (e) => {
+  if (!emailModalLoaded) {
+    const modalEl = document.createElement('div');
+    modalEl.id = "UpdateEmailModal";
+    document.body.appendChild(modalEl);
+    getUpdateEmailModal().then(({ default: UpdateEmailModal }) => {
+      e.target.removeEventListener(e, giftBtnClicked);
+      ReactDOM.render(<UpdateEmailModal show={true} onClose={() => { showEmailModal = false }}/>, document.getElementById("UpdateEmailModal"));
+    });
+    emailModalLoaded = true;
+  }
+};
+
+var emailbtn = document.getElementById("updateEmailBtn");
+if (emailbtn != null) {
+  emailbtn.addEventListener('click', updateEmailBtnClicked);
+}
 
 // Register click handler for referral button
 const giftBtnClicked = (e) => {

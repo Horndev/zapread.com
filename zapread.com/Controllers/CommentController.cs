@@ -443,12 +443,13 @@ namespace zapread.com.Controllers
                     post.Comments.Add(comment);
                 }
 
+                var doc = new HtmlDocument();
+                doc.LoadHtml(comment.Text);
+
                 // Find user mentions and tags
                 try
                 {
                     // This could just move into the OnComment event and get processed in background?
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(comment.Text);
 
                     comment.Tags = new List<Tag>();
                     var allTags = doc.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
@@ -475,11 +476,6 @@ namespace zapread.com.Controllers
                             }
                         }
                     }
-
-                    if (doc.HasUserMention())
-                    {
-                        await eventService.OnUserMentionedInComment(comment.CommentId);
-                    }
                 }
                 catch (Exception e)
                 {
@@ -492,6 +488,11 @@ namespace zapread.com.Controllers
                 {
                     db.Comments.Add(comment);
                     await db.SaveChangesAsync().ConfigureAwait(true);
+
+                    if (doc.HasUserMention())
+                    {
+                        await eventService.OnUserMentionedInComment(comment.CommentId);
+                    }
                 }
 
                 if (!c.IsReply && !c.IsTest)
