@@ -2,17 +2,19 @@
 @model zapread.com.Models.UserViews.UserHoverViewModel
 <div class="row">
     <div class="col">
-        <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.AppId, v=Model.ProfileImageVersion })" />
-        <span style="display:inline"><strong>@Model.Name</strong>
-            @if (Model.IsOnline)
-            {
-                <span style="display:inline;color:green" data-toggle='tooltip' data-placement='bottom' title='Online'> <i class="fa fa-check-circle"></i></span>
-            }
-            else
-            {
-                <span style="display:inline;color:lightgray" data-toggle='tooltip' data-placement='bottom' title='Offline'> <i class="fa fa-minus-circle"></i></span>
-            }
-        </span>
+        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Name.Trim() })" style="color: #676">
+            <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.AppId, v=Model.ProfileImageVersion })" />
+            <span style="display:inline"><strong>@Model.Name</strong>
+                @if (Model.IsOnline)
+                {
+                    <span style="display:inline;color:green" data-toggle='tooltip' data-placement='bottom' title='Online'> <i class="fa fa-check-circle" style="color:green;"></i></span>
+                }
+                else
+                {
+                    <span style="display:inline;color:lightgray" data-toggle='tooltip' data-placement='bottom' title='Offline'> <i class="fa fa-minus-circle"></i></span>
+                }
+            </span>
+        </a>
     </div>
 </div>
 <div class="row">
