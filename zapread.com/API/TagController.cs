@@ -202,7 +202,7 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var searchTerm = req.SearchTerm.SanitizeXSS().CleanUnicode();
+                var searchTerm = req.SearchTerm.SanitizeXSS().CleanUnicode().Trim();
 
                 if (searchTerm.Length > 60)
                 {
@@ -216,10 +216,10 @@ namespace zapread.com.API
                 searchTerm = new string(arr);
 
                 var tagExists = await db.Tags
-                    .AnyAsync(t => t.TagName == searchTerm);
+                    .AnyAsync(t => t.TagName.ToUpper() == searchTerm.ToUpper());
 
                 var tags = await db.Tags
-                    .Where(u => u.TagName.StartsWith(req.SearchTerm))
+                    .Where(t => t.TagName.ToUpper() == searchTerm.ToUpper() || t.TagName.ToUpper().StartsWith(searchTerm.ToUpper()))
                     .OrderByDescending(t => t.Posts.Count())
                     .Select(u => new TagItem()
                     {
@@ -234,7 +234,7 @@ namespace zapread.com.API
                     tags = tags.Prepend(new TagItem() 
                     { 
                         id = -1, 
-                        value = req.SearchTerm, 
+                        value = searchTerm, 
                         newtag = true 
                     }).ToList();
                 }
