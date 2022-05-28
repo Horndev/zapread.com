@@ -23,7 +23,7 @@ namespace zapread.com.App_Start
         /// <param name="config"></param>
         public static void Register(HttpConfiguration config)
         {
-            
+
             // Web API configuration and services
 
             // Web API routes

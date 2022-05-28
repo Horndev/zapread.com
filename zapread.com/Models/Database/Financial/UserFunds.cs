@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -33,6 +34,13 @@ namespace zapread.com.Models.Database.Financial
         /// 
         /// </summary>
         public bool IsWithdrawLocked { get; set; }
+
+        /// <summary>
+        /// Describe any locks
+        /// </summary>
+        [InverseProperty("UserFund")]
+        public ICollection<FundsLock> Locks { get; set; }
+
         /// <summary>
         /// Versioning for optimistic concurrency
         /// </summary>

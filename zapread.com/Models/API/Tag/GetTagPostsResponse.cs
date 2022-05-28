@@ -19,12 +19,5 @@ namespace zapread.com.Models.API.Tag
         /// The posts related to the group API request
         /// </summary>
         public List<PostViewModel> Posts { get; set; }
-
-        /// <summary>
-        /// Flag to quickly indicate if the request was successful
-        /// </summary>
-#pragma warning disable IDE1006 // Naming Styles
-        public bool success { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
 }

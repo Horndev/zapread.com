@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using zapread.com.Models;
 using zapread.com.Models.Database;
+using zapread.com.Models.Database.Financial;
 using zapread.com.Models.Lightning;
 
 namespace zapread.com.Database
@@ -57,6 +58,8 @@ namespace zapread.com.Database
         /// Existing and known tags
         /// </summary>
         public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<FundsLock> Locks { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

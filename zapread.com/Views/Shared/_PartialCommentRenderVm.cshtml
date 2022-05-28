@@ -52,7 +52,7 @@
         }
         <div class="@if (Model.IsReply) { <text>social-footer-reply</text> } else { <text>social-footer</text> }">
             <div class=@if (Model.IsReply) { <text>" "</text> } else { <text>" social-comment"</text> }>
-                <div style="margin-left: 22px;margin-bottom:5px;">
+                <div class="comment-user" style="margin-left: 22px;margin-bottom:5px;">
                     @if (Request.IsAuthenticated && !Model.IsDeleted)
                     {
                         <div class="vote-actions" @if (isIgnoredUser) { <text> style="position: relative; display: none;" </text>  } else { <text> style="position: relative;" </text> }>

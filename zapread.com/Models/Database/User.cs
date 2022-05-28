@@ -53,6 +53,7 @@ namespace zapread.com.Models.Database
         public virtual ICollection<SpendingEvent> SpendingEvents { get; set; }
         
         public virtual UserSettings Settings { get; set; }
+        
         public virtual UserFunds Funds { get; set; }
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }

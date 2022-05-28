@@ -135,17 +135,11 @@ export default function DepositWithdrawModal(props) {
   };
 
   const handleWithdraw = () => {
-    //var withdrawId = document.getElementById("confirmWithdraw").getAttribute("data-withdrawid");
     setShowButtonSpinner(true);
     postJson("/Lightning/SubmitPaymentRequest/", {
-      //request: invoice.toString()
       withdrawId: withdrawId
     }).then((response) => {
       setShowButtonSpinner(false);
-      //document.getElementById("btnPayLNWithdraw").disabled = false;//$("#btnPayLNWithdraw").removeAttr("disabled");
-      //document.getElementById("btnVerifyLNWithdraw").style.display = '';//$('#btnVerifyLNWithdraw').show();
-      //document.getElementById("btnPayLNWithdraw").style.display = 'none';//$("#btnPayLNWithdraw").hide();
-      //document.getElementById("confirmWithdraw").style.display = 'none';//$('#confirmWithdraw').hide();
       setShowValidateInvoiceButton(false);
       setShowWithdrawButton(false);
       if (response.success) {
@@ -176,36 +170,18 @@ export default function DepositWithdrawModal(props) {
         setShowWithdrawButton(true);
         setShowValidateInvoiceButton(false);
         setShowWithdrawInvoiceAmount(true);
-        //withdrawInputRef.current.value = response.num_satoshis;
         setWithdrawInvoiceAmount(response.num_satoshis);
         setFooterMessage("Verify amount and click Withdraw");
         setWithdrawId(response.withdrawId); // This is the unique ID for making the withdraw
-        // This is the response we need to use later
-        //document.getElementById("confirmWithdraw").setAttribute("data-withdrawid", response.withdrawId);
-        //document.getElementById("lightningInvoiceAmount").value = response.num_satoshis;//$('#lightningInvoiceAmount').val(response.num_satoshis);
-        //document.getElementById("confirmWithdraw").style.display = '';//$('#confirmWithdraw').show();
-        //document.getElementById("btnPayLNWithdraw").style.display = 'none';//$('#btnPayLNWithdraw').hide();
-        //document.getElementById("btnVerifyLNWithdraw").style.display = 'none';//$('#btnVerifyLNWithdraw').hide();
-        //document.getElementById("btnPayLNWithdraw").style.display = '';//$('#btnPayLNWithdraw').show();
-        //document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-success", "bg-danger");//$("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-        //document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-muted");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
-        //document.getElementById("lightningTransactionInvoiceResult").innerHTML = "Verify amount and click Withdraw";//$("#lightningTransactionInvoiceResult").html("Verify amount and click Withdraw");
-        console.log('Withdraw Node:' + response.destination);
       } else {
         setFooterMessage(response.message);
         setFooterBg("bg-danger");
-        //Swal.fire("Error", response.message, "error");
-        //document.getElementById("lightningTransactionInvoiceResult").innerHTML = response.message;//$("#lightningTransactionInvoiceResult").html(response.Result);
-        //document.getElementById("lightningTransactionInvoiceResult").classList.remove("bg-info", "bg-success", "bg-muted");//$("#lightningTransactionInvoiceResult").removeClass("bg-success bg-muted bg-info");
-        //document.getElementById("lightningTransactionInvoiceResult").classList.add("bg-danger");//$("#lightningTransactionInvoiceResult").addClass("bg-error");
-        //document.getElementById("lightningTransactionInvoiceResult").style.display = '';
       }
     }).catch((error) => {
       console.log("error", error);
       setShowButtonSpinner(false);
       error.json().then(data => setFooterMessage(data.message));
       setFooterBg("bg-danger");
-      //Swal.fire("Error", error, "error");
     });
   };
 

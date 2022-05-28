@@ -1,5 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,7 +16,6 @@ using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
-using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.API
@@ -281,6 +282,36 @@ namespace zapread.com.API
                 return Ok(new GetRefCodeResponse()
                 {
                     refCode = refCode
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/email")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetUserEmail()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+            {
+                var userInfo = await userManager.FindByIdAsync(userAppId);
+                
+                if (userInfo == null) return NotFound();
+
+                string userEmail = userInfo.Email;
+                    
+                if (userEmail == null) return NotFound();
+
+                return Ok(new GetUserEmailResponse()
+                {
+                    Email = userEmail,
+                    success = true
                 });
             }
         }

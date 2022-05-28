@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace zapread.com.Models.Tag
+namespace zapread.com.Models.API.User
 {
     /// <summary>
     /// 
     /// </summary>
-    public class TagsViewModel
+    public class GetUserEmailResponse : ZapReadResponse
     {
         /// <summary>
-        /// Name of the tag
+        /// 
         /// </summary>
-        public string TagName { get; set; }
+        public string Email { get; set; }
     }
 }

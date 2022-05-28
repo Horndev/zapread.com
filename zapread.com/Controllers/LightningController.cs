@@ -479,12 +479,21 @@ namespace zapread.com.Controllers
 
             if (userAppId == null)
             {
-                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return Json(new { success = false, message = "User not authorized." });
             }
 
             using (var db = new ZapContext())
             {
+                var hasWithdrawLock = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Where(u => u.Funds.Locks.Any(f => f.WithdrawLocked))
+                    .AnyAsync();
+
+                if (hasWithdrawLock)
+                {
+                    return Json(new { success = false, message = "Withdraws for this account are locked." });
+                }
+
                 var invoice = request.SanitizeXSS();
 
                 LNTransaction t;

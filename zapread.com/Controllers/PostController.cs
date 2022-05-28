@@ -488,7 +488,7 @@ namespace zapread.com.Controllers
                     post.Language = postLanguage ?? post.Language;
                     post.IsNSFW = isNSFW;
                     post.IsNonIncome = isNonIncome;
-                    post.Tags = new List<Tag>(); // Reset
+                    //post.Tags = new List<Tag>(); // Reset
 
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
@@ -507,7 +507,9 @@ namespace zapread.com.Controllers
                         post.IsDraft = isDraft;
 
                         // Check for new tags
-                        post.Tags = new List<Tag>();
+                        //post.Tags = new List<Tag>();
+                        var tagsToAdd = new List<Tag>();
+
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
                         if (allTags != null)
                         {
@@ -521,15 +523,38 @@ namespace zapread.com.Controllers
 
                                 if (postTag != null)
                                 {
-                                    post.Tags.Add(postTag);
+                                    //post.Tags.Add(postTag);
+                                    tagsToAdd.Add(postTag);
                                 }
                                 else
                                 {
                                     Tag newTag = new Tag() { TagName = tagname };
                                     db.Tags.Add(newTag);
-                                    post.Tags.Add(newTag);
+                                    //post.Tags.Add(newTag);
+                                    tagsToAdd.Add(newTag);
                                 }
                             }
+                        }
+
+                        var tagsToRemove = new List<Tag>();
+                        var tagsToAddNames = tagsToAdd.Select(t => t.TagName);
+
+                        foreach (var tag in post.Tags)
+                        {
+                            if (!tagsToAddNames.Contains(tag.TagName))
+                            {
+                                tagsToRemove.Add(tag);
+                            }
+                        }
+
+                        foreach (var tag in tagsToRemove)
+                        {
+                            post.Tags.Remove(tag);
+                        }
+
+                        foreach (var tag in tagsToAdd)
+                        {
+                            post.Tags.Add(tag);
                         }
 
                         await db.SaveChangesAsync().ConfigureAwait(true);
@@ -552,8 +577,10 @@ namespace zapread.com.Controllers
                     else
                     {
                         //post.IsDraft = isDraft; // Don't set draft again after published
-                        post.Tags = new List<Tag>();
+                        //post.Tags = new List<Tag>();
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
+                        var tagsToAdd = new List<Tag>();
+
                         if (allTags != null)
                         {
                             foreach (var tag in allTags)
@@ -565,15 +592,38 @@ namespace zapread.com.Controllers
 
                                 if (postTag != null)
                                 {
-                                    post.Tags.Add(postTag);
+                                    //post.Tags.Add(postTag);
+                                    tagsToAdd.Add(postTag);
                                 }
                                 else
                                 {
                                     Tag newTag = new Tag() { TagName = tagname };
                                     db.Tags.Add(newTag);
-                                    post.Tags.Add(newTag);
+                                    //post.Tags.Add(newTag);
+                                    tagsToAdd.Add(newTag);
                                 }
                             }
+                        }
+
+                        var tagsToRemove = new List<Tag>();
+                        var tagsToAddNames = tagsToAdd.Select(t => t.TagName);
+
+                        foreach (var tag in post.Tags)
+                        {
+                            if (!tagsToAddNames.Contains(tag.TagName))
+                            {
+                                tagsToRemove.Add(tag);
+                            }
+                        }
+
+                        foreach (var tag in tagsToRemove)
+                        {
+                            post.Tags.Remove(tag);
+                        }
+
+                        foreach (var tag in tagsToAdd)
+                        {
+                            post.Tags.Add(tag);
                         }
 
                         await db.SaveChangesAsync().ConfigureAwait(true);

@@ -12,15 +12,23 @@
 
 }
 
+    .comment-user a,
+    .comment-user i,
     .user-mention a,
-    .user-mention i {
-        color: #676a6c;
-    }
-
+    .user-mention i, 
     .post-username a,
     .post-username i 
     {
         color: #676a6c;
+    }
+
+    .comment-user a:hover,
+    .comment-user i:hover,
+    .user-mention a:hover,
+    .user-mention i:hover,
+    .post-username a:hover,
+    .post-username i:hover {
+        color: #1ab394;
     }
 
 .ql-snow .ql-editor .tag-mention,
