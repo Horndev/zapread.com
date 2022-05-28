@@ -1051,6 +1051,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\AccountMonitorService.cs" />
     <Compile Include="Services\AchievementsService.cs" />
     <Compile Include="Services\AlertsService.cs" />
     <Compile Include="Services\CaptchaService.cs" />

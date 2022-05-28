@@ -1393,6 +1393,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = false });
             }
 
+            if (jobid == "CheckAccountLocks")
+            {
+                RecurringJob.Trigger("AccountMonitorService.CheckAccountLocks");
+                return Json(new { success = true });
+            }
+
             if (jobid == "MailWeeklySummary")
             {
                 RecurringJob.Trigger("MailingService.MailWeeklySummaries");
@@ -1445,6 +1451,14 @@ namespace zapread.com.Controllers
             if (jobid == null)
             {
                 return Json(new { success = false });
+            }
+
+            if (jobid == "CheckAccountLocks")
+            {
+                RecurringJob.AddOrUpdate<AccountMonitorService>(
+                    x => x.CheckAccountLocks(),
+                    "0 * * * *"); // Every hour
+                return Json(new { success = true });
             }
 
             if (jobid == "MailWeeklySummary")
@@ -1512,6 +1526,18 @@ namespace zapread.com.Controllers
             if (jobid == null)
             {
                 return Json(new { success = false });
+            }
+
+            if (jobid == "CheckAccountLocks")
+            {
+                RecurringJob.RemoveIfExists("AccountMonitorService.CheckAccountLocks");
+                return Json(new { success = true });
+            }
+
+            if (jobid == "MailWeeklySummary")
+            {
+                RecurringJob.RemoveIfExists("MailingService.MailWeeklySummary");
+                return Json(new { success = true });
             }
 
             if (jobid == "CheckLNTransactions")

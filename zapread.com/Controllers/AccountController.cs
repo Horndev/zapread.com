@@ -949,16 +949,20 @@ namespace zapread.com.Controllers
 
                 var lockoutEnd = DateTime.UtcNow + TimeSpan.FromDays(365);
 
-                user.Funds.Locks.Add(new FundsLock()
+                // If not already locked - add a lock
+                if (!user.Funds.Locks.Any(l => l.Reason == UserFundLockType.UserRequestedLock))
                 {
-                    TimeStampStarted = DateTime.UtcNow,
-                    TimeStampExpired = lockoutEnd,
-                    Reason = UserFundLockType.UserRequestedLock,
-                    DepositLocked = false,
-                    SpendLocked = true,
-                    TransferLocked = true,
-                    WithdrawLocked = true,
-                });
+                    user.Funds.Locks.Add(new FundsLock()
+                    {
+                        TimeStampStarted = DateTime.UtcNow,
+                        TimeStampExpired = lockoutEnd,
+                        Reason = UserFundLockType.UserRequestedLock,
+                        DepositLocked = false,
+                        SpendLocked = true,
+                        TransferLocked = true,
+                        WithdrawLocked = true,
+                    });
+                }
 
                 await db.SaveChangesAsync();
 
