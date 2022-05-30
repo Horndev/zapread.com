@@ -336,7 +336,7 @@ export default class Editor extends React.Component {
       'header',
       'bold', 'italic', 'underline', 'strike', 'blockquote',
       'list', 'bullet', 'indent',
-      'link', 'image', 'video'
+      'link', 'image', 'video', 'mention'
     ]
 
     var self = this;

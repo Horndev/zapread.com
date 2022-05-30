@@ -1340,9 +1340,9 @@
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
+    <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
-    <Content Include="Scripts\src\Components\UserBalance.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
     <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1866,7 +1866,6 @@
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />
     <Content Include="Views\Messages\Alerts.cshtml" />
-    <Content Include="Views\Shared\_PartialModalAskUserTourIndex.cshtml" />
     <Content Include="Views\Admin\Votes.cshtml" />
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
     <Content Include="Views\Post\_Impressions.cshtml" />
