@@ -158,17 +158,23 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> Balance()
         {
             XFrameOptionsDeny();
+
             double userBalance = 0.0;
             if (Request.IsAuthenticated)
             {
                 var userAppId = User.Identity.GetUserId();
-                userBalance = await GetUserBalance(userAppId).ConfigureAwait(true);
+                var balanceInfo = await GetUserBalance(userAppId).ConfigureAwait(true);
+                userBalance = Math.Floor(balanceInfo.Balance);
+                string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
+
+                return Json(new { 
+                    balance,
+                    balanceInfo.QuickVoteOn,
+                    QuickVoteAmount = balanceInfo.QuickVoteAmount > 0 ? balanceInfo.QuickVoteAmount : 1
+                }, JsonRequestBehavior.AllowGet);
             }
-
-            string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
-
-            Response.AddHeader("X-Frame-Options", "DENY");
-            return Json(new { balance }, JsonRequestBehavior.AllowGet);
+            
+            return Json(new { balance = "0" }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -183,12 +189,17 @@ namespace zapread.com.Controllers
             return RedirectToActionPermanent("Balance");
         }
 
-        private async Task<double> GetUserBalance(string userAppId)
+        private async Task<UserBalanceInfo> GetUserBalance(string userAppId)
         {
-            double balance;
+            UserBalanceInfo balance;
             if (string.IsNullOrEmpty(userAppId))
             {
-                return 0.0;
+                return new UserBalanceInfo()
+                {
+                    Balance = 0.0,
+                    QuickVoteAmount = 10,
+                    QuickVoteOn = false,
+                };
             }
             try
             {
@@ -197,8 +208,13 @@ namespace zapread.com.Controllers
                     var userBalance = await db.Users
                         .Where(u => u.AppId == userAppId && u.Funds != null)
                         .AsNoTracking()
-                        .Select(u => new { u.Funds.Balance })
+                        .Select(u => new UserBalanceInfo() { 
+                            Balance = u.Funds.Balance,
+                            QuickVoteAmount = u.Funds.QuickVoteAmount,
+                            QuickVoteOn = u.Funds.QuickVoteOn
+                        })
                         .FirstOrDefaultAsync().ConfigureAwait(false);
+
                     if (userBalance == null)
                     {
                         // User not found in database, or not logged in
@@ -212,12 +228,23 @@ namespace zapread.com.Controllers
                                 .Where(u => u.AppId == userAppId)
                                 .Include(i => i.Funds)
                                 .FirstOrDefaultAsync().ConfigureAwait(false);
-                            user_modified.Funds = new UserFunds() { Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0 };
+                            user_modified.Funds = new UserFunds() { 
+                                Balance = 0.0, 
+                                Id = user_modified.Id, 
+                                TotalEarned = 0.0,
+                                QuickVoteOn = false,
+                                QuickVoteAmount = 10
+                            };
                             await db.SaveChangesAsync().ConfigureAwait(false);
                         }
-                        return 0.0;
+                        return new UserBalanceInfo()
+                        {
+                            Balance = 0.0,
+                            QuickVoteAmount = 10,
+                            QuickVoteOn = false,
+                        };
                     }                    
-                    balance = userBalance.Balance;
+                    balance = userBalance;
                 }
             }
             catch (Exception e)
@@ -233,10 +260,15 @@ namespace zapread.com.Controllers
                     }, "Accounts", true));
 
                 // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
-                balance = 0.0;
+                balance = new UserBalanceInfo()
+                {
+                    Balance = 0.0,
+                    QuickVoteAmount = 10,
+                    QuickVoteOn = false,
+                };
             }
 
-            return Math.Floor(balance);
+            return balance;
         }
 
         /// <summary>
@@ -423,7 +455,8 @@ namespace zapread.com.Controllers
             XFrameOptionsDeny();
             var userAppId = User.Identity.GetUserId();
             double amount = 0.0;
-            double balance = await GetUserBalance(userAppId).ConfigureAwait(true);
+            var balanceInfo = await GetUserBalance(userAppId).ConfigureAwait(true);
+            double balance = Math.Floor(balanceInfo.Balance);
             double limboBalance = await GetUserLimboBalance().ConfigureAwait(true);
             int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
             try

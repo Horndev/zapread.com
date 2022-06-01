@@ -21,10 +21,13 @@ export async function refreshUserBalance(update = true) {
     })
     .then((data) => {
       if (update) {
+        var quickVoteAmount = parseInt(data.QuickVoteAmount);
         updateUserInfo({
-          balance: data.balance
+          balance: data.balance,
+          quickVote: data.QuickVoteOn,
+          quickVoteAmount: quickVoteAmount > 0 ? quickVoteAmount : 1
         });
-      }     
+      }
 
       //var ve = document.getElementById('userVoteBalance');
       //if (ve !== null) {

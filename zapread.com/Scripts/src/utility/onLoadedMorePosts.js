@@ -54,7 +54,8 @@ export async function enableVoting(className, d, t, idel, container) {
             direction: d,
             type: t,
             id: postid,
-            target: e.target
+            target: e.target,
+            userInfo: window.userInfo
           }
         });
         document.dispatchEvent(event);

@@ -22,6 +22,67 @@ namespace zapread.com.API
     public class AccountController : ApiController
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Authorize]
+        [Route("api/v1/account/quickvote/update")]
+        public async Task<IHttpActionResult> UpdateQuickVote(UpdateQuickVoteRequest req)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var userFunds = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => u.Funds)
+                    .FirstOrDefaultAsync();
+
+                bool saveFailed;
+                int attempts = 0;
+                do
+                {
+                    attempts++;
+                    saveFailed = false;
+
+                    if (attempts > 50) return InternalServerError();
+
+                    if (req.QuickVoteAmount != userFunds.QuickVoteAmount)
+                    {
+                        userFunds.QuickVoteAmount = req.QuickVoteAmount;
+                    }
+
+                    if (req.QuickVoteOn != userFunds.QuickVoteOn)
+                    {
+                        userFunds.QuickVoteOn = req.QuickVoteOn;
+                    }
+
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+                        foreach (var entry in ex.Entries)//.Single();
+                        {
+                            entry.Reload();
+                        }
+                    }
+                }
+                while (saveFailed);
+
+                return Ok(new ZapReadResponse()
+                {
+                    success = true,
+                });
+            }
+        }
+
+        /// <summary>
         /// Generate a new API key assigned to the authorized user.
         /// </summary>
         /// <param name="roles">A comma-separated list of roles which the new key should have.</param>
