@@ -175,7 +175,6 @@ namespace zapread.com.Controllers
             }
             
             return Json(new { balance = "0" }, JsonRequestBehavior.AllowGet);
-            
         }
 
         /// <summary>

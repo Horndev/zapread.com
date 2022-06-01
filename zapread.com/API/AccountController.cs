@@ -50,8 +50,6 @@ namespace zapread.com.API
 
                     if (attempts > 50) return InternalServerError();
 
-
-
                     if (req.QuickVoteAmount != userFunds.QuickVoteAmount)
                     {
                         userFunds.QuickVoteAmount = req.QuickVoteAmount;

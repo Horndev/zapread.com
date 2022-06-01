@@ -24,6 +24,5 @@ namespace zapread.com.Models
         /// How much to vote each click
         /// </summary>
         public int QuickVoteAmount { get; set; }
-
     }
 }
