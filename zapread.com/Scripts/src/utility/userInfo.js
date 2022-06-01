@@ -11,11 +11,12 @@ export function updateUserInfo(updated) {
   if (!('userInfo' in window)) {
     window.userInfo = {
       balance: 0,
-      defaultVote: 10
+      quickVote: false,
+      quickVoteAmount: 10
     };
   }
 
-  window.userInfo = { ...window.UserInfo, ...updated };
+  window.userInfo = { ...window.userInfo, ...updated };
   //window.userInfo.balance = data.balance;
 
   // Send event notifying updated

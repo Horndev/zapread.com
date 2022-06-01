@@ -27,6 +27,16 @@ namespace zapread.com.Models.Database.Financial
         public double Balance { get; set; }
 
         /// <summary>
+        /// If user can click to vote
+        /// </summary>
+        public bool QuickVoteOn { get; set; }
+
+        /// <summary>
+        /// How much to vote each click
+        /// </summary>
+        public int QuickVoteAmount { get; set; }
+
+        /// <summary>
         /// These are funds the user may have as pending withdraw or deposit.  Not spendable.
         /// </summary>
         public double LimboBalance { get; set; }

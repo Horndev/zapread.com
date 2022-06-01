@@ -35,6 +35,7 @@ export default function VoteModal(props) {
   const [invoiceQRURL, setInvoiceQRURL] = useState("/Content/FFFFFF-0.png");
   const [voteTarget, setVoteTarget] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [isQuickVoteOn, setIsQuickVoteOn] = useState(false);
   const [showGetInvoiceButton, setShowGetInvoiceButton] = useState(false);
   const [showCheckPaymentSpinner, setShowCheckPaymentSpinner] = useState(false);
   const [showCheckPaymentButton, setShowCheckPaymentButton] = useState(false);
@@ -45,6 +46,12 @@ export default function VoteModal(props) {
   const invoiceInputRef = createRef();
 
   const userInfo = useUserInfo(); // Custom hook
+  const userInfoRef = useRef(userInfo);
+
+  useEffect(() => {
+    setVoteAmount(userInfo.quickVoteAmount);
+    setIsQuickVoteOn(userInfo.quickVote);
+  }, [userInfo]);
 
   const handleClose = () => {
     // Cleanup & reset
@@ -116,7 +123,7 @@ export default function VoteModal(props) {
     setShowVoteButton(false);
   }
 
-  function handleVote() {
+  function handleVote(e) {
     // Note - don't need to check if authenticated since this only button visible when logged in.
     refreshUserBalance().then((userBalance) => {
       updateUserInfo({
@@ -128,8 +135,13 @@ export default function VoteModal(props) {
         setStateGetInvoice();
       }
       else {
-        spinnerOn(voteTarget);
-        doVote();
+        if (e) {
+          spinnerOn(e.detail.target);
+          doVote(e);
+        } else {
+          spinnerOn(voteTarget);
+          doVote();
+        }
       }
     });
   }
@@ -231,36 +243,64 @@ export default function VoteModal(props) {
 
   function spinnerOff(target, direction) {
     // Stop the spinner
-    var icon = voteTarget;
+    var icon = target;
     icon.classList.remove('fa-circle-notch');
     icon.classList.remove('fa-spin');
     icon.classList.add(direction == "up" ? 'fa-chevron-up' : 'fa-chevron-down');
     icon.style.color = '';
   }
 
-  async function doVote() {
+  async function doVote(e) {
+
     handleClose(); // Close the modal
 
-    var uid = voteType == "post" ? 'uVote_' : voteType == "comment" ? "uVotec_" : ""; // element for up arrow
-    var did = voteType == "post" ? 'dVote_' : voteType == "comment" ? "dVotec_" : ""; // element for down arrow
-    var sid = voteType == "post" ? "sVote_" : voteType == "comment" ? "sVotec_" : ""; // element for score
-    var voteurl = voteType == "post" ? "/Vote/Post" : "/Vote/Comment";
+    var vt = voteType;
+    var vtgt = voteTarget;
+    var vid = voteId;
+    var vd = voteDirection;
+    var va = voteAmount;
+    if (e) {
+      vt = e.detail.type;
+      vid = e.detail.id;
+      vd = e.detail.direction;
+      vtgt = e.detail.target;
+      va = e.detail.amount;
+    }
 
+    var uid = vt == "post" ? 'uVote_' : vt == "comment" ? "uVotec_" : ""; // element for up arrow
+    var did = vt == "post" ? 'dVote_' : vt == "comment" ? "dVotec_" : ""; // element for down arrow
+    var sid = vt == "post" ? "sVote_" : vt == "comment" ? "sVotec_" : ""; // element for score
+    var voteurl = vt == "post" ? "/Vote/Post" : "/Vote/Comment";
+
+    if (userInfo) {
+      await postJson("/api/v1/account/quickvote/update/", {
+        QuickVoteOn: userInfo.quickVote,
+        QuickVoteAmount: va
+      }).then((response) => {
+        if (response.success) { }
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+    
     // Do the vote
     await postJson(voteurl, {
-      Id: voteId,
-      d: voteDirection == "up" ? 1 : 0,
-      a: voteAmount,
+      Id: vid,
+      d: vd == "up" ? 1 : 0,
+      a: va,
       tx: voteTx.current
     }).then((data) => {
       if (data.success) {
         updateUserInfo({
-          balance: userInfo.balance - voteAmount
+          balance: window.userInfo.balance - va
         });
-        spinnerOff(voteTarget, voteDirection);
+        spinnerOff(vtgt, vd);
 
         var val = data.scoreStr;
-        document.getElementById(sid + voteId).innerHTML = val.toString();
+        var valEl = document.getElementById(sid + vid);
+        if (valEl) {
+          valEl.innerHTML = val.toString();
+        }
 
         var deltaCommunity = data.deltaCommunity;
         var amountEl = document.getElementById("amount-info-payout");
@@ -270,16 +310,16 @@ export default function VoteModal(props) {
 
         var delta = Number(data.delta);
         if (delta === 1) {
-          document.getElementById(uid + voteId).classList.remove("text-muted");
-          document.getElementById(did + voteId).classList.add("text-muted");
+          document.getElementById(uid + vid).classList.remove("text-muted");
+          document.getElementById(did + vid).classList.add("text-muted");
         }
         else if (delta === 0) {
-          document.getElementById(uid + voteId).classList.add("text-muted");
-          document.getElementById(did + voteId).classList.add("text-muted");
+          document.getElementById(uid + vid).classList.add("text-muted");
+          document.getElementById(did + vid).classList.add("text-muted");
         }
         else {
-          document.getElementById(did + voteId).classList.remove("text-muted");
-          document.getElementById(uid + voteId).classList.add("text-muted");
+          document.getElementById(did + vid).classList.remove("text-muted");
+          document.getElementById(uid + vid).classList.add("text-muted");
         }
       } else {
         // not successful
@@ -293,7 +333,13 @@ export default function VoteModal(props) {
   /**
    * Event registration
    **/
-  const onVoteEventHandler = useCallback((e) => {
+  const onVoteEventHandler = useCallback((e) => {    
+
+    // Refreshes user info
+    var currentUserInfo = e.detail.userInfo;//window.userInfo;
+
+    //console.log("e.detail.userInfo",e.detail.userInfo);
+
     setVoteType(e.detail.type);
     setVoteId(e.detail.id);
     setVoteTarget(e.detail.target);
@@ -323,13 +369,20 @@ export default function VoteModal(props) {
           balance: userBalance
         });
         if (userBalance < voteAmount) {
-          console.log(userInfo, voteAmount);
+          //console.log(userInfo, voteAmount);
           setStateGetInvoice();
         }
-        setShow(true); // Show the Modal
+        if (currentUserInfo.quickVote) {
+          console.log('quickvote');
+          e.detail.amount = currentUserInfo.quickVoteAmount;
+          handleVote(e); // Do the vote
+        } else {
+          setShow(true); // Show the Modal
+        }
       });
     }
   }, []);
+
   const onPaidEventHandler = useCallback((e) => {
     console.log("VoteModal onPaidEventHandler", e.detail);
     //setVoteTx(e.detail.tx);
@@ -345,7 +398,7 @@ export default function VoteModal(props) {
     return () => {
       off("vote", onVoteEventHandler);
     }
-  }, [onVoteEventHandler]);
+  }, [onVoteEventHandler, userInfo]);
 
   // Register event handler for invoice paid
   useEffect(() => {
@@ -355,6 +408,10 @@ export default function VoteModal(props) {
       off("zapread:vote:invoicePaid", onPaidEventHandler);
     }
   }, [onPaidEventHandler]);
+
+  const onUpdateVoteAmount = (value) => {
+    setVoteAmount(value)
+  };
 
   return (
     <>
@@ -370,7 +427,7 @@ export default function VoteModal(props) {
                   <Col xs={6}>
                     <span>Pay{" "}</span>
                     <input
-                      onChange={({ target: { value } }) => setVoteAmount(value)} // Controlled input
+                      onChange={({ target: { value } }) => onUpdateVoteAmount(value) } // Controlled input
                       value={voteAmount}
                       type="number"
                       min={1}
@@ -433,7 +490,9 @@ export default function VoteModal(props) {
             Check Payment <i className="fa-solid fa-circle-notch fa-spin" style={showCheckPaymentSpinner ? {} : { display: "none" }}></i>
           </Button>
           <Button variant="primary"
-            onClick={handleVote} style={showVoteButton ? {} : { display: "none" }}>
+            onClick={() => {
+              handleVote(); // important to pass parameterless so that event target is original vote icon
+            }} style={showVoteButton ? {} : { display: "none" }}>
             Vote
           </Button>
           <Button variant="primary"
