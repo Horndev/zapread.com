@@ -146,7 +146,7 @@ export function dismiss(t, id) {
 window.dismiss = dismiss;
 
 ready(function () {
-  refreshUserBalance();
+  refreshUserBalance(true);
 
   var alertEl = document.getElementById("unreadAlerts");
   if (alertEl !== null) {

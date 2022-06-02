@@ -145,7 +145,7 @@ export default function DepositWithdrawModal(props) {
       if (response.success) {
         setFooterMessage("Payment successfully sent");
         setFooterBg("bg-success");
-        refreshUserBalance();
+        refreshUserBalance(true);
       }
       else {
         setFooterMessage(response.message);
@@ -277,7 +277,7 @@ export default function DepositWithdrawModal(props) {
 
   const onPaidEventHandler = useCallback((e) => {
     console.log("DepositWithdrawModal onPaidEventHandler", e.detail);
-    refreshUserBalance(); // update UI
+    refreshUserBalance(true); // update UI
     setDepositInvoice("");
     handleClose();
   });
