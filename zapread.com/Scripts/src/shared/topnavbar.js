@@ -24,7 +24,6 @@ if (balanceEl != null) {
   ReactDOM.render(<BalanceWidget />, balanceEl);
 }
 
-
 //var DepositModalLoaded = false;
 
 //function openDepositWithdrawModal() {
@@ -72,7 +71,6 @@ async function GetUnreadAlerts() {
     await fetch("/Messages/RecentUnreadAlerts").then(response => {
       return response.text();
     }).then(html => {
-
       alertsEl.innerHTML += html;
     })
   }

@@ -64,13 +64,15 @@ namespace zapread.com.Services
                 website.CommunityEarnedToDistribute += amountCommunity;
                 website.ZapReadTotalEarned += amountZapread;
                 website.ZapReadEarnedBalance += amountZapread;
-                website.EarningEvents.Add(new EarningEvent() { 
-                    Type = 3, //website
-                    Amount = amountZapread,
-                    TimeStamp = DateTime.UtcNow,
-                    OriginType = originType,
-                    OriginId = originId,
-                });
+                website.EarningEvents = new List<EarningEvent> {
+                    new EarningEvent() {
+                        Type = 3, //website
+                        Amount = amountZapread,
+                        TimeStamp = DateTime.UtcNow,
+                        OriginType = originType,
+                        OriginId = originId,
+                    }
+                };
 
                 int attempts = 0;
                 bool saveFailed;
@@ -139,26 +141,36 @@ namespace zapread.com.Services
 
             using (var db = new ZapContext())
             {
-                var post = db.Posts
+                var postInfo = db.Posts
                     .Where(p => p.PostId == postId)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.EarningEvents)
-                    .Include(p => p.VotesUp)
-                    .Include(p => p.VotesDown)
-                    .Include(p => p.Group)
+                    .Select(p => new
+                    {
+                        Post = p,
+                        p.Group,
+                        User = p.UserId,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        p.UserId.Reputation,
+                        p.UserId.ReferralInfo,
+                        p.IsNonIncome,
+                        p.PostId,
+                        ToFunds = isUpvote ? p.UserId.Funds : null // Don't fetch this if not upvoting
+                    })
                     .FirstOrDefault();
 
                 bool isAnonymous = userAppId == null;
 
-                var fromFunds = db.Users
+                UserFunds fromFunds = null;
+
+                if (!isAnonymous)
+                {
+                    fromFunds = db.Users
                         .Where(u => u.AppId == userAppId)
                         .Select(u => u.Funds)
                         .FirstOrDefault();
+                }
 
-                var toFunds = db.Users
-                        .Where(u => u.Id == post.UserId.Id)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
+                var toFunds = postInfo.ToFunds;
 
                 UserFunds referalFunds = null;
                 User referalUser = null;
@@ -178,16 +190,17 @@ namespace zapread.com.Services
 
                     scoreAdj = ReputationService.GetReputationAdjustedAmount(
                         amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : post.UserId.Reputation,
+                        targetRep: isUpvote ? 0 : postInfo.Reputation,
                         actorRep: 0);
                 }
 
                 // Check if author has referral program active
-                var referralInfo = db.Users
-                       .Where(u => u.Id == post.UserId.Id)
-                       .Select(u => u.ReferralInfo)
-                       .AsNoTracking()
-                       .FirstOrDefault();
+                var referralInfo = postInfo.ReferralInfo;
+                    //db.Users
+                    //   .Where(u => u.Id == postInfo.UserId)
+                    //   .Select(u => u.ReferralInfo)
+                    //   .AsNoTracking()
+                    //   .FirstOrDefault();
 
                 // Referral within last 6 months
                 if ( referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30*6)))
@@ -200,7 +213,7 @@ namespace zapread.com.Services
 
                     referalUser = db.Users
                         .Where(u => u.AppId == refbyAppId)
-                        .Include(u => u.EarningEvents)
+                        //.Include(u => u.EarningEvents)
                         .FirstOrDefault();
                 }
 
@@ -208,7 +221,7 @@ namespace zapread.com.Services
                 double amountTo = isUpvote ? 0.6 * amount : 0;
                 double amountCommunity = 0.1 * amount;
                 double amountGroup = isUpvote ? 0.2 * amount : 0.8 * amount;
-                if (post.IsNonIncome)
+                if (postInfo.IsNonIncome)
                 {
                     // If the author declared the post as non-income, instead of getting
                     // money themselves, the author's payment goes to the community and group.
@@ -221,9 +234,9 @@ namespace zapread.com.Services
                     from: isAnonymous ? null    : fromFunds,
                     to:   isUpvote    ? toFunds : null,
                     referredBy: isUpvote ? referalFunds : null,
-                    group: post.Group,
+                    group: postInfo.Group,
                     originType: 0,
-                    originId: post.PostId,
+                    originId: postInfo.PostId,
                     amountFrom: amount,
                     amountTo: amountTo,
                     amountGroup: amountGroup,
@@ -245,59 +258,65 @@ namespace zapread.com.Services
                     }
 
                     // Adjust post owner reputation
-                    bool isOwnPost = post.UserId.AppId == userAppId;
-                    post.UserId.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
+                    bool isOwnPost = postInfo.UserAppId == userAppId;
+                    postInfo.User.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
 
                     // Keep track of how much this post has made for the owner
-                    if (!post.IsNonIncome)
+                    if (!postInfo.IsNonIncome)
                     {
-                        post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
+                        postInfo.Post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
                     }
 
                     // Earning event for post owner
                     if (isUpvote)
                     {
-                        if (!post.IsNonIncome)
+                        if (!postInfo.IsNonIncome)
                         {
-                            post.UserId.EarningEvents.Add(new EarningEvent()
-                            {
-                                Amount = 0.6 * amount,
-                                OriginType = 0,
-                                TimeStamp = DateTime.UtcNow,
-                                Type = 0,
-                                OriginId = post.PostId,
-                            });
-                            post.UserId.TotalEarned += 0.6 * amount;
+                            postInfo.User.EarningEvents = new List<EarningEvent> {
+                                new EarningEvent()
+                                {
+                                    Amount = 0.6 * amount,
+                                    OriginType = 0,
+                                    TimeStamp = DateTime.UtcNow,
+                                    Type = 0,
+                                    OriginId = postInfo.PostId,
+                                }
+                            };
+                            postInfo.User.TotalEarned += 0.6 * amount;
                         }
 
                         if (referalFunds != null)
                         {
-                            post.UserId.EarningEvents.Add(new EarningEvent()
-                            {
-                                Amount = 0.03 * amount,
-                                OriginType = 0,
-                                TimeStamp = DateTime.UtcNow,
-                                Type = 4,
-                                OriginId = post.PostId,
-                            });
-
-                            if (referalUser != null)
-                            {
-                                referalUser.EarningEvents.Add(new EarningEvent()
+                            postInfo.User.EarningEvents = new List<EarningEvent> {
+                                new EarningEvent()
                                 {
                                     Amount = 0.03 * amount,
                                     OriginType = 0,
                                     TimeStamp = DateTime.UtcNow,
                                     Type = 4,
-                                    OriginId = post.PostId,
-                                });
+                                    OriginId = postInfo.PostId,
+                                }
+                            };
+
+                            if (referalUser != null)
+                            {
+                                referalUser.EarningEvents = new List<EarningEvent> {
+                                    new EarningEvent()
+                                    {
+                                        Amount = 0.03 * amount,
+                                        OriginType = 0,
+                                        TimeStamp = DateTime.UtcNow,
+                                        Type = 4,
+                                        OriginId = postInfo.PostId,
+                                    }
+                                };
 
                                 // Notify the referrer they just made income
                                 _ = NotificationService.SendIncomeNotification(
                                     amount: 0.03 * amount,
                                     userId: referalUser.AppId,
                                     reason: "Referral Bonus",
-                                    clickUrl: "/Post/Detail/" + post.PostId);
+                                    clickUrl: "/Post/Detail/" + postInfo.PostId);
                             }
                         }
                     }
@@ -305,40 +324,51 @@ namespace zapread.com.Services
                     // Spending event for voter
                     if (!isAnonymous)
                     {
-                        var user = db.Users
+                        var userInfo = db.Users
                             .Where(u => u.AppId == userAppId)
-                            .Include(u => u.SpendingEvents)
-                            .Include(u => u.PostVotesUp)
-                            .Include(u => u.PostVotesDown)
+                            .Select(u => new
+                            {
+                                User = u,
+                                u.Reputation,
+                                Upvoted = u.PostVotesUp.Select(p => p.PostId).Contains(postInfo.PostId),
+                                Downvoted = u.PostVotesDown.Select(p => p.PostId).Contains(postInfo.PostId),
+                            })
                             .FirstOrDefault();
 
                         scoreAdj = ReputationService.GetReputationAdjustedAmount(
                             amount: amount * (isUpvote ? 1 : -1),
-                            targetRep: isUpvote ? 0 : post.UserId.Reputation,
-                            actorRep: user.Reputation);
+                            targetRep: isUpvote ? 0 : postInfo.Reputation,
+                            actorRep: userInfo.Reputation);
 
-                        user.SpendingEvents
-                            .Add(new SpendingEvent()
-                        {
-                            Amount = amount,
-                            Post = post,
-                            TimeStamp = DateTime.UtcNow,
-                        });
+                        userInfo.User.SpendingEvents = new List<SpendingEvent> { 
+                            new SpendingEvent()
+                            {
+                                Amount = amount,
+                                Post = postInfo.Post,
+                                TimeStamp = DateTime.UtcNow,
+                            } 
+                        };
 
                         if (isUpvote)
                         {
-                            post.VotesUp.Add(user);
-                            user.PostVotesUp.Add(post);
+                            if (!userInfo.Upvoted)
+                            {
+                                postInfo.Post.VotesUp = new List<User> { userInfo.User }; // Adds without DB round-trip
+                                //userInfo.User.PostVotesUp = new List<Post> { post }; //.Add(post);
+                            }
                         }
                         else
                         {
-                            post.VotesDown.Add(user);
-                            user.PostVotesDown.Add(post);
+                            if (!userInfo.Downvoted)
+                            {
+                                postInfo.Post.VotesDown = new List<User> { userInfo.User }; // Adds without DB round-trip
+                                //userInfo.User.PostVotesDown = new List<Post> { post }; //.Add(post);
+                            }
                         }
                     }
 
                     // Adjust post score
-                    post.Score += Convert.ToInt32(scoreAdj);
+                    postInfo.Post.Score += Convert.ToInt32(scoreAdj);
 
                     try
                     {
@@ -355,13 +385,13 @@ namespace zapread.com.Services
                 }
                 while (saveFailed);
 
-                if (isUpvote && !post.IsNonIncome)
+                if (isUpvote && !postInfo.IsNonIncome)
                 {
                     _ = NotificationService.SendIncomeNotification(
                         0.6 * amount,
-                        post.UserId.AppId,
+                        postInfo.UserAppId,
                         "Post upvote",
-                        "/Post/Detail/" + post.PostId);
+                        "/Post/Detail/" + postInfo.PostId);
                 }
 
                 return true;
@@ -385,27 +415,46 @@ namespace zapread.com.Services
 
             using (var db = new ZapContext())
             {
-                var comment = db.Comments
+                var commentInfo = db.Comments
                     .Where(c => c.CommentId == commentId)
-                    .Include(c => c.VotesUp)
-                    .Include(c => c.VotesDown)
-                    .Include(c => c.UserId)
-                    .Include(c => c.UserId.Funds)
-                    .Include(c => c.Post)
-                    .Include(c => c.Post.Group)
+                    .Select(c => new
+                    {
+                        Comment = c,
+                        c.Post.Group,
+                        User = c.UserId,
+                        UserId = c.UserId.Id,
+                        UserAppId = c.UserId.AppId,
+                        c.UserId.Reputation,
+                        c.UserId.ReferralInfo,
+                        c.CommentId,
+                        c.Post.PostId,
+                        ToFunds = isUpvote ? c.UserId.Funds : null // Don't fetch if not upvoting
+                    })
+                    //.Include(c => c.VotesUp)
+                    //.Include(c => c.VotesDown)
+                    //.Include(c => c.UserId)
+                    //.Include(c => c.UserId.Funds)
+                    //.Include(c => c.Post)
+                    //.Include(c => c.Post.Group)
                     .FirstOrDefault();
 
                 bool isAnonymous = userAppId == null;
 
-                var fromFunds = db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
+                UserFunds fromFunds = null;
 
-                var toFunds = db.Users
-                        .Where(u => u.Id == comment.UserId.Id)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
+                if (!isAnonymous)
+                {
+                    fromFunds = db.Users
+                            .Where(u => u.AppId == userAppId)
+                            .Select(u => u.Funds)
+                            .FirstOrDefault();
+                }
+
+                var toFunds = commentInfo.ToFunds;
+                    //db.Users
+                    //    .Where(u => u.Id == comment.UserId.Id)
+                    //    .Select(u => u.Funds)
+                    //    .FirstOrDefault();
 
                 UserFunds referalFunds = null;
                 User referalUser = null;
@@ -425,16 +474,17 @@ namespace zapread.com.Services
 
                     scoreAdj = ReputationService.GetReputationAdjustedAmount(
                         amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : comment.UserId.Reputation,
+                        targetRep: isUpvote ? 0 : commentInfo.Reputation,
                         actorRep: 0);
                 }
 
                 // Check if author has referral program active
-                var referralInfo = db.Users
-                       .Where(u => u.Id == comment.UserId.Id)
-                       .Select(u => u.ReferralInfo)
-                       .AsNoTracking()
-                       .FirstOrDefault();
+                var referralInfo = commentInfo.ReferralInfo;
+                    //db.Users
+                    //   .Where(u => u.Id == comment.UserId.Id)
+                    //   .Select(u => u.ReferralInfo)
+                    //   .AsNoTracking()
+                    //   .FirstOrDefault();
 
                 // Referral within last 6 months
                 if (referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30 * 6)))
@@ -447,7 +497,7 @@ namespace zapread.com.Services
 
                     referalUser = db.Users
                         .Where(u => u.AppId == refbyAppId)
-                        .Include(u => u.EarningEvents)
+                        //.Include(u => u.EarningEvents)
                         .FirstOrDefault();
                 }
 
@@ -456,9 +506,9 @@ namespace zapread.com.Services
                     from: isAnonymous ? null : fromFunds,
                     to: isUpvote ? toFunds : null,
                     referredBy: isUpvote ? referalFunds : null,
-                    group: comment.Post.Group,
+                    group: commentInfo.Group,
                     originType: 1,
-                    originId: Convert.ToInt32(comment.CommentId),
+                    originId: Convert.ToInt32(commentInfo.CommentId),
                     amountFrom: amount,
                     amountTo: isUpvote ? 0.6 * amount : 0,
                     amountGroup: isUpvote ? 0.2 * amount : 0.8 * amount,
@@ -480,49 +530,56 @@ namespace zapread.com.Services
                     }
 
                     // Adjust comment owner reputation
-                    bool isOwn = comment.UserId.AppId == userAppId;
-                    comment.UserId.Reputation += (isAnonymous ? 0 : 1) * (isOwn ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
+                    bool isOwn = commentInfo.UserAppId == userAppId;
+                    commentInfo.User.Reputation += (isAnonymous ? 0 : 1) * (isOwn ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
 
                     // Earning event for post owner
                     if (isUpvote)
                     {
-                        comment.UserId.EarningEvents.Add(new EarningEvent()
-                        {
-                            Amount = 0.6 * amount,
-                            OriginType = 1,
-                            TimeStamp = DateTime.UtcNow,
-                            Type = 0,
-                            OriginId = Convert.ToInt32(comment.CommentId),
-                        });
-                        comment.UserId.TotalEarned += 0.6 * amount;
+                        commentInfo.User.EarningEvents = new List<EarningEvent> {
+                            new EarningEvent()
+                            {
+                                Amount = 0.6 * amount,
+                                OriginType = 1,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 0,
+                                OriginId = Convert.ToInt32(commentInfo.CommentId),
+                            }
+                        };
+
+                        commentInfo.User.TotalEarned += 0.6 * amount;
 
                         if (referalFunds != null)
                         {
-                            comment.UserId.EarningEvents.Add(new EarningEvent()
-                            {
-                                Amount = 0.03 * amount,
-                                OriginType = 1,
-                                TimeStamp = DateTime.UtcNow,
-                                Type = 4,
-                                OriginId = Convert.ToInt32(comment.CommentId),
-                            });
-
-                            if (referalUser != null)
-                            {
-                                referalUser.EarningEvents.Add(new EarningEvent()
+                            commentInfo.User.EarningEvents = new List<EarningEvent> {
+                                new EarningEvent()
                                 {
                                     Amount = 0.03 * amount,
                                     OriginType = 1,
                                     TimeStamp = DateTime.UtcNow,
                                     Type = 4,
-                                    OriginId = Convert.ToInt32(comment.CommentId),
-                                });
+                                    OriginId = Convert.ToInt32(commentInfo.CommentId),
+                                }
+                            };
+
+                            if (referalUser != null)
+                            {
+                                referalUser.EarningEvents = new List<EarningEvent> {
+                                    new EarningEvent()
+                                    {
+                                        Amount = 0.03 * amount,
+                                        OriginType = 1,
+                                        TimeStamp = DateTime.UtcNow,
+                                        Type = 4,
+                                        OriginId = Convert.ToInt32(commentInfo.CommentId),
+                                    }
+                                };
 
                                 _ = NotificationService.SendIncomeNotification(
                                     amount: 0.03 * amount,
                                     userId: referalUser.AppId,
                                     reason: "Referral Bonus",
-                                    clickUrl: "/Post/Detail/" + comment.Post.PostId);
+                                    clickUrl: "/Post/Detail/" + commentInfo.PostId);
                             }
                         }
                     }
@@ -530,40 +587,53 @@ namespace zapread.com.Services
                     // Spending event for voter
                     if (!isAnonymous)
                     {
-                        var user = db.Users
+                        var userInfo = db.Users
                             .Where(u => u.AppId == userAppId)
-                            .Include(u => u.SpendingEvents)
-                            .Include(u => u.PostVotesUp)
-                            .Include(u => u.PostVotesDown)
+                            .Select(u => new
+                            {
+                                User = u,
+                                u.Reputation,
+                                Upvoted = u.CommentVotesUp.Select(c => c.CommentId).Contains(commentInfo.CommentId),
+                                Downvoted = u.CommentVotesDown.Select(c => c.CommentId).Contains(commentInfo.CommentId),
+                            })
                             .FirstOrDefault();
 
                         scoreAdj = ReputationService.GetReputationAdjustedAmount(
                             amount: amount * (isUpvote ? 1 : -1),
-                            targetRep: isUpvote ? 0 : comment.UserId.Reputation,
-                            actorRep: user.Reputation);
+                            targetRep: isUpvote ? 0 : commentInfo.Reputation,
+                            actorRep: userInfo.Reputation);
 
-                        user.SpendingEvents
-                            .Add(new SpendingEvent()
+                        userInfo.User.SpendingEvents = new List<SpendingEvent> {
+                            new SpendingEvent()
                             {
                                 Amount = amount,
-                                Comment = comment,
+                                Comment = commentInfo.Comment,
                                 TimeStamp = DateTime.UtcNow,
-                            });
+                            }
+                        };
 
                         if (isUpvote)
                         {
-                            comment.VotesUp.Add(user);
-                            user.CommentVotesUp.Add(comment);
+                            if (!userInfo.Upvoted)
+                            {
+                                commentInfo.Comment.VotesUp = new List<User> { userInfo.User }; // Adds without DB round-trip
+                            }
+                            //comment.VotesUp.Add(user);
+                            //user.CommentVotesUp.Add(comment);
                         }
                         else
                         {
-                            comment.VotesDown.Add(user);
-                            user.CommentVotesDown.Add(comment);
+                            if (!userInfo.Downvoted)
+                            {
+                                commentInfo.Comment.VotesDown = new List<User> { userInfo.User }; // Adds without DB round-trip
+                            }
+                            //comment.VotesDown.Add(user);
+                            //user.CommentVotesDown.Add(comment);
                         }
                     }
 
                     // Adjust post score
-                    comment.Score += Convert.ToInt32(scoreAdj);
+                    commentInfo.Comment.Score += Convert.ToInt32(scoreAdj);
 
                     try
                     {
@@ -584,9 +654,9 @@ namespace zapread.com.Services
                 {
                     _ = NotificationService.SendIncomeNotification(
                         0.6 * amount, 
-                        comment.UserId.AppId, 
+                        commentInfo.UserAppId, 
                         "Comment upvote",
-                        "/Post/Detail/" + comment.Post.PostId );
+                        "/Post/Detail/" + commentInfo.PostId );
                 }
 
                 return true;
