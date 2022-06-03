@@ -157,7 +157,8 @@ function Comment(props) {
                             direction: 'up',
                             type: 'comment',
                             id: props.comment.CommentId,
-                            target: upVoteRef.current
+                            target: upVoteRef.current,
+                            userInfo: window.userInfo
                           }
                         });
                         document.dispatchEvent(event);
@@ -179,7 +180,8 @@ function Comment(props) {
                               direction: 'down',
                               type: 'comment',
                               id: props.comment.CommentId,
-                              target: downVoteRef.current
+                              target: downVoteRef.current,
+                              userInfo: window.userInfo
                             }
                           });
                           document.dispatchEvent(event);

@@ -59,7 +59,15 @@ namespace zapread.com.Database
         /// </summary>
         public DbSet<Tag> Tags { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DbSet<FundsLock> Locks { get; set; }
+
+        /// <summary>
+        /// List of user Balances
+        /// </summary>
+        public DbSet<UserFunds> Funds { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

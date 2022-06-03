@@ -32,7 +32,8 @@ export default function PostVoteButtons(props) {
         direction: 'up',
         type: 'post',
         id: postId,
-        target: upVoteRef.current
+        target: upVoteRef.current,
+        userInfo: window.userInfo
       }
     });
     document.dispatchEvent(event);
@@ -49,7 +50,8 @@ export default function PostVoteButtons(props) {
           direction: 'down',
           type: 'post',
           id: postId,
-          target: downVoteRef.current
+          target: downVoteRef.current,
+          userInfo: window.userInfo
         }
       });
       document.dispatchEvent(event);

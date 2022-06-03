@@ -28,18 +28,6 @@ export async function refreshUserBalance(update = true) {
           quickVoteAmount: quickVoteAmount > 0 ? quickVoteAmount : 1
         });
       }
-
-      //var ve = document.getElementById('userVoteBalance');
-      //if (ve !== null) {
-      //  ve.innerHTML = data.balance;
-      //}
-
-      // This is a shim for updating all UI occurances of user balance
-      //var elements = document.querySelectorAll(".userBalanceValue");
-      //Array.prototype.forEach.call(elements, function (el, _i) {
-      //  el.innerHTML = data.balance;
-      //});
-
       return data.balance;
     });
 }

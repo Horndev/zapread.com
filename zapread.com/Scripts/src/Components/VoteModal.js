@@ -125,10 +125,7 @@ export default function VoteModal(props) {
 
   function handleVote(e) {
     // Note - don't need to check if authenticated since this only button visible when logged in.
-    refreshUserBalance().then((userBalance) => {
-      updateUserInfo({
-        balance: userBalance
-      });
+    refreshUserBalance(true).then((userBalance) => {
       if (parseInt(voteAmount) > parseInt(userBalance)) {
         console.log("vote amount", voteAmount, "greater than balance", userBalance);
         // Not enough funds for the vote
@@ -254,6 +251,8 @@ export default function VoteModal(props) {
 
     handleClose(); // Close the modal
 
+    var currentUserInfo = userInfo;
+
     var vt = voteType;
     var vtgt = voteTarget;
     var vid = voteId;
@@ -265,6 +264,7 @@ export default function VoteModal(props) {
       vd = e.detail.direction;
       vtgt = e.detail.target;
       va = e.detail.amount;
+      currentUserInfo = e.detail.userInfo;
     }
 
     var uid = vt == "post" ? 'uVote_' : vt == "comment" ? "uVotec_" : ""; // element for up arrow
@@ -272,9 +272,10 @@ export default function VoteModal(props) {
     var sid = vt == "post" ? "sVote_" : vt == "comment" ? "sVotec_" : ""; // element for score
     var voteurl = vt == "post" ? "/Vote/Post" : "/Vote/Comment";
 
-    if (userInfo) {
+    if (currentUserInfo) {
+      console.log(currentUserInfo);
       await postJson("/api/v1/account/quickvote/update/", {
-        QuickVoteOn: userInfo.quickVote,
+        QuickVoteOn: currentUserInfo.quickVote,
         QuickVoteAmount: va
       }).then((response) => {
         if (response.success) { }
@@ -364,10 +365,7 @@ export default function VoteModal(props) {
         });
       });
     } else {
-      refreshUserBalance().then((userBalance) => {
-        updateUserInfo({
-          balance: userBalance
-        });
+      refreshUserBalance(true).then((userBalance) => {
         if (userBalance < voteAmount) {
           //console.log(userInfo, voteAmount);
           setStateGetInvoice();
