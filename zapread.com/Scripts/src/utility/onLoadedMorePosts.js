@@ -178,7 +178,8 @@ export function onLoadedMorePosts() {
         fetch(url).then(function (response) {
           return response.text();
         }).then(function (html) {
-          impressionEl.innerHTML = html;
+          var impressionTextEl = el.parentElement.querySelector(".impression-text");
+          impressionTextEl.innerHTML = html;
           impressionEl.classList.remove('impression');
         });
       }

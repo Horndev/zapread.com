@@ -9,13 +9,14 @@
     <button class="pull-left btn btn-sm btn-link" style="display: flex;padding-left: 4px;" onclick="togglePost(this);">
         <i class="fa fa-minus-square togglebutton"></i>
     </button>
+    <div class="impression" data-url="/Post/Impressions/@Model.PostId" style="display:none;"></div>
     @if (Request.IsAuthenticated)
     {
         <div class="pull-right social-action dropdown">
             <button data-toggle="dropdown" class="dropdown-toggle btn-white"></button>
             <ul class="dropdown-menu dropdown-menu-right m-t-xs" style="left: auto;">
                 <li>
-                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression" data-url="/Post/Impressions/@Model.PostId"></span> Impression(s)</button>
+                    <button class="btn btn-link btn-sm"><i class="fa fa-eye"></i> <span class="impression-text"></span> Impression(s)</button>
                 </li>
                 @if (Model.ViewerIsFollowing)
                 {
