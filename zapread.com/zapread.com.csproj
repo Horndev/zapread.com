@@ -1341,6 +1341,7 @@
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
+    <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />

@@ -12,6 +12,12 @@ import { makePostsQuotable, makeCommentsQuotable } from './quotable/quotable';  
 import { togglePostFollow, postIgnore } from "../shared/postui";
 const getSwal = () => import('sweetalert2');
 import ReactionBar from '../Components/ReactionBar';
+import SharePostButton from '../Components/Share/SharePostButton';
+
+function findAncestor(el, sel) {
+  while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el, sel)));
+  return el;
+}
 
 export async function addPostFollowClickHandler() {
   var elements = document.querySelectorAll(".btnFollowPost");
@@ -103,6 +109,16 @@ export function onLoadedMorePosts() {
     var postId = el.getAttribute("data-postid");
     var l = el.getAttribute("data-l");
     ReactDOM.render(<ReactionBar l={l} postId={postId}/>, el);
+  });
+
+  // Render share button UI
+  elements = document.querySelectorAll(".post-social-button");
+  Array.prototype.forEach.call(elements, function (el, _i) {
+    var postId = el.getAttribute("data-postid");
+    var sfb = findAncestor(el, ".social-feed-box");
+    var title = sfb.querySelectorAll(".vote-title").item(0).innerHTML;
+    var url = "https://www.zapread.com" + sfb.querySelectorAll(".vote-title").item(0).getAttribute("href");
+    ReactDOM.render(<SharePostButton postId={postId} title={title} url={url}/>, el);
   });
 
   // activate dropdown (done manually using bootstrap.native)

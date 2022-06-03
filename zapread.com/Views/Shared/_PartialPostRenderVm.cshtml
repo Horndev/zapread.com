@@ -193,8 +193,8 @@
                     <i class="fa-solid fa-comment"></i> <span class="badge badge-light">@Model.CommentVms.Count()</span> Comments
                 </span>
             </div>
-            <div class="post-social">
-                <span class="btn btn-link btn-sm" onclick="share(@Model.PostId);"><i class="fa-solid fa-share-nodes"></i> Share</span>
+            <div class="post-social-button" data-postid="@Model.PostId">
+                @*<span class="btn btn-link btn-sm" onclick="share(@Model.PostId);"><i class="fa-solid fa-share-nodes"></i> Share</span>*@
             </div>
         </div>
         <div id="reply_p@(Model.PostId.ToString())" style="display: none;">
