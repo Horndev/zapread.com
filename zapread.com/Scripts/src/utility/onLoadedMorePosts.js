@@ -49,16 +49,21 @@ export async function enableVoting(className, d, t, idel, container) {
           Swal.fire("Error", "You are banished from this group and can't vote down", "error");
         });
       } else {
-        const event = new CustomEvent('vote', {
-          detail: {
-            direction: d,
-            type: t,
-            id: postid,
-            target: e.target,
-            userInfo: window.userInfo
-          }
-        });
-        document.dispatchEvent(event);
+        //console.log(el);
+        if (!el.children[0].classList.contains('fa-spin')) {
+          const event = new CustomEvent('vote', {
+            detail: {
+              direction: d,
+              type: t,
+              id: postid,
+              target: e.target,
+              userInfo: window.userInfo
+            }
+          });
+          document.dispatchEvent(event);
+        } else {
+          console.log('already voting');
+        }
       }
     });
     // remove className to indicate event handler is attached
