@@ -183,10 +183,18 @@
     @if (Request.IsAuthenticated)
     {
         <div class="post-reaction-bar" data-l="1" data-postid="@Model.PostId"></div>
-        <div style="height:32px;">
-            <div id="wc_@Model.PostId.ToString()">
+        <div style="height:32px;display:flex;">
+            <div class="post-write-comment" id="wc_@Model.PostId.ToString()">
                 <span class="btn btn-link btn-sm" onclick="writeComment(@Model.PostId);">
-                <span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Write a comment</span>
+                <span class="badge badge-light">@Model.CommentVms.Count()</span> <i class="fa fa-comments"></i> Comment</span>
+            </div>
+            <div class="post-show-comments" style="display:none;">
+                <span class="btn btn-link btn-sm" onclick="showComments(this);">
+                    <i class="fa-solid fa-comment"></i> <span class="badge badge-light">@Model.CommentVms.Count()</span> Comments
+                </span>
+            </div>
+            <div class="post-social-button" data-postid="@Model.PostId">
+                @*<span class="btn btn-link btn-sm" onclick="share(@Model.PostId);"><i class="fa-solid fa-share-nodes"></i> Share</span>*@
             </div>
         </div>
         <div id="reply_p@(Model.PostId.ToString())" style="display: none;">

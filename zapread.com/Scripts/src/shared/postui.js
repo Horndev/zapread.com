@@ -107,18 +107,49 @@ window.toggleComment = toggleComment;
  */
 export function togglePost(e) {
   var socialBody = e.parentElement.querySelectorAll(".social-body").item(0);
+
   toggleHidden(socialBody);
+
+  var commentBoxEl = e.parentElement.querySelectorAll(".social-comment-box").item(0);
+  //var commentToggle = e.parentElement.querySelectorAll(".social-comment-box").item(0).querySelectorAll(".comment-toggle").item(0);
   var toggleButton = e.querySelectorAll(".togglebutton").item(0);
-  var commentToggle = e.parentElement.querySelectorAll(".social-comment-box").item(0).querySelectorAll(".comment-toggle").item(0);
+
+  var writeCommentEl = e.parentElement.querySelectorAll(".post-write-comment").item(0);
+  var showCommentBtnEl = e.parentElement.querySelectorAll(".post-show-comments").item(0);
+
   if (toggleButton.classList.contains("fa-minus-square")) {
-    toggleComment(commentToggle, 1);
+    commentBoxEl.style.display = "none";
+    writeCommentEl.style.display = "none";
+    showCommentBtnEl.style.display = "";
+
+    //toggleComment(commentToggle, 1);
     toggleButton.classList.remove("fa-minus-square");
     toggleButton.classList.add("fa-plus-square");
   }
   else {
-    toggleComment(commentToggle, -1);
+    commentBoxEl.style.display = "";
+    writeCommentEl.style.display = "";
+    showCommentBtnEl.style.display = "none";
+    //toggleComment(commentToggle, -1);
     toggleButton.classList.remove("fa-plus-square");
     toggleButton.classList.add("fa-minus-square");
   }
 }
 window.togglePost = togglePost;
+
+export function showComments(e) {
+  var sfb = findAncestor(e, ".social-feed-box");
+  console.log("sfb", sfb);
+  var commentBoxEl = sfb.querySelectorAll(".social-comment-box").item(0);
+  var writeCommentEl = sfb.querySelectorAll(".post-write-comment").item(0);
+  var showCommentBtnEl = sfb.querySelectorAll(".post-show-comments").item(0);
+  commentBoxEl.style.display = "";
+  writeCommentEl.style.display = "";
+  showCommentBtnEl.style.display = "none";
+}
+window.showComments = showComments;
+
+export function share(postId) {
+
+}
+window.share = share;

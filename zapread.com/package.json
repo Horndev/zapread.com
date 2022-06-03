@@ -100,7 +100,8 @@
     "@tippyjs/react": "^4.2.6",
     "buffer": "^6.0.3",
     "lodash.merge": "^4.6.2",
-    "react-responsive-masonry": "^2.1.4"
+    "react-responsive-masonry": "^2.1.4",
+    "react-share": "^4.4.0"
   },
   "optionalDependencies": {
     "fsevents": "*"

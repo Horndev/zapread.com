@@ -1175,7 +1175,6 @@
     </None>
     <Content Include="Scripts\dist\0\1035.js" />
     <Content Include="Scripts\dist\0\2238.css" />
-    <Content Include="Scripts\dist\0\228.js" />
     <Content Include="Scripts\dist\0\2307.js" />
     <Content Include="Scripts\dist\0\2855.js" />
     <Content Include="Scripts\dist\0\3215.css" />
@@ -1209,6 +1208,7 @@
     <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\7630.js" />
     <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\7915.js" />
     <Content Include="Scripts\dist\0\7939.js" />
     <Content Include="Scripts\dist\0\823.css" />
     <Content Include="Scripts\dist\0\823.js" />
@@ -1341,6 +1341,7 @@
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
+    <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
@@ -1457,7 +1458,6 @@
     <Content Include="Scripts\dist\tag\index.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
-    <Content Include="Scripts\dist\0\228.js.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
     <Content Include="Scripts\dist\0\2855.js.map" />
     <Content Include="Scripts\dist\0\3215.css.map" />
@@ -1489,6 +1489,7 @@
     <Content Include="Scripts\dist\0\7059.js.map" />
     <Content Include="Scripts\dist\0\7524.js.map" />
     <Content Include="Scripts\dist\0\7630.js.map" />
+    <Content Include="Scripts\dist\0\7915.js.map" />
     <Content Include="Scripts\dist\0\7939.js.map" />
     <Content Include="Scripts\dist\0\823.css.map" />
     <Content Include="Scripts\dist\0\823.js.map" />

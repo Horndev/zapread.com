@@ -32,7 +32,7 @@ export default function TopGroups(props) {
               block={true}
               onClick={() => { window.location = "/Group/Detail/" + g.Id + "/" }}
               className="text-left top-groups-btn" >
-              <i class={"fa fa-" + g.Icon}></i> {g.Name}
+              <i className={"fa fa-" + g.Icon}></i> {g.Name}
               {g.IsAdmin ? (
                 <Tippy content={"Administrator"}>
                   <i className="fa fa-gavel text-primary"></i>
