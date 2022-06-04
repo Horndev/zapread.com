@@ -11,7 +11,7 @@ import ReactQuill, { Quill } from '../../../quill/react-quill/src/index';       
 import Delta from 'quill-delta';
 import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
 //import 'react-quill/dist/quill.snow.css';                               // [✓]
-import '../../../css/quill/quilledit.css';                              // [✓]
+import '../../../css/quill/quilledit.scss';                              // [✓]
 import ImageResize from '../../../quill-image-resize-module/src/ImageResize';           // [✓] Import from source
 import { ImageUpload } from '../../../quill/image-upload';
 import Mention from '../../../quill/quill-mention/src/quill.mention';

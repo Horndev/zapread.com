@@ -6,7 +6,7 @@
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import '../../css/quill/quillchat.css'; // Some custom overrides
-import '../../css/quill/quillcustom.css'; // Some custom overrides
+import '../../css/quill/quillcustom.scss'; // Some custom overrides
 import '../../shared/shared';
 import '../../realtime/signalr';
 import Quill from 'quill';

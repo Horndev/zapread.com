@@ -20,8 +20,8 @@ import '@fortawesome/fontawesome-free/css/v4-shims.min.css';
 import '../css/quill/quillfont.css';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-import '../css/quill/quilledit.css';                              // [✓]
-import '../css/quill/quillcustom.css'; // Some custom overrides
+import '../css/quill/quilledit.scss';                              // [✓]
+import '../css/quill/quillcustom.scss'; // Some custom overrides
 
 /**
  * 
@@ -72,6 +72,17 @@ Array.prototype.forEach.call(elements, function (el, _i) {
     }
   }, false);
 });
+
+function toggleTheme() {
+  if (document.body.classList.contains("theme--default")) {
+    document.body.classList.add("theme--dark");
+    document.body.classList.remove("theme--default");
+  } else {
+    document.body.classList.add("theme--default");
+    document.body.classList.remove("theme--dark");
+  }
+}
+window.toggleTheme = toggleTheme;
 
 // Collapse button
 // [✓] no jQuery

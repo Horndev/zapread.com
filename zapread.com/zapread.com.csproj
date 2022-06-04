@@ -1522,8 +1522,8 @@
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\posts.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
-    <Content Include="Scripts\src\css\quill\quilledit.css" />
-    <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <None Include="Scripts\src\css\quill\quilledit.scss" />
+    <None Include="Scripts\src\css\quill\quillcustom.scss" />
     <Content Include="Scripts\src\css\quill\quillfont.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
@@ -1590,6 +1590,7 @@
     <Content Include="Scripts\src\css\style_messages_alerts.scss" />
     <Content Include="Scripts\src\css\style.scss" />
     <Content Include="Scripts\src\css\themes\color-themes.scss" />
+    <Content Include="Scripts\src\css\posts\posts.scss" />
     <None Include="Scripts\src\css\themes\default.scss" />
     <None Include="Scripts\src\css\site\items-list.scss" />
     <None Include="Scripts\src\css\themes\themes.scss" />

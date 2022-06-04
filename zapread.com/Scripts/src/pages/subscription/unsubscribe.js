@@ -10,5 +10,5 @@ import '../../css/roundlinks.css';
 import '../../css/hover.css';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-import '../../css/quill/quilledit.css';                              // [✓]
-import '../../css/quill/quillcustom.css'; // Some custom overrides
+import '../../css/quill/quilledit.scss';                              // [✓]
+import '../../css/quill/quillcustom.scss'; // Some custom overrides

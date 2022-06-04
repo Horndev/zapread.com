@@ -1,4 +1,8 @@
 ﻿
+@import "../base/variables";
+@import "../themes/themes";
+@import "../themes/color-themes";
+
 /* Display Styles */
 
 .ql-snow .read-more-button a {
@@ -130,7 +134,10 @@ button.ql-cancel {
 
 /* Don't expand height for short posts when not editing */
 .post-content.ql-editor {
-    background-color: #fff !important;
+    @include themed() {
+        background-color: t($post-bg) !important;
+    }
+    /*background-color: #fff !important;*/
     min-height: 0 !important;
     border: 0 !important;
     cursor: auto !important;
