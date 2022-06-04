@@ -3,7 +3,7 @@
  */
 import { ready } from '../utility/ready';
 
-import '../css/Site.css';
+import '../css/site.scss';
 import '../css/roundlinks.css';
 import '../css/hover.css';
 import '../css/quill/quillfont.css';

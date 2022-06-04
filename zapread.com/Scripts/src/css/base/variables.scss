@@ -8,6 +8,8 @@ $red: #ED5565;        // Danger color
 
 // Various colors
 $text-color: #676a6c;   // Body text
+$text-light: #676a6c; // Body text
+$text-dark: #ffffff; // Body text
 $gray: #f3f3f4;         // Background wrapper color
 $light-gray: #D1DADE;   // Default label, badge
 $label-badge-color: #5E5E5E;
@@ -36,6 +38,5 @@ $boxed-background: image-url('patterns/shattered.png');
 $btn-border-radius: 3px;
 
 //Navigation
-$nav-bg: #2F4050;
 $nav-profile-pattern: image-url("patterns/header-profile.png");
 $nav-text-color: #a7b1c2;

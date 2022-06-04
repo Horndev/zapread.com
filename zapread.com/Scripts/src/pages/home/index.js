@@ -20,7 +20,7 @@ import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
-import '../../css/Site.css';
+import '../../css/site.scss';
 import '../../css/quill/quillcustom.css';
 import '../../css/posts.css'
 

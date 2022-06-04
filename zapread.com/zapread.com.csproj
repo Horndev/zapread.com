@@ -1500,6 +1500,7 @@
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
+    <Content Include="Scripts\src\css\navbar\navbar.scss" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1588,8 +1589,10 @@
     <Content Include="Scripts\src\css\site\layout.scss" />
     <Content Include="Scripts\src\css\style_messages_alerts.scss" />
     <Content Include="Scripts\src\css\style.scss" />
+    <Content Include="Scripts\src\css\themes\color-themes.scss" />
     <None Include="Scripts\src\css\themes\default.scss" />
     <None Include="Scripts\src\css\site\items-list.scss" />
+    <None Include="Scripts\src\css\themes\themes.scss" />
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
@@ -1707,7 +1710,7 @@
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
     <Content Include="Scripts\src\Components\PageHeading.js" />
-    <Content Include="Scripts\src\css\Site.css" />
+    <None Include="Scripts\src\css\site.scss" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
     <Content Include="Scripts\src\pages\group\new.js" />
