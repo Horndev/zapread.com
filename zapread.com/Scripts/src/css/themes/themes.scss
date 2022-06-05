@@ -2,6 +2,7 @@
 
 $themes: ( 
     default: ( 
+        zr-primary: #1ab394,
         bg: $gray,
         bg-post: $gray,
         body-text: #676a6c,
@@ -19,8 +20,16 @@ $themes: (
         bg-primary: #1ab394,
         text-primary: #fff,
         post-bg: #fff,
+        post-comment-border: #999,
+        comment-bg: #f9f9f9,
+        btn-white-bg: #fff,
+        btn-white-border: #e7eaec,
+        btn-white-text: #212529,
+        red-bg: #ed5565,
+        red-bg-text: #fff,
     ), 
-    dark: ( 
+    dark: (
+        zr-primary: #1ab394,
         bg: #000,
         bg-post: $gray,
         body-text: #f3f3f4,
@@ -38,6 +47,13 @@ $themes: (
         bg-primary: #12856d,
         text-primary: #fff,
         post-bg: #222426,
+        post-comment-border: #e7eaec,
+        comment-bg: #333,
+        btn-white-bg: #222426,
+        btn-white-border: #e7eaec,
+        btn-white-text: #e5e6e7,
+        red-bg: #ed5565,
+        red-bg-text: #fff,
     ), 
 );
 

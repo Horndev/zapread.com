@@ -3,7 +3,8 @@
  * 
  **/
 
-import '../utility/appinsights';                    // [✓]
+import '../utility/appinsights';
+import { postJson } from "../utility/postData";
 
 /**
  * Bootstrap
@@ -74,13 +75,24 @@ Array.prototype.forEach.call(elements, function (el, _i) {
 });
 
 function toggleTheme() {
+  var isDark = false;
   if (document.body.classList.contains("theme--default")) {
     document.body.classList.add("theme--dark");
     document.body.classList.remove("theme--default");
+    isDark = true;
   } else {
     document.body.classList.add("theme--default");
     document.body.classList.remove("theme--dark");
   }
+
+  postJson('/Manage/UpdateUserSetting', {
+    setting: 'colorTheme',
+    value: isDark
+  }).then((response) => {
+    if (response.success) {
+      console.log('theme updated');
+    }
+  });
 }
 window.toggleTheme = toggleTheme;
 

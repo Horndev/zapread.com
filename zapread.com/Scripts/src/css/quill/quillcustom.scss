@@ -135,6 +135,7 @@ button.ql-cancel {
 /* Don't expand height for short posts when not editing */
 .post-content.ql-editor {
     @include themed() {
+        color: t($body-text);
         background-color: t($post-bg) !important;
     }
     /*background-color: #fff !important;*/
@@ -151,6 +152,10 @@ button.ql-cancel {
     }
 
 .post-comment.ql-editor {
+    @include themed() {
+        color: t($body-text);
+    }
+
     min-height: 0 !important;
     border: 0 !important;
     cursor: auto !important;

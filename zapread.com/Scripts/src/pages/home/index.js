@@ -127,9 +127,10 @@ getMicroCharts().then(({ createPieChart }) => {
           var now = new Date().getTime();
           var distance = payoutDate - now;
           var percent = 100 * distance / (1000 * 60 * 60 * 24);
+          var bgcolor = window.getComputedStyle(document.getElementById('zrph'), null).getPropertyValue('background-color');
           createPieChart(getCanvas('pc-community'),
             [
-              { id: '1', percent: 100 - percent, color: '#FFFFFFFF' }, // green '#4CAF50'
+              { id: '1', percent: 100 - percent, color: bgcolor }, // green '#4CAF50'
               { id: '2', percent: percent, color: '#1ab39455' }  // red '#E91E63'
             ],
             { size: 25 });

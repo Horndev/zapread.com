@@ -1,5 +1,6 @@
 ﻿@{ 
     var claimsIdentity = User != null ? User.Identity as System.Security.Claims.ClaimsIdentity : null;
+    var themeClass = (claimsIdentity != null && claimsIdentity.Claims.Where(c => c.Type == "ColorTheme").Select(c => c.Value).Contains("dark")) ? "theme--dark" : "theme--default";
 }
 <!DOCTYPE html>
 <html>
@@ -15,7 +16,7 @@
     @Styles.Render("~/Content/style/textspinners")
     @Scripts.Render("~/bundles/tarteaucitron")
 </head>
-<body class="top-navigation themed theme--default">
+<body class="top-navigation themed @themeClass">
     <div id="ModalDepositWithdraw"></div>
     <div class="@Html.PageClass()">
         <div id="page-wrapper" class="page-bg @ViewBag.SpecialClass">
