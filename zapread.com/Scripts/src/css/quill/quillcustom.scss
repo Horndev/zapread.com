@@ -13,8 +13,22 @@
     border: 0 !important;
 }
 
+/* Post editor */
+.ql-editor:not(.ql-comment) {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($post-bg) !important;
+    }
+}
+
+.ql-editor.ql-blank::before {
+    @include themed() {
+        color: t($chat-message-placeholder);
+    }
+}
+
 /*Comments*/
-    /* This style sets the comment input editor to not be too large as is the default quill style*/
+/* This style sets the comment input editor to not be too large as is the default quill style*/
 .ql-comment .ql-editor {
     min-height: 20px;
     background-color: #fff !important;
@@ -22,14 +36,30 @@
     height: auto;
     border: 1px solid;
     border-color: #ccc;
+}
 
+.chat-message-form {
+    @include themed() {
+        background-color: t($post-bg) !important;
+    }
 }
 
 .chat-message-form .ql-editor {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($chat-message-bg) !important;
+    }
+
     min-height: 20px;
     border: 0;
     font-size: 12px;
     font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.chat-message-form .ql-editor.ql-blank::before {
+    @include themed() {
+        color: t($chat-message-placeholder);
+    }
 }
 
 .ql-container, .ql-comment.ql-container.ql-snow {
@@ -122,7 +152,11 @@ button.ql-cancel {
 }
 
 .ql-toolbar, .ql-toolbar.ql-snow {
-    background-color: #f3f3f4 !important;
+    @include themed() {
+        color: t($body-text);
+        background-color: t($nav-bg) !important;
+    }
+    /*background-color: #f3f3f4 !important;*/
     border-radius: 10px 10px 0 0 !important;
     /*border: 0px;*/
 }

@@ -107,10 +107,6 @@ namespace zapread.com
             bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(
                         "~/node_modules/tarteaucitronjs/tarteaucitron.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css-dark").Include(
-                      "~/Content/Site_dark.css")
-                      .WithLastModifiedToken());
-
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/textspinners").Include(
                       "~/Content/spinners.css"));

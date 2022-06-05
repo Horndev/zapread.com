@@ -1456,6 +1456,7 @@
     <Content Include="Scripts\dist\tag\detail.js.map" />
     <Content Include="Scripts\dist\tag\index.css.map" />
     <Content Include="Scripts\dist\tag\index.js.map" />
+    <Content Include="Scripts\src\css\navbar\navbar.scss" />
     <Content Include="Scripts\dist\0\1035.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
@@ -1500,7 +1501,6 @@
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
     <Content Include="Scripts\dist\0\9787.js.map" />
-    <Content Include="Scripts\src\css\navbar\navbar.scss" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1517,7 +1517,6 @@
     <Content Include="Scripts\src\css\patterns\otis_redding.png" />
     <Content Include="Scripts\src\css\patterns\shattered.png" />
     <Content Include="Scripts\src\css\patterns\triangular.png" />
-    <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\posts.css" />

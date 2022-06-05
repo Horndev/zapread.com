@@ -3,6 +3,29 @@
 @import "../themes/themes";
 @import "../themes/color-themes";
 
+.field input::placeholder,
+.field input::-ms-input-placeholder {
+    @include themed() {
+        background-color: t($bg-form-control);
+        color: t($text-form-control);
+    }
+}
+
+.react-autosuggest__suggestions-container--open {
+    @include themed() {
+        background-color: t($bg-form-control);
+        color: t($text-form-control);
+    }
+}
+
+.field input,
+.field.active {
+    @include themed() {
+        background-color: t($bg-form-control);
+        color: t($text-form-control);
+    }
+}
+
 .tippy-box[data-theme~=light-border] {
     @include themed() {
         color: t($body-text);
