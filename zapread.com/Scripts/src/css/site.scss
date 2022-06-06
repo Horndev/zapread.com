@@ -17,6 +17,19 @@
 @import "navbar/navbar";
 @import "posts/posts";
 
+.ql-mention-list-container {
+    @include themed() {
+        background-color: t($post-bg);
+    }
+}
+
+.ql-mention-list-item.selected {
+    @include themed() {
+        background-color: t($comment-bg);
+        color: t($zr-primary);
+    }
+}
+
 button.close {
     @include themed() {
         background-color: t($post-bg);

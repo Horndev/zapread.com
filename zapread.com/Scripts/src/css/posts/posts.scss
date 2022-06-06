@@ -210,16 +210,21 @@
     padding-right: 0;
 }
 
+.social-footer .media-body {
+    @include themed() {
+        background: t($comment-bg);
+    }
+}
+
 /*.social-footer-reply .social-comment img {*/
-    /*width: 32px;*/ /*removed since images are set width anyway for lazy loading*/
-    /*margin-right: 10px;*/
+/*width: 32px;*/ /*removed since images are set width anyway for lazy loading*/
+/*margin-right: 10px;*/
 /*}
 
 .social-footer .social-comment img {*/
-    /*width: 32px;*/ /*removed since images are set width anyway for lazy loading*/
-    /*margin-right: 10px;*/
+/*width: 32px;*/ /*removed since images are set width anyway for lazy loading*/
+/*margin-right: 10px;*/
 /*}*/
-
 .social-comment:first-child {
     margin-top: 0;
 }
