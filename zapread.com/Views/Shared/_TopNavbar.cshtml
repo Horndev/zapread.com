@@ -13,7 +13,10 @@
             }
         </div>
         <div class="d-flex flex-row order-2 order-lg-3">
-            <div id="ZRBalance"></div>
+            @if (Request.IsAuthenticated)
+            {
+                <div id="ZRBalance"></div>
+            }
             <ul class="nav navbar-nav flex-row" style="margin-left: 10px;">
                 @if (Request.IsAuthenticated)
                 {
