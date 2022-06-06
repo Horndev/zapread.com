@@ -119,12 +119,12 @@ button.close {
     }
 
     .zr-reaction-icon.zr-reaction-icon-main {
-        padding: 0px 4px 0px 0px;
+        padding: 0 4px 0 0;
     }
 
     .zr-reaction-icon {
         border-radius: 5px;
-        padding: 6px 0px 6px 0px;
+        padding: 6px 0;
         transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     }
 
@@ -153,7 +153,7 @@ button.close {
         letter-spacing: -5px;
         position: relative;
         padding-right: 11px;
-        padding-left: 0px;
+        padding-left: 0;
         height: 0;
     }
 
@@ -164,7 +164,7 @@ button.close {
         font-size: 10px;
         display: inline-flex;
         font-weight: bold;
-        width: 0px;
+        width: 0;
         letter-spacing: normal;
     }
 
@@ -175,7 +175,7 @@ button.close {
         font-size: 10px;
         display: inline-flex;
         font-weight: bold;
-        width: 0px;
+        width: 0;
         letter-spacing: normal;
     }
 

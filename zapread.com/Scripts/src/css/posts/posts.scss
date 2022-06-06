@@ -40,8 +40,8 @@
     }
 }*/
 
-.user-mention {
-}
+/*.user-mention {
+}*/
 
 .comment-user {
     @include themed() {
@@ -105,7 +105,7 @@
 }
 
 .social-feed-separated .social-feed-box .social-avatar {
-    padding: 15px 15px 0 15px;
+    padding: 15px 15px 0;
     float: none;
 }
 
@@ -258,14 +258,11 @@
     padding-left: 0px;
     /*margin-right: 15px;*/
     text-align: center;
+    font-weight: 600;
 }
 
 .vote-actions a {
     color: #1ab394;
-    font-weight: 600;
-}
-
-.vote-actions {
     font-weight: 600;
 }
 
@@ -406,7 +403,7 @@ body.body-small .vote-icon {
 }
 
 .small-chat-box .content {
-    padding: 15px 15px;
+    padding: 15px;
 }
 
 .small-chat-box .content .author-name {
@@ -453,5 +450,5 @@ body.body-small .vote-icon {
 }
 
 .small-chat-box .form-chat {
-    padding: 10px 10px;
+    padding: 10px;
 }
