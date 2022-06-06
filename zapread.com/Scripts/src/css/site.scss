@@ -2513,7 +2513,7 @@ button.close {
         border: 1px solid #ddd;
     }
 
-    .ui-jqgrid .ui-jqgrid-titlebar {
+    /*.ui-jqgrid .ui-jqgrid-titlebar {
         padding: 0;
     }
 
@@ -2535,7 +2535,7 @@ button.close {
 
     .ui-jqdialog > .ui-resizable-se {
         position: absolute;
-    }
+    }*/
     /* Nestable list */
     /*.dd {
         position: relative;
@@ -3636,7 +3636,7 @@ body.tour-open .animated {
         min-height: 140px;
         border: 1px dashed #1ab394;
         background: white;
-        padding: 20px 20px;
+        padding: 20px;
     }
 
     .dropzone .dz-message {
@@ -4002,6 +4002,9 @@ body.tour-open .animated {
     .border-bottom {
         border-bottom: 1px solid #f3f3f4 !important;
     }
+/*    .border-bottom {
+        border-bottom: 1px solid #e7eaec;
+    }*/
 
     .font-bold {
         font-weight: 600;
@@ -4242,7 +4245,7 @@ body.tour-open .animated {
         }
 
         border-top: 0;
-        padding: 0 10px 20px 10px;
+        padding: 0 10px 20px;
     }
 
     .panel-heading h1,
@@ -4356,10 +4359,6 @@ body.tour-open .animated {
 
     .border-top {
         border-top: 1px solid #e7eaec;
-    }
-
-    .border-bottom {
-        border-bottom: 1px solid #e7eaec;
     }
 
     .border-size-sm {
@@ -4522,6 +4521,7 @@ body.tour-open .animated {
         border-image: none;
         border-style: solid solid none;
         border-width: 1px 0;
+        clear: both;
     }
 
     .ibox-footer {
@@ -4565,9 +4565,7 @@ body.tour-open .animated {
         background-color: #f9f8f8;
     }
 
-    .ibox-content {
-        clear: both;
-    }
+
 
     .ibox-heading {
         background-color: #f3f6fb;
