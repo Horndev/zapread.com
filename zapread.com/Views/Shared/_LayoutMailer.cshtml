@@ -6,9 +6,9 @@
     <title>@ViewBag.Title</title>
     @RenderSection("Styles", required: false)
 </head>
-<body class="gray-bg">
+<body class="top-navigation themed theme--default" style="background-color:#fff;">
     <div id="wrapper" class="@Html.PageClass()">
-        <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
+        <div id="page-wrapper" class="page-bg @ViewBag.SpecialClass">
             @RenderBody()
         </div>
     </div>
