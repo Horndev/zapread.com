@@ -174,6 +174,10 @@ namespace zapread.com.Services
 
                 UserFunds referalFunds = null;
                 User referalUser = null;
+                User postAuthor = postInfo.User;
+                    //db.Users
+                    //.Where(u => u.Id == postInfo.UserId)
+                    //.FirstOrDefault();
 
                 if (isAnonymous)  // Anonymous vote
                 {
@@ -259,7 +263,7 @@ namespace zapread.com.Services
 
                     // Adjust post owner reputation
                     bool isOwnPost = postInfo.UserAppId == userAppId;
-                    postInfo.User.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
+                    postAuthor.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
 
                     // Keep track of how much this post has made for the owner
                     if (!postInfo.IsNonIncome)
@@ -272,31 +276,39 @@ namespace zapread.com.Services
                     {
                         if (!postInfo.IsNonIncome)
                         {
-                            postInfo.User.EarningEvents = new List<EarningEvent> {
-                                new EarningEvent()
-                                {
-                                    Amount = 0.6 * amount,
-                                    OriginType = 0,
-                                    TimeStamp = DateTime.UtcNow,
-                                    Type = 0,
-                                    OriginId = postInfo.PostId,
-                                }
+                            var ea = new EarningEvent()
+                            {
+                                Amount = 0.6 * amount,
+                                OriginType = 0,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 0,
+                                OriginId = postInfo.PostId,
                             };
-                            postInfo.User.TotalEarned += 0.6 * amount;
+
+                            postAuthor.EarningEvents = new List<EarningEvent> { ea };
+                            postAuthor.TotalEarned += 0.6 * amount;
                         }
 
                         if (referalFunds != null)
                         {
-                            postInfo.User.EarningEvents = new List<EarningEvent> {
-                                new EarningEvent()
-                                {
-                                    Amount = 0.03 * amount,
-                                    OriginType = 0,
-                                    TimeStamp = DateTime.UtcNow,
-                                    Type = 4,
-                                    OriginId = postInfo.PostId,
-                                }
+                            var ea = new EarningEvent()
+                            {
+                                Amount = 0.03 * amount,
+                                OriginType = 0,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 4,
+                                OriginId = postInfo.PostId,
                             };
+
+                            // Need to do this to not overwrite if EarningEvent created prior
+                            if (postAuthor.EarningEvents != null)
+                            {
+                                postAuthor.EarningEvents.Add(ea);
+                            }
+                            else
+                            {
+                                postAuthor.EarningEvents = new List<EarningEvent> { ea };
+                            }
 
                             if (referalUser != null)
                             {
@@ -551,16 +563,22 @@ namespace zapread.com.Services
 
                         if (referalFunds != null)
                         {
-                            commentInfo.User.EarningEvents = new List<EarningEvent> {
-                                new EarningEvent()
-                                {
-                                    Amount = 0.03 * amount,
-                                    OriginType = 1,
-                                    TimeStamp = DateTime.UtcNow,
-                                    Type = 4,
-                                    OriginId = Convert.ToInt32(commentInfo.CommentId),
-                                }
+                            var ea = new EarningEvent()
+                            {
+                                Amount = 0.03 * amount,
+                                OriginType = 1,
+                                TimeStamp = DateTime.UtcNow,
+                                Type = 4,
+                                OriginId = Convert.ToInt32(commentInfo.CommentId),
                             };
+                            if (commentInfo.User.EarningEvents != null)
+                            {
+                                commentInfo.User.EarningEvents.Add(ea);
+                            }
+                            else
+                            {
+                                commentInfo.User.EarningEvents = new List<EarningEvent> { ea };
+                            }
 
                             if (referalUser != null)
                             {
