@@ -11,15 +11,21 @@ namespace zapread.com.Models.Database
     /// 
     /// https://emojipedia.org/star-struck/
     /// 
+    /// [*] Emoji Name     Emoji [*] AchievementService [*] Zapread Database    Achievement Name
+    /// 
     /// [X] happy-face
     /// [X] thumbs-up
     /// [X] heart
-    /// [X] star-eyes       🤩   [X] Follow someone
-    /// [X] raising-hands   🙌   [X] Someone following you
-    /// [X] bolt            ⚡   [X] LN Deposit
-    /// [X] rocket          🚀   [X] LN Withdraw
-    /// [X] green-check     ✅   [X] First Vote
+    /// [X] star-eyes       🤩   [X][X] Follow someone
+    /// [X] raising-hands   🙌   [X][X] Someone following you
+    /// [X] bolt            ⚡   [X][X] LN Deposit
+    /// [X] rocket          🚀   [X][X] LN Withdraw
+    /// [X] green-check     ✅   [X][X] First Vote
     /// 
+    /// [X] rainbow         🌈   [X][ ] Spend1000
+    /// [X] zzz             💤   [X][ ] Spend10000
+    /// [X] rofl            🤣   [X][ ] Spend100000
+    /// [X] thumbs-down     👎   [X][ ] Spend500000
     /// </summary>
     public class Reaction
     {

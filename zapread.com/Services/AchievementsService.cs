@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using zapread.com.Database;
 using zapread.com.Models.Database;
@@ -41,6 +42,10 @@ namespace zapread.com.Services
             new FiveHunderedImpressions(),
             new ThousandImpressions(),
             new FirstVote(),
+            new Spend1000(),
+            new Spend10000(),
+            new Spend100000(),
+            new Spend500000(),
         };
 
         /// <summary>
@@ -91,11 +96,13 @@ namespace zapread.com.Services
                     // Achievement Gifts - reactions
                     if (!string.IsNullOrEmpty(a.ReactionGrant))
                     {
-                        var giftReactionUsers = a.GetUsersGiftReactions(db, dba);
+                        var giftReactionUsers = a.GetUsersGiftReactions(db, dba)
+                            .Include(u => u.AvailableReactions);
 
                         var reaction = db.Reactions
                             .Where(r => r.ReactionName == a.ReactionGrant)
                             .FirstOrDefault();
+
                         if (reaction != null)
                         {
                             foreach (var u in giftReactionUsers.ToList())
@@ -108,6 +115,186 @@ namespace zapread.com.Services
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Spend 1000
+    /// </summary>
+    public class Spend1000 : IAchievementCriteria
+    {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
+        public string Name { get => "Spend 1000"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReactionGrant { get => "rainbow"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 1000);
+
+            return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+        }
+    }
+
+    /// <summary>
+    /// Spend 10000
+    /// </summary>
+    public class Spend10000 : IAchievementCriteria
+    {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
+        public string Name { get => "Spend 10000"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReactionGrant { get => "zzz"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 10000);
+
+            return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+        }
+    }
+
+    /// <summary>
+    /// Spend 100000
+    /// </summary>
+    public class Spend100000 : IAchievementCriteria
+    {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
+        public string Name { get => "Spend 100000"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReactionGrant { get => "rofl"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 100000);
+
+            return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+        }
+    }
+
+    /// <summary>
+    /// Spend 500000
+    /// </summary>
+    public class Spend500000 : IAchievementCriteria
+    {
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
+        public string Name { get => "Spend 500000"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ReactionGrant { get => "thumbs-down"; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
+        {
+            // Check who has the criteria
+            var newUsersAchieved = db.Users
+                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 500000);
+
+            return newUsersAchieved;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="dba"></param>
+        /// <returns></returns>
+        public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
+        {
+            return db.Users
+                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
+                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
