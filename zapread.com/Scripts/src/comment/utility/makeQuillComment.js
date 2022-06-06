@@ -4,8 +4,8 @@
 
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-import '../../css/quill/quilledit.css';                              // [✓]
-import '../../css/quill/quillcustom.css'; // Some custom overrides
+import '../../css/quill/quilledit.scss';                              // [✓]
+import '../../css/quill/quillcustom.scss'; // Some custom overrides
 
 const getSwal = () => import('sweetalert2');
 import Quill from 'quill';

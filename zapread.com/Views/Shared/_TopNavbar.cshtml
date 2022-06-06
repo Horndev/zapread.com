@@ -1,7 +1,7 @@
 ﻿@using zapread.com.Helpers
 
-<div class="white-bg">
-    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
+<div @*class="white-bg"*@>
+    <nav class="navbar navbar-expand-lg fixed-top border-bottom-nav">
         <div id="goHome">
             @if (Request.IsAuthenticated)
             {
@@ -30,6 +30,7 @@
                         <div class="dropdown-menu dropdown-menu-right" style="text-align: left;position: absolute;">
                             <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")">&nbsp;<i class="fa fa-user"></i> Profile</a>
                             <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Financial", "Manage")">&nbsp;<i class="fa fa-bitcoin"></i> Financial</a>
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" role="button" onclick="toggleTheme();">&nbsp;<i class="fa-solid fa-circle-half-stroke"></i> Toggle Theme</a>
                             <span class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
                                 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))
                                 {

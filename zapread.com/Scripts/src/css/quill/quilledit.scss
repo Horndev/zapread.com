@@ -158,8 +158,8 @@
 /*.ql-snow .ql-editor*/ /*Apply the blockquote site-wide*/
 .ql-snow .ql-editor blockquote, blockquote {
     border-left: 5px solid #1ab394;
-    margin-bottom: 0px;
-    margin-top: 0px;
+    margin-bottom: 0;
+    margin-top: 0;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 16px;
@@ -192,8 +192,8 @@ button.ql-save {
 
 .ql-toolbar, .ql-toolbar.ql-snow {
     background-color: #f3f3f4;
-    border-radius: 4px 4px 0px 0px;
-    border: 0px;
+    border-radius: 4px 4px 0 0;
+    border: 0;
     position: -webkit-sticky;
     position: sticky;
     top: 64px;
@@ -202,7 +202,7 @@ button.ql-save {
 }
 
 .ql-container, .ql-container.ql-snow {
-    border: 0px;
+    border: 0;
     font-size: 18px;
 }
 
@@ -215,7 +215,7 @@ button.ql-save {
 
 .ql-editor {
     background-color: #fff;
-    border-radius: 0px 0px 4px 4px;
+    border-radius: 0 0 4px 4px;
     height: auto;
     min-height: 400px;
 }
@@ -255,13 +255,13 @@ button.ql-save {
     /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
 }
 
-.ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+/*.ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {*/
     /* margin:0; */
     /* padding:0; */
-    margin-top: 0;
-    margin-bottom: 1rem;
+    /*margin-top: 0;
+    margin-bottom: 1rem;*/
     /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
-}
+/*}*/
 
 /*Style the hovers*/
 

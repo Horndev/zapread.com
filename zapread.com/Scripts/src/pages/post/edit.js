@@ -25,8 +25,8 @@ import 'tippy.js/themes/light-border.css';
 import '../../css/quill/quillfont.css';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-import '../../css/quill/quilledit.css';                              // [✓]
-import '../../css/quill/quillcustom.css'; // Some custom overrides
+import '../../css/quill/quilledit.scss';                              // [✓]
+import '../../css/quill/quillcustom.scss'; // Some custom overrides
 
 const RSwal = withReactContent(Swal)
 

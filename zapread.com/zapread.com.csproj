@@ -1456,6 +1456,7 @@
     <Content Include="Scripts\dist\tag\detail.js.map" />
     <Content Include="Scripts\dist\tag\index.css.map" />
     <Content Include="Scripts\dist\tag\index.js.map" />
+    <Content Include="Scripts\src\css\navbar\navbar.scss" />
     <Content Include="Scripts\dist\0\1035.js.map" />
     <Content Include="Scripts\dist\0\2238.css.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
@@ -1516,13 +1517,12 @@
     <Content Include="Scripts\src\css\patterns\otis_redding.png" />
     <Content Include="Scripts\src\css\patterns\shattered.png" />
     <Content Include="Scripts\src\css\patterns\triangular.png" />
-    <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\posts.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
-    <Content Include="Scripts\src\css\quill\quilledit.css" />
-    <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <None Include="Scripts\src\css\quill\quilledit.scss" />
+    <None Include="Scripts\src\css\quill\quillcustom.scss" />
     <Content Include="Scripts\src\css\quill\quillfont.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
@@ -1588,8 +1588,11 @@
     <Content Include="Scripts\src\css\site\layout.scss" />
     <Content Include="Scripts\src\css\style_messages_alerts.scss" />
     <Content Include="Scripts\src\css\style.scss" />
+    <Content Include="Scripts\src\css\themes\color-themes.scss" />
+    <Content Include="Scripts\src\css\posts\posts.scss" />
     <None Include="Scripts\src\css\themes\default.scss" />
     <None Include="Scripts\src\css\site\items-list.scss" />
+    <None Include="Scripts\src\css\themes\themes.scss" />
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
@@ -1707,7 +1710,7 @@
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
     <Content Include="Scripts\src\Components\PageHeading.js" />
-    <Content Include="Scripts\src\css\Site.css" />
+    <None Include="Scripts\src\css\site.scss" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
     <Content Include="Scripts\src\pages\group\new.js" />
