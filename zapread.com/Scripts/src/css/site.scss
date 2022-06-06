@@ -139,6 +139,7 @@ button.close {
         padding: 0;
         border-bottom-width: 5px;
         margin: 0 4px;
+        padding-right: 5px;
     }
 
     .reaction-icon-more {
@@ -177,10 +178,6 @@ button.close {
         font-weight: bold;
         width: 0;
         letter-spacing: normal;
-    }
-
-    .reaction-icon-add-post {
-        padding-right: 5px;
     }
 
     .zr-reactions-bar {
@@ -493,13 +490,13 @@ button.close {
         width: 100%;
     }
 
-    .note-editor {
+/*    .note-editor {
         overflow: visible;
-    }
+    }*/
 
-    .media-body .note-editor {
+/*    .media-body .note-editor {
         overflow: visible;
-    }
+    }*/
 
     .dropdown-submenu {
         position: relative;
@@ -596,7 +593,7 @@ button.close {
 
     .dropdown-messages,
     .dropdown-alerts {
-        padding: 10px 10px 10px 10px;
+        padding: 10px;
     }
 
     .dropdown-messages li a,
@@ -1547,11 +1544,11 @@ button.close {
         margin-top: -4px;
     }
 
-    .jqstooltip {
+/*    .jqstooltip {
         -webkit-box-sizing: content-box;
         -moz-box-sizing: content-box;
         box-sizing: content-box;
-    }
+    }*/
     /* FULLCALENDAR */
     /*.fc-state-default {
     background-color: #ffffff;
@@ -1849,7 +1846,7 @@ button.close {
         height: 200px;
         margin: auto;
     }
-
+/*
     .jqstooltip {
         position: absolute;
         display: block;
@@ -1862,7 +1859,7 @@ button.close {
         text-align: left;
         white-space: nowrap;
         z-index: 10000;
-        padding: 5px 5px 5px 5px;
+        padding: 5px;
         min-height: 22px;
         border-radius: 3px;
     }
@@ -1870,7 +1867,7 @@ button.close {
     .jqsfield {
         color: white;
         text-align: left;
-    }
+    }*/
 
     .fh-150 {
         height: 150px;
@@ -2070,7 +2067,7 @@ button.close {
         text-transform: uppercase;
     }
     /* PEACE */
-    .pace {
+    /*.pace {
         -webkit-pointer-events: none;
         pointer-events: none;
         -webkit-user-select: none;
@@ -2090,13 +2087,9 @@ button.close {
         right: 100%;
         width: 100%;
         height: 2px;
-    }
-
-    .pace-inactive {
-        display: none;
-    }
+    }*/
     /* WIDGETS */
-    .widget {
+    /*.widget {
         border-radius: 5px;
         padding: 15px 20px;
         margin-bottom: 10px;
@@ -2126,7 +2119,7 @@ button.close {
 
     .widget .flot-chart {
         height: 100px;
-    }
+    }*/
 
     .vertical-align div {
         display: inline-block;
@@ -2138,7 +2131,7 @@ button.close {
         margin: 0;
     }
 
-    .todo-list {
+    /*.todo-list {
         list-style: none outside none;
         margin: 0;
         padding: 0;
@@ -2187,7 +2180,7 @@ button.close {
     .todo-list > li .label {
         font-size: 9px;
         margin-left: 10px;
-    }
+    }*/
 
     .check-link {
         font-size: 16px;
@@ -2202,9 +2195,9 @@ button.close {
         margin-bottom: 0;
     }
 
-    .glyphicon.fa {
+    /*.glyphicon.fa {
         font-family: "FontAwesome";
-    }
+    }*/
     /* INPUTS */
     .inline {
         display: inline-block !important;
@@ -2533,7 +2526,7 @@ button.close {
     }
 
     .ui-jqdialog .ui-jqdialog-titlebar {
-        padding: 10px 10px;
+        padding: 10px;
     }
 
     .ui-jqdialog .ui-jqdialog-title {
@@ -2544,7 +2537,7 @@ button.close {
         position: absolute;
     }
     /* Nestable list */
-    .dd {
+    /*.dd {
         position: relative;
         display: block;
         margin: 0;
@@ -2689,11 +2682,11 @@ button.close {
     .dd-dragel .dd-handle {
         -webkit-box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, 0.1);
         box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, 0.1);
-    }
+    }*/
     /**
 * Nestable Extras
 */
-    .nestable-lists {
+    /*.nestable-lists {
         display: block;
         clear: both;
         padding: 30px 0;
@@ -2736,9 +2729,9 @@ button.close {
         padding: 25px;
         box-sizing: border-box;
         -moz-box-sizing: border-box;
-    }
+    }*/
     /* CodeMirror */
-    .CodeMirror {
+    /*.CodeMirror {
         border: 1px solid #eee;
         height: auto;
     }
@@ -2746,11 +2739,11 @@ button.close {
     .CodeMirror-scroll {
         overflow-y: hidden;
         overflow-x: auto;
-    }
+    }*/
     /* Google Maps */
-    .google-map {
+    /*.google-map {
         height: 300px;
-    }
+    }*/
     /* Validation */
     label.error {
         color: #cc5965;
@@ -2762,7 +2755,7 @@ button.close {
         border: 1px dotted #cc5965;
     }
     /* ngGrid */
-    .gridStyle {
+    /*.gridStyle {
         border: 1px solid #d4d4d4;
         width: 100%;
         height: 400px;
@@ -2805,9 +2798,9 @@ button.close {
 
     .ngHeaderCell {
         border-right: none;
-    }
+    }*/
     /* Notifie */
-    .cg-notify-message.inspinia-notify {
+    /*.cg-notify-message.inspinia-notify {
         background: #fff;
         padding: 0;
         box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -2832,7 +2825,7 @@ button.close {
 
     .inspinia-notify.alert-info {
         border-left: 6px solid #1ab394;
-    }
+    }*/
     /* Image cropper style */
     .img-container,
     .img-preview {
@@ -2846,7 +2839,7 @@ button.close {
         width: 200px;
     }
     /* Forum styles  */
-    .forum-post-container .media {
+    /*.forum-post-container .media {
         margin: 10px 10px 10px 10px;
         padding: 20px 10px 20px 10px;
         border-bottom: 1px solid #f1f1f1;
@@ -2875,14 +2868,14 @@ button.close {
         padding: 9px 12px 6px;
         background: #f9f9f9;
         border: 1px solid #f1f1f1;
-    }
+    }*/
 
     .media-body > .media {
         background: #f9f9f9;
         border-radius: 3px;
         border: 1px solid #f1f1f1;
     }
-
+/*
     .forum-post-container .media-body .photos {
         margin: 10px 0;
     }
@@ -2890,7 +2883,7 @@ button.close {
     .forum-photo {
         max-width: 140px;
         border-radius: 3px;
-    }
+    }*/
 
     .media-body > .media .forum-avatar {
         width: 70px;
@@ -2906,7 +2899,7 @@ button.close {
         font-size: 66px;
     }
 
-    .forum-item {
+    /*.forum-item {
         margin: 10px 0;
         padding: 10px 0 20px;
         border-bottom: 1px solid #f1f1f1;
@@ -2978,26 +2971,26 @@ button.close {
 
     @media (max-width: 992px) {
         .forum-info {
-            margin: 15px 0 10px;
+            margin: 15px 0 10px;*/
             /* Comment this is you want to show forum info in small devices */
-            display: none;
+            /*display: none;
         }
 
         .forum-desc {
             float: none !important;
         }
-    }
+    }*/
     /* New Timeline style */
-    .vertical-container {
+    /*.vertical-container {*/
         /* this class is used to give a max-width to the element it is applied to, and center it horizontally when it reaches that max-width */
-        width: 90%;
+        /*width: 90%;
         max-width: 1170px;
         margin: 0 auto;
     }
 
-    .vertical-container::after {
+    .vertical-container::after {*/
         /* clearfix */
-        content: '';
+        /*content: '';
         display: table;
         clear: both;
     }
@@ -3246,7 +3239,7 @@ button.close {
         .center-orientation .cssanimations .vertical-timeline-content.is-hidden {
             visibility: hidden;
         }
-    }
+    }*/
     /* Tabs */
     /*.tabs-container .panel-body {
     background: #fff;
@@ -4061,7 +4054,7 @@ body.tour-open .animated {
         width: 24%;
     }
     /* Summernote text editor  */
-    .note-editor {
+    /*.note-editor {
         height: auto !important;
     }
 
@@ -4084,7 +4077,7 @@ body.tour-open .animated {
 
     .note-editor.panel {
         margin-bottom: 0;
-    }
+    }*/
     /* MODAL */
     .modal-content {
         @include themed() {
@@ -4105,7 +4098,7 @@ body.tour-open .animated {
     }
 
     .modal-body {
-        padding: 20px 30px 30px 30px;
+        padding: 20px 30px 30px;
     }
 
     .inmodal .modal-body {
@@ -4439,9 +4432,6 @@ body.tour-open .animated {
 
     .icons-box .infont a {
         color: #a6a8a9;
-    }
-
-    .icons-box .infont a {
         padding: 10px;
         margin: 1px;
         display: block;
@@ -4527,7 +4517,7 @@ body.tour-open .animated {
         }
         /*background-color: #ffffff;
     color: inherit;*/
-        padding: 15px 20px 20px 20px;
+        padding: 15px 20px 20px;
         border-color: #e7eaec;
         border-image: none;
         border-style: solid solid none;
@@ -5492,7 +5482,7 @@ body.tour-open .animated {
     .passwordBox {
         max-width: 460px;
         margin: 0 auto;
-        padding: 100px 20px 20px 20px;
+        padding: 100px 20px 20px;
     }
 
     .logo-name {
