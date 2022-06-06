@@ -8,6 +8,18 @@ namespace zapread.com.Services
 {
     /// <summary>
     /// Service for managing user achievements
+    /// 
+    /// -- Generosity --
+    /// [ ] Total Spent > 1000 Sats
+    /// [ ] Total Spent > 10000 Sats
+    /// [ ] Total Spent > 100000 Sats
+    /// [ ] Total Spent > 500000 Sats
+    /// [ ] Total Spent > 1000000 Sats
+    /// [ ] Total Spent > 5000000 Sats
+    /// [ ] Total Spent > 10000000 Sats
+    /// [ ] Total Spent > 50000000 Sats
+    /// [ ] Total Spent > 100000000 Sats  <- 1 BTC
+    /// 
     /// </summary>
     public class AchievementsService
     {

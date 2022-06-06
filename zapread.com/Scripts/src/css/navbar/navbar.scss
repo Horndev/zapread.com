@@ -234,6 +234,27 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
     margin-top: 0;
 }
 
+.nav-tabs .nav-link.active {
+    @include themed() {
+        background-color: t($tab-bg-active);
+        color: t($tab-bg-active-text);
+    }
+}
+
+.nav-item a {
+    @include themed() {
+        color: t($tab-bg-active-text);
+    }
+}
+
+.nav-item a:hover,
+.nav-item a:focus,
+{
+    @include themed() {
+        color: t($zr-primary);
+    }
+}
+
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus {

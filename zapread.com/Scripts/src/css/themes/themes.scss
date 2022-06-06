@@ -33,6 +33,9 @@ $themes: (
         chat-bg: #eee,
         chat-message-bg: #fff,
         chat-message-placeholder: #00000099,
+        bg-muted: #f3f3f4,
+        tab-bg-active: #fff,
+        tab-bg-active-text: #495057,
     ), 
     dark: (
         zr-primary: #1ab394,
@@ -66,6 +69,9 @@ $themes: (
         chat-bg: #222426,
         chat-message-bg: #333,
         chat-message-placeholder: #ffffff99,
+        bg-muted: #f3f3f4,
+        tab-bg-active: #333,
+        tab-bg-active-text: #fff,
     ), 
 );
 

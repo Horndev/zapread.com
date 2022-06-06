@@ -17,6 +17,13 @@
 @import "navbar/navbar";
 @import "posts/posts";
 
+button.close {
+    @include themed() {
+        background-color: t($post-bg);
+        color: t($text-form-control);
+    }
+}
+
 .react-selectize.default,
 .react-selectize.default.root-node.simple-select,
 .simple-select.react-selectize.default.root-node.open .react-selectize-control,
@@ -43,11 +50,18 @@
     }
 }
 
-    .page-bg {
-        @include themed() {
-            background-color: t($bg);
-        }
+.bg-muted.card-footer {
+    @include themed() {
+        background: t($bg-muted);
+        color: t($text-inverse)
     }
+}
+
+.page-bg {
+    @include themed() {
+        background-color: t($bg);
+    }
+}
 
     .card {
         @include themed() {
@@ -257,9 +271,13 @@
     }
 
     .zr-search-hr {
+        @include themed() {
+            color: t($zr-primary);
+            background-color: t($post-bg);
+        }
         border-top: 1px dashed #e7eaec;
-        color: #ffffff;
-        background-color: #ffffff;
+        /*color: #ffffff;*/
+        /*background-color: #ffffff;*/
         height: 1px;
         margin: 5px 0;
     }
@@ -4152,8 +4170,12 @@ body.tour-open .animated {
     }
     /* MODAL */
     .modal-content {
+        @include themed() {
+            color: t($body-text);
+            background-color: t($post-bg) !important;
+        }
         background-clip: padding-box;
-        background-color: #FFFFFF;
+        /*background-color: #FFFFFF;*/
         border: 1px solid rgba(0, 0, 0, 0);
         border-radius: 4px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -4701,7 +4723,9 @@ body.tour-open .animated {
     /* BACKGROUNDS */
     .gray-bg,
     .bg-muted {
-        background-color: #f3f3f4;
+        @include themed() {
+            background: t($bg-muted);
+        }
     }
 
     .white-bg {
@@ -5440,14 +5464,18 @@ body.tour-open .animated {
     .fullscreen-video .animated {
         animation: none;
     }
+
     /* SEARCH PAGE */
     .search-form {
         margin-top: 10px;
     }
 
     .search-result h3 {
+        @include themed() {
+            color: t($body-text);
+        }
         margin-bottom: 0;
-        color: #1E0FBE;
+        /*color: #1E0FBE;*/
     }
 
     .search-result .search-link {
