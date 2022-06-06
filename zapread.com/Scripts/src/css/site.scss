@@ -2872,7 +2872,7 @@ button.close {
     }
 
     .forum-post-info {
-        padding: 9px 12px 6px 12px;
+        padding: 9px 12px 6px;
         background: #f9f9f9;
         border: 1px solid #f1f1f1;
     }
@@ -6899,8 +6899,8 @@ table.shoping-cart-table {
         }
 
         75% {
-            -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
-            transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+            -webkit-transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5);
+            transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5);
         }
 
         100% {
@@ -6927,8 +6927,8 @@ table.shoping-cart-table {
         }
 
         75% {
-            -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
-            transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+            -webkit-transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5);
+            transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5);
         }
 
         100% {

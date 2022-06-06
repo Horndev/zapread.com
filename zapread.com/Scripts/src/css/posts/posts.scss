@@ -152,7 +152,7 @@
 }
 
 .social-avatar {
-    padding: 5px 5px 0px 0px;
+    padding: 5px 5px 0 0;
 }
 
 .social-comment .social-comment {
@@ -193,9 +193,9 @@
         border-top: 2px solid t($post-comment-border);
     }
 
-    padding: 5px 0px 0px 5px;
+    padding: 5px 0 0 5px;
     /*background: #f9f9f9;*/
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 0 0 10px 10px;
 }
 
 .social-footer-reply {
@@ -205,7 +205,7 @@
         border-left: 2px dashed t($post-comment-border);
     }
 
-    padding: 5px 0px 0px 5px;
+    padding: 5px 0 0 5px;
     /*background: #f9f9f9;*/
     padding-right: 0;
 }
@@ -255,7 +255,7 @@
     float: left;
     width: 30px;
     left: -6px;
-    padding-left: 0px;
+    padding-left: 0;
     /*margin-right: 15px;*/
     text-align: center;
     font-weight: 600;
