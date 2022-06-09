@@ -451,6 +451,8 @@ namespace zapread.com.Controllers
                 // Cleanup post HTML
                 string contentStr = CleanContent(content);
 
+                contentStr = HtmlDocumentHelpers.AutoLink(contentStr);
+
                 var postGroup = await db.Groups
                     .Include(g => g.Banished)
                     .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
