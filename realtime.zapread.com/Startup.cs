@@ -33,7 +33,7 @@ namespace realtime.zapread.com
               {
                   options.Cookie.HttpOnly = true;
                   options.Cookie.SecurePolicy = false ? CookieSecurePolicy.Always : CookieSecurePolicy.None;
-                  options.Cookie.SameSite = SameSiteMode.Strict; //.Lax;
+                  options.Cookie.SameSite = SameSiteMode.Lax; //.Lax;  .Strict;
                   options.Cookie.Name = "ZapreadUserAuth";
                   options.Cookie.Domain = ".zapread.com";
               });

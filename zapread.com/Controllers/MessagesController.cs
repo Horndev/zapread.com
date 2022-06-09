@@ -1082,23 +1082,25 @@ namespace zapread.com.Controllers
                 using (var db = new ZapContext())
                 {
                     var sender = await db.Users
-                        .Where(u => u.AppId == userId).FirstOrDefaultAsync().ConfigureAwait(true);
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                    var receiver = await db.Users
-                        .Include("Messages")
-                        .Where(u => u.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
+                    var receiverInfo = await db.Users
+                        .Where(u => u.Id == id)
+                        .Select(u => new
+                        {
+                            User = u,
+                            AppId = u.AppId,
+                            IsBlocked = u.BlockingUsers.Select(bu => bu.AppId).Contains(userId)
+                        })
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
 
-                    if (sender == null || receiver == null)
+                    if (sender == null || receiverInfo == null)
                     {
                         return Json(new { success = false, result = "Failure", message = "User not found." });
                     }
 
-                    var isBlocked = await db.Users
-                        .Where(u => u.Id == id)
-                        .Select(u => u.BlockingUsers.Select(bu => bu.AppId).Contains(userId))
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                    if (isBlocked)
+                    if (receiverInfo.IsBlocked)
                     {
                         return Json(new { success = false, result = "Failure", message = "User is blocking." });
                     }
@@ -1111,14 +1113,16 @@ namespace zapread.com.Controllers
                         IsPrivateMessage = true,
                         Content = cleanContent,
                         From = sender,
-                        To = receiver,
+                        To = receiverInfo.User,
                         IsDeleted = false,
                         IsRead = false,//(isChat != null && isChat.Value) ? true : false,
                         TimeStamp = DateTime.UtcNow,
                         Title = "Private message from <a href='" + @Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = sender.Name }, protocol: Request.Url.Scheme) + "'>" + sender.Name + "</a>",//" + sender.Name,
                     };
 
-                    receiver.Messages.Add(msg);
+                    // This is a way to add the message without having to pull all messages from db
+                    receiverInfo.User.Messages = new List<UserMessage> { msg };
+                    
                     await db.SaveChangesAsync().ConfigureAwait(true);
 
                     // Live update to any listeners
@@ -1143,7 +1147,11 @@ namespace zapread.com.Controllers
 
                     // Send stream update (to update UI)
                     // [ ] TODO - this should send just the json data instead of HTML and render client-side
-                    await NotificationService.SendPrivateChat(HTMLString, receiver.AppId, sender.AppId, Url.Action("Chat", "Messages", new { username = sender.Name }));
+                    await NotificationService.SendPrivateChat(
+                        HTMLString, 
+                        receiverInfo.AppId, 
+                        sender.AppId, 
+                        Url.Action("Chat", "Messages", new { username = sender.Name }));
 
                     return Json(new { success = true, result = "Success", id = msg.Id });
                 }
@@ -1188,6 +1196,7 @@ namespace zapread.com.Controllers
                         FromName = m.From.Name,
                         FromAppId = m.From.AppId,
                         IsReceived = m.To.Id == userId,
+                        FromProfileImgVersion = m.From.ProfileImage.Version
                     })
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 

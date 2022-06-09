@@ -21,6 +21,15 @@ using System.Web.Hosting;
 using zapread.com.Models.Email;
 using HtmlAgilityPack;
 using zapread.com.Models.Subscription;
+using MailKit.Net.Imap;
+using MailKit.Security;
+using MailKit;
+using MailKit.Search;
+using System.Text.RegularExpressions;
+using zapread.com.Helpers;
+using System.Drawing;
+using System.Drawing.Imaging;
+using MimeKit;
 
 namespace zapread.com.Services
 {
@@ -52,6 +61,285 @@ namespace zapread.com.Services
     /// </summary>
     public class MailingService
     {
+        /// Email quote code from https://stackoverflow.com/questions/2385347/how-to-remove-the-quoted-text-from-an-email-and-only-show-the-new-text
+        /// 
+        /** general spacers for time and date */
+        private static String spacers = "[\\s,/\\.\\-]";
+
+        /** matches times */
+        private static String timePattern = "(?:[0-2])?[0-9]:[0-5][0-9](?::[0-5][0-9])?(?:(?:\\s)?[AP]M)?";
+
+        /** matches day of the week */
+        private static String dayPattern = "(?:(?:Mon(?:day)?)|(?:Tue(?:sday)?)|(?:Wed(?:nesday)?)|(?:Thu(?:rsday)?)|(?:Fri(?:day)?)|(?:Sat(?:urday)?)|(?:Sun(?:day)?))";
+
+        /** matches day of the month (number and st, nd, rd, th) */
+        private static String dayOfMonthPattern = "[0-3]?[0-9]" + spacers + "*(?:(?:th)|(?:st)|(?:nd)|(?:rd))?";
+
+        /** matches months (numeric and text) */
+        private static String monthPattern = "(?:(?:Jan(?:uary)?)|(?:Feb(?:uary)?)|(?:Mar(?:ch)?)|(?:Apr(?:il)?)|(?:May)|(?:Jun(?:e)?)|(?:Jul(?:y)?)" +
+                                                    "|(?:Aug(?:ust)?)|(?:Sep(?:tember)?)|(?:Oct(?:ober)?)|(?:Nov(?:ember)?)|(?:Dec(?:ember)?)|(?:[0-1]?[0-9]))";
+
+        /** matches years (only 1000's and 2000's, because we are matching emails) */
+        private static String yearPattern = "(?:[1-2]?[0-9])[0-9][0-9]";
+
+        /** matches a full date */
+        private static String datePattern = "(?:" + dayPattern + spacers + "+)?(?:(?:" + dayOfMonthPattern + spacers + "+" + monthPattern + ")|" +
+                                                      "(?:" + monthPattern + spacers + "+" + dayOfMonthPattern + "))" +
+                                                       spacers + "+" + yearPattern;
+
+        /** matches a date and time combo (in either order) */
+        private static String dateTimePattern = "(?:" + datePattern + "[\\s,]*(?:(?:at)|(?:@))?\\s*" + timePattern + ")|" +
+                                                      "(?:" + timePattern + "[\\s,]*(?:on)?\\s*" + datePattern + ")";
+
+        /** matches a leading line such as
+         * ----Original Message----
+         * or simply
+         * ------------------------
+         */
+        private static String leadInLine = "-+\\s*(?:Original(?:\\sMessage)?)?\\s*-+\n";
+
+        /** matches a header line indicating the date */
+        private static String dateLine = "(?:(?:date)|(?:sent)|(?:time)):\\s*" + dateTimePattern + ".*\n";
+
+        /** matches a subject or address line */
+        private static String subjectOrAddressLine = "((?:from)|(?:subject)|(?:b?cc)|(?:to))|:.*\n";
+
+        /** matches gmail style quoted text beginning, i.e.
+         * On Mon Jun 7, 2010 at 8:50 PM, Simon wrote:
+         */
+        private static String gmailQuotedTextBeginning = "(On\\s+" + dateTimePattern + ".*wrote:\n)";
+
+        private static Regex emailQuotedTextBeginningRegex = new Regex(
+            pattern: "(?i)(?:(?:" 
+                + leadInLine + ")?" 
+                + "(?:(?:" +subjectOrAddressLine + ")|(?:" 
+                + dateLine + ")){2,6})|(?:" + gmailQuotedTextBeginning + ")", 
+            options: RegexOptions.Compiled);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckChatReplies()
+        {
+            var user = "Notify";
+
+            var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
+            var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+            var emailuser = System.Configuration.ConfigurationManager.AppSettings[user + "EmailUser"];
+            var emailpass = System.Configuration.ConfigurationManager.AppSettings[user + "EmailPass"];
+
+            var Emails = new List<Email>();
+
+            using (var db = new ZapContext())
+            {
+                using (var client = new ImapClient())
+                {
+                    client.Connect(emailhost, 993, SecureSocketOptions.SslOnConnect);
+
+                    client.Authenticate(emailuser, emailpass);
+
+                    client.Inbox.Open(FolderAccess.ReadWrite);
+
+                    var namespaces = client.PersonalNamespaces;
+                    var folders = client.GetFolders(client.PersonalNamespaces[0]);
+
+                    var chatDoneFolder = folders.Where(f => f.FullName == "ChatRepliesDone").FirstOrDefault();
+                    var chatErrorFolder = folders.Where(f => f.FullName == "ChatRepliesError").FirstOrDefault();
+
+                    var queryFrom = SearchQuery.ToContains("+");
+                    var query = SearchQuery.BodyContains("chatReplyId:");
+                    var chatReplyUids = client.Inbox.Search(query.Or(queryFrom));
+
+                    foreach (var uid in chatReplyUids)
+                    {
+                        var message = client.Inbox.GetMessage(uid);
+
+                        string userMessage = "";
+
+                        if (message.HtmlBody != null)
+                        {
+                            // HTML message -> Extract text
+                            var emailAsText = HtmlDocumentHelpers.ConvertToPlainText(message.HtmlBody);
+                            userMessage = emailAsText;
+                        }
+                        else if (message.TextBody != null)
+                        {
+                            // Text message
+                            userMessage = message.TextBody;
+                        }
+                        else
+                        {
+                            client.Inbox.MoveTo(uid: uid, destination: chatErrorFolder);
+                        }
+
+                        if (!String.IsNullOrEmpty(userMessage))
+                        { 
+                            var m = emailQuotedTextBeginningRegex.Match(userMessage);
+                            if (m.Success)
+                            {
+                                userMessage = userMessage.Substring(0, m.Index);
+                            }
+
+                            // Remove nuisance strings (should be in a DB or other configuration)
+                            userMessage = userMessage.Replace("Sent from Mail for Windows", "");
+
+                            // Do this twice, but should be a smarter way...
+                            userMessage = userMessage.SanitizeXSS();
+                            userMessage = userMessage.Replace("&nbsp;", " ");
+                            userMessage = userMessage.Trim('\r', '\n'); // remove extra newlines
+                            userMessage = userMessage.Trim(); // remove spaces
+                            userMessage = userMessage.Trim('\r', '\n'); // remove extra newlines
+                            userMessage = userMessage.Trim(); // remove spaces
+
+                            // Check for images, extract - and make links
+                            try
+                            {
+                                var images = Regex.Matches(userMessage, "\\[image: (.*)\\]+", RegexOptions.IgnoreCase);
+                                if (images.Count > 0)
+                                {
+                                    foreach (Match imatch in images)
+                                    {
+                                        //[image: image.png] -> image.png
+                                        var imageinfo = imatch.Groups[1].Value;
+                                        var imagesrc = imageinfo.Split(';')[0].Replace("cid:", "");
+                                        var image = (MimePart)message.BodyParts.Where(p => p.ContentId == imagesrc).First();
+
+                                        using (MemoryStream ms = new MemoryStream())
+                                        {
+                                            int maxwidth = 720;
+                                            image.Content.DecodeTo(ms);
+                                            Image img = Image.FromStream(ms);
+                                            byte[] data;
+                                            string contentType = "image/jpeg";
+
+                                            if (img.Width > maxwidth)
+                                            {
+                                                // rescale if too large
+                                                var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
+                                                Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale));
+
+                                                data = thumb.ToByteArray(ImageFormat.Jpeg);
+                                            }
+                                            else
+                                            {
+                                                data = img.ToByteArray(ImageFormat.Jpeg);
+                                            }
+
+                                            UserImage i = new UserImage()
+                                            {
+                                                Image = data,
+                                                ContentType = contentType,
+                                            };
+                                            db.Images.Add(i);
+                                            db.SaveChanges();
+                                            userMessage = userMessage.Replace(imatch.Value, "<br/><img src=\"/i/" + CryptoService.IntIdToString(i.ImageId) + "\"><br/>");
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // no biggie - but image won't go in.
+                            }
+
+                            var toAddress = message.To.Mailboxes.First().Address;
+                            var replyId = toAddress.Replace("@zapread.com", "").Replace("notify+", "");
+                            if (!String.IsNullOrEmpty(replyId))
+                            {
+                                var info = CryptoService.DecryptString(
+                                    System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                    replyId);
+
+                                // msgInfo.SenderId + ":" + msgInfo.ToId + ":" + msgInfo.Id + ":" + SubscriptionTypes.NewChat
+                                var parts = info.Split(':');
+                                if (parts.Length >= 4)
+                                {
+                                    var fromId = Convert.ToInt32(parts[1]);
+                                    var toId = Convert.ToInt32(parts[0]);
+                                    var msgId = Convert.ToInt32(parts[2]);
+                                    var msgType = parts[3];
+
+                                    // Check to ensure reciever isn't blocking sender
+                                    var userToInfo = db.Users
+                                        .Where(u => u.Id == toId)
+                                        .Select(u => new
+                                        {
+                                            isBlocked = u.BlockingUsers.Select(bu => bu.Id).Contains(fromId),
+                                            User = u
+                                        })
+                                        .FirstOrDefault();
+
+                                    if (!userToInfo.isBlocked)
+                                    {
+                                        var userFrom = db.Users.FirstOrDefault(u => u.Id == fromId);
+                                        var userTo = userToInfo.User; //db.Users.FirstOrDefault(u => u.Id == toId);
+
+                                        var msg = new UserMessage()
+                                        {
+                                            IsPrivateMessage = true,
+                                            Content = userMessage,
+                                            From = userFrom,
+                                            To = userTo,
+                                            IsDeleted = false,
+                                            IsRead = false,
+                                            TimeStamp = DateTime.UtcNow,
+                                            Title = "Private message from " + userFrom.Name + "", //" + sender.Name,
+                                        };
+
+                                        // This will add
+                                        userTo.Messages = new List<UserMessage>()
+                                        {
+                                            msg
+                                        };
+                                        db.SaveChanges();
+                                    }
+                                    else
+                                    {
+                                        // Send a message to sender they are blocked
+                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                           new UserEmailModel()
+                                           {
+                                               Destination = message.From.Mailboxes.First().Address,
+                                               Body = userToInfo.User.Name + " has blocked you from sending them chat messages.",
+                                               Email = "notify+" + replyId + "@zapread.com", // This is the reply-to
+                                               Name = "zapread.com",
+                                               Subject = "Your message to " + userToInfo.User.Name + " was blocked",
+                                           }, "Notify", true));
+                                    }
+                                }
+                                else
+                                {
+                                    // Malformed
+                                    client.Inbox.MoveTo(uid: uid, destination: chatErrorFolder);
+                                }
+                                // Move message into IMAP completed folder
+                                client.Inbox.MoveTo(uid: uid, destination: chatDoneFolder);
+                            }
+                        }
+
+                        // If failed to parse email - send notification back to sender that it failed and suggestions to retry.
+                        // TODO
+                    }
+
+                    client.Disconnect(true);
+                }
+            }
+
+            return true;
+        }
+
+        //public void TestMailReply()
+        //{
+        //    var user = "Notify";
+
+        //    var emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
+        //    var emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+        //    var emailuser = System.Configuration.ConfigurationManager.AppSettings[user + "EmailUser"];
+        //    var emailpass = System.Configuration.ConfigurationManager.AppSettings[user + "EmailPass"];
+
+        //}
+
         private string makeImagesFQDN(string emailContent)
         {
             var doc = new HtmlDocument();
@@ -428,20 +716,26 @@ namespace zapread.com.Services
 
                 using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                 {
-                    string receiverEmail = userManager.FindById(userAppId).Email;
+                    var applicationUser = userManager.FindById(userAppId);
 
-                    // Debug
-                    if (true)
+                    // Only send emails if they have confirmed their email address
+                    if (applicationUser != null && applicationUser.EmailConfirmed)
                     {
-                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                        new UserEmailModel()
+                        string receiverEmail = applicationUser.Email;
+
+                        // Debug
+                        if (true)
                         {
-                            Destination = receiverEmail,
-                            Body = emailContent,
-                            Email = "",
-                            Name = "zapread.com",
-                            Subject = "Your Zapread Weekly Summary",
-                        }, "Notify", true));
+                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                            new UserEmailModel()
+                            {
+                                Destination = receiverEmail,
+                                Body = emailContent,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = "Your Zapread Weekly Summary",
+                            }, "Notify", true));
+                        }
                     }
                 }
                 return true;
@@ -585,15 +879,21 @@ namespace zapread.com.Services
                             postInfo.AppId + ":" + SubscriptionTypes.OwnPostComment);
                         emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
 
-                        string postAuthorEmail = userManager.FindById(postInfo.AppId).Email;
-                        SendI(new UserEmailModel()
+                        var applicationUser = userManager.FindById(postInfo.AppId);
+
+                        // Only send if email confirmed
+                        if (applicationUser != null && applicationUser.EmailConfirmed)
                         {
-                            Destination = postAuthorEmail,
-                            Body = emailContent,
-                            Email = "",
-                            Name = "zapread.com",
-                            Subject = "New comment on your post",
-                        }, "Notify", true);
+                            string postAuthorEmail = applicationUser.Email;
+                            SendI(new UserEmailModel()
+                            {
+                                Destination = postAuthorEmail,
+                                Body = emailContent,
+                                Email = "",
+                                Name = "zapread.com",
+                                Subject = "New comment on your post",
+                            }, "Notify", true);
+                        }
                     }
                 }
 
@@ -674,22 +974,28 @@ namespace zapread.com.Services
                 {
                     using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
-                        string receiverEmail = userManager.FindById(commentInfo.ParentAppId).Email;
+                        var applicationUser = userManager.FindById(commentInfo.ParentAppId);
 
-                        var userUnsubscribeId = CryptoService.EncryptString(
-                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                            commentInfo.ParentAppId + ":" + SubscriptionTypes.OwnCommentReply);
-                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                        // Only send if email confirmed
+                        if (applicationUser != null && applicationUser.EmailConfirmed)
+                        {
+                            string receiverEmail = applicationUser.Email;
 
-                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                            new UserEmailModel()
-                            {
-                                Destination = receiverEmail,
-                                Body = emailContent,
-                                Email = "",
-                                Name = "zapread.com",
-                                Subject = "New reply to your comment",
-                            }, "Notify", true));
+                            var userUnsubscribeId = CryptoService.EncryptString(
+                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                commentInfo.ParentAppId + ":" + SubscriptionTypes.OwnCommentReply);
+                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                new UserEmailModel()
+                                {
+                                    Destination = receiverEmail,
+                                    Body = emailContent,
+                                    Email = "",
+                                    Name = "zapread.com",
+                                    Subject = "New reply to your comment",
+                                }, "Notify", true));
+                        }
                     }
                 }
 
@@ -731,22 +1037,28 @@ namespace zapread.com.Services
                 {
                     using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
-                        string receiverEmail = userManager.FindById(userInfo.AppId).Email;
-                        var userUnsubscribeId = CryptoService.EncryptString(
-                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                            userInfo.AppId + ":" + SubscriptionTypes.NewUserFollowing);
-                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                        var applicationUser = userManager.FindById(userInfo.AppId);
 
-                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                            new UserEmailModel()
-                            {
-                                Destination = receiverEmail,
-                                Body = emailContent,
-                                Email = "",
-                                Name = "zapread.com",
-                                Subject = otherUserInfo.Name + " is now following you",
-                            }, "Notify", true));
-    }
+                        // Only send if email confirmed
+                        if (applicationUser != null && applicationUser.EmailConfirmed)
+                        {
+                            string receiverEmail = applicationUser.Email;
+                            var userUnsubscribeId = CryptoService.EncryptString(
+                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                userInfo.AppId + ":" + SubscriptionTypes.NewUserFollowing);
+                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                new UserEmailModel()
+                                {
+                                    Destination = receiverEmail,
+                                    Body = emailContent,
+                                    Email = "",
+                                    Name = "zapread.com",
+                                    Subject = otherUserInfo.Name + " is now following you",
+                                }, "Notify", true));
+                        }
+                    }
                 }
                 return true;
             }
@@ -798,21 +1110,27 @@ namespace zapread.com.Services
 
                                     if (mentionedUserInfo.NotifyOnMentioned)
                                     {
-                                        string receiverEmail = userManager.FindById(mentionedUserInfo.AppId).Email;
-                                        var userUnsubscribeId = CryptoService.EncryptString(
-                                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                                            mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
-                                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                                        var applicationUser = userManager.FindById(mentionedUserInfo.AppId);
 
-                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                                            new UserEmailModel()
-                                            {
-                                                Destination = receiverEmail,
-                                                Body = emailContent,
-                                                Email = "",
-                                                Name = "zapread.com",
-                                                Subject = "You were mentioned in a post by " + mentionInfo.FromUserName,
-                                            }, "Notify", true));
+                                        // Only send if email confirmed
+                                        if (applicationUser != null && applicationUser.EmailConfirmed)
+                                        {
+                                            string receiverEmail = applicationUser.Email;
+                                            var userUnsubscribeId = CryptoService.EncryptString(
+                                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                                mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
+                                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                                new UserEmailModel()
+                                                {
+                                                    Destination = receiverEmail,
+                                                    Body = emailContent,
+                                                    Email = "",
+                                                    Name = "zapread.com",
+                                                    Subject = "You were mentioned in a post by " + mentionInfo.FromUserName,
+                                                }, "Notify", true));
+                                        }
                                     }
                                 }
                             }
@@ -870,21 +1188,27 @@ namespace zapread.com.Services
 
                                     if (mentionedUserInfo.NotifyOnMentioned)
                                     {
-                                        string receiverEmail = userManager.FindById(mentionedUserInfo.AppId).Email;
-                                        var userUnsubscribeId = CryptoService.EncryptString(
-                                            System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                                            mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
-                                        emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                                        var applicationUser = userManager.FindById(mentionedUserInfo.AppId);
 
-                                        BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                                            new UserEmailModel()
-                                            {
-                                                Destination = receiverEmail,
-                                                Body = emailContent,
-                                                Email = "",
-                                                Name = "zapread.com",
-                                                Subject = "You were mentioned in a comment by " + mentionInfo.FromUserName,
-                                            }, "Notify", true));
+                                        // Only send if email confirmed
+                                        if (applicationUser != null && applicationUser.EmailConfirmed)
+                                        {
+                                            string receiverEmail = applicationUser.Email;
+                                            var userUnsubscribeId = CryptoService.EncryptString(
+                                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                                mentionedUserInfo.AppId + ":" + SubscriptionTypes.UserMentionedInComment);
+                                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                                new UserEmailModel()
+                                                {
+                                                    Destination = receiverEmail,
+                                                    Body = emailContent,
+                                                    Email = "",
+                                                    Name = "zapread.com",
+                                                    Subject = "You were mentioned in a comment by " + mentionInfo.FromUserName,
+                                                }, "Notify", true));
+                                        }
                                     }
                                 }
                             }
@@ -938,21 +1262,27 @@ namespace zapread.com.Services
                             //Email
                             if (follower.NotifyOnNewPostSubscribedUser)
                             {
-                                string followerEmail = userManager.FindById(follower.AppId).Email;
-                                var userUnsubscribeId = CryptoService.EncryptString(
-                                    System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"], 
-                                    follower.AppId + ":" + SubscriptionTypes.FollowedUserNewPost);
-                                emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                                var applicationUser = userManager.FindById(follower.AppId);
 
-                                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                                    new UserEmailModel()
-                                    {
-                                        Destination = followerEmail,
-                                        Body = emailContent,
-                                        Email = "",
-                                        Name = "zapread.com",
-                                        Subject = "New post by user you are following",
-                                    }, "Notify", true));
+                                // Only send if email confirmed
+                                if (applicationUser != null && applicationUser.EmailConfirmed)
+                                {
+                                    string followerEmail = applicationUser.Email;
+                                    var userUnsubscribeId = CryptoService.EncryptString(
+                                        System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                        follower.AppId + ":" + SubscriptionTypes.FollowedUserNewPost);
+                                    emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                    BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                        new UserEmailModel()
+                                        {
+                                            Destination = followerEmail,
+                                            Body = emailContent,
+                                            Email = "",
+                                            Name = "zapread.com",
+                                            Subject = "New post by user you are following",
+                                        }, "Notify", true));
+                                }
                             }
                         }
 
@@ -979,7 +1309,10 @@ namespace zapread.com.Services
                     .Where(m => m.Id == chatId)
                     .Select(m => new
                     {
+                        m.Id,
                         SenderName = m.From.Name,
+                        SenderId = m.From.Id,
+                        ToId = m.To.Id,
                         m.To.AppId,
                         m.To.IsOnline,
                         m.To.Settings.NotifyOnPrivateMessage,
@@ -995,21 +1328,33 @@ namespace zapread.com.Services
                     {
                         if (msgInfo.NotifyOnPrivateMessage)
                         {
-                            string receiverEmail = userManager.FindById(msgInfo.AppId).Email;
-                            var userUnsubscribeId = CryptoService.EncryptString(
-                                System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
-                                msgInfo.AppId + ":" + SubscriptionTypes.NewChat);
-                            emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+                            var applicationUser = userManager.FindById(msgInfo.AppId);
 
-                            BackgroundJob.Enqueue<MailingService>(x => x.SendI(
-                                new UserEmailModel()
-                                {
-                                    Destination = receiverEmail,
-                                    Body = emailContent,
-                                    Email = "",
-                                    Name = "zapread.com",
-                                    Subject = "New private ZapRead message from " + msgInfo.SenderName,
-                                }, "Notify", true));
+                            // Only send if email confirmed
+                            if (applicationUser != null && applicationUser.EmailConfirmed)
+                            {
+                                string receiverEmail = applicationUser.Email;
+                                var userUnsubscribeId = CryptoService.EncryptString(
+                                    System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                    msgInfo.AppId + ":" + SubscriptionTypes.NewChat);
+                                emailContent = emailContent.Replace("[userUnsubscribeId]", userUnsubscribeId);
+
+                                var replyId = CryptoService.EncryptString(
+                                    System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"],
+                                    msgInfo.SenderId + ":" + msgInfo.ToId + ":" + msgInfo.Id + ":" + SubscriptionTypes.NewChat);
+
+                                emailContent = emailContent.Replace("[replyId]", replyId);
+
+                                BackgroundJob.Enqueue<MailingService>(x => x.SendI(
+                                    new UserEmailModel()
+                                    {
+                                        Destination = receiverEmail,
+                                        Body = emailContent,
+                                        Email = "notify+" + replyId + "@zapread.com", // This is the reply-to
+                                        Name = "zapread.com",
+                                        Subject = "New private ZapRead message from " + msgInfo.SenderName,
+                                    }, "Notify", true));
+                            }
                         }
                     }
                 }
@@ -1099,6 +1444,7 @@ namespace zapread.com.Services
         /// <param name="message"></param>
         /// <param name="user"></param>
         /// <param name="useSSL"></param>
+        /// <param name="plus"></param>
         /// <returns></returns>
         public bool SendI(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {
@@ -1116,7 +1462,7 @@ namespace zapread.com.Services
             mmessage.IsBodyHtml = true;
             if (message.Email != null && message.Email != "")
             {
-                mmessage.ReplyToList.Add(new MailAddress(message.Email));
+                mmessage.ReplyToList.Add(message.Email);
             }
 
             using (var smtp = new SmtpClient())
@@ -1158,7 +1504,7 @@ namespace zapread.com.Services
             mmessage.IsBodyHtml = true;
             if (message.Email != null && message.Email != "")
             {
-                mmessage.ReplyToList.Add(new MailAddress(message.Email));
+                mmessage.ReplyToList.Add(message.Email);
             }
 
             using (var smtp = new SmtpClient())

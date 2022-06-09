@@ -112,14 +112,15 @@
 .social-feed-box {
     @include themed() {
         background: t($post-bg);
+        box-shadow: 0 0 3px 1px t($zr-primary);
+        border-color: t($zr-primary);
     }
     /*padding: 15px;*/
     /*border: 1px solid #e7eaec;*/
     /*background: #fff;*/
     margin-bottom: 15px;
-    border-style: solid;
+    /*border-style: solid;*/
     border-radius: 10px;
-    border-color: #1ab394;
 }
 
 .social-feed-box-nb {

@@ -38,13 +38,17 @@
                 <div class="container" style="background-color:white;">
                     <br />
                     <a class="btn btn-sm btn-outline-primary" href="@MailViewHelper.ChatMessageURI(Model.FromName)">Go to Chat</a>
+                    <a class="btn btn-sm btn-outline-primary" href=@("mailto:notify+[replyId]" + '@' + "zapread.com")>Reply by Email</a>
                     <hr />
                     @*Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
-                        <br />
-                        <br />*@
+        <br />
+        <br />*@
                 </div>
                 <div class="container" style="background-color:white;">
                     <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/">Unsubscribe</a> from these emails.
+                </div>
+                <div style="display:none;">
+                    chatReplyId:[replyId]
                 </div>
             </div>
         </div>

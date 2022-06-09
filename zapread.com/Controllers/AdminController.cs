@@ -1393,6 +1393,12 @@ namespace zapread.com.Controllers
                 return Json(new { success = false });
             }
 
+            if (jobid == "CheckChatReplies")
+            {
+                RecurringJob.Trigger("MailingService.CheckChatReplies");
+                return Json(new { success = true });
+            }
+
             if (jobid == "CheckAccountLocks")
             {
                 RecurringJob.Trigger("AccountMonitorService.CheckAccountLocks");
@@ -1451,6 +1457,14 @@ namespace zapread.com.Controllers
             if (jobid == null)
             {
                 return Json(new { success = false });
+            }
+
+            if (jobid == "CheckChatReplies")
+            {
+                RecurringJob.AddOrUpdate<MailingService>(
+                    x => x.CheckChatReplies(),
+                    "*/2 * * * *"); // Every two minutes
+                return Json(new { success = true });
             }
 
             if (jobid == "CheckAccountLocks")
