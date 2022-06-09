@@ -57,6 +57,20 @@
                         <text><br /></text>
                     }
 
+                    <h3>Check Chat Replies Email</h3>
+                    @if (Model.RecurringJobs.Select(j => j.Id).Contains("MailingService.CheckChatReplies"))
+                    {
+                        <span>Installed </span>
+                    }
+                    else
+                    {
+                        <span>Not Installed</span>
+                    }
+
+                    <button id="btnCREI" class="btn btn-primary btn-sm" onclick="setupJob('CheckChatReplies')" type="button">(Re)Install</button>
+
+                    <button id="btnCREF" class="btn btn-primary btn-sm" onclick="runJob('CheckChatReplies')" type="button">Trigger Now</button>
+
                     <h3>Check Locked Accounts</h3>
                     @if (Model.RecurringJobs.Select(j => j.Id).Contains("AccountMonitorService.CheckAccountLocks"))
                     {
@@ -67,9 +81,9 @@
                         <span>Not Installed</span>
                     }
 
-                    <button id="btnWSI" class="btn btn-primary btn-sm" onclick="setupJob('CheckAccountLocks')" type="button">(Re)Install</button>
+                    <button id="btnLAI" class="btn btn-primary btn-sm" onclick="setupJob('CheckAccountLocks')" type="button">(Re)Install</button>
 
-                    <button id="btnWSF" class="btn btn-primary btn-sm" onclick="runJob('CheckAccountLocks')" type="button">Trigger Now</button>
+                    <button id="btnLAF" class="btn btn-primary btn-sm" onclick="runJob('CheckAccountLocks')" type="button">Trigger Now</button>
 
                     <h3>Weekly Summary Mailer</h3>
                     @if (Model.RecurringJobs.Select(j => j.Id).Contains("MailingService.MailWeeklySummaries"))

@@ -822,6 +822,9 @@ namespace zapread.com.Controllers
             //LNNodeMonitor a = new LNNodeMonitor();
             //a.UpdateHourly();
 
+            //var m = new MailingService();
+            //m.TestMailReply();
+
             //PayoutsService.UpdateBanished();
 
             //var s = new AchievementsService();
