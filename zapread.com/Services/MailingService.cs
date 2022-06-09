@@ -27,6 +27,9 @@ using MailKit;
 using MailKit.Search;
 using System.Text.RegularExpressions;
 using zapread.com.Helpers;
+using System.Drawing;
+using System.Drawing.Imaging;
+using MimeKit;
 
 namespace zapread.com.Services
 {
@@ -139,8 +142,6 @@ namespace zapread.com.Services
 
                     client.Inbox.Open(FolderAccess.ReadWrite);
 
-                    //var uids = client.Inbox.Search(SearchQuery.All);
-
                     var namespaces = client.PersonalNamespaces;
                     var folders = client.GetFolders(client.PersonalNamespaces[0]);
 
@@ -151,31 +152,15 @@ namespace zapread.com.Services
                     var query = SearchQuery.BodyContains("chatReplyId:");
                     var chatReplyUids = client.Inbox.Search(query.Or(queryFrom));
 
-                    //foreach (var uid in uids)
-                    //{
-                    //    var message = client.Inbox.GetMessage(uid);
-
-                    //    // write the message to a file
-                    //    Email email = new Email()
-                    //    {
-                    //        MessageNumber = uid.Id,
-                    //        Subject = message.Subject,
-                    //        DateSent = message.Date.DateTime,
-                    //        FromEmailAddress = message.From.Mailboxes.First().Address,
-                    //        FromName = message.From.Mailboxes.First().Name,
-                    //    };
-                    //    Emails.Add(email);
-                    //}
-
                     foreach (var uid in chatReplyUids)
                     {
                         var message = client.Inbox.GetMessage(uid);
 
                         string userMessage = "";
 
-                        if (message.TextBody == null && message.HtmlBody != null)
+                        if (message.HtmlBody != null)
                         {
-                            // HTML only message -> Extract text
+                            // HTML message -> Extract text
                             var emailAsText = HtmlDocumentHelpers.ConvertToPlainText(message.HtmlBody);
                             userMessage = emailAsText;
                         }
@@ -183,6 +168,10 @@ namespace zapread.com.Services
                         {
                             // Text message
                             userMessage = message.TextBody;
+                        }
+                        else
+                        {
+                            client.Inbox.MoveTo(uid: uid, destination: chatErrorFolder);
                         }
 
                         if (!String.IsNullOrEmpty(userMessage))
@@ -203,7 +192,58 @@ namespace zapread.com.Services
                             userMessage = userMessage.Trim(); // remove spaces
                             userMessage = userMessage.Trim('\r', '\n'); // remove extra newlines
                             userMessage = userMessage.Trim(); // remove spaces
-                            
+
+                            // Check for images, extract - and make links
+                            try
+                            {
+                                var images = Regex.Matches(userMessage, "\\[image: (.*)\\]+", RegexOptions.IgnoreCase);
+                                if (images.Count > 0)
+                                {
+                                    foreach (Match imatch in images)
+                                    {
+                                        //[image: image.png] -> image.png
+                                        var imageinfo = imatch.Groups[1].Value;
+                                        var imagesrc = imageinfo.Split(';')[0].Replace("cid:", "");
+                                        var image = (MimePart)message.BodyParts.Where(p => p.ContentId == imagesrc).First();
+
+                                        using (MemoryStream ms = new MemoryStream())
+                                        {
+                                            int maxwidth = 720;
+                                            image.Content.DecodeTo(ms);
+                                            Image img = Image.FromStream(ms);
+                                            byte[] data;
+                                            string contentType = "image/jpeg";
+
+                                            if (img.Width > maxwidth)
+                                            {
+                                                // rescale if too large
+                                                var scale = Convert.ToDouble(maxwidth) / Convert.ToDouble(img.Width);
+                                                Bitmap thumb = ImageExtensions.ResizeImage(img, maxwidth, Convert.ToInt32(img.Height * scale));
+
+                                                data = thumb.ToByteArray(ImageFormat.Jpeg);
+                                            }
+                                            else
+                                            {
+                                                data = img.ToByteArray(ImageFormat.Jpeg);
+                                            }
+
+                                            UserImage i = new UserImage()
+                                            {
+                                                Image = data,
+                                                ContentType = contentType,
+                                            };
+                                            db.Images.Add(i);
+                                            db.SaveChanges();
+                                            userMessage = userMessage.Replace(imatch.Value, "<br/><img src=\"/i/" + CryptoService.IntIdToString(i.ImageId) + "\"><br/>");
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // no biggie - but image won't go in.
+                            }
+
                             var toAddress = message.To.Mailboxes.First().Address;
                             var replyId = toAddress.Replace("@zapread.com", "").Replace("notify+", "");
                             if (!String.IsNullOrEmpty(replyId))

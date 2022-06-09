@@ -135,6 +135,18 @@ namespace zapread.com.Helpers
                         case "br":
                             outText.Write("\r\n");
                             break;
+                        case "img":
+                            var src = node.GetAttributeValue("src", "");
+                            var alt = node.GetAttributeValue("alt", "");
+                            if (src.ToUpper().Contains("HTTP"))
+                            {
+                                outText.Write("[external image removed]");
+                            }
+                            else
+                            {
+                                outText.Write("[image: " + node.GetAttributeValue("src", "") + ";" + (!String.IsNullOrEmpty(alt) ? alt : "") +  "]");
+                            }
+                            break;
                     }
 
                     if (node.HasChildNodes)

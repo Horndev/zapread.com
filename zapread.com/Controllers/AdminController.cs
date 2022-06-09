@@ -1463,7 +1463,7 @@ namespace zapread.com.Controllers
             {
                 RecurringJob.AddOrUpdate<MailingService>(
                     x => x.CheckChatReplies(),
-                    "0 * * * *"); // Every hour
+                    "*/2 * * * *"); // Every two minutes
                 return Json(new { success = true });
             }
 
