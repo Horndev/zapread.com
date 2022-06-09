@@ -250,9 +250,9 @@ namespace zapread.com.Services
 
                                         // This will add
                                         userTo.Messages = new List<UserMessage>()
-                                    {
-                                        msg
-                                    };
+                                        {
+                                            msg
+                                        };
                                         db.SaveChanges();
                                     }
                                     else
