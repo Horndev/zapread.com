@@ -109,7 +109,6 @@ namespace zapread.com.Services
          */
         private static String gmailQuotedTextBeginning = "(On\\s+" + dateTimePattern + ".*wrote:\n)";
 
-
         private static Regex emailQuotedTextBeginningRegex = new Regex(
             pattern: "(?i)(?:(?:" 
                 + leadInLine + ")?" 
@@ -274,7 +273,7 @@ namespace zapread.com.Services
                                     if (!userToInfo.isBlocked)
                                     {
                                         var userFrom = db.Users.FirstOrDefault(u => u.Id == fromId);
-                                        var userTo = userToInfo.User;//db.Users.FirstOrDefault(u => u.Id == toId);
+                                        var userTo = userToInfo.User; //db.Users.FirstOrDefault(u => u.Id == toId);
 
                                         var msg = new UserMessage()
                                         {
@@ -285,7 +284,7 @@ namespace zapread.com.Services
                                             IsDeleted = false,
                                             IsRead = false,
                                             TimeStamp = DateTime.UtcNow,
-                                            Title = "Private message from " + userFrom.Name + "",//" + sender.Name,
+                                            Title = "Private message from " + userFrom.Name + "", //" + sender.Name,
                                         };
 
                                         // This will add

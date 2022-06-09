@@ -55,7 +55,6 @@ namespace zapread.com.Helpers
             return sw.ToString();
         }
 
-
         /// <summary>
         /// Count the words.
         /// The content has to be converted to plain text before (using ConvertToPlainText).
@@ -82,7 +81,6 @@ namespace zapread.com.Helpers
             return text;
         }
 
-
         private static void ConvertContentTo(HtmlNode node, TextWriter outText)
         {
             foreach (HtmlNode subnode in node.ChildNodes)
@@ -90,7 +88,6 @@ namespace zapread.com.Helpers
                 ConvertTo(subnode, outText);
             }
         }
-
 
         private static void ConvertTo(HtmlNode node, TextWriter outText)
         {
