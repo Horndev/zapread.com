@@ -445,8 +445,31 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var user = await db.Users.Where(u => u.AppId == userId)
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        u.Reputation,
+                        Balance = u.Funds != null ? u.Funds.Balance : 0
+                    })
                     .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
+
+                if (userInfo == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new { success = false, message = "Error finding user account." });
+                }
+
+                if (userInfo.Reputation < 0 && userInfo.Balance < -userInfo.Reputation)
+                {
+                    var delta = -1*Math.Floor(userInfo.Balance + userInfo.Reputation);
+                    //Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    return Json(new { success = false, 
+                        message = "Because of your negative reputation, you must deposit an additional " 
+                        + delta.ToString("0.##", CultureInfo.InvariantCulture) 
+                        + " Satoshi to be able to post."});
+                }
 
                 // Cleanup post HTML
                 string contentStr = CleanContent(content);
@@ -476,7 +499,7 @@ namespace zapread.com.Controllers
                         .FirstOrDefaultAsync().ConfigureAwait(true);
 
                     // Ensure user owns this post (or is site admin)
-                    if (post.UserId.Id != user.Id && !User.IsInRole("Administrator"))
+                    if (post.UserId.Id != userInfo.User.Id && !User.IsInRole("Administrator"))
                     {
                         // Editing another user's post.
                         Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -638,13 +661,13 @@ namespace zapread.com.Controllers
                     post = new Post()
                     {
                         Content = contentStr,
-                        UserId = user,
+                        UserId = userInfo.User,
                         TotalEarned = 0,
                         IsDeleted = false,
                         Score = 1,
                         Group = postGroup,
                         TimeStamp = DateTime.UtcNow,
-                        VotesUp = new List<User>() { user },
+                        VotesUp = new List<User>() { userInfo.User },
                         PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS().Replace("&amp;", "&"),
                         IsDraft = isDraft,
                         Language = postLanguage,
@@ -713,7 +736,7 @@ namespace zapread.com.Controllers
             HtmlDocument postDocument = new HtmlDocument();
             postDocument.LoadHtml(content);
 
-            // Check links
+            // Check links                                                                   
             var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
             if (postLinks != null)
             {
