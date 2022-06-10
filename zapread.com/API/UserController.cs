@@ -30,6 +30,17 @@ namespace zapread.com.API
         /// </summary>
         /// <returns></returns>
         [AcceptVerbs("GET")]
+        [Route("api/v1/user/banneralerts")]
+        public async Task<IHttpActionResult> GetBannerAlerts()
+        {
+            return Ok();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
         [Route("api/v1/user/reactions/list/{postId}")]
         public async Task<IHttpActionResult> GetReactions(int postId)
         {

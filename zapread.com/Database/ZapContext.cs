@@ -69,6 +69,11 @@ namespace zapread.com.Database
         /// </summary>
         public DbSet<UserFunds> Funds { get; set; }
 
+        /// <summary>
+        /// Alerts to show to users as a Banner on main page
+        /// </summary>
+        public DbSet<BannerAlert> BannerAlerts { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
