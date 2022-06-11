@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -16,9 +17,21 @@ namespace zapread.com.Models.Database
         public int Id { get; set; }
 
         /// <summary>
-        /// User this belongs to
+        /// Targeted Banner user, or null when global
         /// </summary>
+        [InverseProperty("BannerAlerts")]
         public User User { get; set; }
+
+        /// <summary>
+        /// Users which have dismissed it
+        /// </summary>
+        [InverseProperty("DismissedBannerAlerts")]
+        public virtual ICollection<User> DismissedBy { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Title { get; set; }
 
         /// <summary>
         /// 
@@ -29,6 +42,11 @@ namespace zapread.com.Models.Database
         /// info, danger, warning
         /// </summary>
         public string Priority { get; set; }
+
+        /// <summary>
+        /// Send to all users
+        /// </summary>
+        public bool IsGlobalSend { get; set; }
 
         /// <summary>
         /// User will not see it again

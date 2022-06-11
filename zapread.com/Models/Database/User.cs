@@ -61,6 +61,9 @@ namespace zapread.com.Models.Database
         [InverseProperty("User")]
         public virtual ICollection<BannerAlert> BannerAlerts { get; set; }
 
+        [InverseProperty("DismissedBy")]
+        public virtual ICollection<BannerAlert> DismissedBannerAlerts { get; set; }
+
         [InverseProperty("FollowedByUsers")]
         public virtual ICollection<Post> FollowingPosts { get; set; }
 

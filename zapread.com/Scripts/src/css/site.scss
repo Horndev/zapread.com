@@ -32,7 +32,7 @@
 
 button.close {
     @include themed() {
-        background-color: t($post-bg);
+        background-color: #ffffff00;
         color: t($text-form-control);
     }
 }

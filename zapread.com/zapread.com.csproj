@@ -930,6 +930,10 @@
     <Compile Include="Migrations\202206100027185_AddBannerAlerts.designer.cs">
       <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.cs" />
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.designer.cs">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -986,6 +990,7 @@
     <Compile Include="Models\API\Tag\MentionTagResponse.cs" />
     <Compile Include="Models\API\Tag\TagItem.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
+    <Compile Include="Models\API\User\GetBannerAlertsResponse.cs" />
     <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
@@ -1360,6 +1365,7 @@
     <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
+    <Content Include="Scripts\src\Components\TopBar\BannerAlert.js" />
     <Content Include="Scripts\src\Components\TopBar\BannerAlerts.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
@@ -1885,6 +1891,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202206100027185_AddBannerAlerts.resx">
       <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.resx">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
