@@ -1239,7 +1239,6 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
-    <Content Include="Scripts\dist\0\9787.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
@@ -1523,7 +1522,6 @@
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
-    <Content Include="Scripts\dist\0\9787.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
