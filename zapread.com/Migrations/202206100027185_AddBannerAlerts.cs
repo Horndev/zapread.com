@@ -32,7 +32,6 @@
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.User", t => t.User_Id)
                 .Index(t => t.User_Id);
-            
         }
         
         /// <summary>
