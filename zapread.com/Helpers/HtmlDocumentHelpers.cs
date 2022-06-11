@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace zapread.com.Helpers
@@ -12,6 +13,41 @@ namespace zapread.com.Helpers
     /// </summary>
     public static class HtmlDocumentHelpers
     {
+        private static string urlPattern = @"(?<url>(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#/%=~_|$?!:,.]*\)|[A-Z0-9+&@#/%=~_|$])";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static string AutoLink(string content)
+        {
+            try
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(content);
+
+                //get all elements text propery except for anchor element 
+                var textNodes = doc.DocumentNode.SelectNodes("//text()[not(ancestor::a)]") ?? new HtmlAgilityPack.HtmlNodeCollection(null);
+
+                foreach (var node in textNodes)
+                {
+                    Regex urlRegex = new Regex(urlPattern, RegexOptions.IgnoreCase);
+                    var newText = urlRegex.Replace(node.InnerText, "<a href=\"${0}\">${0}</a>")
+                        .Replace("href=\"www", "href=\"http://www")
+                        .Replace("href=\"ftp", "href=\"ftp://ftp");
+                    node.InnerHtml = newText;
+                }
+
+                content = doc.DocumentNode.OuterHtml;
+            }
+            catch (Exception)
+            {
+                // If it failed, then no foul to sanitized comment
+            }
+            return content;
+        }
+
         /// <summary>
         /// 
         /// </summary>

@@ -130,4 +130,8 @@
             }
         </div>
     </nav>
+    @if (Request.IsAuthenticated)
+    {
+        <div id="BannerAlerts"></div>
+    }
 </div>

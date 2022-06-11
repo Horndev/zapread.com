@@ -103,10 +103,17 @@ function Page() {
 
       postJson("/Post/Submit/", msg)
         .then((response) => {
-          //console.log(response);
-          setPostId(response.postId);
-          setNumSaves(numSaves + 1);
-          setIsSaving(false);         // Release the saving lock
+          if (response.success) {
+            setPostId(response.postId);
+            setNumSaves(numSaves + 1);
+            setIsSaving(false);         // Release the saving lock
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: response.message
+            })
+          }
         });
     }
   }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);    // Save the draft if any of these variables update
@@ -192,6 +199,12 @@ function Page() {
           var newPostUrl = "/Post/Detail";
           newPostUrl = newPostUrl + '/' + response.postId;
           window.location.replace(newPostUrl);  // Navigate to the new post
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: response.message
+          })
         }
         document.getElementById("submitnotification").style.display = "none";
       }).catch((error) => {

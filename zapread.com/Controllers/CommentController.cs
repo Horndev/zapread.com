@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -274,7 +275,12 @@ namespace zapread.com.Controllers
                 {
                     return Json(new { success = false, message = "User does not have rights to edit comment." });
                 }
-                comment.Text = SanitizeCommentXSS(c.CommentContent.Replace("<p><br></p>", ""));
+
+                var sanitizedComment = SanitizeCommentXSS(c.CommentContent.Replace("<p><br></p>", ""));
+
+                sanitizedComment = HtmlDocumentHelpers.AutoLink(sanitizedComment);
+
+                comment.Text = sanitizedComment;
                 comment.TimeStampEdited = DateTime.UtcNow;
 
                 var doc = new HtmlDocument();
@@ -339,7 +345,6 @@ namespace zapread.com.Controllers
                 success = true,
             });
         }
-
 
         /// <summary>
         /// Add a comment
@@ -446,11 +451,12 @@ namespace zapread.com.Controllers
                 var doc = new HtmlDocument();
                 doc.LoadHtml(comment.Text);
 
+                //var matches = Regex.Matches(comment.Text, urlRegex, RegexOptions.IgnoreCase);
+
                 // Find user mentions and tags
                 try
                 {
                     // This could just move into the OnComment event and get processed in background?
-
                     comment.Tags = new List<Tag>();
                     var allTags = doc.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
 
@@ -694,6 +700,8 @@ namespace zapread.com.Controllers
             // Sanitize for XSS
             string commentText = c.CommentContent;
             string sanitizedComment = SanitizeCommentXSS(commentText.Replace("<p><br></p>", ""));
+
+            sanitizedComment = HtmlDocumentHelpers.AutoLink(sanitizedComment);
 
             return new Comment()
             {

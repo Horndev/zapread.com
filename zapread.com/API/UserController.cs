@@ -16,6 +16,7 @@ using zapread.com.Database;
 using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
+using zapread.com.Models.Database;
 using zapread.com.Services;
 
 namespace zapread.com.API
@@ -25,6 +26,121 @@ namespace zapread.com.API
     /// </summary>
     public class UserController : ApiController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/banneralerts/dismiss/{id}")]
+        public async Task<IHttpActionResult> DismissBannerAlert(int id)
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var timeNow = DateTime.UtcNow;
+
+                var bannerInfo = await db.BannerAlerts
+                    .Where(b => b.Id == id)
+                    .Select(b => new
+                    {
+                        Banner = b,
+                        IsDismissed = b.DismissedBy.Select(u => u.AppId).Contains(userAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (bannerInfo == null) return NotFound();
+
+                var user = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefaultAsync();
+
+                if (user == null) return NotFound();
+
+                if (!bannerInfo.IsDismissed)
+                {
+                    bannerInfo.Banner.DismissedBy = new List<User> { user };
+
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/banneralerts/snooze/{id}")]
+        public async Task<IHttpActionResult> SnoozeBannerAlert(int id)
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var timeNow = DateTime.UtcNow;
+
+                var banner = await db.BannerAlerts
+                    .FirstOrDefaultAsync(b => b.Id == id);
+
+                if (banner == null) return NotFound();
+
+                if (!banner.IsGlobalSend)
+                {
+                    banner.StartTime = timeNow + TimeSpan.FromDays(1);
+                }
+
+                await db.SaveChangesAsync();
+
+                return Ok(new ZapReadResponse() { success=true });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/user/banneralerts")]
+        public async Task<IHttpActionResult> GetBannerAlerts()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var timeNow = DateTime.UtcNow;
+
+                var banners = await db.BannerAlerts
+                    .Where(a => a.IsGlobalSend || (a.User != null && a.User.AppId == userAppId))
+                    .Where(a => !a.DismissedBy.Select(u => u.AppId).Contains(userAppId))
+                    .Where(a => a.StartTime == null || (a.StartTime != null && a.StartTime.Value < timeNow)) // Only if active
+                    .Where(a => a.DeleteTime == null || (a.DeleteTime != null && a.DeleteTime.Value > timeNow)) // Only if active
+                    .Select(a => new BannerAlertItem()
+                    {
+                        Id = a.Id,
+                        Priority = a.Priority,
+                        Text = a.Text,
+                        Title = a.Title,
+                        IsGlobalSend = a.IsGlobalSend,
+                    })
+                    .ToListAsync();
+
+                return Ok(new GetBannerAlertsResponse()
+                {
+                    Alerts = banners,
+                    success = true
+                });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

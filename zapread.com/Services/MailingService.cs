@@ -293,6 +293,8 @@ namespace zapread.com.Services
                                             msg
                                         };
                                         db.SaveChanges();
+
+                                        //TODO: send update notification to live client
                                     }
                                     else
                                     {

@@ -11,6 +11,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import ZapreadSearch from "../Components/ZapreadSearch";
 import BalanceWidget from '../Components/TopBar/BalanceWidget';
+import BannerAlerts from "../Components/TopBar/BannerAlerts";
 
 /* Top Search */
 var searchEl = document.getElementById("ZRSearch");
@@ -22,6 +23,12 @@ if (searchEl != null) {
 var balanceEl = document.getElementById("ZRBalance");
 if (balanceEl != null) {
   ReactDOM.render(<BalanceWidget />, balanceEl);
+}
+
+/* Banner Alerts */
+var bannerEl = document.getElementById("BannerAlerts");
+if (bannerEl != null) {
+  ReactDOM.render(<BannerAlerts />, bannerEl);
 }
 
 //var DepositModalLoaded = false;

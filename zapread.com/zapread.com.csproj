@@ -926,6 +926,14 @@
     <Compile Include="Migrations\202205311930441_AddQuickVote.designer.cs">
       <DependentUpon>202205311930441_AddQuickVote.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206100027185_AddBannerAlerts.cs" />
+    <Compile Include="Migrations\202206100027185_AddBannerAlerts.designer.cs">
+      <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.cs" />
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.designer.cs">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -982,6 +990,7 @@
     <Compile Include="Models\API\Tag\MentionTagResponse.cs" />
     <Compile Include="Models\API\Tag\TagItem.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
+    <Compile Include="Models\API\User\GetBannerAlertsResponse.cs" />
     <Compile Include="Models\API\User\GetReactionsResponse.cs" />
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
@@ -995,6 +1004,7 @@
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
+    <Compile Include="Models\Database\BannerAlert.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
     <Compile Include="Models\Database\Financial\FundsLock.cs" />
@@ -1229,7 +1239,6 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
-    <Content Include="Scripts\dist\0\9787.js" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
@@ -1355,6 +1364,8 @@
     <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
+    <Content Include="Scripts\src\Components\TopBar\BannerAlert.js" />
+    <Content Include="Scripts\src\Components\TopBar\BannerAlerts.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
@@ -1511,7 +1522,6 @@
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
-    <Content Include="Scripts\dist\0\9787.js.map" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1876,6 +1886,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202205311930441_AddQuickVote.resx">
       <DependentUpon>202205311930441_AddQuickVote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206100027185_AddBannerAlerts.resx">
+      <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.resx">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
