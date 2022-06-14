@@ -1264,6 +1264,28 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        public ActionResult Privacy()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult Terms()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FAQ()
         {
             XFrameOptionsDeny();

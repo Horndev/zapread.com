@@ -715,7 +715,15 @@ namespace zapread.com.Controllers
                 var maxPostComments = maxPosts > maxComments ? maxPosts : maxComments;
                 var maxSpent = spendingStats.Any() ? spendingStats.Max(x => x.Count) : 0;
 
-                return Json(new { postStats, commentStats, spendingStats, maxPostComments, maxSpent }, JsonRequestBehavior.AllowGet);
+                return Json(new 
+                { 
+                    success=true, 
+                    postStats, 
+                    commentStats, 
+                    spendingStats, 
+                    maxPostComments, 
+                    maxSpent 
+                }, JsonRequestBehavior.AllowGet);
             }
         }
 

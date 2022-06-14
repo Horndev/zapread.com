@@ -103,6 +103,7 @@
     "@tippyjs/react": "^4.2.6",
     "animate.css": "^4.1.1",
     "buffer": "^6.0.3",
+    "react-leader-line": "1.0.5",
     "lodash.merge": "^4.6.2",
     "plotly.js": "^2.12.1",
     "react-plotly.js": "^2.5.1",

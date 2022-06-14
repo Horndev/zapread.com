@@ -1243,9 +1243,6 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
-    <Content Include="Scripts\dist\4c9b1fa89f3c892cb2f1.jpg" />
-    <Content Include="Scripts\dist\7dc5492d8e0fe236c1f4.png" />
-    <Content Include="Scripts\dist\a20e5a6fc096da958748.jpg" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
@@ -1279,7 +1276,6 @@
     <Content Include="Scripts\dist\admin\users.css" />
     <Content Include="Scripts\dist\admin\users.js" />
     <Content Include="Scripts\dist\admin\users.js.LICENSE.txt" />
-    <Content Include="Scripts\dist\d89ad2346bdc8f374668.jpg" />
     <Content Include="Scripts\dist\group\detail.css" />
     <Content Include="Scripts\dist\group\detail.js" />
     <Content Include="Scripts\dist\group\detail.js.LICENSE.txt" />
@@ -1386,7 +1382,9 @@
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
     <Content Include="Scripts\src\css\components\zrsearch.css" />
+    <Content Include="Scripts\src\css\pages\about\Blocks.jpg" />
     <Content Include="Scripts\src\css\pages\about\Clouds.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Dots.jpg" />
     <Content Include="Scripts\src\css\pages\about\Network.jpg" />
     <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
     <Content Include="Scripts\src\css\pages\manage\manage.css" />
@@ -1644,6 +1642,7 @@
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\HowItWorks.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\MoreInfo.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Principals.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Mission.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Stats.js" />
@@ -2005,6 +2004,8 @@
     <Content Include="Views\Tag\Detail.cshtml" />
     <EmbeddedResource Include="Views\Mailer\UserMentionedInPost.cshtml" />
     <Content Include="Views\Shared\Locked.cshtml" />
+    <Content Include="Views\Home\Privacy.cshtml" />
+    <Content Include="Views\Home\Terms.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

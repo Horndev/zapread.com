@@ -9,7 +9,7 @@ export default function Principals(props) {
   return (
     <section id="principals">
       <Row className="principals-header">
-        <Col className="text-center">
+        <Col className="text-center wow animate__fadeIn">
           <div className="navy-line"></div>
           <h1>Our Principals</h1>
           <p>Let's build this platform together</p>
@@ -18,7 +18,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>Decentralization of Authority</h2>
             <i className="principal-icon float-right">
               <FontAwesomeIcon icon={faCircleNodes} />
@@ -30,7 +30,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>Freedom of Thought</h2>
             <i className="fa-solid fa-lightbulb principal-icon float-right"></i>
             <p>
@@ -43,7 +43,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>Game-theoretic controls</h2>
             <i className="fa-solid fa-chess principal-icon float-right"></i>
             <p>
@@ -53,7 +53,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>No Paywalls</h2>
             <i className="fa-solid fa-book-open principal-icon float-right"></i>
             <p>
@@ -70,7 +70,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>Bitcoin Focus</h2>
             <i className="fa-brands fa-btc principal-icon float-right"></i>
             <p>
@@ -80,7 +80,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div>
+          <div className="wow animate__zoomIn">
             <h2>Privacy</h2>
             <i className="fa-solid fa-lock principal-icon float-right"></i>
             <p>

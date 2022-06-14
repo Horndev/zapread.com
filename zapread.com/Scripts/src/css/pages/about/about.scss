@@ -12,6 +12,14 @@
     font-weight: 500;
 }
 
+.content-container .stats-plot {
+    min-height: 450px;
+}
+
+.content-container .how-dia-text {
+    font-size: 1rem;
+}
+
 .content-container .navy-line {
     width: 100px;
     height: 1px;
@@ -36,10 +44,37 @@
     margin-bottom: 30px;
 }
 
+.content-container .stats-header {
+    /*background-image: url("./Dots.jpg");*/
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .works-header {
+    /*background-image: url("./Blocks.jpg");*/
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
 .content-container .mission-icon {
     font-size: 40px;
     margin-top: 5px;
     color: #1ab394;
+}
+
+.content-container .how-icon {
+    font-size: 1.5rem;
+    margin-top: 5px;
+    color: #1ab394;
+    display: inline;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .content-container .principal-icon {
@@ -55,4 +90,8 @@
 
 .content-container section.text-left-img-right img {
     border-radius: 5px;
+}
+
+.content-container .card-title {
+    text-align: center;
 }

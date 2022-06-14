@@ -2,38 +2,102 @@
 
 import React, { useEffect, useState } from "react";
 import { Row, Col } from "react-bootstrap";
+import { getJson } from '../../../../utility/getData';
 import PlotlyChart from "../../../../Components/PlotlyChart";
 
 export default function Stats(props) {
+  const [postData, setPostData] = useState({ x: [], y: [] });
+  const [commentData, setCommentData] = useState({ x: [], y: [] });
+  const [spentData, setSpentData] = useState({ x: [], y: [] });
+
+  function formatDate(date) {
+    var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    return [year, month, day].join('-');
+  }
+
+  useEffect(() => {
+    getJson('/Admin/GetPostStats/').then((response) => {
+      if (response.success) {
+        var data0x = [];
+        var data0y = [];
+        var data1x = [];
+        var data1y = [];
+        var data2x = [];
+        var data2y = [];
+
+        response.postStats.forEach(function (s) {
+          data0y.push(s.Count);
+          data0x.push(formatDate(new Date(s.TimeStampUtc )));
+        });
+
+        response.commentStats.forEach(function (s) {
+          data1y.push(s.Count);
+          data1x.push(formatDate(new Date(s.TimeStampUtc )));
+        });
+
+        response.spendingStats.forEach(function (s) {
+          data2y.push(s.Count);
+          data2x.push(formatDate(new Date(s.TimeStampUtc )));
+        });
+
+        console.log({ x: data0x, y: data0y });
+
+        setPostData({ x: data0x, y: data0y });
+        setCommentData({ x: data1x, y: data1y });
+        setSpentData({ x: data2x, y: data2y });
+      } else {
+        console.log(response);
+      }
+    });
+  }, []); // Fire once
 
   var trace1 = {
-    name: 'Sats',
-    x: [0, 1, 2, 3, 4, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],
-    y: [1550, 1233, 1411, 10, 800, 211, 2321, 55, 99, 23, 1550, 1233, 1411, 10, 800, 211, 2321, 55, 99, 23, 1550, 1233, 1411, 10, 800, 211, 2321, 55, 99, 23],
+    name: 'Spent',
+    x: spentData.x,
+    y: spentData.y,
     type: 'scatter',
     fill: 'tozeroy',
     yaxis: 'y2',
+    marker: {
+      color: '#464f8833'
+    }
   };
 
   var trace2 = {
     name: 'Posts',
-    x: [0, 1, 2, 3, 4, 5],
-    y: [1, 8, 4, 23, 12, 19],
-    width: 0.8,
-    type: 'bar'
+    x: postData.x,
+    y: postData.y,
+    width: 0.8 * 1000 * 3600 * 24, //milliseconds
+    type: 'bar',
+    marker: {
+      color: '#1ab39455'
+    }
   };
 
   var trace3 = {
     name: 'Comments',
-    x: [0, 1, 2, 3, 4, 5],
-    y: [1, 2, 1, 2, 3, 4],
-    width: [0.2,0.2,0.2,0.2,0.2,0.2],
-    type: 'bar'
+    x: commentData.x,
+    y: commentData.y,
+    width: 0.3 * 1000 * 3600 * 24, //milliseconds
+    type: 'bar',
+    marker: {
+      color: '#55000055'
+    }
   };
 
   var layout = {
     title: '',
     barmode: 'overlay',
+    xaxis: { type: "date" },
     yaxis: { title: 'Comments and Posts' },
     yaxis2: {
       title: 'Sats spent',
@@ -48,15 +112,17 @@ export default function Stats(props) {
 
   return (
     <section id="stats" className="text-left-img-right">
-      <Row className="mission-header">
-        <Col className="text-center">
+      <Row className="stats-header">
+        <Col className="text-center wow animate__fadeIn">
           <div className="navy-line"></div>
           <h1>Statistics Previous 30 Days</h1>
         </Col>
       </Row>
       <Row>
         <Col className="text-center">
-          <PlotlyChart data={data} layout={layout}/>
+          <div className="stats-plot wow animate__fadeIn">
+            <PlotlyChart data={data} layout={layout} />
+          </div>
         </Col>
       </Row>
     </section>)

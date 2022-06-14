@@ -12,22 +12,17 @@ import Mission from "./Components/Sections/Mission";
 import Principals from "./Components/Sections/Principals";
 import HowItWorks from "./Components/Sections/HowItWorks";
 import Stats from "./Components/Sections/Stats";
-//import $ from 'jquery';
-//import 'jquery';
-//import 'jquery.flot';
-//import 'jquery.flot.tooltip';
-//import 'jquery.flot/jquery.flot.time';
+import MoreInfo from "./Components/Sections/MoreInfo";
 
 import "../../css/pages/about/about.scss";
-
-import 'animate.css/animate.css' // needed for wow
-
+import 'animate.css/animate.css'; // needed for wow
 import '../../shared/sharedlast';
 
 function Page() {
 
   useEffect(() => {
     new WOW.WOW({
+      animateClass: 'animate__animated',//'animated',
       live: false
     }).init();
   }, []); // Fire once
@@ -38,6 +33,7 @@ function Page() {
       <Principals />
       <HowItWorks />
       <Stats />
+      <MoreInfo />
     </div>
   );
 }
