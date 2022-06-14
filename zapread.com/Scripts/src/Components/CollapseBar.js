@@ -31,6 +31,13 @@ export default function CollapseBar(props) {
     }
   }, [isCollapsed]);
 
+  const onToggleCollapse = () => {
+    if (isCollapsed) {
+      if ('onExpand' in props) props.onExpand();
+    }
+    setIsCollapsed(!isCollapsed);
+  }
+
   return (
     <>
       <div className="wrapper wrapper-content " style={isClosed ? { display: "none" } : {}}>
@@ -43,7 +50,7 @@ export default function CollapseBar(props) {
                   {title}
                 </h5>
                 <div className="ibox-tools">
-                  <a className="collapse-link" onClick={() => { setIsCollapsed(!isCollapsed);}}>
+                  <a className="collapse-link" onClick={onToggleCollapse}>
                     <i className={isCollapsed ? "fa-solid fa-chevron-down" : "fa-solid fa-chevron-up"}></i>
                   </a>
                   <a style={props.showClose ? {} : {display: "none"} } className="close-link" onClick={() => {

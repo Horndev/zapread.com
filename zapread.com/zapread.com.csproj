@@ -1107,9 +1107,13 @@
     <Content Include="Content\bootstrap-social.css" />
     <Content Include="Content\bootstrap-tour.min.css" />
     <Content Include="Content\FFFFFF-0.png" />
+    <Content Include="Content\images\AGPL.png" />
+    <Content Include="Content\images\Chats.jpg" />
     <Content Include="Content\images\chosen-sprite%402x.png" />
     <Content Include="Content\images\chosen-sprite.png" />
+    <Content Include="Content\images\FinanceChart.jpg" />
     <Content Include="Content\images\header-profile.png" />
+    <Content Include="Content\images\NetworkGraph.jpg" />
     <Content Include="Content\images\shattered.png" />
     <Content Include="Content\images\ui-icons_444444_256x240.png" />
     <Content Include="Content\images\ui-icons_555555_256x240.png" />
@@ -1239,6 +1243,9 @@
     <Content Include="Scripts\dist\0\9138.js" />
     <Content Include="Scripts\dist\0\9374.css" />
     <Content Include="Scripts\dist\0\9374.js" />
+    <Content Include="Scripts\dist\4c9b1fa89f3c892cb2f1.jpg" />
+    <Content Include="Scripts\dist\7dc5492d8e0fe236c1f4.png" />
+    <Content Include="Scripts\dist\a20e5a6fc096da958748.jpg" />
     <Content Include="Scripts\dist\account\login.css" />
     <Content Include="Scripts\dist\account\login.js" />
     <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
@@ -1272,6 +1279,7 @@
     <Content Include="Scripts\dist\admin\users.css" />
     <Content Include="Scripts\dist\admin\users.js" />
     <Content Include="Scripts\dist\admin\users.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\d89ad2346bdc8f374668.jpg" />
     <Content Include="Scripts\dist\group\detail.css" />
     <Content Include="Scripts\dist\group\detail.js" />
     <Content Include="Scripts\dist\group\detail.js.LICENSE.txt" />
@@ -1360,12 +1368,14 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\PlotlyChart.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
     <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
     <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
     <Content Include="Scripts\src\Components\TopBar\BannerAlert.js" />
     <Content Include="Scripts\src\Components\TopBar\BannerAlerts.js" />
+    <Content Include="Scripts\src\Components\TopBar\ModerationBar.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
@@ -1376,6 +1386,9 @@
     <Content Include="Scripts\src\css\components\autosuggest.css" />
     <Content Include="Scripts\src\css\components\input\input.css" />
     <Content Include="Scripts\src\css\components\zrsearch.css" />
+    <Content Include="Scripts\src\css\pages\about\Clouds.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Network.jpg" />
+    <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
     <Content Include="Scripts\src\css\pages\manage\manage.css" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
@@ -1522,6 +1535,7 @@
     <Content Include="Scripts\dist\0\9138.js.map" />
     <Content Include="Scripts\dist\0\9374.css.map" />
     <Content Include="Scripts\dist\0\9374.js.map" />
+    <Content Include="Scripts\src\css\pages\about\about.scss" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1629,6 +1643,12 @@
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\HowItWorks.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Principals.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Mission.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Stats.js" />
+    <Content Include="Scripts\src\pages\home\privacy.js" />
+    <Content Include="Scripts\src\pages\home\terms.js" />
     <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
@@ -1653,6 +1673,7 @@
     <Content Include="Scripts\src\pages\tag\detail.js" />
     <Content Include="Scripts\src\pages\tag\index.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\plotly\plotly-custom.js" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
     <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
     <None Include="Scripts\src\quill-image-resize-module\image-resize.min.js.bak" />

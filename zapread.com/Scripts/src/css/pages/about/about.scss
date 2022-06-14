@@ -1,0 +1,58 @@
+﻿
+.content-container section {
+    padding-top: 15px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background: #fff;
+    padding-bottom: 50px;
+}
+
+.content-container .mission-subtitle {
+    color: #1ab394;
+    font-weight: 500;
+}
+
+.content-container .navy-line {
+    width: 100px;
+    height: 1px;
+    margin: 60px auto 0;
+    border-bottom: 2px solid #1ab394;
+}
+
+.content-container .mission-header {
+    background-image: url("./Network.jpg");
+    background-size: cover;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .principals-header {
+    background-image: url("./Clouds.jpg");
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .mission-icon {
+    font-size: 40px;
+    margin-top: 5px;
+    color: #1ab394;
+}
+
+.content-container .principal-icon {
+    font-size: 40px;
+    margin-top: 5px;
+    color: #1ab394;
+    padding-left: 30px;
+}
+
+.content-container section.text-left-img-right h2 {
+    text-align: center;
+}
+
+.content-container section.text-left-img-right img {
+    border-radius: 5px;
+}
