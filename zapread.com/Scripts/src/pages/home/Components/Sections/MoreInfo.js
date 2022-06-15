@@ -21,7 +21,6 @@ export default function MoreInfo(props) {
             <Card.Text>
               We value your privacy.  Read about how we protect it.
             </Card.Text>
-            <Card.Link href="/Home/Privacy">Read Policy</Card.Link>
           </Card>
         </Col>
         <Col className="text-center">
@@ -32,8 +31,17 @@ export default function MoreInfo(props) {
             <Card.Text>
               ZapRead is an open platform which gives users great freedom. 
             </Card.Text>
-            <Card.Link href="/Home/Terms">Read Terms</Card.Link>
           </Card>
+        </Col>
+        <Col lg={4}></Col>
+      </Row>
+      <Row>
+        <Col lg={4}></Col>
+        <Col className="text-center">
+          <Card.Link className="btn btn-sm btn-link" href="/Home/Privacy">Read Policy</Card.Link>
+        </Col>
+        <Col className="text-center">
+          <Card.Link className="btn btn-sm btn-link" href="/Home/Terms">Read Terms</Card.Link>
         </Col>
         <Col lg={4}></Col>
       </Row>

@@ -1,9 +1,41 @@
 ﻿
+@import "../../base/variables";
+@import "../../themes/themes";
+@import "../../themes/color-themes";
+
+/*.content-container {
+    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), url("./Lightning.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed !important;
+    background-size: 100% !important;
+    background-position: center top !important;
+    padding: 1rem;
+    padding-top: 45%;
+}*/
+
+.content-container {
+    @include themed() {
+        color: t($body-text);
+    }
+}
+
+.content-container .card {
+    @include themed() {
+        color: t($body-text);
+        background: t($ibox-bg);
+        border: none;
+    }
+}
+
 .content-container section {
+    @include themed() {
+        background: t($ibox-bg);
+    }
+
     padding-top: 15px;
     margin-left: 5px;
     margin-right: 5px;
-    background: #fff;
+    /*background: #fff;*/
     padding-bottom: 50px;
 }
 
@@ -28,7 +60,10 @@
 }
 
 .content-container .mission-header {
-    background-image: url("./Network.jpg");
+    @include themed() {
+        background-image: linear-gradient(t($bg-image-header), t($bg-image-header)), url("./Network.jpg");
+    }
+
     background-size: cover;
     margin-left: 15px;
     margin-right: 15px;
@@ -36,7 +71,9 @@
 }
 
 .content-container .principals-header {
-    background-image: url("./Clouds.jpg");
+    @include themed() {
+        background-image: linear-gradient(t($bg-image-header), t($bg-image-header)), url("./Clouds.jpg");
+    }
     background-size: cover;
     background-position: center;
     margin-left: 15px;
@@ -45,7 +82,6 @@
 }
 
 .content-container .stats-header {
-    /*background-image: url("./Dots.jpg");*/
     background-size: cover;
     background-position: center;
     margin-left: 15px;
@@ -54,7 +90,6 @@
 }
 
 .content-container .works-header {
-    /*background-image: url("./Blocks.jpg");*/
     background-size: cover;
     background-position: center;
     margin-left: 15px;

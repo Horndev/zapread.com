@@ -16,8 +16,7 @@ import {
   faStar,
   faCoins,
   faTrophy,
-  faHeart,
-  faPeopleGroup
+  faHeart
 } from '@fortawesome/free-solid-svg-icons'
 import LeaderLine from "react-leader-line";
 
@@ -35,7 +34,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'right',
         endSocket: 'left',
-        endLabel: LeaderLine.captionLabel('60%'),
+        endLabel: LeaderLine.captionLabel('60%', { outlineColor: '' }),
         size: 6,
         dash: {
           animation: true
@@ -47,7 +46,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'right',
         endSocket: 'left',
-        endLabel: LeaderLine.captionLabel('20%'),
+        endLabel: LeaderLine.captionLabel('20%', { outlineColor: '' }),
         size: 4,
         dash: {
           animation: true
@@ -59,7 +58,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'right',
         endSocket: 'left',
-        endLabel: LeaderLine.captionLabel('10%'),
+        endLabel: LeaderLine.captionLabel('10%', { outlineColor: '' }),
         size: 3,
         dash: {
           animation: true
@@ -71,7 +70,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'right',
         endSocket: 'left',
-        endLabel: LeaderLine.captionLabel('10%'),
+        endLabel: LeaderLine.captionLabel('10%', { outlineColor: '' }),
         size: 3,
         dash: {
           animation: true
@@ -83,7 +82,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'left',
         endSocket: 'right',
-        endLabel: LeaderLine.captionLabel('80%'),
+        endLabel: LeaderLine.captionLabel('80%', { outlineColor: '' }),
         size: 8,
         dash: {
           animation: true
@@ -95,7 +94,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'left',
         endSocket: 'right',
-        endLabel: LeaderLine.captionLabel('10%'),
+        endLabel: LeaderLine.captionLabel('10%', { outlineColor: '' }),
         size: 3,
         dash: {
           animation: true
@@ -107,7 +106,7 @@ export default function HowItWorks(props) {
         color: "#1ab394",
         startSocket: 'left',
         endSocket: 'right',
-        endLabel: LeaderLine.captionLabel('10%'),
+        endLabel: LeaderLine.captionLabel('10%', { outlineColor: '' }),
         size: 3,
         dash: {
           animation: true
@@ -134,6 +133,7 @@ export default function HowItWorks(props) {
                 Earn your first (or 21st) Bitcoin here.
               </div>
             </Col>
+            <Col md={2}></Col>
             <Col className="text-center">
               <div className="wow animate__zoomIn">
                 {/*<i className="fa-solid fa-users mission-icon"></i>*/}
@@ -160,6 +160,13 @@ export default function HowItWorks(props) {
             </Col>
           </Row>
           <Row>
+            <Col md={2}></Col>
+            <Col className="text-center">
+              <h3>Every day, funds collected in the Group and Community are paid out to the top authors.</h3>
+            </Col>
+            <Col md={2}></Col>
+          </Row>
+          <Row>
             <Col>
               <Card className="wow animate__zoomIn">
                 <Card.Body>
@@ -170,17 +177,12 @@ export default function HowItWorks(props) {
                   </Card.Title>
                 </Card.Body>
                 <Card.Text>
-                  Earning upvotes on your comments and posts increases your reputation.  Users voting down reduces your reputation.
+                  Earning upvotes on your comments and posts increases your reputation.
+                  Receiving downvotes reduces your reputation.
 
                   The higher your reputation: <br />
-                  <ul>
-                    <li>
-                      the more your votes count in adjusting the score.
-                    </li>
-                    <li>
-                      the more weight your posts and comments have from downvotes.
-                    </li>
-                  </ul>
+                  • The more your votes count in adjusting the score. <br />
+                  • The more weight your posts and comments have from downvotes. <br />
                 </Card.Text>
               </Card>
             </Col>
@@ -238,11 +240,11 @@ export default function HowItWorks(props) {
                 </Card.Body>
                 <Card.Text>
                   Groups are sub-communities with administrators and moderators.  A portion of group revenue goes into a group fund which moderators can use to curate group content.
-
-                  <h3>Admins</h3>
+                  <br /><br />
+                  <b>Admins</b><br />
                   Group administrators can configure the style of the group, grand and revoke moderation privilages
-
-                  <h3>Mods</h3>
+                  <br /><br />
+                  <b>Mods</b><br />
                   Group moderators are curators, not censors.  They can promote content, manage community guidelines, and handle any issues within the group.
                 </Card.Text>
               </Card>
@@ -258,7 +260,7 @@ export default function HowItWorks(props) {
                 <Card.Text>
                   You earn reactions when you unlock achievements.
                   You can add reactions to posts and comments as a quick and fun interaction.  Posts with more users reacting are more likely to be brought to the top for more exposure.
-
+                  <br />
                   You will also be able to purchase reactions from the ZapRead store.
                 </Card.Text>
               </Card>
