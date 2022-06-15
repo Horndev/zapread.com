@@ -30,6 +30,8 @@ module.exports = {
     home_faq:       "./Scripts/src/pages/home/faq.js",
     home_index:     "./Scripts/src/pages/home/index.js",
     home_install:   "./Scripts/src/pages/home/install.js",
+    home_privacy:   "./Scripts/src/pages/home/privacy.js",
+    home_terms:     "./Scripts/src/pages/home/terms.js",
     lnauth_login:   "./Scripts/src/pages/lnauth/login.js",
     mailer_default: "./Scripts/src/pages/mailer/default.js",
     manage_apikeys: "./Scripts/src/pages/manage/apikeys.js",
@@ -89,7 +91,10 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
-            loader: MiniCssExtractPlugin.loader
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '../'
+            }
           },
           {
             loader: "css-loader"
@@ -116,18 +121,30 @@ module.exports = {
         exclude: /node_modules/ //excludes node_modules folder from being transpiled by babel. We do this because it's a waste of resources to do so.
       },
       {
-        test: /\.(png|jpe?g|gif)$/,
+        test: /\.(png|jpe?g|gif)$/i,
+        dependency: { not: ['url'] },
         use: [
           {
-            loader: "file-loader",
+            loader: 'url-loader',
             options: {
-              name: "[name].[ext]",
-              outputPath: "../../Content/images",
-              publicPath: "/Content/images"
-            }
-          }
-        ]
+              limit: 8192,
+            },
+          },
+        ],
       },
+      //{
+      //  test: /\.(png|jpe?g|gif)$/,
+      //  use: [
+      //    {
+      //      loader: "file-loader",
+      //      options: {
+      //        name: "[name].[ext]",
+      //        outputPath: "../../Content/images",
+      //        publicPath: "/Content/images"
+      //      }
+      //    }
+      //  ]
+      //},
       {
         test: /\.svg$/,
         use: [
@@ -179,7 +196,7 @@ module.exports = {
           console.log(c);
         }
         return "[id].css";
-      }
+      },
     }),
     //new PurgeCSSPlugin({
     //  paths: glob.sync([

@@ -2,6 +2,7 @@
 
 $themes: ( 
     default: ( 
+        bg-image-header: rgba(255, 255, 255, 0),
         zr-primary: #1ab394,
         bg: $gray,
         bg-post: $gray,
@@ -39,6 +40,7 @@ $themes: (
         tab-bg-active-text: #495057,
     ), 
     dark: (
+        bg-image-header: rgba(0, 0, 0, 0.5),
         zr-primary: #1ab394,
         bg: #000,
         bg-post: $gray,

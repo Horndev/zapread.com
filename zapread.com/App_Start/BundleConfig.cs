@@ -82,6 +82,8 @@ namespace zapread.com
             BundlePage(bundles, "home", "faq");
             BundlePage(bundles, "home", "install");
             BundlePage(bundles, "home", "index");
+            BundlePage(bundles, "home", "privacy");
+            BundlePage(bundles, "home", "terms");
             BundlePage(bundles, "lnauth", "login");
             BundlePage(bundles, "mailer", "default");
             BundlePage(bundles, "manage", "apikeys");

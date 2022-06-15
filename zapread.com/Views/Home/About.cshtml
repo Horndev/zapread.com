@@ -2,7 +2,9 @@
     ViewBag.Title = "About";
 }
 
-<div class="wrapper border-bottom white-bg page-heading">
+<div id="root"></div>
+
+@*<div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
         <h2>About</h2>
@@ -14,11 +16,11 @@
     </div>
     <div class="col-lg-2">
     </div>
-</div>
+</div>*@
 
-@Html.Partial(partialViewName: "_PartialSummaryStatistics");
+@*@Html.Partial(partialViewName: "_PartialSummaryStatistics");*@
 
-<div class="row justify-content-md-center">
+@*<div class="row justify-content-md-center">
     <div class="col-lg-10">
         <div class="ibox">
             <div class="ibox-content">
@@ -126,7 +128,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 @section Styles {
     @Styles.Render("~/bundles/home/about/css")

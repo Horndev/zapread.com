@@ -1,0 +1,132 @@
+﻿
+@import "../../base/variables";
+@import "../../themes/themes";
+@import "../../themes/color-themes";
+
+/*.content-container {
+    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), url("./Lightning.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed !important;
+    background-size: 100% !important;
+    background-position: center top !important;
+    padding: 1rem;
+    padding-top: 45%;
+}*/
+
+.content-container {
+    @include themed() {
+        color: t($body-text);
+    }
+}
+
+.content-container .card {
+    @include themed() {
+        color: t($body-text);
+        background: t($ibox-bg);
+        border: none;
+    }
+}
+
+.content-container section {
+    @include themed() {
+        background: t($ibox-bg);
+    }
+
+    padding-top: 15px;
+    margin-left: 5px;
+    margin-right: 5px;
+    /*background: #fff;*/
+    padding-bottom: 50px;
+}
+
+.content-container .mission-subtitle {
+    color: #1ab394;
+    font-weight: 500;
+}
+
+.content-container .stats-plot {
+    min-height: 450px;
+}
+
+.content-container .how-dia-text {
+    font-size: 1rem;
+}
+
+.content-container .navy-line {
+    width: 100px;
+    height: 1px;
+    margin: 60px auto 0;
+    border-bottom: 2px solid #1ab394;
+}
+
+.content-container .mission-header {
+    @include themed() {
+        background-image: linear-gradient(t($bg-image-header), t($bg-image-header)), url("./Network.jpg");
+    }
+
+    background-size: cover;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .principals-header {
+    @include themed() {
+        background-image: linear-gradient(t($bg-image-header), t($bg-image-header)), url("./Clouds.jpg");
+    }
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .stats-header {
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .works-header {
+    background-size: cover;
+    background-position: center;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 30px;
+}
+
+.content-container .mission-icon {
+    font-size: 40px;
+    margin-top: 5px;
+    color: #1ab394;
+}
+
+.content-container .how-icon {
+    font-size: 1.5rem;
+    margin-top: 5px;
+    color: #1ab394;
+    display: inline;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.content-container .principal-icon {
+    font-size: 40px;
+    margin-top: 5px;
+    color: #1ab394;
+    padding-left: 30px;
+}
+
+.content-container section.text-left-img-right h2 {
+    text-align: center;
+}
+
+.content-container section.text-left-img-right img {
+    border-radius: 5px;
+}
+
+.content-container .card-title {
+    text-align: center;
+}
