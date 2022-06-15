@@ -7,6 +7,7 @@ import '../../realtime/signalr';
 
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { Row, Col } from "react-bootstrap";
 
 import '../../shared/sharedlast';
 
