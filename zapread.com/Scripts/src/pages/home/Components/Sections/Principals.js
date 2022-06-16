@@ -18,7 +18,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>Decentralization of Authority</h2>
             <i className="principal-icon float-right">
               <FontAwesomeIcon icon={faCircleNodes} />
@@ -30,7 +30,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>Freedom of Thought</h2>
             <i className="fa-solid fa-lightbulb principal-icon float-right"></i>
             <p>
@@ -43,7 +43,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>Game-theoretic controls</h2>
             <i className="fa-solid fa-chess principal-icon float-right"></i>
             <p>
@@ -53,7 +53,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>No Paywalls</h2>
             <i className="fa-solid fa-book-open principal-icon float-right"></i>
             <p>
@@ -70,7 +70,7 @@ export default function Principals(props) {
       <Row>
         <Col md={1}></Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>Bitcoin Focus</h2>
             <i className="fa-brands fa-btc principal-icon float-right"></i>
             <p>
@@ -80,7 +80,7 @@ export default function Principals(props) {
           </div>
         </Col>
         <Col lg={4} className="text-center mx-5">
-          <div className="wow animate__zoomIn">
+          <div className="wow animate__fadeIn">
             <h2>Privacy</h2>
             <i className="fa-solid fa-lock principal-icon float-right"></i>
             <p>

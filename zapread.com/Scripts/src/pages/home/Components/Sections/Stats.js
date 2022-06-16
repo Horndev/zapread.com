@@ -49,8 +49,6 @@ export default function Stats(props) {
           data2x.push(formatDate(new Date(s.TimeStampUtc )));
         });
 
-        console.log({ x: data0x, y: data0y });
-
         setPostData({ x: data0x, y: data0y });
         setCommentData({ x: data1x, y: data1y });
         setSpentData({ x: data2x, y: data2y });

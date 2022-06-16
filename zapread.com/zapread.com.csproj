@@ -1396,6 +1396,7 @@
     <Content Include="Scripts\src\css\pages\about\Blocks.jpg" />
     <Content Include="Scripts\src\css\pages\about\Clouds.jpg" />
     <Content Include="Scripts\src\css\pages\about\Dots.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Lightning.jpg" />
     <Content Include="Scripts\src\css\pages\about\Network.jpg" />
     <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
     <Content Include="Scripts\src\css\pages\manage\manage.css" />
@@ -1660,6 +1661,7 @@
     <Content Include="Scripts\src\pages\home\Components\Sections\MoreInfo.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Principals.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Mission.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Signup.js" />
     <Content Include="Scripts\src\pages\home\Components\Sections\Stats.js" />
     <Content Include="Scripts\src\pages\home\privacy.js" />
     <Content Include="Scripts\src\pages\home\terms.js" />

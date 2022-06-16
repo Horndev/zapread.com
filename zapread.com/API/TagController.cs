@@ -219,7 +219,7 @@ namespace zapread.com.API
                     .AnyAsync(t => t.TagName.ToUpper() == searchTerm.ToUpper());
 
                 var tags = await db.Tags
-                    .Where(t => t.TagName.ToUpper() == searchTerm.ToUpper() || t.TagName.ToUpper().StartsWith(searchTerm.ToUpper()))
+                    .Where(t => t.TagName.Contains(searchTerm))
                     .OrderByDescending(t => t.Posts.Count())
                     .Select(u => new TagItem()
                     {

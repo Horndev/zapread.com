@@ -11,12 +11,7 @@ import {
   faChevronDown,
   faUsers,
   faUserGroup,
-  faWarehouse,
-  faMedal,
-  faStar,
-  faCoins,
-  faTrophy,
-  faHeart
+  faWarehouse
 } from '@fortawesome/free-solid-svg-icons'
 import LeaderLine from "react-leader-line";
 
@@ -28,6 +23,9 @@ export default function HowItWorks(props) {
     var group = document.getElementById("group");
     var community = document.getElementById("community");
     var platform = document.getElementById("platform");
+    var platformText = document.getElementById("platform-text");
+    var referring = document.getElementById("referring");
+    var referred = document.getElementById("referred");
 
     new LeaderLine(up, author,
       {
@@ -112,6 +110,36 @@ export default function HowItWorks(props) {
           animation: true
         }
       });
+
+    new LeaderLine(platformText, referring,
+      {
+        color: "#1ab394",
+        startSocket: 'bottom',
+        endSocket: 'right',
+        path: "straight",
+        //startSocketGravity: [-100, 100],
+        //endSocketGravity: [40, -10],
+        endLabel: LeaderLine.captionLabel('5%', { outlineColor: '', offset: [0, -40] }),
+        size: 3,
+        dash: {
+          animation: true
+        }
+      });
+
+    new LeaderLine(platformText, referred,
+      {
+        color: "#1ab394",
+        startSocket: 'bottom',
+        endSocket: 'left',
+        path: "straight",
+        //startSocketGravity: [100, 100],
+        //endSocketGravity: [-40, -10],
+        endLabel: LeaderLine.captionLabel('5%', { outlineColor: '', offset: [-20, -40] }),
+        size: 3,
+        dash: {
+          animation: true
+        }
+      });
   }, []); // Fire once
 
   return (
@@ -127,7 +155,7 @@ export default function HowItWorks(props) {
         <Col>
           <Row>
             <Col className="text-center">
-              <div className="wow animate__zoomIn">
+              <div className="wow animate__fadeIn">
                 {/*<i className="fa-solid fa-users mission-icon"></i>*/}
                 <span className="wow animate__bounceIn"><b>Completely free</b></span> to join and start publishing! <br />
                 Earn your first (or 21st) Bitcoin here.
@@ -135,7 +163,7 @@ export default function HowItWorks(props) {
             </Col>
             <Col md={2}></Col>
             <Col className="text-center">
-              <div className="wow animate__zoomIn">
+              <div className="wow animate__fadeIn">
                 {/*<i className="fa-solid fa-users mission-icon"></i>*/}
                 Publish your content in posts and discuss published content with others.
                 Users vote on posts and comments using Bitcoin on the Lightning Network.
@@ -153,118 +181,29 @@ export default function HowItWorks(props) {
               <br />
               <div id="community" className="how-icon"><FontAwesomeIcon icon={faUsers} /></div><br /> Community
               <br />
-              <div id="platform" className="how-icon"><FontAwesomeIcon icon={faWarehouse} /></div><br /> Platform
+              <div id="platform" className="how-icon"><FontAwesomeIcon icon={faWarehouse} /></div><br /> <div id="platform-text">Platform</div>
             </Col>
             <Col className="align-self-center text-center">
               <div id="down" className="how-icon"><FontAwesomeIcon icon={faChevronDown} /></div><br/><span className="how-dia-text">Downvote</span>
             </Col>
           </Row>
           <Row>
+            <Col className="align-self-center text-center"></Col>
+            <Col className="text-center">
+              <div id="referring" className="how-icon"><FontAwesomeIcon icon={faUser} /></div><br />Referring User
+            </Col>
+            <Col className="text-center">
+              <div id="referred" className="how-icon"><FontAwesomeIcon icon={faUser} /></div><br />Referred User
+            </Col>
+            <Col className="align-self-center text-center"></Col>
+          </Row>
+          <Row>
             <Col md={2}></Col>
             <Col className="text-center">
+              <br/>
               <h3>Every day, funds collected in the Group and Community are paid out to the top authors.</h3>
             </Col>
             <Col md={2}></Col>
-          </Row>
-          <Row>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faStar} /></span>
-                    <br/>
-                    Reputation
-                  </Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  Earning upvotes on your comments and posts increases your reputation.
-                  Receiving downvotes reduces your reputation.
-
-                  The higher your reputation: <br />
-                  • The more your votes count in adjusting the score. <br />
-                  • The more weight your posts and comments have from downvotes. <br />
-                </Card.Text>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faMedal} /></span>
-                    <br />
-                    Score</Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  Recent and higher scoring content will be brought to the top for more exposure.
-
-                  Older and lower scoring content will be less visible.
-                </Card.Text>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faCoins} /></span>
-                    <br />
-                    Earning</Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  The more frequently you post high quality content, the more you can earn, and the higher your reputation.  Spam and low quality content will not earn you as much Bitcoin.
-
-                </Card.Text>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faTrophy} /></span>
-                    <br />
-                    Achievements</Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  There are several achievements on ZapRead that can be unlocked.  The more you explore the website, the more achievements you may discover.
-                </Card.Text>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faUserGroup} /></span>
-                    <br />
-                    Groups</Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  Groups are sub-communities with administrators and moderators.  A portion of group revenue goes into a group fund which moderators can use to curate group content.
-                  <br /><br />
-                  <b>Admins</b><br />
-                  Group administrators can configure the style of the group, grand and revoke moderation privilages
-                  <br /><br />
-                  <b>Mods</b><br />
-                  Group moderators are curators, not censors.  They can promote content, manage community guidelines, and handle any issues within the group.
-                </Card.Text>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="wow animate__zoomIn">
-                <Card.Body>
-                  <Card.Title>
-                    <span className="mission-icon"><FontAwesomeIcon icon={faHeart} /></span>
-                    <br />
-                    Reactions</Card.Title>
-                </Card.Body>
-                <Card.Text>
-                  You earn reactions when you unlock achievements.
-                  You can add reactions to posts and comments as a quick and fun interaction.  Posts with more users reacting are more likely to be brought to the top for more exposure.
-                  <br />
-                  You will also be able to purchase reactions from the ZapRead store.
-                </Card.Text>
-              </Card>
-            </Col>
           </Row>
         </Col>
         <Col md={2}></Col>

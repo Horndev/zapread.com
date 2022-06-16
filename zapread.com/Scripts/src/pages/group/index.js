@@ -25,7 +25,7 @@ function Page() {
     updateUserInfo({
       isAuthenticated: window.IsAuthenticated
     });
-    console.log("IsAuthenticated", window.IsAuthenticated)
+    //console.log("IsAuthenticated", window.IsAuthenticated)
   }, []); // Fire once
 
   return (
