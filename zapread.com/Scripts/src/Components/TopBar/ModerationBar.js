@@ -37,7 +37,6 @@ export default function ModerationBar(props) {
         <h2>
           Group Moderation
         </h2>
-
       </CollapseBar>
     </>
   );
