@@ -29,6 +29,10 @@
 
 /*Comments*/
 /* This style sets the comment input editor to not be too large as is the default quill style*/
+.ql-tooltip {
+    z-index: 1030;
+}
+
 .ql-comment .ql-editor {
     min-height: 20px;
     background-color: #fff !important;
