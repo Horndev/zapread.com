@@ -50,11 +50,11 @@
                 }
                 else
                 {
-                    <li>
+                    @*<li>
                         <button class="btn btn-link btn-sm" type="submit" onclick="alert('Not yet implemented.')"><i class="fa fa-globe"></i> Translate</button>
-                    </li>
+                    </li>*@
                     <li>
-                        <button class="btn btn-link btn-sm" type="submit"><i class="fa fa-flag"></i> Report Spam</button>
+                        <button class="btn btn-link btn-sm" type="submit" onclick=""><i class="fa fa-flag"></i> Report Spam</button>
                     </li>
                 }
                 @if (User != null && User.IsInRole("Administrator"))

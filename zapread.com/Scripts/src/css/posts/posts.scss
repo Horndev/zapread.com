@@ -3,6 +3,22 @@
 @import "../themes/themes";
 @import "../themes/color-themes";
 
+/*make dropdown buttons highlight input primary color when active*/
+
+.zr-btn.btn-primary:not(:disabled):not(.disabled):active {
+    @include themed() {
+        background-color: t($zr-primary);
+        border-color: t($zr-primary);
+    }
+}
+
+.social-action.show > .btn-primary.dropdown-toggle {
+    @include themed() {
+        background-color: t($zr-primary);
+        border-color: t($zr-primary);
+    }
+}
+
 .field input::placeholder,
 .field input::-ms-input-placeholder {
     @include themed() {
@@ -209,12 +225,15 @@
     padding: 5px 0 0 5px;
     /*background: #f9f9f9;*/
     padding-right: 0;
+    border-bottom-right-radius: 10px;
 }
 
 .social-footer .media-body {
     @include themed() {
         background: t($comment-bg);
     }
+
+    border-bottom-right-radius: 10px;
 }
 
 /*.social-footer-reply .social-comment img {*/

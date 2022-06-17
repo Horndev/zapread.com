@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using zapread.com.Models.Database.Financial;
 
 namespace zapread.com.Models.Database
 {
@@ -103,6 +104,11 @@ namespace zapread.com.Models.Database
         /// Group can add a background image over the header.
         /// </summary>
         public UserImage GroupHeaderImage { get; set; }
+
+        /// <summary>
+        /// Funds which can be used by moderators and admins
+        /// </summary>
+        public virtual UserFunds Funds { get; set; }
 
         /// <summary>
         /// 

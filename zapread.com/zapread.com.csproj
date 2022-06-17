@@ -934,6 +934,10 @@
     <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.designer.cs">
       <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.cs" />
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.designer.cs">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -975,7 +979,10 @@
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
     <Compile Include="Models\API\Post\AddReactionRequest.cs" />
     <Compile Include="Models\API\Post\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostsRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostsResponse.cs" />
     <Compile Include="Models\API\Post\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\Post\PostReportRequest.cs" />
     <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
@@ -1020,6 +1027,7 @@
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
+    <Compile Include="Models\Database\UserContentReport.cs" />
     <Compile Include="Models\Database\UserMessage.cs" />
     <Compile Include="Models\Database\UserProcess.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
@@ -1385,6 +1393,7 @@
     <Content Include="Scripts\src\Components\TopBar\ModerationBar.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
+    <Content Include="Scripts\src\Components\utility\reportUserContent.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
     <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1930,6 +1939,9 @@
     <EmbeddedResource Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.resx">
       <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206161921353_AddUserContentReports.resx">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
@@ -2027,6 +2039,7 @@
   <ItemGroup>
     <Folder Include="Images\" />
     <Folder Include="Models\Finance\" />
+    <Folder Include="Scripts\src\Components\Post\" />
     <Folder Include="Scripts\src\quill\quill-table\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Groups\" />

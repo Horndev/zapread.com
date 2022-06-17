@@ -10,6 +10,11 @@ import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-ro
 import { Container, Row, Col, DropdownButton, Dropdown, ButtonGroup, Button } from "react-bootstrap";
 import { postJson } from "../../utility/postData";
 import { ISOtoRelative } from "../../utility/datetime/posttime"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faArrowDown,
+  faCircleNotch
+} from '@fortawesome/free-solid-svg-icons'
 import JoinLeaveButton from "./Components/JoinLeaveButton";
 import IgnoreButton from "./Components/IgnoreButton";
 import PageHeading from "../../Components/PageHeading";
@@ -77,10 +82,6 @@ function Page() {
         groupName: pgroupname,
         blockNumber: postBlockNumber
       }).then((response) => {
-        if (document.querySelectorAll('#loadmore').length) {
-          document.querySelectorAll('#loadmore').item(0).style.display = 'none';
-          document.querySelectorAll('#btnLoadmore').item(0).disabled = false;
-        }
         if (response.success) {
           var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
           setPosts(postlist);
@@ -88,11 +89,6 @@ function Page() {
           setHasMorePosts(response.HasMorePosts);
           if (response.HasMorePosts) {
             setPostBlockNumber(postBlockNumber + 1);
-          }
-          else {
-            if (document.querySelectorAll('#loadmore').length) {
-              document.querySelectorAll('#loadmore').item(0).style.display = 'none';
-            }
           }
         }
         setIsLoadingPosts(false);
@@ -228,7 +224,7 @@ function Page() {
         </div>}>
         <GroupModBar id={groupId} tier={groupTier}/>
       </Suspense>) : (<></>)}
-      <div className="wrapper wrapper-content ">
+      <div className="wrapper wrapper-content">
         <div className="row">
           <div className="col-sm-2"></div>
           <div className="col-lg-8">
@@ -250,16 +246,21 @@ function Page() {
                 <PostList
                   posts={posts}
                   isLoggedIn={isLoggedIn}
-                  isGroupMod={isGroupMod}
-                  hasMorePosts={hasMorePosts}
-                  onMorePosts={() => { getMorePosts(); } } />
+                  isGroupMod={isGroupMod} />
+
+                {hasMorePosts ? (
+                  <div className="social-feed-box-nb">
+                    <Button block variant="primary" onClick={() => { getMorePosts(); }}>
+                      <FontAwesomeIcon icon={faArrowDown} />{" "}Show More{" "}
+                      {isLoadingPosts ? (<><FontAwesomeIcon icon={faCircleNotch} spin /></>) : (<></>)}
+                    </Button>
+                  </div>
+                ) : (<></>)}
+
               </Suspense>
             </>) : (<><LoadingBounce/></>)}
-            <div className="social-feed-box-nb">
-              <span></span>
-            </div>
-            <div className="social-feed-box-nb" style={{marginBottom: "50px"}}>
-              <span></span>
+            <div className="social-feed-box-nb"><span></span></div>
+            <div className="social-feed-box-nb" style={{marginBottom: "70px"}}><span></span>
             </div>
           </div>
         </div>

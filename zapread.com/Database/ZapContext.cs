@@ -48,6 +48,7 @@ namespace zapread.com.Database
         public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
         public DbSet<LNNode> LNNodes { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
+        public DbSet<UserContentReport> UserContentReports { get; set; }
 
         /// <summary>
         /// Reactions used for posts and comments

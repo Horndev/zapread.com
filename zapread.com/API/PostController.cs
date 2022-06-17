@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,6 +15,7 @@ using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Post;
 using zapread.com.Models.Database;
+using static zapread.com.Helpers.QueryHelpers;
 
 namespace zapread.com.API
 {
@@ -22,6 +24,118 @@ namespace zapread.com.API
     /// </summary>
     public class PostController : ApiController
     {
+        /// <summary>
+        /// Report a post
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/report")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> Report(PostReportRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+
+
+                return Ok();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/post/feed")]
+        public async Task<IHttpActionResult> GetPosts(GetPostsRequest req)
+        {
+            if (req == null) { return BadRequest(); }
+
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+
+                int BlockSize = req.BlockSize ?? 10;
+
+                int BlockNumber = req.BlockNumber ?? 0;
+
+                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
+                    .Select(u => new QueryHelpers.PostQueryUserInfo()
+                    {
+                        Id = u.Id,
+                        AppId = u.AppId,
+                        ViewAllLanguages = u.Settings.ViewAllLanguages,
+                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
+                        IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(),
+                    })
+                    .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
+                    userLanguages: null,
+                    db: db,
+                    userInfo: userInfo);
+
+                IQueryable<PostQueryInfo> postquery = null;
+
+                switch (req.Sort)
+                {
+                    case "Score":
+                        postquery = QueryHelpers.OrderPostsByScore(validposts);
+                        break;
+
+                    case "Active":
+                        postquery = QueryHelpers.OrderPostsByActive(validposts);
+                        break;
+
+                    default:
+                        postquery = QueryHelpers.OrderPostsByNew(validposts: validposts);
+                        break;
+                }
+
+                var postsVm = await QueryHelpers.QueryPostsVm(
+                    start: BlockNumber * BlockSize,
+                    count: BlockSize,
+                    postquery: postquery,
+                    userInfo: userInfo,
+                    limitComments: true)
+                    .ConfigureAwait(false);
+
+                // Make images lazy TODO: apply this when submitting new posts
+                postsVm.ForEach(post =>
+                {
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(post.Content);
+
+                    var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
+                    if (postImages != null)
+                    {
+                        foreach (var postImage in postImages)
+                        {
+                            postImage.SetAttributeValue("loading", "lazy");
+                        }
+                        post.Content = postDocument.DocumentNode.OuterHtml;
+                    }
+                });
+
+                var response = new GetPostsResponse()
+                {
+                    HasMorePosts = postquery.Count() >= BlockNumber * BlockSize,
+                    Posts = postsVm,
+                    success = true,
+                };
+
+                return Ok(response);
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
