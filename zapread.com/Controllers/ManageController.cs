@@ -965,8 +965,6 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 var img = await db.Images
-                    .Where(i => i.UserAppId == userAppId)
-                    .Where(i => i.Version == userImage.Version)
                     .Where(i => i.ImageId == userImage.ImageId)
                     .FirstOrDefaultAsync()
                     .ConfigureAwait(true);

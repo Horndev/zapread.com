@@ -2,8 +2,8 @@
  * Modal user interface for gifting referral.
  */
 
-import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
-import { Modal, Form, Row, Col, Button, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Modal, Form, Button, Card } from "react-bootstrap";
 import { postJson } from '../../utility/postData';
 const getSwal = () => import('sweetalert2');
 
@@ -11,7 +11,6 @@ export default function UpdateEmailModal(props) {
   const [show, setShow] = useState(props.show);
   const [showSpinner, setShowSpinner] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [userName, setUserName] = useState("");
   const [userCurrentEmail, setUserCurrentEmail] = useState("");
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export default function UpdateEmailModal(props) {
       setUserCurrentEmail(json.Email);
     }
     initialize();
-
   }, []);
 
   const handleClose = () => {

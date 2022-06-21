@@ -2,6 +2,17 @@
 @import "../../themes/themes";
 @import "../../themes/color-themes";
 
+.group-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/*table td wrapped*/
+.zr-tdw {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
 .selectr-tag {
     background: #1AB394;
 }

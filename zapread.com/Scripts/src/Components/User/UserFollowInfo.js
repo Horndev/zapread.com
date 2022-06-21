@@ -3,7 +3,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Dropdown, Form } from "react-bootstrap";
 
 export default function UserFollowInfo(props) {
   const [followers, setFollowers] = useState([]);
@@ -11,7 +10,6 @@ export default function UserFollowInfo(props) {
 
   useEffect(() => {
     async function initialize() {
-
       await fetch("/api/v1/user/followinfo").then(response => {
         return response.json();
       }).then(data => {
@@ -27,10 +25,10 @@ export default function UserFollowInfo(props) {
       <div className="ibox float-e-margins">
         <div className="ibox-content profile-content">
           <h3>You are subscribing to</h3>
-          <p class="small">
+          <p className="small">
             You are subscribed to content from these users.
           </p>
-          <div class="user-friends">
+          <div className="user-friends">
             {following.map((u) => (
               <a key={u.AppId} href={"User/" + encodeURIComponent(u.Name) + "/"}>
                 <img className="img-circle"
@@ -43,10 +41,10 @@ export default function UserFollowInfo(props) {
 
         <div className="ibox-content profile-content">
           <h3>Subscribing to you</h3>
-          <p class="small">
+          <p className="small">
             These users are subscribing to you.
           </p>
-          <div class="user-friends">
+          <div className="user-friends">
             {followers.map((u) => (
               <a key={u.AppId} href={"User/" + encodeURIComponent(u.Name) + "/"}>
                 <img className="img-circle"

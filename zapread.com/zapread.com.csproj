@@ -2050,7 +2050,6 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
-    <Content Include="Views\Manage\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

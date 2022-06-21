@@ -2,11 +2,8 @@
  * 
  */
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from "react-bootstrap";
-//import Swal from 'sweetalert2';
-//import { postJson } from "../../utility/postData";
-//import { getJson } from "../../utility/getData";
 import UserSetting from "./UserSetting";
 
 function SettingRow(props) {

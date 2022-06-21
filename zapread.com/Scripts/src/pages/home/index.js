@@ -8,12 +8,11 @@ import '../../shared/shared';
 import '../../realtime/signalr';
 import React, { Suspense, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
+import { useLocation, BrowserRouter as Router, Route } from 'react-router-dom';
 import { Row, Col, Button } from "react-bootstrap";
 import { postJson } from "../../utility/postData";
 import { getJson } from "../../utility/getData";
 
-const getloadMoreComments = () => import('../../comment/loadmorecomments');
 const getMicroCharts = () => import('micro-charts');
 const getTippy = () => import('tippy.js');
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -184,6 +183,13 @@ function Page() {
     active: "Active"
   }
 
+  const changeSort = (newSort) => {
+    setPostsLoaded(false);
+    setPostBlockNumber(0);
+    setPosts([]);
+    setSort(newSort); // Triggers
+  };
+
   return (
     <>
       <Suspense fallback={<></>}>
@@ -203,9 +209,9 @@ function Page() {
         breadcrumbRight={true}
         middleCol={
           <>
-            <a href="/?sort=Score" className="zr-top-btn-rounded"><FontAwesomeIcon icon={faFire} />{" "}hot</a>
-            <a href="/?sort=New" className="zr-top-btn-rounded"><FontAwesomeIcon icon={faCertificate} />{" "}new</a>
-            <a href="/?sort=Active" className="zr-top-btn-rounded"><FontAwesomeIcon icon={faComments} />{" "}active</a>
+            <Button onClick={() => { changeSort("Score"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faFire} />{" "}hot</Button>
+            <Button onClick={() => { changeSort("New"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faCertificate} />{" "}new</Button>
+            <Button onClick={() => { changeSort("Active"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faComments} />{" "}active</Button>
           </>
         }
         rightCol={
