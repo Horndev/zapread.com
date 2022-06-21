@@ -1002,6 +1002,11 @@
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
     <Compile Include="Models\API\User\GetUserEmailResponse.cs" />
+    <Compile Include="Models\API\User\GetUserFollowInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserGroupInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserNotificationInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserSecurityInfoResponse.cs" />
     <Compile Include="Models\API\User\UpdateEmailRequest.cs" />
     <Compile Include="Models\API\User\UpdateEmailResponse.cs" />
     <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
@@ -1393,6 +1398,17 @@
     <Content Include="Scripts\src\Components\TopBar\ModerationBar.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
+    <Content Include="Scripts\src\Components\User\AboutMeModal.js" />
+    <Content Include="Scripts\src\Components\User\UserGroupInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFollowInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFinanceInfo.js" />
+    <Content Include="Scripts\src\Components\User\CustomizationSettings.js" />
+    <Content Include="Scripts\src\Components\User\ProfileImageModal.js" />
+    <Content Include="Scripts\src\Components\User\NotificationSettings.js" />
+    <Content Include="Scripts\src\Components\User\SecuritySettings.js" />
+    <Content Include="Scripts\src\Components\User\UserProfile.js" />
+    <Content Include="Scripts\src\Components\User\UserReferralInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserSetting.js" />
     <Content Include="Scripts\src\Components\utility\reportUserContent.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
     <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
@@ -1408,7 +1424,7 @@
     <Content Include="Scripts\src\css\pages\about\Lightning.jpg" />
     <Content Include="Scripts\src\css\pages\about\Network.jpg" />
     <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
-    <Content Include="Scripts\src\css\pages\manage\manage.css" />
+    <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
     <Content Include="Scripts\src\css\base\base.scss" />
@@ -1677,8 +1693,8 @@
     <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
-    <Content Include="Scripts\src\pages\manage\Components\UpdateEmailModal.js" />
-    <Content Include="Scripts\src\pages\manage\Components\GiftReferralModal.js" />
+    <Content Include="Scripts\src\Components\User\UpdateEmailModal.js" />
+    <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
@@ -1890,7 +1906,6 @@
     <Content Include="Views\Messages\_UnreadMessages.cshtml" />
     <Content Include="Views\Messages\_PartialRecentAlerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalMessageCompose.cshtml" />
-    <Content Include="Views\Manage\_PartialModalUpdateUserAlias.cshtml" />
     <Content Include="Views\Shared\_PartialSummaryStatistics.cshtml" />
     <Content Include="Views\Group\_PartialGroupAdminBar.cshtml" />
     <Content Include="Views\Group\_PartialAddUserToGroupRoleForm.cshtml" />
@@ -2035,6 +2050,7 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\Manage\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

@@ -722,84 +722,84 @@ namespace zapread.com.Controllers
         /// </summary>
         /// <param name="sort"></param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<ActionResult> TopPosts(string sort)
-        {
-            XFrameOptionsDeny();
-            using (var db = new ZapContext())
-            {
-                var userAppId = User.Identity.GetUserId();
+        //[HttpGet]
+        //public async Task<ActionResult> TopPosts(string sort)
+        //{
+        //    XFrameOptionsDeny();
+        //    using (var db = new ZapContext())
+        //    {
+        //        var userAppId = User.Identity.GetUserId();
 
-                var postquery = await GetPostsQuery(
-                    db: db,
-                    sort: sort,
-                    userAppId: userAppId)
-                    .ConfigureAwait(false);
+        //        var postquery = await GetPostsQuery(
+        //            db: db,
+        //            sort: sort,
+        //            userAppId: userAppId)
+        //            .ConfigureAwait(false);
 
-                var postsVm = await QueryHelpers.QueryPostsVm(
-                    start: 0,
-                    count: 10,
-                    postquery: postquery,
-                    userInfo: new QueryHelpers.PostQueryUserInfo()
-                    {
-                        AppId = userAppId,
-                    })
-                    .ConfigureAwait(false);
+        //        var postsVm = await QueryHelpers.QueryPostsVm(
+        //            start: 0,
+        //            count: 10,
+        //            postquery: postquery,
+        //            userInfo: new QueryHelpers.PostQueryUserInfo()
+        //            {
+        //                AppId = userAppId,
+        //            })
+        //            .ConfigureAwait(false);
 
-                // Performance (expensive)
-                string PostsHTMLString = "";
-                foreach (var p in postsVm)
-                {
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
-                    PostsHTMLString += PostHTMLString;
-                }
+        //        // Performance (expensive)
+        //        string PostsHTMLString = "";
+        //        foreach (var p in postsVm)
+        //        {
+        //            var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
+        //            PostsHTMLString += PostHTMLString;
+        //        }
 
-                string contentStr = PostsHTMLString;
-                try
-                {
-                    var cookie = HttpContext.Request.Cookies.Get("tarteaucitron");
-                    if (cookie != null)
-                    {
-                        var youtubeCookie = cookie.Value.Split('!').Select(i => i.Split('=')).Where(i => i.Length > 1).Where(i => i[0] == "zyoutube").FirstOrDefault();
-                        if (youtubeCookie != null && youtubeCookie[1] == "false")
-                        {
-                            HtmlDocument postDocument = new HtmlDocument();
-                            postDocument.LoadHtml(PostsHTMLString);
+        //        string contentStr = PostsHTMLString;
+        //        try
+        //        {
+        //            var cookie = HttpContext.Request.Cookies.Get("tarteaucitron");
+        //            if (cookie != null)
+        //            {
+        //                var youtubeCookie = cookie.Value.Split('!').Select(i => i.Split('=')).Where(i => i.Length > 1).Where(i => i[0] == "zyoutube").FirstOrDefault();
+        //                if (youtubeCookie != null && youtubeCookie[1] == "false")
+        //                {
+        //                    HtmlDocument postDocument = new HtmlDocument();
+        //                    postDocument.LoadHtml(PostsHTMLString);
 
-                            // Check links
-                            var postLinks = postDocument.DocumentNode.SelectNodes("//iframe/@src");
-                            if (postLinks != null)
-                            {
-                                foreach (var link in postLinks.ToList())
-                                {
-                                    string url = link.GetAttributeValue("src", "");
-                                    // replace links to embedded videos
-                                    if (url.Contains("youtube"))
-                                    {
-                                        var uri = new Uri(url);
-                                        string videoId = uri.Segments.Last();
-                                        //string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
-                                        string modElement = $"<div class='youtube_player' videoID='{videoId}' showinfo='0'></div>";
-                                        var newNode = HtmlNode.CreateNode(modElement);
-                                        link.ParentNode.ReplaceChild(newNode, link);
-                                    }
-                                }
-                            }
-                            contentStr = postDocument.DocumentNode.OuterHtml;
-                        }
-                        else
-                        {
-                            // filter youtube nocookie anyway
-                            contentStr = PostsHTMLString;//.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-                return Json(new { success = true, HTMLString = contentStr }, JsonRequestBehavior.AllowGet);
-            }
-        }
+        //                    // Check links
+        //                    var postLinks = postDocument.DocumentNode.SelectNodes("//iframe/@src");
+        //                    if (postLinks != null)
+        //                    {
+        //                        foreach (var link in postLinks.ToList())
+        //                        {
+        //                            string url = link.GetAttributeValue("src", "");
+        //                            // replace links to embedded videos
+        //                            if (url.Contains("youtube"))
+        //                            {
+        //                                var uri = new Uri(url);
+        //                                string videoId = uri.Segments.Last();
+        //                                //string modElement = $"<div class='embed-responsive embed-responsive-16by9' style='float: none;'><iframe frameborder='0' src='//www.youtube.com/embed/{videoId}?rel=0&amp;loop=0&amp;origin=https://www.zapread.com' allowfullscreen='allowfullscreen' width='auto' height='auto' class='note-video-clip' style='float: none;'></iframe></div>";
+        //                                string modElement = $"<div class='youtube_player' videoID='{videoId}' showinfo='0'></div>";
+        //                                var newNode = HtmlNode.CreateNode(modElement);
+        //                                link.ParentNode.ReplaceChild(newNode, link);
+        //                            }
+        //                        }
+        //                    }
+        //                    contentStr = postDocument.DocumentNode.OuterHtml;
+        //                }
+        //                else
+        //                {
+        //                    // filter youtube nocookie anyway
+        //                    contentStr = PostsHTMLString;//.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
+        //                }
+        //            }
+        //        }
+        //        catch (Exception)
+        //        {
+        //        }
+        //        return Json(new { success = true, HTMLString = contentStr }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
 
         /// <summary>
         ///
@@ -854,54 +854,6 @@ namespace zapread.com.Controllers
 
                 using (var db = new ZapContext())
                 {
-                    // Some debugging code to figure out how to sub-filter comments
-                    //var test = db.Posts
-                    //    .Where(p => p.PostId == 81)
-                    //    .Select(p => new {
-                    //        p,
-                    //        RootComments = p.Comments
-                    //            .Where(c => !c.IsReply)
-                    //            .OrderByDescending(c => c.Score)
-                    //            .Select(c => c.CommentId),
-                    //        Comments = p.Comments.Where(c => !c.IsReply)
-                    //            .OrderByDescending(c => c.Score)
-                    //            .Take(3)
-                    //            .SelectMany(c =>
-                    //                c.Replies
-                    //                    .Union(c.Replies
-                    //                        .SelectMany(cr => cr.Replies))
-                    //                    .Union(new List<Comment>() { c })
-                    //                ).ToList() // Return replies 3 layers deep
-                    //    })
-                    //    .Select(p => new
-                    //    {
-                    //        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
-                    //        {
-                    //            PostId = p.p.PostId,
-                    //            CommentId = c.CommentId,
-                    //            Text = c.Text,
-                    //            Score = c.Score,
-                    //            IsReply = c.IsReply,
-                    //            IsDeleted = c.IsDeleted,
-                    //            TimeStamp = c.TimeStamp,
-                    //            TimeStampEdited = c.TimeStampEdited,
-                    //            UserId = c.UserId.Id,
-                    //            UserName = c.UserId.Name,
-                    //            UserAppId = c.UserId.AppId,
-                    //            ProfileImageVersion = c.UserId.ProfileImage.Version,
-                    //            ViewerUpvoted = c.VotesUp.Select(v => v.AppId).Contains(userAppId),
-                    //            ViewerDownvoted = c.VotesDown.Select(v => v.AppId).Contains(userAppId),
-                    //            ViewerIgnoredUser = c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
-                    //            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
-                    //            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
-                    //            ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId,
-                    //            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
-                    //        })
-                    //    })
-                    //    .FirstOrDefault();
-                    //int userId = 0;
-                    //List<GroupInfo> subscribedGroups;
-
                     if (userAppId == null)
                     {
                         // Not logged in
@@ -924,8 +876,7 @@ namespace zapread.com.Controllers
 
                     var vm = new HomeIndexViewModel()
                     {
-                        Sort = sort ?? "Score",
-                        //SubscribedGroups = subscribedGroups,
+                        Sort = sort ?? "Score"
                     };
 
                     return View(vm);

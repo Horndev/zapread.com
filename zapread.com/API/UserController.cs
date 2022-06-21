@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using zapread.com.Database;
+using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.API;
 using zapread.com.Models.API.User;
@@ -246,15 +247,209 @@ namespace zapread.com.API
             }
         }
 
-        // GET api/v1/user
         /// <summary>
         /// Test call - doesn't do anything right now
         /// </summary>
         /// <returns></returns>
-        [Route("api/v1/user")]
-        public string Get()
+        [Route("api/v1/user/current")]
+        public async Task<IHttpActionResult> GetUserInfo()
         {
-            return "Response from User V1";
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new { 
+                        u.Name,
+                        UserProfileImageVersion = u.ProfileImage.Version,
+                        u.Reputation,
+                        u.AboutMe,
+                        UserAchievements = u.Achievements.Select(ach => new UserAchievementViewModel()
+                        {
+                            Id = ach.Id,
+                            ImageId = ach.Achievement.Id,
+                            Name = ach.Achievement.Name,
+                            Description = ach.Achievement.Description,
+                            DateAchieved = ach.DateAchieved.Value,
+                        }),
+                        NumPosts = u.Posts.Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Count(),
+                        NumFollowing = u.Following.Count,
+                        NumFollowers = u.Followers.Count,
+                    })
+                    .FirstOrDefaultAsync();
+
+                return Ok(new GetUserInfoResponse()
+                {
+                    success = true,
+                    Name = userInfo.Name,
+                    Reputation = userInfo.Reputation,
+                    UserProfileImageVersion = userInfo.UserProfileImageVersion,
+                    AboutMe = userInfo.AboutMe,
+                    Achievements = userInfo.UserAchievements.ToList(),
+                    NumFollowers = userInfo.NumFollowers,
+                    NumFollowing = userInfo.NumFollowing,
+                    NumPosts = userInfo.NumPosts
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get user settings info
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/settings/notification")]
+        public async Task<IHttpActionResult> GetUserNotificationInfo()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        u.Settings,
+                        u.Languages
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (userInfo == null) return NotFound();
+
+                return Ok(new GetUserNotificationInfoResponse()
+                {
+                    success = true,
+                    Settings = userInfo.Settings,
+                    Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
+                    KnownLanguages = LanguageHelpers.GetLanguages(),
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get user settings info
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/followinfo")]
+        public async Task<IHttpActionResult> GetUserFollowInfo()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
+                            .Select(us => new UserFollowView()
+                            {
+                                Name = us.Name,
+                                AppId = us.AppId,
+                                ProfileImageVersion = us.ProfileImage.Version,
+                            }),
+                        TopFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20)
+                            .Select(us => new UserFollowView()
+                            {
+                                Name = us.Name,
+                                AppId = us.AppId,
+                                ProfileImageVersion = us.ProfileImage.Version,
+                            }),
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (userInfo == null) return NotFound();
+
+                return Ok(new GetUserFollowInfoResponse()
+                {
+                    success = true,
+                    TopFollowers = userInfo.TopFollowers,
+                    TopFollowing = userInfo.TopFollowing
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get user settings info
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/groupinfo")]
+        public async Task<IHttpActionResult> GetUserGroupInfo()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        UserGroups = u.Groups
+                            .Select(g => new GroupInfo()
+                            {
+                                Id = g.GroupId,
+                                Name = g.GroupName,
+                                Icon = "fa-bolt",
+                                Level = 1,
+                                Progress = 36,
+                                NumPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Count(),
+                                UserPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Where(p => p.UserId.Id == u.Id).Count(),
+                                IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
+                                IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
+                            }),
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (userInfo == null) return NotFound();
+
+                return Ok(new GetUserGroupInfoResponse()
+                {
+                    success = true,
+                    Groups = userInfo.UserGroups
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get user security info
+        /// </summary>
+        /// <returns></returns>
+        [Route("api/v1/user/settings/security")]
+        public async Task<IHttpActionResult> GetUserSecurityInfo()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                //var userInfo = await db.Users
+                //    .Where(u => u.AppId == userAppId)
+                //    .Select(u => new {
+                        
+                //    })
+                //    .FirstOrDefaultAsync();
+
+                using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                {
+                    return Ok(new GetUserSecurityInfoResponse()
+                    {
+                        success = true,
+                        EmailConfirmed = await userManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
+                        IsGoogleAuthenticatorEnabled = await userManager.IsGoogleAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
+                        TwoFactor = await userManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
+                        IsEmailAuthenticatorEnabled = await userManager.IsEmailAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
+                    });
+                }
+            }
         }
 
         /// <summary>
@@ -311,6 +506,7 @@ namespace zapread.com.API
 
                 return Ok(new GetRefStatsResponse()
                 {
+                    CanGiftReferral = referralInfo != null && referralInfo.ReferredByAppId != null,
                     ReferredByAppId = referralInfo != null ? referralInfo.ReferredByAppId ?? null : null,
                     TotalReferred = numTotal,
                     TotalReferredActive = numActive,

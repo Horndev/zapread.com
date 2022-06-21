@@ -11,6 +11,10 @@ namespace zapread.com.Models.API.User
     public class GetRefStatsResponse
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public bool CanGiftReferral { get; set; }
+        /// <summary>
         /// The number of users that were referred
         /// </summary>
         public int TotalReferred { get; set; }

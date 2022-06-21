@@ -4,8 +4,7 @@
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
 import { Modal, Form, Row, Col, Button, Card } from "react-bootstrap";
-import { postJson } from '../../../utility/postData';
-import UserAutosuggest from "../../../Components/UserAutoSuggest";
+import { postJson } from '../../utility/postData';
 const getSwal = () => import('sweetalert2');
 
 export default function UpdateEmailModal(props) {
@@ -16,11 +15,6 @@ export default function UpdateEmailModal(props) {
   const [userCurrentEmail, setUserCurrentEmail] = useState("");
 
   useEffect(() => {
-    // hook into button click
-    document.getElementById("updateEmailBtn").addEventListener('click', (e) => {
-      setShow(true);
-    });
-
     async function initialize() {
       const response = await fetch("/api/v1/user/email/");
       const json = await response.json();

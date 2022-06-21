@@ -133,7 +133,6 @@ function useQuery() {
 }
 
 function Page() {
-  
   const [hasMorePosts, setHasMorePosts] = useState(false);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [postsLoaded, setPostsLoaded] = useState(false);

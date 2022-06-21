@@ -919,7 +919,8 @@ namespace zapread.com.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> UpdateAboutMe(AboutMeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -935,7 +936,8 @@ namespace zapread.com.Controllers
 
                 db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe.CleanUnicode().SanitizeXSS();
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
+                return Json(new { success = true });
+                //return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
             }
         }
 
