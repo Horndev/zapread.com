@@ -25,6 +25,7 @@ export default function UserProfile(props) {
   const [numPosts, setNumPosts] = useState(0);
   const [reputation, setReputation] = useState(0);
   const [userProfileImageVersion, setUserProfileImageVersion] = useState(null);
+  const [userAppId, setUserAppId] = useState(props.userAppId);
 
   function updateImagesOnPage(ver) {
     document.getElementById("userImageLarge").setAttribute("src", "/Home/UserImage/?size=500&v=" + ver);
@@ -130,7 +131,11 @@ export default function UserProfile(props) {
 
   useEffect(() => {
     async function initialize() {
-      getJson("/api/v1/user/current/")
+      var url = "/api/v1/user/info";
+      if (userAppId) {
+        url = url + "/" + userAppId + "/";
+      }
+      getJson(url)
         .then((response) => {
           if (response.success) {
             setName(response.Name);
@@ -157,85 +162,101 @@ export default function UserProfile(props) {
           onUpdated={(value) => { updateImagesOnPage(value);}}
         />
       </Suspense>
-      <Suspense fallback={<></>}>
-        <AboutMeModal
-          show={showAboutMeModal}
-          aboutMe={aboutMe}
-          onUpdated={(value) => { setAboutMe(value); }} />
-      </Suspense>
-      
+      {props.isOwnProfile ? (
+        <>
+          <Suspense fallback={<></>}>
+            <AboutMeModal
+              show={showAboutMeModal}
+              aboutMe={aboutMe}
+              onUpdated={(value) => { setAboutMe(value); }} />
+          </Suspense>
+        </>) : (<></>)}
+
       <div className="ibox float-e-margins">
         <div className="ibox-title">
           <h5>Profile Detail</h5>
-          <div className="zr-tools">
-            <Dropdown className="zr-small-dropdown">
-              <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
-                <i className="fa fa-wrench"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
-                <Dropdown.Item as="li" onClick={() => { setShowProfileImageModal(true); }}>
-                  <button className="btn btn-link btn-sm">
-                    Update Profile Image
-                  </button>
-                </Dropdown.Item>
-                <Dropdown.Item as="li" onClick={onRotateImage}>
-                  <button className="btn btn-link btn-sm">
-                    Rotate Profile Image
-                  </button>
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
+          {props.isOwnProfile ? (
+            <>
+              <div className="zr-tools">
+                <Dropdown className="zr-small-dropdown">
+                  <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
+                    <i className="fa fa-wrench"></i>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
+                    <Dropdown.Item as="li" onClick={() => { setShowProfileImageModal(true); }}>
+                      <button className="btn btn-link btn-sm">
+                        Update Profile Image
+                      </button>
+                    </Dropdown.Item>
+                    <Dropdown.Item as="li" onClick={onRotateImage}>
+                      <button className="btn btn-link btn-sm">
+                        Rotate Profile Image
+                      </button>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </>) : (<></>)}
         </div>
         <div className="ibox-content no-padding border-left-right">
-          <img id="userImageLarge" className="img-fluid" src={"/Home/UserImage/?size=500" + (userProfileImageVersion ? "&v=" + userProfileImageVersion : "")} />
+          <img id="userImageLarge" className="img-fluid" src={"/Home/UserImage/?size=500"
+            + (userProfileImageVersion ? "&v=" + userProfileImageVersion : "")
+            + (userAppId ? "&UserId=" + userAppId : "")
+          } />
         </div>
 
         <div className="ibox-content profile-content">
           <div>
             <strong>
-              <img className="img-circle user-image-30" src={"/Home/UserImage/?size=30" + (userProfileImageVersion ? "&v=" + userProfileImageVersion : "")} />
+              <img className="img-circle user-image-30" src={"/Home/UserImage/?size=30"
+                + (userProfileImageVersion ? "&v=" + userProfileImageVersion : "")
+                + (userAppId ? "&UserId=" + userAppId : "")
+              } />
               <big><span id="labelUsername">{" "}{name}{" "}</span></big>
             </strong>
-
-            <Dropdown className="zr-small-dropdown">
-              <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
-                <i className="fa fa-cog"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
-                <Dropdown.Item as="li" onClick={() => { generateRobot(1) }}>
-                  <button className="btn btn-link btn-sm">Generate Profile Image (Robot)</button>
-                </Dropdown.Item>
-                <Dropdown.Item as="li" onClick={() => { generateRobot(2) }}>
-                  <button className="btn btn-link btn-sm">Generate Profile Image (Cat)</button>
-                </Dropdown.Item>
-                <Dropdown.Item as="li" onClick={() => { generateRobot(3) }}>
-                  <button className="btn btn-link btn-sm">Generate Profile Image (Human)</button>
-                </Dropdown.Item>
-                <Dropdown.Item as="li" onClick={() => { generateRobot(4) }}>
-                  <button className="btn btn-link btn-sm">Generate Profile Image (Monster)</button>
-                </Dropdown.Item>
-                <Dropdown.Item as="li" onClick={() => { updateAlias() }}>
-                  <button className="btn btn-link btn-sm">Change Alias</button>
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-
+            {props.isOwnProfile ? (
+              <>
+                <Dropdown className="zr-small-dropdown">
+                  <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
+                    <i className="fa fa-cog"></i>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
+                    <Dropdown.Item as="li" onClick={() => { generateRobot(1) }}>
+                      <button className="btn btn-link btn-sm">Generate Profile Image (Robot)</button>
+                    </Dropdown.Item>
+                    <Dropdown.Item as="li" onClick={() => { generateRobot(2) }}>
+                      <button className="btn btn-link btn-sm">Generate Profile Image (Cat)</button>
+                    </Dropdown.Item>
+                    <Dropdown.Item as="li" onClick={() => { generateRobot(3) }}>
+                      <button className="btn btn-link btn-sm">Generate Profile Image (Human)</button>
+                    </Dropdown.Item>
+                    <Dropdown.Item as="li" onClick={() => { generateRobot(4) }}>
+                      <button className="btn btn-link btn-sm">Generate Profile Image (Monster)</button>
+                    </Dropdown.Item>
+                    <Dropdown.Item as="li" onClick={() => { updateAlias() }}>
+                      <button className="btn btn-link btn-sm">Change Alias</button>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </>): (<></>)}
           </div>
           <br />
           <p><i className="fa fa-star"></i> Reputation { reputation }</p>
           <div>
             <big>About me</big>
-            <Dropdown className="zr-small-dropdown">
-              <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
-                <i className="fa fa-cog"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
-                <Dropdown.Item as="li" onClick={() => { updateAboutMe() }}>
-                  <button className="btn btn-link btn-sm">Update About Me</button>
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            {props.isOwnProfile ? (
+              <>
+                <Dropdown className="zr-small-dropdown">
+                  <Dropdown.Toggle bsPrefix="zr-btn" className="dropdown-toggle btn-white">
+                    <i className="fa fa-cog"></i>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu as="ul" align="right" className="zr-dropdown-menu dropdown-menu-right m-t-xs">
+                    <Dropdown.Item as="li" onClick={() => { updateAboutMe() }}>
+                      <button className="btn btn-link btn-sm">Update About Me</button>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </>) : (<></>)}
           </div>
           <p>
             { aboutMe }

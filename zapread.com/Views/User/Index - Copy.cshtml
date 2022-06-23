@@ -1,0 +1,230 @@
+﻿@model zapread.com.Models.UserViewModel
+
+@{
+    ViewBag.Title = Model.UserName;
+    ViewBag.ViewInfo = "User:" + Model.UserId;
+}
+
+<div id="root"></div>
+
+@section Styles {
+    @Styles.Render("~/bundles/user/index/css")
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var ub = @Model.UserBalance;
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        var userId = @Model.UserId;
+        var userAppId = "@Model.UserAppId";
+    </script>
+    @Scripts.Render("~/bundles/user/index")
+}
+
+<div id="ModalVote"></div>
+
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        @Html.Partial(partialViewName: "_ModalAboutMe", model: @Model.AboutMe)
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row animated fadeInRight">
+        <div class="col-md-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Profile Detail</h5>
+                </div>
+                <div>
+                    <div class="ibox-content no-padding border-left-right">
+                        <img class="img-fluid" src="@Url.Action("UserImage", "Home", new {size = 500, UserId = Model.UserAppId, v = Model.UserProfileImageVersion})" />
+                    </div>
+                    <div class="ibox-content profile-content">
+                        <h4>
+                            <strong>
+                                <img class="img-circle" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = Model.UserAppId, v=Model.UserProfileImageVersion})" /> @Model.UserName
+                            </strong>
+                        </h4>
+                        @if (Model.DateJoined != null)
+                        {
+                            <p>Joined @Model.DateJoined.Value.ToShortDateString()</p>
+                        }
+                        <p><i class="fa fa-star"></i> Reputation @Model.Reputation</p>
+                        <h5>
+                            About me
+                        </h5>
+                        <p>
+                            @Model.AboutMe.AboutMe
+                        </p>
+                        @*Achievements*@
+                        <div class="row m-t-lg">
+                            <div class="col-md-12">
+                                <h5><a href="@Url.Action("Achievements","User", new { username = Model.UserName })">Achievements</a></h5>
+                                @foreach (var a in Model.AchievementsViewModel.Achievements)
+                                {
+                                    <img class="ach-hover" data-achid="@a.Id" src="/Img/AchievementImage/@a.ImageId/" title="@a.Name" />
+                                }
+                            </div>
+                        </div>
+                        <div class="row m-t-lg">
+                            <div class="col-md-4">
+
+                                <h5><strong>@Model.NumPosts</strong> Posts</h5>
+                            </div>
+                            <div class="col-md-4">
+
+                                <h5><strong>@Model.NumFollowing</strong> Following</h5>
+                            </div>
+                            <div class="col-md-4">
+
+                                <h5><strong>@Model.NumFollowers</strong> Followers</h5>
+                            </div>
+                        </div>
+                        <div class="user-button">
+                            <div class="row">
+                                @*<div class="col-md-4">
+            <a id="sendPrivateMessage" href="#" data-toggle="modal" data-target="#messageComposeModal" class="btn btn-primary btn-sm btn-block">
+                <i class="fa fa-envelope"></i> Message
+            </a>
+        </div>*@
+                                <div class="col-lg-6">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        if (Model.IsFollowing)
+                                        {
+                                            <a id="sublink" class="btn btn-warning btn-sm btn-block" onclick="follow(@Model.UserId,0,this)"><i class="fa fa-user"></i> <span id="subBtnText">Un-Follow</span> </a>
+                                        }
+                                        else
+                                        {
+                                            <a id="sublink" class="btn btn-default btn-sm btn-block" onclick="follow(@Model.UserId,1,this)"><i class="fa fa-user"></i> <span id="subBtnText">Follow</span></a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-default btn-sm btn-block" disabled><i class="fa fa-user"></i> Follow</button>
+                                    }
+                                </div>
+                                <div class="col-lg-6">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        if (Model.IsBlocked)
+                                        {
+                                            <button type="button" class="btn btn-default btn-sm btn-block" id="btnBlockUser" data-userid="@Model.UserId"><i class="fa-solid fa-comment"></i> Un-Block</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-default btn-sm btn-block" id="btnBlockUser" data-userid="@Model.UserId"><i class="fa-solid fa-comment-slash"></i> Block</button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-default btn-sm btn-block" disabled><i class="fa-solid fa-comment-slash"></i> Block</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-button">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        <a href="@Url.Action("Chat", "Messages", new { username = Model.UserName })" class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </a>
+                                    }
+                                    else
+                                    {
+                                        <button disabled class="btn btn-info btn-sm btn-block"><i class="fa fa-comment"></i> <span>Chat</span> </button>
+                                    }
+                                </div>
+                                @*<div class="col-md-4">
+                                </div>*@
+                                <div class="col-lg-6">
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        if (Model.IsIgnoring)
+                                        {
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa-solid fa-circle"></i> <span id="igBtnText">UnIgnore</span> </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" id="i_@Model.UserId" class="btn btn-warning btn-sm btn-block btn-outline" onclick="toggleUserIgnore(@Model.UserId)"><i class="fa-solid fa-ban"></i> <span id="igBtnText">Ignore</span></a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-warning btn-sm btn-block" disabled><i class="fa fa-ban"></i> Ignore</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h3>@Model.UserName is subscribed to</h3>
+                        <p class="small">
+                            @Model.UserName is subscribed to content from these users.  Their content will appear in the activity feed.
+                        </p>
+                        <div class="user-friends" id="top-following"></div>
+                    </div>
+                </div>
+
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h3>Subscribing to @Model.UserName</h3>
+                        <p class="small">
+                            These users are subscribing to @Model.UserName.  @Model.UserName's content will appear in their activity feed.
+                        </p>
+                        <div class="user-friends" id="top-followers"></div>
+                    </div>
+                </div>
+
+                <div class="ibox-title">
+                    <h5>Groups</h5>
+                    <div class="ibox-tools">
+                    </div>
+                </div>
+                <div>
+                    <div class="ibox-content profile-content">
+                        @Html.Partial(partialViewName: "_PartialUserGroups", model: @Model.UserGroups)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Activites</h5>
+                    <div class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li>
+                                <a href="#">Config option 1</a>
+                            </li>
+                            <li>
+                                <a href="#">Config option 2</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div id="posts">
+                        @foreach (var p in Model.ActivityPosts)
+                        {
+                            @Html.Partial(partialViewName: "_PartialPostRenderVm", model: p)
+                        }
+                    </div>
+                    <div>
+                        <button id="btnLoadmore" class="btn btn-primary btn-block m" onclick="loadmore(@Model.UserId)"><i class="fa-solid fa-arrow-down"></i> Show More <i id="loadmore" class="fa-solid fa-circle-notch fa-spin" style="display:none"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

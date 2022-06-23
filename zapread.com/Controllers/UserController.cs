@@ -718,15 +718,7 @@ namespace zapread.com.Controllers
                         .FirstOrDefaultAsync().ConfigureAwait(true);
                 }
 
-                //User user = await db
-                //    .Users.AsNoTracking()
-                //    .FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
-
                 List<PostViewModel> posts = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userAppId).ConfigureAwait(true);
-
-                //List <GroupStats> groups = await db.Groups.AsNoTracking()
-                //        .Select(gr => new GroupStats { GroupId = gr.GroupId, pc = gr.Posts.Count, mc = gr.Members.Count, l = gr.Tier })
-                //        .ToListAsync().ConfigureAwait(true);
 
                 string PostsHTMLString = "";
                 foreach (var p in posts)

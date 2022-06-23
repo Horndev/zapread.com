@@ -1002,13 +1002,16 @@
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
     <Compile Include="Models\API\User\GetUserEmailResponse.cs" />
+    <Compile Include="Models\API\User\GetUserFeedRequest.cs" />
     <Compile Include="Models\API\User\GetUserFollowInfoResponse.cs" />
     <Compile Include="Models\API\User\GetUserGroupInfoResponse.cs" />
     <Compile Include="Models\API\User\GetUserInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInteractionInfo.cs" />
     <Compile Include="Models\API\User\GetUserNotificationInfoResponse.cs" />
     <Compile Include="Models\API\User\GetUserSecurityInfoResponse.cs" />
     <Compile Include="Models\API\User\UpdateEmailRequest.cs" />
     <Compile Include="Models\API\User\UpdateEmailResponse.cs" />
+    <Compile Include="Models\API\User\UserInteractionRequest.cs" />
     <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
     <Compile Include="Models\API\User\UserRefGiftResponse.cs" />
     <Compile Include="Models\API\User\UserSearchRequest.cs" />
@@ -1399,6 +1402,7 @@
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
     <Content Include="Scripts\src\Components\User\AboutMeModal.js" />
+    <Content Include="Scripts\src\Components\User\UserInteractions.js" />
     <Content Include="Scripts\src\Components\User\UserGroupInfo.js" />
     <Content Include="Scripts\src\Components\User\UserFollowInfo.js" />
     <Content Include="Scripts\src\Components\User\UserFinanceInfo.js" />
@@ -1866,12 +1870,10 @@
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\SendCode.cshtml" />
     <Content Include="Views\Account\VerifyCode.cshtml" />
-    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
     <Content Include="Views\Manage\ManageLogins.cshtml" />
     <Content Include="Views\Manage\SetPassword.cshtml" />
-    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
@@ -2050,6 +2052,7 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\User\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

@@ -1853,7 +1853,14 @@ namespace zapread.com.Controllers
                 vm.TotalDeposited = Convert.ToInt32(depositTxns.Sum());
 
                 var appUser = UserManager.FindById(u.AppId);
-                vm.Email = appUser.Email;
+                if (appUser == null)
+                {
+                    vm.Email = "User does not exist in DB";
+                }
+                else
+                {
+                    vm.Email = appUser.Email;
+                }
 
                 return PartialView("_PartialSiteAdminBarUserInfo", model: vm);
             }

@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -248,18 +249,301 @@ namespace zapread.com.API
         }
 
         /// <summary>
-        /// Test call - doesn't do anything right now
+        /// 
         /// </summary>
+        /// <param name="req"></param>
         /// <returns></returns>
-        [Route("api/v1/user/current")]
-        public async Task<IHttpActionResult> GetUserInfo()
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/follow")]
+        public async Task<IHttpActionResult> Follow(UserInteractionRequest req)
         {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
             var userAppId = User.Identity.GetUserId();
 
-            if (userAppId == null) return BadRequest();
+            if (userAppId == null) return Unauthorized();
 
             using (var db = new ZapContext())
             {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsFollowing = u.Following.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && !requestingUserInfo.IsFollowing)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    // This adds the user without hitting the db to query user list
+                    requestingUserInfo.User.Following = new List<User>() { followUser };
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/unfollow")]
+        public async Task<IHttpActionResult> UnFollow(UserInteractionRequest req)
+        {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsFollowing = u.Following.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && requestingUserInfo.IsFollowing)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    requestingUserInfo.User.Following.Remove(followUser);
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/block")]
+        public async Task<IHttpActionResult> Block(UserInteractionRequest req)
+        {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsBlocking = u.BlockingUsers.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && !requestingUserInfo.IsBlocking)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    // This adds the user without hitting the db to query user list
+                    requestingUserInfo.User.BlockingUsers = new List<User>() { followUser };
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/unblock")]
+        public async Task<IHttpActionResult> UnBlock(UserInteractionRequest req)
+        {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsBlocking = u.BlockingUsers.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && requestingUserInfo.IsBlocking)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    requestingUserInfo.User.BlockingUsers.Remove(followUser);
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/ignore")]
+        public async Task<IHttpActionResult> Ignore(UserInteractionRequest req)
+        {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsIgnoring = u.IgnoringUsers.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && !requestingUserInfo.IsIgnoring)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    // This adds the user without hitting the db to query user list
+                    requestingUserInfo.User.IgnoringUsers = new List<User>() { followUser };
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/unignore")]
+        public async Task<IHttpActionResult> UnIgnore(UserInteractionRequest req)
+        {
+            if (string.IsNullOrEmpty(req.UserAppId)) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var requestingUserInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        User = u,
+                        IsIgnoring = u.IgnoringUsers.Select(f => f.AppId).Contains(req.UserAppId)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (requestingUserInfo != null && requestingUserInfo.IsIgnoring)
+                {
+                    var followUser = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .FirstOrDefaultAsync();
+
+                    if (followUser == null) return BadRequest();
+
+                    requestingUserInfo.User.IgnoringUsers.Remove(followUser);
+
+                    await db.SaveChangesAsync();
+
+                    return Ok(new ZapReadResponse() { success = true });
+                }
+
+                return Ok(new ZapReadResponse() { success = false });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        [Route("api/v1/user/info/{appId?}")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetUserInfo(string appId)
+        {
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+
+                if (!string.IsNullOrEmpty(appId))
+                {
+                    userAppId = await db.Users
+                        .Where(u => u.AppId == appId)
+                        .Select(u => u.AppId)
+                        .FirstOrDefaultAsync();
+                } 
+
+                if (userAppId == null) return BadRequest();
+
                 var userInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Select(u => new { 
@@ -331,13 +615,53 @@ namespace zapread.com.API
         }
 
         /// <summary>
-        /// Get user settings info
+        /// 
         /// </summary>
+        /// <param name="appId"></param>
         /// <returns></returns>
-        [Route("api/v1/user/followinfo")]
-        public async Task<IHttpActionResult> GetUserFollowInfo()
+        [AcceptVerbs("GET")]
+        [Route("api/v1/user/interaction/{appId?}")]
+        public async Task<IHttpActionResult> GetUserInteractionInfo(string appId)
         {
             var userAppId = User.Identity.GetUserId();
+            
+            if (userAppId == null || appId == null) return BadRequest();
+
+            using (var db = new ZapContext())
+            {
+                var userInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        isFollowing = u.Following.Select(us => us.AppId).Contains(appId),
+                        isIgnoring = u.IgnoringUsers.Select(us => us.AppId).Contains(appId),
+                        isBlocking = u.BlockingUsers.Select(us => us.AppId).Contains(appId),
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (userInfo == null) return NotFound();
+
+                return Ok(new GetUserInteractionInfo()
+                {
+                    success = true,
+                    IsBlocking = userInfo.isBlocking,
+                    IsFollowing = userInfo.isFollowing,
+                    IsIgnoring = userInfo.isIgnoring
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get user settings info
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        [Route("api/v1/user/followinfo/{appId?}")]
+        [AcceptVerbs("GET")]
+        public async Task<IHttpActionResult> GetUserFollowInfo(string appId)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (!string.IsNullOrEmpty(appId)) userAppId = appId;
 
             if (userAppId == null) return BadRequest();
 
@@ -347,6 +671,7 @@ namespace zapread.com.API
                     .Where(u => u.AppId == userAppId)
                     .Select(u => new
                     {
+                        u.Name,
                         TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
                             .Select(us => new UserFollowView()
                             {
@@ -370,7 +695,8 @@ namespace zapread.com.API
                 {
                     success = true,
                     TopFollowers = userInfo.TopFollowers,
-                    TopFollowing = userInfo.TopFollowing
+                    TopFollowing = userInfo.TopFollowing,
+                    UserName = userInfo.Name,
                 });
             }
         }
@@ -378,11 +704,14 @@ namespace zapread.com.API
         /// <summary>
         /// Get user settings info
         /// </summary>
+        /// <param name="appId"></param>
         /// <returns></returns>
-        [Route("api/v1/user/groupinfo")]
-        public async Task<IHttpActionResult> GetUserGroupInfo()
+        [Route("api/v1/user/groupinfo/{appId?}")]
+        public async Task<IHttpActionResult> GetUserGroupInfo(string appId)
         {
             var userAppId = User.Identity.GetUserId();
+
+            if (!string.IsNullOrEmpty(appId)) { userAppId = appId; }
 
             if (userAppId == null) return BadRequest();
 
@@ -449,6 +778,63 @@ namespace zapread.com.API
                         IsEmailAuthenticatorEnabled = await userManager.IsEmailAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
                     });
                 }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/user/feed")]
+        public async Task<IHttpActionResult> GetPosts(GetUserFeedRequest req)
+        {
+            if (req == null) { return BadRequest(); }
+
+            using (var db = new ZapContext())
+            {
+                string userAppId = null;
+
+                if (!string.IsNullOrEmpty(req.UserAppId))
+                {
+                    userAppId = await db.Users
+                        .Where(u => u.AppId == req.UserAppId)
+                        .Select(u => u.AppId)
+                        .FirstOrDefaultAsync().ConfigureAwait(true);
+                }
+
+                int BlockSize = req.BlockSize ?? 10;
+
+                int BlockNumber = req.BlockNumber ?? 0;
+
+                List<PostViewModel> postsVm = await QueryHelpers.QueryActivityPostsVm(BlockNumber, BlockSize, userAppId).ConfigureAwait(true);
+
+                // Make images lazy TODO: apply this when submitting new posts
+                postsVm.ForEach(post =>
+                {
+                    HtmlDocument postDocument = new HtmlDocument();
+                    postDocument.LoadHtml(post.Content);
+
+                    var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
+                    if (postImages != null)
+                    {
+                        foreach (var postImage in postImages)
+                        {
+                            postImage.SetAttributeValue("loading", "lazy");
+                        }
+                        post.Content = postDocument.DocumentNode.OuterHtml;
+                    }
+                });
+
+                var response = new Models.API.Post.GetPostsResponse()
+                {
+                    HasMorePosts = postsVm.Count >= BlockSize,
+                    Posts = postsVm,
+                    success = true,
+                };
+
+                return Ok(response);
             }
         }
 
@@ -680,5 +1066,4 @@ namespace zapread.com.API
             return Math.Floor(balance);
         }
     }
-
 }

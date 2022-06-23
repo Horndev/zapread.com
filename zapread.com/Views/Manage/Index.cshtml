@@ -16,6 +16,7 @@
     <script type="text/javascript">
         var ub = @Model.UserBalance;
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        var userAppId = "@Model.UserAppId";
     </script>
     @Scripts.Render("~/bundles/manage/index")
 }

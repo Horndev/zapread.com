@@ -79,14 +79,14 @@ function Page() {
       <div className="wrapper wrapper-content">
         <Row>
           <Col md={4}>
-            <UserProfile />
-            <UserFollowInfo />
+            <UserProfile userAppId={window.userAppId} isOwnProfile={true}/>
+            <UserFollowInfo userAppId={window.userAppId} isOwnProfile={true}/>
             <UserReferralInfo />
             <UserFinanceInfo />
             <SecuritySettings />
             <NotificationSettings />
             <CustomizationSettings />
-            <UserGroupInfo />
+            <UserGroupInfo userAppId={window.userAppId} isOwnProfile={false}/>
             <div style={{ marginBottom: "100px" }}></div>
           </Col>
 

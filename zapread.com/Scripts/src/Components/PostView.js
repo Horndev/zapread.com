@@ -109,6 +109,10 @@ export default function PostView(props) {
     () => {
       setPost(props.post);
       setIsIgnored(props.post.ViewerIgnoredUser);
+      if (props.post.ViewerIgnoredUser) {
+        setIsVisible(false);
+      }
+
       setIsLoggedIn(props.isLoggedIn);
       setIsMod(props.isGroupMod);
       setIsFollowing(props.post.ViewerIsFollowing);
@@ -183,7 +187,7 @@ export default function PostView(props) {
           display: "flex",
           paddingLeft: "4px"
         }} onClick={toggleVisible} >
-          <i className="fa fa-minus-square togglebutton" ref={toggleVisibleIconRef}></i>
+          <i className={isVisible ? "fa fa-minus-square togglebutton" : "fa fa-plus-square togglebutton"} ref={toggleVisibleIconRef}></i>
         </button>
 
         <Dropdown className="pull-right social-action">
@@ -290,13 +294,15 @@ export default function PostView(props) {
           ) : (<></>)}
 
           <div className="media-body">
-            <a className="vote-title" href={"/Post/Detail/" + post.PostId} style={{ marginLeft: "110px" }}>
-              {post.PostTitle == "" ? (
-                <>Post</>
-              ) : (
-                post.PostTitle
-              )}
-            </a>
+            {!isIgnored ? (
+              <a className="vote-title" href={"/Post/Detail/" + post.PostId} style={{ marginLeft: "110px" }}>
+                {post.PostTitle == "" ? (
+                  <>Post</>
+                ) : (
+                  post.PostTitle
+                )}
+              </a>) : (<><span className="vote-title">(Ignored)</span></>)}
+
             <div className="vote-info" style={{ marginLeft: "110px" }}>
 
               <a className="post-username userhint" data-userid={post.UserId} data-userappid={post.UserAppId}

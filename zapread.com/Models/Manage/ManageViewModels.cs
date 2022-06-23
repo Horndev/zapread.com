@@ -157,32 +157,6 @@ namespace zapread.com.Models
     /// <summary>
     /// 
     /// </summary>
-    public class AddPhoneNumberViewModel
-    {
-        [Required]
-        [Phone]
-        [Display(Name = "Phone Number")]
-        public string Number { get; set; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class VerifyPhoneNumberViewModel
-    {
-        [Required]
-        [Display(Name = "Code")]
-        public string Code { get; set; }
-
-        [Required]
-        [Phone]
-        [Display(Name = "Phone Number")]
-        public string PhoneNumber { get; set; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     public class ConfigureTwoFactorViewModel
     {
         public string SelectedProvider { get; set; }

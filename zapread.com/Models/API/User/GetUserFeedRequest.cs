@@ -8,21 +8,26 @@ namespace zapread.com.Models.API.User
     /// <summary>
     /// 
     /// </summary>
-    public class GetUserFollowInfoResponse : ZapReadResponse
+    public class GetUserFeedRequest
     {
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<UserFollowView> TopFollowing { get; set; }
+        public string Sort { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<UserFollowView> TopFollowers { get; set; }
+        public int? BlockNumber { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public string UserName { get; set; }
+        public int? BlockSize { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string UserAppId { get; set; }
     }
 }

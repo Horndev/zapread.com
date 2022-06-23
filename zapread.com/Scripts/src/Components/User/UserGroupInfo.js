@@ -16,7 +16,7 @@ function GroupRow(props) {
           <a className="btn-sm btn-link" href={"/Group/Detail/" + props.id}>
             { props.name }
           </a></td>
-        <td>{props.numPosts} / {props.userPosts}</td>
+        {props.includeCounts ? (<><td>{props.numPosts} / {props.userPosts}</td></>) : (<></>)}
         <td>
           {props.isAdmin ? (<>Admin{" "}</>) : (<></>)}
           {props.isMod ? (<>Moderator{" "}</>) : (<></>)}
@@ -29,7 +29,9 @@ export default function UserGroupInfo(props) {
   const [groups, setGroups] = useState([]);
   useEffect(() => {
     async function initialize() {
-      await fetch("/api/v1/user/groupinfo").then(response => {
+      var url = "/api/v1/user/groupinfo";
+      if (props.userAppId) { url = url + "/" + props.userAppId + "/"; }
+      await fetch(url).then(response => {
         return response.json();
       }).then(data => {
         setGroups(data.Groups);
@@ -47,13 +49,13 @@ export default function UserGroupInfo(props) {
             <thead>
               <tr>
                 <th>Group</th>
-                <th>Posts/Yours</th>
+                {props.isOwnProfile ? (<><th>Posts/Yours</th></>) : (<></>)}
                 <th>Roles</th>
               </tr>
             </thead>
             <tbody>
               {groups.map((g) => (
-                <GroupRow key={g.Id} name={g.Name} id={g.Id} isMod={g.IsMod} isAdmin={g.IsAdmin} numPosts={g.NumPosts} userPosts={g.UserPosts} />
+                <GroupRow key={g.Id} includeCounts={props.isOwnProfile} name={g.Name} id={g.Id} isMod={g.IsMod} isAdmin={g.IsAdmin} numPosts={g.NumPosts} userPosts={g.UserPosts} />
               ))}
             </tbody>
           </table>
