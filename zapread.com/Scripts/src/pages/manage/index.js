@@ -1,11 +1,8 @@
 ﻿/**
  * Scripts for User Management
- * 
- * Native JS
  */
 
 import "../../shared/shared";
-/*import '../../utility/ui/vote';*/
 import '../../realtime/signalr';
 import React, { Suspense, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
@@ -116,54 +113,3 @@ function Page() {
 }
 
 ReactDOM.render(<Page />, document.getElementById("root"));
-
-// Make global (called from html)
-//window.writeComment = writeComment;
-//window.replyComment = replyComment;
-//window.editComment = editComment;
-//window.loadMoreComments = loadMoreComments;
-//window.BlockNumber = 10;  //Infinite Scroll starts from second block
-//window.NoMoreData = false;
-//window.inProgress = false;
-
-//async function LoadActivityPostsAsync() {
-//  await fetch("/Manage/GetActivityPosts").then(response => {
-//    return response.text();
-//  }).then(html => {
-//    var loadingEl = document.getElementById("posts-loading");
-//    if (loadingEl) {
-//      loadingEl.classList.remove("sk-loading");
-//    }
-//    var postsBoxEl = document.getElementById("posts");
-//    if (postsBoxEl) {
-//      postsBoxEl.innerHTML = html;
-//    }
-//    getOnLoadedMorePosts().then(({ onLoadedMorePosts }) => {
-//      onLoadedMorePosts();
-//    });
-//  })
-//}
-//LoadActivityPostsAsync();
-
-///**
-// * Wrapper for load more
-// **/
-//export function manageloadmore(userId) {
-//  loadmore({
-//    url: '/User/InfiniteScroll/',
-//    blocknumber: window.BlockNumber,
-//    sort: "New",
-//    userId: userId
-//  });
-//}
-//window.loadmore = manageloadmore;
-
-// Set group list as clickable
-//var elements = document.querySelectorAll(".clickable-row");
-//Array.prototype.forEach.call(elements, function (el, _i) {
-//  el.addEventListener("click", function (e) {
-//    console.log(e,el);
-//    var url = el.getAttribute('data-href')
-//    window.location = url;
-//  }, false);
-//});

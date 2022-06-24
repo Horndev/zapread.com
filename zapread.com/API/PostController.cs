@@ -177,6 +177,7 @@ namespace zapread.com.API
                         IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
                         IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(),
                     })
+                    .AsNoTracking()
                     .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
 
                 IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(

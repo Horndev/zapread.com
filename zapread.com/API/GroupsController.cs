@@ -680,6 +680,9 @@ namespace zapread.com.API
                         }
                         post.Content = postDocument.DocumentNode.OuterHtml;
                     }
+
+                    post.PostIdEnc = zapread.com.Services.CryptoService.IntIdToString(post.PostId);
+                    post.PostTitleEnc = !String.IsNullOrEmpty(post.PostTitle) ? post.PostTitle.MakeURLFriendly() : (post.UserName + " posted in " + post.GroupName).MakeURLFriendly();
                 });
 
                 var response = new GetGroupPostsResponse()

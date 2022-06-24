@@ -371,6 +371,7 @@ namespace zapread.com.Controllers
                         u.IsOnline,
                         IsFollowed = callingUserAppId == null ? false : u.Followers.Select(f => f.AppId).Contains(callingUserAppId),
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (userInfo == null)
@@ -491,22 +492,13 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                double userFunds = 0;
-                bool isFollowing = false;
-                bool isIgnoring = false;
-                bool isBlocking = false;
-
                 var userInfo = await db.Users
                     .Where(u => u.Name == username)
                     .Select(u => new
                     {
                         u.Name,
                         u.Id,
-                        u.AboutMe,
                         u.AppId,
-                        UserProfileImageVersion = u.ProfileImage.Version,
-                        u.DateJoined,
-                        u.Reputation,
                     })
                     .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(true);
@@ -518,107 +510,12 @@ namespace zapread.com.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                int userId = userInfo.Id;
-
-                string userAppId = null;
-                if (User != null && User.Identity.IsAuthenticated)
-                {
-                    userAppId = User.Identity.GetUserId();
-
-                    var loggedInUserInfo = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new
-                        {
-                            u.Name,
-                            u.Funds.Balance,
-                            isFollowing = u.Following.Select(us => us.Id).Contains(userId),
-                            isIgnoring = u.IgnoringUsers.Select(us => us.Id).Contains(userId),
-                            isBlocking = u.BlockingUsers.Select(us => us.Id).Contains(userId),
-                        })
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                    if (loggedInUserInfo != null && loggedInUserInfo.Name == username)
-                    {
-                        return RedirectToAction(actionName: "Index", controllerName: "Manage");
-                    }
-
-                    userFunds = loggedInUserInfo == null ? 0 : loggedInUserInfo.Balance;
-                    isFollowing = loggedInUserInfo.isFollowing;
-                    isIgnoring = loggedInUserInfo.isIgnoring;
-                    isBlocking = loggedInUserInfo.isBlocking;
-                }
-
-                var activityposts = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.AppId).ConfigureAwait(true); //await GetActivityPosts(0, 10, userId).ConfigureAwait(false);
-
-                int numUserPosts = await db.Posts.Where(p => p.UserId.Id == userId)
-                    .CountAsync().ConfigureAwait(true);
-
-                int numFollowers = await db.Users
-                    .Where(p => p.Following.Select(f => f.Id).Contains(userId))
-                    .CountAsync().ConfigureAwait(true);
-
-                int numFollowing = await db.Users.Where(u => u.Name == username)
-                    .SelectMany(usr => usr.Following)
-                    .CountAsync().ConfigureAwait(true);
-
-                List<GroupInfo> gi = await db.Users.Where(u => u.Name == username)
-                    .SelectMany(usr => usr.Groups)
-                    .Select(g => new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        Name = g.GroupName,
-                        Icon = "fa-bolt",
-                        Level = 1,
-                        Progress = 36,
-                        NumPosts = g.Posts.Count,
-                        UserPosts = g.Posts.Where(p => p.UserId.Id == userId).Count(),
-                        IsMod = g.Moderators.Select(usr => usr.Id).Contains(userId),
-                        IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(userId),
-                    })
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
-                var uavm = new UserAchievementsViewModel
-                {
-                    Achievements = await db.Users.Where(u => u.Name == username)
-                        .SelectMany(usr => usr.Achievements)
-                        .Select(ac => new UserAchievementViewModel()
-                        {
-                            Id = ac.Id,
-                            ImageId = ac.Achievement.Id,
-                            Name = ac.Achievement.Name,
-                        })
-                        .AsNoTracking()
-                        .ToListAsync().ConfigureAwait(true)
-                };
-
                 var vm = new UserViewModel()
                 {
-                    AboutMe = new AboutMeViewModel()
-                    {
-                        AboutMe = userInfo.AboutMe
-                    },
-                    UserGroups = new ManageUserGroupsViewModel() { Groups = gi },
-                    NumPosts = numUserPosts,
-                    NumFollowers = numFollowers,
-                    NumFollowing = numFollowing,
-                    IsFollowing = isFollowing,
-                    IsIgnoring = isIgnoring,
-                    IsBlocked = isBlocking,
-                    ActivityPosts = activityposts,
-                    UserBalance = userFunds,
-                    AchievementsViewModel = uavm,
-                    UserId = userId,
+                    UserId = userInfo.Id,
                     UserAppId = userInfo.AppId,
-                    UserProfileImageVersion = userInfo.UserProfileImageVersion,
                     UserName = userInfo.Name,
-                    DateJoined = userInfo.DateJoined,
-                    Reputation = userInfo.Reputation,
                 };
-
-                ViewBag.Username = username;
-                ViewBag.UserId = userId;
 
                 return View(vm);
             }

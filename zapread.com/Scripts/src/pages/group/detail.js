@@ -34,8 +34,6 @@ import '../../css/quill/quillcustom.scss';
 import '../../css/posts.css'
 
 // Force prefetching code in parallel... (https://stackoverflow.com/questions/58687397/react-lazy-and-prefetching-components)
-//import("./Components/GroupAdminBar"); //
-//import("./Components/GroupModBar"); //
 import("../../Components/PostList");
 import("../../Components/VoteModal");
 

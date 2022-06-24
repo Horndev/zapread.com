@@ -539,8 +539,9 @@ namespace zapread.com.API
                     userAppId = await db.Users
                         .Where(u => u.AppId == appId)
                         .Select(u => u.AppId)
+                        .AsNoTracking()
                         .FirstOrDefaultAsync();
-                } 
+                }
 
                 if (userAppId == null) return BadRequest();
 
@@ -563,6 +564,7 @@ namespace zapread.com.API
                         NumFollowing = u.Following.Count,
                         NumFollowers = u.Followers.Count,
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 return Ok(new GetUserInfoResponse()
@@ -600,6 +602,7 @@ namespace zapread.com.API
                         u.Settings,
                         u.Languages
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 if (userInfo == null) return NotFound();
@@ -637,6 +640,7 @@ namespace zapread.com.API
                         isIgnoring = u.IgnoringUsers.Select(us => us.AppId).Contains(appId),
                         isBlocking = u.BlockingUsers.Select(us => us.AppId).Contains(appId),
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 if (userInfo == null) return NotFound();
@@ -687,6 +691,7 @@ namespace zapread.com.API
                                 ProfileImageVersion = us.ProfileImage.Version,
                             }),
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 if (userInfo == null) return NotFound();
@@ -735,6 +740,7 @@ namespace zapread.com.API
                                 IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
                             }),
                     })
+                    .AsNoTracking()
                     .FirstOrDefaultAsync();
 
                 if (userInfo == null) return NotFound();
@@ -760,13 +766,6 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                //var userInfo = await db.Users
-                //    .Where(u => u.AppId == userAppId)
-                //    .Select(u => new {
-                        
-                //    })
-                //    .FirstOrDefaultAsync();
-
                 using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                 {
                     return Ok(new GetUserSecurityInfoResponse()
@@ -801,6 +800,7 @@ namespace zapread.com.API
                     userAppId = await db.Users
                         .Where(u => u.AppId == req.UserAppId)
                         .Select(u => u.AppId)
+                        .AsNoTracking()
                         .FirstOrDefaultAsync().ConfigureAwait(true);
                 }
 
@@ -825,6 +825,9 @@ namespace zapread.com.API
                         }
                         post.Content = postDocument.DocumentNode.OuterHtml;
                     }
+
+                    post.PostIdEnc = zapread.com.Services.CryptoService.IntIdToString(post.PostId);
+                    post.PostTitleEnc = !String.IsNullOrEmpty(post.PostTitle) ? post.PostTitle.MakeURLFriendly() : (post.UserName + " posted in " + post.GroupName).MakeURLFriendly();
                 });
 
                 var response = new Models.API.Post.GetPostsResponse()
@@ -876,6 +879,7 @@ namespace zapread.com.API
                     .Where(u => u.AppId == userAppId)
                     .Where(u => u.ReferralInfo != null)
                     .Select(u => u.ReferralInfo)
+                    .AsNoTracking()
                     .FirstOrDefaultAsync()
                     .ConfigureAwait(true);
 
@@ -960,12 +964,14 @@ namespace zapread.com.API
                 var refCode = await db.Users
                     .Where(u => u.AppId == userAppId)
                     .Select(u => u.ReferralCode)
+                    .AsNoTracking()
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 if (refCode == null)
                 {
                     var user = await db.Users
                         .Where(u => u.AppId == userAppId)
+                        .AsNoTracking()
                         .FirstOrDefaultAsync().ConfigureAwait(true);
                     if (user == null) return NotFound();
                     user.ReferralCode = CryptoService.GetNewRefCode();

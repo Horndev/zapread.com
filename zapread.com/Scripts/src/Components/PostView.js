@@ -3,6 +3,10 @@
  */
 
 import React, { Suspense, useCallback, useEffect, useState, createRef } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faBell, faBellSlash
+} from '@fortawesome/free-solid-svg-icons'
 import { Dropdown } from "react-bootstrap";
 import { readMoreButton } from "../shared/readmore";
 import { deletePost } from "../shared/postfunctions";
@@ -15,13 +19,14 @@ import { ISOtoRelative } from "../utility/datetime/posttime";
 import { postJson } from "../utility/postData";
 import PostVoteButtons from "./PostVoteButtons";
 import ReactionBar from './ReactionBar';
+import SharePostButton from './Share/SharePostButton';
 const CommentsView = React.lazy(() => import("./CommentsView"));
 const getSwal = () => import('sweetalert2');
 
 export default function PostView(props) {
   const [post, setPost] = useState(props.post);
   const [isHidden, setIsHidden] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(props.isVisible);
   const [isIgnored, setIsIgnored] = useState(true);
   const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -30,6 +35,7 @@ export default function PostView(props) {
   const [isAuthor, setIsAuthor] = useState(false);
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isHoveringTitle, setIsHoveringTitle] = useState(false);
   const [impressions, setImpressions] = useState(0);
   const toggleVisibleIconRef = createRef();
 
@@ -152,6 +158,7 @@ export default function PostView(props) {
     }).then((response) => {
       if (response.success) {
         setIsFollowing(!isFollowing);
+        setIsHoveringTitle(false);
       }
     });
   }
@@ -294,15 +301,25 @@ export default function PostView(props) {
           ) : (<></>)}
 
           <div className="media-body">
-            {!isIgnored ? (
-              <a className="vote-title" href={post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId)} style={{ marginLeft: "110px" }}>
+            <div
+              onMouseEnter={() => setIsHoveringTitle(true)} onMouseLeave={() => setIsHoveringTitle(false)}
+              className="vote-title">
+              {!isIgnored ? (
+                <a href={post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId)}>
                 {post.PostTitle == "" ? (
                   <>Post</>
                 ) : (
                   post.PostTitle
                 )}
-              </a>) : (<><span className="vote-title">(Ignored)</span></>)}
-
+                </a>) : (<><span>(Ignored)</span></>)}
+                {isFollowing ? (
+                  <>
+                  {" "}
+                  <FontAwesomeIcon
+                    title="Stop Following Post"
+                    icon={isHoveringTitle ? (faBellSlash) : (faBell)} onClick={toggleFollow} style={{ display: "inline" }} />
+                  </>) : (<></>)}
+             </div>
             <div className="vote-info" style={{ marginLeft: "110px" }}>
 
               <a className="post-username userhint" data-userid={post.UserId} data-userappid={post.UserAppId}
@@ -376,14 +393,27 @@ export default function PostView(props) {
             <ReactionBar l={"1"} postId={post.PostId} />
             <div style={{height:"30px"}}>
               <div id={"wc_" + post.PostId}>
-                <span className="btn btn-link btn-sm" onClick={() => {
-                  writeComment(post.PostId);
-                }}>
-                  <span className="badge badge-light">
-                    {post.CommentVms.length}
-                  </span>
-                  {" "}<i className="fa fa-comments"></i>{" "}Write a comment
-                </span>
+                {isVisible ? (
+                  <>
+                    <span className="btn btn-link btn-sm" onClick={() => {
+                      writeComment(post.PostId);
+                    }}>
+                      <span className="badge badge-light">
+                        {post.CommentVms.length}
+                      </span>
+                      {" "}<i className="fa fa-comments"></i>{" "}Write a comment
+                    </span>
+                  </>) : (
+                    <>
+                      <span className="btn btn-link btn-sm" onClick={() => setIsVisible(true) }>
+                        <span className="badge badge-light">
+                          {post.CommentVms.length}
+                        </span>
+                        {" "}<i className="fa fa-comments"></i>{" "}Comments
+                      </span>
+                  </>)}
+                <SharePostButton postId={post.PostId} title={post.PostTitle}
+                  url={"https://www.zapread.com" + (post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId))} />
               </div>
             </div>
             <div id={"reply_p" + post.PostId} style={{ display: "none" }}></div>

@@ -1677,7 +1677,6 @@
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\admin\reactions.js" />
-    <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
@@ -1790,7 +1789,6 @@
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
-    <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
@@ -1911,7 +1909,6 @@
     <Content Include="Views\Messages\_PartialRecentAlerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalMessageCompose.cshtml" />
     <Content Include="Views\Shared\_PartialSummaryStatistics.cshtml" />
-    <Content Include="Views\Group\_PartialGroupAdminBar.cshtml" />
     <Content Include="Views\Group\_PartialAddUserToGroupRoleForm.cshtml" />
     <Content Include="Views\Messages\_PartialRecentUnreadMessages.cshtml" />
     <Content Include="Views\Admin\_PartialSiteAdminBarUserInfo.cshtml" />
@@ -2054,7 +2051,6 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
-    <Content Include="Views\User\Index - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

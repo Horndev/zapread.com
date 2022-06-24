@@ -15,6 +15,12 @@ export function addposts(data, callback) {
   callback();
 }
 
+/**
+ * DEPRECATED
+ * 
+ * @deprecated
+ * @param {any} options
+ */
 export function loadmore(options) {
     if (typeof options === 'undefined') {
         options = { sort: 'Score', url: '/Home/InfiniteScroll/', blocknumber: 1, userId: -1 };
