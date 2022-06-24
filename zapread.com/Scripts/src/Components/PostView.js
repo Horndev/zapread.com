@@ -295,7 +295,7 @@ export default function PostView(props) {
 
           <div className="media-body">
             {!isIgnored ? (
-              <a className="vote-title" href={"/Post/Detail/" + post.PostId} style={{ marginLeft: "110px" }}>
+              <a className="vote-title" href={post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId)} style={{ marginLeft: "110px" }}>
                 {post.PostTitle == "" ? (
                   <>Post</>
                 ) : (

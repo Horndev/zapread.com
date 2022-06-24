@@ -231,20 +231,24 @@ export default function VoteModal(props) {
 
   function spinnerOn(target) {
     var icon = target;
-    icon.classList.remove('fa-chevron-up');
-    icon.classList.remove('fa-chevron-down');
-    icon.classList.add('fa-circle-notch');
-    icon.classList.add('fa-spin');
-    icon.style.color = 'darkcyan';
+    if (icon) {
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-circle-notch');
+      icon.classList.add('fa-spin');
+      icon.style.color = 'darkcyan';
+    }
   }
 
   function spinnerOff(target, direction) {
     // Stop the spinner
     var icon = target;
-    icon.classList.remove('fa-circle-notch');
-    icon.classList.remove('fa-spin');
-    icon.classList.add(direction == "up" ? 'fa-chevron-up' : 'fa-chevron-down');
-    icon.style.color = '';
+    if (icon) {
+      icon.classList.remove('fa-circle-notch');
+      icon.classList.remove('fa-spin');
+      icon.classList.add(direction == "up" ? 'fa-chevron-up' : 'fa-chevron-down');
+      icon.style.color = '';
+    }
   }
 
   async function doVote(e) {

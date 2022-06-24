@@ -979,7 +979,9 @@
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
     <Compile Include="Models\API\Post\AddReactionRequest.cs" />
     <Compile Include="Models\API\Post\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostRequest.cs" />
     <Compile Include="Models\API\Post\GetPostsRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostResponse.cs" />
     <Compile Include="Models\API\Post\GetPostsResponse.cs" />
     <Compile Include="Models\API\Post\GetReactionsResponse.cs" />
     <Compile Include="Models\API\Post\PostReportRequest.cs" />

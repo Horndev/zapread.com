@@ -54,6 +54,107 @@ namespace zapread.com.API
         /// <param name="req"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
+        [Route("api/v1/post/get")]
+        public async Task<IHttpActionResult> GetPost(GetPostRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            int postId = req.PostId;
+
+            if (postId < 1 && string.IsNullOrEmpty(req.PostIdEnc)) return BadRequest();
+            
+            if (!string.IsNullOrEmpty(req.PostIdEnc))
+            {
+                postId = Services.CryptoService.StringToIntId(req.PostIdEnc);
+            }
+
+            using (var db = new ZapContext())
+            {
+                var userAppId = User.Identity.GetUserId();
+                var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
+
+                var post = db.Posts
+                    .Where(p => p.PostId == postId && !p.IsDraft && !p.IsDeleted)
+                    .Select(p => new PostViewModel()
+                    {
+                        PostTitle = p.PostTitle,
+                        Content = p.Content,
+                        PostId = p.PostId,
+                        GroupId = p.Group.GroupId,
+                        GroupName = p.Group.GroupName,
+                        IsSticky = p.IsSticky,
+                        UserName = p.UserId.Name,
+                        UserId = p.UserId.Id,
+                        UserAppId = p.UserId.AppId,
+                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
+                        Score = p.Score,
+                        TimeStamp = p.TimeStamp,
+                        TimeStampEdited = p.TimeStampEdited,
+                        IsNSFW = p.IsNSFW,
+                        IsNonIncome = p.IsNonIncome,
+                        ViewerIsFollowing = userId.HasValue ? p.FollowedByUsers.Select(v => v.Id).Contains(userId.Value) : false,
+                        ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false,
+                        ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
+                        ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
+                        ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                        ViewerIgnoredPost = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                        {
+                            PostId = p.PostId,
+                            CommentId = c.CommentId,
+                            Text = c.Text,
+                            Score = c.Score,
+                            IsReply = c.IsReply,
+                            IsDeleted = c.IsDeleted,
+                            TimeStamp = c.TimeStamp,
+                            TimeStampEdited = c.TimeStampEdited,
+                            UserId = c.UserId.Id,
+                            UserName = c.UserId.Name,
+                            UserAppId = c.UserId.AppId,
+                            ProfileImageVersion = c.UserId.ProfileImage.Version,
+                            ViewerUpvoted = userId.HasValue ? c.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
+                            ViewerDownvoted = userId.HasValue ? c.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
+                            ViewerIgnoredUser = userId.HasValue ? (c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
+                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
+                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
+                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
+                        }),
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                if (post == null) return NotFound();
+
+                HtmlDocument postDocument = new HtmlDocument();
+                postDocument.LoadHtml(post.Content);
+
+                var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
+                if (postImages != null)
+                {
+                    foreach (var postImage in postImages)
+                    {
+                        postImage.SetAttributeValue("loading", "lazy");
+                    }
+                    post.Content = postDocument.DocumentNode.OuterHtml;
+                }
+
+                post.PostIdEnc = zapread.com.Services.CryptoService.IntIdToString(post.PostId);
+                post.PostTitleEnc = !String.IsNullOrEmpty(post.PostTitle) ? post.PostTitle.MakeURLFriendly() : (post.UserName + " posted in " + post.GroupName).MakeURLFriendly();
+
+                return Ok(new GetPostResponse() 
+                { 
+                    success = true,
+                    Post = post
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
         [Route("api/v1/post/feed")]
         public async Task<IHttpActionResult> GetPosts(GetPostsRequest req)
         {
@@ -123,6 +224,9 @@ namespace zapread.com.API
                         }
                         post.Content = postDocument.DocumentNode.OuterHtml;
                     }
+
+                    post.PostIdEnc = zapread.com.Services.CryptoService.IntIdToString(post.PostId);
+                    post.PostTitleEnc = !String.IsNullOrEmpty(post.PostTitle) ? post.PostTitle.MakeURLFriendly() : (post.UserName + " posted in " + post.GroupName).MakeURLFriendly();
                 });
 
                 var response = new GetPostsResponse()

@@ -18,8 +18,12 @@ namespace zapread.com.Models
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Post Post { get; set; }
         public string PostTitle { get; set; }
+        public string PostTitleEnc { get; set; }
         public string Content { get; set; }
         public int PostId { get; set; }
+
+        public string PostIdEnc { get; set; }
+
         public int GroupId { get; set; }
         public string GroupName { get; set; }
         public string UserName { get; set; }
