@@ -36,17 +36,17 @@ export default function PageHeading(props) {
           {props.topGroups ? (
             <Row>
               <Col className="d-none d-lg-block" lg={2}>
-                <div className="ibox-title" style={{whiteSpace: "nowrap"}}>
+                <div className="ibox-title"
+                  onClick={() => {
+                    topGroupsIsExpanded ? props.onTopGroupsClosed() : props.onTopGroupsOpened();
+                    setTopGroupsIsExpanded(!topGroupsIsExpanded);
+                  }}
+                  style={{ whiteSpace: "nowrap" }}>
                   <h5>
                     Top Groups
                   </h5>
                   <div className="ibox-tools">
-                    <a
-                      className="collapse-link"
-                      onClick={() => {
-                        topGroupsIsExpanded ? props.onTopGroupsClosed() : props.onTopGroupsOpened();
-                        setTopGroupsIsExpanded(!topGroupsIsExpanded);
-                      }}>
+                    <a className="collapse-link">
                       <i className={topGroupsIsExpanded ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down"}></i>
                     </a>
                   </div>
