@@ -54,6 +54,7 @@ namespace zapread.com.Models.Database
         /// <summary>
         /// 0 = Other
         /// 1 = Spam
+        /// 2 = NSFW
         /// </summary>
         public int ReportType { get; set; }
 

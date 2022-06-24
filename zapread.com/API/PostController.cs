@@ -42,9 +42,41 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
+                // Check for duplicates
+                var isDuplicate = await db.UserContentReports
+                    .Where(r => r.ReportType == req.ReportType)
+                    .Where(r => r.Post != null && r.Post.PostId == req.PostId)
+                    .Where(r => r.ReportedBy.AppId == userAppId)
+                    .AnyAsync();
 
+                if (isDuplicate)
+                {
+                    return Ok(new ZapReadResponse() { success = false, message = "You can only report once." });
+                }
 
-                return Ok();
+                var post = await db.Posts
+                    .Where(p => p.PostId == req.PostId)
+                    .FirstOrDefaultAsync();
+
+                var reportedByUser = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .FirstOrDefaultAsync();
+
+                if (post == null) return NotFound();
+
+                var report = new UserContentReport() 
+                { 
+                    Post = post,
+                    ReportedBy = reportedByUser,
+                    ReportType = req.ReportType,
+                    TimeStamp = DateTime.UtcNow
+                };
+
+                db.UserContentReports.Add(report);
+
+                await db.SaveChangesAsync();
+
+                return Ok(new ZapReadResponse() { success = true });
             }
         }
 

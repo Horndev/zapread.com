@@ -187,6 +187,41 @@ export default function PostView(props) {
     });
   }
 
+  const reportSpam = () => {
+    makeReport(1, "Report Spam", "Do you wish to report this content as spam?");
+  };
+
+  const reportNSFW = () => {
+    makeReport(2, "Report Not Safe for Work", "Do you wish to report this content as NSFW?");
+  };
+
+  const makeReport = (reportType, title, text) => {
+    getSwal().then(({ default: Swal }) => {
+      Swal.fire({
+        title: title,
+        text: text,
+        icon: "warning",
+        showCancelButton: true
+      }).then(function (willReport) {
+        if (willReport.value) {
+          postJson("/api/v1/post/report/", {
+            PostId: post.PostId,
+            ReportType: reportType
+          }).then((response) => {
+            if (response.success) {
+              Swal.fire("Success", "Your report has been sent to the moderators.", "success");
+            }
+            else {
+              Swal.fire("Error", "Error: " + response.message, "error");
+            }
+          });
+        } else {
+          console.log("cancelled report");
+        }
+      });
+    });
+  }
+
   return (
     <>
       <div className="social-feed-box" id={"post_" + post.PostId} style={isHidden ? { display: "none" } : {}}>
@@ -270,13 +305,13 @@ export default function PostView(props) {
                 </button>
               </Dropdown.Item>
             </>) : (<>
-              <Dropdown.Item as="li" onClick={() => { alert("Not yet implemented.  Feature coming soon."); }}>
+              <Dropdown.Item as="li" onClick={reportNSFW}>
                 <button className="btn btn-link btn-sm">
                   <i className="fa fa-exclamation-triangle"></i> Report NSFW
                 </button>
               </Dropdown.Item>
             </>)}
-            <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
+            <Dropdown.Item as="li" onClick={reportSpam}>
               <button className="btn btn-link btn-sm" type="submit">
                 <i className="fa fa-flag"></i> Report Spam
               </button>
