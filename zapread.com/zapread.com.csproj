@@ -171,6 +171,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Configuration.ConfigurationBuilders.Base, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Configuration.ConfigurationBuilders.Base.2.0.0\lib\Net471\Microsoft.Configuration.ConfigurationBuilders.Base.dll</HintPath>
     </Reference>
@@ -271,6 +274,9 @@
     <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
       <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.7.2.1\lib\net472\Polly.dll</HintPath>
+    </Reference>
     <Reference Include="Postal, Version=1.0.0.0, Culture=neutral, PublicKeyToken=45719375b8b4d528, processorArchitecture=MSIL">
       <HintPath>..\packages\Postal.Mvc5.1.2.0\lib\net45\Postal.dll</HintPath>
     </Reference>
@@ -288,12 +294,18 @@
     <Reference Include="RestSharp, Version=107.3.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.107.3.0\lib\netstandard2.0\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Square, Version=19.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Square.19.1.0\lib\netstandard2.0\Square.dll</HintPath>
+    </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -938,6 +950,10 @@
     <Compile Include="Migrations\202206161921353_AddUserContentReports.designer.cs">
       <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.cs" />
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.designer.cs">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1024,7 +1040,12 @@
     <Compile Include="Models\Database\BannerAlert.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
+    <Compile Include="Models\Database\Financial\Customer.cs" />
     <Compile Include="Models\Database\Financial\FundsLock.cs" />
+    <Compile Include="Models\Database\Financial\Order.cs" />
+    <Compile Include="Models\Database\Financial\Subscription.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPayment.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPlan.cs" />
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
@@ -1112,6 +1133,7 @@
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\PaymentPoller.cs" />
     <Compile Include="Services\PayoutsService.cs" />
+    <Compile Include="Services\PointOfSaleService.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ReputationService.cs" />
     <Compile Include="Services\UserState.cs" />
@@ -1958,6 +1980,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202206161921353_AddUserContentReports.resx">
       <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206241952241_AddPointOfSale.resx">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />

@@ -210,6 +210,18 @@ namespace zapread.com.Models.Database
         /// <summary>
         /// 
         /// </summary>
+        [InverseProperty("User")]
+        public virtual ICollection<zapread.com.Models.Database.Financial.Subscription> Subscriptions { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("User")]
+        public virtual ICollection<zapread.com.Models.Database.Financial.Order> Orders { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="v"></param>
         public static implicit operator User(string v)
         {
