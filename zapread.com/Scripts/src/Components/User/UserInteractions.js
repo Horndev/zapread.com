@@ -43,7 +43,7 @@ function BlockButton(props) {
       UserAppId: props.userAppId
     }).then((response) => {
       if (response.success) {
-        props.updateBlocking(!props.isFollowing);
+        props.updateBlocking(!props.isBlocking);
       }
     });
   };
