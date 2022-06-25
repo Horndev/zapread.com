@@ -222,6 +222,11 @@ namespace zapread.com.Models.Database
         /// <summary>
         /// 
         /// </summary>
+        public int PremiumLevel { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="v"></param>
         public static implicit operator User(string v)
         {

@@ -954,6 +954,10 @@
     <Compile Include="Migrations\202206241952241_AddPointOfSale.designer.cs">
       <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.cs" />
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.designer.cs">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1983,6 +1987,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202206241952241_AddPointOfSale.resx">
       <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206250018230_AddUserPremiumLevel.resx">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />

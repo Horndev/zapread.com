@@ -1026,25 +1026,28 @@ namespace zapread.com.Controllers
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code).ConfigureAwait(true);
 
-            using (var db = new ZapContext())
+            if (result.Succeeded)
             {
-                var user = await db.Users
-                    .Include(u => u.Funds)
-                    .Include(u => u.Funds.Locks)
-                    .Where(u => u.AppId == userId)
-                    .FirstOrDefaultAsync();
+                using (var db = new ZapContext())
+                {
+                    var user = await db.Users
+                        .Include(u => u.Funds)
+                        .Include(u => u.Funds.Locks)
+                        .Where(u => u.AppId == userId)
+                        .FirstOrDefaultAsync();
 
-                var locksToRemove = user.Funds.Locks
-                    .Where(l => l.Reason == UserFundLockType.UserUpdatedEmail)
-                    .ToList();
+                    var locksToRemove = user.Funds.Locks
+                        .Where(l => l.Reason == UserFundLockType.UserUpdatedEmail)
+                        .ToList();
 
-                db.Locks.RemoveRange(locksToRemove);
-                //foreach(var l in locksToRemove)
-                //{    
-                //    user.Funds.Locks.Remove(l);
-                //}
+                    db.Locks.RemoveRange(locksToRemove);
+                    //foreach(var l in locksToRemove)
+                    //{    
+                    //    user.Funds.Locks.Remove(l);
+                    //}
 
-                await db.SaveChangesAsync();
+                    await db.SaveChangesAsync();
+                }
             }
 
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
