@@ -85,11 +85,27 @@ namespace zapread.com.Services
                     {
                         if (from != null) // ignore if we're not debiting a user - funds are from a new deposit
                         {
-                            if (from.Balance < amountFrom)
+                            // Spend from the spend only first - then use regular balance
+                            double amountToDeduct = amountFrom;
+                            if (from.SpendOnlyBalance >= amountToDeduct)
                             {
-                                throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalance);
+                                from.SpendOnlyBalance -= amountToDeduct;
+                                amountToDeduct = 0;
                             }
-                            from.Balance -= amountFrom;
+                            else if (from.SpendOnlyBalance > 0)
+                            {
+                                amountToDeduct -= from.SpendOnlyBalance;
+                                from.SpendOnlyBalance = 0;
+                            }
+
+                            if (amountToDeduct > 0)
+                            {
+                                if (from.Balance < amountToDeduct)
+                                {
+                                    throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalance);
+                                }
+                                from.Balance -= amountToDeduct;
+                            }
                         }
 
                         if (to != null) // downvotes could go to just community and group

@@ -296,8 +296,23 @@ export default function VoteModal(props) {
       tx: voteTx.current
     }).then((data) => {
       if (data.success) {
+        var sob = parseInt(window.userInfo.spendOnlyBalance);
+        var bal = parseInt(window.userInfo.balance);
+
+        if (sob > 0) {
+          if (sob < va) {
+            bal = bal - va + sob;
+            sob = 0;
+          } else if (sob > va) {
+            sob = sob - va;
+          }
+        } else {
+          bal = bal - va;
+        }
+
         updateUserInfo({
-          balance: parseInt(window.userInfo.balance) + parseInt(window.userInfo.spendOnlyBalance) - va
+          balance: bal,
+          spendOnlyBalance: sob
         });
         spinnerOff(vtgt, vd);
 
