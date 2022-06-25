@@ -160,21 +160,25 @@ namespace zapread.com.Controllers
             XFrameOptionsDeny();
 
             double userBalance = 0.0;
+            double userSpendOnlyBalance = 0.0;
             if (Request.IsAuthenticated)
             {
                 var userAppId = User.Identity.GetUserId();
                 var balanceInfo = await GetUserBalance(userAppId).ConfigureAwait(true);
                 userBalance = Math.Floor(balanceInfo.Balance);
+                userSpendOnlyBalance = Math.Floor(balanceInfo.SpendOnlyBalance);
                 string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
+                string spendOnlyBalance = userSpendOnlyBalance.ToString("0.##", CultureInfo.InvariantCulture);
 
                 return Json(new { 
                     balance,
+                    spendOnlyBalance,
                     balanceInfo.QuickVoteOn,
                     QuickVoteAmount = balanceInfo.QuickVoteAmount > 0 ? balanceInfo.QuickVoteAmount : 1
                 }, JsonRequestBehavior.AllowGet);
             }
             
-            return Json(new { balance = "0" }, JsonRequestBehavior.AllowGet);
+            return Json(new { balance = "0", spendOnlyBalance = "0" }, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -197,6 +201,7 @@ namespace zapread.com.Controllers
                 return new UserBalanceInfo()
                 {
                     Balance = 0.0,
+                    SpendOnlyBalance = 0.0,
                     QuickVoteAmount = 10,
                     QuickVoteOn = false,
                 };
@@ -210,6 +215,7 @@ namespace zapread.com.Controllers
                         .AsNoTracking()
                         .Select(u => new UserBalanceInfo() { 
                             Balance = u.Funds.Balance,
+                            SpendOnlyBalance = u.Funds.SpendOnlyBalance,
                             QuickVoteAmount = u.Funds.QuickVoteAmount,
                             QuickVoteOn = u.Funds.QuickVoteOn
                         })
@@ -230,6 +236,7 @@ namespace zapread.com.Controllers
                                 .FirstOrDefaultAsync().ConfigureAwait(false);
                             user_modified.Funds = new UserFunds() { 
                                 Balance = 0.0, 
+                                SpendOnlyBalance = 0.0,
                                 Id = user_modified.Id, 
                                 TotalEarned = 0.0,
                                 QuickVoteOn = false,
@@ -240,6 +247,7 @@ namespace zapread.com.Controllers
                         return new UserBalanceInfo()
                         {
                             Balance = 0.0,
+                            SpendOnlyBalance = 0.0,
                             QuickVoteAmount = 10,
                             QuickVoteOn = false,
                         };
@@ -263,6 +271,7 @@ namespace zapread.com.Controllers
                 balance = new UserBalanceInfo()
                 {
                     Balance = 0.0,
+                    SpendOnlyBalance = 0.0,
                     QuickVoteAmount = 10,
                     QuickVoteOn = false,
                 };

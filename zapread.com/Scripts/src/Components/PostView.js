@@ -26,7 +26,7 @@ const getSwal = () => import('sweetalert2');
 export default function PostView(props) {
   const [post, setPost] = useState(props.post);
   const [isHidden, setIsHidden] = useState(false);
-  const [isVisible, setIsVisible] = useState(props.isVisible);
+  const [isVisible, setIsVisible] = useState(props.isVisible ? props.isVisible : true);
   const [isIgnored, setIsIgnored] = useState(true);
   const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

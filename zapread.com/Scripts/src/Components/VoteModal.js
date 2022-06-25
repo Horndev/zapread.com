@@ -126,7 +126,7 @@ export default function VoteModal(props) {
   function handleVote(e) {
     // Note - don't need to check if authenticated since this only button visible when logged in.
     refreshUserBalance(true).then((userBalance) => {
-      if (parseInt(voteAmount) > parseInt(userBalance)) {
+      if (parseInt(voteAmount) > (parseInt(userBalance.balance) + parseInt(userBalance.spendOnlyBalance))) {
         console.log("vote amount", voteAmount, "greater than balance", userBalance);
         // Not enough funds for the vote
         setStateGetInvoice();
@@ -297,7 +297,7 @@ export default function VoteModal(props) {
     }).then((data) => {
       if (data.success) {
         updateUserInfo({
-          balance: window.userInfo.balance - va
+          balance: parseInt(window.userInfo.balance) + parseInt(window.userInfo.spendOnlyBalance) - va
         });
         spinnerOff(vtgt, vd);
 
@@ -370,7 +370,7 @@ export default function VoteModal(props) {
       });
     } else {
       refreshUserBalance(true).then((userBalance) => {
-        if (userBalance < voteAmount) {
+        if ((parseInt(userBalance.balance) + parseInt(userBalance.spendOnlyBalance)) < voteAmount) {
           //console.log(userInfo, voteAmount);
           setStateGetInvoice();
         }
@@ -440,7 +440,7 @@ export default function VoteModal(props) {
                   </Col>
                   <Col xs={6} className="text-right">
                     <span> Balance </span>
-                    <h2 className="font-bold">{userInfo.balance}{" "}<i className="fa fa-bolt"></i></h2>
+                    <h2 className="font-bold">{parseInt(userInfo.balance) + parseInt(userInfo.spendOnlyBalance)}{" "}<i className="fa fa-bolt"></i></h2>
                     <small className="text-muted">Satoshi</small>
                   </Col>
                 </Row>

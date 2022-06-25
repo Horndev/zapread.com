@@ -3,6 +3,7 @@
  */
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
+import Tippy from '@tippyjs/react';
 import { Modal, Nav, Tab, Container, Row, Col, ButtonGroup, Button, Card } from "react-bootstrap";
 import { useUserInfo } from "./hooks/useUserInfo";
 import { on, off } from "../utility/events";
@@ -392,7 +393,16 @@ export default function DepositWithdrawModal(props) {
                   </Col>
                   <Col xs={6} className="text-right">
                     <span> Balance </span>
-                    <h2 className="font-bold">{userInfo.balance}{" "}<i className="fa fa-bolt"></i></h2>
+                    <Tippy
+                      theme="light-border"
+                      interactive={true}
+                      interactiveBorder={30}
+                      interactiveDebounce={75}
+                      content={
+                        <>Does not include {userInfo.spendOnlyBalance} spend-only balance.</>
+                      }>
+                      <h2 className="font-bold">{userInfo.balance}{" "}<i className="fa fa-bolt"></i></h2>
+                    </Tippy>
                     <small className="text-muted">Satoshi</small>
                   </Col>
                 </Row>

@@ -89,7 +89,7 @@ export default function BalanceWidget(props) {
             style={{ whiteSpace: "nowrap", paddingRight: "10px" }}>
             <i className="fa fa-bitcoin"></i>&nbsp;
             <span id="topUserBalance" className="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance">
-              {userInfo.balance}
+              {parseInt(userInfo.balance) + parseInt(userInfo.spendOnlyBalance)}
             </span>
           </a>
           <div className="dropdown-menu dropdown-menu-right"

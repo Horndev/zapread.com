@@ -24,10 +24,14 @@ export async function refreshUserBalance(update = true) {
         var quickVoteAmount = parseInt(data.QuickVoteAmount);
         updateUserInfo({
           balance: data.balance,
+          spendOnlyBalance: data.spendOnlyBalance,
           quickVote: data.QuickVoteOn,
           quickVoteAmount: quickVoteAmount > 0 ? quickVoteAmount : 1
         });
       }
-      return data.balance;
+      return {
+        balance: data.balance,
+        spendOnlyBalance: data.spendOnlyBalance
+      };
     });
 }
