@@ -267,6 +267,7 @@ namespace zapread.com.API
             {
                 var requestingUserInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
+                    .Include(u => u.Following)
                     .Select(u => new
                     {
                         User = u,
@@ -283,7 +284,7 @@ namespace zapread.com.API
                     if (followUser == null) return BadRequest();
 
                     // This adds the user without hitting the db to query user list
-                    requestingUserInfo.User.Following = new List<User>() { followUser };
+                    requestingUserInfo.User.Following.Add(followUser);// = new List<User>() { followUser };
 
                     await db.SaveChangesAsync();
 
@@ -358,6 +359,7 @@ namespace zapread.com.API
             {
                 var requestingUserInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
+                    .Include(u => u.BlockingUsers)
                     .Select(u => new
                     {
                         User = u,
@@ -374,7 +376,7 @@ namespace zapread.com.API
                     if (followUser == null) return BadRequest();
 
                     // This adds the user without hitting the db to query user list
-                    requestingUserInfo.User.BlockingUsers = new List<User>() { followUser };
+                    requestingUserInfo.User.BlockingUsers.Add(followUser);// = new List<User>() { followUser };
 
                     await db.SaveChangesAsync();
 
@@ -449,6 +451,7 @@ namespace zapread.com.API
             {
                 var requestingUserInfo = await db.Users
                     .Where(u => u.AppId == userAppId)
+                    .Include(u => u.IgnoringUsers)
                     .Select(u => new
                     {
                         User = u,
@@ -465,7 +468,7 @@ namespace zapread.com.API
                     if (followUser == null) return BadRequest();
 
                     // This adds the user without hitting the db to query user list
-                    requestingUserInfo.User.IgnoringUsers = new List<User>() { followUser };
+                    requestingUserInfo.User.IgnoringUsers.Add(followUser);// = new List<User>() { followUser };
 
                     await db.SaveChangesAsync();
 
