@@ -98,7 +98,7 @@ function Page() {
                     </Button>
                   </div>
                 ) : (<></>)}
-                <div className="social-feed-box-nb" style={{ marginBottom: "50px" }}><span></span></div>
+                <div className="social-feed-box-nb" style={{ marginBottom: "100px" }}><span></span></div>
               </Suspense>
             </>) : (<><LoadingBounce /></>)}
           </Col>
