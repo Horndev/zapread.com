@@ -88,12 +88,27 @@ export default function BalanceWidget(props) {
           <a className="nav-link dropdown-toggle" href="#" id="AuthedUserMenu" data-toggle="dropdown"
             style={{ whiteSpace: "nowrap", paddingRight: "10px" }}>
             <i className="fa fa-bitcoin"></i>&nbsp;
+
             <span id="topUserBalance" className="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance">
-              {userInfo.balance}
+              {parseInt(userInfo.balance) + parseInt(userInfo.spendOnlyBalance)}
             </span>
+
           </a>
           <div className="dropdown-menu dropdown-menu-right"
             style={{ textAlign: "left", position: "absolute" }}>
+            {parseInt(userInfo.spendOnlyBalance) > 0 ? (
+              <Tippy
+                theme="light-border"
+                interactive={false}
+                content={
+                  <>
+                    These are Sats in your account which can be spent but not withdrawn.  They will be spent first when voting.
+                  </>
+                }>
+                <span className="dropdown-item">
+                  <i className="fa fa-bitcoin"></i>{" "}{userInfo.spendOnlyBalance}{" "} Spend Only
+                </span>
+              </Tippy>) : (<></>)}
             <a role="button" className="dropdown-item btn btn-sm btn-link nav-link" onClick={onClickDepositWithdraw}>&nbsp;
               <i className="fa-solid fa-right-left"></i> Deposit/Withdraw
             </a>

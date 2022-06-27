@@ -171,6 +171,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Configuration.ConfigurationBuilders.Base, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Configuration.ConfigurationBuilders.Base.2.0.0\lib\Net471\Microsoft.Configuration.ConfigurationBuilders.Base.dll</HintPath>
     </Reference>
@@ -271,6 +274,9 @@
     <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
       <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.7.2.1\lib\net472\Polly.dll</HintPath>
+    </Reference>
     <Reference Include="Postal, Version=1.0.0.0, Culture=neutral, PublicKeyToken=45719375b8b4d528, processorArchitecture=MSIL">
       <HintPath>..\packages\Postal.Mvc5.1.2.0\lib\net45\Postal.dll</HintPath>
     </Reference>
@@ -288,12 +294,18 @@
     <Reference Include="RestSharp, Version=107.3.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.107.3.0\lib\netstandard2.0\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Square, Version=19.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Square.19.1.0\lib\netstandard2.0\Square.dll</HintPath>
+    </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -934,6 +946,18 @@
     <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.designer.cs">
       <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.cs" />
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.designer.cs">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.cs" />
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.designer.cs">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.cs" />
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.designer.cs">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -975,7 +999,12 @@
     <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
     <Compile Include="Models\API\Post\AddReactionRequest.cs" />
     <Compile Include="Models\API\Post\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostsRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostsResponse.cs" />
     <Compile Include="Models\API\Post\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\Post\PostReportRequest.cs" />
     <Compile Include="Models\API\Post\PostReqParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
     <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
@@ -995,8 +1024,16 @@
     <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
     <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
     <Compile Include="Models\API\User\GetUserEmailResponse.cs" />
+    <Compile Include="Models\API\User\GetUserFeedRequest.cs" />
+    <Compile Include="Models\API\User\GetUserFollowInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserGroupInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInteractionInfo.cs" />
+    <Compile Include="Models\API\User\GetUserNotificationInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserSecurityInfoResponse.cs" />
     <Compile Include="Models\API\User\UpdateEmailRequest.cs" />
     <Compile Include="Models\API\User\UpdateEmailResponse.cs" />
+    <Compile Include="Models\API\User\UserInteractionRequest.cs" />
     <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
     <Compile Include="Models\API\User\UserRefGiftResponse.cs" />
     <Compile Include="Models\API\User\UserSearchRequest.cs" />
@@ -1007,7 +1044,12 @@
     <Compile Include="Models\Database\BannerAlert.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
+    <Compile Include="Models\Database\Financial\Customer.cs" />
     <Compile Include="Models\Database\Financial\FundsLock.cs" />
+    <Compile Include="Models\Database\Financial\Order.cs" />
+    <Compile Include="Models\Database\Financial\Subscription.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPayment.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPlan.cs" />
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
@@ -1020,6 +1062,7 @@
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
+    <Compile Include="Models\Database\UserContentReport.cs" />
     <Compile Include="Models\Database\UserMessage.cs" />
     <Compile Include="Models\Database\UserProcess.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
@@ -1056,6 +1099,7 @@
     <Compile Include="Models\Messages\ChatsDataItem.cs" />
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
+    <Compile Include="Models\Mod\ContentReportTypes.cs" />
     <Compile Include="Models\Posts\PostEditViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Posts\Vote.cs" />
@@ -1093,6 +1137,7 @@
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\PaymentPoller.cs" />
     <Compile Include="Services\PayoutsService.cs" />
+    <Compile Include="Services\PointOfSaleService.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ReputationService.cs" />
     <Compile Include="Services\UserState.cs" />
@@ -1198,26 +1243,23 @@
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\dist\0\1035.css" />
     <Content Include="Scripts\dist\0\1035.js" />
-    <Content Include="Scripts\dist\0\2238.css" />
+    <Content Include="Scripts\dist\0\2025.js" />
+    <Content Include="Scripts\dist\0\2172.js" />
+    <Content Include="Scripts\dist\0\2172.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\2307.js" />
     <Content Include="Scripts\dist\0\2855.js" />
     <Content Include="Scripts\dist\0\3215.css" />
     <Content Include="Scripts\dist\0\3215.js" />
-    <Content Include="Scripts\dist\0\3876.css" />
-    <Content Include="Scripts\dist\0\3876.js" />
-    <Content Include="Scripts\dist\0\3903.css" />
-    <Content Include="Scripts\dist\0\3903.js" />
-    <Content Include="Scripts\dist\0\4090.css" />
+    <Content Include="Scripts\dist\0\3940.js" />
     <Content Include="Scripts\dist\0\4090.js" />
     <Content Include="Scripts\dist\0\4368.css" />
     <Content Include="Scripts\dist\0\4368.js" />
     <Content Include="Scripts\dist\0\4791.js" />
+    <Content Include="Scripts\dist\0\499.css" />
+    <Content Include="Scripts\dist\0\499.js" />
     <Content Include="Scripts\dist\0\5252.js" />
-    <Content Include="Scripts\dist\0\5346.css" />
-    <Content Include="Scripts\dist\0\5346.js" />
-    <Content Include="Scripts\dist\0\5456.css" />
-    <Content Include="Scripts\dist\0\5456.js" />
     <Content Include="Scripts\dist\0\5580.js" />
     <Content Include="Scripts\dist\0\5759.css" />
     <Content Include="Scripts\dist\0\5759.js" />
@@ -1225,24 +1267,24 @@
     <Content Include="Scripts\dist\0\586.js" />
     <Content Include="Scripts\dist\0\595.js" />
     <Content Include="Scripts\dist\0\6455.js" />
-    <Content Include="Scripts\dist\0\6685.css" />
-    <Content Include="Scripts\dist\0\6685.js" />
     <Content Include="Scripts\dist\0\6969.js" />
     <Content Include="Scripts\dist\0\7059.js" />
     <Content Include="Scripts\dist\0\7524.js" />
     <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\7630.js" />
     <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
-    <Content Include="Scripts\dist\0\7915.js" />
     <Content Include="Scripts\dist\0\7939.js" />
-    <Content Include="Scripts\dist\0\823.css" />
-    <Content Include="Scripts\dist\0\823.js" />
+    <Content Include="Scripts\dist\0\8104.css" />
+    <Content Include="Scripts\dist\0\8104.js" />
+    <Content Include="Scripts\dist\0\8625.js" />
     <Content Include="Scripts\dist\0\8808.js" />
     <Content Include="Scripts\dist\0\8961.css" />
     <Content Include="Scripts\dist\0\8961.js" />
     <Content Include="Scripts\dist\0\9138.js" />
-    <Content Include="Scripts\dist\0\9374.css" />
-    <Content Include="Scripts\dist\0\9374.js" />
+    <Content Include="Scripts\dist\0\9651.css" />
+    <Content Include="Scripts\dist\0\9651.js" />
+    <Content Include="Scripts\dist\0\9681.css" />
+    <Content Include="Scripts\dist\0\9681.js" />
     <Content Include="Scripts\dist\4c9b1fa89f3c892cb2f1.jpg" />
     <Content Include="Scripts\dist\7dc5492d8e0fe236c1f4.png" />
     <Content Include="Scripts\dist\account\login.css" />
@@ -1385,6 +1427,19 @@
     <Content Include="Scripts\src\Components\TopBar\ModerationBar.js" />
     <Content Include="Scripts\src\Components\TopGroups.js" />
     <Content Include="Scripts\src\Components\UserAutosuggest.js" />
+    <Content Include="Scripts\src\Components\User\AboutMeModal.js" />
+    <Content Include="Scripts\src\Components\User\UserInteractions.js" />
+    <Content Include="Scripts\src\Components\User\UserGroupInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFollowInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFinanceInfo.js" />
+    <Content Include="Scripts\src\Components\User\CustomizationSettings.js" />
+    <Content Include="Scripts\src\Components\User\ProfileImageModal.js" />
+    <Content Include="Scripts\src\Components\User\NotificationSettings.js" />
+    <Content Include="Scripts\src\Components\User\SecuritySettings.js" />
+    <Content Include="Scripts\src\Components\User\UserProfile.js" />
+    <Content Include="Scripts\src\Components\User\UserReferralInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserSetting.js" />
+    <Content Include="Scripts\src\Components\utility\reportUserContent.js" />
     <Content Include="Scripts\src\Components\utility\suggestTags.js" />
     <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
     <Content Include="Scripts\src\Components\VoteModal.js" />
@@ -1399,32 +1454,45 @@
     <Content Include="Scripts\src\css\pages\about\Lightning.jpg" />
     <Content Include="Scripts\src\css\pages\about\Network.jpg" />
     <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
-    <Content Include="Scripts\src\css\pages\manage\manage.css" />
-    <Content Include="Scripts\src\css\pages\groups\index.css" />
-    <Content Include="Scripts\src\css\base\badges_labels.scss" />
-    <Content Include="Scripts\src\css\base\base.scss" />
-    <Content Include="Scripts\src\css\base\buttons.scss" />
-    <Content Include="Scripts\src\css\base\chat.scss" />
-    <Content Include="Scripts\src\css\base\custom.scss" />
-    <Content Include="Scripts\src\css\base\elements.scss" />
-    <Content Include="Scripts\src\css\base\glyphicons.scss" />
-    <Content Include="Scripts\src\css\base\landing.scss" />
-    <Content Include="Scripts\src\css\base\md-skin.scss" />
-    <Content Include="Scripts\src\css\base\media.scss" />
-    <Content Include="Scripts\src\css\base\metismenu.scss" />
-    <Content Include="Scripts\src\css\base\mixins.scss" />
-    <Content Include="Scripts\src\css\base\navigation.scss" />
-    <Content Include="Scripts\src\css\base\pages.scss" />
-    <Content Include="Scripts\src\css\base\rtl.scss" />
-    <Content Include="Scripts\src\css\base\sidebar.scss" />
-    <Content Include="Scripts\src\css\base\skins.scss" />
-    <Content Include="Scripts\src\css\base\spinners.scss" />
-    <Content Include="Scripts\src\css\base\theme-config.scss" />
-    <Content Include="Scripts\src\css\base\top_navigation.scss" />
-    <Content Include="Scripts\src\css\base\typography.scss" />
-    <Content Include="Scripts\src\css\base\variables.scss" />
-    <Content Include="Scripts\src\css\navbar\navbar.scss" />
-    <Content Include="Scripts\src\css\pages\about\about.scss" />
+    <Content Include="Scripts\dist\0\1035.css.map" />
+    <Content Include="Scripts\dist\0\1035.js.map" />
+    <Content Include="Scripts\dist\0\2025.js.map" />
+    <Content Include="Scripts\dist\0\2172.js.map" />
+    <Content Include="Scripts\dist\0\2307.js.map" />
+    <Content Include="Scripts\dist\0\2855.js.map" />
+    <Content Include="Scripts\dist\0\3215.css.map" />
+    <Content Include="Scripts\dist\0\3215.js.map" />
+    <Content Include="Scripts\dist\0\3940.js.map" />
+    <Content Include="Scripts\dist\0\4090.js.map" />
+    <Content Include="Scripts\dist\0\4368.css.map" />
+    <Content Include="Scripts\dist\0\4368.js.map" />
+    <Content Include="Scripts\dist\0\4791.js.map" />
+    <Content Include="Scripts\dist\0\499.css.map" />
+    <Content Include="Scripts\dist\0\499.js.map" />
+    <Content Include="Scripts\dist\0\5252.js.map" />
+    <Content Include="Scripts\dist\0\5580.js.map" />
+    <Content Include="Scripts\dist\0\5759.css.map" />
+    <Content Include="Scripts\dist\0\5759.js.map" />
+    <Content Include="Scripts\dist\0\586.css.map" />
+    <Content Include="Scripts\dist\0\586.js.map" />
+    <Content Include="Scripts\dist\0\595.js.map" />
+    <Content Include="Scripts\dist\0\6455.js.map" />
+    <Content Include="Scripts\dist\0\6969.js.map" />
+    <Content Include="Scripts\dist\0\7059.js.map" />
+    <Content Include="Scripts\dist\0\7524.js.map" />
+    <Content Include="Scripts\dist\0\7630.js.map" />
+    <Content Include="Scripts\dist\0\7939.js.map" />
+    <Content Include="Scripts\dist\0\8104.css.map" />
+    <Content Include="Scripts\dist\0\8104.js.map" />
+    <Content Include="Scripts\dist\0\8625.js.map" />
+    <Content Include="Scripts\dist\0\8808.js.map" />
+    <Content Include="Scripts\dist\0\8961.css.map" />
+    <Content Include="Scripts\dist\0\8961.js.map" />
+    <Content Include="Scripts\dist\0\9138.js.map" />
+    <Content Include="Scripts\dist\0\9651.css.map" />
+    <Content Include="Scripts\dist\0\9651.js.map" />
+    <Content Include="Scripts\dist\0\9681.css.map" />
+    <Content Include="Scripts\dist\0\9681.js.map" />
     <Content Include="Scripts\dist\account\login.css.map" />
     <Content Include="Scripts\dist\account\login.js.map" />
     <Content Include="Scripts\dist\account\register.css.map" />
@@ -1507,49 +1575,32 @@
     <Content Include="Scripts\dist\user\achievements.js.map" />
     <Content Include="Scripts\dist\user\index.css.map" />
     <Content Include="Scripts\dist\user\index.js.map" />
-    <Content Include="Scripts\dist\0\1035.js.map" />
-    <Content Include="Scripts\dist\0\2238.css.map" />
-    <Content Include="Scripts\dist\0\2307.js.map" />
-    <Content Include="Scripts\dist\0\2855.js.map" />
-    <Content Include="Scripts\dist\0\3215.css.map" />
-    <Content Include="Scripts\dist\0\3215.js.map" />
-    <Content Include="Scripts\dist\0\3876.css.map" />
-    <Content Include="Scripts\dist\0\3876.js.map" />
-    <Content Include="Scripts\dist\0\3903.css.map" />
-    <Content Include="Scripts\dist\0\3903.js.map" />
-    <Content Include="Scripts\dist\0\4090.css.map" />
-    <Content Include="Scripts\dist\0\4090.js.map" />
-    <Content Include="Scripts\dist\0\4368.css.map" />
-    <Content Include="Scripts\dist\0\4368.js.map" />
-    <Content Include="Scripts\dist\0\4791.js.map" />
-    <Content Include="Scripts\dist\0\5252.js.map" />
-    <Content Include="Scripts\dist\0\5346.css.map" />
-    <Content Include="Scripts\dist\0\5346.js.map" />
-    <Content Include="Scripts\dist\0\5456.css.map" />
-    <Content Include="Scripts\dist\0\5456.js.map" />
-    <Content Include="Scripts\dist\0\5580.js.map" />
-    <Content Include="Scripts\dist\0\5759.css.map" />
-    <Content Include="Scripts\dist\0\5759.js.map" />
-    <Content Include="Scripts\dist\0\586.css.map" />
-    <Content Include="Scripts\dist\0\586.js.map" />
-    <Content Include="Scripts\dist\0\595.js.map" />
-    <Content Include="Scripts\dist\0\6455.js.map" />
-    <Content Include="Scripts\dist\0\6685.css.map" />
-    <Content Include="Scripts\dist\0\6685.js.map" />
-    <Content Include="Scripts\dist\0\6969.js.map" />
-    <Content Include="Scripts\dist\0\7059.js.map" />
-    <Content Include="Scripts\dist\0\7524.js.map" />
-    <Content Include="Scripts\dist\0\7630.js.map" />
-    <Content Include="Scripts\dist\0\7915.js.map" />
-    <Content Include="Scripts\dist\0\7939.js.map" />
-    <Content Include="Scripts\dist\0\823.css.map" />
-    <Content Include="Scripts\dist\0\823.js.map" />
-    <Content Include="Scripts\dist\0\8808.js.map" />
-    <Content Include="Scripts\dist\0\8961.css.map" />
-    <Content Include="Scripts\dist\0\8961.js.map" />
-    <Content Include="Scripts\dist\0\9138.js.map" />
-    <Content Include="Scripts\dist\0\9374.css.map" />
-    <Content Include="Scripts\dist\0\9374.js.map" />
+    <None Include="Scripts\src\css\pages\manage\manage.scss" />
+    <Content Include="Scripts\src\css\pages\groups\index.css" />
+    <Content Include="Scripts\src\css\base\badges_labels.scss" />
+    <Content Include="Scripts\src\css\base\base.scss" />
+    <Content Include="Scripts\src\css\base\buttons.scss" />
+    <Content Include="Scripts\src\css\base\chat.scss" />
+    <Content Include="Scripts\src\css\base\custom.scss" />
+    <Content Include="Scripts\src\css\base\elements.scss" />
+    <Content Include="Scripts\src\css\base\glyphicons.scss" />
+    <Content Include="Scripts\src\css\base\landing.scss" />
+    <Content Include="Scripts\src\css\base\md-skin.scss" />
+    <Content Include="Scripts\src\css\base\media.scss" />
+    <Content Include="Scripts\src\css\base\metismenu.scss" />
+    <Content Include="Scripts\src\css\base\mixins.scss" />
+    <Content Include="Scripts\src\css\base\navigation.scss" />
+    <Content Include="Scripts\src\css\base\pages.scss" />
+    <Content Include="Scripts\src\css\base\rtl.scss" />
+    <Content Include="Scripts\src\css\base\sidebar.scss" />
+    <Content Include="Scripts\src\css\base\skins.scss" />
+    <Content Include="Scripts\src\css\base\spinners.scss" />
+    <Content Include="Scripts\src\css\base\theme-config.scss" />
+    <Content Include="Scripts\src\css\base\top_navigation.scss" />
+    <Content Include="Scripts\src\css\base\typography.scss" />
+    <Content Include="Scripts\src\css\base\variables.scss" />
+    <Content Include="Scripts\src\css\navbar\navbar.scss" />
+    <Content Include="Scripts\src\css\pages\about\about.scss" />
     <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
@@ -1646,7 +1697,6 @@
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
     <Content Include="Scripts\src\pages\admin\reactions.js" />
-    <Content Include="Scripts\src\pages\group\adminbar.js" />
     <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
@@ -1668,8 +1718,8 @@
     <Content Include="Scripts\src\pages\lnauth\login.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
-    <Content Include="Scripts\src\pages\manage\Components\UpdateEmailModal.js" />
-    <Content Include="Scripts\src\pages\manage\Components\GiftReferralModal.js" />
+    <Content Include="Scripts\src\Components\User\UpdateEmailModal.js" />
+    <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
@@ -1759,7 +1809,6 @@
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
-    <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\instascan.min.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
@@ -1841,12 +1890,10 @@
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\SendCode.cshtml" />
     <Content Include="Views\Account\VerifyCode.cshtml" />
-    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
     <Content Include="Views\Manage\ManageLogins.cshtml" />
     <Content Include="Views\Manage\SetPassword.cshtml" />
-    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
@@ -1881,9 +1928,7 @@
     <Content Include="Views\Messages\_UnreadMessages.cshtml" />
     <Content Include="Views\Messages\_PartialRecentAlerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalMessageCompose.cshtml" />
-    <Content Include="Views\Manage\_PartialModalUpdateUserAlias.cshtml" />
     <Content Include="Views\Shared\_PartialSummaryStatistics.cshtml" />
-    <Content Include="Views\Group\_PartialGroupAdminBar.cshtml" />
     <Content Include="Views\Group\_PartialAddUserToGroupRoleForm.cshtml" />
     <Content Include="Views\Messages\_PartialRecentUnreadMessages.cshtml" />
     <Content Include="Views\Admin\_PartialSiteAdminBarUserInfo.cshtml" />
@@ -1929,6 +1974,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.resx">
       <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206161921353_AddUserContentReports.resx">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206241952241_AddPointOfSale.resx">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206250018230_AddUserPremiumLevel.resx">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
@@ -2027,6 +2081,7 @@
   <ItemGroup>
     <Folder Include="Images\" />
     <Folder Include="Models\Finance\" />
+    <Folder Include="Scripts\src\Components\Post\" />
     <Folder Include="Scripts\src\quill\quill-table\" />
     <Folder Include="Views\Finance\" />
     <Folder Include="Views\Groups\" />

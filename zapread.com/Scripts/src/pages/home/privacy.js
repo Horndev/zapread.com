@@ -70,9 +70,13 @@ function Page() {
           </ul>
           <p><h2>Sharing our information about you</h2></p>
           <ul>
-            <li><b>No third parties.</b> Zapread.com will not provide any user information, including activities, balances, identities, or emails, to third parties.  With one following exception.</li>
+            <li><b>No sharing with third parties.</b> Zapread.com will not provide any user information, including activities, balances, identities, or emails, to third parties.  With one following exception.</li>
             <li><b>To comply with the law.</b>  Zapread.com may share information in response to a formal request for information if required by applicable law, regulation, legal process or governmental order, including, but not limited to, meeting national security or law enforcement requirements. To the extent the law allows it, we will attempt to provide you with prior notice before disclosing your information.</li>
           </ul>
+          <p><h2>Receiving information about you</h2></p>
+            <li><b>Information from third parties.</b> Zapread.com may receive some information about you from third parties only given your permission to do so.  This information will be used only for the purpose you permit us to use it for.</li>
+            <li><b>Authentication.</b> Zapread.com may receive information such as your user name, alias, or email address from third parties for the purposes of authentication.  This includes logging in with Google, Reddit, Twitter, Facebook, or GitHub.</li>
+            <li><b>Payment processing.</b> If you choose to use a credit card subscription, Zapread.com may receive information from our third party payments processor for the purposes of linking purchases to your account.  Zapread.com will not save information made available from third parties beyond what is required to associate your Zapread.com user account to purchases.</li>
           <p><h2>Other</h2></p>
           <ul>
             <li><b>Cookies:</b> Zapread.com uses cookies as necessary to deliver the features of the website.</li>

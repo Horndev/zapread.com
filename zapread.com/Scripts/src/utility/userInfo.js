@@ -1,5 +1,5 @@
 ﻿/*
- * 
+ * [TODO: replace this with useUserInfo hook]
  */
 
 /**
@@ -11,6 +11,7 @@ export function updateUserInfo(updated) {
   if (!('userInfo' in window)) {
     window.userInfo = {
       balance: 0,
+      spendOnlyBalance: 0,
       quickVote: false,
       quickVoteAmount: 10
     };

@@ -669,117 +669,15 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
             XFrameOptionsDeny();
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                : message == ManageMessageId.Error ? "An error has occurred."
-                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-                : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
-                : "";
 
             var userAppId = User.Identity.GetUserId();
 
-            using (var db = new ZapContext())
+            var model = new ManageUserViewModel
             {
-                // This query returns a single list of objects from the database with required information for the view.  This is much 
-                //  faster than returning EF classes.
-                var userInfo = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.AppId,
-                        u.ProfileImage.Version,
-                        u.AboutMe,
-                        u.Name,
-                        WasReferred = u.ReferralInfo != null && u.ReferralInfo.ReferredByAppId != null,
-                        TopFollowing = u.Following.OrderByDescending(us => us.TotalEarned).Take(20)
-                            .Select(us => new UserFollowView()
-                            {
-                                Name = us.Name,
-                                AppId = us.AppId,
-                                ProfileImageVersion = us.ProfileImage.Version,
-                            }),
-                        TopFollowers = u.Followers.OrderByDescending(us => us.TotalEarned).Take(20)
-                            .Select(us => new UserFollowView()
-                            {
-                                Name = us.Name,
-                                AppId = us.AppId,
-                                ProfileImageVersion = us.ProfileImage.Version,
-                            }),
-                        UserGroups = u.Groups
-                            .Select(g => new GroupInfo()
-                            {
-                                Id = g.GroupId,
-                                Name = g.GroupName,
-                                Icon = "fa-bolt",
-                                Level = 1,
-                                Progress = 36,
-                                NumPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Count(),
-                                UserPosts = g.Posts.Where(p => !(p.IsDeleted || p.IsDraft)).Where(p => p.UserId.Id == u.Id).Count(),
-                                IsMod = g.Moderators.Select(usr => usr.Id).Contains(u.Id),
-                                IsAdmin = g.Administrators.Select(usr => usr.Id).Contains(u.Id),
-                            }),
-                        UserAchievements = u.Achievements.Select(ach => new UserAchievementViewModel()
-                            {
-                                Id = ach.Id,
-                                ImageId = ach.Achievement.Id,
-                                Name = ach.Achievement.Name,
-                            }),
-                        UserIgnoring = u.IgnoringUsers.Select(usr => usr.Id).Where(usrid => usrid != u.Id),
-                        ColorTheme = u.Settings == null ? "" : u.Settings.ColorTheme,
-                        NumPosts = u.Posts.Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Count(),
-                        NumFollowing = u.Following.Count,
-                        NumFollowers = u.Followers.Count,
-                        UserBalance = u.Funds.Balance,
-                        u.Languages,
-                        u.Settings,
-                        u.Reputation,
-                    })
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
+                UserAppId = userAppId,
+            };
 
-                ValidateClaims(new UserSettings() { ColorTheme = userInfo.ColorTheme });
-
-                //var postViews = await QueryHelpers.QueryActivityPostsVm(0, 10, userInfo.Id).ConfigureAwait(true);
-
-                var uavm = new UserAchievementsViewModel() { 
-                    Achievements = userInfo.UserAchievements
-                };
-
-                // This is a mess - need to split it up
-                var model = new ManageUserViewModel
-                {
-                    CanGiftReferral = userInfo.WasReferred == false,
-                    HasPassword = HasPassword(),
-                    UserName = userInfo.Name,
-                    UserAppId = userInfo.AppId,
-                    UserId = userInfo.Id,
-                    UserProfileImageVersion = userInfo.Version,
-                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userAppId).ConfigureAwait(true),
-                    EmailConfirmed = await UserManager.IsEmailConfirmedAsync(userAppId).ConfigureAwait(true),
-                    IsGoogleAuthenticatorEnabled = await UserManager.IsGoogleAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
-                    IsEmailAuthenticatorEnabled = await UserManager.IsEmailAuthenticatorEnabledAsync(userAppId).ConfigureAwait(true),
-                    AboutMe = new AboutMeViewModel() { AboutMe = userInfo.AboutMe == null ? "Nothing to tell." : userInfo.AboutMe },
-                    UserGroups = new ManageUserGroupsViewModel() { Groups = userInfo.UserGroups },
-                    NumPosts = userInfo.NumPosts,
-                    NumFollowers = userInfo.NumFollowers,
-                    NumFollowing = userInfo.NumFollowing,
-                    IsFollowing = true, // Not actually used here
-                    //ActivityPosts = postViews,
-                    TopFollowingVm = userInfo.TopFollowing,
-                    TopFollowersVm = userInfo.TopFollowers,
-                    UserBalance = userInfo.UserBalance,
-                    AchievementsViewModel = uavm,
-                    Settings = userInfo.Settings,
-                    Languages = userInfo.Languages == null ? new List<string>() : userInfo.Languages.Split(',').ToList(),
-                    KnownLanguages = LanguageHelpers.GetLanguages(),
-                    Reputation = userInfo.Reputation,
-                };
-
-                return View(model);
-            }
+            return View(model);
         }
 
         /// <summary>
@@ -903,23 +801,13 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// // GET: /Manage/AddPhoneNumber
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public ActionResult AddPhoneNumber()
-        {
-            XFrameOptionsDeny();
-            return View();
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> UpdateAboutMe(AboutMeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -935,7 +823,8 @@ namespace zapread.com.Controllers
 
                 db.Users.Where(u => u.AppId == userId).First().AboutMe = model.AboutMe.CleanUnicode().SanitizeXSS();
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
+                return Json(new { success = true });
+                //return RedirectToAction("Index", new { Message = ManageMessageId.UpdateAboutMeSuccess });
             }
         }
 
@@ -963,8 +852,6 @@ namespace zapread.com.Controllers
                     .FirstOrDefaultAsync().ConfigureAwait(true);
 
                 var img = await db.Images
-                    .Where(i => i.UserAppId == userAppId)
-                    .Where(i => i.Version == userImage.Version)
                     .Where(i => i.ImageId == userImage.ImageId)
                     .FirstOrDefaultAsync()
                     .ConfigureAwait(true);
@@ -1408,33 +1295,6 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// // POST: /Manage/AddPhoneNumber
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> AddPhoneNumber(AddPhoneNumberViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            // Generate the token and send it
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
-            if (UserManager.SmsService != null)
-            {
-                var message = new IdentityMessage
-                {
-                    Destination = model.Number,
-                    Body = "Your security code is: " + code
-                };
-                await UserManager.SmsService.SendAsync(message);
-            }
-            return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
-        }
-
-        /// <summary>
         /// // POST: /Manage/EnableTwoFactorAuthentication
         /// </summary>
         /// <returns></returns>
@@ -1466,48 +1326,6 @@ namespace zapread.com.Controllers
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
             }
             return RedirectToAction("Index", "Manage");
-        }
-
-        /// <summary>
-        /// // GET: /Manage/VerifyPhoneNumber
-        /// </summary>
-        /// <param name="phoneNumber"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
-        {
-            XFrameOptionsDeny();
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
-            // Send an SMS through the SMS provider to verify the phone number
-            return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
-        }
-
-        /// <summary>
-        /// // POST: /Manage/VerifyPhoneNumber
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> VerifyPhoneNumber(VerifyPhoneNumberViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            var result = await UserManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
-            if (result.Succeeded)
-            {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                if (user != null)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                }
-                return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
-            }
-            // If we got this far, something failed, redisplay form
-            ModelState.AddModelError("", "Failed to verify phone");
-            return View(model);
         }
 
         /// <summary>

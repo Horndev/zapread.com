@@ -16,6 +16,11 @@ namespace zapread.com.Models
         public double Balance { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public double SpendOnlyBalance { get; set; }
+
+        /// <summary>
         /// If user can click to vote
         /// </summary>
         public bool QuickVoteOn { get; set; }

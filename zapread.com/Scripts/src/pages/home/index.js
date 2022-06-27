@@ -5,17 +5,32 @@
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 import '../../shared/shared';
-import '../../utility/ui/vote';
 import '../../realtime/signalr';
-const getSwal = () => import('sweetalert2'); //import Swal from 'sweetalert2';
-const getloadMoreComments = () => import('../../comment/loadmorecomments');
-const getMicroCharts = () => import('micro-charts');
-const getVoteModal = () => import("../../Components/VoteModal");
-const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
-import { getJson } from "../../utility/getData";
-import React from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { useLocation, BrowserRouter as Router, Route } from 'react-router-dom';
+import { Row, Col, Button } from "react-bootstrap";
+import { postJson } from "../../utility/postData";
+import { getJson } from "../../utility/getData";
+
+const getMicroCharts = () => import('micro-charts');
 const getTippy = () => import('tippy.js');
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faPlus,
+  faArrowDown,
+  faCircleNotch,
+  faFire,
+  faCertificate,
+  faComments
+} from '@fortawesome/free-solid-svg-icons'
+
+import PageHeading from "../../Components/PageHeading";
+import LoadingBounce from "../../Components/LoadingBounce";
+import TopGroups from "../../Components/TopGroups";
+const PostList = React.lazy(() => import("../../Components/PostList"));
+const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
+
 import '../../shared/postfunctions';
 import '../../shared/readmore';
 import '../../shared/postui';
@@ -24,56 +39,7 @@ import '../../css/site.scss';
 import '../../css/quill/quillcustom.scss';
 import '../../css/posts.css'
 
-/* Vote Modal Component */
-getVoteModal().then(({ default: VoteModal }) => {
-  ReactDOM.render(<VoteModal />, document.getElementById("ModalVote"));
-  const event = new Event('voteReady');
-  document.dispatchEvent(event);
-});
-
-// Make global (called from html)
-import('../../comment/writecomment').then(({ writeComment }) => {
-  window.writeComment = writeComment;
-});
-import('../../comment/replycomment').then(({ replyComment }) => {
-  window.replyComment = replyComment;
-});
-import('../../comment/editcomment').then(({ editComment }) => {
-  window.editComment = editComment;
-});
-getloadMoreComments().then(({ loadMoreComments }) => {
-  window.loadMoreComments = loadMoreComments;
-});
-
-import('../../utility/loadmore').then(({ addposts, loadmore }) => {
-  window.loadmore = loadmore;
-  getOnLoadedMorePosts().then(({ onLoadedMorePosts }) => {
-    async function LoadTopPostsAsync() {
-      await getJson('/Home/TopPosts/?sort=' + postSort).then((response) => {
-        if (response.success) {
-          document.querySelectorAll('#posts').item(0).querySelectorAll('.ibox-content').item(0).classList.remove("sk-loading");
-          addposts(response, onLoadedMorePosts); // Insert posts
-          document.querySelectorAll('#btnLoadmore').item(0).style.display = '';
-        } else {
-          // Did not work
-          getSwal().then(({ default: Swal }) => {
-            Swal.fire("Error", "Error loading posts: " + response.message, "error");
-          });
-        }
-      });
-    }
-    //Execute
-    LoadTopPostsAsync();
-  });
-});
-
-/** Global vars */
-window.BlockNumber = 10;   //Infinite Scroll starts from second block
-window.NoMoreData = false;
-window.inProgress = false;
-
 window.addEventListener('resize', function (event) {
-  //console.log(event);
   var elements = document.querySelectorAll(".post-box");
   Array.prototype.forEach.call(elements, function (el, _i) {
     if (!el.classList.contains('read-more-expanded')) {
@@ -160,3 +126,144 @@ getMicroCharts().then(({ createPieChart }) => {
     });
   })
 })
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
+function Page() {
+  const [hasMorePosts, setHasMorePosts] = useState(false);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [postsLoaded, setPostsLoaded] = useState(false);
+  const [postBlockNumber, setPostBlockNumber] = useState(0);
+  const [posts, setPosts] = useState([]);
+  const [sort, setSort] = useState("Score");
+  const [topGroupsIsExpanded, setTopGroupsIsExpanded] = useState(false); // Start open on groups page  
+
+  let query = useQuery();
+
+  async function getMorePosts() {
+    if (!isLoadingPosts) {
+      setIsLoadingPosts(true);
+
+      let qsort = query.get("sort");
+      if (qsort != null) {
+        setSort(qsort);
+      }
+
+      await postJson("/api/v1/post/feed/", {
+        Sort: qsort ? qsort : sort,
+        BlockNumber: postBlockNumber
+      }).then((response) => {
+        if (response.success) {
+          var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
+          setPosts(postlist);
+          setPostsLoaded(true);
+          setHasMorePosts(response.HasMorePosts);
+          if (response.HasMorePosts) {
+            setPostBlockNumber(postBlockNumber + 1);
+          }
+        }
+        setIsLoadingPosts(false);
+      });
+    }
+  }
+
+  useEffect(() => {
+    async function initialize() {
+      // Do this in parallel
+      await Promise.all([getMorePosts()]);
+    }
+    initialize();
+  }, [sort]); // Fire once
+
+  const SORTNAMES = {
+    score: "Popular",
+    new: "New",
+    active: "Active"
+  }
+
+  const changeSort = (newSort) => {
+    setPostsLoaded(false);
+    setPostBlockNumber(0);
+    setPosts([]);
+    setSort(newSort); // Triggers
+  };
+
+  return (
+    <>
+      <Suspense fallback={<></>}>
+        <VoteModal />
+      </Suspense>
+
+      <PageHeading
+        pretitle={<></>}
+        title={<>{SORTNAMES[sort.toLowerCase()]}</>}
+        controller="Home"
+        method="Feeds"
+        function={SORTNAMES[sort.toLowerCase()]}
+        topGroups={true}
+        topGroupsExpanded={topGroupsIsExpanded}
+        onTopGroupsClosed={() => { setTopGroupsIsExpanded(false) }}
+        onTopGroupsOpened={() => { setTopGroupsIsExpanded(true) }}
+        breadcrumbRight={true}
+        middleCol={
+          <>
+            <Button onClick={() => { changeSort("Score"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faFire} />{" "}hot</Button>
+            <Button onClick={() => { changeSort("New"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faCertificate} />{" "}new</Button>
+            <Button onClick={() => { changeSort("Active"); }} variant="link" style={{ color: "#1ab394" }} className="zr-top-btn-rounded"><FontAwesomeIcon icon={faComments} />{" "}active</Button>
+          </>
+        }
+        rightCol={
+          <>
+            <div className="ibox-title" id="hover-info-payout" style={{whiteSpace: "nowrap", textAlign: "center"}}>
+              <b><span id="amount-info-payout"></span>&nbsp;</b>
+              <canvas id="pc-community" className="piechart" style={{verticalAlign: "middle", maxHeight: "25px"}}></canvas>&nbsp;
+              <span id="timer-info-payout"></span>
+            </div>
+          </>}>
+      </PageHeading>
+
+      <div className="wrapper wrapper-content">
+        <Row>
+          <Col lg={2}>
+            <TopGroups expanded={topGroupsIsExpanded} />
+          </Col>
+          <Col lg={8}>
+            <div className="social-feed-box-nb"><span></span></div>
+            <div className="social-feed-box-nb">
+              <Button variant="primary" block onClick={() => { location.href = "/Post/Edit/"; }}><FontAwesomeIcon icon={faPlus} />{" "}Add Post</Button>
+            </div>
+            {postsLoaded ? (<>
+              <Suspense fallback={<><LoadingBounce /></>}>
+                <PostList
+                  posts={posts}
+                  isLoggedIn={window.IsAuthenticated} />
+
+                {hasMorePosts ? (
+                  <div className="social-feed-box-nb">
+                    <Button block variant="primary" onClick={() => { getMorePosts(); }}>
+                      <FontAwesomeIcon icon={faArrowDown} />{" "}Show More{" "}
+                      {isLoadingPosts ? (<><FontAwesomeIcon icon={faCircleNotch} spin /></>) : (<></>)}
+                    </Button>
+                  </div>
+                ) : (<></>)}
+
+              </Suspense>
+            </>) : (<><LoadingBounce /></>)}
+            <div className="social-feed-box-nb"><span></span></div>
+            <div className="social-feed-box-nb" style={{ marginBottom: "70px" }}><span></span></div>
+          </Col>
+        </Row>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.render(
+  <Router>
+    <Route path="/">
+      <Page />
+    </Route>
+  </Router>
+  , document.getElementById("root"));

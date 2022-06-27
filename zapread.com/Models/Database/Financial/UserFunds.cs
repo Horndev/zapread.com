@@ -22,9 +22,14 @@ namespace zapread.com.Models.Database.Financial
         /// </summary>
         public double TotalEarned { get; set; }
         /// <summary>
-        /// 
+        /// Balance of Satoshi
         /// </summary>
         public double Balance { get; set; }
+
+        /// <summary>
+        /// Balance that can't be withdrawn or tipped, but can be spent on votes
+        /// </summary>
+        public double SpendOnlyBalance { get; set; }
 
         /// <summary>
         /// If user can click to vote

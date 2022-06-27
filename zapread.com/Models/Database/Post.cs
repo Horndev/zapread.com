@@ -40,6 +40,9 @@ namespace zapread.com.Models.Database
         [InverseProperty("IgnoringPosts")]
         public virtual ICollection<User> IgnoredByUsers { get; set; }
 
+        [InverseProperty("Post")]
+        public virtual ICollection<UserContentReport> UserReports { get; set; }
+
         // Language post is written in
         public string Language { get; set; }
 

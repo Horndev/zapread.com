@@ -9,7 +9,11 @@ import ReactDOM from "react-dom";
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
 import { Container, Row, Col, DropdownButton, Dropdown, ButtonGroup, Button } from "react-bootstrap";
 import { postJson } from "../../utility/postData";
-import { ISOtoRelative } from "../../utility/datetime/posttime"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faArrowDown,
+  faCircleNotch
+} from '@fortawesome/free-solid-svg-icons'
 import PageHeading from "../../Components/PageHeading";
 import LoadingBounce from "../../Components/LoadingBounce";
 const PostList = React.lazy(() => import("../../Components/PostList"));
@@ -137,17 +141,21 @@ function Page() {
                 <PostList
                   posts={posts}
                   isLoggedIn={isLoggedIn}
-                  isGroupMod={false}
-                  hasMorePosts={hasMorePosts}
-                  onMorePosts={() => { getMorePosts(); }} />
+                  isGroupMod={false}/>
+
+                {hasMorePosts ? (
+                  <div className="social-feed-box-nb">
+                    <Button block variant="primary" onClick={() => { getMorePosts(); }}>
+                      <FontAwesomeIcon icon={faArrowDown} />{" "}Show More{" "}
+                      {isLoadingPosts ? (<><FontAwesomeIcon icon={faCircleNotch} spin /></>) : (<></>)}
+                    </Button>
+                  </div>
+                ) : (<></>)}
+
               </Suspense>
             </>) : (<><LoadingBounce /></>)}
-            <div className="social-feed-box-nb">
-              <span></span>
-            </div>
-            <div className="social-feed-box-nb" style={{ marginBottom: "50px" }}>
-              <span></span>
-            </div>
+            <div className="social-feed-box-nb"><span></span></div>
+            <div className="social-feed-box-nb" style={{ marginBottom: "50px" }}><span></span></div>
           </div>
         </div>
       </div>

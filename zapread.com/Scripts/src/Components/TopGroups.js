@@ -28,6 +28,7 @@ export default function TopGroups(props) {
           style={props.expanded ? {} : { display: "none" }}>
           {groups.map((g, index) => (
             <Button
+              key={g.Id}
               variant="link"
               block={true}
               onClick={() => { window.location = "/Group/Detail/" + g.Id + "/" }}

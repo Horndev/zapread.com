@@ -3,6 +3,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from "react";
+import { Row, Col, Button } from "react-bootstrap";
 import PostView from "./PostView"
 
 export default function PostList(props) {
@@ -23,17 +24,8 @@ export default function PostList(props) {
   return (
     <>
       {posts.map((post, index) => (
-        <PostView key={post.PostId} post={post} isLoggedIn={isLoggedIn} isGroupMod={props.isGroupMod}/>
+        <PostView key={post.PostId} post={post} isLoggedIn={isLoggedIn} isGroupMod={props.isGroupMod} isVisible={true}/>
       ))}
-
-      {hasMorePosts ? (
-        <div className="social-feed-box-nb" id="showmore">
-          <button id="btnLoadmore" className="btn btn-primary btn-block"
-            onClick={props.onMorePosts}>
-            <i className="fa-solid fa-arrow-down"></i>&nbsp;Show More&nbsp;<i id="loadmore" className="fa-solid fa-circle-notch fa-spin" style={{ display: "none" }}></i>
-          </button>
-        </div>
-      ) : (<></>)}
     </>
   );
 }

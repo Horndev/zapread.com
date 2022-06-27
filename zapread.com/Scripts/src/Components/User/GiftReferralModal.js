@@ -4,8 +4,8 @@
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
 import { Modal, Container, Row, Col, Button, Card } from "react-bootstrap";
-import { postJson } from '../../../utility/postData';
-import UserAutosuggest from "../../../Components/UserAutoSuggest";
+import { postJson } from '../../utility/postData';
+import UserAutosuggest from "../UserAutoSuggest";
 const getSwal = () => import('sweetalert2');
 
 export default function GiftReferralModal(props) {
@@ -15,10 +15,7 @@ export default function GiftReferralModal(props) {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    // hook into button click
-    document.getElementById("giftReferalBtn").addEventListener('click', (e) => {
-      setShow(true);
-    });
+
   }, []);
 
   const handleClose = () => {

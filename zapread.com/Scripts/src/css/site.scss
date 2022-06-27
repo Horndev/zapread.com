@@ -395,8 +395,8 @@ button.close {
     .switch-spinner {
         display: none;
         position: absolute;
-        margin-left: 13px;
-        font-size: 16px;
+        margin-left: 25px;
+        font-size: 20px;
     }
 
     .blockquote {
@@ -1373,6 +1373,7 @@ button.close {
     }
 
     .onoffswitch-inner {
+        display: block;
         width: 200%;
         margin-left: -100%;
         -moz-transition: margin 0.3s ease-in 0s;

@@ -1446,7 +1446,6 @@ namespace zapread.com.Services
         /// <param name="message"></param>
         /// <param name="user"></param>
         /// <param name="useSSL"></param>
-        /// <param name="plus"></param>
         /// <returns></returns>
         public bool SendI(UserEmailModel message, string user = "Accounts", bool useSSL=true)
         {

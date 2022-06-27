@@ -58,6 +58,9 @@ namespace zapread.com.Models.Database
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }
 
+        [InverseProperty("ReportedBy")]
+        public virtual ICollection<UserContentReport> UserReports { get; set; }
+
         [InverseProperty("User")]
         public virtual ICollection<BannerAlert> BannerAlerts { get; set; }
 
@@ -203,6 +206,23 @@ namespace zapread.com.Models.Database
         /// Navigation property
         /// </summary>
         public ICollection<CommentReaction> CommentReactions { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("User")]
+        public virtual ICollection<zapread.com.Models.Database.Financial.Subscription> Subscriptions { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("User")]
+        public virtual ICollection<zapread.com.Models.Database.Financial.Order> Orders { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int PremiumLevel { get; set; }
 
         /// <summary>
         /// 
