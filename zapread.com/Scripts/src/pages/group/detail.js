@@ -258,7 +258,7 @@ function Page() {
               </Suspense>
             </>) : (<><LoadingBounce/></>)}
             <div className="social-feed-box-nb"><span></span></div>
-            <div className="social-feed-box-nb" style={{marginBottom: "70px"}}><span></span>
+            <div className="social-feed-box-nb" style={{marginBottom: "100px"}}><span></span>
             </div>
           </div>
         </div>
