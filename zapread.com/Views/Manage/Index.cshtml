@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Manage";
     List<string> included = new List<string>();
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
 <div id="root"></div>
@@ -16,6 +17,7 @@
     <script type="text/javascript">
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
         var userAppId = "@Model.UserAppId";
+        window.UserName = "@UserName";
     </script>
     @Scripts.Render("~/bundles/manage/index")
 }

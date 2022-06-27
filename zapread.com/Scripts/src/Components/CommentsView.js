@@ -115,9 +115,10 @@ function Comment(props) {
                   </>) : (<></>)}
                   {
                     /*@if (User.Identity.Name == Model.UserName) {}*/
-                    isLoggedIn && window.UserName == props.comment.UserName ? (<>
+                    (isLoggedIn && window.UserName === props.comment.UserName) ? (<>
                       <Dropdown.Item as="li" >
                         <button className="btn btn-link btn-sm" onClick={() => {
+                          /*console.log("editComment", props.comment.CommentId);*/
                           editComment(props.comment.CommentId);
                         }}><i className="fa fa-edit"></i>{" "}Edit</button>
                       </Dropdown.Item>
@@ -292,13 +293,13 @@ function Comment(props) {
                   />
                 ))}
 
-                {props.numReplies > childComments.length ? (
+                {(props.numReplies-1) > childComments.length ? (
                   <>
                     <div style={{ background: "#f9f9f9", borderRadius: "0px 0px 10px 10px", padding: "0px 3px 3px 3px" }}>
                       <Button size="sm" variant="link" onClick={() => {
                         props.handleLoadMoreComments(props.comment.CommentId, props.root, childComments.map(c => c.CommentId).join(';'))
                       }}>
-                        Continue thread {/*<small>({props.numReplies - childComments.length} more)</small>*/} <i className="fa-solid fa-arrow-turn-down"></i>
+                        Continue thread <i className="fa-solid fa-arrow-turn-down"></i>
                       </Button>
                     </div>
                   </>) : (<></>)}
