@@ -238,7 +238,7 @@ function Comment(props) {
               </div>
               <div className="media-body" style={{ display: "inline" }}>
                 <div style={{paddingLeft: "4px"}}>
-                  <div className="ql-comment post-comment comment-quotable clearfix"
+                  <div className="ql-editor ql-comment post-comment comment-quotable clearfix"
                     ref={commentTextRef}
                     id={"commentText_" + props.comment.CommentId}
                     style={{ position: "relative" }}
