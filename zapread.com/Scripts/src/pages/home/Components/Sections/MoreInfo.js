@@ -123,7 +123,7 @@ export default function MoreInfo(props) {
       </Row>
       <div className="navy-line"></div>
       <Row>
-        <Col lg={4}></Col>
+        <Col lg={3}></Col>
         <Col className="text-center">
           <Card className="wow animate__fadeIn">
             <Card.Body>
@@ -144,17 +144,30 @@ export default function MoreInfo(props) {
             </Card.Text>
           </Card>
         </Col>
-        <Col lg={4}></Col>
+        <Col className="text-center">
+          <Card className="wow animate__fadeIn">
+            <Card.Body>
+              <Card.Title>Open Source</Card.Title>
+            </Card.Body>
+            <Card.Text>
+              ZapRead is open source and licensed under <a className="btn btn-sm btn-link" href="https://github.com/Horndev/zapread.com/blob/master/LICENSE">AGPLv3</a>.
+            </Card.Text>
+          </Card>
+        </Col>
+        <Col lg={3}></Col>
       </Row>
       <Row className="wow animate__fadeIn">
-        <Col lg={4}></Col>
+        <Col lg={3}></Col>
         <Col className="text-center">
           <Card.Link className="btn btn-sm btn-link" href="/Home/Privacy">Read Policy</Card.Link>
         </Col>
         <Col className="text-center">
           <Card.Link className="btn btn-sm btn-link" href="/Home/Terms">Read Terms</Card.Link>
         </Col>
-        <Col lg={4}></Col>
+        <Col className="text-center">
+          <Card.Link className="btn btn-sm btn-link" href="https://github.com/Horndev/zapread.com">View Source</Card.Link>
+        </Col>
+        <Col lg={3}></Col>
       </Row>
     </section>
   );
