@@ -3,6 +3,7 @@
 
 @{
     ViewBag.Title = "Zapread.com";
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
 <div id="root"></div>
@@ -15,6 +16,7 @@
     <script type="text/javascript">
         var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        window.UserName = "@UserName";
     </script>
 
     @Scripts.Render("~/bundles/home/index")

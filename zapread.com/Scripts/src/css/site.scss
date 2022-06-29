@@ -84,6 +84,13 @@ button.close {
         }
     }
 
+    .ibox-title.bg-info {
+    @include themed() {
+        background-color: t($bg-info);
+        color: t($text-info);
+    }
+}
+
     .ibox-title.bg-danger {
         @include themed() {
             background-color: t($red-bg);

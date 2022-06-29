@@ -189,6 +189,11 @@ button.ql-cancel {
         pointer-events: auto;
     }
 
+.post-comment {
+    /*overflow: hidden;*/
+    position: relative;
+}
+
 .post-comment.ql-editor {
     @include themed() {
         color: t($body-text);

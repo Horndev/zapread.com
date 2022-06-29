@@ -37,7 +37,6 @@ import '../../shared/postui';
 import '../../shared/sharedlast';
 import '../../css/site.scss';
 import '../../css/quill/quillcustom.scss';
-import '../../css/posts.css'
 
 window.addEventListener('resize', function (event) {
   var elements = document.querySelectorAll(".post-box");

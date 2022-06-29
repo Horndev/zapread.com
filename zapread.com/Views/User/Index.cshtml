@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = Model.UserName;
     ViewBag.ViewInfo = "User:" + Model.UserId;
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
 <div id="root"></div>
@@ -17,6 +18,7 @@
         var userId = @Model.UserId;
         var userAppId = "@Model.UserAppId";
         var userName = "@Model.UserName";
+        window.UserName = "@UserName";
     </script>
     @Scripts.Render("~/bundles/user/index")
 }

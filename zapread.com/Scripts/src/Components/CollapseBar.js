@@ -17,19 +17,19 @@ export default function CollapseBar(props) {
     () => {
       setTitle(props.title);
       setBg(props.bg);
-      setIsCollapsed(props.isCollapsed);
+      //setIsCollapsed(props.isCollapsed);
       setIsDisabled(props.isDisabled);
     },
-    [props.title, props.title, props.isCollapsed, props.isDisabled]
+    [props.title, props.isDisabled]
   );
 
-  useEffect(() => {
-    if (isCollapsed == false) {
-      if ('onExpand' in props) {
-        props.onExpand();
-      }
-    }
-  }, [isCollapsed]);
+  //useEffect(() => {
+  //  if (isCollapsed == false) {
+  //    if ('onExpand' in props) {
+  //      props.onExpand();
+  //    }
+  //  }
+  //}, [isCollapsed]);
 
   const onToggleCollapse = () => {
     if (isCollapsed) {
@@ -45,7 +45,7 @@ export default function CollapseBar(props) {
         <Row>
           <Col lg={12}>
             <div className="ibox float-e-margins" style={{ marginBottom: "0px" }}>
-              <div className={"ibox-title " + bg}>
+              <div className={"ibox-title " + bg} onClick={onToggleCollapse}>
                 <h5>
                   {title}
                 </h5>

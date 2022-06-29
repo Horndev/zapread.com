@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = Model.UserName + ": in " + Model.GroupName + " - " + Model.PostTitle;
     Model.IsDetailView = true;
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
 <div id="root"></div>
@@ -26,6 +27,7 @@
         var detailPostId = @Model.PostId;
         var detailPostVote = @if (ViewBag.vote != null) { <text>@ViewBag.vote</text>} else { <text>0</text> };
         var showVoteDialog = @if (ViewBag.showVote != null && ViewBag.showVote) { <text>true</text> } else { <text>false</text> };
+        window.UserName = "@UserName";
     </script>
     @Scripts.Render("~/bundles/post/detail")
 }

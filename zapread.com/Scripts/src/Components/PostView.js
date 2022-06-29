@@ -36,6 +36,9 @@ export default function PostView(props) {
   const [isDetailView, setIsDetailView] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isHoveringTitle, setIsHoveringTitle] = useState(false);
+
+  const [isNSFWRevealed, setIsNSFWRevealed] = useState(false);
+
   const [impressions, setImpressions] = useState(0);
   const toggleVisibleIconRef = createRef();
 
@@ -82,7 +85,7 @@ export default function PostView(props) {
             }
             node.style.overflowY = "hidden";
           } else {
-            node.style.overflowY = "visible";
+            //node.style.overflowY = "visible";
           }
         }
       }, 3000);
@@ -222,6 +225,15 @@ export default function PostView(props) {
     });
   }
 
+  const revealNSFW = () => {
+    setIsNSFWRevealed(true);
+  };
+
+  const postBodyClass = (post) => {
+    return "post-quotable post-content ql-container ql-snow post-box"
+      + ((post.IsNSFW && !isNSFWRevealed) ? " zr-nsfw-on" : "");
+  }
+
   return (
     <>
       <div className="social-feed-box" id={"post_" + post.PostId} style={isHidden ? { display: "none" } : {}}>
@@ -240,24 +252,30 @@ export default function PostView(props) {
                 <i className="fa fa-eye"></i>&nbsp;{impressions}&nbsp;Impression(s)
               </button>
             </Dropdown.Item>
-            {isFollowing ? (
-              <Dropdown.Item as="li" onClick={toggleFollow}>
-                <button className="btn btn-link btn-sm">
-                  <i className="fa-regular fa-bell-slash"></i>&nbsp;Stop following
-                </button>
-              </Dropdown.Item>
-            ) : (
-              <Dropdown.Item as="li" onClick={toggleFollow}>
-                <button className="btn btn-link btn-sm">
-                    <i className="fa-regular fa-bell"></i>&nbsp;Follow post
-                </button>
-              </Dropdown.Item>
-            )}
-            <Dropdown.Item as="li" onClick={ignorePost}>
-              <button className="btn btn-link btn-sm">
-                <i className="fa-regular fa-eye-slash"></i>&nbsp;Ignore post
-              </button>
-            </Dropdown.Item>
+            {isLoggedIn ? (
+              <>
+
+                {isFollowing ? (
+                  <Dropdown.Item as="li" onClick={toggleFollow}>
+                    <button className="btn btn-link btn-sm">
+                      <i className="fa-regular fa-bell-slash"></i>&nbsp;Stop following
+                    </button>
+                  </Dropdown.Item>
+                ) : (
+                  <Dropdown.Item as="li" onClick={toggleFollow}>
+                    <button className="btn btn-link btn-sm">
+                      <i className="fa-regular fa-bell"></i>&nbsp;Follow post
+                    </button>
+                  </Dropdown.Item>
+                )}
+                <Dropdown.Item as="li" onClick={ignorePost}>
+                  <button className="btn btn-link btn-sm">
+                    <i className="fa-regular fa-eye-slash"></i>&nbsp;Ignore post
+                  </button>
+                </Dropdown.Item>
+
+              </>) : (<></>)}
+            
             { post.ViewerIgnoredUser ? (
               <Dropdown.Item as="li" onClick={() => { alert("not yet implemented"); }}>
                 <button className="btn btn-link btn-sm">
@@ -305,17 +323,27 @@ export default function PostView(props) {
                 </button>
               </Dropdown.Item>
             </>) : (<>
-              <Dropdown.Item as="li" onClick={reportNSFW}>
-                <button className="btn btn-link btn-sm">
-                  <i className="fa fa-exclamation-triangle"></i> Report NSFW
-                </button>
-              </Dropdown.Item>
+
+                {isLoggedIn ? (
+                  <>
+                    <Dropdown.Item as="li" onClick={reportNSFW}>
+                      <button className="btn btn-link btn-sm">
+                        <i className="fa fa-exclamation-triangle"></i> Report NSFW
+                      </button>
+                    </Dropdown.Item>
+                  </>) : (<></>)}
+
             </>)}
-            <Dropdown.Item as="li" onClick={reportSpam}>
-              <button className="btn btn-link btn-sm" type="submit">
-                <i className="fa fa-flag"></i> Report Spam
-              </button>
-            </Dropdown.Item>
+
+            {isLoggedIn ? (
+              <>
+                <Dropdown.Item as="li" onClick={reportSpam}>
+                  <button className="btn btn-link btn-sm" type="submit">
+                    <i className="fa fa-flag"></i> Report Spam
+                  </button>
+                </Dropdown.Item>
+              </>) : (<></>)}
+            
           </Dropdown.Menu>
         </Dropdown>
 
@@ -404,7 +432,7 @@ export default function PostView(props) {
         <div className="social-body" style={{ display: isVisible ? "block" : "none" }}>
           <div className="row">
             <div className="col">
-              <div className="post-quotable post-content ql-container ql-snow post-box"
+              <div className={postBodyClass(post)}
                 ref={postContentRef}
                 data-postid={post.PostId}
                 data-userappid={post.UserAppId}
@@ -412,6 +440,15 @@ export default function PostView(props) {
                 <div className="post-content ql-editor ql-container ql-snow">
                   <div dangerouslySetInnerHTML={{ __html: post.Content }} />
                 </div>
+
+                {(post.IsNSFW && !isNSFWRevealed) ? (
+                  <>
+                    <div id={"nsfw_" + post.PostId} className="zr-nsfw-post"></div>
+                    <button id={"nsfwb_" + post.PostId}
+                      className="btn btn-danger btn-outline btn-block zr-nsfw-post-button"
+                      onClick={revealNSFW}>Show NSFW</button>
+                  </>) : (<></>)}
+
                 <p className="read-more-button">
                   <a role="button" className="button btn btn-primary"
                     onClick={(e) => {
@@ -428,7 +465,7 @@ export default function PostView(props) {
             <ReactionBar l={"1"} postId={post.PostId} />
             <div style={{height:"30px"}}>
               <div id={"wc_" + post.PostId}>
-                {isVisible ? (
+                {(post.IsNSFW ? (isNSFWRevealed && isVisible) : isVisible) ? (
                   <>
                     <span className="btn btn-link btn-sm" onClick={() => {
                       writeComment(post.PostId);
@@ -458,7 +495,8 @@ export default function PostView(props) {
             <div style={{ height: "30px" }}></div>
         </>)}
 
-        <div className="social-comment-box" id={"comments_" + post.PostId} style={{ display: isVisible ? "block" : "none" }}>
+        <div className="social-comment-box" id={"comments_" + post.PostId}
+          style={{ display: (post.IsNSFW ? (isNSFWRevealed && isVisible) : isVisible) ? "block" : "none" }}>
           <Suspense fallback={<></>}>
             <CommentsView
               comments={post.CommentVms}
