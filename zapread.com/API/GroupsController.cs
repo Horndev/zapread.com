@@ -40,6 +40,137 @@ namespace zapread.com.API
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("POST")]
+        [Route("api/v1/groups/mod/reports/resolve")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> SetModReportResolved(SetModReportResolvedRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var reqId = Guid.Parse(req.ReportId);
+
+                var report = await db.UserContentReports
+                    .Where(r => r.Id == reqId)
+                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
+                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)))
+                    .FirstOrDefaultAsync();
+
+                if (report == null) return NotFound();
+
+                report.IsResolved = true;
+
+                await db.SaveChangesAsync();
+
+                return Ok(new ZapReadResponse()
+                {
+                    success = true,
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/groups/mod/reports/unresolved")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> GetUnresolvedModReports()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+            
+            using (var db = new ZapContext())
+            {
+                var reps = await db.UserContentReports
+                    .Where(r => !r.IsResolved)
+                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
+                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)))
+                    .Select(r => new GetUnresolvedModReportsResponse.ReportViewModel()
+                    {
+                        ReportId = r.Id,
+                        PostId = r.Post != null ? r.Post.PostId : r.Comment != null ? r.Comment.Post.PostId : -1,
+                        CommentId = r.Comment != null ? r.Comment.CommentId : -1,
+                        ReportType = r.ReportType,
+                        GroupName = r.Post != null ? r.Post.Group.GroupName : r.Comment != null ? r.Comment.Post.Group.GroupName : "Unknown",
+                        IsStarted = r.IsStarted,
+                        ReportedByName = r.ReportedBy.Name,
+                        TimeStamp = r.TimeStamp.Value,
+                    })
+                    .OrderByDescending(r => r.TimeStamp)
+                    .Take(10)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return Ok(new GetUnresolvedModReportsResponse()
+                {
+                    success = true,
+                    Reports = reps
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AcceptVerbs("GET")]
+        [Route("api/v1/groups/mod/reports")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> GetModReports()
+        {
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                var groupsInfo = await db.Users
+                    .Where(u => u.AppId == userAppId)
+                    .Select(u => new
+                    {
+                        GroupFunds = u.GroupModeration.Select(g => new GetModReportsResponse.GroupBalanceInfo 
+                        { 
+                            GroupId = g.GroupId, 
+                            GroupName = g.GroupName, 
+                            Balance = g.Funds != null ? g.Funds.Balance : 0 
+                        }),
+                        NumGroups = u.GroupModeration.Count()
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (groupsInfo == null)
+                {
+                    return NotFound();
+                }
+
+                var numReps = await db.UserContentReports
+                    .Where(r => !r.IsResolved)
+                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
+                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) )
+                    .CountAsync();
+
+                return Ok(new GetModReportsResponse()
+                {
+                    success = true,
+                    NumGroupsModerated = groupsInfo.NumGroups,
+                    BalanceInfo = groupsInfo.GroupFunds,
+                    NumReports = numReps
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]

@@ -984,9 +984,12 @@
     <Compile Include="Models\API\Groups\AdminGroupUserParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
     <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetModReportsResponse.cs" />
     <Compile Include="Models\API\Groups\GetTopGroupsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetUnresolvedModReportsResponse.cs" />
     <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
     <Compile Include="Models\API\Groups\SetGroupDescriptionParameters.cs" />
+    <Compile Include="Models\API\Groups\SetModReportResolvedRequest.cs" />
     <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
     <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
     <Compile Include="Models\API\Groups\GroupInfo.cs" />
@@ -1619,7 +1622,6 @@
     <Content Include="Scripts\src\css\patterns\triangular.png" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
-    <Content Include="Scripts\src\css\posts.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
     <None Include="Scripts\src\css\quill\quilledit.scss" />
     <None Include="Scripts\src\css\quill\quillcustom.scss" />

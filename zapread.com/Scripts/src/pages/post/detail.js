@@ -19,18 +19,8 @@ import PostView from "../../Components/PostView";
 import LoadingBounce from "../../Components/LoadingBounce";
 const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
 
-//const getOnLoadedMorePosts = () => import('../../utility/onLoadedMorePosts');
-//import { writeComment } from '../../comment/writecomment';
-//import { replyComment } from '../../comment/replycomment';
-//import { editComment } from '../../comment/editcomment';
-//import '../../shared/postfunctions';
-//import '../../shared/readmore';
-//import '../../shared/postui';
 import '../../shared/sharedlast';
-
-/*const getVoteModal = () => import("../../Components/VoteModal");*/
 import '../../css/quill/quillcustom.scss';
-import '../../css/posts.css'
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);

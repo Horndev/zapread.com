@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -64,8 +65,9 @@ namespace zapread.com.API
 
                 if (post == null) return NotFound();
 
-                var report = new UserContentReport() 
-                { 
+                var report = new UserContentReport()
+                {
+                    Id = Guid.NewGuid(),
                     Post = post,
                     ReportedBy = reportedByUser,
                     ReportType = req.ReportType,
@@ -478,6 +480,69 @@ namespace zapread.com.API
                 }
 
                 return Ok(new ZapReadResponse() { success = true });
+            }
+        }
+
+        /// <summary>
+        /// Follow a post
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("api/v1/post/markNSFW")]
+        [AcceptVerbs("POST")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<IHttpActionResult> MarkNSFW(PostReqParameters req)
+        {
+            if (req == null || req.PostId < 1) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+
+            if (userAppId == null) return Unauthorized();
+
+            using (var db = new ZapContext())
+            {
+                // Authorize
+                using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+                {
+                    var callingUserIsAuth = await db.Posts
+                    .Where(p => p.PostId == req.PostId)
+                    .Select(p => p.Group.Moderators.Select(m => m.AppId).Contains(userAppId)
+                            || p.Group.Administrators.Select(m => m.AppId).Contains(userAppId) 
+                            || p.UserId.AppId == userAppId)
+                    .FirstOrDefaultAsync();
+
+                    if (!callingUserIsAuth || !userManager.IsInRole(userAppId, "Administrator")) return Unauthorized();
+                }
+
+                var post = await db.Posts
+                    .Include(p => p.UserId)
+                    .FirstOrDefaultAsync(p => p.PostId == req.PostId).ConfigureAwait(false);
+
+                if (post == null) return NotFound();
+
+                post.IsNSFW = true;
+
+                // Alert the post owner
+                var postOwner = post.UserId;
+
+                // Add Alert
+                var alert = new UserAlert()
+                {
+                    TimeStamp = DateTime.Now,
+                    Title = (post.IsNSFW ? "Your post has been marked NSFW : " : "Your post is no longer marked NSFW : ") + post.PostTitle,
+                    Content = "A moderator has changed the Not Safe For Work status of your post.",
+                    IsDeleted = false,
+                    IsRead = false,
+                    To = postOwner,
+                    PostLink = post,
+                };
+                postOwner.Alerts.Add(alert);
+                await db.SaveChangesAsync().ConfigureAwait(false);
+
+                return Ok(new ZapReadResponse()
+                {
+                    success = true
+                });
             }
         }
 

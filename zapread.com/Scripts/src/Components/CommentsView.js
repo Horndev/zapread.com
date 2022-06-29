@@ -14,7 +14,6 @@ import { applyHoverToChildren } from '../utility/userhover';
 import { ISOtoRelative } from "../utility/datetime/posttime"
 import { postJson } from "../utility/postData";
 const getSwal = () => import('sweetalert2');
-import '../css/posts.css'
 
 function Comment(props) {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -295,7 +294,7 @@ function Comment(props) {
 
                 {(props.numReplies-1) > childComments.length ? (
                   <>
-                    <div style={{ background: "#f9f9f9", borderRadius: "0px 0px 10px 10px", padding: "0px 3px 3px 3px" }}>
+                    <div className="zr-btn-loadmore">
                       <Button size="sm" variant="link" onClick={() => {
                         props.handleLoadMoreComments(props.comment.CommentId, props.root, childComments.map(c => c.CommentId).join(';'))
                       }}>
@@ -332,7 +331,7 @@ export default function CommentsView(props) {
         .sort((c1, c2) => { c1.Score < c2.Score })
         .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
 
-      if (props.numRootComments > numToShow) {
+      if ((props.numRootComments - 1) > numToShow) {
         setHasMoreComments(true);
       }
 
@@ -389,7 +388,7 @@ export default function CommentsView(props) {
           ))}
 
           {hasMoreComments ? (<>
-            <div style={{ background: "#f9f9f9", borderRadius: "0px 0px 10px 10px", padding: "0px 3px 3px 3px"}}>
+            <div className="zr-btn-loadmore">
               <Button size="sm" variant="link" onClick={() => {
                 handleLoadMoreComments(-1, -1, commentsToRender.map(c => c.CommentId).join(';'))
               }}>

@@ -31,7 +31,6 @@ import '../../shared/readmore';
 import '../../shared/postui';
 import '../../shared/sharedlast';
 import '../../css/quill/quillcustom.scss';
-import '../../css/posts.css'
 
 // Force prefetching code in parallel... (https://stackoverflow.com/questions/58687397/react-lazy-and-prefetching-components)
 import("../../Components/PostList");

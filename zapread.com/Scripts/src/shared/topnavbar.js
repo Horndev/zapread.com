@@ -7,11 +7,12 @@ import { refreshUserBalance } from '../utility/refreshUserBalance';
 import { ready } from '../utility/ready';
 import { postJson } from '../utility/postData';
 
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import ZapreadSearch from "../Components/ZapreadSearch";
 import BalanceWidget from '../Components/TopBar/BalanceWidget';
 import BannerAlerts from "../Components/TopBar/BannerAlerts";
+const ModerationBar = React.lazy(() => import("../Components/TopBar/ModerationBar"));
 
 /* Top Search */
 var searchEl = document.getElementById("ZRSearch");
@@ -29,6 +30,15 @@ if (balanceEl != null) {
 var bannerEl = document.getElementById("BannerAlerts");
 if (bannerEl != null) {
   ReactDOM.render(<BannerAlerts />, bannerEl);
+}
+
+/* Mod Bar Alerts */
+var modbarEl = document.getElementById("TopModBar");
+if (bannerEl != null) {
+  ReactDOM.render(
+    <Suspense fallback={<></>}>
+      <ModerationBar />
+    </Suspense>, modbarEl);
 }
 
 //var DepositModalLoaded = false;
