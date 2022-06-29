@@ -36,7 +36,7 @@ function renderSuggestion(suggestion, { query }) {
   return (
     <div>
       {suggestion.Icon != null ? (<>
-        <div className="forum-icon" style={{ marginRight: "0px" }}>
+        <div className="forum-icon" style={{ marginRight: "0px", display: "inline" }}>
           <i className={"fa " + suggestion.Icon} style={{ marginTop: "0px" }} />
         </div>
       </>) : (<img src={"/Img/Group/Icon/" + suggestion.GroupId} width="30" height="30"></img>)}
