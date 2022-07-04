@@ -388,6 +388,9 @@ namespace zapread.com.Controllers
                         u.Reputation,
                         u.ProfileImage.Version
                     }).FirstOrDefaultAsync().ConfigureAwait(true);
+
+                if (userInfo == null) return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+
                 return View(new PostEditViewModel() { UserReputation = userInfo.Reputation, UserAppId = userId, ProfileImageVersion = userInfo.Version });
             }
         }

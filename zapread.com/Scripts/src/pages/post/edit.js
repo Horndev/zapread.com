@@ -106,7 +106,12 @@ function Page() {
           if (response.success) {
             setPostId(response.postId);
             setNumSaves(numSaves + 1);
-            setIsSaving(false);         // Release the saving lock
+            console.log("saved draft", numSaves);
+
+            //delay
+            setTimeout(() => {
+              setIsSaving(false);         // Release the saving lock
+            }, 2000);
           } else {
             Swal.fire({
               icon: 'error',
@@ -116,7 +121,7 @@ function Page() {
           }
         });
     }
-  }, [postTitle, postContent, postLanguage, postId, groupId, postNSFW]);    // Save the draft if any of these variables update
+  }, [isSaving, postTitle, postContent, postLanguage, postId, groupId, postNSFW, postNonIncome, postQuietly]);    // Save the draft if any of these variables update
 
   function handleDeleteDraft(postId) {
     Swal.fire({
@@ -342,7 +347,7 @@ function Page() {
                 </div>
               </div>
             </div>
-            <div className="savingoverlay" id="savingnotification" style={{ display: "none" }}>
+            <div className="savingoverlay" id="savingnotification" style={isSaving ? {} : { display: "none" }}>
               <i className="fa-solid fa-circle-notch fa-spin"></i> saving...
             </div>
             <Suspense fallback={<></>}>

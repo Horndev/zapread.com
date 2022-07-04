@@ -1,5 +1,4 @@
 ﻿
-
 /*(probably don't need the double quotes below)*/
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=arial]::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=arial]::before {
@@ -172,9 +171,12 @@ button.ql-submit:hover {
 }
 
 button.ql-submit {
-    min-width: 90px;
-    font-size: 14px;
-    color: green;
+    min-width: 90px !important;
+    font-size: 14px !important;
+    color: #fff !important;
+    background-color: green !important;
+    border-color: green !important;
+    /*color: green !important;*/
     padding-top: 1px !important;
 }
 
@@ -217,7 +219,7 @@ button.ql-save {
     background-color: #fff;
     border-radius: 0 0 4px 4px;
     height: auto;
-    min-height: 400px;
+    min-height: 200px;
 }
 
 .ql-snow.ql-toolbar button {

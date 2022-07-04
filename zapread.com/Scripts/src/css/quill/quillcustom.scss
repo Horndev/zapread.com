@@ -129,16 +129,19 @@
     padding-left: 16px !important;
 }
 
-button.ql-submit:hover {
+.quill .ql-snow.ql-toolbar .ql-formats button.ql-submit:hover {
     background-color: #18a689 !important;
     border-color: #18a689 !important;
     color: #fff !important;
 }
 
-button.ql-submit {
+.quill .ql-snow.ql-toolbar .ql-formats button.ql-submit {
     min-width: 90px !important;
     font-size: 14px !important;
-    color: green !important;
+    color: #fff !important;
+    background-color: green !important;
+    border-color: green !important;
+    /*color: green !important;*/
     padding-top: 1px !important;
 }
 
