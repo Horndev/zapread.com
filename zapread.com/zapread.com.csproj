@@ -1271,7 +1271,6 @@
     <Content Include="Scripts\dist\0\6455.js" />
     <Content Include="Scripts\dist\0\6769.js" />
     <Content Include="Scripts\dist\0\6969.js" />
-    <Content Include="Scripts\dist\0\7059.js" />
     <Content Include="Scripts\dist\0\7524.js" />
     <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
     <Content Include="Scripts\dist\0\7630.js" />
@@ -1288,6 +1287,7 @@
     <Content Include="Scripts\dist\0\9651.js" />
     <Content Include="Scripts\dist\0\9681.css" />
     <Content Include="Scripts\dist\0\9681.js" />
+    <Content Include="Scripts\dist\0\9907.js" />
     <Content Include="Scripts\dist\4c9b1fa89f3c892cb2f1.jpg" />
     <Content Include="Scripts\dist\7dc5492d8e0fe236c1f4.png" />
     <Content Include="Scripts\dist\account\login.css" />
@@ -1563,7 +1563,6 @@
     <Content Include="Scripts\dist\0\6455.js.map" />
     <Content Include="Scripts\dist\0\6769.js.map" />
     <Content Include="Scripts\dist\0\6969.js.map" />
-    <Content Include="Scripts\dist\0\7059.js.map" />
     <Content Include="Scripts\dist\0\7524.js.map" />
     <Content Include="Scripts\dist\0\7630.js.map" />
     <Content Include="Scripts\dist\0\7939.js.map" />
@@ -1578,6 +1577,7 @@
     <Content Include="Scripts\dist\0\9651.js.map" />
     <Content Include="Scripts\dist\0\9681.css.map" />
     <Content Include="Scripts\dist\0\9681.js.map" />
+    <Content Include="Scripts\dist\0\9907.js.map" />
     <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />

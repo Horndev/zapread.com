@@ -6,13 +6,13 @@
  * 
  **/
 
-import React, { useCallback, useState, useRef } from 'react';           // [✓]
-import ReactQuill, { Quill } from '../../../quill/react-quill/src/index';                        // [✓]
+import React, { useCallback, useState, useRef } from 'react';
+import { Container, Row, Col, Button, Card, Table } from "react-bootstrap";
+import ReactQuill, { Quill } from '../../../quill/react-quill/src/index';
 import Delta from 'quill-delta';
-import { getAntiForgeryToken } from '../../../utility/antiforgery';     // [✓]
-//import 'react-quill/dist/quill.snow.css';                               // [✓]
-import '../../../css/quill/quilledit.scss';                              // [✓]
-import ImageResize from '../../../quill-image-resize-module/src/ImageResize';           // [✓] Import from source
+import { getAntiForgeryToken } from '../../../utility/antiforgery';
+import '../../../css/quill/quilledit.scss';
+import ImageResize from '../../../quill-image-resize-module/src/ImageResize';
 import { ImageUpload } from '../../../quill/image-upload';
 import Mention from '../../../quill/quill-mention/src/quill.mention';
 import AutoLinks from 'quill-auto-links';
@@ -433,16 +433,9 @@ export default class Editor extends React.Component {
     var self = this;
     // Save periodically
     setInterval(function () {
-      //console.log("save");
       if (window.change.length() > 0) {
-        document.getElementById("savingnotification").style.display = "";
         self.props.onSaveDraft();
         window.change = new Delta();
-
-        // Simulate save
-        setTimeout(() => {
-          document.getElementById("savingnotification").style.display = "none";
-        }, 2000);
       }
     }, 10 * 1000);
   }
@@ -549,6 +542,24 @@ export default class Editor extends React.Component {
           placeholder={"Compose a great post..."}
           modules={this.modules}
         />
+        <Container fluid>
+          <Row className="pt-3">
+            <Col>
+              <Button
+                onClick={this.props.onSubmitPost}
+                size="sm"
+                className="float-right ql-submit">
+                <i className="fa fa-check"></i> Submit
+              </Button>
+              <Button
+                onClick={this.props.onSaveDraft}
+                size="sm"
+                className="mx-2 float-right ql-save">
+                <i className="fa fa-save"></i> Save
+              </Button>
+            </Col>
+          </Row>
+        </Container>
       </>
     )
   }
