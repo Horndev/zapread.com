@@ -22,6 +22,17 @@ namespace zapread.com.API
     /// </summary>
     public class LnauthController : Controller
     {
+        private IEventService eventService;
+
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name="eventService"></param>
+        public LnauthController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
         /// <summary>
         /// https://github.com/fiatjaf/lnurl-rfc/blob/luds/04.md
         /// 
@@ -69,11 +80,6 @@ namespace zapread.com.API
                                 k1 = k1str,
                                 dataStr = dataStr,
                             };
-
-                            //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
-                            //    "Send to wallet:" + Environment.NewLine +
-                            //    "req:" + dataStr + Environment.NewLine +
-                            //    "url:" + url + Environment.NewLine);
 
                             return View(vm);
                         }
@@ -134,6 +140,8 @@ namespace zapread.com.API
 
             if (isValid)
             {
+                await eventService.OnDebugMessage("LNAuthController.Signin valid - passing to callback.  UserId " + getparams.k1 + " token: " + getparams.key);
+
                 // need to return user to callback endpoint
                 await NotificationService.SendLnAuthLoginNotification(
                     userId: getparams.k1,

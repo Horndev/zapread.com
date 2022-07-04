@@ -102,5 +102,12 @@ namespace zapread.com.Services
         /// <param name="isTest"></param>
         /// <returns></returns>
         Task<bool> OnNewGroupAdminGrantedAsync(int groupId, int userId, bool isTest = false);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        Task<bool> OnDebugMessage(string message);
     }
 }

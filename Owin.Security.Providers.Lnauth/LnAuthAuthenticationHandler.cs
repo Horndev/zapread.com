@@ -67,7 +67,8 @@ namespace Owin.Security.Providers.LnAuth
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = Request.IsSecure
+                    Secure = Request.IsSecure,
+                    SameSite = SameSiteMode.None,                    
                 };
 
                 string correlationKey = ".AspNet.Correlation." + Options.AuthenticationType;
@@ -213,7 +214,8 @@ namespace Owin.Security.Providers.LnAuth
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = Request.IsSecure
+                Secure = Request.IsSecure,
+                SameSite = SameSiteMode.None
             };
 
             string correlationKey = ".AspNet.Correlation." + Options.AuthenticationType;
