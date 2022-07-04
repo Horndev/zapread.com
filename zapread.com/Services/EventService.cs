@@ -22,6 +22,16 @@ namespace zapread.com.Services
     public class EventService : IEventService
     {
         /// <summary>
+        /// Send a debug message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public async Task<bool> OnDebugMessage(string message)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="userAppId"></param>

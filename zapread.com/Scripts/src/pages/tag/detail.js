@@ -135,13 +135,15 @@ function Page() {
             <div className="social-feed-box-nb">
               <span></span>
             </div>
+            <div className="social-feed-box-nb">
+              <Button variant="primary" block onClick={() => { location.href = "/Post/Edit/"; }}><FontAwesomeIcon icon={faPlus} />{" "}Add Post</Button>
+            </div>
             {postsLoaded ? (<>
               <Suspense fallback={<><LoadingBounce /></>}>
                 <PostList
                   posts={posts}
                   isLoggedIn={isLoggedIn}
                   isGroupMod={false}/>
-
                 {hasMorePosts ? (
                   <div className="social-feed-box-nb">
                     <Button block variant="primary" onClick={() => { getMorePosts(); }}>
@@ -150,7 +152,6 @@ function Page() {
                     </Button>
                   </div>
                 ) : (<></>)}
-
               </Suspense>
             </>) : (<><LoadingBounce /></>)}
             <div className="social-feed-box-nb"><span></span></div>

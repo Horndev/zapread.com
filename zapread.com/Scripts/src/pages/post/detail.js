@@ -118,6 +118,10 @@ function Page() {
         <Row style={{ marginTop: "20px" }}>
           <Col sm={2}></Col>
           <Col lg={8}>
+            <div className="social-feed-box-nb"><span></span></div>
+            <div className="social-feed-box-nb">
+              <Button variant="primary" block onClick={() => { location.href = "/Post/Edit/"; }}><FontAwesomeIcon icon={faPlus} />{" "}Add Post</Button>
+            </div>
             {postsLoaded ? (<>
               <Suspense fallback={<><LoadingBounce /></>}>
                 <PostView key={post.PostId} post={post} isLoggedIn={window.IsAuthenticated} isGroupMod={post.ViewerIsMod} />

@@ -101,6 +101,15 @@ namespace zapread.com
                 {
                     cookie.HttpOnly = true;
                 }
+                if (options.SameSite.HasValue)
+                {
+                    if (options.SameSite.Value == Microsoft.Owin.SameSiteMode.Lax)
+                        cookie.SameSite = System.Web.SameSiteMode.Lax;
+                    if (options.SameSite.Value == Microsoft.Owin.SameSiteMode.Strict)
+                        cookie.SameSite = System.Web.SameSiteMode.Strict;
+                    if (options.SameSite.Value == Microsoft.Owin.SameSiteMode.None)
+                        cookie.SameSite = System.Web.SameSiteMode.None;
+                }
 
                 webContext.Response.AppendCookie(cookie);
             }
