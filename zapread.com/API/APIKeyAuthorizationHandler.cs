@@ -1,4 +1,4 @@
-﻿using Microsoft.Owin.Security.ApiKey.Contexts;
+using Microsoft.Owin.Security.ApiKey.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -13,7 +13,6 @@ using zapread.com.Database;
 namespace zapread.com.API
 {
     //https://dzone.com/articles/api-key-user-aspnet-web-api
-
     // This could be an alternative.
     /// <summary>
     /// Handler for validating API Keys
@@ -25,9 +24,9 @@ namespace zapread.com.API
         /// <summary>
         /// Check that the key in the identity context is valid
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref = "ArgumentNullException"></exception>
         public static async Task ValidateIdentity(ApiKeyValidateIdentityContext context)
         {
             using (var db = new ZapContext())
@@ -38,11 +37,7 @@ namespace zapread.com.API
                 }
 
                 var submittedKey = context.ApiKey;
-
-                var isValidKey = await db.APIKeys
-                    .Where(k => k.Key == submittedKey)
-                    .AnyAsync().ConfigureAwait(true);
-
+                var isValidKey = await db.APIKeys.Where(k => k.Key == submittedKey).AnyAsync().ConfigureAwait(true);
                 if (isValidKey)
                 {
                     context.Validate();
@@ -53,7 +48,7 @@ namespace zapread.com.API
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
         public static async Task<IEnumerable<Claim>> GenerateClaims(ApiKeyGenerateClaimsContext context)
         {
@@ -65,24 +60,12 @@ namespace zapread.com.API
                 }
 
                 var submittedKey = context.ApiKey;
-
-                var keyRoles = await db.APIKeys
-                    .Where(k => k.Key == submittedKey)
-                    .Select(k => new
-                    {
-                        k.Roles,
-                        k.User.Name,
-                        k.User.AppId,
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                var claims = new List<Claim>()
+                var keyRoles = await db.APIKeys.Where(k => k.Key == submittedKey).Select(k => new
                 {
-                    new Claim(ClaimTypes.Name, keyRoles.Name),
-                    new Claim(ClaimTypes.NameIdentifier, keyRoles.AppId)
-                };
-
-                foreach(var r in keyRoles.Roles.Split(','))
+                k.Roles, k.User.Name, k.User.AppId, }).FirstOrDefaultAsync().ConfigureAwait(true);
+                var claims = new List<Claim>()
+                {new Claim(ClaimTypes.Name, keyRoles.Name), new Claim(ClaimTypes.NameIdentifier, keyRoles.AppId)};
+                foreach (var r in keyRoles.Roles.Split(','))
                 {
                     claims.Add(new Claim(ClaimTypes.Role, r));
                 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
@@ -21,36 +21,64 @@ namespace zapread.com.Database
     public class ZapContext : DbContext
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
         public ZapContext() : base("name=" + System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"])
         {
-            //DbInterception.Add(FreetextInterceptor.Instance);
+        //DbInterception.Add(FreetextInterceptor.Instance);
         }
+
         public DbSet<Referral> Referrals { get; set; }
+
         public DbSet<Post> Posts { get; set; }
+
         public DbSet<Comment> Comments { get; set; }
+
         public DbSet<Models.Database.Group> Groups { get; set; }
+
         public DbSet<User> Users { get; set; }
+
         public DbSet<UserImage> Images { get; set; }
+
         public DbSet<LNTransaction> LightningTransactions { get; set; }
+
         public DbSet<EarningEvent> EarningEvents { get; set; }
+
         public DbSet<SpendingEvent> SpendingEvents { get; set; }
+
         public DbSet<ZapReadGlobals> ZapreadGlobals { get; set; }
+
         public DbSet<ZapIcon> Icons { get; set; }
+
         public DbSet<UserMessage> Messages { get; set; }
+
         public DbSet<UserAlert> Alerts { get; set; }
+
         public DbSet<Achievement> Achievements { get; set; }
+
         public DbSet<UserAchievement> UserAchievements { get; set; }
+
         public DbSet<PendingPostVote> PendingPostVotes { get; set; }
+
         public DbSet<PendingCommentVote> PendingCommentVotes { get; set; }
+
         public DbSet<HourlyStatistics> HourlyStatistics { get; set; }
+
         public DbSet<DailyStatistics> DailyStatistics { get; set; }
+
         public DbSet<WeeklyStatistics> WeeklyStatistics { get; set; }
+
         public DbSet<MonthlyStatistics> MonthlyStatistics { get; set; }
+
         public DbSet<LNNode> LNNodes { get; set; }
+
         public DbSet<APIKey> APIKeys { get; set; }
+
         public DbSet<UserContentReport> UserContentReports { get; set; }
+
         public DbSet<Customer> Customers { get; set; }
+
         public DbSet<Subscription> Subscriptions { get; set; }
+
         /// <summary>
         /// Reactions used for posts and comments
         /// </summary>
@@ -78,6 +106,7 @@ namespace zapread.com.Database
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }

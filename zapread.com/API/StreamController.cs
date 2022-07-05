@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -31,22 +31,23 @@ namespace zapread.com.API
         {
             return RequestConnection(null);
         }
+
         /// <summary>
         /// Request connection information for a streaming socket.
         /// </summary>
-        /// <param name="ctoken">connection token to use for stream subscription when not authenticated</param>
+        /// <param name = "ctoken">connection token to use for stream subscription when not authenticated</param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/stream/request/{ctoken?}")]
         public ConnectionInfoResponse RequestConnection(string ctoken)
         {
             var url = ConfigurationManager.AppSettings.Get("wshost");
-            if ((ctoken== null) && base.User.Identity.IsAuthenticated)
+            if ((ctoken == null) && base.User.Identity.IsAuthenticated)
             {
                 var token = User.Identity.GetUserId();
                 url = url + "/notificationHub?a=" + token;
             }
-            else if(ctoken != null)
+            else if (ctoken != null)
             {
                 url = url + "/notificationHub?a=" + ctoken;
             }
@@ -54,11 +55,9 @@ namespace zapread.com.API
             {
                 url += "/notificationHub";
             }
-            return new ConnectionInfoResponse() 
-            { 
-                success = true, 
-                url = url 
-            };
+
+            return new ConnectionInfoResponse()
+            {success = true, url = url};
         }
 
         /// <summary>
@@ -74,20 +73,15 @@ namespace zapread.com.API
             {
                 using (var db = new ZapContext())
                 {
-                    var user = await db.Users
-                        .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
-
+                    var user = await db.Users.SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
                     if (user == null)
                     {
                         return new ZapReadResponse()
-                        {
-                            success = false,
-                        };
+                        {success = false, };
                     }
 
                     user.IsOnline = true;
                     user.DateLastActivity = DateTime.UtcNow;
-
                     // Performance - this gets called often, so we don't need to transfer all info, just the jobid
                     //var jobq = await db.Users
                     //    .Where(u => u.AppId == userAppId)
@@ -97,17 +91,12 @@ namespace zapread.com.API
                     //            u.Name,
                     //    })
                     //    .SingleOrDefaultAsync().ConfigureAwait(false);
-
                     if (String.IsNullOrEmpty(user.PGPPubKey))
                     {
                         // If LastActivity is not updated in the last 10 minutes, then user will go offline.
-                        var jobId = BackgroundJob.Schedule<UserState>(
-                            methodCall: x => x.UserOffline(userAppId, user.Name, DateTime.UtcNow),
-                            delay: TimeSpan.FromMinutes(10));
-
+                        var jobId = BackgroundJob.Schedule<UserState>(methodCall: x => x.UserOffline(userAppId, user.Name, DateTime.UtcNow), delay: TimeSpan.FromMinutes(10));
                         //var user = await db.Users
                         //    .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
-
                         // Save the jobId so we don't schedule another check
                         user.PGPPubKey = jobId;
                     }
@@ -117,13 +106,10 @@ namespace zapread.com.API
             }
             catch
             {
-
             }
 
             return new ZapReadResponse()
-            {
-                success = true,
-            };
+            {success = true, };
         }
 
         /// <summary>
@@ -140,41 +126,27 @@ namespace zapread.com.API
                 using (var db = new ZapContext())
                 {
                     // Performance - this gets called often, so we don't need to transfer all info, just the jobid
-                    var jobq = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new
-                        {
-                            u.PGPPubKey, // Hack: this is actually the job ID.
-                                u.Name,
-                        })
-                        .SingleOrDefaultAsync().ConfigureAwait(false);
-
+                    var jobq = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                    {
+                    u.PGPPubKey, // Hack: this is actually the job ID.
+ u.Name, }).SingleOrDefaultAsync().ConfigureAwait(false);
                     if (String.IsNullOrEmpty(jobq.PGPPubKey))
                     {
                         // If LastActivity is not updated in the last 10 minutes, then user will go offline.
-                        var jobId = BackgroundJob.Schedule<UserState>(
-                            methodCall: x => x.UserOffline(userAppId, jobq.Name, DateTime.UtcNow),
-                            delay: TimeSpan.FromMinutes(10));
-
-                        var user = await db.Users
-                            .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
-
+                        var jobId = BackgroundJob.Schedule<UserState>(methodCall: x => x.UserOffline(userAppId, jobq.Name, DateTime.UtcNow), delay: TimeSpan.FromMinutes(10));
+                        var user = await db.Users.SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
                         // Save the jobId so we don't schedule another check
                         user.PGPPubKey = jobId;
-
                         await db.SaveChangesAsync().ConfigureAwait(true);
                     }
                 }
             }
             catch
             {
-
             }
 
             return new ZapReadResponse()
-            {
-                success = true,
-            };
+            {success = true, };
         }
     }
 }

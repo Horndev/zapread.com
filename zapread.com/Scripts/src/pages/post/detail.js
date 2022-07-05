@@ -13,6 +13,10 @@ import ReactDOM from "react-dom";
 import { Row, Col, Button } from "react-bootstrap";
 import { useLocation, useParams, BrowserRouter as Router, Route } from 'react-router-dom';
 import { postJson } from "../../utility/postData";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons'
 
 import PageHeading from "../../Components/PageHeading";
 import PostView from "../../Components/PostView";

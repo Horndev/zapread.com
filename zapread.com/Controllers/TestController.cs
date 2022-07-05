@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,7 +15,7 @@ namespace zapread.com.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
-        // GET: Test
+         // GET: Test
         public ActionResult Index()
         {
             return View();
@@ -42,7 +42,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name = "file"></param>
         /// <returns></returns>
         public JsonResult UpdateProfileImage(HttpPostedFileBase file)
         {
@@ -50,12 +50,14 @@ namespace zapread.com.Controllers
             {
                 string _FileName = Path.GetFileName(file.FileName);
                 MemoryStream ms = new MemoryStream();
-
                 Image img = Image.FromStream(file.InputStream);
-
-
             }
-            return Json(new { });
+
+            return Json(new
+            {
+            }
+
+            );
         }
     }
 }

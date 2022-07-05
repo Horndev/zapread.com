@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,11 +27,10 @@ namespace zapread.com.API
     public class GroupsController : ApiController
     {
         private IEventService eventService;
-
         /// <summary>
         /// Default constructor for DI
         /// </summary>
-        /// <param name="eventService"></param>
+        /// <param name = "eventService"></param>
         public GroupsController(IEventService eventService)
         {
             this.eventService = eventService;
@@ -46,32 +45,21 @@ namespace zapread.com.API
         [ValidateJsonAntiForgeryToken]
         public async Task<IHttpActionResult> SetModReportResolved(SetModReportResolvedRequest req)
         {
-            if (req == null) return BadRequest();
-
+            if (req == null)
+                return BadRequest();
             var userAppId = User.Identity.GetUserId();
-
-            if (userAppId == null) return Unauthorized();
-
+            if (userAppId == null)
+                return Unauthorized();
             using (var db = new ZapContext())
             {
                 var reqId = Guid.Parse(req.ReportId);
-
-                var report = await db.UserContentReports
-                    .Where(r => r.Id == reqId)
-                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
-                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)))
-                    .FirstOrDefaultAsync();
-
-                if (report == null) return NotFound();
-
+                var report = await db.UserContentReports.Where(r => r.Id == reqId).Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) || (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId))).FirstOrDefaultAsync();
+                if (report == null)
+                    return NotFound();
                 report.IsResolved = true;
-
                 await db.SaveChangesAsync();
-
                 return Ok(new ZapReadResponse()
-                {
-                    success = true,
-                });
+                {success = true, });
             }
         }
 
@@ -85,36 +73,14 @@ namespace zapread.com.API
         public async Task<IHttpActionResult> GetUnresolvedModReports()
         {
             var userAppId = User.Identity.GetUserId();
-
-            if (userAppId == null) return Unauthorized();
-            
+            if (userAppId == null)
+                return Unauthorized();
             using (var db = new ZapContext())
             {
-                var reps = await db.UserContentReports
-                    .Where(r => !r.IsResolved)
-                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
-                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)))
-                    .Select(r => new GetUnresolvedModReportsResponse.ReportViewModel()
-                    {
-                        ReportId = r.Id,
-                        PostId = r.Post != null ? r.Post.PostId : r.Comment != null ? r.Comment.Post.PostId : -1,
-                        CommentId = r.Comment != null ? r.Comment.CommentId : -1,
-                        ReportType = r.ReportType,
-                        GroupName = r.Post != null ? r.Post.Group.GroupName : r.Comment != null ? r.Comment.Post.Group.GroupName : "Unknown",
-                        IsStarted = r.IsStarted,
-                        ReportedByName = r.ReportedBy.Name,
-                        TimeStamp = r.TimeStamp.Value,
-                    })
-                    .OrderByDescending(r => r.TimeStamp)
-                    .Take(10)
-                    .AsNoTracking()
-                    .ToListAsync();
-
+                var reps = await db.UserContentReports.Where(r => !r.IsResolved).Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) || (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId))).Select(r => new GetUnresolvedModReportsResponse.ReportViewModel()
+                {ReportId = r.Id, PostId = r.Post != null ? r.Post.PostId : r.Comment != null ? r.Comment.Post.PostId : -1, CommentId = r.Comment != null ? r.Comment.CommentId : -1, ReportType = r.ReportType, GroupName = r.Post != null ? r.Post.Group.GroupName : r.Comment != null ? r.Comment.Post.Group.GroupName : "Unknown", IsStarted = r.IsStarted, ReportedByName = r.ReportedBy.Name, TimeStamp = r.TimeStamp.Value, }).OrderByDescending(r => r.TimeStamp).Take(10).AsNoTracking().ToListAsync();
                 return Ok(new GetUnresolvedModReportsResponse()
-                {
-                    success = true,
-                    Reports = reps
-                });
+                {success = true, Reports = reps});
             }
         }
 
@@ -128,50 +94,28 @@ namespace zapread.com.API
         public async Task<IHttpActionResult> GetModReports()
         {
             var userAppId = User.Identity.GetUserId();
-
-            if (userAppId == null) return Unauthorized();
-
+            if (userAppId == null)
+                return Unauthorized();
             using (var db = new ZapContext())
             {
-                var groupsInfo = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Select(u => new
-                    {
-                        GroupFunds = u.GroupModeration.Select(g => new GetModReportsResponse.GroupBalanceInfo 
-                        { 
-                            GroupId = g.GroupId, 
-                            GroupName = g.GroupName, 
-                            Balance = g.Funds != null ? g.Funds.Balance : 0 
-                        }),
-                        NumGroups = u.GroupModeration.Count()
-                    })
-                    .FirstOrDefaultAsync();
-
+                var groupsInfo = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                {
+                GroupFunds = u.GroupModeration.Select(g => new GetModReportsResponse.GroupBalanceInfo{GroupId = g.GroupId, GroupName = g.GroupName, Balance = g.Funds != null ? g.Funds.Balance : 0}), NumGroups = u.GroupModeration.Count()}).FirstOrDefaultAsync();
                 if (groupsInfo == null)
                 {
                     return NotFound();
                 }
 
-                var numReps = await db.UserContentReports
-                    .Where(r => !r.IsResolved)
-                    .Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) ||
-                                (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) )
-                    .CountAsync();
-
+                var numReps = await db.UserContentReports.Where(r => !r.IsResolved).Where(r => (r.Post != null && r.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId)) || (r.Comment != null && r.Comment.Post.Group.Moderators.Select(m => m.AppId).Contains(userAppId))).CountAsync();
                 return Ok(new GetModReportsResponse()
-                {
-                    success = true,
-                    NumGroupsModerated = groupsInfo.NumGroups,
-                    BalanceInfo = groupsInfo.GroupFunds,
-                    NumReports = numReps
-                });
+                {success = true, NumGroupsModerated = groupsInfo.NumGroups, BalanceInfo = groupsInfo.GroupFunds, NumReports = numReps});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="req"></param>
+        /// <param name = "req"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/setdescription")]
@@ -186,34 +130,25 @@ namespace zapread.com.API
             {
                 // Check if requestor is authorized
                 var userAppId = User.Identity.GetUserId();
-
-                var isAdmin = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
-                    .AnyAsync().ConfigureAwait(true);
-
+                var isAdmin = await db.Groups.Where(g => g.GroupId == req.GroupId).Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId)).AnyAsync().ConfigureAwait(true);
                 if (!isAdmin)
                 {
                     return Unauthorized();
                 }
 
-                var group = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var group = await db.Groups.Where(g => g.GroupId == req.GroupId).FirstOrDefaultAsync().ConfigureAwait(true);
                 group.ShortDescription = req.Description.CleanUnicode().SanitizeXSS();
-
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
-                return Ok(new ZapReadResponse() { success = true });
+                return Ok(new ZapReadResponse()
+                {success = true});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="req"></param>
-        /// <param name="role"></param>
+        /// <param name = "req"></param>
+        /// <param name = "role"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/list/{role}")]
@@ -226,52 +161,37 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var groupq = db.Groups
-                    .Where(g => g.GroupId == req.GroupId);
-
+                var groupq = db.Groups.Where(g => g.GroupId == req.GroupId);
                 IQueryable<User> usersq;
-                
                 if (role == "mod")
                 {
-                    usersq = groupq
-                        .SelectMany(g => g.Moderators);
-                } else if (role == "admin")
+                    usersq = groupq.SelectMany(g => g.Moderators);
+                }
+                else if (role == "admin")
                 {
-                    usersq = groupq
-                        .SelectMany(g => g.Administrators);
+                    usersq = groupq.SelectMany(g => g.Administrators);
                 }
                 else if (role == "banished")
                 {
-                    usersq = groupq
-                        .SelectMany(g => g.Banished.Select(b => b.User));
+                    usersq = groupq.SelectMany(g => g.Banished.Select(b => b.User));
                 }
                 else
                 {
-                    usersq = groupq
-                        .SelectMany(g => g.Members);
+                    usersq = groupq.SelectMany(g => g.Members);
                 }
 
-                var users = await usersq
-                    .Select(u => new UserResultInfo()
-                    {
-                        UserAppId = u.AppId,
-                        UserName = u.Name,
-                        ProfileImageVersion = u.ProfileImage.Version
-                    }).ToListAsync().ConfigureAwait(false);
-
+                var users = await usersq.Select(u => new UserResultInfo()
+                {UserAppId = u.AppId, UserName = u.Name, ProfileImageVersion = u.ProfileImage.Version}).ToListAsync().ConfigureAwait(false);
                 return Ok(new UserSearchResponse()
-                {
-                    success = true,
-                    Users = users
-                });
+                {success = true, Users = users});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="req"></param>
-        /// <param name="role"></param>
+        /// <param name = "req"></param>
+        /// <param name = "role"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/grant/{role}")]
@@ -287,12 +207,7 @@ namespace zapread.com.API
             {
                 // Check if requestor is authorized
                 var userAppId = User.Identity.GetUserId();
-
-                var isAdmin = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
-                    .AnyAsync().ConfigureAwait(true);
-
+                var isAdmin = await db.Groups.Where(g => g.GroupId == req.GroupId).Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId)).AnyAsync().ConfigureAwait(true);
                 // This funciton is checked for moderator only when role is a moderator role.
                 // This is to reduce the number of calls to the DB.
                 if (!isAdmin)
@@ -300,10 +215,7 @@ namespace zapread.com.API
                     // sub-select moderator roles to pass
                     if (role == "banish")
                     {
-                        var isMod = await db.Groups
-                            .Where(g => g.GroupId == req.GroupId)
-                            .Where(g => g.Moderators.Select(ga => ga.AppId).Contains(userAppId))
-                            .AnyAsync().ConfigureAwait(true);
+                        var isMod = await db.Groups.Where(g => g.GroupId == req.GroupId).Where(g => g.Moderators.Select(ga => ga.AppId).Contains(userAppId)).AnyAsync().ConfigureAwait(true);
                         if (!isMod)
                         {
                             return Unauthorized();
@@ -315,35 +227,23 @@ namespace zapread.com.API
                     }
                 }
 
-                var userToGrant = await db.Users
-                    .Where(u => u.AppId == req.UserAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                var group = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var userToGrant = await db.Users.Where(u => u.AppId == req.UserAppId).FirstOrDefaultAsync().ConfigureAwait(true);
+                var group = await db.Groups.Where(g => g.GroupId == req.GroupId).FirstOrDefaultAsync().ConfigureAwait(true);
                 //Grant
                 if (role == "mod")
                 {
                     if (!group.Moderators.Contains(userToGrant))
                     {
                         group.Moderators.Add(userToGrant);
-
-                        await eventService.OnNewGroupModGrantedAsync(
-                            groupId: req.GroupId,
-                            userId: userToGrant.Id);
+                        await eventService.OnNewGroupModGrantedAsync(groupId: req.GroupId, userId: userToGrant.Id);
                     }
-                } 
+                }
                 else if (role == "admin")
                 {
                     if (!group.Administrators.Contains(userToGrant))
                     {
                         group.Administrators.Add(userToGrant);
-
-                        await eventService.OnNewGroupAdminGrantedAsync(
-                            groupId: req.GroupId,
-                            userId: userToGrant.Id);
+                        await eventService.OnNewGroupAdminGrantedAsync(groupId: req.GroupId, userId: userToGrant.Id);
                     }
                 }
                 else if (role == "banish")
@@ -351,14 +251,8 @@ namespace zapread.com.API
                     if (!group.Banished.Select(b => b.User).Contains(userToGrant))
                     {
                         var ban = new GroupBanished()
-                        {
-                            BanishmentType = 0, // Group Admin
-                            Group = group,
-                            User = userToGrant,
-                            TimeStampStarted = DateTime.UtcNow,
-                            TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30),
-                            Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)
-                        };
+                        {BanishmentType = 0, // Group Admin
+ Group = group, User = userToGrant, TimeStampStarted = DateTime.UtcNow, TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(30), Reason = "Banished by administrator: " + await db.Users.Where(u => u.AppId == userAppId).Select(u => u.Name).FirstOrDefaultAsync().ConfigureAwait(true)};
                         group.Banished.Add(ban);
                     }
                 }
@@ -371,16 +265,16 @@ namespace zapread.com.API
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
-                return Ok(new ZapReadResponse() { success = true });
+                return Ok(new ZapReadResponse()
+                {success = true});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="req"></param>
-        /// <param name="role"></param>
+        /// <param name = "req"></param>
+        /// <param name = "role"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/admin/revoke/{role}")]
@@ -396,25 +290,14 @@ namespace zapread.com.API
             {
                 // Check if requestor is authorized
                 var userAppId = User.Identity.GetUserId();
-
-                var isAdmin = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
-                    .AnyAsync().ConfigureAwait(true);
-
+                var isAdmin = await db.Groups.Where(g => g.GroupId == req.GroupId).Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId)).AnyAsync().ConfigureAwait(true);
                 if (!isAdmin)
                 {
                     return Unauthorized();
                 }
 
-                var userToGrant = await db.Users
-                    .Where(u => u.AppId == req.UserAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                var group = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var userToGrant = await db.Users.Where(u => u.AppId == req.UserAppId).FirstOrDefaultAsync().ConfigureAwait(true);
+                var group = await db.Groups.Where(g => g.GroupId == req.GroupId).FirstOrDefaultAsync().ConfigureAwait(true);
                 //Grant
                 if (role == "mod")
                 {
@@ -424,7 +307,8 @@ namespace zapread.com.API
                 {
                     if (group.Administrators.Count() == 1)
                     {
-                        return Ok(new ZapReadResponse() { success = false, message = "Group must have at least one administrator." });
+                        return Ok(new ZapReadResponse()
+                        {success = false, message = "Group must have at least one administrator."});
                     }
                     else
                     {
@@ -433,9 +317,7 @@ namespace zapread.com.API
                 }
                 else if (role == "banish")
                 {
-                    var ban = group.Banished
-                        .Where(b => b.User.AppId == req.UserAppId)
-                        .FirstOrDefault();
+                    var ban = group.Banished.Where(b => b.User.AppId == req.UserAppId).FirstOrDefault();
                     if (ban != null)
                     {
                         group.Banished.Remove(ban);
@@ -447,15 +329,15 @@ namespace zapread.com.API
                 }
 
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
-                return Ok(new ZapReadResponse() { success = true });
+                return Ok(new ZapReadResponse()
+                {success = true});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dataTableParameters"></param>
+        /// <param name = "dataTableParameters"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/list")]
@@ -464,84 +346,42 @@ namespace zapread.com.API
             if (dataTableParameters == null)
             {
                 //Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new ListGroupsResponse() { success = false, message = "No query provided" };
+                return new ListGroupsResponse()
+                {success = false, message = "No query provided"};
             }
 
             using (var db = new ZapContext())
             {
                 var search = dataTableParameters.Search;
-
                 // We need to know the user making the call (if any) so we know if they are a member of the group or not
                 User user = await GetCurrentUser(db).ConfigureAwait(true);
                 int userid = user != null ? user.Id : 0;
-
                 // Build query
-                var groupsQ = db.Groups
-                    .Select(g => new
-                    {
-                        numPosts = g.Posts.Count,
-                        numMembers = g.Members.Count,
-                        IsMember = g.Members.Select(m => m.Id).Contains(userid),
-                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userid),
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid),
-                        g.GroupId,
-                        g.GroupName,
-                        g.Tags,
-                        g.TotalEarned,
-                        g.TotalEarnedToDistribute,
-                        g.CreationDate,
-                        Icon = g.GroupImage == null ? g.Icon : null, // Only if GroupImage doesn't exist
-                        g.Tier,
-                        IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
-                    }).AsNoTracking();
-
+                var groupsQ = db.Groups.Select(g => new
+                {
+                numPosts = g.Posts.Count, numMembers = g.Members.Count, IsMember = g.Members.Select(m => m.Id).Contains(userid), IsModerator = g.Moderators.Select(m => m.Id).Contains(userid), IsAdmin = g.Administrators.Select(m => m.Id).Contains(userid), g.GroupId, g.GroupName, g.Tags, g.TotalEarned, g.TotalEarnedToDistribute, g.CreationDate, Icon = g.GroupImage == null ? g.Icon : null, // Only if GroupImage doesn't exist
+ g.Tier, IconId = g.GroupImage == null ? 0 : g.GroupImage.ImageId
+                }).AsNoTracking();
                 if (search != null && search.Value != null)
                 {
                     groupsQ = groupsQ.Where(g => g.GroupName.Contains(search.Value) || g.Tags.Contains(search.Value));
                 }
 
                 groupsQ = groupsQ.OrderByDescending(g => g.TotalEarned + g.TotalEarnedToDistribute);
-
-                var groups = await groupsQ
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
-                    .ToListAsync().ConfigureAwait(false);
-
+                var groups = await groupsQ.Skip(dataTableParameters.Start).Take(dataTableParameters.Length).ToListAsync().ConfigureAwait(false);
                 var values = groups.Select(g => new GroupInfo()
-                {
-                    Id = g.GroupId,
-                    CreatedddMMMYYYY = g.CreationDate == null ? "2 Aug 2018" : g.CreationDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture),
-                    Name = g.GroupName,
-                    NumMembers = g.numMembers,
-                    NumPosts = g.numPosts,
-                    Tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>(),
-                    Icon = g.Icon != null ? "fa-" + g.Icon : null, // "fa-bolt",  // NOTE: this is legacy, and will eventually be replaced.  All new groups will have image icons.
-                    Level = g.Tier,
-                    Progress = GetGroupProgress(g.TotalEarned, g.TotalEarnedToDistribute, g.Tier),
-                    IsMember = g.IsMember,
-                    IsLoggedIn = user != null,
-                    IsMod = g.IsModerator,
-                    IsAdmin = g.IsAdmin,
-                }).ToList();
-
+                {Id = g.GroupId, CreatedddMMMYYYY = g.CreationDate == null ? "2 Aug 2018" : g.CreationDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture), Name = g.GroupName, NumMembers = g.numMembers, NumPosts = g.numPosts, Tags = g.Tags != null ? g.Tags.Split(',').ToList() : new List<string>(), Icon = g.Icon != null ? "fa-" + g.Icon : null, // "fa-bolt",  // NOTE: this is legacy, and will eventually be replaced.  All new groups will have image icons.
+ Level = g.Tier, Progress = GetGroupProgress(g.TotalEarned, g.TotalEarnedToDistribute, g.Tier), IsMember = g.IsMember, IsLoggedIn = user != null, IsMod = g.IsModerator, IsAdmin = g.IsAdmin, }).ToList();
                 var ret = new ListGroupsResponse()
-                {
-                    success = true,
-                    draw = dataTableParameters.Draw,
-                    recordsTotal = await groupsQ.CountAsync().ConfigureAwait(false),
-                    recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false),
-                    data = values
-                };
-
+                {success = true, draw = dataTableParameters.Draw, recordsTotal = await groupsQ.CountAsync().ConfigureAwait(false), recordsFiltered = await groupsQ.CountAsync().ConfigureAwait(false), data = values};
                 return ret;
             }
-
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="p"></param>
+        /// <param name = "p"></param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/checkexists")]
@@ -556,16 +396,17 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 bool exists = await GroupExists(p.GroupName.CleanUnicode().Trim(), p.GroupId, db).ConfigureAwait(true);
-                return Ok(new CheckExistsGroupResponse() { exists = exists, success = true });
+                return Ok(new CheckExistsGroupResponse()
+                {exists = exists, success = true});
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="GroupName"></param>
-        /// <param name="groupId"></param>
-        /// <param name="db"></param>
+        /// <param name = "GroupName"></param>
+        /// <param name = "groupId"></param>
+        /// <param name = "db"></param>
         /// <returns></returns>
         private static async Task<bool> GroupExists(string GroupName, int? groupId, ZapContext db)
         {
@@ -580,15 +421,17 @@ namespace zapread.com.API
                 {
                     return false;
                 }
+
                 return true;
             }
+
             return false;
         }
 
         /// <summary>
         /// Add a new group
         /// </summary>
-        /// <param name="newGroup"></param>
+        /// <param name = "newGroup"></param>
         /// <returns>AddGroupResponse</returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/add")]
@@ -603,7 +446,6 @@ namespace zapread.com.API
 
             //Check Captcha
             var captchaCode = HttpContext.Current.Session["Captcha"].ToString();
-
             if (captchaCode != newGroup.Captcha)
             {
                 return BadRequest("Captcha does not match");
@@ -621,34 +463,17 @@ namespace zapread.com.API
 
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
                 var icon = await GetGroupIcon(newGroup.ImageId, db).ConfigureAwait(true);
-
                 Group g = new Group()
-                {
-                    GroupName = cleanName,
-                    TotalEarned = 0.0,
-                    TotalEarnedToDistribute = 0.0,
-                    Moderators = new List<User>(),
-                    Members = new List<User>(),
-                    Administrators = new List<User>(),
-                    Tags = newGroup.Tags.CleanUnicode().SanitizeXSS(),
-                    Icon = null, //m.Icon,  // This field is now depricated - will be removed
-                    GroupImage = icon,
-                    CreationDate = DateTime.UtcNow,
-                    DefaultLanguage = newGroup.Language == null ? "en" : newGroup.Language, // Ensure value
-                };
-
+                {GroupName = cleanName, TotalEarned = 0.0, TotalEarnedToDistribute = 0.0, Moderators = new List<User>(), Members = new List<User>(), Administrators = new List<User>(), Tags = newGroup.Tags.CleanUnicode().SanitizeXSS(), Icon = null, //m.Icon,  // This field is now depricated - will be removed
+ GroupImage = icon, CreationDate = DateTime.UtcNow, DefaultLanguage = newGroup.Language == null ? "en" : newGroup.Language, // Ensure value
+ };
                 g.Members.Add(user);
                 g.Moderators.Add(user);
                 g.Administrators.Add(user);
-
                 db.Groups.Add(g);
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
                 return Ok(new AddGroupResponse()
-                {
-                    success = true,
-                    GroupId = g.GroupId
-                });
+                {success = true, GroupId = g.GroupId});
             }
         }
 
@@ -663,14 +488,9 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var userAppId = User.Identity.GetUserId();
-
                 var subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
-
                 return Ok(new GetTopGroupsResponse()
-                {
-                    Groups = subscribedGroups,
-                    success = true
-                });
+                {Groups = subscribedGroups, success = true});
             }
         }
 
@@ -678,44 +498,18 @@ namespace zapread.com.API
         {
             if (userAppId == null)
             {
-                return db.Groups
-                    .OrderByDescending(g => g.TotalEarned)
-                    .Take(20)
-                    .Select(g => new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
-                        IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
-                        Name = g.GroupName,
-                        Icon = g.Icon,
-                        Level = g.Tier,
-                        Progress = 36,
-                    })
-                .AsNoTracking()
-                .ToListAsync();
+                return db.Groups.OrderByDescending(g => g.TotalEarned).Take(20).Select(g => new GroupInfo()
+                {Id = g.GroupId, IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId), IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId), Name = g.GroupName, Icon = g.Icon, Level = g.Tier, Progress = 36, }).AsNoTracking().ToListAsync();
             }
 
-            return db.Users.Where(u => u.AppId == userAppId)
-                .SelectMany(u => u.Groups)
-                .OrderByDescending(g => g.TotalEarned)
-                .Select(g => new GroupInfo()
-                {
-                    Id = g.GroupId,
-                    IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId),
-                    IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId),
-                    Name = g.GroupName,
-                    Icon = g.Icon,
-                    Level = g.Tier,
-                    Progress = 36,
-                })
-                .AsNoTracking()
-                .ToListAsync();
+            return db.Users.Where(u => u.AppId == userAppId).SelectMany(u => u.Groups).OrderByDescending(g => g.TotalEarned).Select(g => new GroupInfo()
+            {Id = g.GroupId, IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId), IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId), Name = g.GroupName, Icon = g.Icon, Level = g.Tier, Progress = 36, }).AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// Get posts from the group
         /// </summary>
-        /// <param name="req">query parameters</param>
+        /// <param name = "req">query parameters</param>
         /// <returns></returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/posts")]
@@ -737,41 +531,22 @@ namespace zapread.com.API
             }
 
             int BlockSize = req.blockSize ?? 10;
-
             int BlockNumber = req.blockNumber ?? 0;
-
             using (var db = new ZapContext())
             {
                 var userAppId = User.Identity.GetUserId();
-
-                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users
-                    .Select(u => new QueryHelpers.PostQueryUserInfo()
-                    {
-                        Id = u.Id,
-                        AppId = u.AppId,
-                        ViewAllLanguages = u.Settings.ViewAllLanguages,
-                        IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(),
-                        IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(),
-                    })
-                    .SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
-
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(
-                    userLanguages: null,
-                    db: db,
-                    userInfo: userInfo);
-
+                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users.Select(u => new QueryHelpers.PostQueryUserInfo()
+                {Id = u.Id, AppId = u.AppId, ViewAllLanguages = u.Settings.ViewAllLanguages, IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(), IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(), }).SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userLanguages: null, db: db, userInfo: userInfo);
                 var groupId = 0;
-
                 if (!req.groupId.HasValue)
                 {
                     //
                     var nameQuery = req.groupName.Replace("-", " ").ToUpperInvariant();
-
-                    var groupIdRes = await db.Groups
-                        .Where(g => g.GroupName.ToUpperInvariant() == nameQuery)
-                        .Select(g => new { g.GroupId })
-                        .FirstOrDefaultAsync();
-
+                    var groupIdRes = await db.Groups.Where(g => g.GroupName.ToUpperInvariant() == nameQuery).Select(g => new
+                    {
+                    g.GroupId
+                    }).FirstOrDefaultAsync();
                     if (groupIdRes == null)
                     {
                         return NotFound();
@@ -784,24 +559,13 @@ namespace zapread.com.API
                     groupId = req.groupId.Value;
                 }
 
-                var groupPosts = QueryHelpers.OrderPostsByNew(
-                    validposts: validposts, 
-                    groupId: groupId, 
-                    stickyPostOnTop: true);
-
-                var postsVm = await QueryHelpers.QueryPostsVm(
-                        start: BlockNumber * BlockSize,
-                        count: BlockSize,
-                        postquery: groupPosts,
-                        userInfo: userInfo,
-                        limitComments: true).ConfigureAwait(true);
-
+                var groupPosts = QueryHelpers.OrderPostsByNew(validposts: validposts, groupId: groupId, stickyPostOnTop: true);
+                var postsVm = await QueryHelpers.QueryPostsVm(start: BlockNumber * BlockSize, count: BlockSize, postquery: groupPosts, userInfo: userInfo, limitComments: true).ConfigureAwait(true);
                 // Make images lazy TODO: apply this when submitting new posts
                 postsVm.ForEach(post =>
                 {
                     HtmlDocument postDocument = new HtmlDocument();
                     postDocument.LoadHtml(post.Content);
-
                     var postImages = postDocument.DocumentNode.SelectNodes("//img/@src");
                     if (postImages != null)
                     {
@@ -809,20 +573,15 @@ namespace zapread.com.API
                         {
                             postImage.SetAttributeValue("loading", "lazy");
                         }
+
                         post.Content = postDocument.DocumentNode.OuterHtml;
                     }
 
                     post.PostIdEnc = zapread.com.Services.CryptoService.IntIdToString(post.PostId);
                     post.PostTitleEnc = !String.IsNullOrEmpty(post.PostTitle) ? post.PostTitle.MakeURLFriendly() : (post.UserName + " posted in " + post.GroupName).MakeURLFriendly();
                 });
-
                 var response = new GetGroupPostsResponse()
-                {
-                    HasMorePosts = groupPosts.Count() >= BlockNumber * BlockSize,
-                    Posts = postsVm,
-                    success = true,
-                };
-
+                {HasMorePosts = groupPosts.Count() >= BlockNumber * BlockSize, Posts = postsVm, success = true, };
                 return Ok(response);
             }
         }
@@ -830,34 +589,26 @@ namespace zapread.com.API
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="req"></param>
+        /// <param name = "req"></param>
         /// <returns></returns>
         [ValidateJsonAntiForgeryToken]
         [Route("api/v1/groups/admin/theme/update")]
         public async Task<IHttpActionResult> UpdateTheme(UpdateThemeParameters req)
         {
-            if (req == null || req.GroupId < 1 || string.IsNullOrEmpty(req.Key)) return BadRequest();
-
-            var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
-
-            if (userAppId == null) return Unauthorized();
-
+            if (req == null || req.GroupId < 1 || string.IsNullOrEmpty(req.Key))
+                return BadRequest();
+            var userAppId = User.Identity.GetUserId(); // Get the logged in user ID
+            if (userAppId == null)
+                return Unauthorized();
             using (var db = new ZapContext())
             {
-                var isAdmin = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId))
-                    .AnyAsync().ConfigureAwait(true);
-
+                var isAdmin = await db.Groups.Where(g => g.GroupId == req.GroupId).Where(g => g.Administrators.Select(ga => ga.AppId).Contains(userAppId)).AnyAsync().ConfigureAwait(true);
                 if (!isAdmin)
                 {
                     return Unauthorized();
                 }
 
-                var group = await db.Groups
-                    .Where(g => g.GroupId == req.GroupId)
-                    .FirstOrDefaultAsync();
-
+                var group = await db.Groups.Where(g => g.GroupId == req.GroupId).FirstOrDefaultAsync();
                 var groupTheme = group.CustomTemplate;
                 if (groupTheme == null)
                 {
@@ -867,7 +618,7 @@ namespace zapread.com.API
                 var newKvps = new Dictionary<string, string>();
                 var kvps = groupTheme.Split(';');
                 bool updated = false;
-                foreach(var kvp in kvps)
+                foreach (var kvp in kvps)
                 {
                     var kvpsplit = kvp.Split('=');
                     if (kvpsplit.Length < 2)
@@ -887,6 +638,7 @@ namespace zapread.com.API
                         newKvps.Add(key, kvpsplit[1]);
                     }
                 }
+
                 if (!updated)
                 {
                     newKvps.Add(req.Key, req.Value);
@@ -894,7 +646,6 @@ namespace zapread.com.API
 
                 // convert to string
                 var sb = new StringBuilder();
-
                 bool first = true;
                 foreach (var kv in newKvps)
                 {
@@ -902,22 +653,22 @@ namespace zapread.com.API
                     {
                         sb.Append(";");
                     }
+
                     sb.Append(kv.Key + "=" + kv.Value);
                     first = false;
                 }
 
                 group.CustomTemplate = sb.ToString();
-
                 await db.SaveChangesAsync();
-
-                return Ok(new ZapReadResponse() { success = true });
+                return Ok(new ZapReadResponse()
+                {success = true});
             }
         }
 
         /// <summary>
         /// Loads the information on a specified group
         /// </summary>
-        /// <param name="groupInfo"></param>
+        /// <param name = "groupInfo"></param>
         /// <returns>LoadGroupResponse</returns>
         [AcceptVerbs("POST")]
         [Route("api/v1/groups/load")]
@@ -941,21 +692,18 @@ namespace zapread.com.API
 
             using (var db = new ZapContext())
             {
-                var userAppId = User.Identity.GetUserId();            // Get the logged in user ID
+                var userAppId = User.Identity.GetUserId(); // Get the logged in user ID
                 int userId = 0;
                 var groupId = 0;
                 var isIgnoring = false;
-
                 if (!groupInfo.groupId.HasValue)
                 {
                     //
                     var nameQuery = groupInfo.groupName.Replace("-", " ").ToUpperInvariant();
-
-                    var groupIdRes = await db.Groups
-                        .Where(g => g.GroupName.ToUpperInvariant() == nameQuery)
-                        .Select(g => new { g.GroupId})
-                        .FirstOrDefaultAsync();
-
+                    var groupIdRes = await db.Groups.Where(g => g.GroupName.ToUpperInvariant() == nameQuery).Select(g => new
+                    {
+                    g.GroupId
+                    }).FirstOrDefaultAsync();
                     if (groupIdRes == null)
                     {
                         return NotFound();
@@ -970,13 +718,9 @@ namespace zapread.com.API
 
                 if (userAppId != null)
                 {
-                    var userInfo = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new { 
-                            u.Id,
-                            IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(groupId),
-                        }).FirstOrDefaultAsync().ConfigureAwait(true);
-
+                    var userInfo = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                    {
+                    u.Id, IsIgnored = u.IgnoredGroups.Select(gr => gr.GroupId).Contains(groupId), }).FirstOrDefaultAsync().ConfigureAwait(true);
                     if (userInfo != null)
                     {
                         userId = userInfo.Id;
@@ -984,28 +728,10 @@ namespace zapread.com.API
                     }
                 }
 
-                var reqGroupQ = await db.Groups
-                    .Where(g => g.GroupId == groupInfo.groupId)
-                    .Select(g => new
-                    {
-                        g.GroupId,
-                        g.DefaultLanguage,
-                        g.GroupName,
-                        ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId,
-                        g.Tags,
-                        g.ShortDescription,
-                        g.Tier,
-                        g.CustomTemplate,
-                        Earned = g.TotalEarned + g.TotalEarnedToDistribute,
-                        NumMembers = g.Members.Count,
-                        NumPosts = g.Posts.Count,
-                        IsMember = g.Members.Select(m => m.Id).Contains(userId),
-                        IsModerator = g.Moderators.Select(m => m.Id).Contains(userId),
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-                        IsBanished = g.Banished.Select(b => b.User.Id).Contains(userId),
-                        BanishExpires = g.Banished.Select(b => b.User.Id).Contains(userId) ? g.Banished.Where(b => b.User.Id == userId).Select(b => b.TimeStampExpired).FirstOrDefault() : null
-                    }).FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var reqGroupQ = await db.Groups.Where(g => g.GroupId == groupInfo.groupId).Select(g => new
+                {
+                g.GroupId, g.DefaultLanguage, g.GroupName, ImageId = g.GroupImage == null ? 0 : g.GroupImage.ImageId, g.Tags, g.ShortDescription, g.Tier, g.CustomTemplate, Earned = g.TotalEarned + g.TotalEarnedToDistribute, NumMembers = g.Members.Count, NumPosts = g.Posts.Count, IsMember = g.Members.Select(m => m.Id).Contains(userId), IsModerator = g.Moderators.Select(m => m.Id).Contains(userId), IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId), IsBanished = g.Banished.Select(b => b.User.Id).Contains(userId), BanishExpires = g.Banished.Select(b => b.User.Id).Contains(userId) ? g.Banished.Where(b => b.User.Id == userId).Select(b => b.TimeStampExpired).FirstOrDefault() : null
+                }).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (reqGroupQ == null)
                 {
                     return NotFound();
@@ -1013,38 +739,16 @@ namespace zapread.com.API
 
                 // Convert to GroupInfo object for return
                 var reqGroup = new GroupInfo()
-                {
-                    Id = reqGroupQ.GroupId,
-                    DefaultLanguage = reqGroupQ.DefaultLanguage == null ? "en" : reqGroupQ.DefaultLanguage,
-                    Name = reqGroupQ.GroupName,
-                    IconId = reqGroupQ.ImageId,
-                    Tags = reqGroupQ.Tags != null ? reqGroupQ.Tags.Split(',').ToList() : new List<string>(),
-                    ShortDescription = reqGroupQ.ShortDescription,
-                    NumMembers = reqGroupQ.NumMembers,
-                    IsAdmin = reqGroupQ.IsAdmin,
-                    IsMod = reqGroupQ.IsModerator,
-                    IsMember = reqGroupQ.IsMember,
-                    IsIgnoring = isIgnoring,
-                    Level = reqGroupQ.Tier,
-                    Earned = Convert.ToUInt64(reqGroupQ.Earned),
-                    BanishExpires = reqGroupQ.BanishExpires,
-                    IsBanished = reqGroupQ.IsBanished,
-                    CustomTemplate = reqGroupQ.CustomTemplate
-                };
-
-                return Ok(new LoadGroupResponse() { 
-                    success = true, 
-                    group = reqGroup, 
-                    IsLoggedIn = User.Identity.GetUserId() != null, 
-                    UserName = User.Identity.Name
-                });
+                {Id = reqGroupQ.GroupId, DefaultLanguage = reqGroupQ.DefaultLanguage == null ? "en" : reqGroupQ.DefaultLanguage, Name = reqGroupQ.GroupName, IconId = reqGroupQ.ImageId, Tags = reqGroupQ.Tags != null ? reqGroupQ.Tags.Split(',').ToList() : new List<string>(), ShortDescription = reqGroupQ.ShortDescription, NumMembers = reqGroupQ.NumMembers, IsAdmin = reqGroupQ.IsAdmin, IsMod = reqGroupQ.IsModerator, IsMember = reqGroupQ.IsMember, IsIgnoring = isIgnoring, Level = reqGroupQ.Tier, Earned = Convert.ToUInt64(reqGroupQ.Earned), BanishExpires = reqGroupQ.BanishExpires, IsBanished = reqGroupQ.IsBanished, CustomTemplate = reqGroupQ.CustomTemplate};
+                return Ok(new LoadGroupResponse()
+                {success = true, group = reqGroup, IsLoggedIn = User.Identity.GetUserId() != null, UserName = User.Identity.Name});
             }
         }
 
         /// <summary>
         /// Update a group parameters (Admin action)
         /// </summary>
-        /// <param name="existingGroup"></param>
+        /// <param name = "existingGroup"></param>
         /// <returns></returns>
         [AcceptVerbs("PUT")]
         [Route("api/v1/groups/update")]
@@ -1054,18 +758,13 @@ namespace zapread.com.API
             if (existingGroup == null)
             {
                 return BadRequest();
-                //throw new ArgumentNullException(nameof(groupInfo));
+            //throw new ArgumentNullException(nameof(groupInfo));
             }
 
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
-                var group = await db.Groups
-                    .Where(g => g.GroupId == existingGroup.GroupId)
-                    .Include(gr => gr.Administrators)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var group = await db.Groups.Where(g => g.GroupId == existingGroup.GroupId).Include(gr => gr.Administrators).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (group == null)
                 {
                     return BadRequest(Properties.Resources.ErrorGroupNotFound);
@@ -1078,7 +777,6 @@ namespace zapread.com.API
 
                 var cleanName = existingGroup.GroupName.CleanUnicode().SanitizeXSS();
                 bool exists = await GroupExists(cleanName, existingGroup.GroupId, db).ConfigureAwait(true);
-
                 if (exists)
                 {
                     return BadRequest(Properties.Resources.ErrorGroupDuplicate);
@@ -1086,7 +784,6 @@ namespace zapread.com.API
 
                 // Make updates
                 var icon = await GetGroupIcon(existingGroup.ImageId, db).ConfigureAwait(true);
-
                 if (icon == null)
                 {
                     return BadRequest(Properties.Resources.ErrorIconNotFound);
@@ -1094,24 +791,17 @@ namespace zapread.com.API
 
                 group.DefaultLanguage = existingGroup.Language == null ? "en" : existingGroup.Language; // Ensure value
                 group.Tags = existingGroup.Tags.CleanUnicode().SanitizeXSS();
-                
                 group.GroupName = cleanName;
                 group.GroupImage = icon;
-
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
                 return Ok(new AddGroupResponse()
-                {
-                    success = true,
-                    GroupId = group.GroupId
-                });
+                {success = true, GroupId = group.GroupId});
             }
         }
 
         private static async Task<Models.UserImage> GetGroupIcon(int ImageId, ZapContext db)
         {
             var icon = await db.Images.Where(im => im.ImageId == ImageId).FirstOrDefaultAsync().ConfigureAwait(true);
-
             if (icon == null || icon.Image == null)
             {
                 // Image 1 is usually the default
@@ -1129,64 +819,71 @@ namespace zapread.com.API
         private async Task<User> GetCurrentUser(ZapContext db)
         {
             var userId = User.Identity.GetUserId();
-            var user = await db.Users
-                .Include(u => u.Settings)
-                .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+            var user = await db.Users.Include(u => u.Settings).FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
             return user;
         }
 
         /// <summary>
         /// Returns the progress of the group to get to the next tier
         /// </summary>
-        /// <param name="TotalEarned"></param>
-        /// <param name="TotalEarnedToDistribute"></param>
-        /// <param name="Tier"></param>
+        /// <param name = "TotalEarned"></param>
+        /// <param name = "TotalEarnedToDistribute"></param>
+        /// <param name = "Tier"></param>
         /// <returns></returns>
         protected static int GetGroupProgress(double TotalEarned, double TotalEarnedToDistribute, double Tier)
         {
             var e = TotalEarned + TotalEarnedToDistribute;
             //var level = GetGroupLevel(g);
-
             if (Tier == 0)
             {
                 return Convert.ToInt32(100.0 * e / 1000.0);
             }
+
             if (Tier == 1)
             {
                 return Convert.ToInt32(100.0 * (e - 1000.0) / 10000.0);
             }
+
             if (Tier == 2)
             {
                 return Convert.ToInt32(100.0 * (e - 10000.0) / 50000.0);
             }
+
             if (Tier == 3)
             {
                 return Convert.ToInt32(100.0 * (e - 50000.0) / 200000.0);
             }
+
             if (Tier == 4)
             {
                 return Convert.ToInt32(100.0 * (e - 200000.0) / 500000.0);
             }
+
             if (Tier == 5)
             {
                 return Convert.ToInt32(100.0 * (e - 500000.0) / 1000000.0);
             }
+
             if (Tier == 6)
             {
                 return Convert.ToInt32(100.0 * (e - 1000000.0) / 5000000.0);
             }
+
             if (Tier == 7)
             {
                 return Convert.ToInt32(100.0 * (e - 5000000.0) / 10000000.0);
             }
+
             if (Tier == 8)
             {
                 return Convert.ToInt32(100.0 * (e - 10000000.0) / 20000000.0);
             }
+
             if (Tier == 9)
             {
                 return Convert.ToInt32(100.0 * (e - 20000000.0) / 50000000.0);
             }
+
             return 100;
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,6 @@ namespace zapread.com.Controllers
     public class SubscriptionController : Controller
     {
         private ApplicationUserManager _userManager;
-
         /// <summary>
         /// 
         /// </summary>
@@ -31,7 +30,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// DI for userManager
         /// </summary>
-        /// <param name="userManager"></param>
+        /// <param name = "userManager"></param>
         public SubscriptionController(ApplicationUserManager userManager)
         {
             UserManager = userManager;
@@ -46,6 +45,7 @@ namespace zapread.com.Controllers
             {
                 return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             }
+
             private set
             {
                 _userManager = value;
@@ -60,7 +60,7 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                // TODO: add error handling - temp fix for unit test.
+            // TODO: add error handling - temp fix for unit test.
             }
         }
 
@@ -74,28 +74,16 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
-
             using (var db = new ZapContext())
             {
                 var userAppId = User.Identity.GetUserId();
-
                 var userUnsubscribeId = CryptoService.EncryptString(key, userAppId) + ":" + SubscriptionTypes.FollowedUserNewPost;
-
-                var userInfo = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Select(u => new
-                    {
-                        u.Name
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
-                var vm = new UnsubscribeIndexViewModel()
+                var userInfo = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
                 {
-                    Name = userInfo.Name,
-                    UnsubFunction = "followed user post notifications",
-                    UserEmail = UserManager.FindById(userAppId).Email,
-                    UserUnsubscribeId = userUnsubscribeId,
-                };
+                u.Name
+                }).FirstOrDefaultAsync().ConfigureAwait(true);
+                var vm = new UnsubscribeIndexViewModel()
+                {Name = userInfo.Name, UnsubFunction = "followed user post notifications", UserEmail = UserManager.FindById(userAppId).Email, UserUnsubscribeId = userUnsubscribeId, };
                 return View(vm);
             }
         }
@@ -103,7 +91,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Link to unsubscribe a user
         /// </summary>
-        /// <param name="userUnsubscribeId">encrypted and uri-escaped user id and values</param>
+        /// <param name = "userUnsubscribeId">encrypted and uri-escaped user id and values</param>
         /// <returns></returns>
         [Route("Subscription/Unsubscribe/{userUnsubscribeId}")]
         [HttpGet]
@@ -111,24 +99,18 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
-
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
             var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
             var values = unsubscribeInfo.Split(':');
             var userAppId = values[0];
             var subType = values[1];
-
             using (var db = new ZapContext())
             {
-                var userInfo = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Select(u => new
-                    {
-                        u.Name
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var userInfo = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                {
+                u.Name
+                }).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (userInfo == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -136,7 +118,6 @@ namespace zapread.com.Controllers
                 }
 
                 string function = "";
-
                 switch (subType)
                 {
                     case SubscriptionTypes.FollowedUserNewPost:
@@ -165,13 +146,7 @@ namespace zapread.com.Controllers
                 }
 
                 var vm = new UnsubscribeIndexViewModel()
-                {
-                    Name = userInfo.Name,
-                    UnsubFunction = function,
-                    UserEmail = UserManager.FindById(userAppId).Email,
-                    UserUnsubscribeId = userUnsubscribeId
-                };
-
+                {Name = userInfo.Name, UnsubFunction = function, UserEmail = UserManager.FindById(userAppId).Email, UserUnsubscribeId = userUnsubscribeId};
                 return View(vm);
             }
         }
@@ -179,7 +154,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Do the unsubscribe
         /// </summary>
-        /// <param name="userUnsubscribeId"></param>
+        /// <param name = "userUnsubscribeId"></param>
         /// <returns></returns>
         [Route("Subscription/Confirm/{userUnsubscribeId}")]
         [HttpGet]
@@ -187,7 +162,6 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
-
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
             var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
@@ -196,11 +170,7 @@ namespace zapread.com.Controllers
             var subscriptionType = values[1];
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Include(u => u.Settings)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var user = await db.Users.Where(u => u.AppId == userAppId).Include(u => u.Settings).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (user == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -209,8 +179,7 @@ namespace zapread.com.Controllers
 
                 string function = "";
                 bool success = false;
-
-                switch(subscriptionType)
+                switch (subscriptionType)
                 {
                     case SubscriptionTypes.FollowedUserNewPost:
                         function = "followed user post notifications";
@@ -240,26 +209,22 @@ namespace zapread.com.Controllers
                     default:
                         break;
                 }
+
                 try
                 {
                     await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 #pragma warning disable CA1031 // Do not catch general exception types
+
                 catch (Exception)
 #pragma warning restore CA1031 // Do not catch general exception types
+
                 {
                     success = false;
                 }
-                
-                var vm = new UnsubscribeIndexViewModel()
-                {
-                    Success = success,
-                    Name = user.Name,
-                    UnsubFunction = function,
-                    UserEmail = UserManager.FindById(userAppId).Email,
-                    UserUnsubscribeId = userUnsubscribeId
-                };
 
+                var vm = new UnsubscribeIndexViewModel()
+                {Success = success, Name = user.Name, UnsubFunction = function, UserEmail = UserManager.FindById(userAppId).Email, UserUnsubscribeId = userUnsubscribeId};
                 return View(vm);
             }
         }
@@ -267,7 +232,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Re-subscribe
         /// </summary>
-        /// <param name="userUnsubscribeId"></param>
+        /// <param name = "userUnsubscribeId"></param>
         /// <returns></returns>
         [Route("Subscription/Subscribe/{userUnsubscribeId}")]
         [HttpGet]
@@ -275,21 +240,15 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             var key = System.Configuration.ConfigurationManager.AppSettings["UnsubscribeKey"]; // This is our private symmetric encryption key to convert between userAppId and unsubscribeId
-
             // We decrypt the value in the userUnsubscribeId to get the AppId to find the user in the database.
             // This is done so that someone can't do an attack unsubscribing all users
             var unsubscribeInfo = CryptoService.DecryptString(key, userUnsubscribeId);
             var values = unsubscribeInfo.Split(':');
             var userAppId = values[0];
             var subscriptionType = values[1];
-
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .Include(u => u.Settings)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var user = await db.Users.Where(u => u.AppId == userAppId).Include(u => u.Settings).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (user == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -298,7 +257,6 @@ namespace zapread.com.Controllers
 
                 string function = "";
                 bool success = false;
-
                 switch (subscriptionType)
                 {
                     case SubscriptionTypes.FollowedUserNewPost:
@@ -329,26 +287,22 @@ namespace zapread.com.Controllers
                     default:
                         break;
                 }
+
                 try
                 {
                     await db.SaveChangesAsync().ConfigureAwait(true);
                 }
 #pragma warning disable CA1031 // Do not catch general exception types
+
                 catch (Exception)
 #pragma warning restore CA1031 // Do not catch general exception types
+
                 {
                     success = false;
                 }
 
                 var vm = new UnsubscribeIndexViewModel()
-                {
-                    Success = success,
-                    Name = user.Name,
-                    UnsubFunction = function,
-                    UserEmail = UserManager.FindById(userAppId).Email,
-                    UserUnsubscribeId = userUnsubscribeId
-                };
-
+                {Success = success, Name = user.Name, UnsubFunction = function, UserEmail = UserManager.FindById(userAppId).Email, UserUnsubscribeId = userUnsubscribeId};
                 return View(vm);
             }
         }

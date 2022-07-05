@@ -28,16 +28,16 @@
                         @Html.AntiForgeryToken()
                         @Html.ValidationSummary("", new { @class = "text-danger" })
                         <div class="form-group">
-                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.UserName) })
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", autocomplete="username", placeholder = Html.DisplayNameFor(m => m.UserName) })
                         </div>
                         <div class="form-group">
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Email) })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", autocomplete="email", placeholder = Html.DisplayNameFor(m => m.Email) })
                         </div>
                         <div class="form-group">
-                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Password) })
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", autocomplete="new-password", placeholder = Html.DisplayNameFor(m => m.Password) })
                         </div>
                         <div class="form-group">
-                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.ConfirmPassword) })
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", autocomplete = "new-password", placeholder = Html.DisplayNameFor(m => m.ConfirmPassword) })
                         </div>
                         <div class="form-group">
                             <div class="captcha-box" id="Captcha">
@@ -47,7 +47,7 @@
                                 </div>
                                 <audio id="CaptchaAudio" src='/Account/CaptchaAudio' type='audio/mpeg' preload='none'></audio>
                             </div>
-                            @Html.TextBoxFor(m => m.Captcha, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Captcha) })
+                            @Html.TextBoxFor(m => m.Captcha, new { @class = "form-control", autocomplete="one-time-code", placeholder = Html.DisplayNameFor(m => m.Captcha) })
                         </div>
                         <div class="form-group">
                             @Html.TextBoxFor(m => m.RefCode, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.RefCode) })

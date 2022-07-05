@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace zapread.com.Services
     /// [ ] Total Spent > 5000000 Sats
     /// [ ] Total Spent > 10000000 Sats
     /// [ ] Total Spent > 50000000 Sats
-    /// [ ] Total Spent > 100000000 Sats  <- 1 BTC
+    /// [ ] Total Spent > 100000000 Sats  < - 1 BTC
     /// 
     /// </summary>
     public class AchievementsService
@@ -28,26 +28,7 @@ namespace zapread.com.Services
         /// List of the available achievements
         /// </summary>
         public static readonly List<IAchievementCriteria> Achievements = new List<IAchievementCriteria>()
-        {
-            new FirstPost(),
-            new FirstFollowing(),
-            new FirstFollowed(),
-            new FirstComment(),
-            new OneThousandReputation(),
-            new FirstLNDeposit(),
-            new FirstLNWithdraw(),
-            new TenThousandReputation(),
-            new HunderedThousandReputation(),
-            new HunderedImpressions(),
-            new FiveHunderedImpressions(),
-            new ThousandImpressions(),
-            new FirstVote(),
-            new Spend1000(),
-            new Spend10000(),
-            new Spend100000(),
-            new Spend500000(),
-        };
-
+        {new FirstPost(), new FirstFollowing(), new FirstFollowed(), new FirstComment(), new OneThousandReputation(), new FirstLNDeposit(), new FirstLNWithdraw(), new TenThousandReputation(), new HunderedThousandReputation(), new HunderedImpressions(), new FiveHunderedImpressions(), new ThousandImpressions(), new FirstVote(), new Spend1000(), new Spend10000(), new Spend100000(), new Spend500000(), };
         /// <summary>
         /// Check the database for any new achievements and award them
         /// </summary>
@@ -58,16 +39,13 @@ namespace zapread.com.Services
                 // Check each achievement
                 foreach (var a in Achievements)
                 {
-                    var dba = db.Achievements
-                        .FirstOrDefault(i => i.Name == a.Name);
-
+                    var dba = db.Achievements.FirstOrDefault(i => i.Name == a.Name);
                     if (dba == null)
                     {
                         continue;
                     }
 
                     var newUsers = a.GetNewUsers(db, dba);
-
                     // We need to use a dictionary to save the results before applying to db since the next
                     // foreach will be an open DB connection (can't query and apply at same time).
                     Dictionary<User, UserAchievement> uas = new Dictionary<User, UserAchievement>();
@@ -75,14 +53,9 @@ namespace zapread.com.Services
                     {
                         var usr = u.Name;
                         var ua = new UserAchievement()
-                        {
-                            AchievedBy = u,
-                            Achievement = dba,
-                            DateAchieved = DateTime.UtcNow,
-                        };
+                        {AchievedBy = u, Achievement = dba, DateAchieved = DateTime.UtcNow, };
                         uas.Add(u, ua);
-
-                        // Send an email about achievement
+                    // Send an email about achievement
                     }
 
                     // Apply db updates to users
@@ -92,23 +65,16 @@ namespace zapread.com.Services
                     }
 
                     db.SaveChanges();
-
                     // Achievement Gifts - reactions
                     if (!string.IsNullOrEmpty(a.ReactionGrant))
                     {
-                        var giftReactionUsers = a.GetUsersGiftReactions(db, dba)
-                            .Include(u => u.AvailableReactions);
-
-                        var reaction = db.Reactions
-                            .Where(r => r.ReactionName == a.ReactionGrant)
-                            .FirstOrDefault();
-
+                        var giftReactionUsers = a.GetUsersGiftReactions(db, dba).Include(u => u.AvailableReactions);
+                        var reaction = db.Reactions.Where(r => r.ReactionName == a.ReactionGrant).FirstOrDefault();
                         if (reaction != null)
                         {
                             foreach (var u in giftReactionUsers.ToList())
                             {
                                 u.AvailableReactions.Add(reaction);
-
                                 db.SaveChanges();
                             }
                         }
@@ -136,30 +102,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 1000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 1000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -181,30 +142,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 10000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 10000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -226,30 +182,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 100000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 100000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -271,30 +222,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 500000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.SpendingEvents.Select(e => e.Amount).Sum() > 500000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -316,30 +262,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.PostVotesUp.Any() || u.PostVotesDown.Any() || u.CommentVotesUp.Any() || u.CommentVotesDown.Any());
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.PostVotesUp.Any() || u.PostVotesDown.Any() || u.CommentVotesUp.Any() || u.CommentVotesDown.Any());
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -361,24 +302,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Posts.Where(p => p.Impressions >= 1000).Any());
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Posts.Where(p => p.Impressions >= 1000).Any());
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -405,24 +343,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Posts.Where(p => p.Impressions >= 500).Any());
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Posts.Where(p => p.Impressions >= 500).Any());
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -449,24 +384,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Posts.Where(p => p.Impressions >= 100).Any());
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Posts.Where(p => p.Impressions >= 100).Any());
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -493,30 +425,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.LNTransactions.Where(t => !t.IsDeposit && t.IsSettled).Count() > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.LNTransactions.Where(t => !t.IsDeposit && t.IsSettled).Count() > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -538,30 +465,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.LNTransactions.Where(t => t.IsDeposit && t.IsSettled).Count() > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.LNTransactions.Where(t => t.IsDeposit && t.IsSettled).Count() > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -583,24 +505,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Reputation >= 100000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Reputation >= 100000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -627,24 +546,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Reputation >= 10000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Reputation >= 10000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -671,24 +587,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Reputation >= 1000);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Reputation >= 1000);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -715,24 +628,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Comments.Count > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Comments.Count > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -759,30 +669,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Followers.Count > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Followers.Count > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -804,30 +709,25 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Following.Count > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Following.Count > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
-            return db.Users
-                .Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
+            return db.Users.Where(u => u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => !u.AvailableReactions.Select(r => r.ReactionName).Contains(ReactionGrant));
         }
     }
 
@@ -849,24 +749,21 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetNewUsers(ZapContext db, Achievement dba)
         {
             // Check who has the criteria
-            var newUsersAchieved = db.Users
-                .Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id))
-                .Where(u => u.Posts.Count > 0);
-
+            var newUsersAchieved = db.Users.Where(u => !u.Achievements.Select(ua => ua.Achievement.Id).Contains(dba.Id)).Where(u => u.Posts.Count > 0);
             return newUsersAchieved;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         public IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba)
         {
@@ -888,19 +785,17 @@ namespace zapread.com.Services
         /// <summary>
         /// Method which provides the query parameters for users which should receive this achievement
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         IQueryable<User> GetNewUsers(ZapContext db, Achievement dba);
-
         /// <summary>
         /// Get the list of users who should be gifted a reaction
         /// </summary>
-        /// <param name="db"></param>
-        /// <param name="dba"></param>
+        /// <param name = "db"></param>
+        /// <param name = "dba"></param>
         /// <returns></returns>
         IQueryable<User> GetUsersGiftReactions(ZapContext db, Achievement dba);
-
         /// <summary>
         /// Reaction to grant
         /// </summary>

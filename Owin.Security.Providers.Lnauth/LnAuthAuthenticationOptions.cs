@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.Owin;
@@ -20,7 +20,6 @@ namespace Owin.Security.Providers.LnAuth
         }
 
         private const string AuthorizationEndPoint = "https://www.zapread.com/lnauth/auth"; // "http://localhost:27543/lnauth/auth"; //"http://192.168.0.172:27543/lnauth/auth";//"https://zapread.com/lnauth/auth";
-
         /// <summary>
         ///     Gets or sets the a pinned certificate validator to use to validate the endpoints used
         ///     in back channel communications belong to xx.
@@ -61,8 +60,15 @@ namespace Owin.Security.Providers.LnAuth
         /// </summary>
         public string Caption
         {
-            get { return Description.Caption; }
-            set { Description.Caption = value; }
+            get
+            {
+                return Description.Caption;
+            }
+
+            set
+            {
+                Description.Caption = value;
+            }
         }
 
         /// <summary>
@@ -82,7 +88,7 @@ namespace Owin.Security.Providers.LnAuth
         public LnAuthAuthenticationEndpoints Endpoints { get; set; }
 
         /// <summary>
-        ///     Gets or sets the <see cref="ILnAuthAuthenticationProvider" /> used in the authentication events
+        ///     Gets or sets the <see cref = "ILnAuthAuthenticationProvider"/> used in the authentication events
         /// </summary>
         public ILnAuthAuthenticationProvider Provider { get; set; }
 
@@ -93,7 +99,7 @@ namespace Owin.Security.Providers.LnAuth
 
         /// <summary>
         ///     Gets or sets the name of another authentication middleware which will be responsible for actually issuing a user
-        ///     <see cref="System.Security.Claims.ClaimsIdentity" />.
+        ///     <see cref = "System.Security.Claims.ClaimsIdentity"/>.
         /// </summary>
         public string SignInAsAuthenticationType { get; set; }
 
@@ -103,23 +109,16 @@ namespace Owin.Security.Providers.LnAuth
         public ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; set; }
 
         /// <summary>
-        ///     Initializes a new <see cref="LnAuthAuthenticationOptions" />
+        ///     Initializes a new <see cref = "LnAuthAuthenticationOptions"/>
         /// </summary>
-        public LnAuthAuthenticationOptions()
-            : base("LnAuth")
+        public LnAuthAuthenticationOptions() : base("LnAuth")
         {
             Caption = Constants.DefaultAuthenticationType;
             CallbackPath = new PathString("/lnauth/callback");
             AuthenticationMode = AuthenticationMode.Passive;
-            Scope = new List<string>
-            {
-                "user"
-            };
+            Scope = new List<string>{"user"};
             BackchannelTimeout = TimeSpan.FromSeconds(120);
-            Endpoints = new LnAuthAuthenticationEndpoints
-            {
-                AuthorizationEndpoint = AuthorizationEndPoint,
-            };
+            Endpoints = new LnAuthAuthenticationEndpoints{AuthorizationEndpoint = AuthorizationEndPoint, };
         }
     }
 }

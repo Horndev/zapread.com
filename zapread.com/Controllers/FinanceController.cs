@@ -1,4 +1,4 @@
-﻿using System.Web.Mvc;
+using System.Web.Mvc;
 
 namespace zapread.com.Controllers
 {
@@ -27,7 +27,7 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                // TODO: add error handling - temp fix for unit test.
+            // TODO: add error handling - temp fix for unit test.
             }
         }
     }

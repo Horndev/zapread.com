@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
@@ -16,10 +16,10 @@ namespace ExporterWeb.Controllers
         /// Swagger UI main page
         /// </summary>
         /// <returns></returns>
-        // GET: SwashbucckleMVC
+         // GET: SwashbucckleMVC
         [HttpGet]
         public ActionResult Index()
-        {                        
+        {
             return View();
         }
     }
