@@ -1,4 +1,4 @@
-﻿namespace zapread.com.MigrationsASP
+namespace zapread.com.MigrationsASP
 {
     using System;
     using System.Data.Entity;
@@ -14,7 +14,6 @@
     /// Update-Database -configuration zapread.com.MigrationsASP.Configuration -Verbose
     /// 
     /// </summary>
-
     internal sealed class Configuration : DbMigrationsConfiguration<zapread.com.Models.ApplicationDbContext>
     {
         public Configuration()
@@ -26,10 +25,9 @@
 
         protected override void Seed(zapread.com.Models.ApplicationDbContext context)
         {
-            //  This method will be called after migrating to the latest version.
-
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method
-            //  to avoid creating duplicate seed data.
+        //  This method will be called after migrating to the latest version.
+        //  You can use the DbSet<T>.AddOrUpdate() helper extension method
+        //  to avoid creating duplicate seed data.
         }
     }
 }

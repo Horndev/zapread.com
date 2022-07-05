@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -35,19 +35,18 @@ namespace zapread.com.Services
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         public static bool PostImpressionEnqueue(int id)
         {
             BackgroundJob.Enqueue<PostService>(methodCall: x => x.PostImpressionIncrement(id));
-
             return true;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ids"></param>
+        /// <param name = "ids"></param>
         /// <returns></returns>
         public static async Task<bool> PostImpressionEnqueue(IEnumerable<int> ids)
         {
@@ -58,16 +57,16 @@ namespace zapread.com.Services
                 {
                     BackgroundJob.Enqueue<PostService>(methodCall: x => x.PostImpressionIncrement(id));
                 }
+
                 return true;
             });
-
             return await task;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         public bool PostImpressionIncrement(int id)
         {
@@ -79,6 +78,7 @@ namespace zapread.com.Services
                     post.Impressions += 1;
                     db.SaveChanges();
                 }
+
                 return true;
             }
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -20,8 +20,8 @@ namespace zapread.com.Helpers
         /// <summary>
         /// Handle authorization
         /// </summary>
-        /// <param name="filterContext"></param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name = "filterContext"></param>
+        /// <exception cref = "ArgumentNullException"></exception>
         public void OnAuthorization(AuthorizationContext filterContext)
         {
             if (filterContext == null)

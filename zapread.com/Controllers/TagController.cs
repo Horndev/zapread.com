@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -21,24 +21,20 @@ namespace zapread.com.Controllers
         public ActionResult Index()
         {
             var vm = new TagsViewModel();
-
             return View(vm);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tagName"></param>
+        /// <param name = "tagName"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("tag/{tagName?}")]
         public ActionResult Detail(string tagName)
         {
             var vm = new TagsViewModel()
-            {
-                TagName = tagName
-            };
-
+            {TagName = tagName};
             return View(vm);
         }
     }

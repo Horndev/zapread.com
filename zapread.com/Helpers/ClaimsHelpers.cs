@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Globalization;
@@ -19,8 +19,8 @@ namespace zapread.com.Helpers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userAppId"></param>
-        /// <param name="User"></param>
+        /// <param name = "userAppId"></param>
+        /// <param name = "User"></param>
         /// <returns></returns>
         public static async Task ValidateClaims(string userAppId, IPrincipal User)
         {
@@ -30,15 +30,9 @@ namespace zapread.com.Helpers
                 {
                     using (var db = new ZapContext())
                     {
-                        var us = await db.Users
-                            .Where(u => u.AppId == userAppId)
-                            .Select(u => new
-                            {
-                                u.Settings.ColorTheme,
-                                u.ProfileImage.Version,
-                                u.AppId,
-                            })
-                            .FirstOrDefaultAsync().ConfigureAwait(true);
+                        var us = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                        {
+                        u.Settings.ColorTheme, u.ProfileImage.Version, u.AppId, }).FirstOrDefaultAsync().ConfigureAwait(true);
                         if (us != null)
                         {
                             User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
@@ -50,7 +44,7 @@ namespace zapread.com.Helpers
             }
             catch (Exception)
             {
-                //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
+            //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
@@ -13,18 +13,29 @@ namespace zapread.com.Models
     public class ManageUserViewModel : UserViewModel
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
         public bool HasPassword { get; set; }
 
         public IList<UserLoginInfo> Logins { get; set; }
+
         public string PhoneNumber { get; set; }
+
         public bool TwoFactor { get; set; }
+
         public bool EmailConfirmed { get; set; }
+
         public bool BrowserRemembered { get; set; }
+
         public bool IsGoogleAuthenticatorEnabled { get; set; }
+
         public bool IsEmailAuthenticatorEnabled { get; set; }
+
         public FinancialViewModel Financial { get; set; }
+
         public IList<string> Languages { get; set; }
+
         public IList<string> KnownLanguages { get; set; }
+
         public UserSettings Settings { get; set; }
 
         /// <summary>
@@ -43,7 +54,6 @@ namespace zapread.com.Models
 
     public class UpdateImageViewModel
     {
-
     }
 
     /// <summary>
@@ -52,7 +62,9 @@ namespace zapread.com.Models
     public class FinancialViewModel
     {
         public IList<LNTxViewModel> Transactions { get; set; }
+
         public IList<EarningsViewModel> Earnings { get; set; }
+
         public IList<SpendingsViewModel> Spendings { get; set; }
     }
 
@@ -62,7 +74,9 @@ namespace zapread.com.Models
     public class SpendingsViewModel
     {
         public DateTime TimeStamp { get; set; }
+
         public string Value { get; set; }
+
         public string Link { get; set; }
     }
 
@@ -72,8 +86,11 @@ namespace zapread.com.Models
     public class EarningsViewModel
     {
         public DateTime TimeStamp { get; set; }
+
         public string Type { get; set; }
+
         public string Value { get; set; }
+
         public int ItemId { get; set; }
     }
 
@@ -83,7 +100,9 @@ namespace zapread.com.Models
     public class LNTxViewModel
     {
         public DateTime Timestamp { get; set; }
+
         public Int64 Value { get; set; }
+
         public string Type { get; set; }
     }
 
@@ -104,6 +123,7 @@ namespace zapread.com.Models
     public class ManageLoginsViewModel
     {
         public IList<UserLoginInfo> CurrentLogins { get; set; }
+
         public IList<AuthenticationDescription> OtherLogins { get; set; }
     }
 
@@ -160,7 +180,9 @@ namespace zapread.com.Models
     public class ConfigureTwoFactorViewModel
     {
         public string SelectedProvider { get; set; }
+
         public ICollection<System.Web.Mvc.SelectListItem> Providers { get; set; }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
     }
 }

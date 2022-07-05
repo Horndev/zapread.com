@@ -11,6 +11,7 @@ import { Container, Row, Col, DropdownButton, Dropdown, ButtonGroup, Button } fr
 import { postJson } from "../../utility/postData";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
+  faPlus,
   faArrowDown,
   faCircleNotch
 } from '@fortawesome/free-solid-svg-icons'

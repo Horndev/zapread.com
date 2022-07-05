@@ -6,12 +6,10 @@ using System.Web.Mvc;
 
 namespace DI
 {
-    internal class InjectableDependencyResolver
-        : IDependencyResolver
+    internal class InjectableDependencyResolver : IDependencyResolver
     {
         private readonly IDependencyInjectionContainer container;
         private readonly IDependencyResolver dependencyResolver;
-
         public InjectableDependencyResolver(IDependencyInjectionContainer container, IDependencyResolver currentDependencyResolver)
         {
             if (container == null)
@@ -29,6 +27,7 @@ namespace DI
             {
                 result = this.dependencyResolver.GetService(serviceType);
             }
+
             return result;
         }
 

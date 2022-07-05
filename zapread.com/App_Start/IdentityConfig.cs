@@ -1,4 +1,4 @@
-﻿using Base32;
+using Base32;
 using Hangfire;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -25,7 +25,7 @@ namespace zapread.com
         /// <summary>
         /// Send out email message
         /// </summary>
-        /// <param name="message">Message contents</param>
+        /// <param name = "message">Message contents</param>
         /// <returns>void</returns>
         public async Task SendAsync(IdentityMessage message)
         {
@@ -34,15 +34,8 @@ namespace zapread.com
                 return;
             }
 
-            await MailingService.SendAsync(user: "Accounts", useSSL: true,
-                message: new UserEmailModel()
-                {
-                    Destination = message.Destination,
-                    Body = message.Body,
-                    Email = "",
-                    Name = "zapread.com",
-                    Subject = message.Subject,
-                }).ConfigureAwait(true);
+            await MailingService.SendAsync(user: "Accounts", useSSL: true, message: new UserEmailModel()
+            {Destination = message.Destination, Body = message.Body, Email = "", Name = "zapread.com", Subject = message.Subject, }).ConfigureAwait(true);
         }
     }
 
@@ -54,7 +47,7 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name = "message"></param>
         /// <returns></returns>
         public Task SendAsync(IdentityMessage message)
         {
@@ -71,9 +64,8 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="store"></param>
-        public ApplicationUserManager(IUserStore<ApplicationUser> store)
-            : base(store)
+        /// <param name = "store"></param>
+        public ApplicationUserManager(IUserStore<ApplicationUser> store) : base(store)
         {
         }
 
@@ -100,57 +92,37 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="context"></param>
+        /// <param name = "options"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
             var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
-            {
-                AllowOnlyAlphanumericUserNames = false,
-                RequireUniqueEmail = true
-            };
-
+            {AllowOnlyAlphanumericUserNames = false, RequireUniqueEmail = true};
             // Configure validation logic for passwords
-            manager.PasswordValidator = new PasswordValidator
-            {
-                RequiredLength = 6,
-                RequireNonLetterOrDigit = false,
-                RequireDigit = false,
-                RequireLowercase = false,
-                RequireUppercase = false,
-            };
-
+            manager.PasswordValidator = new PasswordValidator{RequiredLength = 6, RequireNonLetterOrDigit = false, RequireDigit = false, RequireLowercase = false, RequireUppercase = false, };
             // Configure user lockout defaults
             manager.UserLockoutEnabledByDefault = true;
             manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
             manager.MaxFailedAccessAttemptsBeforeLockout = 5;
-
             // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
             // You can write your own provider and plug it in here.
             //manager.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<ApplicationUser>
             //{
             //    MessageFormat = "Your security code is {0}"
             //});
-            manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>
-            {
-                Subject = "Security Code",
-                BodyFormat = "Your security code is {0}"
-            });
-
+            manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>{Subject = "Security Code", BodyFormat = "Your security code is {0}"});
             manager.RegisterTwoFactorProvider("Google Authenticator", new GoogleAuthenticatorTokenProvider());
-
             manager.EmailService = new EmailService();
-
             //manager.SmsService = new SmsService();
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
-                manager.UserTokenProvider =
-                    new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
+                manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
+
             return manager;
         }
     }
@@ -163,9 +135,9 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="purpose"></param>
-        /// <param name="manager"></param>
-        /// <param name="user"></param>
+        /// <param name = "purpose"></param>
+        /// <param name = "manager"></param>
+        /// <param name = "user"></param>
         /// <returns></returns>
         public Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser, string> manager, ApplicationUser user)
         {
@@ -175,27 +147,25 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="purpose"></param>
-        /// <param name="token"></param>
-        /// <param name="manager"></param>
-        /// <param name="user"></param>
+        /// <param name = "purpose"></param>
+        /// <param name = "token"></param>
+        /// <param name = "manager"></param>
+        /// <param name = "user"></param>
         /// <returns></returns>
         public Task<bool> ValidateAsync(string purpose, string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
         {
             long timeStepMatched = 0;
-
             var otp = new Totp(Base32Encoder.Decode(user.GoogleAuthenticatorSecretKey));
             bool valid = otp.VerifyTotp(token, out timeStepMatched, new VerificationWindow(2, 2));
-
             return Task.FromResult(valid);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="token"></param>
-        /// <param name="manager"></param>
-        /// <param name="user"></param>
+        /// <param name = "token"></param>
+        /// <param name = "manager"></param>
+        /// <param name = "user"></param>
         /// <returns></returns>
         public Task NotifyAsync(string token, UserManager<ApplicationUser, string> manager, ApplicationUser user)
         {
@@ -205,8 +175,8 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="manager"></param>
-        /// <param name="user"></param>
+        /// <param name = "manager"></param>
+        /// <param name = "user"></param>
         /// <returns></returns>
         public Task<bool> IsValidProviderForUserAsync(UserManager<ApplicationUser, string> manager, ApplicationUser user)
         {
@@ -222,17 +192,16 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userManager"></param>
-        /// <param name="authenticationManager"></param>
-        public ApplicationSignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager)
-            : base(userManager, authenticationManager)
+        /// <param name = "userManager"></param>
+        /// <param name = "authenticationManager"></param>
+        public ApplicationSignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager) : base(userManager, authenticationManager)
         {
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name = "user"></param>
         /// <returns></returns>
         public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
@@ -242,8 +211,8 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="context"></param>
+        /// <param name = "options"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)
         {
@@ -259,7 +228,7 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="store"></param>
+        /// <param name = "store"></param>
         public ApplicationRoleManager(IRoleStore<IdentityRole, string> store) : base(store)
         {
         }
@@ -267,8 +236,8 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="context"></param>
+        /// <param name = "options"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
         public static ApplicationRoleManager Create(IdentityFactoryOptions<ApplicationRoleManager> options, IOwinContext context)
         {

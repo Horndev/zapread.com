@@ -1,4 +1,4 @@
-﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace zapread.com.ErrorHandler
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filterContext"></param>
+        /// <param name = "filterContext"></param>
         public override void OnException(ExceptionContext filterContext)
         {
             if (filterContext != null && filterContext.HttpContext != null && filterContext.Exception != null)
@@ -28,6 +28,7 @@ namespace zapread.com.ErrorHandler
                     ai.TrackException(filterContext.Exception);
                 }
             }
+
             base.OnException(filterContext);
         }
     }

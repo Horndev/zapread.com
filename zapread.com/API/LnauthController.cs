@@ -1,4 +1,4 @@
-﻿using QRCoder;
+using QRCoder;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -10,7 +10,6 @@ using System.Web.Mvc;
 using zapread.com.Helpers;
 using zapread.com.Models.Account;
 using zapread.com.Services;
-
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Infrastructure;
 using Microsoft.AspNet.Identity;
@@ -23,11 +22,10 @@ namespace zapread.com.API
     public class LnauthController : Controller
     {
         private IEventService eventService;
-
         /// <summary>
         /// Default constructor for DI
         /// </summary>
-        /// <param name="eventService"></param>
+        /// <param name = "eventService"></param>
         public LnauthController(IEventService eventService)
         {
             this.eventService = eventService;
@@ -49,14 +47,11 @@ namespace zapread.com.API
                 byte[] k1 = new byte[32];
                 rng.GetBytes(k1);
                 var k1str = BitConverter.ToString(k1).Replace("-", string.Empty);
-
                 //var serviceHost = System.Configuration.ConfigurationManager.AppSettings["LnAuth_Host"];
                 //var url = serviceHost + "/lnauth/signin?tag=login&k1=" + k1str;
                 var url = Request.Url.GetLeftPart(UriPartial.Authority) + "/lnauth/signin?tag=login&k1=" + k1str;
                 //var url = "http://192.168.0.172:27543" + "/lnauth/signin?tag=login&k1=" + k1str;
-
                 var dataStr = CryptoService.Bech32.EncodeString("lnurl", url);
-
                 // Make it a qr
                 using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 {
@@ -70,17 +65,8 @@ namespace zapread.com.API
                             Image png = Image.FromStream(ms);
                             byte[] imgdata = png.ToByteArray(ImageFormat.Png);
                             var base64String = Convert.ToBase64String(imgdata);
-
                             var vm = new LNAuthLoginView()
-                            {
-                                QrImageBase64 = base64String,
-                                client_id = client_id,
-                                redirect_uri = redirect_uri,
-                                state = state,
-                                k1 = k1str,
-                                dataStr = dataStr,
-                            };
-
+                            {QrImageBase64 = base64String, client_id = client_id, redirect_uri = redirect_uri, state = state, k1 = k1str, dataStr = dataStr, };
                             return View(vm);
                         }
                     }
@@ -94,15 +80,24 @@ namespace zapread.com.API
         public class Authparams
         {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 #pragma warning disable IDE1006 // Naming Styles
+
             public string sig { get; set; }
+
             public string k1 { get; set; }
+
             public string key { get; set; }
+
             public string tag { get; set; }
+
             public string action { get; set; }
+
             public string cb { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
         }
 
         /// <summary>
@@ -118,10 +113,14 @@ namespace zapread.com.API
             // Examples
             // https://github.com/chill117/lnurl-node/blob/master/lib/verifyAuthorizationSignature.js
             // https://github.com/ko-redtruck/ln-auth-python/blob/master/app.py
-
             if (getparams == null)
             {
-                return Json(new { status= "ERROR", reason= "Parameter error" }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                status = "ERROR", reason = "Parameter error"
+                }
+
+                , JsonRequestBehavior.AllowGet);
             }
 
             //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
@@ -129,31 +128,31 @@ namespace zapread.com.API
             //        "key:" + getparams.key + Environment.NewLine +
             //        "k1:" + getparams.k1 + Environment.NewLine +
             //        "sig:" + getparams.sig + Environment.NewLine);
-
-            var isValid = CryptoService.VerifyHashSignatureSecp256k1(
-                pubKey: getparams.key,
-                hash: getparams.k1,
-                signature: getparams.sig);
-
+            var isValid = CryptoService.VerifyHashSignatureSecp256k1(pubKey: getparams.key, hash: getparams.k1, signature: getparams.sig);
             //System.IO.File.AppendAllText(@"D:\Lnauthdebug.txt",
             //        "isValid:" + (isValid ? "True" : "False") + Environment.NewLine + Environment.NewLine);
-
             if (isValid)
             {
                 await eventService.OnDebugMessage("LNAuthController.Signin valid - passing to callback.  UserId " + getparams.k1 + " token: " + getparams.key);
-
                 // need to return user to callback endpoint
-                await NotificationService.SendLnAuthLoginNotification(
-                    userId: getparams.k1,
-                    callback: "/lnauth/callback",
-                    token: getparams.key).ConfigureAwait(true);
+                await NotificationService.SendLnAuthLoginNotification(userId: getparams.k1, callback: "/lnauth/callback", token: getparams.key).ConfigureAwait(true);
             }
             else
             {
-                return Json(new { status = "ERROR", reason = "Unable to validate signature." }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                status = "ERROR", reason = "Unable to validate signature."
+                }
+
+                , JsonRequestBehavior.AllowGet);
             }
 
-            return Json(new { status = "OK" }, JsonRequestBehavior.AllowGet);
+            return Json(new
+            {
+            status = "OK"
+            }
+
+            , JsonRequestBehavior.AllowGet);
         }
     }
 }

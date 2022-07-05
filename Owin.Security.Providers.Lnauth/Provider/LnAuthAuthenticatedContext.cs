@@ -1,5 +1,4 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
-
 using System.Security.Claims;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
@@ -9,29 +8,26 @@ using Newtonsoft.Json.Linq;
 namespace Owin.Security.Providers.LnAuth
 {
     /// <summary>
-    /// Contains information about the login session as well as the user <see cref="System.Security.Claims.ClaimsIdentity"/>.
+    /// Contains information about the login session as well as the user <see cref = "System.Security.Claims.ClaimsIdentity"/>.
     /// </summary>
     public class LnAuthAuthenticatedContext : BaseContext
     {
         /// <summary>
-        /// Initializes a <see cref="LnAuthAuthenticatedContext"/>
+        /// Initializes a <see cref = "LnAuthAuthenticatedContext"/>
         /// </summary>
-        /// <param name="context">The OWIN environment</param>
-        /// <param name="user">The JSON-serialized user</param>
-        /// <param name="accessToken">GitHub Access token</param>
-        public LnAuthAuthenticatedContext(IOwinContext context, string linkingKey)
-            : base(context)
+        /// <param name = "context">The OWIN environment</param>
+        /// <param name = "user">The JSON-serialized user</param>
+        /// <param name = "accessToken">GitHub Access token</param>
+        public LnAuthAuthenticatedContext(IOwinContext context, string linkingKey) : base(context)
         {
             LinkingKey = linkingKey;
-
-            //User = user;
-            //AccessToken = accessToken;
-
-            //Id = TryGetValue(user, "id");
-            //Name = TryGetValue(user, "name");
-            //Link = TryGetValue(user, "url");
-            //UserName = TryGetValue(user, "login");
-            //Email = TryGetValue(user, "email");
+        //User = user;
+        //AccessToken = accessToken;
+        //Id = TryGetValue(user, "id");
+        //Name = TryGetValue(user, "name");
+        //Link = TryGetValue(user, "url");
+        //UserName = TryGetValue(user, "login");
+        //Email = TryGetValue(user, "email");
         }
 
         /// <summary>
@@ -73,7 +69,7 @@ namespace Owin.Security.Providers.LnAuth
         public string Email { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ClaimsIdentity"/> representing the user
+        /// Gets the <see cref = "ClaimsIdentity"/> representing the user
         /// </summary>
         public ClaimsIdentity Identity { get; set; }
 

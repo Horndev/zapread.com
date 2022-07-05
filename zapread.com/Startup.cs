@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
 using Owin;
@@ -16,22 +16,15 @@ namespace zapread.com
         /// <summary>
         /// Main configuration injection
         /// </summary>
-        /// <param name="app"></param>
+        /// <param name = "app"></param>
         public void Configuration(IAppBuilder app)
         {
             // Set DB used by Hangfire
             Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage(System.Configuration.ConfigurationManager.AppSettings["SiteConnectionString"]);
-
             ConfigureAuth(app);
-
             //app.MapSignalR();
             //var dpp = app.GetDataProtectionProvider();
-            
-            var options = new DashboardOptions
-            {
-                AppPath = VirtualPathUtility.ToAbsolute("~"),
-                Authorization = new[] { new ZapReadHangFireAuthFilter() }
-            };
+            var options = new DashboardOptions{AppPath = VirtualPathUtility.ToAbsolute("~"), Authorization = new[]{new ZapReadHangFireAuthFilter()}};
             app.UseHangfireDashboard("/hangfire", options);
             app.UseHangfireServer();
         }

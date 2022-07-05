@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -22,29 +22,22 @@ namespace zapread.com.API
         [AcceptVerbs("GET")]
         [Route("api/v1/core/languages/list")]
 #pragma warning disable CA1822 // Mark members as static
+
         public GetLanguagesResponse GetLanguages()
 #pragma warning restore CA1822 // Mark members as static
+
         {
             try
             {
                 // List of languages known
-                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1)
-                    .GroupBy(ci => ci.TwoLetterISOLanguageName)
-                    .Select(g => g.First())
-                    .Select(ci => ci.Name + ":" + ci.NativeName).ToList();
-
+                var languages = CultureInfo.GetCultures(CultureTypes.NeutralCultures).Skip(1).GroupBy(ci => ci.TwoLetterISOLanguageName).Select(g => g.First()).Select(ci => ci.Name + ":" + ci.NativeName).ToList();
                 return new GetLanguagesResponse()
-                {
-                    Languages = languages,
-                    success = true
-                };
+                {Languages = languages, success = true};
             }
             catch (Exception)
             {
                 return new GetLanguagesResponse()
-                {
-                    success = false
-                };
+                {success = false};
             }
         }
     }

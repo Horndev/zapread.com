@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using HtmlAgilityPack;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -32,11 +32,10 @@ namespace zapread.com.Controllers
         private ApplicationRoleManager _roleManager;
         private ApplicationUserManager _userManager;
         private IEventService eventService;
-
         /// <summary>
         /// Constructor for DI
         /// </summary>
-        /// <param name="eventService"></param>
+        /// <param name = "eventService"></param>
         public PostController(IEventService eventService)
         {
             this.eventService = eventService;
@@ -51,6 +50,7 @@ namespace zapread.com.Controllers
             {
                 return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             }
+
             private set
             {
                 _userManager = value;
@@ -66,6 +66,7 @@ namespace zapread.com.Controllers
             {
                 return _roleManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
             }
+
             private set
             {
                 _roleManager = value;
@@ -75,8 +76,8 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Fetch a draft post (by post ID)
         /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="isDraft"></param>
+        /// <param name = "postId"></param>
+        /// <param name = "isDraft"></param>
         /// <returns></returns>
         [Route("Post/Draft/Load")]
         [HttpPost]
@@ -85,51 +86,60 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> GetDraft(int postId, bool isDraft = true)
         {
             var userId = User.Identity.GetUserId();
-
             if (userId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return Json(new { success = false, message = "Credentials failure" });
+                return Json(new
+                {
+                success = false, message = "Credentials failure"
+                }
+
+                );
             }
+
             using (var db = new ZapContext())
             {
-                var draftPost = await db.Posts
-                    //.Where(p => p.UserId.AppId == userId)
-                    .Where(p => p.IsDraft == isDraft)
-                    .Where(p => p.IsDeleted == false)
-                    .Where(p => p.PostId == postId)
-                    .Select(p => new
-                    {
-                        p.UserId.AppId,
-                        p.PostId,
-                        p.Group.GroupId,
-                        p.PostTitle,
-                        p.Group.GroupName,
-                        p.Content
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var draftPost = await db.Posts//.Where(p => p.UserId.AppId == userId)
+                .Where(p => p.IsDraft == isDraft).Where(p => p.IsDeleted == false).Where(p => p.PostId == postId).Select(p => new
+                {
+                p.UserId.AppId, p.PostId, p.Group.GroupId, p.PostTitle, p.Group.GroupName, p.Content
+                }).FirstOrDefaultAsync().ConfigureAwait(true);
                 // Verify owner or Admin
                 if (draftPost.AppId != userId && !User.IsInRole("Administrator"))
                 {
                     Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return Json(new { success = false, message = "Credentials failure" });
+                    return Json(new
+                    {
+                    success = false, message = "Credentials failure"
+                    }
+
+                    );
                 }
 
                 if (draftPost == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    return Json(new { success = false, message = "Draft post not found." });
+                    return Json(new
+                    {
+                    success = false, message = "Draft post not found."
+                    }
+
+                    );
                 }
 
-                return Json(new { success = true, draftPost });
+                return Json(new
+                {
+                success = true, draftPost
+                }
+
+                );
             }
         }
 
         /// <summary>
         /// Delete a draft post
         /// </summary>
-        /// <param name="postId"></param>
+        /// <param name = "postId"></param>
         /// <returns></returns>
         [Route("Post/Draft/Delete")]
         [HttpPost]
@@ -140,9 +150,7 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                var post = await db.Posts
-                    .FirstOrDefaultAsync(p => p.PostId == postId).ConfigureAwait(false);
-
+                var post = await db.Posts.FirstOrDefaultAsync(p => p.PostId == postId).ConfigureAwait(false);
                 if (!User.IsInRole("Administrator"))
                 {
                     if (post.UserId.AppId != userId)
@@ -153,15 +161,19 @@ namespace zapread.com.Controllers
 
                 post.IsDeleted = true;
                 await db.SaveChangesAsync().ConfigureAwait(false);
+                return Json(new
+                {
+                success = true
+                }
 
-                return Json(new { success = true });
+                );
             }
         }
 
         /// <summary>
         /// This method returns the drafts table on the post editing view.
         /// </summary>
-        /// <param name="dataTableParameters"></param>
+        /// <param name = "dataTableParameters"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
@@ -171,60 +183,44 @@ namespace zapread.com.Controllers
             if (dataTableParameters == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, message = "No parameters passed to method call." });
+                return Json(new
+                {
+                success = false, message = "No parameters passed to method call."
+                }
+
+                );
             }
 
             var userId = User.Identity.GetUserId();
-
             if (userId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return Json(new { success = false, message = "Credentials failure" });
+                return Json(new
+                {
+                success = false, message = "Credentials failure"
+                }
+
+                );
             }
 
             using (var db = new ZapContext())
             {
-                User u = db.Users
-                        .Where(us => us.AppId == userId).First();
-
-                var draftPostsQuery = db.Posts
-                    .Where(p => p.UserId.Id == u.Id)
-                    .Where(p => p.IsDraft == true)
-                    .Where(p => p.IsDeleted == false);
-
-                var drafts = await draftPostsQuery
-                    .OrderByDescending(p => p.TimeStamp)
-                    .Skip(dataTableParameters.Start)
-                    .Take(dataTableParameters.Length)
-                    .Select(t => new
-                    {
-                        t.TimeStamp,//.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
-                        t.PostTitle,
-                        t.Group.GroupName,
-                        t.Group.GroupId,
-                        t.PostId,
-                    })
-                    .ToListAsync().ConfigureAwait(true);
-
-                int numrec = await draftPostsQuery
-                    .CountAsync().ConfigureAwait(true);
-
+                User u = db.Users.Where(us => us.AppId == userId).First();
+                var draftPostsQuery = db.Posts.Where(p => p.UserId.Id == u.Id).Where(p => p.IsDraft == true).Where(p => p.IsDeleted == false);
+                var drafts = await draftPostsQuery.OrderByDescending(p => p.TimeStamp).Skip(dataTableParameters.Start).Take(dataTableParameters.Length).Select(t => new
+                {
+                t.TimeStamp, //.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
+ t.PostTitle, t.Group.GroupName, t.Group.GroupId, t.PostId, }).ToListAsync().ConfigureAwait(true);
+                int numrec = await draftPostsQuery.CountAsync().ConfigureAwait(true);
                 var values = drafts.Select(t => new
                 {
-                    TimeStamp = t.TimeStamp.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : "",
-                    t.PostTitle,
-                    t.GroupName,
-                    t.GroupId,
-                    t.PostId,
-                });
-
+                TimeStamp = t.TimeStamp.HasValue ? t.TimeStamp.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : "", t.PostTitle, t.GroupName, t.GroupId, t.PostId, });
                 var ret = new
                 {
-                    draw = dataTableParameters.Draw,
-                    recordsTotal = numrec,
-                    recordsFiltered = numrec,
-                    data = values
-                };
+                draw = dataTableParameters.Draw, recordsTotal = numrec, recordsFiltered = numrec, data = values
+                }
+
+                ;
                 return Json(ret);
             }
         }
@@ -232,7 +228,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Gets and updates post impressions count.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         [HttpGet, Route("Post/Impressions/{id}")]
         public async Task<PartialViewResult> Impressions(int? id)
@@ -247,14 +243,14 @@ namespace zapread.com.Controllers
             //return PartialView("_Impressions");
             using (var db = new ZapContext())
             {
-                var post = await db.Posts
-                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
+                var post = await db.Posts.FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
                 if (post != null)
                 {
                     post.Impressions += 1;
                     ViewBag.PostImpressions = post.Impressions;
                     await db.SaveChangesAsync().ConfigureAwait(false);
                 }
+
                 return PartialView("_Impressions");
             }
         }
@@ -262,7 +258,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Only Admin or Mod user can make a post sticky in the group
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         [HttpPost, ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
@@ -271,26 +267,36 @@ namespace zapread.com.Controllers
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                var post = db.Posts
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.ProfileImage)
-                    .FirstOrDefault(p => p.PostId == id);
-
+                var post = db.Posts.Include(p => p.UserId).Include(p => p.UserId.ProfileImage).FirstOrDefault(p => p.PostId == id);
                 if (post == null)
                 {
-                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    Result = "Error"
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
 
                 if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || post.UserId.GroupModeration.Select(g => g.GroupId).Contains(post.Group.GroupId))
                 {
                     post.IsSticky = !post.IsSticky;
-
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                    return Json(new { Result = "Success" }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    Result = "Success"
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    return Json(new { Result = "Error" }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    Result = "Error"
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
             }
         }
@@ -298,7 +304,7 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Admin or Mod can toggle a post as NSFW
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
@@ -306,58 +312,58 @@ namespace zapread.com.Controllers
         public async Task<JsonResult> ToggleNSFW(int id)
         {
             var userId = User.Identity.GetUserId();
-
             if (userId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return Json(new { success = false, message = "Credentials failure" }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                success = false, message = "Credentials failure"
+                }
+
+                , JsonRequestBehavior.AllowGet);
             }
 
             using (var db = new ZapContext())
             {
-                var post = await db.Posts
-                    .Include(p => p.UserId)
-                    .FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
-
+                var post = await db.Posts.Include(p => p.UserId).FirstOrDefaultAsync(p => p.PostId == id).ConfigureAwait(false);
                 if (post == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    return Json(new { success = false, message = "Invalid post" }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    success = false, message = "Invalid post"
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
 
-                var callingUserIsMod = await db.Users
-                    .Where(u => u.AppId == userId)
-                    .SelectMany(u => u.GroupModeration.Select(g => g.GroupId))
-                    .ContainsAsync(post.Group.GroupId).ConfigureAwait(false);
-
-                if (post.UserId.AppId == userId
-                    || UserManager.IsInRole(userId, "Administrator")
-                    || callingUserIsMod)
+                var callingUserIsMod = await db.Users.Where(u => u.AppId == userId).SelectMany(u => u.GroupModeration.Select(g => g.GroupId)).ContainsAsync(post.Group.GroupId).ConfigureAwait(false);
+                if (post.UserId.AppId == userId || UserManager.IsInRole(userId, "Administrator") || callingUserIsMod)
                 {
                     post.IsNSFW = !post.IsNSFW;
-
                     // Alert the post owner
                     var postOwner = post.UserId;
-
                     // Add Alert
                     var alert = new UserAlert()
-                    {
-                        TimeStamp = DateTime.Now,
-                        Title = (post.IsNSFW ? "Your post has been marked NSFW : " : "Your post is no longer marked NSFW : ") + post.PostTitle,
-                        Content = "A moderator has changed the Not Safe For Work status of your post.",
-                        IsDeleted = false,
-                        IsRead = false,
-                        To = postOwner,
-                        PostLink = post,
-                    };
+                    {TimeStamp = DateTime.Now, Title = (post.IsNSFW ? "Your post has been marked NSFW : " : "Your post is no longer marked NSFW : ") + post.PostTitle, Content = "A moderator has changed the Not Safe For Work status of your post.", IsDeleted = false, IsRead = false, To = postOwner, PostLink = post, };
                     postOwner.Alerts.Add(alert);
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                    return Json(new { success = true, message = "Success", post.IsNSFW }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    success = true, message = "Success", post.IsNSFW
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
                     Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    return Json(new { message = "Credentials failure" }, JsonRequestBehavior.AllowGet);
+                    return Json(new
+                    {
+                    message = "Credentials failure"
+                    }
+
+                    , JsonRequestBehavior.AllowGet);
                 }
             }
         }
@@ -365,8 +371,8 @@ namespace zapread.com.Controllers
         /// <summary>
         ///
         /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="group"></param>
+        /// <param name = "postId"></param>
+        /// <param name = "group"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("Post/Edit/{postId?}")]
@@ -375,23 +381,28 @@ namespace zapread.com.Controllers
             XFrameOptionsDeny();
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+                return RedirectToAction("Login", "Account", new
+                {
+                returnUrl = Request.Url.ToString()}
+
+                );
             }
 
             var userId = User.Identity.GetUserId();
-
             using (var db = new ZapContext())
             {
-                var userInfo = await db.Users.Where(u => u.AppId == userId)
-                    .Select(u => new
+                var userInfo = await db.Users.Where(u => u.AppId == userId).Select(u => new
+                {
+                u.Reputation, u.ProfileImage.Version
+                }).FirstOrDefaultAsync().ConfigureAwait(true);
+                if (userInfo == null)
+                    return RedirectToAction("Login", "Account", new
                     {
-                        u.Reputation,
-                        u.ProfileImage.Version
-                    }).FirstOrDefaultAsync().ConfigureAwait(true);
+                    returnUrl = Request.Url.ToString()}
 
-                if (userInfo == null) return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
-
-                return View(new PostEditViewModel() { UserReputation = userInfo.Reputation, UserAppId = userId, ProfileImageVersion = userInfo.Version });
+                    );
+                return View(new PostEditViewModel()
+                {UserReputation = userInfo.Reputation, UserAppId = userId, ProfileImageVersion = userInfo.Version});
             }
         }
 
@@ -403,16 +414,7 @@ namespace zapread.com.Controllers
                 {
                     // no user entry
                     User u = new User()
-                    {
-                        AboutMe = "Nothing to tell.",
-                        AppId = userId,
-                        Name = User.Identity.Name,
-                        ProfileImage = new UserImage(),
-                        ThumbImage = new UserImage(),
-                        Funds = new UserFunds(),
-                        Settings = new UserSettings(),
-                        DateJoined = DateTime.UtcNow,
-                    };
+                    {AboutMe = "Nothing to tell.", AppId = userId, Name = User.Identity.Name, ProfileImage = new UserImage(), ThumbImage = new UserImage(), Funds = new UserFunds(), Settings = new UserSettings(), DateJoined = DateTime.UtcNow, };
                     db.Users.Add(u);
                     await db.SaveChangesAsync().ConfigureAwait(true);
                 }
@@ -422,15 +424,15 @@ namespace zapread.com.Controllers
         /// <summary>
         ///
         /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="groupId"></param>
-        /// <param name="content"></param>
-        /// <param name="postTitle"></param>
-        /// <param name="isDraft"></param>
-        /// <param name="isNSFW"></param>
-        /// <param name="postQuietly"></param>
-        /// <param name="isNonIncome"></param>
-        /// <param name="language"></param>
+        /// <param name = "postId"></param>
+        /// <param name = "groupId"></param>
+        /// <param name = "content"></param>
+        /// <param name = "postTitle"></param>
+        /// <param name = "isDraft"></param>
+        /// <param name = "isNSFW"></param>
+        /// <param name = "postQuietly"></param>
+        /// <param name = "isNonIncome"></param>
+        /// <param name = "language"></param>
         /// <returns></returns>
         [Route("Post/Submit")]
         [HttpPost]
@@ -439,85 +441,87 @@ namespace zapread.com.Controllers
         public async Task<ActionResult> Submit(int postId, int groupId, string content, string postTitle, bool isDraft, bool isNSFW, bool postQuietly, bool isNonIncome, string language)
         {
             var userId = User.Identity.GetUserId();
-
             if (userId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                return Json(new { success = false, message = "Error finding user account." });
+                return Json(new
+                {
+                success = false, message = "Error finding user account."
+                }
+
+                );
             }
 
             using (var db = new ZapContext())
             {
-                var userInfo = await db.Users
-                    .Where(u => u.AppId == userId)
-                    .Select(u => new
-                    {
-                        User = u,
-                        u.Reputation,
-                        Balance = u.Funds != null ? u.Funds.Balance : 0
-                    })
-                    .FirstOrDefaultAsync().ConfigureAwait(true);  // Note ConfigureAwait must be true since we need to preserve context for the mailer
-
+                var userInfo = await db.Users.Where(u => u.AppId == userId).Select(u => new
+                {
+                User = u, u.Reputation, Balance = u.Funds != null ? u.Funds.Balance : 0
+                }).FirstOrDefaultAsync().ConfigureAwait(true); // Note ConfigureAwait must be true since we need to preserve context for the mailer
                 if (userInfo == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { success = false, message = "Error finding user account." });
+                    return Json(new
+                    {
+                    success = false, message = "Error finding user account."
+                    }
+
+                    );
                 }
 
                 if (userInfo.Reputation < 0 && userInfo.Balance < -userInfo.Reputation)
                 {
-                    var delta = -1*Math.Floor(userInfo.Balance + userInfo.Reputation);
+                    var delta = -1 * Math.Floor(userInfo.Balance + userInfo.Reputation);
                     //Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    return Json(new { success = false, 
-                        message = "Because of your negative reputation, you must deposit an additional " 
-                        + delta.ToString("0.##", CultureInfo.InvariantCulture) 
-                        + " Satoshi to be able to post."});
+                    return Json(new
+                    {
+                    success = false, message = "Because of your negative reputation, you must deposit an additional " + delta.ToString("0.##", CultureInfo.InvariantCulture) + " Satoshi to be able to post."
+                    }
+
+                    );
                 }
 
                 // Cleanup post HTML
                 string contentStr = CleanContent(content);
-
                 contentStr = HtmlDocumentHelpers.AutoLink(contentStr);
-
-                var postGroup = await db.Groups
-                    .Include(g => g.Banished)
-                    .FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
-
+                var postGroup = await db.Groups.Include(g => g.Banished).FirstOrDefaultAsync(g => g.GroupId == groupId).ConfigureAwait(true);
                 if (postGroup.Banished.Where(b => b.User.AppId == userId).Any())
                 {
                     Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    return Json(new { success = false, message = "You are banished from this group and can not post to it." });
+                    return Json(new
+                    {
+                    success = false, message = "You are banished from this group and can not post to it."
+                    }
+
+                    );
                 }
 
                 string postLanguage = LanguageHelpers.NameToISO(language);
-
                 Post post = null;
                 if (postId > 0)
                 {
                     // Updated post
-                    post = await db.Posts
-                        .Include(pst => pst.UserId)
-                        .Include(pst => pst.Tags)
-                        .Where(pst => pst.PostId == postId)
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                    post = await db.Posts.Include(pst => pst.UserId).Include(pst => pst.Tags).Where(pst => pst.PostId == postId).FirstOrDefaultAsync().ConfigureAwait(true);
                     // Ensure user owns this post (or is site admin)
                     if (post.UserId.Id != userInfo.User.Id && !User.IsInRole("Administrator"))
                     {
                         // Editing another user's post.
                         Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        return Json(new { result = "failure", success = false, message = "User mismatch" });
+                        return Json(new
+                        {
+                        result = "failure", success = false, message = "User mismatch"
+                        }
+
+                        );
                     }
 
-                    post.PostTitle = postTitle == null ? "Post" : postTitle.CleanUnicode().SanitizeXSS()
-                        .Replace("&amp;","&");
+                    post.PostTitle = postTitle == null ? "Post" : postTitle.CleanUnicode().SanitizeXSS().Replace("&amp;", "&");
                     post.Group = postGroup;
                     post.Content = contentStr;
                     post.Language = postLanguage ?? post.Language;
                     post.IsNSFW = isNSFW;
                     post.IsNonIncome = isNonIncome;
                     //post.Tags = new List<Tag>(); // Reset
-
                     if (post.IsDraft) // Post was or is draft - set timestamp.
                     {
                         post.TimeStamp = DateTime.UtcNow;
@@ -529,26 +533,19 @@ namespace zapread.com.Controllers
 
                     HtmlDocument postDocument = new HtmlDocument();
                     postDocument.LoadHtml(content);
-
                     if (post.IsDraft && !isDraft) // Post was a draft, now published
                     {
                         post.IsDraft = isDraft;
-
                         // Check for new tags
                         //post.Tags = new List<Tag>();
                         var tagsToAdd = new List<Tag>();
-
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
                         if (allTags != null)
                         {
                             foreach (var tag in allTags)
                             {
                                 var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-
-                                var postTag = await db.Tags
-                                    .Where(t => t.TagName == tagname)
-                                    .FirstOrDefaultAsync();
-
+                                var postTag = await db.Tags.Where(t => t.TagName == tagname).FirstOrDefaultAsync();
                                 if (postTag != null)
                                 {
                                     //post.Tags.Add(postTag);
@@ -556,7 +553,8 @@ namespace zapread.com.Controllers
                                 }
                                 else
                                 {
-                                    Tag newTag = new Tag() { TagName = tagname };
+                                    Tag newTag = new Tag()
+                                    {TagName = tagname};
                                     db.Tags.Add(newTag);
                                     //post.Tags.Add(newTag);
                                     tagsToAdd.Add(newTag);
@@ -566,7 +564,6 @@ namespace zapread.com.Controllers
 
                         var tagsToRemove = new List<Tag>();
                         var tagsToAddNames = tagsToAdd.Select(t => t.TagName);
-
                         foreach (var tag in post.Tags)
                         {
                             if (!tagsToAddNames.Contains(tag.TagName))
@@ -586,7 +583,6 @@ namespace zapread.com.Controllers
                         }
 
                         await db.SaveChangesAsync().ConfigureAwait(true);
-
                         if (!isDraft && !postQuietly && !post.TimeStampEdited.HasValue)
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
@@ -608,16 +604,12 @@ namespace zapread.com.Controllers
                         //post.Tags = new List<Tag>();
                         var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
                         var tagsToAdd = new List<Tag>();
-
                         if (allTags != null)
                         {
                             foreach (var tag in allTags)
                             {
                                 var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                                var postTag = await db.Tags
-                                    .Where(t => t.TagName == tagname)
-                                    .FirstOrDefaultAsync();
-
+                                var postTag = await db.Tags.Where(t => t.TagName == tagname).FirstOrDefaultAsync();
                                 if (postTag != null)
                                 {
                                     //post.Tags.Add(postTag);
@@ -625,7 +617,8 @@ namespace zapread.com.Controllers
                                 }
                                 else
                                 {
-                                    Tag newTag = new Tag() { TagName = tagname };
+                                    Tag newTag = new Tag()
+                                    {TagName = tagname};
                                     db.Tags.Add(newTag);
                                     //post.Tags.Add(newTag);
                                     tagsToAdd.Add(newTag);
@@ -635,7 +628,6 @@ namespace zapread.com.Controllers
 
                         var tagsToRemove = new List<Tag>();
                         var tagsToAddNames = tagsToAdd.Select(t => t.TagName);
-
                         foreach (var tag in post.Tags)
                         {
                             if (!tagsToAddNames.Contains(tag.TagName))
@@ -655,36 +647,25 @@ namespace zapread.com.Controllers
                         }
 
                         await db.SaveChangesAsync().ConfigureAwait(true);
-                        return Json(new { result = "success", success = true, postId = post.PostId, HTMLContent = contentStr });
+                        return Json(new
+                        {
+                        result = "success", success = true, postId = post.PostId, HTMLContent = contentStr
+                        }
+
+                        );
                     }
                 }
                 else
                 {
                     // New post
                     post = new Post()
-                    {
-                        Content = contentStr,
-                        UserId = userInfo.User,
-                        TotalEarned = 0,
-                        IsDeleted = false,
-                        Score = 1,
-                        Group = postGroup,
-                        TimeStamp = DateTime.UtcNow,
-                        VotesUp = new List<User>() { userInfo.User },
-                        PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS().Replace("&amp;", "&"),
-                        IsDraft = isDraft,
-                        Language = postLanguage,
-                        IsNSFW = isNSFW,
-                        IsNonIncome = isNonIncome,
-                    };
-
+                    {Content = contentStr, UserId = userInfo.User, TotalEarned = 0, IsDeleted = false, Score = 1, Group = postGroup, TimeStamp = DateTime.UtcNow, VotesUp = new List<User>()
+                    {userInfo.User}, PostTitle = postTitle == null ? "" : postTitle.CleanUnicode().SanitizeXSS().Replace("&amp;", "&"), IsDraft = isDraft, Language = postLanguage, IsNSFW = isNSFW, IsNonIncome = isNonIncome, };
                     db.Posts.Add(post);
                     await db.SaveChangesAsync().ConfigureAwait(true);
-
                     // Check for new tags
                     HtmlDocument postDocument = new HtmlDocument();
                     postDocument.LoadHtml(content);
-
                     var allTags = postDocument.DocumentNode.SelectNodes("//span[contains(@class, 'tag-mention')]");
                     if (allTags != null)
                     {
@@ -692,17 +673,15 @@ namespace zapread.com.Controllers
                         {
                             post.Tags = new List<Tag>();
                             var tagname = tag.InnerText.Replace("#", ""); // #bitcoin
-                            var postTag = await db.Tags
-                                    .Where(t => t.TagName == tagname)
-                                    .FirstOrDefaultAsync();
-
+                            var postTag = await db.Tags.Where(t => t.TagName == tagname).FirstOrDefaultAsync();
                             if (postTag != null)
                             {
                                 post.Tags.Add(postTag);
                             }
                             else
                             {
-                                Tag newTag = new Tag() { TagName = tagname };
+                                Tag newTag = new Tag()
+                                {TagName = tagname};
                                 db.Tags.Add(newTag);
                                 post.Tags.Add(newTag);
                             }
@@ -710,7 +689,6 @@ namespace zapread.com.Controllers
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(true);
-
                     if (postDocument.HasUserMention())
                     {
                         await eventService.OnUserMentionedInPost(post.PostId);
@@ -721,16 +699,21 @@ namespace zapread.com.Controllers
                         try
                         {
                             await eventService.OnNewPostAsync(post.PostId).ConfigureAwait(true);
-
-                            // this submission is rare (i.e. autosave didn't trigger)
+                        // this submission is rare (i.e. autosave didn't trigger)
                         }
                         catch (Exception)
                         {
-                            // noted.
+                        // noted.
                         }
                     }
                 }
-                return Json(new { success = true, postId = post.PostId });
+
+                return Json(new
+                {
+                success = true, postId = post.PostId
+                }
+
+                );
             }
         }
 
@@ -738,7 +721,6 @@ namespace zapread.com.Controllers
         {
             HtmlDocument postDocument = new HtmlDocument();
             postDocument.LoadHtml(content);
-
             // Check links                                                                   
             var postLinks = postDocument.DocumentNode.SelectNodes("//a/@href");
             if (postLinks != null)
@@ -757,6 +739,7 @@ namespace zapread.com.Controllers
                     }
                 }
             }
+
             // Clean up
             var paragraphs = postDocument.DocumentNode.SelectNodes("//p");
             if (paragraphs != null)
@@ -769,31 +752,28 @@ namespace zapread.com.Controllers
                     }
                 }
             }
+
             string contentStr = postDocument.DocumentNode.OuterHtml.SanitizeXSS();
             return contentStr;
         }
 
         private async Task AlertGroupNewPost(ZapContext db, Group postGroup, Post post)
         {
-            var subusers = db.Users
-                .Include("Alerts")
-                .Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
-
+            var subusers = db.Users.Include("Alerts").Where(u => u.Groups.Select(g => g.GroupId).Contains(postGroup.GroupId));
             foreach (var u in subusers)
             {
                 // Add Alert
                 var alert = new UserAlert()
+                {TimeStamp = DateTime.Now, Title = "New post in subscribed group <a href='" + Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new
                 {
-                    TimeStamp = DateTime.Now,
-                    Title = "New post in subscribed group <a href='" + Url.Action(actionName: "GroupDetail", controllerName: "Group", routeValues: new { id = postGroup.GroupId }) + "'>" + postGroup.GroupName + "</a>",
-                    Content = "",// "<a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
-                    IsDeleted = false,
-                    IsRead = false,
-                    To = u,
-                    PostLink = post,
-                };
+                id = postGroup.GroupId
+                }
+
+                ) + "'>" + postGroup.GroupName + "</a>", Content = "", // "<a href='" + Url.Action(actionName:"Detail", controllerName: "Post", routeValues: new { post.PostId }) + "'>" + (post.PostTitle != null ? post.PostTitle : "Post") + "</a>",
+ IsDeleted = false, IsRead = false, To = u, PostLink = post, };
                 u.Alerts.Add(alert);
             }
+
             await db.SaveChangesAsync().ConfigureAwait(true);
         }
 
@@ -811,7 +791,7 @@ namespace zapread.com.Controllers
         /// <summary>
         ///
         /// </summary>
-        /// <param name="p"></param>
+        /// <param name = "p"></param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult> DeletePost(DeletePostMsg p)
@@ -830,8 +810,12 @@ namespace zapread.com.Controllers
 
                 post.IsDeleted = true;
                 await db.SaveChangesAsync().ConfigureAwait(false);
+                return Json(new
+                {
+                Success = true
+                }
 
-                return Json(new { Success = true });
+                );
             }
         }
 
@@ -840,39 +824,43 @@ namespace zapread.com.Controllers
         /// 
         /// This method is used to asynchronously render posts
         /// </summary>
-        /// <param name="postIdEnc"></param>
+        /// <param name = "postIdEnc"></param>
         /// <returns></returns>
         [Route("Post/Display/{postIdEnc}")]
         [HttpGet]
         public async Task<ActionResult> Display(string postIdEnc)
         {
             XFrameOptionsDeny();
-
             if (postIdEnc == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success=false, message="no parameter" });
+                return Json(new
+                {
+                success = false, message = "no parameter"
+                }
+
+                );
             }
 
             int postId = CryptoService.StringToIntId(postIdEnc);
-
             using (var db = new ZapContext())
             {
-                var post = await db.Posts
-                    .Where(p => p.PostId == postId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                var post = await db.Posts.Where(p => p.PostId == postId).FirstOrDefaultAsync().ConfigureAwait(false);
+                return Json(new
+                {
+                }
 
-                return Json(new { });
+                );
             }
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="PostId"></param>
-        /// <param name="postIdEnc">0 = downvote, 1 = upvote</param>
-        /// <param name="vote">0 = downvote, 1 = upvote</param>
-        /// <param name="postTitle">Optional string which is used in SEO</param>
+        /// <param name = "PostId"></param>
+        /// <param name = "postIdEnc">0 = downvote, 1 = upvote</param>
+        /// <param name = "vote">0 = downvote, 1 = upvote</param>
+        /// <param name = "postTitle">Optional string which is used in SEO</param>
         /// <returns></returns>
         [MvcSiteMapNode(Title = "Details", ParentKey = "Post", DynamicNodeProvider = "zapread.com.DI.PostsDetailsProvider, zapread.com")]
         [Route("p/{postIdEnc?}/{postTitle?}", Order = 1)]
@@ -896,62 +884,14 @@ namespace zapread.com.Controllers
             {
                 var userAppId = User.Identity.GetUserId();
                 var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
-
                 if (userId.HasValue && userId != 0)
                 {
                     await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
                 }
 
-                var pst = db.Posts
-                    .Where(p => p.PostId == PostId && !p.IsDraft && !p.IsDeleted)
-                    .Select(p => new PostViewModel()
-                    {
-                        PostTitle = p.PostTitle,
-                        Content = p.Content,
-                        PostId = p.PostId,
-                        GroupId = p.Group.GroupId,
-                        GroupName = p.Group.GroupName,
-                        IsSticky = p.IsSticky,
-                        UserName = p.UserId.Name,
-                        UserId = p.UserId.Id,
-                        UserAppId = p.UserId.AppId,
-                        UserProfileImageVersion = p.UserId.ProfileImage.Version,
-                        Score = p.Score,
-                        TimeStamp = p.TimeStamp,
-                        TimeStampEdited = p.TimeStampEdited,
-                        IsNSFW = p.IsNSFW,
-                        IsNonIncome = p.IsNonIncome,
-                        ViewerIsFollowing = userId.HasValue ? p.FollowedByUsers.Select(v => v.Id).Contains(userId.Value) : false,
-                        ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false,
-                        ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
-                        ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
-                        ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
-                        ViewerIgnoredPost = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
-                        CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
-                        {
-                            PostId = p.PostId,
-                            CommentId = c.CommentId,
-                            Text = c.Text,
-                            Score = c.Score,
-                            IsReply = c.IsReply,
-                            IsDeleted = c.IsDeleted,
-                            TimeStamp = c.TimeStamp,
-                            TimeStampEdited = c.TimeStampEdited,
-                            UserId = c.UserId.Id,
-                            UserName = c.UserId.Name,
-                            UserAppId = c.UserId.AppId,
-                            ProfileImageVersion = c.UserId.ProfileImage.Version,
-                            ViewerUpvoted = userId.HasValue ? c.VotesUp.Select(v => v.Id).Contains(userId.Value) : false,
-                            ViewerDownvoted = userId.HasValue ? c.VotesDown.Select(v => v.Id).Contains(userId.Value) : false,
-                            ViewerIgnoredUser = userId.HasValue ? (c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false,
-                            ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId,
-                            ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id,
-                            ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name,
-                        }),
-                    })
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
+                var pst = db.Posts.Where(p => p.PostId == PostId && !p.IsDraft && !p.IsDeleted).Select(p => new PostViewModel()
+                {PostTitle = p.PostTitle, Content = p.Content, PostId = p.PostId, GroupId = p.Group.GroupId, GroupName = p.Group.GroupName, IsSticky = p.IsSticky, UserName = p.UserId.Name, UserId = p.UserId.Id, UserAppId = p.UserId.AppId, UserProfileImageVersion = p.UserId.ProfileImage.Version, Score = p.Score, TimeStamp = p.TimeStamp, TimeStampEdited = p.TimeStampEdited, IsNSFW = p.IsNSFW, IsNonIncome = p.IsNonIncome, ViewerIsFollowing = userId.HasValue ? p.FollowedByUsers.Select(v => v.Id).Contains(userId.Value) : false, ViewerIsMod = userId.HasValue ? p.Group.Moderators.Select(m => m.Id).Contains(userId.Value) : false, ViewerUpvoted = userId.HasValue ? p.VotesUp.Select(v => v.Id).Contains(userId.Value) : false, ViewerDownvoted = userId.HasValue ? p.VotesDown.Select(v => v.Id).Contains(userId.Value) : false, ViewerIgnoredUser = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false, ViewerIgnoredPost = userId.HasValue ? (p.UserId.Id == userId.Value ? false : p.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false, CommentVms = p.Comments.Select(c => new PostCommentsViewModel()
+                {PostId = p.PostId, CommentId = c.CommentId, Text = c.Text, Score = c.Score, IsReply = c.IsReply, IsDeleted = c.IsDeleted, TimeStamp = c.TimeStamp, TimeStampEdited = c.TimeStampEdited, UserId = c.UserId.Id, UserName = c.UserId.Name, UserAppId = c.UserId.AppId, ProfileImageVersion = c.UserId.ProfileImage.Version, ViewerUpvoted = userId.HasValue ? c.VotesUp.Select(v => v.Id).Contains(userId.Value) : false, ViewerDownvoted = userId.HasValue ? c.VotesDown.Select(v => v.Id).Contains(userId.Value) : false, ViewerIgnoredUser = userId.HasValue ? (c.UserId.Id == userId ? false : c.UserId.IgnoredByUsers.Select(u => u.Id).Contains(userId.Value)) : false, ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId, ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id, ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name, }), }).AsNoTracking().FirstOrDefault();
                 if (pst == null)
                 {
                     return RedirectToAction("PostNotFound");
@@ -979,31 +919,43 @@ namespace zapread.com.Controllers
         /// <summary>
         ///
         /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="newLanguage"></param>
+        /// <param name = "postId"></param>
+        /// <param name = "newLanguage"></param>
         /// <returns></returns>
         [HttpPost]
         public JsonResult ChangeLanguage(int postId, string newLanguage)
         {
             if (!User.IsInRole("Administrator"))
             {
-                return Json(new { result = "error", success = false, message = "Admin role missing." });
+                return Json(new
+                {
+                result = "error", success = false, message = "Admin role missing."
+                }
+
+                );
             }
 
             using (var db = new ZapContext())
             {
                 var post = db.Posts.SingleOrDefault(ps => ps.PostId == postId);
-
                 if (post == null)
                 {
-                    return Json(new { result = "error", success = false, message = "Post not found in database." });
+                    return Json(new
+                    {
+                    result = "error", success = false, message = "Post not found in database."
+                    }
+
+                    );
                 }
 
                 post.Language = newLanguage;
-
                 db.SaveChanges();
+                return Json(new
+                {
+                result = "success", success = true
+                }
 
-                return Json(new { result = "success", success = true });
+                );
             }
         }
 
@@ -1015,7 +967,7 @@ namespace zapread.com.Controllers
             }
             catch
             {
-                // TODO: add error handling - temp fix for unit test.
+            // TODO: add error handling - temp fix for unit test.
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Hangfire.Dashboard;
+using Hangfire.Dashboard;
 using Microsoft.Owin;
 
 namespace zapread.com
@@ -11,16 +11,14 @@ namespace zapread.com
         /// <summary>
         /// Method to return whether request is authorized
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name = "context"></param>
         /// <returns></returns>
         public bool Authorize(DashboardContext context)
         {
             // In case you need an OWIN context, use the next line, `OwinContext` class
             // is the part of the `Microsoft.Owin` package.
             var owinContext = new OwinContext(context.GetOwinEnvironment());
-
             var isAdmin = owinContext.Authentication.User.IsInRole("Administrator");
-
             return isAdmin;
         }
     }

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Web.Mvc;
 
 namespace zapread.com.Helpers
@@ -11,8 +11,8 @@ namespace zapread.com.Helpers
         /// <summary>
         /// //https://stackoverflow.com/questions/5818799/autoversioning-css-js-in-asp-net-mvc
         /// </summary>
-        /// <param name="self"></param>
-        /// <param name="contentPath"></param>
+        /// <param name = "self"></param>
+        /// <param name = "contentPath"></param>
         /// <returns></returns>
         public static string ContentVersioned(this UrlHelper self, string contentPath)
         {

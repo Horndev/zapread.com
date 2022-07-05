@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -19,9 +19,9 @@ namespace zapread.com.API
         /// <summary>
         /// Get the list of user chats
         /// </summary>
-        /// <param name="page">0..n</param>
-        /// <param name="pagesize">default 20</param>
-        /// <param name="sort">unread, recent (default)</param>
+        /// <param name = "page">0..n</param>
+        /// <param name = "pagesize">default 20</param>
+        /// <param name = "sort">unread, recent (default)</param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/chats/list/{page}/{pagesize?}/{sort?}")]
@@ -30,74 +30,48 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
                 }
 
                 string userAppId = user.AppId;
-
                 // Get private messages
-                var chatsQ = db.Messages
-                    .Where(m => m.IsPrivateMessage == true)
-                    .Where(m => !m.IsDeleted)
-                    .Where(m => m.To.AppId == userAppId || m.From.AppId == userAppId)
-                    .Where(m => !(m.To.AppId == userAppId && m.From.AppId == userAppId)) // Can't chat with self
-                    .Select(m => new
-                    {
-                        m.Id,
-                        other = m.To.AppId == userAppId ? m.From : m.To,
-                        otherId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId,
-                        FromOnline = m.To.AppId == userAppId ? m.From.IsOnline : m.To.IsOnline,
-                        IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
-                        IsReplied = m.From.AppId == userAppId,
-                        m.TimeStamp,
-                    })
-                    .GroupBy(m => m.other)  // Group by person
-                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()); // Most recent
-
+                var chatsQ = db.Messages.Where(m => m.IsPrivateMessage == true).Where(m => !m.IsDeleted).Where(m => m.To.AppId == userAppId || m.From.AppId == userAppId).Where(m => !(m.To.AppId == userAppId && m.From.AppId == userAppId)) // Can't chat with self
+                .Select(m => new
+                {
+                m.Id, other = m.To.AppId == userAppId ? m.From : m.To, otherId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId, FromOnline = m.To.AppId == userAppId ? m.From.IsOnline : m.To.IsOnline, IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
+ IsReplied = m.From.AppId == userAppId, m.TimeStamp, }).GroupBy(m => m.other) // Group by person
+                .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()); // Most recent
                 if (sort == "unread")
                 {
-                    chatsQ = chatsQ
-                        .OrderBy(q => q.IsRead);
-                } else if (sort == "recent")
+                    chatsQ = chatsQ.OrderBy(q => q.IsRead);
+                }
+                else if (sort == "recent")
                 {
-                    chatsQ = chatsQ
-                        .OrderByDescending(q => q.TimeStamp);
+                    chatsQ = chatsQ.OrderByDescending(q => q.TimeStamp);
                 }
 
                 int numrec = await chatsQ.CountAsync().ConfigureAwait(true);
-
                 int startpage = page ?? 0;
+                var valuesQ = await chatsQ.Skip(startpage * pagesize).Take(pagesize).Select(u => new
+                {
+                u.Id, FromName = u.other.Name, FromAppId = u.other.AppId, FromProfileImageVersion = u.other.ProfileImage.Version, u.FromOnline, u.IsRead, u.IsReplied, u.TimeStamp, }).AsNoTracking().ToListAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                chats = valuesQ, numChats = numrec
+                }
 
-                var valuesQ = await chatsQ
-                    .Skip(startpage*pagesize)
-                    .Take(pagesize)
-                    .Select(u => new
-                    {
-                        u.Id,
-                        FromName = u.other.Name,
-                        FromAppId = u.other.AppId,
-                        FromProfileImageVersion = u.other.ProfileImage.Version,
-                        u.FromOnline,
-                        u.IsRead,
-                        u.IsReplied,
-                        u.TimeStamp,
-                    })
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
-                return Ok(new { chats = valuesQ, numChats = numrec });
+                );
             }
         }
 
         /// <summary>
         /// Get the alerts for a user
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="read"></param>
-        /// <param name="sort"></param>
+        /// <param name = "page"></param>
+        /// <param name = "read"></param>
+        /// <param name = "sort"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/alerts/get/{page}/{read?}/{sort?}")]
@@ -107,78 +81,40 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
                 }
 
                 string userAppId = user.AppId;
-
                 int pagesize = 100;
                 int qpage = page ?? 0;
-
-                var alertsq = db.Alerts.Where(a => a.To.AppId == userAppId)
-                    .Where(a => !a.IsDeleted);
-
+                var alertsq = db.Alerts.Where(a => a.To.AppId == userAppId).Where(a => !a.IsDeleted);
                 // Check if we include read alerts
                 if (read == null)
                 {
                     alertsq = alertsq.Where(a => !a.IsRead);
                 }
 
-                var alerts = await alertsq
-                    .OrderByDescending(a => a.TimeStamp)
-                    .Select(a => new
-                    {
-                        a.TimeStamp,
-                        a.Id,
-                        a.IsDeleted,
-                        a.IsRead,
-                        a.Title,
-                        a.Content,
-                        UserName = a.CommentLink == null ?
-                                a.PostLink == null ?
-                                    ""
-                                    :
-                                    a.PostLink.UserId.Name
-                                :
-                                a.CommentLink.UserId.Name,
-                        FromUserAppId = a.CommentLink == null ?
-                                a.PostLink == null ? 
-                                    "" 
-                                    : 
-                                    a.PostLink.UserId.AppId
-                                :
-                                a.CommentLink.UserId.AppId,
-                        FromUserProfileImageVersion = 
-                            a.CommentLink == null ? 
-                                a.PostLink == null ? 
-                                    0 
-                                    : 
-                                    a.PostLink.UserId.ProfileImage.Version
-                                :
-                                a.CommentLink.UserId.ProfileImage.Version,
-                        CommentId = a.CommentLink == null ? -1 :a.CommentLink.CommentId,
-                        PostId = a.PostLink == null ? -1 : a.PostLink.PostId,
-                        PostTitle = a.PostLink == null ? "" : a.PostLink.PostTitle,
-                    }).Skip(qpage * pagesize).Take(pagesize)
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
+                var alerts = await alertsq.OrderByDescending(a => a.TimeStamp).Select(a => new
+                {
+                a.TimeStamp, a.Id, a.IsDeleted, a.IsRead, a.Title, a.Content, UserName = a.CommentLink == null ? a.PostLink == null ? "" : a.PostLink.UserId.Name : a.CommentLink.UserId.Name, FromUserAppId = a.CommentLink == null ? a.PostLink == null ? "" : a.PostLink.UserId.AppId : a.CommentLink.UserId.AppId, FromUserProfileImageVersion = a.CommentLink == null ? a.PostLink == null ? 0 : a.PostLink.UserId.ProfileImage.Version : a.CommentLink.UserId.ProfileImage.Version, CommentId = a.CommentLink == null ? -1 : a.CommentLink.CommentId, PostId = a.PostLink == null ? -1 : a.PostLink.PostId, PostTitle = a.PostLink == null ? "" : a.PostLink.PostTitle, }).Skip(qpage * pagesize).Take(pagesize).AsNoTracking().ToListAsync().ConfigureAwait(true);
                 // Query message count
-                var numAlerts = await alertsq
-                    .CountAsync().ConfigureAwait(true);
+                var numAlerts = await alertsq.CountAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                alerts, numAlerts
+                }
 
-                return Ok(new { alerts, numAlerts });
+                );
             }
         }
 
         /// <summary>
         /// Get the messages for a user
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="read"></param>
+        /// <param name = "page"></param>
+        /// <param name = "read"></param>
         /// <returns></returns>
         [AcceptVerbs("GET")]
         [Route("api/v1/messages/get/{page}/{read?}")]
@@ -188,21 +124,15 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
                 }
 
                 string userAppId = user.AppId;
-
                 int pagesize = 200;
                 int qpage = page ?? 0;
-
-                var q = db.Messages
-                    .Where(m => m.To.AppId == userAppId)
-                    .Where(m => !m.IsDeleted);
-
+                var q = db.Messages.Where(m => m.To.AppId == userAppId).Where(m => !m.IsDeleted);
                 // Check if we include read alerts
                 if (read == null)
                 {
@@ -210,68 +140,24 @@ namespace zapread.com.API
                 }
 
                 // Query messages to show
-                var messages = await q
-                    .OrderByDescending(m => m.TimeStamp)
-                    .Select(m => new {
-                        m.Id,
-                        m.IsRead,
-                        m.IsPrivateMessage,
-                        m.Title,
-                        m.Content,
-                        m.TimeStamp,
-                        UserName = m.IsPrivateMessage ?
-                            m.From.Name
-                            :
-                            m.CommentLink == null ?
-                                m.PostLink == null ?
-                                    ""
-                                    :
-                                    m.PostLink.UserId.Name
-                                :
-                                m.CommentLink.UserId.Name,
-                        FromUserAppId = m.IsPrivateMessage ? 
-                            m.From.AppId
-                            :
-                            m.CommentLink == null ?
-                                m.PostLink == null ?
-                                    ""
-                                    :
-                                    m.PostLink.UserId.AppId
-                                :
-                                m.CommentLink.UserId.AppId,
-                        FromUserProfileImageVersion = m.IsPrivateMessage ?
-                            m.From.ProfileImage.Version
-                            :
-                            m.CommentLink == null ?
-                                m.PostLink == null ?
-                                    0
-                                    :
-                                    m.PostLink.UserId.ProfileImage.Version
-                                :
-                                m.CommentLink.UserId.ProfileImage.Version,
-                        FromName = m.From.Name,
-                        PostTitle = m.PostLink == null ? "" : m.PostLink.PostTitle,
-                        PostId = m.PostLink == null ? -1 : m.PostLink.PostId,
-                        CommentId = m.CommentLink == null ? -1 : m.CommentLink.CommentId,
-                    })
-                    .Skip(qpage*pagesize).Take(pagesize)
-                    .AsNoTracking()
-                    .ToListAsync().ConfigureAwait(true);
-
+                var messages = await q.OrderByDescending(m => m.TimeStamp).Select(m => new
+                {
+                m.Id, m.IsRead, m.IsPrivateMessage, m.Title, m.Content, m.TimeStamp, UserName = m.IsPrivateMessage ? m.From.Name : m.CommentLink == null ? m.PostLink == null ? "" : m.PostLink.UserId.Name : m.CommentLink.UserId.Name, FromUserAppId = m.IsPrivateMessage ? m.From.AppId : m.CommentLink == null ? m.PostLink == null ? "" : m.PostLink.UserId.AppId : m.CommentLink.UserId.AppId, FromUserProfileImageVersion = m.IsPrivateMessage ? m.From.ProfileImage.Version : m.CommentLink == null ? m.PostLink == null ? 0 : m.PostLink.UserId.ProfileImage.Version : m.CommentLink.UserId.ProfileImage.Version, FromName = m.From.Name, PostTitle = m.PostLink == null ? "" : m.PostLink.PostTitle, PostId = m.PostLink == null ? -1 : m.PostLink.PostId, CommentId = m.CommentLink == null ? -1 : m.CommentLink.CommentId, }).Skip(qpage * pagesize).Take(pagesize).AsNoTracking().ToListAsync().ConfigureAwait(true);
                 // Query message count
-                var numMessages = await db.Messages
-                    .Where(m => m.To.AppId == userAppId)
-                    .Where(m => !m.IsRead && !m.IsDeleted)
-                    .CountAsync().ConfigureAwait(true);
+                var numMessages = await db.Messages.Where(m => m.To.AppId == userAppId).Where(m => !m.IsRead && !m.IsDeleted).CountAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                messages, numMessages
+                }
 
-                return Ok(new { messages, numMessages });
+                );
             }
         }
 
         /// <summary>
         /// Mark a user message as read
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         [AcceptVerbs("PUT")]
         [Route("api/v1/messages/user/mark-read/{id}")]
@@ -281,7 +167,6 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
@@ -295,13 +180,15 @@ namespace zapread.com.API
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(true);
+                    return Ok(new
+                    {
+                    success = true
+                    }
 
-                    return Ok(new { success = true });
+                    );
                 }
 
-                var message = await db.Messages.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var message = await db.Messages.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (message == null)
                 {
                     return NotFound();
@@ -309,15 +196,19 @@ namespace zapread.com.API
 
                 message.IsRead = true;
                 await db.SaveChangesAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                success = true
+                }
 
-                return Ok(new { success = true });
+                );
             }
         }
 
         /// <summary>
         /// Delete a message sent to the user (authorized via API key or header)
         /// </summary>
-        /// <param name="id">message id</param>
+        /// <param name = "id">message id</param>
         /// <returns></returns>
         [AcceptVerbs("DELETE")]
         [Route("api/v1/messages/user/{id}")]
@@ -327,7 +218,6 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
@@ -335,19 +225,21 @@ namespace zapread.com.API
 
                 if (id == -1)
                 {
-                    foreach(var m in db.Messages.Where(m => m.To.AppId == user.AppId))
+                    foreach (var m in db.Messages.Where(m => m.To.AppId == user.AppId))
                     {
                         m.IsDeleted = true;
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(true);
+                    return Ok(new
+                    {
+                    success = true
+                    }
 
-                    return Ok(new { success = true });
+                    );
                 }
-                
-                var message = await db.Messages.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
 
+                var message = await db.Messages.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (message == null)
                 {
                     return NotFound();
@@ -355,15 +247,19 @@ namespace zapread.com.API
 
                 message.IsDeleted = true;
                 await db.SaveChangesAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                success = true
+                }
 
-                return Ok(new { success = true });
+                );
             }
         }
 
         /// <summary>
         /// Mark a user alert as read
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name = "id"></param>
         /// <returns></returns>
         [AcceptVerbs("PUT")]
         [Route("api/v1/alerts/user/mark-read/{id}")]
@@ -373,7 +269,6 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
@@ -387,13 +282,15 @@ namespace zapread.com.API
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(true);
+                    return Ok(new
+                    {
+                    success = true
+                    }
 
-                    return Ok(new { success = true });
+                    );
                 }
 
-                var alert = await db.Alerts.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var alert = await db.Alerts.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (alert == null)
                 {
                     return NotFound();
@@ -401,15 +298,19 @@ namespace zapread.com.API
 
                 alert.IsRead = true;
                 await db.SaveChangesAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                success = true
+                }
 
-                return Ok(new { success = true });
+                );
             }
         }
 
         /// <summary>
         /// Delete an alert sent to the user (authorized via API key or header)
         /// </summary>
-        /// <param name="id">alert id</param>
+        /// <param name = "id">alert id</param>
         /// <returns></returns>
         [AcceptVerbs("DELETE")]
         [Route("api/v1/alerts/user/{id}")]
@@ -419,7 +320,6 @@ namespace zapread.com.API
             using (var db = new ZapContext())
             {
                 var user = await GetCurrentUser(db).ConfigureAwait(true);
-
                 if (user == null)
                 {
                     return BadRequest();
@@ -433,13 +333,15 @@ namespace zapread.com.API
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(true);
+                    return Ok(new
+                    {
+                    success = true
+                    }
 
-                    return Ok(new { success = true });
+                    );
                 }
 
-                var alert = await db.Alerts.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id)
-                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                var alert = await db.Alerts.Where(m => m.To.AppId == user.AppId).Where(m => m.Id == id).FirstOrDefaultAsync().ConfigureAwait(true);
                 if (alert == null)
                 {
                     return NotFound();
@@ -447,17 +349,19 @@ namespace zapread.com.API
 
                 alert.IsDeleted = true;
                 await db.SaveChangesAsync().ConfigureAwait(true);
+                return Ok(new
+                {
+                success = true
+                }
 
-                return Ok(new { success = true });
+                );
             }
         }
 
         private async Task<User> GetCurrentUser(ZapContext db)
         {
             var userId = User.Identity.GetUserId();
-            var user = await db.Users
-                .Include(u => u.Settings)
-                .FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
+            var user = await db.Users.Include(u => u.Settings).FirstOrDefaultAsync(u => u.AppId == userId).ConfigureAwait(true);
             return user;
         }
     }

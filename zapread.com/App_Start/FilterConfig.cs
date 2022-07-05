@@ -1,4 +1,4 @@
-﻿using System.Web.Mvc;
+using System.Web.Mvc;
 
 namespace zapread.com
 {
@@ -10,7 +10,7 @@ namespace zapread.com
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filters"></param>
+        /// <param name = "filters"></param>
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
