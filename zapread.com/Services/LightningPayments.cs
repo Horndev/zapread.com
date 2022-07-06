@@ -89,9 +89,7 @@ namespace zapread.com.Services
                 return new
                 {
                 success = false, message = "Internal error."
-                }
-
-                ;
+                };
             }
 
             if (lndClient == null)
@@ -114,9 +112,7 @@ namespace zapread.com.Services
                     return new
                     {
                     success = false, message = "Please wait 5 minutes between Lightning transaction requests."
-                    }
-
-                    ;
+                    };
                 }
 
                 // Check if user has sufficient balance
@@ -131,9 +127,7 @@ namespace zapread.com.Services
                     return new
                     {
                     success = false, message = "User withdraw is locked.  Please contact an administrator."
-                    }
-
-                    ;
+                    };
                 }
 
                 string responseStr = "";
@@ -146,9 +140,7 @@ namespace zapread.com.Services
                         return new
                         {
                         success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.CurrentCulture) + ", invoice is for " + request.Amount.ToString(CultureInfo.CurrentCulture) + "."
-                        }
-
-                        ;
+                        };
                     }
 
                     // Mark funds for withdraw as "in limbo" - will be resolved if verified as paid.
@@ -171,9 +163,7 @@ namespace zapread.com.Services
                         return new
                         {
                         success = false, message = "Failed. User balances changed during withdraw."
-                        }
-
-                        ;
+                        };
                     }
 
                     // Get an update-able entity for the transaction from the DB
@@ -183,9 +173,7 @@ namespace zapread.com.Services
                         return new
                         {
                         success = false, message = "Validated invoice not found in database."
-                        }
-
-                        ;
+                        };
                     }
 
                     t.IsLimbo = true; // Mark the transaction as in limbo as we try to pay it
@@ -201,9 +189,7 @@ namespace zapread.com.Services
                         return new
                         {
                         success = false, message = "Failed. Validated invoice modified during transaction."
-                        }
-
-                        ;
+                        };
                     }
 
                     // Execute payment
@@ -238,9 +224,7 @@ namespace zapread.com.Services
                     return new
                     {
                     success = false, message = "Please click only once.  Payment already in processing."
-                    }
-
-                    ;
+                    };
                 }
 
                 // If we are at this point, we are now checking the status of the payment.
