@@ -28,7 +28,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async Task<bool> OnDebugMessage(string message)
         {
-            return true;
+            return await Task.FromResult<bool>(true);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace zapread.com.Services
         {
             // Do in background and return quickly
             BackgroundJob.Enqueue<UserState>(methodCall: x => x.UserOnline(userAppId));
-            return true;
+            return await Task.FromResult<bool>(true);
         }
 
         /// <summary>

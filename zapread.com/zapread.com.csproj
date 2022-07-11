@@ -958,6 +958,14 @@
     <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.designer.cs">
       <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.cs" />
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.designer.cs">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.cs" />
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.designer.cs">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
@@ -1108,6 +1116,7 @@
     <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Search\SearchResult.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\Subscription\POSProviderTypes.cs" />
     <Compile Include="Models\Subscription\SubscriptionTypes.cs" />
     <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
     <Compile Include="Models\Tag\TagsViewModel.cs" />
@@ -1724,6 +1733,7 @@
     <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\purchases.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
@@ -1986,6 +1996,12 @@
     <EmbeddedResource Include="Migrations\202206250018230_AddUserPremiumLevel.resx">
       <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.resx">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207112203413_AddPaymentInvoiceInfo.resx">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
@@ -2079,6 +2095,7 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\Manage\Purchases.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

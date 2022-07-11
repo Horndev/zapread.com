@@ -90,6 +90,7 @@ namespace zapread.com
             BundlePage(bundles, "manage", "default");
             BundlePage(bundles, "manage", "financial");
             BundlePage(bundles, "manage", "index");
+            BundlePage(bundles, "manage", "purchases");
             BundlePage(bundles, "messages", "alerts");
             BundlePage(bundles, "messages", "all");
             BundlePage(bundles, "messages", "chat");

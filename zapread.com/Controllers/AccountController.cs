@@ -743,10 +743,8 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // POST: /Account/LogOff
         /// <summary>
-        /// 
+        /// POST: /Account/LogOff
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -757,10 +755,8 @@ namespace zapread.com.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        //
-        // GET: /Account/Register
         /// <summary>
-        /// 
+        /// GET: /Account/Register
         /// </summary>
         /// <param name = "refcode">Referral code</param>
         /// <returns></returns>
@@ -776,10 +772,8 @@ namespace zapread.com.Controllers
             return View(vm);
         }
 
-        //
-        // POST: /Account/Register
         /// <summary>
-        /// 
+        /// POST: /Account/Register
         /// </summary>
         /// <param name = "model"></param>
         /// <returns></returns>
@@ -878,10 +872,8 @@ namespace zapread.com.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/ResetPassword
         /// <summary>
-        /// 
+        /// GET: /Account/ResetPassword
         /// </summary>
         /// <param name = "code"></param>
         /// <returns></returns>

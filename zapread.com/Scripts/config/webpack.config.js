@@ -38,6 +38,7 @@ module.exports = {
     manage_default: "./Scripts/src/pages/manage/default.js",
     manage_financial: "./Scripts/src/pages/manage/financial.js",
     manage_index:   "./Scripts/src/pages/manage/index.js",
+    manage_purchases:"./Scripts/src/pages/manage/purchases.js",
     messages_alerts:"./Scripts/src/pages/messages/alerts.js",
     messages_all:   "./Scripts/src/pages/messages/all.js",
     messages_chat:  "./Scripts/src/pages/messages/chat.js",

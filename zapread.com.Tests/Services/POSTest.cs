@@ -18,5 +18,27 @@ namespace zapread.com.Tests.Services
                 service.GetSubscriptions();
             }
         }
+
+        [TestMethod]
+        public void TestUpdateSubscriptionPlans()
+        {
+            if (false) // DEBUG
+            {
+                var service = new PointOfSaleService();
+
+                service.UpdateSubscriptionPlans();
+            }
+        }
+
+        [TestMethod]
+        public void TestUpdateSubscribers()
+        {
+            if (false) // DEBUG
+            {
+                var service = new PointOfSaleService();
+
+                service.UpdateCustomers();
+            }
+        }
     }
 }

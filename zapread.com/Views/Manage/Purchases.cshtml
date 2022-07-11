@@ -1,0 +1,16 @@
+@{
+    ViewBag.Title = "User Purchases";
+}
+
+<div id="root"></div>
+
+@section Styles {
+    @Styles.Render("~/bundles/manage/purchases/css")
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+    </script>
+    @Scripts.Render("~/bundles/manage/purchases")
+}

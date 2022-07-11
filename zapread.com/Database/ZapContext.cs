@@ -77,7 +77,20 @@ namespace zapread.com.Database
 
         public DbSet<Customer> Customers { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DbSet<Subscription> Subscriptions { get; set; }
+
+        /// <summary>
+        /// These are the possible subscriptions
+        /// </summary>
+        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
 
         /// <summary>
         /// Reactions used for posts and comments
