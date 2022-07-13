@@ -13,12 +13,6 @@
     padding-top: 45%;
 }*/
 
-.content-container {
-    @include themed() {
-        color: t($body-text);
-    }
-}
-
 .content-container .card {
     @include themed() {
         color: t($body-text);

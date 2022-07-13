@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using zapread.com.Database;
+using zapread.com.Models.Account;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
@@ -21,6 +22,40 @@ namespace zapread.com.API
     /// </summary>
     public class AccountController : ApiController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "req"></param>
+        /// <returns></returns>
+        [Authorize, AcceptVerbs("GET"), Route("api/v1/account/purchases/subscriptions")]
+        public async Task<IHttpActionResult> Subscriptions()
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
+            
+            using (var db = new ZapContext())
+            {
+                var subscriptions = await db.SubscriptionPlans
+                    .Select(p => new GetSubscriptionsResponse.SubscriptionItem()
+                    {
+                        Id = p.Id.ToString(),
+                        Name = p.Name,
+                        Price = p.Price/100,
+                        Subtitle = p.Subtitle,
+                        DescriptionHTML = p.DescriptionHTML,
+                        IsSubscribed = p.Subscriptions.Select(s => s.User.AppId).Contains(userAppId)
+                    })
+                    .OrderBy(p => p.Price)
+                    .ToListAsync();
+
+                return Ok(new GetSubscriptionsResponse() 
+                { 
+                    success = true,
+                    Subscriptions = subscriptions
+                });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

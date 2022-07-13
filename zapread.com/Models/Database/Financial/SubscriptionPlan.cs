@@ -39,6 +39,16 @@ namespace zapread.com.Models.Database.Financial
         /// <summary>
         /// 
         /// </summary>
+        public string Subtitle { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string DescriptionHTML { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public double Price { get; set; }
 
         /// <summary>

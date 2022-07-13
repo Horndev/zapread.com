@@ -966,8 +966,13 @@
     <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.designer.cs">
       <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.cs" />
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.designer.cs">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\API\Account\GetSubscriptionsResponse.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
     <Compile Include="Models\Admin\AdminAchievementsViewModel.cs" />
@@ -1727,6 +1732,7 @@
     <Content Include="Scripts\src\pages\home\privacy.js" />
     <Content Include="Scripts\src\pages\home\terms.js" />
     <Content Include="Scripts\src\pages\lnauth\login.js" />
+    <Content Include="Scripts\src\pages\manage\Components\ManageSubscriptionModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
     <Content Include="Scripts\src\Components\User\UpdateEmailModal.js" />
@@ -1915,7 +1921,6 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
-    <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
     <Content Include="Views\Group\GroupDetail.cshtml" />
     <Content Include="Views\Manage\_PartialManageGroups.cshtml" />
@@ -2001,6 +2006,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202207112203413_AddPaymentInvoiceInfo.resx">
       <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207121733378_AddSubscriptionPlanDetails.resx">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
