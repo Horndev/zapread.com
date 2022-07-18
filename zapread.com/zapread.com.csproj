@@ -19,7 +19,7 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44316</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -1434,6 +1434,7 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\Payments\PaymentInputs.js" />
     <Content Include="Scripts\src\Components\PlotlyChart.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
@@ -1732,6 +1733,7 @@
     <Content Include="Scripts\src\pages\home\privacy.js" />
     <Content Include="Scripts\src\pages\home\terms.js" />
     <Content Include="Scripts\src\pages\lnauth\login.js" />
+    <Content Include="Scripts\src\pages\manage\Components\StartSubscriptionModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\ManageSubscriptionModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
@@ -1739,6 +1741,7 @@
     <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\payments.css" />
     <Content Include="Scripts\src\pages\manage\purchases.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
@@ -2498,7 +2501,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>27543</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:27543/</IISUrl>
+          <IISUrl>https://localhost:44316/</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
           <IISAppRootUrl>http://192.168.0.172:27543/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

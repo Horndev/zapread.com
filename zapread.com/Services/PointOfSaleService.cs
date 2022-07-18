@@ -2,6 +2,7 @@
 using Square;
 using Square.Exceptions;
 using Square.Models;
+using Square.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -19,6 +20,92 @@ namespace zapread.com.Services
     /// </summary>
     public class PointOfSaleService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="useTest"></param>
+        public void CreateSubscription(bool useTest = false)
+        {
+            ISquareClient client = GetSquareClient(useTest);
+
+            var body = new CreateCustomerRequest.Builder()
+                .EmailAddress("steven.horn.mail+sqtest@gmail.com")
+                .GivenName("Zelgada")
+                .Build();
+
+            var response = client.CustomersApi.CreateCustomer(body);
+
+            var customerId = response.Customer.Id;
+
+            // ensure attribute exists
+            try
+            {
+                var attrdef = client.CustomerCustomAttributesApi.ListCustomerCustomAttributeDefinitions();
+
+                if (attrdef.CustomAttributeDefinitions == null || !attrdef.CustomAttributeDefinitions.Select(a => a.Key == "zrappid").Any())
+                {
+                    var bodyCustomAttributeDefinition = new CustomAttributeDefinition.Builder()
+                        .Key("zrappid")
+                        .Name("Zapread APPID")
+                        .Schema(JsonObject.FromJsonString("{\"$ref\":\"https://developer-production-s.squarecdn.com/schemas/v1/common.json#squareup.common.String\"}"))
+                        .Description("The favorite movie of the customer.")
+                        .Visibility("VISIBILITY_READ_WRITE_VALUES")
+                        .Build();
+
+                    var cabody = new CreateCustomerCustomAttributeDefinitionRequest.Builder(bodyCustomAttributeDefinition)
+                                    .Build();
+
+                    var caresponse = client.CustomerCustomAttributesApi.CreateCustomerCustomAttributeDefinition(cabody);
+                }
+            }
+            catch (ApiException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+            // add zrid
+
+            var bodyCustomAttribute = new CustomAttribute.Builder()
+                .MValue(JsonValue.FromObject("64c17656-22a4-4a92-b11a-607b858beb0b"))
+                .Build();
+
+            var bodyAttribute = new UpsertCustomerCustomAttributeRequest.Builder(bodyCustomAttribute)
+                .Build();
+
+            var attrResponse = client.CustomerCustomAttributesApi.UpsertCustomerCustomAttribute(customerId, "zrappid", bodyAttribute);
+        }
+
+        public void AddCard(string customerId = null, bool useTest = false)
+        {
+            ISquareClient client = GetSquareClient(useTest);
+
+            var userAppId = "64c17656-22a4-4a92-b11a-607b858beb0b";
+
+            var bodyCardBillingAddress = new Address.Builder()
+                .AddressLine1("500 Electric Ave")
+                .AddressLine2("Suite 600")
+                .Locality("New York")
+                .AdministrativeDistrictLevel1("NY")
+                .PostalCode("10003")
+                .Country("US")
+                .Build();
+            var bodyCard = new Card.Builder()
+                .CardholderName("Amelia Earhart")
+                .BillingAddress(bodyCardBillingAddress)
+                .CustomerId(customerId)
+                .ReferenceId(userAppId)
+                .ExpMonth(1)
+                .ExpYear(2025)
+                .Build();
+            var body = new CreateCardRequest.Builder(
+                    idempotencyKey: Guid.NewGuid().ToString(),
+                    sourceId:"cnon:",
+                    card: bodyCard)
+                .Build();
+
+            var response = client.CardsApi.CreateCard(body);
+        }
+
         /// <summary>
         /// Gets the customers in Square, ensures that their zrappid is in database
         /// </summary>
@@ -309,7 +396,7 @@ namespace zapread.com.Services
                 : System.Configuration.ConfigurationManager.AppSettings["SquareProductionAccessToken"];
 
             client = new SquareClient.Builder()
-                .Environment(Square.Environment.Production)
+                .Environment(useTest ? Square.Environment.Sandbox : Square.Environment.Production)
                 .AccessToken(accessToken)
                 .Build();
 
