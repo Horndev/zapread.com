@@ -241,6 +241,8 @@ namespace zapread.com.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    var userId = await SignInManager.UserManager.FindAsync(loginInfo.Login).ConfigureAwait(true); //User.Identity.GetUserId();
+                    await onSignInSuccess(userId, false);
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -702,26 +704,7 @@ namespace zapread.com.Controllers
                 case SignInStatus.Success:
                     {
                         var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true); //User.Identity.GetUserId();
-                        using (var db = new ZapContext())
-                        {
-                            await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                            // Apply claims
-                            var u = db.Users.Where(us => us.AppId == userId.Id).First();
-                            //await UserManager.AddClaimAsync(userId.Id, new Claim("ColorTheme", u.Settings.ColorTheme));
-                            var identity = await UserManager.CreateIdentityAsync(userId, DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
-                            identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
-                            try
-                            {
-                                var authenticationManager = HttpContext.GetOwinContext().Authentication;
-                                authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-                                authenticationManager.SignIn(new AuthenticationProperties()
-                                { IsPersistent = model.RememberMe }, identity);
-                            }
-                            catch (Exception)
-                            {
-                                // Need to better handle this
-                            }
-                        }
+                        await onSignInSuccess(userId, model.RememberMe);
 
                         return RedirectToLocal(returnUrl);
                     }
@@ -740,6 +723,37 @@ namespace zapread.com.Controllers
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
+            }
+        }
+
+        private async Task onSignInSuccess(ApplicationUser userId, bool persistLogin)
+        {
+            using (var db = new ZapContext())
+            {
+                await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
+                // Apply claims
+                var u = db.Users.Where(us => us.AppId == userId.Id).First();
+                //await UserManager.AddClaimAsync(userId.Id, new Claim("ColorTheme", u.Settings.ColorTheme));
+                var identity = await UserManager.CreateIdentityAsync(userId, DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
+                identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
+
+                // Create claims for each participating Beta test
+                foreach (var b in u.Betas.Where(i => !i.IsDisabled))
+                {
+                    identity.AddClaim(new Claim("Beta-" + b.Name, "1"));
+                }
+                
+                try
+                {
+                    var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                    authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                    authenticationManager.SignIn(new AuthenticationProperties()
+                    { IsPersistent = persistLogin }, identity);
+                }
+                catch (Exception)
+                {
+                    // Need to better handle this
+                }
             }
         }
 

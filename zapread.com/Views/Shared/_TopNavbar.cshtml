@@ -1,5 +1,7 @@
 ﻿@using zapread.com.Helpers
-
+@{ 
+    bool POSBeta = !String.IsNullOrEmpty(User.GetClaimValue("Beta-POS"));
+}
 <div>
     <nav class="navbar navbar-expand-lg fixed-top border-bottom-nav">
         <div id="goHome">
@@ -33,7 +35,7 @@
                         <div class="dropdown-menu dropdown-menu-right" style="text-align: left; position: absolute; right: 0; left: auto;">
                             <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")">&nbsp;<i class="fa fa-user"></i> Profile</a>
                             <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Financial", "Manage")">&nbsp;<i class="fa fa-bitcoin"></i> Financial</a>
-                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Purchases", "Manage")">&nbsp;<i class="fa fa-bag-shopping"></i> Purchases</a>
+                            @if (POSBeta) { <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Purchases", "Manage")">&nbsp;<i class="fa fa-bag-shopping"></i> Purchases</a> }
                             <a class="dropdown-item btn btn-sm btn-link nav-link" role="button" onclick="toggleTheme();">&nbsp;<i class="fa-solid fa-circle-half-stroke"></i> Toggle Theme</a>
                             <span class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
                                 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))

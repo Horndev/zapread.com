@@ -178,7 +178,7 @@ function Page() {
                   <Card.Title>{ sub.Subtitle }</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">CAD${ sub.Price } monthly</Card.Subtitle>
                   <Card.Text>
-                    {sub.IsSubscribed ? (<><b>You are subscribed</b></>): (<>This subscription gives you</>) }
+                    {sub.IsSubscribed ? (<><b>{sub.IsEnding ? (<>Your subscription is ending soon</>) : (<>You are subscribed</>)}</b></>) : (<>This subscription gives you</>)}
                   </Card.Text>
                   <div dangerouslySetInnerHTML={{ __html: sub.DescriptionHTML }}/>
                 </Card.Body>
