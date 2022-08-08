@@ -15,18 +15,21 @@ namespace zapread.com.Tests.Services
             {
                 var service = new PointOfSaleService();
 
-                service.GetSubscriptions();
+                //service.GetSubscriptions();
+
+                //service.CreateSubscription(useTest: true);
+                //service.AddCard(customerId: "P88K5BGMFGZCBE8XVCFJJBP3CR", useTest: true);
             }
         }
 
         [TestMethod]
         public void TestUpdateSubscriptionPlans()
         {
-            if (false) // DEBUG
+            if (true) // DEBUG
             {
                 var service = new PointOfSaleService();
 
-                service.UpdateSubscriptionPlans();
+                service.UpdateSubscriptionPlans(useTest: true);
             }
         }
 

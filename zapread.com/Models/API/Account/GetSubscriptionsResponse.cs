@@ -18,12 +18,42 @@ namespace zapread.com.Models.API.Account
         /// <summary>
         /// 
         /// </summary>
+        public string ApplicationId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string LocationId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public class SubscriptionItem
         {
             /// <summary>
             /// 
             /// </summary>
             public string Id { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string PlanId { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string SubscriptionId { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public bool IsEnding { get; set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public DateTime? EndDate { get; set; }
 
             /// <summary>
             /// 

@@ -69,6 +69,7 @@ namespace zapread.com.App_Start
             kernel.Bind<ILightningPayments>().ToMethod(ctx => ctx.Kernel.Get<LightningPayments>());
 
             kernel.Bind<IEventService>().To<EventService>();
+            kernel.Bind<IPointOfSaleService>().To<PointOfSaleService>();
         }
     }
 }

@@ -54,8 +54,28 @@ namespace zapread.com.Models.Database.Financial
         /// <summary>
         /// 
         /// </summary>
+        public bool IsEnding { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime? ActiveDate { get; set; }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime? EndDate { get; set; }
+
+        /// <summary>
+        /// Needed to be able to cancel future pause
+        /// </summary>
+        public string PauseActionId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime? PauseDate { get; set; }
+
         /// <summary>
         /// 
         /// </summary>

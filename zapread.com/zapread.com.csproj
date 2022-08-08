@@ -970,6 +970,18 @@
     <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.designer.cs">
       <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.cs" />
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.designer.cs">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.cs" />
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.designer.cs">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.cs" />
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.designer.cs">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
     <Compile Include="Models\API\Account\GetSubscriptionsResponse.cs" />
@@ -982,6 +994,7 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\API\Account\SubscribeRequest.cs" />
     <Compile Include="Models\API\Account\UpdateQuickVoteRequest.cs" />
     <Compile Include="Models\API\Admin\AddReactionParameters.cs" />
     <Compile Include="Models\API\Admin\AddReactionResponse.cs" />
@@ -1058,6 +1071,7 @@
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\BannerAlert.cs" />
+    <Compile Include="Models\Database\BetaTest.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
     <Compile Include="Models\Database\Financial\Customer.cs" />
@@ -1146,6 +1160,7 @@
     <Compile Include="Services\CryptoService.cs" />
     <Compile Include="Services\EventService.cs" />
     <Compile Include="Services\IEventService.cs" />
+    <Compile Include="Services\IPointOfSaleService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -1741,7 +1756,7 @@
     <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
-    <Content Include="Scripts\src\pages\manage\payments.css" />
+    <Content Include="Scripts\src\pages\manage\purchases.css" />
     <Content Include="Scripts\src\pages\manage\purchases.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
@@ -2012,6 +2027,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202207121733378_AddSubscriptionPlanDetails.resx">
       <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207232354560_AddSubscriptionEndingParams.resx">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207251735445_AddSubscriptionPauseActionId.resx">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202208081347305_AddBetaTesting.resx">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />

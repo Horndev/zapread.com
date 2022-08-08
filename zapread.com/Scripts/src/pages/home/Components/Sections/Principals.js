@@ -11,7 +11,7 @@ export default function Principals(props) {
       <Row className="principals-header">
         <Col className="text-center wow animate__fadeIn">
           <div className="navy-line"></div>
-          <h1>Our Principals</h1>
+          <h1>Our Principles</h1>
           <p>Let's build this platform together</p>
         </Col>
       </Row>
