@@ -1,4 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Web;
 using zapread.com.Controllers;
 using zapread.com.Helpers;
 using zapread.com.Services;
@@ -25,7 +29,7 @@ namespace zapread.com.Tests.Services
         [TestMethod]
         public void TestUpdateSubscriptionPlans()
         {
-            if (true) // DEBUG
+            if (false) // DEBUG
             {
                 var service = new PointOfSaleService();
 
@@ -42,6 +46,25 @@ namespace zapread.com.Tests.Services
 
                 service.UpdateCustomers();
             }
+        }
+
+
+        [TestMethod]
+        public void TestGetCustomerIdExistsInDB()
+        {
+            // Arrange
+            var service = new PointOfSaleService();
+
+            var context = new Mock<HttpContextBase>();
+            var identity = new GenericIdentity("test");
+            identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "f752739e-8d58-4bf5-a140-fc225cc5ebdb")); //test user
+            var principal = new GenericPrincipal(identity, new[] { "user" });
+            context.Setup(s => s.User).Returns(principal);
+
+            // Act
+
+            // Assert
+            Assert.Inconclusive("TestGetCustomerIdExistsInDB not completed");
         }
     }
 }

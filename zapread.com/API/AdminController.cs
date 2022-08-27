@@ -18,8 +18,19 @@ namespace zapread.com.API
     /// </summary>
     [Authorize]
     [Route("api/v1/admin")]
-    public class AdminController : ApiController
+    public partial class AdminController : ApiController
     {
+        private IPointOfSaleService pointOfSaleService;
+
+        /// <summary>
+        /// Constructor for DI
+        /// </summary>
+        /// <param name="pointOfSaleService"></param>
+        public AdminController(IPointOfSaleService pointOfSaleService)
+        {
+            this.pointOfSaleService = pointOfSaleService;
+        }
+
         /// <summary>
         /// Refresh check if user is online.  This is needed sometimes when the DB is out of sync.
         ///   Requires Administator role.

@@ -98,7 +98,7 @@ function Page() {
         } else if (isSubscribed && isEnding) {
           Swal.fire({
             title: "Subscription still active",
-            text: "Your existing subscription is still ending.  If you change your subscription, you will lose the remainder of time remaining on the previous subscription.  Do you wish to change your subscription now?",
+            text: "Your existing subscription is still ending.  If you change your subscription, you will lose the time remaining on the previous subscription.  Do you wish to change your subscription now?",
             icon: 'warning',
             showCancelButton: true
           }).then((result) => {

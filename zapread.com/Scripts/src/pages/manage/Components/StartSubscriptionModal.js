@@ -63,7 +63,7 @@ export default function StartSubscriptionModal(props) {
         <big>Order Total <b>CA${(Math.round(props.product.Price * 100) / 100).toFixed(2)}</b></big> <small> / month</small>
         <br />
         <h3 className="mt-5">Billing Address</h3>
-        This information is only used to securely verify your credit card purchase.  Zapread will not save your name or address information.
+        <strong style={{color:"sienna"}}>This information is only used to securely verify your credit card purchase.  Zapread will not save your name or address information.</strong>
         <br /><br />
         <Form>
           <Form.Row>

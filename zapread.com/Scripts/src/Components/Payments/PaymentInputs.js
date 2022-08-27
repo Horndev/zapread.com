@@ -209,12 +209,12 @@ export default function PaymentInputs(props) {
         const token = await tokenizePaymentMethod(paymentMethod)
         console.log("TOKEN", token)
 
-        const verifyResult = await verifyBuyer(result.token);
+        const verifyResult = await verifyBuyer(token);
         console.log("verifyResult", verifyResult);
 
         postJson("/api/v1/account/purchases/subscriptions/subscribe",
           {
-            CardToken: result.token,
+            CardToken: token,
             VerificationToken: verifyResult.token,
             PlanId: props.product.PlanId,
             CustomerEmail: props.customer.email,
@@ -223,9 +223,11 @@ export default function PaymentInputs(props) {
           }).then(response => {
             //console.log("subscribe", response);
             if (response.success) {
+              setSubmitting(false);
               props.onSubscribed(props.product.PlanId);
             }
           }).catch(error => {
+            setSubmitting(false);
             console.log("error", error);
             if (error instanceof Error) {
               Swal.fire("Error", `${error.message}`, "error");

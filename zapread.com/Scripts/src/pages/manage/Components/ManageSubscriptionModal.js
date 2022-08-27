@@ -79,7 +79,7 @@ export default function ManageSubscriptionModal(props) {
           {props.product.IsEnding ? (
             <>
               <h4>Changed your mind?</h4>
-              You have cancelled your subscription to this plan.
+              You have cancelled your subscription to this plan, but you can resume the subscription before it ends.
               <br/><br/>
               It will remain active until it expires {ISOtoRelative(props.product.EndDate, true)}.
               <br /><br />

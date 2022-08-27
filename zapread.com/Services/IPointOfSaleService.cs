@@ -30,5 +30,11 @@ namespace zapread.com.Services
         /// <param name="subscriptionId"></param>
         /// <returns></returns>
         Task<bool> Unsubscribe(string userAppId, string subscriptionId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> SyncSubscriptions();
     }
 }

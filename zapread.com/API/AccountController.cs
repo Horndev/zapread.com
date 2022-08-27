@@ -55,6 +55,11 @@ namespace zapread.com.API
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [Authorize, AcceptVerbs("POST"), Route("api/v1/account/purchases/subscriptions/unsubscribe")]
         public async Task<IHttpActionResult> Unsubscribe(SubscribeRequest req)
         {
@@ -63,12 +68,23 @@ namespace zapread.com.API
             var userAppId = User.Identity.GetUserId();
             if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
 
-            var result = await pointOfSaleService.Unsubscribe(userAppId, req.SubscriptionId);
-
-            return Ok(new ZapReadResponse()
+            try
             {
-                success = result
-            });
+                var result = await pointOfSaleService.Unsubscribe(userAppId, req.SubscriptionId);
+
+                return Ok(new ZapReadResponse()
+                {
+                    success = result
+                });
+            }
+            catch (Exception e)
+            {
+                return Ok(new ZapReadResponse()
+                {
+                    success = false,
+                    message = e.Message
+                });
+            }
         }
 
         /// <summary>

@@ -487,6 +487,7 @@
     </Compile>
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
+    <Compile Include="API\AdminController.POS.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\CoreController.cs" />
     <Compile Include="API\GroupsController.cs" />
@@ -509,6 +510,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="API\UserController.cs" />
+    <Compile Include="Controllers\AdminController.POS.cs" />
     <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
@@ -1346,6 +1348,8 @@
     <Content Include="Scripts\dist\admin\lightning.css" />
     <Content Include="Scripts\dist\admin\lightning.js" />
     <Content Include="Scripts\dist\admin\lightning.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\pos.css" />
+    <Content Include="Scripts\dist\admin\pos.js" />
     <Content Include="Scripts\dist\admin\reactions.css" />
     <Content Include="Scripts\dist\admin\reactions.js" />
     <Content Include="Scripts\dist\admin\reactions.js.LICENSE.txt" />
@@ -1608,6 +1612,8 @@
     <Content Include="Scripts\dist\0\9681.css.map" />
     <Content Include="Scripts\dist\0\9681.js.map" />
     <Content Include="Scripts\dist\0\9907.js.map" />
+    <Content Include="Scripts\dist\admin\pos.css.map" />
+    <Content Include="Scripts\dist\admin\pos.js.map" />
     <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
@@ -1728,6 +1734,7 @@
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
+    <Content Include="Scripts\src\pages\admin\pos.js" />
     <Content Include="Scripts\src\pages\admin\reactions.js" />
     <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
@@ -2131,6 +2138,7 @@
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
     <Content Include="Views\Manage\Purchases.cshtml" />
+    <Content Include="Views\Admin\POS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />

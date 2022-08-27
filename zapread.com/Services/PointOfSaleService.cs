@@ -24,17 +24,26 @@ namespace zapread.com.Services
     /// </summary>
     public class PointOfSaleService : IPointOfSaleService
     {
+        /// <summary>
+        /// Synchronizes subscriptions
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> SyncSubscriptions()
+        {
+            return await Task.FromResult(true);
+        }
+
         private async Task<string> getOrCreateCustomerId(ISquareClient client, bool useTest, string userAppId, string customerEmail)
         {
             using (var db = new ZapContext())
             {
-                var customerId = await db.Customers
+                var customerInfo = await db.Customers
                     .Where(c => c.User.AppId == userAppId)
                     .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
-                    .Select(c => c.CustomerId)
+                    .Select(c => new { c.CustomerId })
                     .FirstOrDefaultAsync();
 
-                if (customerId == null)
+                if (customerInfo == null)
                 {
                     using (var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(new ApplicationDbContext())))
                     {
@@ -54,31 +63,33 @@ namespace zapread.com.Services
                             receiptEmail = customerEmail;
                         }
 
-                        customerId = createCustomer(
+                        var customerId = createCustomer(
                             client: client,
                             emailAddress: receiptEmail,
                             name: applicationUser.UserName,
                             appId: userAppId);
-                    }
-                    var user = db.Users
+
+                        var user = db.Users
                         .Where(u => u.AppId == userAppId)
                         .FirstOrDefault();
 
-                    if (user == null) { return null; }
+                        if (user == null) { return null; }
 
-                    var newCustomer = new zapread.com.Models.Database.Financial.Customer()
-                    {
-                        Id = Guid.NewGuid(),
-                        CustomerId = customerId,
-                        User = user,
-                        Provider = (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction),
-                    };
+                        var newCustomer = new zapread.com.Models.Database.Financial.Customer()
+                        {
+                            Id = Guid.NewGuid(),
+                            CustomerId = customerId,
+                            User = user,
+                            Provider = (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction),
+                        };
 
-                    db.Customers.Add(newCustomer);
+                        db.Customers.Add(newCustomer);
 
-                    db.SaveChanges();
+                        db.SaveChanges();
+                    }
                 }
-                return customerId;
+
+                return customerInfo.CustomerId;
             }
         }
 
@@ -210,10 +221,10 @@ namespace zapread.com.Services
             // subscribe...  https://developer.squareup.com/docs/subscriptions-api/walkthrough#subscriptions-walkthrough-create=customer
             string subscriptionId = await SubscribeCustomer(planId, useTest, client, customerId, cardId, userAppId);
 
-            return await Task.FromResult<bool>(true);
+            return await Task.FromResult<bool>(subscriptionId != null);
         }
 
-        private static async Task<string> SubscribeCustomer(string planId, bool useTest, ISquareClient client, string customerId, string cardId, string userAppId)
+        private async Task<string> SubscribeCustomer(string planId, bool useTest, ISquareClient client, string customerId, string cardId, string userAppId)
         {
             //var bodyPriceOverrideMoney = new Money.Builder()
             //    .Amount(100L)
@@ -251,60 +262,75 @@ namespace zapread.com.Services
 
                 // add subscription to db
                 subscriptionId = result.Subscription.Id;
-            }
-            catch (ApiException e) { };
 
-            // Sync and save to local database
-            using (var db = new ZapContext())
-            {
-                var dbPlan = await db.SubscriptionPlans
-                    .Where(p => p.PlanId == planId)
-                    .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
-                    .FirstOrDefaultAsync();
-
-                var dbUser = await db.Users
-                    .Where(u => u.AppId == userAppId)
-                    .FirstOrDefaultAsync();
-
-                // remove all existing subscriptions
-                var subs = await db.Subscriptions
-                    .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
-                    .Where(s => s.User.AppId == userAppId)
-                    .ToListAsync();
-
-                foreach (var s in subs)
+                // Sync and save to local database
+                using (var db = new ZapContext())
                 {
-                    // Remove the old subscriptions
-                    try
+                    var dbPlan = await db.SubscriptionPlans
+                        .Where(p => p.PlanId == planId)
+                        .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                        .FirstOrDefaultAsync();
+
+                    var dbUser = await db.Users
+                        .Where(u => u.AppId == userAppId)
+                        .FirstOrDefaultAsync();
+
+                    // remove all existing active subscriptions
+                    var subs = await db.Subscriptions
+                        .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                        .Where(s => s.IsActive)
+                        .Where(s => s.User.AppId == userAppId)
+                        .ToListAsync();
+
+                    foreach (var s in subs)
                     {
-                        var cancelResult = await client.SubscriptionsApi.CancelSubscriptionAsync(s.SubscriptionId);
-                        db.Subscriptions.Remove(s);
+                        // Remove the old subscriptions
+                        try
+                        {
+                            //var cancelResult = await client.SubscriptionsApi.CancelSubscriptionAsync(s.SubscriptionId);
+                            //db.Subscriptions.Remove(s);
+                            await Unsubscribe(userAppId, s.SubscriptionId);
+                        }
+                        catch (ApiException ex)
+                        {
+                            // {"errors": [{"code": "BAD_REQUEST","detail": "The provided subscription `105f26fe-bad7-4ee4-8960-697216dc00a2` already has a pending cancel date of `2022-08-21`.","category": "INVALID_REQUEST_ERROR"}]}
+                            foreach (var error in ex.Errors)
+                            {
+                                if (error.Code == "BAD_REQUEST" && error.Detail.Contains("already has a pending cancel date"))
+                                {
+                                    //db.Subscriptions.Remove(s);
+                                }
+                            }
+                        };
                     }
-                    catch 
-                    { 
 
+                    var newSubscription = new zapread.com.Models.Database.Financial.Subscription()
+                    {
+                        Id = Guid.NewGuid(),
+                        Plan = dbPlan,
+                        User = dbUser,
+                        Provider = (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction),
+                        ActiveDate = DateTime.Now,
+                        EndDate = (result == null || result.Subscription.ChargedThroughDate == null) ? DateTime.Now + TimeSpan.FromDays(31) : DateTime.Parse(result.Subscription.ChargedThroughDate),
+                        IsActive = true,
+                        IsEnding = false,
+                        SubscriptionId = subscriptionId
                     };
+
+                    db.Subscriptions.Add(newSubscription);
+
+                    await db.SaveChangesAsync();
+
+                    return subscriptionId;
                 }
-
-                var newSubscription = new zapread.com.Models.Database.Financial.Subscription()
-                {
-                    Id = Guid.NewGuid(),
-                    Plan = dbPlan,
-                    User = dbUser,
-                    Provider = (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction),
-                    ActiveDate = DateTime.Now,
-                    EndDate = result == null ? DateTime.Now + TimeSpan.FromDays(31) :DateTime.Parse(result.Subscription.ChargedThroughDate),
-                    IsActive = true,
-                    IsEnding = false,
-                    SubscriptionId = subscriptionId
-                };
-
-                db.Subscriptions.Add(newSubscription);
-
-                await db.SaveChangesAsync();
-
-                return subscriptionId;
             }
+            catch (ApiException e) 
+            {
+                // If the subscription failed, then return null
+                return null;
+            };
+
+            
         }
 
         private string createCustomer(ISquareClient client, string emailAddress, string name, string appId)

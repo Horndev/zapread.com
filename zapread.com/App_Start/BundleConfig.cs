@@ -71,6 +71,7 @@ namespace zapread.com
             BundlePage(bundles, "admin", "index");
             BundlePage(bundles, "admin", "jobs");
             BundlePage(bundles, "admin", "lightning");
+            BundlePage(bundles, "admin", "pos");
             BundlePage(bundles, "admin", "reactions");
             BundlePage(bundles, "admin", "users");
             BundlePage(bundles, "group", "detail");
