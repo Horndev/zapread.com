@@ -30,6 +30,7 @@ namespace zapread.com.Services
         /// <returns></returns>
         public async Task<bool> SyncSubscriptions()
         {
+
             return await Task.FromResult(true);
         }
 

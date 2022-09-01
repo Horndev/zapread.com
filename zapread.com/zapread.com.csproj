@@ -1174,6 +1174,7 @@
     <Compile Include="Services\PointOfSaleService.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ReputationService.cs" />
+    <Compile Include="Services\SubscriptionAccountsService.cs" />
     <Compile Include="Services\UserState.cs" />
     <Compile Include="Services\VoteService.cs" />
     <Compile Include="Startup.cs" />
