@@ -1279,6 +1279,7 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Scripts\dist\0\1035.js" />
+    <Content Include="Scripts\dist\0\1161.js" />
     <Content Include="Scripts\dist\0\2025.js" />
     <Content Include="Scripts\dist\0\2172.js" />
     <Content Include="Scripts\dist\0\2172.js.LICENSE.txt" />
@@ -1351,6 +1352,7 @@
     <Content Include="Scripts\dist\admin\lightning.js.LICENSE.txt" />
     <Content Include="Scripts\dist\admin\pos.css" />
     <Content Include="Scripts\dist\admin\pos.js" />
+    <Content Include="Scripts\dist\admin\pos.js.LICENSE.txt" />
     <Content Include="Scripts\dist\admin\reactions.css" />
     <Content Include="Scripts\dist\admin\reactions.js" />
     <Content Include="Scripts\dist\admin\reactions.js.LICENSE.txt" />
@@ -1409,6 +1411,9 @@
     <Content Include="Scripts\dist\manage\index.css" />
     <Content Include="Scripts\dist\manage\index.js" />
     <Content Include="Scripts\dist\manage\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\purchases.css" />
+    <Content Include="Scripts\dist\manage\purchases.js" />
+    <Content Include="Scripts\dist\manage\purchases.js.LICENSE.txt" />
     <Content Include="Scripts\dist\messages\alerts.css" />
     <Content Include="Scripts\dist\messages\alerts.js" />
     <Content Include="Scripts\dist\messages\alerts.js.LICENSE.txt" />
@@ -1574,7 +1579,10 @@
     <Content Include="Scripts\dist\user\achievements.js.map" />
     <Content Include="Scripts\dist\user\index.css.map" />
     <Content Include="Scripts\dist\user\index.js.map" />
+    <Content Include="Scripts\dist\admin\pos.css.map" />
+    <Content Include="Scripts\dist\admin\pos.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
+    <Content Include="Scripts\dist\0\1161.js.map" />
     <Content Include="Scripts\dist\0\2025.js.map" />
     <Content Include="Scripts\dist\0\2172.js.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
@@ -1613,8 +1621,8 @@
     <Content Include="Scripts\dist\0\9681.css.map" />
     <Content Include="Scripts\dist\0\9681.js.map" />
     <Content Include="Scripts\dist\0\9907.js.map" />
-    <Content Include="Scripts\dist\admin\pos.css.map" />
-    <Content Include="Scripts\dist\admin\pos.js.map" />
+    <Content Include="Scripts\dist\manage\purchases.css.map" />
+    <Content Include="Scripts\dist\manage\purchases.js.map" />
     <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
