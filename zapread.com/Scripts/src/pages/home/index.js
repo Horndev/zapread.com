@@ -6,9 +6,9 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 import '../../shared/shared';
 import '../../realtime/signalr';
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
-import { useLocation, BrowserRouter as Router, Route } from 'react-router-dom';
+import { useLocation, useHistory, BrowserRouter as Router, Route } from 'react-router-dom';
 import { Row, Col, Button } from "react-bootstrap";
 import { postJson } from "../../utility/postData";
 import { getJson } from "../../utility/getData";
@@ -131,6 +131,9 @@ function useQuery() {
 }
 
 function Page() {
+  const history = useHistory();
+  const location = useLocation();
+
   const [hasMorePosts, setHasMorePosts] = useState(false);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [postsLoaded, setPostsLoaded] = useState(false);
@@ -140,41 +143,49 @@ function Page() {
   const [topGroupsIsExpanded, setTopGroupsIsExpanded] = useState(false); // Start open on groups page  
 
   let query = useQuery();
+  let abort = useRef();
 
   async function getMorePosts() {
-    if (!isLoadingPosts) {
-      setIsLoadingPosts(true);
-
-      let qsort = query.get("sort");
-      if (qsort != null) {
-        setSort(qsort);
-      }
-
-      await postJson("/api/v1/post/feed/", {
-        Sort: qsort ? qsort : sort,
-        BlockNumber: postBlockNumber
-      }).then((response) => {
-        if (response.success) {
-          var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
-          setPosts(postlist);
-          setPostsLoaded(true);
-          setHasMorePosts(response.HasMorePosts);
-          if (response.HasMorePosts) {
-            setPostBlockNumber(postBlockNumber + 1);
-          }
+    console.log("loading posts by", sort);
+    abort.current = new AbortController();
+    setIsLoadingPosts(true);
+    await postJson("/api/v1/post/feed/", {
+      Sort: sort,
+      BlockNumber: postBlockNumber
+    }, abort.current.signal).then((response) => {
+      if (response.success) {
+        var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
+        setPosts(postlist);
+        setPostsLoaded(true);
+        setHasMorePosts(response.HasMorePosts);
+        if (response.HasMorePosts) {
+          setPostBlockNumber(postBlockNumber + 1);
         }
         setIsLoadingPosts(false);
-      });
-    }
+      } else {
+        abort.current = new AbortController();
+        console.log(response);
+      }
+    });
   }
 
   useEffect(() => {
-    async function initialize() {
-      // Do this in parallel
-      await Promise.all([getMorePosts()]);
+    if (abort.current) {
+      abort.current.abort();
+    }    
+    console.log("sort by", sort);
+    getMorePosts();
+  }, [sort]); // fire when updated
+
+  useEffect(() => {
+    console.log("initialize");
+    let qsort = query.get("sort");
+    if (qsort != null) {
+      setSort(qsort);
+    } else {
+      setSort(sort);
     }
-    initialize();
-  }, [sort]); // Fire once
+  }, []); // Fire once when page loads
 
   const SORTNAMES = {
     score: "Popular",
@@ -183,10 +194,20 @@ function Page() {
   }
 
   const changeSort = (newSort) => {
-    setPostsLoaded(false);
-    setPostBlockNumber(0);
-    setPosts([]);
-    setSort(newSort); // Triggers
+    if (sort != newSort) {
+      //add query parameter to url
+      let pathname = location.pathname;
+      let searchParams = new URLSearchParams(location.search);
+      searchParams.set("sort", newSort);
+      history.push({
+        pathname: pathname,
+        search: searchParams.toString()
+      });
+      setPostsLoaded(false);
+      setPostBlockNumber(0);
+      setPosts([]);
+      setSort(newSort);
+    }
   };
 
   return (
