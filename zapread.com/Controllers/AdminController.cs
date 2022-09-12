@@ -32,7 +32,7 @@ namespace zapread.com.Controllers
     /// MVC Controller for Admin Page
     /// </summary>
     [Authorize(Roles = "Administrator")]
-    public class AdminController : Controller
+    public partial class AdminController : Controller
     {
         private const string errorUnableToLoadDBWebsite = "Unable to load website settings.";
         private ApplicationUserManager _userManager;
@@ -1214,9 +1214,7 @@ namespace zapread.com.Controllers
                 return RedirectToAction("Login", "Account", new
                 {
                 returnUrl = "/Admin/Users/"
-                }
-
-                );
+                });
             }
 
             return View();

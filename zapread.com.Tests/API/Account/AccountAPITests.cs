@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using zapread.com.API;
 using zapread.com.Models.API.Account;
+using zapread.com.Services;
 
 namespace zapread.com.Tests.API.Account
 {
@@ -26,7 +27,10 @@ namespace zapread.com.Tests.API.Account
             var requestContext = new Mock<HttpRequestContext>();
             requestContext.Setup(x => x.Principal).Returns(userMock.Object);
 
-            var controller = new AccountController()
+            // Inject POSService
+            var posService = new PointOfSaleService();
+
+            var controller = new AccountController(posService)
             {
                 RequestContext = requestContext.Object,
                 Request = new HttpRequestMessage(),

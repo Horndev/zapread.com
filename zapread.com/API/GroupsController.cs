@@ -27,6 +27,7 @@ namespace zapread.com.API
     public class GroupsController : ApiController
     {
         private IEventService eventService;
+
         /// <summary>
         /// Default constructor for DI
         /// </summary>

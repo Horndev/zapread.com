@@ -17,6 +17,19 @@
 @import "navbar/navbar";
 @import "posts/posts";
 
+.content-container {
+    @include themed() {
+        color: t($body-text);
+    }
+}
+
+.hr-line-primary {
+    /*width: 60px;*/
+    height: 1px;
+    margin: 5px auto;
+    border-bottom: 2px solid $navy;
+}
+
 .ql-mention-list-container {
     @include themed() {
         background-color: t($post-bg);
@@ -4671,6 +4684,7 @@ body.tour-open .animated {
     }
 
     .navy-bg,
+    .zr-bg-primary,
     .bg-primary {
         background-color: #1ab394;
         color: #ffffff;

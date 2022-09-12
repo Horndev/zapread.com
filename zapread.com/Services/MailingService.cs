@@ -287,6 +287,29 @@ namespace zapread.com.Services
             return newContent;
         }
 
+        private string makeTagsFQDN(string emailContent)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(emailContent);
+            var baseUri = new Uri("https://www.zapread.com/");
+            var links = doc.DocumentNode.SelectNodes("//a/@href");
+            if (links != null)
+            {
+                foreach (var item in links)
+                {
+                    var href = item.GetAttributeValue("href", "");
+                    if (href.Contains("/tag/"))
+                    {
+                        var cleanHref = href.Replace("http://", "");
+                        item.SetAttributeValue("href", new Uri(baseUri, cleanHref).AbsoluteUri);
+                    }
+                }
+            }
+
+            string newContent = doc.DocumentNode.OuterHtml;
+            return newContent;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -390,6 +413,7 @@ namespace zapread.com.Services
                 var emailContent = renderEmail(postInfo);
                 // Make images resolve to zapread
                 emailContent = makeImagesFQDN(emailContent);
+                emailContent = makeTagsFQDN(emailContent);
                 return emailContent;
             }
         }

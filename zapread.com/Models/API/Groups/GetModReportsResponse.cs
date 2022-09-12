@@ -29,10 +29,19 @@ namespace zapread.com.Models.API.Groups
         /// </summary>
         public class GroupBalanceInfo
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public int GroupId { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public string GroupName { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public double Balance { get; set; }
         }
     }

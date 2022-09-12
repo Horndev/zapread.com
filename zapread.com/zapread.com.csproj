@@ -19,7 +19,7 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44316</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -487,6 +487,7 @@
     </Compile>
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
+    <Compile Include="API\AdminController.POS.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
     <Compile Include="API\CoreController.cs" />
     <Compile Include="API\GroupsController.cs" />
@@ -509,6 +510,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="API\UserController.cs" />
+    <Compile Include="Controllers\AdminController.POS.cs" />
     <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
@@ -958,8 +960,33 @@
     <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.designer.cs">
       <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.cs" />
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.designer.cs">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.cs" />
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.designer.cs">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.cs" />
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.designer.cs">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.cs" />
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.designer.cs">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.cs" />
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.designer.cs">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.cs" />
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.designer.cs">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\API\Account\GetSubscriptionsResponse.cs" />
     <Compile Include="Models\Account\LNAuthLoginView.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
     <Compile Include="Models\Admin\AdminAchievementsViewModel.cs" />
@@ -969,6 +996,7 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
+    <Compile Include="Models\API\Account\SubscribeRequest.cs" />
     <Compile Include="Models\API\Account\UpdateQuickVoteRequest.cs" />
     <Compile Include="Models\API\Admin\AddReactionParameters.cs" />
     <Compile Include="Models\API\Admin\AddReactionResponse.cs" />
@@ -1045,6 +1073,7 @@
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
     <Compile Include="Models\Database\BannerAlert.cs" />
+    <Compile Include="Models\Database\BetaTest.cs" />
     <Compile Include="Models\Database\Comment.cs" />
     <Compile Include="Models\Database\CommentReaction.cs" />
     <Compile Include="Models\Database\Financial\Customer.cs" />
@@ -1108,6 +1137,7 @@
     <Compile Include="Models\Posts\Vote.cs" />
     <Compile Include="Models\Search\SearchResult.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\Subscription\POSProviderTypes.cs" />
     <Compile Include="Models\Subscription\SubscriptionTypes.cs" />
     <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
     <Compile Include="Models\Tag\TagsViewModel.cs" />
@@ -1132,6 +1162,7 @@
     <Compile Include="Services\CryptoService.cs" />
     <Compile Include="Services\EventService.cs" />
     <Compile Include="Services\IEventService.cs" />
+    <Compile Include="Services\IPointOfSaleService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -1143,6 +1174,7 @@
     <Compile Include="Services\PointOfSaleService.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ReputationService.cs" />
+    <Compile Include="Services\SubscriptionAccountsService.cs" />
     <Compile Include="Services\UserState.cs" />
     <Compile Include="Services\VoteService.cs" />
     <Compile Include="Startup.cs" />
@@ -1247,6 +1279,7 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Scripts\dist\0\1035.js" />
+    <Content Include="Scripts\dist\0\1161.js" />
     <Content Include="Scripts\dist\0\2025.js" />
     <Content Include="Scripts\dist\0\2172.js" />
     <Content Include="Scripts\dist\0\2172.js.LICENSE.txt" />
@@ -1317,6 +1350,9 @@
     <Content Include="Scripts\dist\admin\lightning.css" />
     <Content Include="Scripts\dist\admin\lightning.js" />
     <Content Include="Scripts\dist\admin\lightning.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\pos.css" />
+    <Content Include="Scripts\dist\admin\pos.js" />
+    <Content Include="Scripts\dist\admin\pos.js.LICENSE.txt" />
     <Content Include="Scripts\dist\admin\reactions.css" />
     <Content Include="Scripts\dist\admin\reactions.js" />
     <Content Include="Scripts\dist\admin\reactions.js.LICENSE.txt" />
@@ -1375,6 +1411,9 @@
     <Content Include="Scripts\dist\manage\index.css" />
     <Content Include="Scripts\dist\manage\index.js" />
     <Content Include="Scripts\dist\manage\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\purchases.css" />
+    <Content Include="Scripts\dist\manage\purchases.js" />
+    <Content Include="Scripts\dist\manage\purchases.js.LICENSE.txt" />
     <Content Include="Scripts\dist\messages\alerts.css" />
     <Content Include="Scripts\dist\messages\alerts.js" />
     <Content Include="Scripts\dist\messages\alerts.js.LICENSE.txt" />
@@ -1420,6 +1459,7 @@
     <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
     <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
     <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\Payments\PaymentInputs.js" />
     <Content Include="Scripts\src\Components\PlotlyChart.js" />
     <Content Include="Scripts\src\Components\ReactionBar.js" />
     <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
@@ -1539,7 +1579,10 @@
     <Content Include="Scripts\dist\user\achievements.js.map" />
     <Content Include="Scripts\dist\user\index.css.map" />
     <Content Include="Scripts\dist\user\index.js.map" />
+    <Content Include="Scripts\dist\admin\pos.css.map" />
+    <Content Include="Scripts\dist\admin\pos.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
+    <Content Include="Scripts\dist\0\1161.js.map" />
     <Content Include="Scripts\dist\0\2025.js.map" />
     <Content Include="Scripts\dist\0\2172.js.map" />
     <Content Include="Scripts\dist\0\2307.js.map" />
@@ -1578,6 +1621,8 @@
     <Content Include="Scripts\dist\0\9681.css.map" />
     <Content Include="Scripts\dist\0\9681.js.map" />
     <Content Include="Scripts\dist\0\9907.js.map" />
+    <Content Include="Scripts\dist\manage\purchases.css.map" />
+    <Content Include="Scripts\dist\manage\purchases.js.map" />
     <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />
@@ -1698,6 +1743,7 @@
     <Content Include="Scripts\src\pages\account\register.js" />
     <Content Include="Scripts\src\pages\admin\accounting.js" />
     <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
+    <Content Include="Scripts\src\pages\admin\pos.js" />
     <Content Include="Scripts\src\pages\admin\reactions.js" />
     <Content Include="Scripts\src\Components\CollapseBar.js" />
     <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
@@ -1718,12 +1764,16 @@
     <Content Include="Scripts\src\pages\home\privacy.js" />
     <Content Include="Scripts\src\pages\home\terms.js" />
     <Content Include="Scripts\src\pages\lnauth\login.js" />
+    <Content Include="Scripts\src\pages\manage\Components\StartSubscriptionModal.js" />
+    <Content Include="Scripts\src\pages\manage\Components\ManageSubscriptionModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
     <Content Include="Scripts\src\Components\User\UpdateEmailModal.js" />
     <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\purchases.css" />
+    <Content Include="Scripts\src\pages\manage\purchases.js" />
     <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
     <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
@@ -1905,7 +1955,6 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
-    <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
     <Content Include="Views\Group\GroupDetail.cshtml" />
     <Content Include="Views\Manage\_PartialManageGroups.cshtml" />
@@ -1985,6 +2034,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202206250018230_AddUserPremiumLevel.resx">
       <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.resx">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207112203413_AddPaymentInvoiceInfo.resx">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207121733378_AddSubscriptionPlanDetails.resx">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207232354560_AddSubscriptionEndingParams.resx">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207251735445_AddSubscriptionPauseActionId.resx">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202208081347305_AddBetaTesting.resx">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
     <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
@@ -2079,6 +2146,8 @@
     <Content Include="Views\Shared\Locked.cshtml" />
     <Content Include="Views\Home\Privacy.cshtml" />
     <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\Manage\Purchases.cshtml" />
+    <Content Include="Views\Admin\POS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
@@ -2473,7 +2542,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>27543</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:27543/</IISUrl>
+          <IISUrl>https://localhost:44316/</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
           <IISAppRootUrl>http://192.168.0.172:27543/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

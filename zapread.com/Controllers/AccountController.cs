@@ -28,11 +28,12 @@ namespace zapread.com.Controllers
     [RoutePrefix("Account")]
     public class AccountController : Controller
     {
+        private ApplicationRoleManager _roleManager;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-        private ApplicationRoleManager _roleManager;
+        
         /// <summary>
-        /// 
+        /// Parameterless constructor
         /// </summary>
         public AccountController()
         {
@@ -62,58 +63,51 @@ namespace zapread.com.Controllers
             this.UserManager = userManager;
         }
 
-        private async Task EnsureUserExists(string userAppId, ZapContext db, string refcode = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        public ApplicationRoleManager RoleManager
         {
-            if (userAppId != null)
+            get
             {
-                string refUserAppId = null;
-                if (refcode != null)
-                {
-                    refUserAppId = await db.Users.Where(u => u.ReferralCode == refcode).Select(u => u.AppId).FirstOrDefaultAsync();
-                }
+                return _roleManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
+            }
 
-                if (!db.Users.Where(u => u.AppId == userAppId).Any())
-                {
-                    // no user entry
-                    User u = new User()
-                    {AboutMe = "Nothing to tell.", AppId = userAppId, Name = UserManager.FindByIdAsync(userAppId).Result.UserName, ProfileImage = new UserImage(), ThumbImage = new UserImage(), Funds = new UserFunds(), Settings = new UserSettings(), DateJoined = DateTime.UtcNow, ReferralCode = CryptoService.GetNewRefCode(), // This is the code this user can hand out
- ReferralInfo = refUserAppId != null ? new Referral()
-                    {ReferredByAppId = refUserAppId, TimeStamp = DateTime.UtcNow, } : null, };
-                    db.Users.Add(u);
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    var user = await db.Users.Include(u => u.ReferralInfo).FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
-                    if (user.ReferralCode == null)
-                    {
-                        user.ReferralCode = CryptoService.GetNewRefCode();
-                    }
+            private set
+            {
+                _roleManager = value;
+            }
+        }
 
-                    if (refUserAppId != null && user.ReferralInfo == null)
-                    {
-                        user.ReferralInfo = new Referral()
-                        {ReferredByAppId = refUserAppId, TimeStamp = DateTime.UtcNow, };
-                    }
+        /// <summary>
+        /// 
+        /// </summary>
+        public ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
 
-                    if (user.Settings == null)
-                    {
-                        user.Settings = new UserSettings()
-                        {ColorTheme = "light", NotifyOnPrivateMessage = true, NotifyOnMentioned = true, NotifyOnNewPostSubscribedGroup = true, NotifyOnNewPostSubscribedUser = true, NotifyOnOwnCommentReplied = true, NotifyOnOwnPostCommented = true, NotifyOnReceivedTip = true, };
-                    }
+            private set
+            {
+                _signInManager = value;
+            }
+        }
 
-                    if (user.Languages == null)
-                    {
-                        user.Languages = "en";
-                    }
+        /// <summary>
+        /// 
+        /// </summary>
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
 
-                    if (user.LNTransactions == null)
-                    {
-                        user.LNTransactions = new List<LNTransaction>();
-                    }
-
-                    await db.SaveChangesAsync().ConfigureAwait(true);
-                }
+            private set
+            {
+                _userManager = value;
             }
         }
 
@@ -139,7 +133,10 @@ namespace zapread.com.Controllers
                 string spendOnlyBalance = userSpendOnlyBalance.ToString("0.##", CultureInfo.InvariantCulture);
                 return Json(new
                 {
-                balance, spendOnlyBalance, balanceInfo.QuickVoteOn, QuickVoteAmount = balanceInfo.QuickVoteAmount > 0 ? balanceInfo.QuickVoteAmount : 1
+                    balance,
+                    spendOnlyBalance,
+                    balanceInfo.QuickVoteOn,
+                    QuickVoteAmount = balanceInfo.QuickVoteAmount > 0 ? balanceInfo.QuickVoteAmount : 1
                 }
 
                 , JsonRequestBehavior.AllowGet);
@@ -147,10 +144,287 @@ namespace zapread.com.Controllers
 
             return Json(new
             {
-            balance = "0", spendOnlyBalance = "0"
+                balance = "0",
+                spendOnlyBalance = "0"
             }
 
             , JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Based on code from https://stackoverflow.com/questions/47300251/how-to-use-windows-speech-synthesizer-in-asp-net-mvc
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> CaptchaAudio()
+        {
+            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
+            var key = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesKey"];
+            var region = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesRegion"];
+            byte[] AudioData = await services.x64.zapread.com.SpeechServices.GetAudio(captchaCode, key, region);
+            return File(AudioData, "audio/mpeg");
+        }
+
+        /// <summary>
+        /// GET: /Account/ConfirmEmail
+        /// </summary>
+        /// <param name = "userId"></param>
+        /// <param name = "code"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> ConfirmEmail(string userId, string code)
+        {
+            XFrameOptionsDeny();
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            var result = await UserManager.ConfirmEmailAsync(userId, code).ConfigureAwait(true);
+            if (result.Succeeded)
+            {
+                using (var db = new ZapContext())
+                {
+                    var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                    var locksToRemove = user.Funds.Locks.Where(l => l.Reason == UserFundLockType.UserUpdatedEmail).ToList();
+                    db.Locks.RemoveRange(locksToRemove);
+                    //foreach(var l in locksToRemove)
+                    //{    
+                    //    user.Funds.Locks.Remove(l);
+                    //}
+                    await db.SaveChangesAsync();
+                }
+            }
+
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+        /// <summary>
+        /// POST: /Account/ExternalLogin
+        /// </summary>
+        /// <param name = "provider"></param>
+        /// <param name = "returnUrl"></param>
+        /// <returns></returns>
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        public ActionResult ExternalLogin(string provider, string returnUrl)
+        {
+            // https://stackoverflow.com/questions/20737578/asp-net-sessionid-owin-cookies-do-not-send-to-browser
+            ControllerContext.HttpContext.Session.RemoveAll();
+            // Request a redirect to the external login provider
+            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new
+            {
+                ReturnUrl = returnUrl
+            }
+
+            ));
+        }
+
+        /// <summary>
+        /// GET: /Account/ExternalLoginCallback
+        /// </summary>
+        /// <param name = "returnUrl"></param>
+        /// <returns></returns>
+        [HttpGet, AllowAnonymous]
+        public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
+        {
+            XFrameOptionsDeny();
+            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync().ConfigureAwait(true);
+            if (loginInfo == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Sign in the user with this external login provider if the user already has a login
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false).ConfigureAwait(true);
+            switch (result)
+            {
+                case SignInStatus.Success:
+                    var userId = await SignInManager.UserManager.FindAsync(loginInfo.Login).ConfigureAwait(true); //User.Identity.GetUserId();
+                    await onSignInSuccess(userId, false);
+                    return RedirectToLocal(returnUrl);
+                case SignInStatus.LockedOut:
+                    return View("Lockout");
+                case SignInStatus.RequiresVerification:
+                    return RedirectToAction("SendCode", new
+                    {
+                        ReturnUrl = returnUrl,
+                        RememberMe = false
+                    }
+
+                    );
+                case SignInStatus.Failure:
+                default:
+                    // If the user does not have an account, then prompt the user to create an account
+                    ViewBag.ReturnUrl = returnUrl;
+                    ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
+                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
+            }
+        }
+
+        /// <summary>
+        /// POST: /Account/ExternalLoginConfirmation
+        /// </summary>
+        /// <param name = "model"></param>
+        /// <param name = "returnUrl"></param>
+        /// <returns></returns>
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Manage");
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Get the information about the user from the external login provider
+                var info = await AuthenticationManager.GetExternalLoginInfoAsync().ConfigureAwait(true);
+                if (info == null)
+                {
+                    return View("ExternalLoginFailure");
+                }
+
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
+                var result = await UserManager.CreateAsync(user).ConfigureAwait(true);
+                if (result.Succeeded)
+                {
+                    result = await UserManager.AddLoginAsync(user.Id, info.Login).ConfigureAwait(true);
+                    if (result.Succeeded)
+                    {
+                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false).ConfigureAwait(true);
+                        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+                        // Send an email with this link
+                        string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id).ConfigureAwait(true);
+                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                        {
+                            userId = user.Id,
+                            code = code
+                        }
+
+                        , protocol: Request.Url.Scheme);
+                        await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>").ConfigureAwait(true);
+                        // Initialize ZapRead user with default parameters
+                        var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true);
+                        using (var db = new ZapContext())
+                        {
+                            await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
+                            var userSettings = await db.Users.Where(u => u.AppId == userId.Id).Select(u => u.Settings).FirstOrDefaultAsync();
+                            if (userSettings != null)
+                            {
+                                userSettings.AlertOnMentioned = true;
+                                userSettings.AlertOnNewPostSubscribedGroup = true;
+                                userSettings.AlertOnNewPostSubscribedUser = true;
+                                userSettings.AlertOnOwnCommentReplied = true;
+                                userSettings.AlertOnOwnPostCommented = true;
+                                userSettings.AlertOnPrivateMessage = true;
+                                userSettings.AlertOnReceivedTip = true;
+                                if (model.AcceptEmailsNotify)
+                                {
+                                    userSettings.NotifyOnMentioned = true;
+                                    userSettings.NotifyOnNewPostSubscribedGroup = true;
+                                    userSettings.NotifyOnNewPostSubscribedUser = true;
+                                    userSettings.NotifyOnOwnCommentReplied = true;
+                                    userSettings.NotifyOnOwnPostCommented = true;
+                                    userSettings.NotifyOnPrivateMessage = true;
+                                    userSettings.NotifyOnReceivedTip = true;
+                                }
+
+                                await db.SaveChangesAsync();
+                            }
+                        }
+
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                AddErrors(result);
+            }
+
+            ViewBag.ReturnUrl = returnUrl;
+            return View(model);
+        }
+
+        //
+        // GET: /Account/ExternalLoginFailure
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult ExternalLoginFailure()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        //
+        // GET: /Account/ForgotPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult ForgotPassword()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        //
+        // POST: /Account/ForgotPassword
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByEmailAsync(model.Email).ConfigureAwait(true);
+                if (user == null) // || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+                // Send an email with this link
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id).ConfigureAwait(true);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new
+                {
+                    userId = user.Id,
+                    code = code
+                }
+
+                , protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(userId: user.Id, subject: "Reset Password", body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl).ConfigureAwait(true);
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/ForgotPasswordConfirmation
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult ForgotPasswordConfirmation()
+        {
+            XFrameOptionsDeny();
+            return View();
         }
 
         /// <summary>
@@ -163,162 +437,6 @@ namespace zapread.com.Controllers
         {
             XFrameOptionsDeny();
             return RedirectToActionPermanent("Balance");
-        }
-
-        private async Task<UserBalanceInfo> GetUserBalance(string userAppId)
-        {
-            UserBalanceInfo balance;
-            if (string.IsNullOrEmpty(userAppId))
-            {
-                return new UserBalanceInfo()
-                {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
-            }
-
-            try
-            {
-                using (var db = new ZapContext())
-                {
-                    var userBalance = await db.Users.Where(u => u.AppId == userAppId && u.Funds != null).AsNoTracking().Select(u => new UserBalanceInfo()
-                    {Balance = u.Funds.Balance, SpendOnlyBalance = u.Funds.SpendOnlyBalance, QuickVoteAmount = u.Funds.QuickVoteAmount, QuickVoteOn = u.Funds.QuickVoteOn}).FirstOrDefaultAsync().ConfigureAwait(false);
-                    if (userBalance == null)
-                    {
-                        // User not found in database, or not logged in
-                        var userExists = await db.Users.Where(u => u.AppId == userAppId).AnyAsync().ConfigureAwait(false);
-                        if (userExists)
-                        {
-                            // user exists and funds is null
-                            var user_modified = await db.Users.Where(u => u.AppId == userAppId).Include(i => i.Funds).FirstOrDefaultAsync().ConfigureAwait(false);
-                            user_modified.Funds = new UserFunds()
-                            {Balance = 0.0, SpendOnlyBalance = 0.0, Id = user_modified.Id, TotalEarned = 0.0, QuickVoteOn = false, QuickVoteAmount = 10};
-                            await db.SaveChangesAsync().ConfigureAwait(false);
-                        }
-
-                        return new UserBalanceInfo()
-                        {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
-                    }
-
-                    balance = userBalance;
-                }
-            }
-            catch (Exception e)
-            {
-                BackgroundJob.Enqueue<MailingService>(x => x.SendI(new UserEmailModel()
-                {Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userAppId, Email = "", Name = "zapread.com Exception", Subject = "Account Controller error", }, "Accounts", true));
-                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
-                balance = new UserBalanceInfo()
-                {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
-            }
-
-            return balance;
-        }
-
-        /// <summary>
-        /// GET: /Account/GetLimboBalance
-        /// Returns the currently logged in user balance
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<ActionResult> GetLimboBalance()
-        {
-            XFrameOptionsDeny();
-            double userBalance = 0.0;
-            if (Request.IsAuthenticated)
-            {
-                userBalance = await GetUserLimboBalance().ConfigureAwait(true);
-            }
-
-            string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
-            return Json(new
-            {
-            balance
-            }
-
-            , JsonRequestBehavior.AllowGet);
-        }
-
-        private async Task<double> GetUserLimboBalance()
-        {
-            double balance;
-            try
-            {
-                using (var db = new ZapContext())
-                {
-                    // Get the logged in user ID
-                    var uid = User.Identity.GetUserId();
-                    var user = await db.Users.Include(i => i.Funds).AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
-                    if (user == null)
-                    {
-                        // User not found in database, or not logged in
-                        balance = 0.0;
-                    }
-                    else
-                    {
-                        if (user.Funds == null)
-                        {
-                            // Neets to be initialized
-                            var user_modified = await db.Users.Include(i => i.Funds).FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
-                            user_modified.Funds = new UserFunds()
-                            {Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0};
-                            await db.SaveChangesAsync().ConfigureAwait(true);
-                            user = user_modified;
-                        }
-
-                        balance = user.Funds.LimboBalance;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // todo: add some error logging
-                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
-                balance = 0.0;
-            }
-
-            return Math.Floor(balance);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name = "days"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetSpendingSum/{days?}")]
-        public async Task<ActionResult> GetSpendingSum(string days)
-        {
-            XFrameOptionsDeny();
-            double amount = 0.0;
-            int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
-            double totalAmount = 0.0;
-            string userId = "?";
-            try
-            {
-                // Get the logged in user ID
-                userId = User.Identity.GetUserId();
-                using (var db = new ZapContext())
-                {
-                    var sum = await db.Users.Include(i => i.SpendingEvents).Where(u => u.AppId == userId).SelectMany(u => u.SpendingEvents).Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays).SumAsync(tx => (double? )tx.Amount).ConfigureAwait(true) ?? 0;
-                    totalAmount = await db.Users.Include(i => i.SpendingEvents).Where(u => u.AppId == userId).SelectMany(u => u.SpendingEvents).SumAsync(tx => (double? )tx.Amount).ConfigureAwait(true) ?? 0;
-                    amount = sum;
-                }
-            }
-            catch (Exception e)
-            {
-                BackgroundJob.Enqueue<MailingService>(x => x.SendI(new UserEmailModel()
-                {Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + userId, Email = "", Name = "zapread.com Exception", Subject = "Account Controller error", }, "Accounts", true));
-                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
-                amount = 0.0;
-            }
-
-            string value = amount.ToString("0.##");
-            string total = totalAmount.ToString("0.##");
-            return Json(new
-            {
-            value, total
-            }
-
-            , JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -357,7 +475,33 @@ namespace zapread.com.Controllers
             string total = totalAmount.ToString("0.##", CultureInfo.InvariantCulture);
             return Json(new
             {
-            value, total
+                value,
+                total
+            }
+
+            , JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// GET: /Account/GetLimboBalance
+        /// Returns the currently logged in user balance
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetLimboBalance()
+        {
+            XFrameOptionsDeny();
+            double userBalance = 0.0;
+            if (Request.IsAuthenticated)
+            {
+                userBalance = await GetUserLimboBalance().ConfigureAwait(true);
+            }
+
+            string balance = userBalance.ToString("0.##", CultureInfo.InvariantCulture);
+            return Json(new
+            {
+                balance
             }
 
             , JsonRequestBehavior.AllowGet);
@@ -386,7 +530,7 @@ namespace zapread.com.Controllers
                     var sum = await db.Users.Include(i => i.LNTransactions).Where(u => u.AppId == userAppId).SelectMany(u => u.LNTransactions).Where(tx => DbFunctions.DiffDays(tx.TimestampSettled, DateTime.Now) <= numDays) // Filter for time
                     .Select(tx => new
                     {
-                    amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount
+                        amt = tx.IsDeposit ? tx.Amount : -1.0 * tx.Amount
                     }).SumAsync(tx => tx.amt).ConfigureAwait(true);
                     amount = sum;
                 }
@@ -401,57 +545,101 @@ namespace zapread.com.Controllers
             string value = amount.ToString("0.##", CultureInfo.InvariantCulture);
             return Json(new
             {
-            value, total = balance.ToString("0.##", CultureInfo.InvariantCulture), limbo = limboBalance.ToString("0.##", CultureInfo.InvariantCulture), }
+                value,
+                total = balance.ToString("0.##", CultureInfo.InvariantCulture),
+                limbo = limboBalance.ToString("0.##", CultureInfo.InvariantCulture),
+            }
 
             , JsonRequestBehavior.AllowGet);
         }
 
-        /* Identity aspects*/
         /// <summary>
         /// 
         /// </summary>
-        public ApplicationSignInManager SignInManager
+        /// <param name = "days"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetSpendingSum/{days?}")]
+        public async Task<ActionResult> GetSpendingSum(string days)
         {
-            get
+            XFrameOptionsDeny();
+            double amount = 0.0;
+            int numDays = Convert.ToInt32(days, CultureInfo.InvariantCulture);
+            double totalAmount = 0.0;
+            string userId = "?";
+            try
             {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+                // Get the logged in user ID
+                userId = User.Identity.GetUserId();
+                using (var db = new ZapContext())
+                {
+                    var sum = await db.Users.Include(i => i.SpendingEvents).Where(u => u.AppId == userId).SelectMany(u => u.SpendingEvents).Where(tx => DbFunctions.DiffDays(tx.TimeStamp, DateTime.Now) <= numDays).SumAsync(tx => (double?)tx.Amount).ConfigureAwait(true) ?? 0;
+                    totalAmount = await db.Users.Include(i => i.SpendingEvents).Where(u => u.AppId == userId).SelectMany(u => u.SpendingEvents).SumAsync(tx => (double?)tx.Amount).ConfigureAwait(true) ?? 0;
+                    amount = sum;
+                }
+            }
+            catch (Exception e)
+            {
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(new UserEmailModel()
+                { Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: GetSpendingSum" + "\r\n user: " + userId, Email = "", Name = "zapread.com Exception", Subject = "Account Controller error", }, "Accounts", true));
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                amount = 0.0;
             }
 
-            private set
+            string value = amount.ToString("0.##");
+            string total = totalAmount.ToString("0.##");
+            return Json(new
             {
-                _signInManager = value;
+                value,
+                total
             }
+
+            , JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
-        /// 
+        /// Lock a user account, require admin to release
         /// </summary>
-        public ApplicationUserManager UserManager
+        /// <param name = "userId"></param>
+        /// <param name = "code"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> LockAccount(string userId, string code)
         {
-            get
+            XFrameOptionsDeny();
+            if (userId == null || code == null)
             {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                return View("Error");
             }
 
-            private set
+            // validate code
+            if (!(await UserManager.VerifyUserTokenAsync(userId, "LockAccount", code)))
             {
-                _userManager = value;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ApplicationRoleManager RoleManager
-        {
-            get
-            {
-                return _roleManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
+                return View("Error");
             }
 
-            private set
+            using (var db = new ZapContext())
             {
-                _roleManager = value;
+                var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userId).FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    return View("Error");
+                }
+
+                var lockoutEnd = DateTime.UtcNow + TimeSpan.FromDays(365);
+                // If not already locked - add a lock
+                if (!user.Funds.Locks.Any(l => l.Reason == UserFundLockType.UserRequestedLock))
+                {
+                    user.Funds.Locks.Add(new FundsLock()
+                    { TimeStampStarted = DateTime.UtcNow, TimeStampExpired = lockoutEnd, Reason = UserFundLockType.UserRequestedLock, DepositLocked = false, SpendLocked = true, TransferLocked = true, WithdrawLocked = true, });
+                }
+
+                await db.SaveChangesAsync();
+                await UserManager.SetLockoutEnabledAsync(userId, true);
+                await UserManager.SetLockoutEndDateAsync(userId, lockoutEnd);
+                AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                return View("Locked");
             }
         }
 
@@ -500,7 +688,7 @@ namespace zapread.com.Controllers
                 var authenticationManager = HttpContext.GetOwinContext().Authentication;
                 authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
                 authenticationManager.SignIn(new AuthenticationProperties()
-                {IsPersistent = false}, identityToImpersonate);
+                { IsPersistent = false }, identityToImpersonate);
                 result = SignInStatus.Success;
                 model.UserName = userNameToImpersonate;
             }
@@ -514,38 +702,20 @@ namespace zapread.com.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                {
-                    var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true); //User.Identity.GetUserId();
-                    using (var db = new ZapContext())
                     {
-                        await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                        // Apply claims
-                        var u = db.Users.Where(us => us.AppId == userId.Id).First();
-                        //await UserManager.AddClaimAsync(userId.Id, new Claim("ColorTheme", u.Settings.ColorTheme));
-                        var identity = await UserManager.CreateIdentityAsync(userId, DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
-                        identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
-                        try
-                        {
-                            var authenticationManager = HttpContext.GetOwinContext().Authentication;
-                            authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-                            authenticationManager.SignIn(new AuthenticationProperties()
-                            {IsPersistent = model.RememberMe}, identity);
-                        }
-                        catch (Exception)
-                        {
-                        // Need to better handle this
-                        }
-                    }
+                        var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true); //User.Identity.GetUserId();
+                        await onSignInSuccess(userId, model.RememberMe);
 
-                    return RedirectToLocal(returnUrl);
-                }
+                        return RedirectToLocal(returnUrl);
+                    }
 
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
                     return RedirectToAction("SendCode", new
                     {
-                    ReturnUrl = returnUrl, RememberMe = model.RememberMe
+                        ReturnUrl = returnUrl,
+                        RememberMe = model.RememberMe
                     }
 
                     );
@@ -556,68 +726,51 @@ namespace zapread.com.Controllers
             }
         }
 
-        //
-        // GET: /Account/VerifyCode
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name = "provider"></param>
-        /// <param name = "returnUrl"></param>
-        /// <param name = "rememberMe"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
+        private async Task onSignInSuccess(ApplicationUser userId, bool persistLogin)
         {
-            XFrameOptionsDeny();
-            // Require that the user has already logged in via username/password or external login
-            if (!await SignInManager.HasBeenVerifiedAsync())
+            using (var db = new ZapContext())
             {
-                return View("Error");
-            }
+                await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
+                // Apply claims
+                var u = db.Users.Where(us => us.AppId == userId.Id).First();
+                //await UserManager.AddClaimAsync(userId.Id, new Claim("ColorTheme", u.Settings.ColorTheme));
+                var identity = await UserManager.CreateIdentityAsync(userId, DefaultAuthenticationTypes.ApplicationCookie).ConfigureAwait(true);
+                identity.AddClaim(new Claim("ColorTheme", u.Settings.ColorTheme ?? "light"));
 
-            return View(new VerifyCodeViewModel{Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe});
+                // Create claims for each participating Beta test
+                foreach (var b in u.Betas.Where(i => !i.IsDisabled))
+                {
+                    identity.AddClaim(new Claim("Beta-" + b.Name, "1"));
+                }
+                
+                try
+                {
+                    var authenticationManager = HttpContext.GetOwinContext().Authentication;
+                    authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                    authenticationManager.SignIn(new AuthenticationProperties()
+                    { IsPersistent = persistLogin }, identity);
+                }
+                catch (Exception)
+                {
+                    // Need to better handle this
+                }
+            }
         }
 
-        //
-        // POST: /Account/VerifyCode
         /// <summary>
-        /// 
+        /// POST: /Account/LogOff
         /// </summary>
-        /// <param name = "model"></param>
         /// <returns></returns>
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> VerifyCode(VerifyCodeViewModel model)
+        public ActionResult LogOff()
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            // The following code protects for brute force attacks against the two factor codes. 
-            // If a user enters incorrect codes for a specified amount of time then the user account 
-            // will be locked out for a specified amount of time. 
-            // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
-            switch (result)
-            {
-                case SignInStatus.Success:
-                    return RedirectToLocal(model.ReturnUrl);
-                case SignInStatus.LockedOut:
-                    return View("Lockout");
-                case SignInStatus.Failure:
-                default:
-                    ModelState.AddModelError("", "Invalid code.");
-                    return View(model);
-            }
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Index", "Home");
         }
 
-        //
-        // GET: /Account/Register
         /// <summary>
-        /// 
+        /// GET: /Account/Register
         /// </summary>
         /// <param name = "refcode">Referral code</param>
         /// <returns></returns>
@@ -629,32 +782,12 @@ namespace zapread.com.Controllers
             Session["Captcha"] = code; // Save to session (encrypted in cookie)
             XFrameOptionsDeny();
             var vm = new RegisterViewModel()
-            {AcceptEmailsNotify = true, CaptchaSrcB64 = captchaSrcB64, RefCode = refcode, };
+            { AcceptEmailsNotify = true, CaptchaSrcB64 = captchaSrcB64, RefCode = refcode, };
             return View(vm);
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public async Task<ActionResult> SendEmailConfirmation()
-        {
-            var userId = User.Identity.GetUserId();
-            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
-            var callbackUrl = Url.Action("ConfirmEmail", "Account", new
-            {
-            userId = userId, code = code
-            }
-
-            , protocol: Request.Url.Scheme);
-            await UserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
-            return RedirectToAction(actionName: "Index", controllerName: "Manage", routeValues: null);
-        }
-
-        //
-        // POST: /Account/Register
-        /// <summary>
-        /// 
+        /// POST: /Account/Register
         /// </summary>
         /// <param name = "model"></param>
         /// <returns></returns>
@@ -685,7 +818,7 @@ namespace zapread.com.Controllers
 
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser{UserName = model.UserName, Email = model.Email};
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password).ConfigureAwait(true);
                 if (result.Succeeded)
                 {
@@ -695,7 +828,8 @@ namespace zapread.com.Controllers
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id).ConfigureAwait(true);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new
                     {
-                    userId = user.Id, code = code
+                        userId = user.Id,
+                        code = code
                     }
 
                     , protocol: Request.Url.Scheme);
@@ -736,7 +870,7 @@ namespace zapread.com.Controllers
                     }
                     catch (Exception)
                     {
-                    // Not a big deal right now
+                        // Not a big deal right now
                     }
 
                     return RedirectToAction("Index", "Home");
@@ -753,242 +887,7 @@ namespace zapread.com.Controllers
         }
 
         /// <summary>
-        /// Based on code from https://stackoverflow.com/questions/47300251/how-to-use-windows-speech-synthesizer-in-asp-net-mvc
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<ActionResult> CaptchaAudio()
-        {
-            var captchaCode = ControllerContext.HttpContext.Session["Captcha"].ToString();
-            var key = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesKey"];
-            var region = System.Configuration.ConfigurationManager.AppSettings["SpeechServicesRegion"];
-            byte[] AudioData = await services.x64.zapread.com.SpeechServices.GetAudio(captchaCode, key, region);
-            return File(AudioData, "audio/mpeg");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name = "Email"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        public async Task<ActionResult> UpdateEmail(string Email)
-        {
-            var userAppId = User.Identity.GetUserId();
-            if (userAppId == null)
-                return Json(new
-                {
-                success = false
-                }
-
-                );
-            var userInfo = await UserManager.FindByIdAsync(userAppId);
-            if (userInfo.Email == Email)
-            {
-                return Json(new
-                {
-                success = false, message = "Requested email address is the same as existing."
-                }
-
-                );
-            }
-
-            using (var db = new ZapContext())
-            {
-                var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userAppId).FirstOrDefaultAsync();
-                if (user == null)
-                    return Json(new
-                    {
-                    success = false
-                    }
-
-                    );
-                string code = await UserManager.GenerateUserTokenAsync("LockAccount", userInfo.Id).ConfigureAwait(true);
-                var lockUrl = Url.Action("LockAccount", "Account", new
-                {
-                userId = userAppId, code = code
-                }
-
-                , protocol: Request.Url.Scheme);
-                await UserManager.SendEmailAsync(userId: userInfo.Id, subject: "Email updated", body: "Your email address has been updated to " + Email + "<br/>" + "<br/>" + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance." + "<br/>").ConfigureAwait(true);
-                userInfo.Email = Email;
-                userInfo.EmailConfirmed = false;
-                await UserManager.UpdateAsync(userInfo);
-                code = await UserManager.GenerateEmailConfirmationTokenAsync(userAppId).ConfigureAwait(true);
-                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
-                {
-                userId = userAppId, code = code
-                }
-
-                , protocol: Request.Url.Scheme);
-                await UserManager.SendEmailAsync(userId: userInfo.Id, subject: "Confirm your email", body: "Your email address has been updated." + "<br/>" + "<br/>" + "Please confirm your new email by clicking or navigating to the following link: <br/><a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>" + "<br/>" + "<br/>" + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance.").ConfigureAwait(true);
-                user.Funds.Locks.Add(new FundsLock()
-                {WithdrawLocked = true, TimeStampStarted = DateTime.UtcNow, TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(1), Description = "Email address updated", Reason = UserFundLockType.UserUpdatedEmail});
-                await db.SaveChangesAsync();
-                return Json(new
-                {
-                success = true
-                }
-
-                );
-            }
-        }
-
-        /// <summary>
-        /// Lock a user account, require admin to release
-        /// </summary>
-        /// <param name = "userId"></param>
-        /// <param name = "code"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<ActionResult> LockAccount(string userId, string code)
-        {
-            XFrameOptionsDeny();
-            if (userId == null || code == null)
-            {
-                return View("Error");
-            }
-
-            // validate code
-            if (!(await UserManager.VerifyUserTokenAsync(userId, "LockAccount", code)))
-            {
-                return View("Error");
-            }
-
-            using (var db = new ZapContext())
-            {
-                var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userId).FirstOrDefaultAsync();
-                if (user == null)
-                {
-                    return View("Error");
-                }
-
-                var lockoutEnd = DateTime.UtcNow + TimeSpan.FromDays(365);
-                // If not already locked - add a lock
-                if (!user.Funds.Locks.Any(l => l.Reason == UserFundLockType.UserRequestedLock))
-                {
-                    user.Funds.Locks.Add(new FundsLock()
-                    {TimeStampStarted = DateTime.UtcNow, TimeStampExpired = lockoutEnd, Reason = UserFundLockType.UserRequestedLock, DepositLocked = false, SpendLocked = true, TransferLocked = true, WithdrawLocked = true, });
-                }
-
-                await db.SaveChangesAsync();
-                await UserManager.SetLockoutEnabledAsync(userId, true);
-                await UserManager.SetLockoutEndDateAsync(userId, lockoutEnd);
-                AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-                return View("Locked");
-            }
-        }
-
-        //
-        // GET: /Account/ConfirmEmail
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name = "userId"></param>
-        /// <param name = "code"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<ActionResult> ConfirmEmail(string userId, string code)
-        {
-            XFrameOptionsDeny();
-            if (userId == null || code == null)
-            {
-                return View("Error");
-            }
-
-            var result = await UserManager.ConfirmEmailAsync(userId, code).ConfigureAwait(true);
-            if (result.Succeeded)
-            {
-                using (var db = new ZapContext())
-                {
-                    var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userId).FirstOrDefaultAsync();
-                    var locksToRemove = user.Funds.Locks.Where(l => l.Reason == UserFundLockType.UserUpdatedEmail).ToList();
-                    db.Locks.RemoveRange(locksToRemove);
-                    //foreach(var l in locksToRemove)
-                    //{    
-                    //    user.Funds.Locks.Remove(l);
-                    //}
-                    await db.SaveChangesAsync();
-                }
-            }
-
-            return View(result.Succeeded ? "ConfirmEmail" : "Error");
-        }
-
-        //
-        // GET: /Account/ForgotPassword
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public ActionResult ForgotPassword()
-        {
-            XFrameOptionsDeny();
-            return View();
-        }
-
-        //
-        // POST: /Account/ForgotPassword
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name = "model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await UserManager.FindByEmailAsync(model.Email).ConfigureAwait(true);
-                if (user == null) // || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
-                }
-
-                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id).ConfigureAwait(true);
-                var callbackUrl = Url.Action("ResetPassword", "Account", new
-                {
-                userId = user.Id, code = code
-                }
-
-                , protocol: Request.Url.Scheme);
-                await UserManager.SendEmailAsync(userId: user.Id, subject: "Reset Password", body: "Your username is " + user.UserName + ".<br/>Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>, or pasting the following address into your browser: " + callbackUrl).ConfigureAwait(true);
-                return RedirectToAction("ForgotPasswordConfirmation", "Account");
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // GET: /Account/ForgotPasswordConfirmation
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public ActionResult ForgotPasswordConfirmation()
-        {
-            XFrameOptionsDeny();
-            return View();
-        }
-
-        //
-        // GET: /Account/ResetPassword
-        /// <summary>
-        /// 
+        /// GET: /Account/ResetPassword
         /// </summary>
         /// <param name = "code"></param>
         /// <returns></returns>
@@ -1046,28 +945,6 @@ namespace zapread.com.Controllers
             return View();
         }
 
-        /// <summary>
-        /// POST: /Account/ExternalLogin
-        /// </summary>
-        /// <param name = "provider"></param>
-        /// <param name = "returnUrl"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ExternalLogin(string provider, string returnUrl)
-        {
-            // https://stackoverflow.com/questions/20737578/asp-net-sessionid-owin-cookies-do-not-send-to-browser
-            ControllerContext.HttpContext.Session.RemoveAll();
-            // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new
-            {
-            ReturnUrl = returnUrl
-            }
-
-            ));
-        }
-
         //
         // GET: /Account/SendCode
         /// <summary>
@@ -1101,8 +978,8 @@ namespace zapread.com.Controllers
                 userFactors.Remove("Google Authenticator");
             }
 
-            var factorOptions = userFactors.Select(purpose => new SelectListItem{Text = purpose, Value = purpose}).ToList();
-            return View(new SendCodeViewModel{Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe});
+            var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
+            return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
         //
@@ -1130,166 +1007,161 @@ namespace zapread.com.Controllers
 
             return RedirectToAction("VerifyCode", new
             {
-            Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe
+                Provider = model.SelectedProvider,
+                ReturnUrl = model.ReturnUrl,
+                RememberMe = model.RememberMe
             }
 
             );
         }
 
-        //
-        // GET: /Account/ExternalLoginCallback
         /// <summary>
         /// 
         /// </summary>
-        /// <param name = "returnUrl"></param>
         /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
+        public async Task<ActionResult> SendEmailConfirmation()
         {
-            XFrameOptionsDeny();
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync().ConfigureAwait(true);
-            if (loginInfo == null)
+            var userId = User.Identity.GetUserId();
+            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userId);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new
             {
-                return RedirectToAction("Login");
+                userId = userId,
+                code = code
             }
 
-            // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false).ConfigureAwait(true);
-            switch (result)
+            , protocol: Request.Url.Scheme);
+            await UserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>");
+            return RedirectToAction(actionName: "Index", controllerName: "Manage", routeValues: null);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "Email"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<ActionResult> UpdateEmail(string Email)
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (userAppId == null)
+                return Json(new
+                {
+                    success = false
+                }
+
+                );
+            var userInfo = await UserManager.FindByIdAsync(userAppId);
+            if (userInfo.Email == Email)
             {
-                case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
-                case SignInStatus.LockedOut:
-                    return View("Lockout");
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new
+                return Json(new
+                {
+                    success = false,
+                    message = "Requested email address is the same as existing."
+                }
+
+                );
+            }
+
+            using (var db = new ZapContext())
+            {
+                var user = await db.Users.Include(u => u.Funds).Include(u => u.Funds.Locks).Where(u => u.AppId == userAppId).FirstOrDefaultAsync();
+                if (user == null)
+                    return Json(new
                     {
-                    ReturnUrl = returnUrl, RememberMe = false
+                        success = false
                     }
 
                     );
-                case SignInStatus.Failure:
-                default:
-                    // If the user does not have an account, then prompt the user to create an account
-                    ViewBag.ReturnUrl = returnUrl;
-                    ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel{Email = loginInfo.Email});
+                string code = await UserManager.GenerateUserTokenAsync("LockAccount", userInfo.Id).ConfigureAwait(true);
+                var lockUrl = Url.Action("LockAccount", "Account", new
+                {
+                    userId = userAppId,
+                    code = code
+                }
+
+                , protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(userId: userInfo.Id, subject: "Email updated", body: "Your email address has been updated to " + Email + "<br/>" + "<br/>" + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance." + "<br/>").ConfigureAwait(true);
+                userInfo.Email = Email;
+                userInfo.EmailConfirmed = false;
+                await UserManager.UpdateAsync(userInfo);
+                code = await UserManager.GenerateEmailConfirmationTokenAsync(userAppId).ConfigureAwait(true);
+                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userId = userAppId,
+                    code = code
+                }
+
+                , protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(userId: userInfo.Id, subject: "Confirm your email", body: "Your email address has been updated." + "<br/>" + "<br/>" + "Please confirm your new email by clicking or navigating to the following link: <br/><a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>" + "<br/>" + "<br/>" + "If this was not requested by you, please <a href=\"" + lockUrl + "\">" + "click here</a> to lock your account. Contact accounts@zapread.com for assistance.").ConfigureAwait(true);
+                user.Funds.Locks.Add(new FundsLock()
+                { WithdrawLocked = true, TimeStampStarted = DateTime.UtcNow, TimeStampExpired = DateTime.UtcNow + TimeSpan.FromDays(1), Description = "Email address updated", Reason = UserFundLockType.UserUpdatedEmail });
+                await db.SaveChangesAsync();
+                return Json(new
+                {
+                    success = true
+                }
+
+                );
             }
         }
 
         //
-        // POST: /Account/ExternalLoginConfirmation
+        // GET: /Account/VerifyCode
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "provider"></param>
+        /// <param name = "returnUrl"></param>
+        /// <param name = "rememberMe"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
+        {
+            XFrameOptionsDeny();
+            // Require that the user has already logged in via username/password or external login
+            if (!await SignInManager.HasBeenVerifiedAsync())
+            {
+                return View("Error");
+            }
+
+            return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
+        }
+
+        //
+        // POST: /Account/VerifyCode
         /// <summary>
         /// 
         /// </summary>
         /// <param name = "model"></param>
-        /// <param name = "returnUrl"></param>
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl)
+        public async Task<ActionResult> VerifyCode(VerifyCodeViewModel model)
         {
-            if (User.Identity.IsAuthenticated)
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction("Index", "Manage");
+                return View(model);
             }
 
-            if (ModelState.IsValid)
+            // The following code protects for brute force attacks against the two factor codes. 
+            // If a user enters incorrect codes for a specified amount of time then the user account 
+            // will be locked out for a specified amount of time. 
+            // You can configure the account lockout settings in IdentityConfig
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
+            switch (result)
             {
-                // Get the information about the user from the external login provider
-                var info = await AuthenticationManager.GetExternalLoginInfoAsync().ConfigureAwait(true);
-                if (info == null)
-                {
-                    return View("ExternalLoginFailure");
-                }
-
-                var user = new ApplicationUser{UserName = model.UserName, Email = model.Email};
-                var result = await UserManager.CreateAsync(user).ConfigureAwait(true);
-                if (result.Succeeded)
-                {
-                    result = await UserManager.AddLoginAsync(user.Id, info.Login).ConfigureAwait(true);
-                    if (result.Succeeded)
-                    {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false).ConfigureAwait(true);
-                        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                        // Send an email with this link
-                        string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id).ConfigureAwait(true);
-                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new
-                        {
-                        userId = user.Id, code = code
-                        }
-
-                        , protocol: Request.Url.Scheme);
-                        await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking or navigating to the following link: <a href=\"" + callbackUrl + "\">" + callbackUrl + "</a>").ConfigureAwait(true);
-                        // Initialize ZapRead user with default parameters
-                        var userId = await UserManager.FindByNameAsync(model.UserName).ConfigureAwait(true);
-                        using (var db = new ZapContext())
-                        {
-                            await EnsureUserExists(userId.Id, db).ConfigureAwait(true);
-                            var userSettings = await db.Users.Where(u => u.AppId == userId.Id).Select(u => u.Settings).FirstOrDefaultAsync();
-                            if (userSettings != null)
-                            {
-                                userSettings.AlertOnMentioned = true;
-                                userSettings.AlertOnNewPostSubscribedGroup = true;
-                                userSettings.AlertOnNewPostSubscribedUser = true;
-                                userSettings.AlertOnOwnCommentReplied = true;
-                                userSettings.AlertOnOwnPostCommented = true;
-                                userSettings.AlertOnPrivateMessage = true;
-                                userSettings.AlertOnReceivedTip = true;
-                                if (model.AcceptEmailsNotify)
-                                {
-                                    userSettings.NotifyOnMentioned = true;
-                                    userSettings.NotifyOnNewPostSubscribedGroup = true;
-                                    userSettings.NotifyOnNewPostSubscribedUser = true;
-                                    userSettings.NotifyOnOwnCommentReplied = true;
-                                    userSettings.NotifyOnOwnPostCommented = true;
-                                    userSettings.NotifyOnPrivateMessage = true;
-                                    userSettings.NotifyOnReceivedTip = true;
-                                }
-
-                                await db.SaveChangesAsync();
-                            }
-                        }
-
-                        return RedirectToAction("Index", "Home");
-                    }
-                }
-
-                AddErrors(result);
+                case SignInStatus.Success:
+                    return RedirectToLocal(model.ReturnUrl);
+                case SignInStatus.LockedOut:
+                    return View("Lockout");
+                case SignInStatus.Failure:
+                default:
+                    ModelState.AddModelError("", "Invalid code.");
+                    return View(model);
             }
-
-            ViewBag.ReturnUrl = returnUrl;
-            return View(model);
-        }
-
-        //
-        // POST: /Account/LogOff
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult LogOff()
-        {
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
-        }
-
-        //
-        // GET: /Account/ExternalLoginFailure
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpGet]
-        public ActionResult ExternalLoginFailure()
-        {
-            XFrameOptionsDeny();
-            return View();
         }
 
         /// <summary>
@@ -1316,6 +1188,157 @@ namespace zapread.com.Controllers
             base.Dispose(disposing);
         }
 
+        private async Task EnsureUserExists(string userAppId, ZapContext db, string refcode = null)
+        {
+            if (userAppId != null)
+            {
+                string refUserAppId = null;
+                if (refcode != null)
+                {
+                    refUserAppId = await db.Users.Where(u => u.ReferralCode == refcode).Select(u => u.AppId).FirstOrDefaultAsync();
+                }
+
+                if (!db.Users.Where(u => u.AppId == userAppId).Any())
+                {
+                    // no user entry
+                    User u = new User()
+                    {
+                        AboutMe = "Nothing to tell.",
+                        AppId = userAppId,
+                        Name = UserManager.FindByIdAsync(userAppId).Result.UserName,
+                        ProfileImage = new UserImage(),
+                        ThumbImage = new UserImage(),
+                        Funds = new UserFunds(),
+                        Settings = new UserSettings(),
+                        DateJoined = DateTime.UtcNow,
+                        ReferralCode = CryptoService.GetNewRefCode(), // This is the code this user can hand out
+                        ReferralInfo = refUserAppId != null ? new Referral()
+                        { ReferredByAppId = refUserAppId, TimeStamp = DateTime.UtcNow, } : null,
+                    };
+                    db.Users.Add(u);
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    var user = await db.Users.Include(u => u.ReferralInfo).FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+                    if (user.ReferralCode == null)
+                    {
+                        user.ReferralCode = CryptoService.GetNewRefCode();
+                    }
+
+                    if (refUserAppId != null && user.ReferralInfo == null)
+                    {
+                        user.ReferralInfo = new Referral()
+                        {ReferredByAppId = refUserAppId, TimeStamp = DateTime.UtcNow, };
+                    }
+
+                    if (user.Settings == null)
+                    {
+                        user.Settings = new UserSettings()
+                        {ColorTheme = "light", NotifyOnPrivateMessage = true, NotifyOnMentioned = true, NotifyOnNewPostSubscribedGroup = true, NotifyOnNewPostSubscribedUser = true, NotifyOnOwnCommentReplied = true, NotifyOnOwnPostCommented = true, NotifyOnReceivedTip = true, };
+                    }
+
+                    if (user.Languages == null)
+                    {
+                        user.Languages = "en";
+                    }
+
+                    if (user.LNTransactions == null)
+                    {
+                        user.LNTransactions = new List<LNTransaction>();
+                    }
+
+                    await db.SaveChangesAsync().ConfigureAwait(true);
+                }
+            }
+        }
+        private async Task<UserBalanceInfo> GetUserBalance(string userAppId)
+        {
+            UserBalanceInfo balance;
+            if (string.IsNullOrEmpty(userAppId))
+            {
+                return new UserBalanceInfo()
+                {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
+            }
+
+            try
+            {
+                using (var db = new ZapContext())
+                {
+                    var userBalance = await db.Users.Where(u => u.AppId == userAppId && u.Funds != null).AsNoTracking().Select(u => new UserBalanceInfo()
+                    {Balance = u.Funds.Balance, SpendOnlyBalance = u.Funds.SpendOnlyBalance, QuickVoteAmount = u.Funds.QuickVoteAmount, QuickVoteOn = u.Funds.QuickVoteOn}).FirstOrDefaultAsync().ConfigureAwait(false);
+                    if (userBalance == null)
+                    {
+                        // User not found in database, or not logged in
+                        var userExists = await db.Users.Where(u => u.AppId == userAppId).AnyAsync().ConfigureAwait(false);
+                        if (userExists)
+                        {
+                            // user exists and funds is null
+                            var user_modified = await db.Users.Where(u => u.AppId == userAppId).Include(i => i.Funds).FirstOrDefaultAsync().ConfigureAwait(false);
+                            user_modified.Funds = new UserFunds()
+                            {Balance = 0.0, SpendOnlyBalance = 0.0, Id = user_modified.Id, TotalEarned = 0.0, QuickVoteOn = false, QuickVoteAmount = 10};
+                            await db.SaveChangesAsync().ConfigureAwait(false);
+                        }
+
+                        return new UserBalanceInfo()
+                        {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
+                    }
+
+                    balance = userBalance;
+                }
+            }
+            catch (Exception e)
+            {
+                BackgroundJob.Enqueue<MailingService>(x => x.SendI(new UserEmailModel()
+                {Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n method: UserBalance" + "\r\n user: " + userAppId, Email = "", Name = "zapread.com Exception", Subject = "Account Controller error", }, "Accounts", true));
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                balance = new UserBalanceInfo()
+                {Balance = 0.0, SpendOnlyBalance = 0.0, QuickVoteAmount = 10, QuickVoteOn = false, };
+            }
+
+            return balance;
+        }
+        private async Task<double> GetUserLimboBalance()
+        {
+            double balance;
+            try
+            {
+                using (var db = new ZapContext())
+                {
+                    // Get the logged in user ID
+                    var uid = User.Identity.GetUserId();
+                    var user = await db.Users.Include(i => i.Funds).AsNoTracking().FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+                    if (user == null)
+                    {
+                        // User not found in database, or not logged in
+                        balance = 0.0;
+                    }
+                    else
+                    {
+                        if (user.Funds == null)
+                        {
+                            // Neets to be initialized
+                            var user_modified = await db.Users.Include(i => i.Funds).FirstOrDefaultAsync(u => u.AppId == uid).ConfigureAwait(true);
+                            user_modified.Funds = new UserFunds()
+                            {Balance = 0.0, Id = user_modified.Id, TotalEarned = 0.0};
+                            await db.SaveChangesAsync().ConfigureAwait(true);
+                            user = user_modified;
+                        }
+
+                        balance = user.Funds.LimboBalance;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // todo: add some error logging
+                // If we have an exception, it is possible a user is trying to abuse the system.  Return 0 to be uninformative.
+                balance = 0.0;
+            }
+
+            return Math.Floor(balance);
+        }
+        /* Identity aspects*/
 #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";

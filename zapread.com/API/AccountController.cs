@@ -8,11 +8,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using zapread.com.Database;
+using zapread.com.Models.Account;
 using zapread.com.Models.API;
 using zapread.com.Models.API.Account;
 using zapread.com.Models.API.Account.Transactions;
 using zapread.com.Models.API.DataTables;
 using zapread.com.Models.Database;
+using zapread.com.Models.Subscription;
+using zapread.com.Services;
 
 namespace zapread.com.API
 {
@@ -21,6 +24,129 @@ namespace zapread.com.API
     /// </summary>
     public class AccountController : ApiController
     {
+        private IPointOfSaleService pointOfSaleService;
+
+        /// <summary>
+        /// Constructor for DI
+        /// </summary>
+        /// <param name="pointOfSaleService"></param>
+        public AccountController(IPointOfSaleService pointOfSaleService)
+        {
+            this.pointOfSaleService = pointOfSaleService;
+        }
+
+        /// <summary>
+        /// Subscribe
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Authorize, AcceptVerbs("POST"), Route("api/v1/account/purchases/subscriptions/subscribe")]
+        public async Task<IHttpActionResult> Subscribe(SubscribeRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
+
+            var result = await pointOfSaleService.Subscribe(userAppId, req.CardToken, req.VerificationToken, req.PlanId, req.CustomerEmail, req.FirstName, req.LastName);
+
+            return Ok(new ZapReadResponse() { 
+                success = result
+            });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Authorize, AcceptVerbs("POST"), Route("api/v1/account/purchases/subscriptions/unsubscribe")]
+        public async Task<IHttpActionResult> Unsubscribe(SubscribeRequest req)
+        {
+            if (req == null) return BadRequest();
+
+            var userAppId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
+
+            try
+            {
+                var result = await pointOfSaleService.Unsubscribe(userAppId, req.SubscriptionId);
+
+                return Ok(new ZapReadResponse()
+                {
+                    success = result
+                });
+            }
+            catch (Exception e)
+            {
+                return Ok(new ZapReadResponse()
+                {
+                    success = false,
+                    message = e.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "req"></param>
+        /// <returns></returns>
+        [Authorize, AcceptVerbs("GET"), Route("api/v1/account/purchases/subscriptions")]
+        public async Task<IHttpActionResult> Subscriptions()
+        {
+            var userAppId = User.Identity.GetUserId();
+            if (string.IsNullOrEmpty(userAppId)) return Unauthorized();
+            
+            using (var db = new ZapContext())
+            {
+                bool useTest = System.Configuration.ConfigurationManager.AppSettings["SquareEnvironment"] == "Sandbox";
+
+                var subscriptions = await db.SubscriptionPlans
+                    .Where(p => p.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                    .Select(p => new GetSubscriptionsResponse.SubscriptionItem()
+                    {
+                        Id = p.Id.ToString(),
+                        Name = p.Name,
+                        PlanId = p.PlanId,
+                        Price = p.Price/100,
+                        Subtitle = p.Subtitle,
+                        DescriptionHTML = p.DescriptionHTML,
+                        IsSubscribed = p.Subscriptions
+                            .Where(s => s.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                            .Where(s => s.IsActive)
+                            .Select(s => s.User.AppId).Contains(userAppId),
+                        SubscriptionId = p.Subscriptions
+                            .Where(s => s.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                            .Where(s => s.User.AppId == userAppId)
+                            .Select(s => s.SubscriptionId)
+                            .FirstOrDefault(),
+                        IsEnding = p.Subscriptions
+                            .Where(s => s.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                            .Where(s => s.IsActive)
+                            .Where(s => s.User.AppId == userAppId)
+                            .Select(s => s.IsEnding)
+                            .FirstOrDefault(),
+                        EndDate = p.Subscriptions
+                            .Where(s => s.Provider == (useTest ? POSProviderTypes.SquareSandbox : POSProviderTypes.SquareProduction))
+                            .Where(s => s.IsActive)
+                            .Where(s => s.User.AppId == userAppId)
+                            .Select(s => s.EndDate)
+                            .FirstOrDefault(),
+                    })
+                    .OrderBy(p => p.Price)
+                    .ToListAsync();
+
+                return Ok(new GetSubscriptionsResponse() 
+                { 
+                    success = true,
+                    Subscriptions = subscriptions,
+                    ApplicationId = useTest ? System.Configuration.ConfigurationManager.AppSettings["SquareSandboxAppId"] : System.Configuration.ConfigurationManager.AppSettings["SquareProductionAppId"],
+                    LocationId = useTest ? System.Configuration.ConfigurationManager.AppSettings["SquareZRSandboxLocationId"] : System.Configuration.ConfigurationManager.AppSettings["SquareZRProductionLocationId"]
+                });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

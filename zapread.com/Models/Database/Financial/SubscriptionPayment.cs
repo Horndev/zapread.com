@@ -32,11 +32,30 @@ namespace zapread.com.Models.Database.Financial
         /// <summary>
         /// 
         /// </summary>
+        public string InvoiceId { get; set; }
+
+        ///
+        public string ReceiptUrl { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsPaid { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public double BTCPrice { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         public double BalanceAwarded { get; set; }
+
+        /// <summary>
+        /// Versioning for optimistic concurrency
+        /// </summary>
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

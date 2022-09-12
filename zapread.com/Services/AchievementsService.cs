@@ -19,7 +19,7 @@ namespace zapread.com.Services
     /// [ ] Total Spent > 5000000 Sats
     /// [ ] Total Spent > 10000000 Sats
     /// [ ] Total Spent > 50000000 Sats
-    /// [ ] Total Spent > 100000000 Sats  < - 1 BTC
+    /// [ ] Total Spent > 100000000 Sats  1 BTC
     /// 
     /// </summary>
     public class AchievementsService

@@ -71,6 +71,7 @@ namespace zapread.com
             BundlePage(bundles, "admin", "index");
             BundlePage(bundles, "admin", "jobs");
             BundlePage(bundles, "admin", "lightning");
+            BundlePage(bundles, "admin", "pos");
             BundlePage(bundles, "admin", "reactions");
             BundlePage(bundles, "admin", "users");
             BundlePage(bundles, "group", "detail");
@@ -90,6 +91,7 @@ namespace zapread.com
             BundlePage(bundles, "manage", "default");
             BundlePage(bundles, "manage", "financial");
             BundlePage(bundles, "manage", "index");
+            BundlePage(bundles, "manage", "purchases");
             BundlePage(bundles, "messages", "alerts");
             BundlePage(bundles, "messages", "all");
             BundlePage(bundles, "messages", "chat");

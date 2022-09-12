@@ -3,6 +3,9 @@
     using System;
     using System.Data.Entity.Migrations;
     
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class AddPointOfSale : DbMigration
     {
         /// <summary>

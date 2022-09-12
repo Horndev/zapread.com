@@ -40,6 +40,7 @@ namespace zapread.com.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
         private IEventService eventService;
+
         /// <summary>
         /// default constructor
         /// </summary>
@@ -100,6 +101,17 @@ namespace zapread.com.Controllers
         /// <returns></returns>
         [HttpGet]
         public ActionResult Financial()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        /// <summary>
+        /// Subscriptions and purchases
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult Purchases()
         {
             XFrameOptionsDeny();
             return View();

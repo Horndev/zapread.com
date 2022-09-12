@@ -20,6 +20,9 @@ namespace zapread.com.Models.Database.Financial
 
         /// <summary>
         /// 0 = Square
+        /// 99 = Square Test
+        /// 
+        /// See zapread.com.Models.Subscription.POSProviderTypes
         /// </summary>
         public int Provider { get; set; }
 
@@ -36,6 +39,16 @@ namespace zapread.com.Models.Database.Financial
         /// <summary>
         /// 
         /// </summary>
+        public string Subtitle { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string DescriptionHTML { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public double Price { get; set; }
 
         /// <summary>
@@ -47,6 +60,11 @@ namespace zapread.com.Models.Database.Financial
         /// 
         /// </summary>
         public string Cadence { get; set; }
+
+        /// <summary>
+        /// Plan is not being used anymore
+        /// </summary>
+        public bool IsDisabled { get; set; }
 
         /// <summary>
         /// 

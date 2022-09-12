@@ -58,6 +58,9 @@ namespace zapread.com.Models.Database
         public virtual UserImage ThumbImage { get; set; }
         public virtual UserImage ProfileImage { get; set; }
 
+        [InverseProperty("Users")]
+        public virtual ICollection<BetaTest> Betas { get; set; }
+
         [InverseProperty("ReportedBy")]
         public virtual ICollection<UserContentReport> UserReports { get; set; }
 
