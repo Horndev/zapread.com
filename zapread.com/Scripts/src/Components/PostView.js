@@ -90,22 +90,6 @@ export default function PostView(props) {
         }
       }, 3000);
 
-      // This will trigger after render - check if the readmore button needs to be displayed
-      //window.requestAnimationFrame(function () {
-      //  if (node !== undefined) {
-      //    var height = parseFloat(getComputedStyle(node, null).height.replace("px", ""));
-      //    if (height >= 800) {
-      //      var readmoreButtonEl = node.querySelectorAll(".read-more-button").item(0);
-      //      if (readmoreButtonEl != null) {
-      //        readmoreButtonEl.style.display = "initial";
-      //      }
-      //      node.style.overflowY = "hidden";
-      //    } else {
-      //      node.style.overflowY = "visible";
-      //    }
-      //  }
-      //});
-
       return () => {
         console.log("unmounted observer", impressionObserver, node);
         impressionObserver.unobserve(node);
@@ -460,40 +444,44 @@ export default function PostView(props) {
           </div>
         </div>
 
+        {/* If logged in, show interactive reaction bar*/}
+        <ReactionBar l={isLoggedIn ? "1" : "0"} postId={post.PostId} />
+        <div style={{ height: "30px" }}>
+          <div id={"wc_" + post.PostId}>
+            {(post.IsNSFW ? (isNSFWRevealed && isVisible) : isVisible) ? (
+              <>
+                <span className="btn btn-link btn-sm" onClick={() => {
+                  if (isLoggedIn) {
+                    writeComment(post.PostId);
+                  } else {
+                    window.location = "https://www.zapread.com/Account/Login/";
+                  }
+                  
+                }}>
+                  <span className="badge badge-light">
+                    {post.CommentVms.length}
+                  </span>
+                  {" "}<i className="fa fa-comments"></i>{" "}Write a comment
+                </span>
+              </>) : (
+              <>
+                <span className="btn btn-link btn-sm" onClick={() => setIsVisible(true)}>
+                  <span className="badge badge-light">
+                    {post.CommentVms.length}
+                  </span>
+                  {" "}<i className="fa fa-comments"></i>{" "}Comments
+                </span>
+              </>)}
+            <SharePostButton postId={post.PostId} title={post.PostTitle}
+              url={"https://www.zapread.com" + (post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId))} />
+          </div>
+        </div>
+
         {isLoggedIn ? (
           <>
-            <ReactionBar l={"1"} postId={post.PostId} />
-            <div style={{height:"30px"}}>
-              <div id={"wc_" + post.PostId}>
-                {(post.IsNSFW ? (isNSFWRevealed && isVisible) : isVisible) ? (
-                  <>
-                    <span className="btn btn-link btn-sm" onClick={() => {
-                      writeComment(post.PostId);
-                    }}>
-                      <span className="badge badge-light">
-                        {post.CommentVms.length}
-                      </span>
-                      {" "}<i className="fa fa-comments"></i>{" "}Write a comment
-                    </span>
-                  </>) : (
-                    <>
-                      <span className="btn btn-link btn-sm" onClick={() => setIsVisible(true) }>
-                        <span className="badge badge-light">
-                          {post.CommentVms.length}
-                        </span>
-                        {" "}<i className="fa fa-comments"></i>{" "}Comments
-                      </span>
-                  </>)}
-                <SharePostButton postId={post.PostId} title={post.PostTitle}
-                  url={"https://www.zapread.com" + (post.PostIdEnc ? ("/p/" + post.PostIdEnc + "/" + post.PostTitleEnc) : ("/Post/Detail/" + post.PostId))} />
-              </div>
-            </div>
             <div id={"reply_p" + post.PostId} style={{ display: "none" }}></div>
           </>
-        ) : (<>
-            <ReactionBar l={"0"} postId={post.PostId} />
-            <div style={{ height: "30px" }}></div>
-        </>)}
+        ) : (<></>)}
 
         <div className="social-comment-box" id={"comments_" + post.PostId}
           style={{ display: (post.IsNSFW ? (isNSFWRevealed && isVisible) : isVisible) ? "block" : "none" }}>
