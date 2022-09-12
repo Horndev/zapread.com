@@ -37,12 +37,26 @@ namespace zapread.com.API
 
                 string userAppId = user.AppId;
                 // Get private messages
-                var chatsQ = db.Messages.Where(m => m.IsPrivateMessage == true).Where(m => !m.IsDeleted).Where(m => m.To.AppId == userAppId || m.From.AppId == userAppId).Where(m => !(m.To.AppId == userAppId && m.From.AppId == userAppId)) // Can't chat with self
-                .Select(m => new
-                {
-                m.Id, other = m.To.AppId == userAppId ? m.From : m.To, otherId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId, FromOnline = m.To.AppId == userAppId ? m.From.IsOnline : m.To.IsOnline, IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
- IsReplied = m.From.AppId == userAppId, m.TimeStamp, }).GroupBy(m => m.other) // Group by person
-                .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()); // Most recent
+                var chatsQ = db.Messages
+                    .Where(m => m.IsPrivateMessage == true)
+                    .Where(m => !m.IsDeleted)
+                    .Where(m => m.To != null && m.From != null)
+                    .Where(m => m.To.AppId == userAppId || m.From.AppId == userAppId)
+                    .Where(m => !(m.To.AppId == userAppId && m.From.AppId == userAppId)) // Can't chat with self
+                    .Select(m => new
+                    {
+                        m.Id,
+                        FromAppId = m.To.AppId == userAppId ? m.From.AppId : m.To.AppId,
+                        FromName = m.To.AppId == userAppId ? m.From.Name : m.To.Name,
+                        FromProfileImageVersion = m.To.AppId == userAppId ? m.From.ProfileImage.Version : m.To.ProfileImage.Version,//u.other.ProfileImage.Version,
+                        FromOnline = m.To.AppId == userAppId ? m.From.IsOnline : m.To.IsOnline,
+                        IsRead = m.To.AppId == userAppId ? m.IsRead : true, // If we responded, it's read
+                        IsReplied = m.From.AppId == userAppId,
+                        m.TimeStamp,
+                    })
+                    .GroupBy(m => m.FromAppId) // Group by person
+                    .Select(x => x.OrderByDescending(y => y.TimeStamp).FirstOrDefault()); // Most recent
+
                 if (sort == "unread")
                 {
                     chatsQ = chatsQ.OrderBy(q => q.IsRead);
@@ -53,16 +67,16 @@ namespace zapread.com.API
                 }
 
                 int numrec = await chatsQ.CountAsync().ConfigureAwait(true);
+
                 int startpage = page ?? 0;
-                var valuesQ = await chatsQ.Skip(startpage * pagesize).Take(pagesize).Select(u => new
-                {
-                u.Id, FromName = u.other.Name, FromAppId = u.other.AppId, FromProfileImageVersion = u.other.ProfileImage.Version, u.FromOnline, u.IsRead, u.IsReplied, u.TimeStamp, }).AsNoTracking().ToListAsync().ConfigureAwait(true);
+
+                var valuesQ = await chatsQ.AsNoTracking().Skip(startpage * pagesize).Take(pagesize).ToListAsync().ConfigureAwait(true);
+
                 return Ok(new
                 {
-                chats = valuesQ, numChats = numrec
-                }
-
-                );
+                    chats = valuesQ,
+                    numChats = numrec
+                });
             }
         }
 

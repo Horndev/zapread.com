@@ -252,7 +252,11 @@ function Page() {
           <Col lg={8}>
             <div className="social-feed-box-nb"><span></span></div>
             <div className="social-feed-box-nb">
-              <Button variant="primary" block onClick={() => { location.href = "/Post/Edit/"; }}><FontAwesomeIcon icon={faPlus} />{" "}Add Post</Button>
+              <Button variant="primary" block onClick={(event) => {
+                //event.preventDefault();
+                //history.push("/Post/Edit/");
+                window.location.href = "/Post/Edit/";
+              }}><FontAwesomeIcon icon={faPlus} />{" "}Add Post</Button>
             </div>
             {postsLoaded ? (<>
               <Suspense fallback={<><LoadingBounce /></>}>
