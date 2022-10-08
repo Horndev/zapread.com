@@ -1,4 +1,4 @@
-﻿using LightningLib.lndrpc;
+using LightningLib.lndrpc;
 using LightningLib.lndrpc.Exceptions;
 using Microsoft.AspNet.Identity;
 using MvcSiteMapProvider.Globalization;
@@ -21,6 +21,9 @@ using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    /// MVC Controller for Lightning requests
+    /// </summary>
     [RoutePrefix("Lightning")]
     public class LightningController : Controller
     {
@@ -30,22 +33,50 @@ namespace zapread.com.Controllers
         public ILightningPayments PaymentsService { get; private set; }
 
         /// <summary>
+        /// Used to encode bytes to hex strings
+        /// </summary>
+        public LightningLib.DataEncoders.HexEncoder HexEncoder { get; private set; }
+
+        /// <summary>
         /// Constructor with dependency injection for IOC and controller singleton control.
         /// </summary>
-        /// <param name="paymentsService"></param>
+        /// <param name = "paymentsService"></param>
         public LightningController(ILightningPayments paymentsService)
         {
             this.PaymentsService = paymentsService;
+            this.HexEncoder = new LightningLib.DataEncoders.HexEncoder();
         }
 
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
-
-        // GET: Lightning
+        /// <summary>
+        /// Not used but here for catching root requests
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Index()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+            // TODO: add error handling - temp fix for unit test.
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "invoice"></param>
+        /// <param name = "isDeposit"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> CheckPayment(string invoice, bool isDeposit = true)
         {
@@ -53,22 +84,30 @@ namespace zapread.com.Controllers
             using (ZapContext db = new ZapContext())
             {
                 var userId = User.Identity.GetUserId();
-
-                var u = await db.Users
-                    .Include(usr => usr.Funds)
-                    .FirstOrDefaultAsync(usr => usr.AppId == userId);
-
-                var p = await db.LightningTransactions
-                    .FirstOrDefaultAsync(t => t.PaymentRequest == invoice);
-
+                var u = await db.Users.Include(usr => usr.Funds).FirstOrDefaultAsync(usr => usr.AppId == userId).ConfigureAwait(true);
+                var p = await db.LightningTransactions.FirstOrDefaultAsync(t => t.PaymentRequest == invoice).ConfigureAwait(true);
                 if (p == null)
-                    return Json(new { success = false, message = "invoice is not known to this node" });
+                    return Json(new
+                    {
+                    success = false, message = "invoice is not known to this node"
+                    }
 
+                    );
                 if (isDeposit && !p.IsDeposit)
-                    return Json(new { success = false, message = "invoice is not a deposit invoice" });
+                    return Json(new
+                    {
+                    success = false, message = "invoice is not a deposit invoice"
+                    }
+
+                    );
                 if (p.IsSettled)
                 {
-                    return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
+                    return Json(new
+                    {
+                    success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id
+                    }
+
+                    );
                 }
 
                 if (isDeposit)
@@ -76,17 +115,34 @@ namespace zapread.com.Controllers
                     Invoice inv = FetchInvoiceFromNode(invoice);
                     if (!inv.settled.HasValue || (inv.settled.HasValue && inv.settled.Value == false))
                     {
-                        return Json(new { success = true, result = false });
+                        return Json(new
+                        {
+                        success = true, result = false
+                        }
+
+                        );
                     }
+
                     if (inv.settled.HasValue && inv.settled.Value)
                     {
                         // TODO: check if invoice listeners are running - start if not running
                         // Use the standard receiving logic to send real time notification to clients
                         await NotifyClientsInvoicePaid(inv).ConfigureAwait(true);
-                        return Json(new { success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id });
+                        return Json(new
+                        {
+                        success = true, result = true, invoice = invoice, balance = u != null ? u.Funds.Balance : 0, txid = p.Id
+                        }
+
+                        );
                     }
                 }
-                return Json(new { success = true });
+
+                return Json(new
+                {
+                success = true
+                }
+
+                );
             }
         }
 
@@ -94,26 +150,28 @@ namespace zapread.com.Controllers
         {
             LndRpcClient lndClient = GetLndClient();
             LightningLib.DataEncoders.HexEncoder h = new LightningLib.DataEncoders.HexEncoder();
-
             // Decode the payment request
             var decoded = lndClient.DecodePayment(invoice);
-
             // Get the hash
             var hash = decoded.payment_hash;
-
             // GetInvoice expects the hash in base64 encoded format
-
             var hash_bytes = h.DecodeData(hash);
             var hash_b64 = Convert.ToBase64String(hash_bytes);
             var inv = lndClient.GetInvoice(hash_b64);
             return inv;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "request"></param>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         [Route("GetInvoiceStatus/{request?}")]
         public ActionResult GetInvoiceStatus(string request)
         {
+            XFrameOptionsDeny();
             using (ZapContext db = new ZapContext())
             {
                 var tx = db.LightningTransactions.AsNoTracking().FirstOrDefault(t => t.PaymentRequest == request);
@@ -124,11 +182,12 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Provide a new LN invoice with given parameters
         /// </summary>
-        /// <param name="amount">number in Satoshi</param>
-        /// <param name="memo">encoded in invoice</param>
-        /// <param name="anon">flag to specify if invoice is unrelated to a user account</param>
-        /// <param name="use">what the invoice is used for</param>
-        /// <param name="useId">target of invoice (user id, post id, etc)</param>
+        /// <param name = "amount">number in Satoshi</param>
+        /// <param name = "memo">encoded in invoice</param>
+        /// <param name = "anon">flag to specify if invoice is unrelated to a user account</param>
+        /// <param name = "use">what the invoice is used for</param>
+        /// <param name = "useId">target of invoice (user id, post id, etc)</param>
+        /// <param name = "useAction"></param>
         /// <returns>LnRequestInvoiceResponse object which contains Invoice field</returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
@@ -140,7 +199,11 @@ namespace zapread.com.Controllers
             if (!isAnon && !User.Identity.IsAuthenticated)
             {
                 // This is a user-related invoice, and no user is logged in.
-                return RedirectToAction("Login", "Account", new { returnUrl = Request.Url.ToString() });
+                return RedirectToAction("Login", "Account", new
+                {
+                returnUrl = Request.Url.ToString()}
+
+                );
             }
 
             string userId;
@@ -153,27 +216,25 @@ namespace zapread.com.Controllers
                 userId = User.Identity.GetUserId();
             }
 
-            if (memo == null || memo == "")
+            if (string.IsNullOrEmpty(memo))
             {
                 memo = "Zapread.com";
             }
 
-            if (Convert.ToInt64(amount, CultureInfo.InvariantCulture) > 1000)
+            if (Convert.ToInt64(amount, CultureInfo.InvariantCulture) > 50000)
             {
-                return Json(new { success = false, message = "Deposits temporarily limited to 1000 satoshi" });
+                return Json(new
+                {
+                success = false, message = "Deposits temporarily limited to 50000 satoshi"
+                }
+
+                );
             }
 
             LndRpcClient lndClient = GetLndClient();
-
             var inv = lndClient.AddInvoice(Convert.ToInt64(amount, CultureInfo.InvariantCulture), memo: memo.SanitizeXSS(), expiry: "3600");
-
             LnRequestInvoiceResponse resp = new LnRequestInvoiceResponse()
-            {
-                Invoice = inv.payment_request,
-                Result = "success",
-                success = true,
-            };
-
+            {Invoice = inv.payment_request, Result = "success", success = true, };
             //Create transaction record (not settled)
             using (ZapContext db = new ZapContext())
             {
@@ -183,6 +244,7 @@ namespace zapread.com.Controllers
                 {
                     user = db.Users.Where(u => u.AppId == userId).First();
                 }
+
                 TransactionUse usedFor = TransactionUse.Undefined;
                 TransactionUseAction usedForAction = TransactionUseAction.Undefined;
                 int usedForId = useId != null ? useId.Value : -1;
@@ -216,22 +278,12 @@ namespace zapread.com.Controllers
                     }
                 }
 
+                var rhash_bytes = Convert.FromBase64String(inv.r_hash);
+                var rhash_hex = HexEncoder.EncodeData(rhash_bytes);
                 //create a new transaction record in database
                 LNTransaction t = new LNTransaction()
-                {
-                    User = user,
-                    IsSettled = false,
-                    IsSpent = false,
-                    Memo = memo.SanitizeXSS(),
-                    Amount = Convert.ToInt64(amount, CultureInfo.InvariantCulture),
-                    HashStr = inv.r_hash,
-                    IsDeposit = true,
-                    TimestampCreated = DateTime.Now,
-                    PaymentRequest = inv.payment_request,
-                    UsedFor = usedFor,
-                    UsedForId = usedForId,
-                    UsedForAction = usedForAction,
-                };
+                {User = user, IsSettled = false, IsSpent = false, Memo = memo.SanitizeXSS(), Amount = Convert.ToInt64(amount, CultureInfo.InvariantCulture), HashStr = inv.r_hash, // B64 encoded
+ PreimageHash = rhash_hex, IsDeposit = true, TimestampCreated = DateTime.Now, PaymentRequest = inv.payment_request, UsedFor = usedFor, UsedForId = usedForId, UsedForAction = usedForAction, };
                 db.LightningTransactions.Add(t);
                 db.SaveChanges();
                 resp.Id = t.Id;
@@ -242,27 +294,25 @@ namespace zapread.com.Controllers
                 // If a listener is not already running, this should start
                 // Check if there is one already online.
                 var numListeners = lndTransactionListeners.Count(kvp => kvp.Value.IsLive);
-
                 // If we don't have one running - start it and subscribe
                 if (numListeners < 1)
                 {
                     var listener = lndClient.GetListener();
-                    lndTransactionListeners.TryAdd(listener.ListenerId, listener);           // keep alive while we wait for payment
-                    listener.InvoicePaid += 
-                        async (invoice) => await NotifyClientsInvoicePaid(invoice)
-                                                    .ConfigureAwait(true);                   // handle payment message
-                    listener.StreamLost += OnListenerLost;                                   // stream lost
-                    var a = new Task(() => listener.Start());                                // listen for payment
+                    lndTransactionListeners.TryAdd(listener.ListenerId, listener); // keep alive while we wait for payment
+                    listener.InvoicePaid += async (invoice) => await NotifyClientsInvoicePaid(invoice).ConfigureAwait(true); // handle payment message
+                    listener.StreamLost += OnListenerLost; // stream lost
+                    var a = new Task(() => listener.Start()); // listen for payment
                     a.Start();
                 }
             }
+
             return Json(resp);
         }
 
         /// <summary>
         /// If the connection to LND is closed, this is triggered.  Remove our reference to the listener object for the stream.
         /// </summary>
-        /// <param name="l"></param>
+        /// <param name = "l"></param>
         private static void OnListenerLost(TransactionListener l)
         {
             lndTransactionListeners.TryRemove(l.ListenerId, out TransactionListener oldListener);
@@ -279,6 +329,7 @@ namespace zapread.com.Controllers
                 // Todo - logging
                 return;
             }
+
             if (!invoice.settled.Value)
             {
                 // Optional - add some logic to check invoices on the stream.  These invoices
@@ -289,25 +340,19 @@ namespace zapread.com.Controllers
 
             // This is the amount which was paid - needed in case of 0 (any) value invoices
             var amount = Convert.ToInt64(invoice.amt_paid_sat, CultureInfo.InvariantCulture);
-
             // Update LN transaction status in db
             using (ZapContext db = new ZapContext())
             {
                 // Check if unsettled transaction exists in db matching the invoice that was just settled.
-                var tx = db.LightningTransactions
-                    .Include(tr => tr.User)
-                    .Where(tr => tr.PaymentRequest == invoice.payment_request)
-                    .ToList();
-
+                var tx = db.LightningTransactions.Include(tr => tr.User).Where(tr => tr.PaymentRequest == invoice.payment_request).ToList();
                 DateTime settletime = DateTime.UtcNow;
                 LNTransaction t;
                 if (tx.Count > 0) // Shouldn't ever be more than one entry - could add a check for this.
                 {
                     // We found it - mark it as settled.
                     t = tx.First();
-                    t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
+                    t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date, CultureInfo.InvariantCulture));
                     t.IsSettled = true;
-
                     if (t.Amount != amount)
                     {
                         if (t.Amount == 0)
@@ -321,34 +366,22 @@ namespace zapread.com.Controllers
                 {
                     // This invoice is not in the db - it may not be related to this service.  
                     // We still record it in our database for any possible user forensics/history later.
-                    settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) 
-                        + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date, CultureInfo.InvariantCulture));
+                    settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date, CultureInfo.InvariantCulture));
+                    var HexEncoder = new LightningLib.DataEncoders.HexEncoder(); // static method
+                    var rhash_bytes = Convert.FromBase64String(invoice.r_hash);
+                    var rhash_hex = HexEncoder.EncodeData(rhash_bytes);
                     t = new LNTransaction()
-                    {
-                        IsSettled = invoice.settled.Value,
-                        Memo = invoice.memo.SanitizeXSS(),
-                        Amount = amount,//Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture),
-                        HashStr = invoice.r_hash,
-                        IsDeposit = true,
-                        TimestampSettled = settletime,
-                        TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date)),
-                        PaymentRequest = invoice.payment_request,
-                        User = null,
-                    };
+                    {IsSettled = invoice.settled.Value, Memo = invoice.memo.SanitizeXSS(), Amount = amount, //Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture),
+ HashStr = invoice.r_hash, PreimageHash = rhash_hex, IsDeposit = true, TimestampSettled = settletime, TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date, CultureInfo.InvariantCulture)), PaymentRequest = invoice.payment_request, User = null, };
                     db.LightningTransactions.Add(t);
                 }
+
                 await db.SaveChangesAsync().ConfigureAwait(true);
-
                 // Financial transaction
-                double userBalance = 0.0;   // This value will be returned later
-
+                double userBalance = 0.0; // This value will be returned later
                 if (t.User != null) // the user could be null if it is an anonymous payment.
                 {
-                    var userFunds = await db.Users
-                        .Where(u => u.Id == t.User.Id)
-                        .Select(u => u.Funds)
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                    var userFunds = await db.Users.Where(u => u.Id == t.User.Id).Select(u => u.Funds).FirstOrDefaultAsync().ConfigureAwait(true);
                     // Make every attempt to save user balance in DB
                     int attempts = 0;
                     bool saveFailed;
@@ -357,21 +390,21 @@ namespace zapread.com.Controllers
                     {
                         attempts++;
                         saveFailed = false;
-
                         if (attempts < 50)
                         {
                             // This really shouldn't happen!
                             if (userFunds == null)
                             {
-                                // this should not happen? - verify.  Maybe this is the case for transactions related to votes?
-                                // throw new Exception("Error accessing user information related to settled LN Transaction.");
+                            // this should not happen? - verify.  Maybe this is the case for transactions related to votes?
+                            // throw new Exception("Error accessing user information related to settled LN Transaction.");
                             }
                             else
                             {
                                 // Update user balance - this is a deposit.
-                                userFunds.Balance += amount;// Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture);
+                                userFunds.Balance += amount; // Convert.ToInt64(invoice.value, CultureInfo.InvariantCulture);
                                 userBalance = Math.Floor(userFunds.Balance);
                             }
+
                             try
                             {
                                 db.SaveChanges(); // synchronous
@@ -389,7 +422,6 @@ namespace zapread.com.Controllers
                         }
                     }
                     while (saveFailed);
-
                     // Don't record as settled if save was aborted due to DB concurrency failure.  
                     // LND database will show it was settled, but DB not.
                     // Another process can check DB sync and correct later.
@@ -408,217 +440,284 @@ namespace zapread.com.Controllers
                 // Send live signal to listening clients on websockets/SignalR
                 //var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
                 //context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
-                await NotificationService.SendPaymentNotification(
-                    t.User == null ? "" : t.User.AppId,
-                    invoice: invoice.payment_request, 
-                    userBalance: userBalance, 
-                    txid: t.Id).ConfigureAwait(true);
+                await NotificationService.SendPaymentNotification(t.User == null ? "" : t.User.AppId, invoice: invoice.payment_request, userBalance: userBalance, txid: t.Id).ConfigureAwait(true);
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="request">Lightning invoice</param>
+        /// <param name = "request">Lightning invoice</param>
         /// <returns></returns>
         [HttpPost, ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
         public async Task<ActionResult> ValidatePaymentRequest(string request)
         {
             var userAppId = User.Identity.GetUserId();
-
             if (userAppId == null)
             {
-                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                return Json(new { success = false, message = "User not authorized." });
+                return Json(new
+                {
+                success = false, message = "User not authorized."
+                }
+
+                );
             }
 
             using (var db = new ZapContext())
             {
-                var invoice = request.SanitizeXSS();
+                var hasWithdrawLock = await db.Users.Where(u => u.AppId == userAppId).Where(u => u.Funds.Locks.Any(f => f.WithdrawLocked)).AnyAsync();
+                if (hasWithdrawLock)
+                {
+                    return Json(new
+                    {
+                    success = false, message = "Withdraws for this account are locked."
+                    }
 
-                // Check if the request has previously been submitted
-                var t = await db.LightningTransactions
-                    .Where(tx => tx.PaymentRequest == invoice)
-                    .SingleOrDefaultAsync().ConfigureAwait(true);
+                    );
+                }
+
+                var invoice = request.SanitizeXSS();
+                LNTransaction t;
+                try
+                {
+                    // Check if the request has previously been submitted
+                    t = await db.LightningTransactions.Where(tx => tx.PaymentRequest == invoice).SingleOrDefaultAsync().ConfigureAwait(true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // source has more than one element.
+                    return Json(new
+                    {
+                    success = false, message = "Duplicate invoice - please use a new invoice."
+                    }
+
+                    );
+                }
 
                 if (t == null)
                 {
                     // first time
-
                     // Get interface to LND
                     LndRpcClient lndClient = GetLndClient();
-
                     // Decode invoice
                     var decoded = lndClient.DecodePayment(invoice);
-
                     if (decoded != null)
                     {
                         double amount = Convert.ToDouble(decoded.num_satoshis, CultureInfo.InvariantCulture);
-
                         if (amount < 1)
                         {
-                            return Json(new { success = false, message = "Zero- or any-value invoices not supported" });
+                            return Json(new
+                            {
+                            success = false, message = "Zero- or any-value invoices are not supported at this time"
+                            }
+
+                            );
                         }
 
-                        if (amount > 5000)
+                        if (amount > 50000)
                         {
-                            return Json(new { success = false, message = "Withdraws temporarily limited to 5000 Satoshi" });
+                            return Json(new
+                            {
+                            success = false, message = "Withdraws temporarily limited to 50000 Satoshi"
+                            }
+
+                            );
                         }
 
                         // Check user balance
-                        var userFunds = await db.Users
-                            .Where(u => u.AppId == userAppId)
-                            .Select(u => new
-                            {
-                                u.Funds.Balance
-                            })
-                            .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                        var userFunds = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                        {
+                        u.Funds.Balance
+                        }).FirstOrDefaultAsync().ConfigureAwait(true);
                         if (userFunds == null)
                         {
                             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            return Json(new { success = false, message = "User not found in database." });
+                            return Json(new
+                            {
+                            success = false, message = "User not found in database."
+                            }
+
+                            );
                         }
 
                         if (userFunds.Balance < amount)
                         {
-                            return Json(new { success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) + ", invoice is for " + decoded.num_satoshis + "." });
+                            return Json(new
+                            {
+                            success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) + ", invoice is for " + decoded.num_satoshis + "."
+                            }
+
+                            );
+                        }
+
+                        // This is less than ideal for time checks...
+                        // Check how much user withdrew previous 24 hours
+                        var DayAgo = DateTime.UtcNow - TimeSpan.FromDays(1);
+                        var txs = await db.LightningTransactions.Where(tx => tx.User.AppId == userAppId).Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > DayAgo).Where(tx => !tx.IsDeposit).Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+                        var withdrawn24h = txs.Sum();
+                        if (withdrawn24h > 100000)
+                        {
+                            return Json(new
+                            {
+                            success = false, message = "Withdraws limited to 100,000 Satoshi within a 24 hour limit."
+                            }
+
+                            );
+                        }
+
+                        var HourAgo = DateTime.UtcNow - TimeSpan.FromHours(1);
+                        var txs1h = await db.LightningTransactions.Where(tx => tx.User.AppId == userAppId).Where(tx => tx.TimestampCreated != null && tx.TimestampCreated > HourAgo).Where(tx => !tx.IsDeposit).Select(tx => tx.Amount).ToListAsync().ConfigureAwait(true);
+                        var withdrawn1h = txs1h.Sum();
+                        if (withdrawn1h > 50000)
+                        {
+                            return Json(new
+                            {
+                            success = false, message = "Withdraws limited to 50,000 Satoshi within a 1 hour limit."
+                            }
+
+                            );
                         }
 
                         // Save the invoice to database
-                        var user = await db.Users
-                           .Where(u => u.AppId == userAppId)
-                           .FirstAsync().ConfigureAwait(true);
-
+                        var user = await db.Users.Where(u => u.AppId == userAppId).FirstAsync().ConfigureAwait(true);
                         //create a new transaction record in database
                         t = new LNTransaction()
-                        {
-                            IsSettled = false,
-                            Memo = (decoded.description ?? "Withdraw").SanitizeXSS(),
-                            HashStr = decoded.payment_hash,
-                            Amount = Convert.ToInt64(decoded.num_satoshis, CultureInfo.InvariantCulture),
-                            IsDeposit = false,
-                            TimestampSettled = null,
-                            TimestampCreated = DateTime.UtcNow, //can't know
-                            PaymentRequest = invoice,
-                            FeePaid_Satoshi = 0,
-                            NodePubKey = decoded.destination,
-                            User = user,
-                            WithdrawId = Guid.NewGuid(),
-                        };
+                        {IsSettled = false, Memo = (decoded.description ?? "Withdraw").SanitizeXSS(), HashStr = decoded.payment_hash, PaymentHash = decoded.payment_hash, Amount = Convert.ToInt64(decoded.num_satoshis, CultureInfo.InvariantCulture), IsDeposit = false, TimestampSettled = null, TimestampCreated = DateTime.UtcNow, //can't know
+ PaymentRequest = invoice, FeePaid_Satoshi = 0, NodePubKey = decoded.destination, User = user, WithdrawId = Guid.NewGuid(), };
                         db.LightningTransactions.Add(t);
                         await db.SaveChangesAsync().ConfigureAwait(true);
-
                         return Json(new
                         {
-                            success = true,
-                            withdrawId = t.WithdrawId,//.Id,
-                            decoded.num_satoshis,
-                            decoded.destination,
-                        });
+                        success = true, withdrawId = t.WithdrawId, decoded.num_satoshis, decoded.destination, }
 
+                        );
                     }
                 }
                 else
                 {
                     // re-submitted - don't create new DB entry
-
                     // Safety checks
                     if (t.IsSettled || t.IsIgnored || t.IsLimbo || t.IsDeposit || t.IsError)
                     {
                         Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        return Json(new { success = false, message = "Invalid withdraw request." });
+                        return Json(new
+                        {
+                        success = false, message = "Invalid withdraw request."
+                        }
+
+                        );
                     }
 
                     // Check balance now
-                    var userFunds = await db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => new
-                        {
-                            u.Funds.Balance
-                        })
-                        .FirstOrDefaultAsync().ConfigureAwait(true);
-
+                    var userFunds = await db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                    {
+                    u.Funds.Balance
+                    }).FirstOrDefaultAsync().ConfigureAwait(true);
                     if (userFunds == null)
                     {
                         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        return Json(new { success = false, message = "User not found in database." });
+                        return Json(new
+                        {
+                        success = false, message = "User not found in database."
+                        }
+
+                        );
                     }
 
                     double amount = Convert.ToDouble(t.Amount, CultureInfo.InvariantCulture);
-
                     if (userFunds.Balance < amount)
                     {
-                        return Json(new 
+                        return Json(new
                         {
-                            success = false, 
-                            message = "Insufficient Funds. You have " 
-                                + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) 
-                                + ", invoice is for " + t.Amount + "." });
+                        success = false, message = "Insufficient Funds. You have " + userFunds.Balance.ToString("0.", CultureInfo.InvariantCulture) + ", invoice is for " + t.Amount + "."
+                        }
+
+                        );
                     }
 
                     return Json(new
                     {
-                        success = true,
-                        withdrawId = t.WithdrawId,//t.Id,
-                        num_satoshis = t.Amount,
-                        destination = t.NodePubKey,
-                    });
+                    success = true, withdrawId = t.WithdrawId, //t.Id,
+ num_satoshis = t.Amount, destination = t.NodePubKey, }
+
+                    );
                 }
             }
-            return Json(new 
-            { 
-                success=false, 
-                message="Error decoding invoice." 
-            });
+
+            return Json(new
+            {
+            success = false, message = "Error decoding invoice."
+            }
+
+            );
         }
 
         /// <summary>
         /// Pay a lightning invoice.
         /// </summary>
-        /// <param name="withdrawId"></param>
+        /// <param name = "withdrawId"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "<Pending>")]
-        public ActionResult SubmitPaymentRequest(string withdrawId)//string request)
+        public ActionResult SubmitPaymentRequest(string withdrawId) //string request)
         {
             var userAppId = User.Identity.GetUserId();
-
             if (userAppId == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                return Json(new { success = false, message = "User not authorized." });
+                return Json(new
+                {
+                success = false, message = "User not authorized."
+                }
+
+                );
             }
 
             using (var db = new ZapContext())
             {
                 var wguid = new Guid(withdrawId);
-                var lntx = db.LightningTransactions
-                    .Where(tx => tx.WithdrawId == wguid)
-                    .Where(tx => tx.User.AppId == userAppId)
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
+                var lntx = db.LightningTransactions.Where(tx => tx.WithdrawId == wguid).Where(tx => tx.User.AppId == userAppId).AsNoTracking().FirstOrDefault();
                 if (lntx == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { success = false, message = "Invalid withdraw request." });
+                    return Json(new
+                    {
+                    success = false, message = "Invalid withdraw request."
+                    }
+
+                    );
                 }
 
                 if (lntx.IsSettled || lntx.IsIgnored || lntx.IsLimbo || lntx.IsDeposit || lntx.IsError)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json(new { success = false, message = "Invalid withdraw request." });
+                    return Json(new
+                    {
+                    success = false, message = "Invalid withdraw request."
+                    }
+
+                    );
+                }
+
+                // Verify lntx invoice is unique.  This is a layer to protect against spam attacks
+                var numTxsWithSamePayreq = db.LightningTransactions.Where(tx => tx.PaymentRequest == lntx.PaymentRequest).Count();
+                if (numTxsWithSamePayreq > 1)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json(new
+                    {
+                    success = false, message = "Invalid withdraw request."
+                    }
+
+                    );
                 }
 
                 // Get interface to LND
                 LndRpcClient lndClient = GetLndClient();
-
                 // This is used for DoS or other attack detection
                 string ip = GetClientIpAddress(Request);
-
                 try
                 {
                     // Submit Payment Request
@@ -629,29 +728,28 @@ namespace zapread.com.Controllers
                 {
                     // The request to LND threw an exception
                     MailingService.Send(new UserEmailModel()
+                    {Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + lntx.PaymentRequest + "\r\n user: " + userAppId + "\r\n error Content: " + e.Content + "\r\n HTTP Status: " + e.StatusDescription, Email = "", Name = "zapread.com Exception", Subject = "User withdraw error 1", });
+                    return Json(new
                     {
-                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + lntx.PaymentRequest
-                            + "\r\n user: " + userAppId
-                            + "\r\n error Content: " + e.Content
-                            + "\r\n HTTP Status: " + e.StatusDescription,
-                        Email = "",
-                        Name = "zapread.com Exception",
-                        Subject = "User withdraw error 1",
-                    });
-                    return Json(new { Result = "Error processing request." });
+                    Result = "Error processing request."
+                    }
+
+                    );
                 }
+#pragma warning disable CA1031 // Do not catch general exception types
+
                 catch (Exception e)
+#pragma warning restore CA1031 // Do not catch general exception types
+
                 {
                     MailingService.Send(new UserEmailModel()
+                    {Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"], Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + lntx.PaymentRequest + "\r\n user: " + userAppId, Email = "", Name = "zapread.com Exception", Subject = "User withdraw error 1b", });
+                    return Json(new
                     {
-                        Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                        Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n invoice: " + lntx.PaymentRequest + "\r\n user: " + userAppId,
-                        Email = "",
-                        Name = "zapread.com Exception",
-                        Subject = "User withdraw error 1b",
-                    });
-                    return Json(new { Result = "Error processing request." });
+                    Result = "Error processing request."
+                    }
+
+                    );
                 }
             }
         }
@@ -661,45 +759,40 @@ namespace zapread.com.Controllers
             LndRpcClient lndClient;
             using (var db = new ZapContext())
             {
-                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1)
-                    .AsNoTracking()
-                    .FirstOrDefault();
-
-                lndClient = new LndRpcClient(
-                host: g.LnMainnetHost,
-                macaroonAdmin: g.LnMainnetMacaroonAdmin,
-                macaroonRead: g.LnMainnetMacaroonRead,
-                macaroonInvoice: g.LnMainnetMacaroonInvoice);
+                var g = db.ZapreadGlobals.Where(gl => gl.Id == 1).AsNoTracking().FirstOrDefault();
+                lndClient = new LndRpcClient(host: g.LnMainnetHost, macaroonAdmin: g.LnMainnetMacaroonAdmin, macaroonRead: g.LnMainnetMacaroonRead, macaroonInvoice: g.LnMainnetMacaroonInvoice);
             }
 
             return lndClient;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name = "request"></param>
+        /// <returns></returns>
         public static string GetClientIpAddress(HttpRequestBase request)
         {
             try
             {
                 var userHostAddress = request.UserHostAddress;
-
                 // Attempt to parse.  If it fails, we catch below and return "0.0.0.0"
                 // Could use TryParse instead, but I wanted to catch all exceptions
                 IPAddress.Parse(userHostAddress);
-
                 var xForwardedFor = request.ServerVariables["X_FORWARDED_FOR"];
-
                 if (string.IsNullOrEmpty(xForwardedFor))
                     return userHostAddress;
-
                 // Get a list of public ip addresses in the X_FORWARDED_FOR variable
                 var publicForwardingIps = xForwardedFor.Split(',').Where(ip => !IsPrivateIpAddress(ip)).ToList();
-
                 // If we found any, return the last one, otherwise return the user host address
-
                 var retval = publicForwardingIps.Any() ? publicForwardingIps.Last() : userHostAddress;
-
                 return retval;
             }
+#pragma warning disable CA1031 // Do not catch general exception types
+
             catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+
             {
                 // Always return all zeroes for any failure (my calling code expects it)
                 return "0.0.0.0";
@@ -714,19 +807,17 @@ namespace zapread.com.Controllers
             //  20-bit block: 172.16.0.0 through 172.31.255.255
             //  16-bit block: 192.168.0.0 through 192.168.255.255
             //  Link-local addresses: 169.254.0.0 through 169.254.255.255 (http://en.wikipedia.org/wiki/Link-local_address)
-
             var ip = IPAddress.Parse(ipAddress);
             var octets = ip.GetAddressBytes();
-
             var is24BitBlock = octets[0] == 10;
-            if (is24BitBlock) return true; // Return to prevent further processing
-
+            if (is24BitBlock)
+                return true; // Return to prevent further processing
             var is20BitBlock = octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31;
-            if (is20BitBlock) return true; // Return to prevent further processing
-
+            if (is20BitBlock)
+                return true; // Return to prevent further processing
             var is16BitBlock = octets[0] == 192 && octets[1] == 168;
-            if (is16BitBlock) return true; // Return to prevent further processing
-
+            if (is16BitBlock)
+                return true; // Return to prevent further processing
             var isLinkLocalAddress = octets[0] == 169 && octets[1] == 254;
             return isLinkLocalAddress;
         }

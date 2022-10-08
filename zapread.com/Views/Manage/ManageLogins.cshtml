@@ -3,72 +3,125 @@
 @{
     ViewBag.Title = "Manage your external logins";
 }
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Manage your external logins</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a>Account</a></li>
+            <li class="breadcrumb-item active">External Log In</li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
 
-<h2>@ViewBag.Title.</h2>
-
-<p class="text-success">@ViewBag.StatusMessage</p>
-@{
-    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
-    if (loginProviders.Count() == 0)
-    {
-        <div>
-            <p>
-                There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkId=313242">this article</a>
-                for details on setting up this ASP.NET application to support logging in via external services.
-            </p>
-        </div>
-    }
-    else
-    {
-        if (Model.CurrentLogins.Count > 0)
-        {
-            <h4>Registered Logins</h4>
-            <table class="table">
-                <tbody>
-                    @foreach (var account in Model.CurrentLogins)
-                    {
-                        <tr>
-                            <td>@account.LoginProvider</td>
-                            <td>
-                                @if (ViewBag.ShowRemoveButton)
-                                {
-                                    using (Html.BeginForm("RemoveLogin", "Manage"))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        <div>
-                                            @Html.Hidden("loginProvider", account.LoginProvider)
-                                            @Html.Hidden("providerKey", account.ProviderKey)
-                                            <input type="submit" class="btn btn-default" value="Remove" title="Remove this @account.LoginProvider login from your account" />
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    @: &nbsp;
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        if (Model.OtherLogins.Count > 0)
-        {
-            using (Html.BeginForm("LinkLogin", "Manage"))
-            {
-                @Html.AntiForgeryToken()
-                <div id="socialLoginList">
-                    <p>
-                        @foreach (AuthenticationDescription p in Model.OtherLogins)
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="ibox-content">
+                <p class="text-success">@ViewBag.StatusMessage</p>
+                <section id="loginForm">
+                    @{
+                        if (Model.CurrentLogins.Count > 0)
                         {
-                            <button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">@p.AuthenticationType</button>
+                            <h4>Registered Logins</h4>
+                            <table class="table">
+                                <tbody>
+                                    @foreach (var account in Model.CurrentLogins)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (account.LoginProvider == "LnAuth")
+                                                {
+                                                    <span class="btn btn-social" style="cursor:auto;"><span class="fa fa-bolt"></span> Lnurl-auth</span>
+                                                }
+                                                else if (account.LoginProvider == "Google")
+                                                {
+                                                    <span class="btn btn-social" style="cursor:auto;"><span class="fa fa-google"></span> Google</span>
+                                                }
+                                                else
+                                                {
+                                                    @account.LoginProvider
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (ViewBag.ShowRemoveButton)
+                                                {
+                                                    using (Html.BeginForm("RemoveLogin", "Manage"))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        <div>
+                                                            @Html.Hidden("loginProvider", account.LoginProvider)
+                                                            @Html.Hidden("providerKey", account.ProviderKey)
+                                                            <input type="submit" class="btn btn-primary btn-outline" value="Remove" title="Remove this @account.LoginProvider login from your account" />
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @: &nbsp;
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         }
-                    </p>
-                </div>
-            }
-        }
-    }
-}
+                    }
+                </section>
+                <br />
+                <section id="otherLogins">
+                    @{
+                        if (Model.OtherLogins.Count > 0)
+                        {
+                            using (Html.BeginForm("LinkLogin", "Manage"))
+                            {
+                                @Html.AntiForgeryToken()
+                                <h4>Add External Login Options</h4>
+                                <hr />
+                                <div id="socialLoginList">
+                                    <p>
+                                        @foreach (AuthenticationDescription p in Model.OtherLogins)
+                                        {
+                                            if (p.AuthenticationType == "LnAuth")
+                                            {
+                                                <button type="submit" class="btn btn-social" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-bolt"></span> Lnurl-auth</button>
+                                            }
+                                            else if (p.AuthenticationType == "Google")
+                                            {
+                                                <button type="submit" class="btn btn-social btn-google" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-google"></span> Google</button>
+                                            }
+                                            else if (p.AuthenticationType == "Reddit")
+                                            {
+                                                <button type="submit" class="btn btn-social btn-reddit" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-reddit"></span> Reddit</button>
+                                            }
+                                            else if (p.AuthenticationType == "GitHub")
+                                            {
+                                                <button type="submit" class="btn btn-social btn-github" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-github"></span> GitHub</button>
+                                            }
+                                            else if (p.AuthenticationType == "Twitter")
+                                            {
+                                                <button type="submit" class="btn btn-social btn-twitter" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-twitter"></span> Twitter</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">@p.AuthenticationType</button>
+                                            }
+
+                                        }
+                                    </p>
+                                </div>
+                            }
+                        }
+                    }
+                </section>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
 
 @section Styles {
     @Styles.Render("~/bundles/manage/default/css")  @*same css and scripts*@

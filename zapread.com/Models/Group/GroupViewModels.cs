@@ -5,32 +5,16 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
-    public class GroupAdminBarViewModel
-    {
-        public int GroupId { get; set; }
-        public int Tier { get; set; }
-    }
-
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    /// <summary>
+    /// 
+    /// </summary>
     public class NewGroupViewModel
     {
-        [Display(Name = "Name")]
-        [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "A valid group name 2 to 50 characters long is required.")]
-        public string GroupName { get; set; }
-
-        public string Icon { get; set; }
-        public List<string> Icons { get; set; }
-
-        [Display(Name = "Tags")]
-        [StringLength(256, ErrorMessage = "Too many tags.  Maximum 256 characters allowed.")]
-        public string Tags { get; set; }
-
-        [Display(Name = "Language")]
-        //[StringLength(2, ErrorMessage = "Error in language code.")]
-        public string Language { get; set; }
-
-        // Not displayed
-        public List<string> Languages { get; set; }
+        /// <summary>
+        /// Base 64 encoded captcha image
+        /// </summary>
+        public string CaptchaSrcB64 { get; set; }
     }
 
     public class GroupAdminTagsViewModel
@@ -155,4 +139,5 @@ namespace zapread.com.Models
         public bool IsMod { get; set; }
         public bool IsAdmin { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

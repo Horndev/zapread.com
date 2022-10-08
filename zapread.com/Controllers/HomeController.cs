@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNet.Identity;
+using HtmlAgilityPack;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.SqlServer;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -10,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -19,72 +19,98 @@ using zapread.com.Helpers;
 using zapread.com.Models;
 using zapread.com.Models.Database;
 using zapread.com.Models.Home;
+using zapread.com.Models.Search;
 using zapread.com.Services;
 
 namespace zapread.com.Controllers
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class HomeController : Controller
     {
+        private IEventService eventService;
+        /// <summary>
+        /// Default constructor for DI
+        /// </summary>
+        /// <param name = "eventService"></param>
+        public HomeController(IEventService eventService)
+        {
+            this.eventService = eventService;
+        }
+
+        /// <summary>
+        /// For bots
+        /// </summary>
+        /// <returns></returns>
         [Route("robots.txt", Name = "GetRobotsText"), OutputCache(Duration = 86400)]
         public ContentResult RobotsText()
         {
             StringBuilder stringBuilder = new StringBuilder();
-
             stringBuilder.AppendLine("user-agent: *");
             stringBuilder.AppendLine("disallow: /Account/UserBalance/");
             stringBuilder.AppendLine("disallow: /Account/Balance/");
             stringBuilder.AppendLine("disallow: /Account/GetBalance/");
             stringBuilder.AppendLine("disallow: /Account/Login/");
             stringBuilder.AppendLine("disallow: /Messages/SendMessage/");
+            stringBuilder.AppendLine("disallow: /Messages/DismissMessage/");
+            stringBuilder.AppendLine("disallow: /Messages/DismissAlert/");
+            stringBuilder.AppendLine("disallow: /Messages/DeleteMessage/");
+            stringBuilder.AppendLine("disallow: /Messages/DeleteAlert/");
             stringBuilder.AppendLine("disallow: /Comment/DeleteComment/");
             stringBuilder.AppendLine("disallow: /Comment/GetInputBox/");
             stringBuilder.AppendLine("disallow: /Manage/TipUser/");
             stringBuilder.AppendLine("disallow: /Post/ToggleStickyPost/");
             stringBuilder.AppendLine("disallow: /Img/Content/");
-
             stringBuilder.Append("sitemap: ");
             stringBuilder.AppendLine("https://www.zapread.com/sitemap.xml");
-
             return this.Content(stringBuilder.ToString(), "text/plain", Encoding.UTF8);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "set"></param>
+        /// <returns></returns>
         [HttpPost, ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> SetUserImage(int set)
         {
             if (!User.Identity.IsAuthenticated)
             {
                 Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                return Json(new { success = false, result = "Failure", message = "User authentication error." });
+                return Json(new
+                {
+                success = false, result = "Failure", message = "User authentication error."
+                }
+
+                );
             }
 
             var UserAppId = User.Identity.GetUserId();
             using (var db = new ZapContext())
             {
-                var user = await db.Users
-                    .Where(u => u.AppId == UserAppId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
-
+                var user = await db.Users.Where(u => u.AppId == UserAppId).FirstOrDefaultAsync().ConfigureAwait(false);
                 if (user == null)
                 {
                     Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    return Json(new { success = false, result = "Failure", message = "User not found." });
+                    return Json(new
+                    {
+                    success = false, result = "Failure", message = "User not found."
+                    }
+
+                    );
                 }
 
                 var imagesPath = Server.MapPath("~/bin");
-                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
-                    basePath: imagesPath);
-
+                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(basePath: imagesPath);
                 try
                 {
                     // The image hash is based on the user UID
                     var r = RoboHash.Net.RoboHash.Create(Guid.NewGuid().ToString());
-
                     var Rand = new Random();
-
                     var hashSet = "set1";
-
-                    var robotSets = new List<string>() { "set1", "set3" };
-
+                    var robotSets = new List<string>()
+                    {"set1", "set3"};
                     if (set == 1)
                     {
                         hashSet = robotSets[Rand.Next(0, 1)];
@@ -103,39 +129,44 @@ namespace zapread.com.Controllers
                     }
 
                     int size = 1024;
-
-                    using (var image = r.Render(
-                        set: hashSet,
-                        backgroundSet: RoboHash.Net.RoboConsts.Any,
-                        color: null,
-                        width: 1024,
-                        height: 1024))
+                    using (var image = r.Render(set: hashSet, backgroundSet: RoboHash.Net.RoboConsts.Any, color: null, width: 1024, height: 1024))
                     {
                         Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
                         byte[] data = thumb.ToByteArray(ImageFormat.Png);
-
                         // Cache to DB at full resolution
                         if (user != null)
                         {
                             Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                             byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                            UserImage img = new UserImage() {
-                                ContentType = "image/png",
-                                Image = DBdata,
-                                XSize = 1024,
-                                YSize = 1024,
-                                Version = user.ProfileImage.Version + 1};
+                            UserImage img = new UserImage()
+                            {ContentType = "image/png", Image = DBdata, XSize = 1024, YSize = 1024, Version = user.ProfileImage.Version + 1};
                             user.ProfileImage = img;
                             await db.SaveChangesAsync().ConfigureAwait(false);
-                            return Json(new { success = true, version = img.Version });
+                            return Json(new
+                            {
+                            success = true, version = img.Version
+                            }
+
+                            );
                         }
-                        return Json(new { success = false, message = "User not found" });
+
+                        return Json(new
+                        {
+                        success = false, message = "User not found"
+                        }
+
+                        );
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    return Json(new { success = false, result = "Failure", message = "Endpoint error." });
+                    return Json(new
+                    {
+                    success = false, result = "Failure", message = "Endpoint error."
+                    }
+
+                    );
                 }
             }
         }
@@ -143,17 +174,24 @@ namespace zapread.com.Controllers
         /// <summary>
         /// Gets the user's image
         /// </summary>
-        /// <param name="size"></param>
-        /// <param name="UserId"></param>
+        /// <param name = "size">size in px</param>
+        /// <param name = "UserId"></param>
+        /// <param name = "v">image version</param>
+        /// <param name = "r"></param>
         /// <returns></returns>
         [OutputCache(Duration = 3600, VaryByParam = "v;r", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [HttpGet]
         public async Task<ActionResult> UserImage(int? size, string UserId, string v, string r)
         {
-            if (size == null) size = 100;
+            XFrameOptionsDeny();
+            if (!size.HasValue)
+            {
+                size = 100;
+            }
+
             if (UserId != null)
             {
-                // use the value passed
+            // use the value passed
             }
             else
             {
@@ -164,29 +202,37 @@ namespace zapread.com.Controllers
             }
 
             int ver = -1;
-            try
-            {
-                ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException fe)
-            {
-                //
-            }
-
             // Check for image in DB
             using (var db = new ZapContext())
             {
+                try
+                {
+                    if (v != null)
+                    {
+                        ver = Convert.ToInt32(v, CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        var dbver = await db.Images.Where(im => im.UserAppId == UserId).Select(im => (int? )im.Version).MaxAsync().ConfigureAwait(true);
+                        ver = dbver ?? -1;
+                    }
+                }
+                catch (FormatException)
+                {
+                //
+                }
+
                 var imgq = db.Images.Where(im => im.UserAppId == UserId && im.XSize == size);
                 if (ver > -1)
                 {
                     imgq = imgq.Where(im => im.Version == ver);
                 }
-                // Fetch image from image cache
-                var i = await imgq
-                    .Select(im => new { im.Image, im.ContentType })
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
 
+                // Fetch image from image cache
+                var i = await imgq.Select(im => new
+                {
+                im.Image, im.ContentType, im.Version
+                }).AsNoTracking().FirstOrDefaultAsync().ConfigureAwait(false);
                 if (r == null && i != null && i.Image != null)
                 {
                     // https://code.msdn.microsoft.com/How-to-save-Image-to-978a7b0b
@@ -197,15 +243,15 @@ namespace zapread.com.Controllers
                 {
                     // Check if non size-cached version exists
                     var uimq = db.Users.Where(u => u.AppId == UserId);
-                    if (ver > -1)
-                    { 
-                        uimq = uimq.Where(u => u.ProfileImage.Version == ver);
-                    }
-                    i = await uimq
-                    .Select(u => new { u.ProfileImage.Image, u.ProfileImage.ContentType})
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
-
+                    //if (ver > -1)
+                    //{
+                    //    uimq = uimq.Where(u => u.ProfileImage.Version == ver);
+                    //}
+                    // This is the most recent (current) user image
+                    i = await uimq.Select(u => new
+                    {
+                    u.ProfileImage.Image, u.ProfileImage.ContentType, u.ProfileImage.Version
+                    }).AsNoTracking().FirstOrDefaultAsync().ConfigureAwait(false);
                     if (i != null && i.Image != null)
                     {
                         // Load and convert image size to size requested
@@ -219,18 +265,11 @@ namespace zapread.com.Controllers
                                 {
                                     ver = 0;
                                 }
+
                                 db.Images.Add(new Models.UserImage()
-                                {
-                                    ContentType = "image/png",
-                                    Image = data,
-                                    UserAppId = UserId,
-                                    Version = ver,
-                                    XSize = size.Value,
-                                    YSize = size.Value,
-                                });
-
+                                {ContentType = "image/png", Image = data, UserAppId = UserId, Version = i.Version, //ver, // Not using requested version (this could lead to a bug)
+ XSize = size.Value, YSize = size.Value, });
                                 await db.SaveChangesAsync().ConfigureAwait(false);
-
                                 return File(data, "image/png");
                             }
                         }
@@ -238,77 +277,80 @@ namespace zapread.com.Controllers
                 }
 
                 // RoboHash
-                var user = await db.Users
-                    .Where(u => u.AppId == UserId || u.Name == UserId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
-
+                var user = await db.Users.Where(u => u.AppId == UserId || u.Name == UserId).FirstOrDefaultAsync().ConfigureAwait(false);
                 // Should generate robohash off the appId if Name was supplied
                 if (user != null)
                 {
                     UserId = user.AppId;
                 }
+
                 var imagesPath = Server.MapPath("~/bin");
-                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(
-                    basePath: imagesPath);
+                RoboHash.Net.RoboHash.ImageFileProvider = new RoboHash.Net.Internals.DefaultImageFileProvider(basePath: imagesPath);
                 var rh = RoboHash.Net.RoboHash.Create(UserId);
-                using (var image = rh.Render(
-                    set: null,
-                    backgroundSet: RoboHash.Net.RoboConsts.Any,
-                    color: null,
-                    width: 1024,
-                    height: 1024))
+                using (var image = rh.Render(set: null, backgroundSet: RoboHash.Net.RoboConsts.Any, color: null, width: 1024, height: 1024))
                 {
                     Bitmap thumb = ImageExtensions.ResizeImage(image, (int)size, (int)size);
                     byte[] data = thumb.ToByteArray(ImageFormat.Png);
-
                     // Cache to DB at full resolution
                     if (user != null)
                     {
                         Bitmap DBthumb = ImageExtensions.ResizeImage(image, 1024, 1024);
                         byte[] DBdata = DBthumb.ToByteArray(ImageFormat.Png);
-                        UserImage img = new UserImage() { Image = DBdata, Version = 0 };
+                        UserImage img = new UserImage()
+                        {Image = DBdata, Version = 0};
                         user.ProfileImage = img;
                         await db.SaveChangesAsync().ConfigureAwait(false);
                     }
+
                     return File(data, "image/png");
                 }
             }
         }
 
-        protected async Task<List<PostViewModel>> GetPostsVm(int start, int count, string sort = "Score", int userId = 0)
+        /// <summary>
+        /// Method to get the posts view model
+        /// </summary>
+        /// <param name = "start"></param>
+        /// <param name = "count"></param>
+        /// <param name = "sort"></param>
+        /// <param name = "userAppId"></param>
+        /// <returns></returns>
+        protected async Task<List<PostViewModel>> GetPostsVm(int start, int count, string sort = "Score", string userAppId = "")
         {
             List<string> userLanguages = GetUserLanguages();
-
             using (var db = new ZapContext())
             {
-                DateTime t = DateTime.Now;
-
-                var user = await db.Users
-                    .Include(usr => usr.Settings)
-                    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
-
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
-
-                IQueryable<Post> postquery = null;
-
+                var userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users.Select(u => new QueryHelpers.PostQueryUserInfo()
+                {Id = u.Id, AppId = u.AppId, ViewAllLanguages = u.Settings.ViewAllLanguages, IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(), IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(), }).SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(false);
+                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userLanguages, db, userInfo);
+                IQueryable<QueryHelpers.PostQueryInfo> postquery = null;
+                //var numposts = validposts.Count();// DEBUG
                 switch (sort)
                 {
                     case "Score":
                         postquery = QueryHelpers.OrderPostsByScore(validposts);
+                        //var numvalidposts = postquery.Count();
                         break;
                     case "Active":
                         postquery = QueryHelpers.OrderPostsByActive(validposts);
                         break;
                     default:
-                        postquery = QueryHelpers.OrderPostsByNew(validposts);
+                        postquery = QueryHelpers.OrderPostsByNew(validposts: validposts);
                         break;
                 }
 
-                return await QueryHelpers.QueryPostsVm(start, count, postquery, user).ConfigureAwait(true);
+                return await QueryHelpers.QueryPostsVm(start: start, count: count, postquery: postquery, userInfo: userInfo).ConfigureAwait(true);
             }
         }
 
-        protected async Task<List<Post>> GetPosts(int start, int count, string sort = "Score", int userId = 0)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "db"></param>
+        /// <param name = "sort"></param>
+        /// <param name = "userAppId"></param>
+        /// <returns></returns>
+        protected async Task<IQueryable<QueryHelpers.PostQueryInfo>> GetPostsQuery(ZapContext db, string sort = "Score", string userAppId = null)
         {
             //Modified reddit-like algorithm
             /*epoch = datetime(1970, 1, 1)
@@ -326,168 +368,55 @@ namespace zapread.com.Controllers
                 sign = 1 if s > 0 else -1 if s < 0 else 0
                 seconds = epoch_seconds(date) - 1134028003
                 return round(sign * order + seconds / 45000, 7)*/
-
             List<string> userLanguages = GetUserLanguages();
-
-            using (var db = new ZapContext())
+            //DateTime t = DateTime.Now;
+            //var user = await db.Users
+            //    .Include(usr => usr.Settings)
+            //    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
+            QueryHelpers.PostQueryUserInfo userInfo = null;
+            try
             {
-                DateTime t = DateTime.Now;
-
-                var user = await db.Users
-                    .Include(usr => usr.Settings)
-                    .SingleOrDefaultAsync(u => u.Id == userId).ConfigureAwait(false);
-
-                IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userId, userLanguages, db, user);
-
-                switch (sort)
-                {
-                    case "Score":
-                        return await QueryPostsByScore(start, count, validposts).ConfigureAwait(false);
-                    case "Active":
-                        return await QueryPostsByActive(start, count, validposts).ConfigureAwait(false);
-                    default:
-                        return await QueryPostsByNew(start, count, validposts).ConfigureAwait(false);
-                }
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users.Where(u => u.AppId == userAppId).Select(u => new QueryHelpers.PostQueryUserInfo()
+                {Id = u.Id, AppId = u.AppId, ViewAllLanguages = u.Settings.ViewAllLanguages, IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(), IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(), }).SingleOrDefaultAsync().ConfigureAwait(false);
             }
-        }
+            catch (InvalidOperationException)
+            {
+                // Multiple users in DB?!
+                //Debug
+                var users = await db.Users.Where(u => u.AppId == userAppId).Select(u => new QueryHelpers.PostQueryUserInfo()
+                {Id = u.Id, AppId = u.AppId, ViewAllLanguages = u.Settings.ViewAllLanguages, IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(), IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(), }).ToListAsync().ConfigureAwait(false);
+                // Move forward for now with just the first instance.
+                userInfo = string.IsNullOrEmpty(userAppId) ? null : await db.Users.Where(u => u.AppId == userAppId).Select(u => new QueryHelpers.PostQueryUserInfo()
+                {Id = u.Id, AppId = u.AppId, ViewAllLanguages = u.Settings.ViewAllLanguages, IgnoredGroups = u.IgnoredGroups.Select(g => g.GroupId).ToList(), IgnoredPosts = u.IgnoringPosts.Select(p => p.PostId).ToList(), }).FirstOrDefaultAsync().ConfigureAwait(false);
+            }
 
-        [Obsolete]
-        private static async Task<List<Post>> QueryPostsByNew(int start, int count, IQueryable<Post> validposts)
-        {
-            return await validposts
-                .OrderByDescending(p => p.TimeStamp)
-                .Include(p => p.Group)
-                .Include(p => p.Comments)
-                .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                .Include(p => p.UserId)
-                .Include(p => p.UserId.ProfileImage)
-                .AsNoTracking()
-                .Where(p => !p.IsDeleted)
-                .Where(p => !p.IsDraft)
-                .Skip(start)
-                .Take(count)
-                .ToListAsync();
-        }
-
-        [Obsolete]
-        private static async Task<List<Post>> QueryPostsByActive(int start, int count, IQueryable<Post> validposts)
-        {
-            DateTime scoreStart = new DateTime(2018, 07, 01);
-
-            // Use number of comments as score
-            var sposts = await validposts
-                .Where(p => !p.IsDeleted)
-                .Where(p => !p.IsDraft)
-                .Select(p => new
-                {
-                    p,
-                    s = (Math.Abs((double)p.Comments.Count) < 1.0 ? 1.0 : 100000.0 * Math.Abs((double)p.Comments.Count)),    // Max (|x|,1)                                                           
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    order = SqlFunctions.Log10(p.s),
-                    sign = p.p.Comments.Count >= 0.0 ? 1.0 : -1.0,                              // Sign of s
-                    dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    active = p.sign * p.order + p.dt / 2000000 // Reduced time effect
-                })
-                .OrderByDescending(p => p.active)
-                .Select(p => p.p)
-                .Include(p => p.Group)
-                .Include(p => p.Comments)
-                .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                .Include(p => p.UserId)
-                .Include(p => p.UserId.ProfileImage)
-                .AsNoTracking()
-                .Skip(start)
-                .Take(count)
-                .ToListAsync();
-            return sposts;
-        }
-
-        [Obsolete]
-        private static async Task<List<Post>> QueryPostsByScore(int start, int count, IQueryable<Post> validposts)
-        {
-            DateTime scoreStart = new DateTime(2018, 07, 01);
-
-            var sposts = await validposts
-                .Where(p => !p.IsDeleted)
-                .Where(p => !p.IsDraft)
-                .Select(p => new
-                {
-                    p,
-                    // Includes the sum of absolute value of comment scores
-                    cScore = p.Comments.Count() > 0 ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    p.cScore,
-                    s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)),    // Max (|x|,1)                                                           
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    order1 = SqlFunctions.Log10(p.s),
-                    order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore),     // Comment scores
-                    sign = p.p.Score > 0.0 ? 1.0 : -1.0,                              // Sign of s
-                    dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp),    // time since start
-                })
-                .Select(p => new
-                {
-                    p.p,
-                    p.order1,
-                    p.order2,
-                    p.sign,
-                    p.dt,
-                    hot = p.sign * (p.order1 + p.order2) + p.dt / 90000
-                })
-                .OrderByDescending(p => p.hot)
-                .Select(p => p.p)
-                .Include(p => p.Group)
-                .Include(p => p.Comments)
-                .Include(p => p.Comments.Select(cmt => cmt.Parent))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesUp))
-                .Include(p => p.Comments.Select(cmt => cmt.VotesDown))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId))
-                .Include(p => p.Comments.Select(cmt => cmt.UserId.ProfileImage))
-                .Include(p => p.UserId)
-                .Include(p => p.UserId.ProfileImage)
-                .AsNoTracking()
-                .Skip(start)
-                .Take(count)
-                .ToListAsync();
-            return sposts;
+            IQueryable<Post> validposts = QueryHelpers.QueryValidPosts(userLanguages: userLanguages, db: db, userInfo: userInfo);
+            switch (sort)
+            {
+                case "Score":
+                    return QueryHelpers.OrderPostsByScore(validposts);
+                case "Active":
+                    return QueryHelpers.OrderPostsByActive(validposts);
+                default:
+                    return QueryHelpers.OrderPostsByNew(validposts: validposts);
+            }
         }
 
         private List<string> GetUserLanguages()
         {
             List<string> userLanguages;
-
             try
             {
                 userLanguages = Request.UserLanguages.ToList().Select(l => l.Split(';')[0].Split('-')[0]).Distinct().ToList();
-
-                if (userLanguages.Count() == 0)
+                if (userLanguages.Count == 0)
                 {
                     userLanguages.Add("en");
                 }
             }
             catch
             {
-                userLanguages = new List<string>() { "en" };
+                userLanguages = new List<string>()
+                {"en"};
             }
 
             return userLanguages;
@@ -500,6 +429,7 @@ namespace zapread.com.Controllers
         [HttpGet]
         public async Task<ActionResult> Install()
         {
+            XFrameOptionsDeny();
             var isenabled = System.Configuration.ConfigurationManager.AppSettings["EnableInstall"];
             if (!Convert.ToBoolean(isenabled))
             {
@@ -508,28 +438,14 @@ namespace zapread.com.Controllers
 
             using (var db = new ZapContext())
             {
-                var zapreadGlobals = await db.ZapreadGlobals
-                    .SingleOrDefaultAsync(i => i.Id == 1);
-
+                var zapreadGlobals = await db.ZapreadGlobals.SingleOrDefaultAsync(i => i.Id == 1).ConfigureAwait(true);
                 // This is run only the first time the app is launched in the database.
                 // The global entry should only be created once in the database.
                 if (zapreadGlobals == null)
                 {
                     // Initialize everything with zeros.
                     db.ZapreadGlobals.Add(new ZapReadGlobals()
-                    {
-                        Id = 1,
-                        CommunityEarnedToDistribute = 0.0,
-                        TotalDepositedCommunity = 0.0,
-                        TotalEarnedCommunity = 0.0,
-                        TotalWithdrawnCommunity = 0.0,
-                        ZapReadEarnedBalance = 0.0,
-                        ZapReadTotalEarned = 0.0,
-                        ZapReadTotalWithdrawn = 0.0,
-                        LNWithdraws = new List<LNTransaction>(),
-                    });
-
-                    
+                    {Id = 1, CommunityEarnedToDistribute = 0.0, TotalDepositedCommunity = 0.0, TotalEarnedCommunity = 0.0, TotalWithdrawnCommunity = 0.0, ZapReadEarnedBalance = 0.0, ZapReadTotalEarned = 0.0, ZapReadTotalWithdrawn = 0.0, LNWithdraws = new List<LNTransaction>(), EarningEvents = new List<EarningEvent>(), SpendingEvents = new List<SpendingEvent>(), });
                     db.SaveChanges();
                 }
 
@@ -538,33 +454,12 @@ namespace zapread.com.Controllers
                 {
                     //Create community group
                     db.Groups.Add(new Group()
-                    {
-                        GroupId = 1,
-                        GroupName = "Community",
-                        CreationDate = DateTime.UtcNow,
-                        DefaultLanguage = "en",
-                        Icon = "star",
-                        Tier = 0,
-                        Tags = "random",
-                        ShortDescription = "A catch-all group for ZapRead denziens",
-                        TotalEarnedToDistribute = 0,
-                        TotalEarned = 0,
-                    });
+                    {GroupId = 1, GroupName = "Community", CreationDate = DateTime.UtcNow, DefaultLanguage = "en", Icon = "star", Tier = 0, Tags = "random", ShortDescription = "A catch-all group for ZapRead denziens", TotalEarnedToDistribute = 0, TotalEarned = 0, });
                     db.SaveChanges();
                 }
-                
+
                 return View();
             }
-        }
-
-        [HttpPost]
-        public async Task<JsonResult> DismissTour(int id)
-        {
-            if (SetOrUpdateUserTourCookie("hide") == "hide")
-            {
-                return Json(new { success = true, result = "success" });
-            }
-            return Json(new { success = false, result = "failure setting cookie" });
         }
 
         /// <summary>
@@ -576,13 +471,12 @@ namespace zapread.com.Controllers
         private string SetOrUpdateUserTourCookie(string setValue = "", string defaultValue = "")
         {
             string cookieResultValue;
-
             //Check if user is returning
             if (HttpContext.Request.Cookies["ZapRead.com.Tour"] != null)
             {
                 var cookie = HttpContext.Request.Cookies.Get("ZapRead.com.Tour");
                 HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
-                cookie.Expires = DateTime.Now.AddDays(365);   //update
+                cookie.Expires = DateTime.Now.AddDays(365); //update
                 if (setValue != "")
                     cookie.Value = setValue;
                 HttpContext.Response.SetCookie(cookie);
@@ -596,59 +490,105 @@ namespace zapread.com.Controllers
                     cookie.Value = setValue;
                 cookie.Expires = DateTime.Now.AddDays(365);
                 HttpContext.Response.Cookies.Remove("ZapRead.com.Tour");
-                HttpContext.Response.SetCookie(cookie);
+                //HttpContext.Response.SetCookie(cookie);
                 cookieResultValue = cookie.Value;
             }
 
             return cookieResultValue;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> TopFollowing()
+        public ActionResult TopFollowing()
         {
+            XFrameOptionsDeny();
+            return Json(new
+            {
+            success = true
+            }
 
-            return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+            , JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
-        public async Task<ActionResult> TopPosts(string sort)
+        /// <summary>
+        /// This is really only used for testing
+        /// </summary>
+        /// <param name = "str"></param>
+        /// <returns></returns>
+        public ActionResult Search(string str = "test")
         {
             using (var db = new ZapContext())
             {
-                User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
-                
-                var userAppId = User.Identity.GetUserId();
-                var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
-
-                PostsViewModel vm = new PostsViewModel()
-                {
-                    Posts = await GetPostsVm(0,10,sort,userId.Value).ConfigureAwait(true)
-                };
-
-                // Not sure these are needed.
-                if (vm.Downvoted == null)
-                {
-                    vm.Downvoted = new List<int>();
-                }
-
-                if (vm.Upvoted == null)
-                {
-                    vm.Upvoted = new List<int>();
-                }
-
-                var PostHTMLString = RenderPartialViewToString("_PartialPosts", vm);
-                return Json(new { success = true, HTMLString = PostHTMLString }, JsonRequestBehavior.AllowGet);
+                /* Example comment search using catalog
+                    SELECT i.rank, Text
+                    FROM freetexttable(Comment,Text,'work') as i
+                    inner join Comment a
+                    on i.[key] = a.CommentId
+                    order by i.rank desc
+                 */
+                var res = db.Comments.SqlQuery("SELECT TOP 100 i.rank as rank, Text, a.CommentId, a.TimeStamp, a.Score, a.TotalEarned, a.IsDeleted, a.IsReply, a.TimeStampEdited  " + "FROM freetexttable(Comment, Text, @q) as i " + "inner join Comment a " + "on i.[key] = a.[CommentId] " + "WHERE a.IsDeleted=0 " + "order by i.rank desc", new SqlParameter("@q", str)).ToList();
+                // Order of this list matters
+                var CommentIds = res.Select(c => c.CommentId);
+                var resfullq = db.Comments.Where(c => CommentIds.Contains(c.CommentId)).OrderByDescending(c => c.TimeStamp) // more recent first
+                .Select(c => new SearchResult()
+                {Id = (int)c.CommentId, PostId = c.Post.PostId, Title = c.Post.PostTitle, Content = c.Text, UserAppId = c.UserId.AppId, PostScore = c.Post.Score, CommentScore = c.Score, TimeStamp = c.TimeStamp, AuthorName = c.UserId.Name, GroupName = c.Post.Group != null ? c.Post.Group.GroupName : "Community"}).ToList();
+                // inefficient sort
+                //var resfull = CommentIds.Select(c => resfullq.First(r => r.Id == c)).ToList();
+                var posts = db.Posts.SqlQuery("SELECT TOP 20 i.rank as rank, Content, a.PostId, a.PostTitle, a.TimeStamp, a.IsDeleted, a.IsNSFW, a.IsSticky, a.IsDraft, a.IsNonIncome, a.LockComments, a.IsPublished, a.Language, a.Impressions, a.Score, a.TotalEarned, a.TimeStampEdited " + "FROM freetexttable(Post, Content, @q) as i " + "inner join Post a " + "on i.[key] = a.[PostId] " + "WHERE a.IsDeleted=0 AND a.IsDraft=0 " + "order by i.rank desc", new SqlParameter("@q", str)).ToList();
+                var PostIds = res.Select(c => c.CommentId);
+                //var res = db.Comments.Where(c => c.Text.Freetext("x")).ToList();
+                //.SqlQuery("")
+                //var match = db.Comments
+                //    .Where(c => c.Text.Contains(str))
+                //    .Take(30)
+                //    .ToList();
+                //var cnt = match.Count();
+                ViewBag.TotalCount = res.Count;
+                ViewBag.Matches = resfullq;
+                return View();
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="sort">Score, New</param>
-        /// <param name="l"></param>
-        /// <param name="g">include subscribed groups null = yes</param>
-        /// <param name="f">include subscribed followers null = yes</param>
-        /// <param name="p">page</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult> GetPayoutInfo()
+        {
+            XFrameOptionsDeny();
+            using (var db = new ZapContext())
+            {
+                var website = await db.ZapreadGlobals.Where(gl => gl.Id == 1).FirstOrDefaultAsync().ConfigureAwait(false);
+                if (website == null)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return Json(new
+                    {
+                    success = false
+                    }
+
+                    );
+                }
+
+                return Json(new
+                {
+                success = true, community = Convert.ToInt32(website.CommunityEarnedToDistribute), }
+
+                , JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "sort">Score, New</param>
+        /// <param name = "l"></param>
+        /// <param name = "g">include subscribed groups null = yes</param>
+        /// <param name = "f">include subscribed followers null = yes</param>
         /// <returns></returns>
         [OutputCache(Duration = 600, VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Downstream)]
         [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Head)]
@@ -656,21 +596,36 @@ namespace zapread.com.Controllers
         {
             //PaymentPoller.Subscribe();
             //LNTransactionMonitor a = new LNTransactionMonitor();
+            //a.SyncNode();
             //a.CheckLNTransactions();
             //AchievementsService a = new AchievementsService();
             //a.CheckAchievements();
             //LNNodeMonitor a = new LNNodeMonitor();
             //a.UpdateHourly();
-
+            //var m = new MailingService();
+            //m.TestMailReply();
+            //PayoutsService.UpdateBanished();
+            //var s = new AchievementsService();
+            //s.CheckAchievements();
             try
             {
                 if (Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "0"))
                 {
-                    return RedirectToAction("Index", new { sort, l = "1", g, f });
+                    return RedirectToAction("Index", new
+                    {
+                    sort, l = "1", g, f
+                    }
+
+                    );
                 }
                 else if (!Request.IsAuthenticated && (String.IsNullOrEmpty(l) || l == "1"))
                 {
-                    return RedirectToAction("Index", new { sort, l = "0", g, f });
+                    return RedirectToAction("Index", new
+                    {
+                    sort, l = "0", g, f
+                    }
+
+                    );
                 }
             }
             catch
@@ -678,83 +633,69 @@ namespace zapread.com.Controllers
                 ; // Todo - fixup unit test
             }
 
-            SetTourCookie();
-
+            //SetTourCookie();
             try
             {
+                var userAppId = User.Identity.GetUserId();
                 using (var db = new ZapContext())
                 {
-                    User user = await GetCurrentUser(db).ConfigureAwait(true); // it would be nice to remove this line
-
-                    var userAppId = User.Identity.GetUserId();
-
-                    var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
-
-                    if (!userId.HasValue)
+                    if (userAppId == null)
                     {
-                        return RedirectToAction(actionName: "Login", controllerName: "Account");
+                    // Not logged in
+                    }
+                    else
+                    {
+                        await ClaimsHelpers.ValidateClaims(userAppId, User).ConfigureAwait(true);
+                        try
+                        {
+                            await eventService.OnUserActivityAsync(userAppId).ConfigureAwait(true);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                        // todo - unit test fixup
+                        }
                     }
 
-                    await ClaimsHelpers.ValidateClaims(userId.Value, User).ConfigureAwait(true);
-
+                    //var userId = userAppId == null ? 0 : (await db.Users.FirstOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true))?.Id;
                     var vm = new HomeIndexViewModel()
-                    {
-                        Sort = sort ?? "Score",
-                        SubscribedGroups = await GetUserGroups(user == null ? 0 : user.Id, db).ConfigureAwait(true),
-                    };
-
+                    {Sort = sort ?? "Score"};
                     return View(vm);
                 }
             }
             catch (Exception e)
             {
-                MailingService.Send(new UserEmailModel()
-                {
-                    Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"],
-                    Body = " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + User.Identity.GetUserId() ?? "anonymous",
-                    Email = "",
-                    Name = "zapread.com Exception",
-                    Subject = "Exception on index",
-                });
+                MailingService.SendErrorNotification(title: "Exception on index", message: " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace + "\r\n user: " + User.Identity.GetUserId() ?? "anonymous");
                 throw e;
             }
         }
 
-        private static Task<List<GroupInfo>> GetUserGroups(int userId, ZapContext db)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult> TopGroups()
         {
-            if (userId == 0)
+            XFrameOptionsDeny();
+            using (var db = new ZapContext())
             {
-                return db.Groups
-                    .OrderByDescending(g => g.TotalEarned)
-                    .Take(20)
-                    .Select(g => new GroupInfo()
-                    {
-                        Id = g.GroupId,
-                        IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-                        IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
-                        Name = g.GroupName,
-                        Icon = g.Icon,
-                        Level = g.Tier,
-                        Progress = 36,
-                    })
-                .AsNoTracking()
-                .ToListAsync();
+                var userAppId = User.Identity.GetUserId();
+                var subscribedGroups = await GetUserGroups(userAppId, db).ConfigureAwait(true);
+                return PartialView("_PartialTopGroups", new HomeTopGroupsPartialViewModel()
+                {SubscribedGroups = subscribedGroups});
             }
-            
-            return db.Users.Where(u => u.Id == userId)
-                .SelectMany(u => u.Groups)
-                .OrderByDescending(g => g.TotalEarned)
-                .Select(g => new GroupInfo() {
-                    Id = g.GroupId,
-                    IsAdmin = g.Administrators.Select(m => m.Id).Contains(userId),
-                    IsMod = g.Moderators.Select(m => m.Id).Contains(userId),
-                    Name = g.GroupName,
-                    Icon = g.Icon,
-                    Level = g.Tier,
-                    Progress = 36,
-                })
-                .AsNoTracking()
-                .ToListAsync();
+        }
+
+        private static Task<List<GroupInfo>> GetUserGroups(string userAppId, ZapContext db)
+        {
+            if (userAppId == null)
+            {
+                return db.Groups.OrderByDescending(g => g.TotalEarned).Take(20).Select(g => new GroupInfo()
+                {Id = g.GroupId, IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId), IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId), Name = g.GroupName, Icon = g.Icon, Level = g.Tier, Progress = 36, }).AsNoTracking().ToListAsync();
+            }
+
+            return db.Users.Where(u => u.AppId == userAppId).SelectMany(u => u.Groups).OrderByDescending(g => g.TotalEarned).Select(g => new GroupInfo()
+            {Id = g.GroupId, IsAdmin = g.Administrators.Select(m => m.AppId).Contains(userAppId), IsMod = g.Moderators.Select(m => m.AppId).Contains(userAppId), Name = g.GroupName, Icon = g.Icon, Level = g.Tier, Progress = 36, }).AsNoTracking().ToListAsync();
         }
 
         //private async Task ValidateClaims(int userId)
@@ -774,7 +715,6 @@ namespace zapread.com.Controllers
         //                        u.AppId,
         //                    })
         //                    .FirstOrDefaultAsync().ConfigureAwait(true);
-
         //                User.AddUpdateClaim("ColorTheme", us.ColorTheme ?? "light");
         //                User.AddUpdateClaim("ProfileImageVersion", us.Version.ToString(CultureInfo.InvariantCulture));
         //                User.AddUpdateClaim("UserAppId", us.AppId);
@@ -786,22 +726,15 @@ namespace zapread.com.Controllers
         //        //TODO: handle (or fix test for HttpContext.Current.GetOwinContext().Authentication mocking)
         //    }
         //}
-
         private async Task<User> GetCurrentUser(ZapContext db)
         {
             string userid = null;
-
             if (User != null) // This is the case when testing unauthorized call
             {
                 userid = User.Identity.GetUserId();
             }
 
-            var user = await db.Users
-                .Include(usr => usr.Settings)
-                .Include(usr => usr.IgnoringUsers)
-                .Include(usr => usr.Groups)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.AppId == userid);
+            var user = await db.Users.Include(usr => usr.Settings).Include(usr => usr.IgnoringUsers).Include(usr => usr.Groups).AsNoTracking().FirstOrDefaultAsync(u => u.AppId == userid).ConfigureAwait(true);
             return user;
         }
 
@@ -813,7 +746,7 @@ namespace zapread.com.Controllers
                 if (SetOrUpdateUserTourCookie(defaultValue: "show") != "hide")
                 {
                     // User has not dismissed tour request
-                    ViewBag.ShowTourModal = false;// Temporary disable. true;
+                    ViewBag.ShowTourModal = false; // Temporary disable. true;
                 }
             }
             catch
@@ -829,7 +762,7 @@ namespace zapread.com.Controllers
             if (HttpContext.Request.Cookies["ZapRead.com"] != null)
             {
                 var cookie = HttpContext.Request.Cookies.Get("ZapRead.com");
-                cookie.Expires = DateTime.Now.AddDays(30);   //update
+                cookie.Expires = DateTime.Now.AddDays(30); //update
                 HttpContext.Response.Cookies.Remove("ZapRead.com");
                 HttpContext.Response.SetCookie(cookie);
                 userId = cookie.Value;
@@ -847,79 +780,117 @@ namespace zapread.com.Controllers
             return userId;
         }
 
+        /// <summary>
+        /// Returns the next set of posts, rendered to HTML
+        /// </summary>
+        /// <param name = "BlockNumber">The starting block</param>
+        /// <param name = "sort">How the posts are sorted</param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "Validated in JSON header")]
         public async Task<ActionResult> InfiniteScroll(int BlockNumber, string sort)
         {
             int BlockSize = 10;
-
             using (var db = new ZapContext())
             {
-                var uid = User.Identity.GetUserId();
-                var user = await db.Users.AsNoTracking()
-                    .SingleOrDefaultAsync(u => u.AppId == uid);
-
-                var posts = await GetPosts(BlockNumber, BlockSize, sort, user != null ? user.Id : 0);
-
-                string PostsHTMLString = "";
-
-                foreach (var p in posts)
+                var userAppId = User.Identity.GetUserId();
+                var user = await db.Users.Select(u => new
                 {
-                    var pvm = new PostViewModel()
-                    {
-                        Post = p,
-                        ViewerIsMod = user != null ? user.GroupModeration.Select(g => g.GroupId).Contains(p.Group.GroupId) : false,
-                        ViewerUpvoted = user != null ? user.PostVotesUp.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        ViewerDownvoted = user != null ? user.PostVotesDown.Select(pv => pv.PostId).Contains(p.PostId) : false,
-                        NumComments = 0,
-                    };
-
-                    var PostHTMLString = RenderPartialViewToString("_PartialPostRender", pvm);
+                u.Id, u.AppId
+                }).AsNoTracking().SingleOrDefaultAsync(u => u.AppId == userAppId).ConfigureAwait(true);
+                var postquery = await GetPostsQuery(db: db, sort: sort, userAppId: userAppId).ConfigureAwait(true);
+                var postsVm = await QueryHelpers.QueryPostsVm(start: BlockNumber, count: BlockSize, postquery: postquery, userInfo: new QueryHelpers.PostQueryUserInfo()
+                {Id = user == null ? 0 : user.Id, AppId = userAppId, }).ConfigureAwait(true);
+                string PostsHTMLString = "";
+                foreach (var p in postsVm)
+                {
+                    var PostHTMLString = RenderPartialViewToString("_PartialPostRenderVm", p);
                     PostsHTMLString += PostHTMLString;
                 }
+
+                // filter youtube nocookie anyway
+                var contentStr = PostsHTMLString.Replace("//www.youtube.com/", "//www.youtube-nocookie.com/");
                 return Json(new
                 {
-                    NoMoreData = posts.Count < BlockSize,
-                    HTMLString = PostsHTMLString,
-                });
+                NoMoreData = postsVm.Count < BlockSize, HTMLString = contentStr, //PostsHTMLString,
+ }
+
+                );
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "viewName"></param>
+        /// <param name = "model"></param>
+        /// <returns></returns>
         protected string RenderPartialViewToString(string viewName, object model)
         {
             if (string.IsNullOrEmpty(viewName))
                 viewName = ControllerContext.RouteData.GetRequiredString("action");
-
             ViewData.Model = model;
-
             using (StringWriter sw = new StringWriter())
             {
-                ViewEngineResult viewResult =
-                    ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                ViewEngineResult viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
                 ViewContext viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
                 viewResult.View.Render(viewContext, sw);
-
                 return sw.GetStringBuilder().ToString();
             }
         }
 
+        /*
+        Task<bool> task = Task.Run(() =>
+            {
+                foreach (var id in ids)
+                {
+                    BackgroundJob.Enqueue<PostService>(methodCall: x => x.PostImpressionIncrement(id));
+                }
+                return true;
+            });
+
+            return await task;
+         */
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "msg"></param>
+        /// <param name = "loc"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA3147:Mark Verb Handlers With Validate Antiforgery Token", Justification = "JSON Only")]
         public ActionResult SendFeedback(string msg, string loc)
         {
+            if (!Request.ContentType.Contains("json"))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json(new
+                {
+                success = false, message = "Bad request type."
+                }
+
+                );
+            }
+
             String uid = "";
-
             uid = User.Identity.GetUserId();
+            // maybe use a better method?
+            MailingService.SendErrorNotification(title: "ZapRead Feedback", message: msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid);
+            return Json(new
+            {
+            result = "success"
+            }
 
-            UserEmailModel message = new UserEmailModel();
-            message.Email = "";
-            message.Name = "ZapRead Feedback";
-            message.Subject = "ZapRead Feedback";
-            message.Body = msg + Environment.NewLine + " Location: " + loc + Environment.NewLine + Environment.NewLine + " User: " + uid;
-            message.Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
-            MailingService.Send(message);
-
-            return Json(new { result = "success" });
+            );
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name = "model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SendMail(UserEmailModel model)
@@ -932,91 +903,98 @@ namespace zapread.com.Controllers
 
             model.Destination = System.Configuration.ConfigurationManager.AppSettings["ExceptionReportEmail"];
             MailingService.Send(model);
-
             return RedirectToAction("FeedbackSuccess");
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FeedbackSuccess()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult About()
         {
+            XFrameOptionsDeny();
             ViewBag.Message = "About Zapread.com.";
-
             return View();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult Privacy()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult Terms()
+        {
+            XFrameOptionsDeny();
+            return View();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult FAQ()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Contact()
         {
+            XFrameOptionsDeny();
             ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         public ActionResult Feedback()
         {
+            XFrameOptionsDeny();
             return View();
         }
 
-        //private async Task EnsureUserExists(string userId, ZapContext db)
-        //{
-        //    if (userId != null)
-        //    {
-        //        var user = await db.Users
-        //            .Include(usr => usr.ProfileImage)
-        //            .Include(usr => usr.ThumbImage)
-        //            .Include(usr => usr.Funds)
-        //            .Include(usr => usr.Settings)
-        //            .Where(u => u.AppId == userId)
-        //            .SingleOrDefaultAsync();
-
-        //        if (user == null)
-        //        {
-        //            // no user entry
-        //            User u = new User()
-        //            {
-        //                AboutMe = "Nothing to tell.",
-        //                AppId = userId,
-        //                Name = User.Identity.Name,
-        //                ProfileImage = new UserImage(),
-        //                ThumbImage = new UserImage(),
-        //                Funds = new UserFunds(),
-        //                Settings = new UserSettings(),
-        //                DateJoined = DateTime.UtcNow,
-        //            };
-        //            db.Users.Add(u);
-        //            await db.SaveChangesAsync();
-        //        }
-        //        else
-        //        {
-        //            // ensure all properties are not null
-        //            if (user.Funds == null)
-        //            {
-        //                // DANGER!
-        //                user.Funds = new UserFunds();
-        //            }
-        //            if (user.Settings == null)
-        //            {
-        //                user.Settings = new UserSettings();
-        //            }
-        //            if (user.ThumbImage == null)
-        //            {
-        //                user.ThumbImage = new UserImage();
-        //            }
-        //            if (user.ProfileImage == null)
-        //            {
-        //                user.ProfileImage = new UserImage();
-        //            }
-        //            await db.SaveChangesAsync();
-        //        }
-        //    }
-        //}
+        private void XFrameOptionsDeny()
+        {
+            try
+            {
+                Response.AddHeader("X-Frame-Options", "DENY");
+            }
+            catch
+            {
+            // TODO: add error handling - temp fix for unit test.
+            }
+        }
     }
 }

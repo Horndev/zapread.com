@@ -1,0 +1,9 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.UserView.UserTopFollowingPartialViewModel
+
+@foreach (var u in Model.TopFollowUsers)
+{
+    <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = u.Name })">
+        <img class="img-circle" title="@u.Name" src="@Url.Action("UserImage", "Home", new {size = 30, UserId = u.AppId, v=u.ProfileImageVersion})" />
+    </a>
+}

@@ -11,7 +11,11 @@ namespace zapread.com.Models.Database
     public class Post
     {
         [Key]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public int PostId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int Score { get; set; }
         public long Impressions { get; set; }                           // Number of times post was rendered
         public string PostTitle { get; set; }
@@ -24,8 +28,20 @@ namespace zapread.com.Models.Database
         [InverseProperty("Posts")]
         public virtual User UserId { get; set; }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
         [InverseProperty("HiddenPosts")]
         public virtual User HiddenBy { get; set; }
+
+        [InverseProperty("FollowingPosts")]
+        public virtual ICollection<User> FollowedByUsers { get; set; }
+
+        [InverseProperty("IgnoringPosts")]
+        public virtual ICollection<User> IgnoredByUsers { get; set; }
+
+        [InverseProperty("Post")]
+        public virtual ICollection<UserContentReport> UserReports { get; set; }
 
         // Language post is written in
         public string Language { get; set; }
@@ -37,16 +53,39 @@ namespace zapread.com.Models.Database
         public virtual ICollection<User> VotesUp { get; set; }
         [InverseProperty("PostVotesDown")]
         public virtual ICollection<User> VotesDown { get; set; }
-
         [InverseProperty("Post")]
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<UserImage> Images { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("Posts")]
+        public virtual ICollection<PostReaction> PostReactions { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [InverseProperty("Posts")]
+        public ICollection<Tag> Tags { get; set; }
 
         // Post flags
         public bool IsDeleted { get; set; }
         public bool IsSticky { get; set; }
         public bool IsNSFW { get; set; }
         public bool IsDraft { get; set; }
+        /// <summary>
+        /// Indicates if post is non-income
+        /// </summary>
+        public bool IsNonIncome { get; set; }
+        /// <summary>
+        /// Not sure if this is needed.  !IsDraft should be published
+        /// </summary>
         public bool IsPublished { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool LockComments { get; set; }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

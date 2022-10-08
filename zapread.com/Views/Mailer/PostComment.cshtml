@@ -1,0 +1,74 @@
+﻿@using zapread.com.Helpers;
+@using zapread.com.Models.UserViews;
+@using System.Globalization;
+@using System.Web.Mvc;
+@model zapread.com.Models.Email.PostCommentEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg themed theme--default" style="background-color:#fff;">
+    <div id="wrapper">
+        <div id="page-wrapper" class="gray-bg">
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                            <a href="@MailViewHelper.PostURI(Model.PostId, Model.PostTitle, Model.CommentId)">
+                                <h3 style="display:inline-block">New comment on post @Model.PostTitle</h3>
+                            </a>
+                            <hr />
+                        </div>
+                        <div class="container" style="background-color:white;margin-bottom: 0px;">
+                            <div class="social-footer">
+                                <div class=" social-comment">
+                                    <div class="vote-actions">
+                                        <a href="@("https://www.zapread.com/p/" + zapread.com.Services.CryptoService.IntIdToString(Model.PostId) + "/" + Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : "" + "/" +"?vote=1#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
+                                            <img src="https://www.zapread.com/Content/vup.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                        </a>
+                                        <div id="sVotec_@Model.CommentId">@Model.Score.ToAbbrString()</div>
+                                        <a href="@("https://www.zapread.com/p/" + zapread.com.Services.CryptoService.IntIdToString(Model.PostId) + "/" + Model.PostTitle != null ? Model.PostTitle.MakeURLFriendly() : "" + "/" +"?vote=0#cid_"+Convert.ToString(Model.CommentId,CultureInfo.InvariantCulture))" class="text-muted">
+                                            <img src="https://www.zapread.com/Content/vdn.png" style="margin-bottom: 0px; margin-right: 0px; width: auto;" />
+                                        </a>
+                                    </div>
+
+                                    <a href="@MailViewHelper.UserLink(Model.UserName)" class="pull-left">
+                                        <img class="img-circle" src="@MailViewHelper.UserImageURI(Model.UserAppId, Model.ProfileImageVersion)" />
+                                    </a>
+
+                                    <div class="media-body" style="display:inline;">
+                                        <a class="post-username userhint" data-userappid="@Model.UserAppId" data-userid="@Model.UserId"
+                                           href="@("https://www.zapread.com/user/" + System.Web.HttpUtility.UrlEncode( Model.UserName.Trim()))">
+                                            @Model.UserName
+                                        </a>
+                                        <br /><br /><br>
+                                        <div id="commentText_@Model.CommentId" style="position: relative;">
+                                            <div>@(new RazorEngine.Text.RawString(Model.Text))</div><br />
+                                            <div class="row">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container" style="background-color:white;">
+                            <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/">Unsubscribe</a> from these emails.
+                        </div>
+                        @*<div class="container" style="background-color:white;">
+                                <br />
+                                <hr />
+                                Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+                                <br />
+                                <br />
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

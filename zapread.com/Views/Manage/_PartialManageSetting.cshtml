@@ -3,7 +3,7 @@
 <div class="col-auto">
     <div class="switch">
         <div class="onoffswitch">
-            <input type="checkbox" @if (Model.IsActive) { <text> checked</text> } class="onoffswitch-checkbox" id="@Model.Name" onclick="settingToggle(this)">
+            <input type="checkbox" @if (Model.IsActive) { <text> checked</text> } class="onoffswitch-checkbox" id="@Model.Name" onclick="settingToggle(this)" />
             <label class="onoffswitch-label" for="@Model.Name">
                 <i class="fa fa-refresh fa-spin switch-spinner"></i>
                 <span class="onoffswitch-inner"></span>

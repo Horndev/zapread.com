@@ -2,11 +2,22 @@ namespace zapread.com.Migrations
 {
     using System.Data.Entity.Migrations;
 
+    /// <summary>
+    /// Add-Migration -configuration zapread.com.Migrations.Configuration EnableFullTextA
+    /// Add-Migration -configuration zapread.com.Migrations.Configuration GroupBanishAndPostUserFollowIgnore
+    /// 
+    /// Update-Database -configuration zapread.com.Migrations.Configuration -Verbose 
+    /// 
+    /// Update-Database -configuration zapread.com.Migrations.Configuration -TargetMigration:"AddReferralTable" -Verbose 
+    /// Update-Database -configuration zapread.com.Migrations.Configuration -TargetMigration:"EnableFullTextA" -Verbose 
+    /// </summary>
     internal sealed class Configuration : DbMigrationsConfiguration<zapread.com.Database.ZapContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
+            MigrationsDirectory = @"Migrations";
+            ContextKey = "zapread.com.Migrations.Configuration"; //  zapread.com.Database.ZapContext
         }
 
         protected override void Seed(zapread.com.Database.ZapContext context)

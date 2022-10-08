@@ -2,8 +2,6 @@
  * [✓] Native JS
  */
 
-//import $ from 'jquery';
-
 import { getAntiForgeryToken } from '../antiforgery';       // [✓]
 import { postJson } from '../postData';                     // [✓]
 
@@ -28,11 +26,11 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("subBtnText");
                 if (el !== null) {
-                    el.innerHTML = "Unsubscribe"; //$('#subBtnText').html("Unsubscribe");
+                    el.innerHTML = "Un-Follow"; //$('#subBtnText').html("Unsubscribe");
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {
-                    el.setAttribute("onclick", "follow(uid,0);");//$('#sublink').attr("onclick", "follow(uid,0);");
+                    el.setAttribute("onclick", "follow(" + uid + ",0, this);");//$('#sublink').attr("onclick", "follow(uid,0);");
                 }
             } else { // Un-subscribed
                 if (e.classList.contains("hover-follow")) {//$(e).hasClass('hover-follow')) {
@@ -42,11 +40,11 @@ export function follow(uid, s, e) {
                 }
                 el = document.getElementById("subBtnText");
                 if (el !== null) {
-                    el.innerHTML = "Subscribe"; //$('#subBtnText').html("Subscribe");
+                    el.innerHTML = "Follow"; //$('#subBtnText').html("Subscribe");
                 }
                 el = document.getElementById("sublink");
                 if (el !== null) {
-                    el.setAttribute("onclick", "follow(uid,1);");//$('#sublink').attr("onclick", "follow(uid,1);");
+                    el.setAttribute("onclick", "follow(" + uid + ",1, this);");//$('#sublink').attr("onclick", "follow(uid,1);");
                 }
             }
         }

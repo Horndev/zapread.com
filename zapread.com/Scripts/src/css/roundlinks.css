@@ -3,14 +3,14 @@
 
 .zr-top-btn-rounded {
     border-radius: 50px;
-    background-color: #1ab394;
+ /*   background-color: #1ab394;
     border-color: #1ab394;
-    background: #1ab394;
-    color: #fff;
+    background: #1ab394;*/
+    color: #1ab394;
     display: inline-block;
     font-weight: 400;
-    border: 1px solid transparent;
-    padding: .375rem .75rem;
+    /*border: 1px solid transparent;*/
+    padding: .2rem .75rem;
     font-size: 1rem;
     line-height: 1.5;
     text-align: center;

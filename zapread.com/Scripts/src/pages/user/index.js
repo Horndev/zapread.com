@@ -1,79 +1,111 @@
 ﻿/**
  * User information page
  * 
- * [ ] Uses jQuery
- * 
  **/
-import $ from 'jquery';
-
 import '../../shared/shared';
-import '../../utility/ui/vote';                                                     // [✓]
+/*import '../../utility/ui/vote';*/
 import '../../realtime/signalr';
 
-import Swal from 'sweetalert2';
-import { subMinutes, format, parseISO, formatDistanceToNow } from 'date-fns';       // [✓]
-import { onLoadedMorePosts } from '../../utility/onLoadedMorePosts';                // [✓]
-import { writeComment } from '../../comment/writecomment';                          // [✓]
-import { replyComment } from '../../comment/replycomment';                          // [✓]
-import { editComment } from '../../comment/editcomment';                            // [✓]
-import { loadMoreComments } from '../../comment/loadmorecomments';
-import { loadachhover } from '../../utility/achievementhover';
-import { loadmore } from '../../utility/loadmore';                                  // [✓]
+import React, { Suspense, useEffect, useState } from "react";
+import ReactDOM from "react-dom";
+import { Row, Col, Button } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faArrowDown,
+  faCircleNotch
+} from '@fortawesome/free-solid-svg-icons'
 
-import '../../shared/postfunctions';                                        // [✓]
-import '../../shared/readmore';                                             // [✓]
-import '../../shared/postui';                                               // [✓]
+import { postJson } from "../../utility/postData";
 
+import UserProfile from "../../Components/User/UserProfile";
+import UserFollowInfo from "../../Components/User/UserFollowInfo";
+import UserGroupInfo from "../../Components/User/UserGroupInfo";
+import LoadingBounce from "../../Components/LoadingBounce";
+import UserInteractions from "../../Components/User/UserInteractions";
+
+import '../../css/pages/manage/manage.scss';
 import '../../shared/sharedlast';
 
-// Make global (called from html)
-window.writeComment = writeComment;
-window.replyComment = replyComment;
-window.editComment = editComment;
-window.loadMoreComments = loadMoreComments;
-window.loadachhover = loadachhover;
+const PostList = React.lazy(() => import("../../Components/PostList"));
+const VoteModal = React.lazy(() => import("../../Components/VoteModal"));
 
-/**
- * Wrapper for loadmore
- * 
- * [✓] Native JS
- * 
- **/
-export function userloadmore() {
-    loadmore({
-        url: '/User/InfiniteScroll/',
-        blocknumber: window.BlockNumber,
-        sort: "New",
-        userId: userId
-    });
-}
-window.userloadmore = userloadmore;
+function Page() {
+  const [hasMorePosts, setHasMorePosts] = useState(false);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [postsLoaded, setPostsLoaded] = useState(false);
+  const [postBlockNumber, setPostBlockNumber] = useState(0);
+  const [posts, setPosts] = useState([]);
+  const [userAppId, setUserAppId] = useState(window.userAppId);
 
-onLoadedMorePosts();
-
-export function toggleUserIgnore(id) {
-    joinurl = "/User/ToggleIgnore/";
-    var data = JSON.stringify({ 'id': id });
-    $.ajax({
-        data: data.toString(),
-        type: 'POST',
-        url: joinurl,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response.result === "success") {
-                if (response.added) {
-                    $("#i_" + id.toString()).html("<i class='fa fa-circle'></i> Un-Ignore ");
-                }
-                else {
-                    $("#i_" + id.toString()).html("<i class='fa fa-ban'></i> Ignore ");
-                }
-            }
+  async function getMorePosts() {
+    if (!isLoadingPosts) {
+      setIsLoadingPosts(true);
+      await postJson("/api/v1/user/feed/", {
+        Sort: "New",
+        UserAppId: userAppId,
+        BlockNumber: postBlockNumber
+      }).then((response) => {
+        if (response.success) {
+          var postlist = posts.concat(response.Posts); // Append posts to list - this will re-render them.
+          setPosts(postlist);
+          setPostsLoaded(true);
+          setHasMorePosts(response.HasMorePosts);
+          if (response.HasMorePosts) {
+            setPostBlockNumber(postBlockNumber + 1);
+          }
         }
-    });
-    return false;
+        setIsLoadingPosts(false);
+      });
+    }
+  }
+
+  useEffect(() => {
+    async function initialize() {
+      // Do this in parallel
+      await getMorePosts();
+    }
+    initialize();
+  }, [userAppId]); // Fire once
+
+  return (
+    <>
+      <Suspense fallback={<></>}>
+        <VoteModal />
+      </Suspense>
+
+      <div className="wrapper wrapper-content">
+        <Row>
+          <Col md={4}>
+            <UserProfile userAppId={window.userAppId} isOwnProfile={false} />
+            <UserInteractions userAppId={window.userAppId} isLoggedIn={window.IsAuthenticated} userName={window.userName}/>
+            <UserFollowInfo userAppId={window.userAppId} isOwnProfile={false} />
+            <UserGroupInfo userAppId={window.userAppId} isOwnProfile={false}/>
+            <div style={{ marginBottom: "100px" }}></div>
+          </Col>
+
+          <Col md={8} className="pb-5 pt-3">
+            {postsLoaded ? (<>
+              <Suspense fallback={<><LoadingBounce /></>}>
+                <PostList
+                  posts={posts}
+                  isLoggedIn={window.IsAuthenticated} />
+
+                {hasMorePosts ? (
+                  <div className="social-feed-box-nb">
+                    <Button block variant="primary" onClick={() => { getMorePosts(); }}>
+                      <FontAwesomeIcon icon={faArrowDown} />{" "}Show More{" "}
+                      {isLoadingPosts ? (<><FontAwesomeIcon icon={faCircleNotch} spin /></>) : (<></>)}
+                    </Button>
+                  </div>
+                ) : (<></>)}
+                <div className="social-feed-box-nb" style={{ marginBottom: "100px" }}><span></span></div>
+              </Suspense>
+            </>) : (<><LoadingBounce /></>)}
+          </Col>
+        </Row>
+      </div>
+    </>
+  );
 }
-window.toggleUserIgnore = toggleUserIgnore;
-window.BlockNumber = 10;                        // Infinite Scroll starts from second block
-window.NoMoreData = false;
-window.inProgress = false;
+
+ReactDOM.render(<Page />, document.getElementById("root"));

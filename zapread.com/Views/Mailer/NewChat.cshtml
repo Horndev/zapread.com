@@ -1,49 +1,57 @@
-﻿@model zapread.com.Models.ChatMessageViewModel
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.Email.NewChatEmail
 
-@{
-    Layout = "~/Views/Shared/_LayoutMailer.cshtml";
-    ViewBag.Title = "Mailer Template New Chat";
-    //ViewBag.Message = "New chat message";
-}
-<div class="wrapper wrapper-content">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
-                <h3 style="display:inline-block">
-                    New private message from @Model.FromName
-                </h3>
-                <br />
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
 
-                <hr />
-            </div>
-            <div class="container" style="background-color:white;margin-bottom: 0px;">
-                <div class="chat-discussion">
-                    <div class="chat-message @if(Model.IsReceived){<text>left</text>}else{<text>right</text>}">
-                        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })">
-                            <img class="message-avatar" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.FromAppId, v=Model.FromProfileImgVersion})" alt="@Model.FromName">
-                        </a>
-                        <div class="message">
-                            <a class="message-author" href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.FromName })"> @Model.FromName </a>
-                            @*<span class="postTime message-date">@Model.TimeStamp.ToString("o")</span>*@
-                            <span class="message-content">
-                                @Html.Raw(Model.Content)
-                            </span>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg themed theme--default" style="background-color:#fff;">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <h3 style="display:inline-block">
+                        New private message from @Model.FromName
+                    </h3>
+                    <br />
+
+                    <hr />
+                </div>
+                <div class="container" style="background-color:white;margin-bottom: 0px;">
+                    <div class="chat-discussion">
+                        <div class="chat-message @if(Model.IsReceived){<text>left</text>}else{<text>right</text>}">
+                            <a href="@MailViewHelper.UserLink(Model.FromName)">
+                                <img class="message-avatar" src="@MailViewHelper.UserImageURI(Model.FromAppId, Model.FromProfileImgVersion, 30)" alt="@Model.FromName">
+                            </a>
+                            <div class="message">
+                                <a class="message-author" href="@MailViewHelper.UserLink(Model.FromName)"> @Model.FromName </a>
+                                <span class="message-content">
+                                    @(new RazorEngine.Text.RawString(Model.Content))
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="container" style="background-color:white;">
-                <br />
-                <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Chat", "Messages", new { username = Model.FromName })">Go to Chat</a>
-                <hr />
-                Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
-                <br />
-                <br />
+                <div class="container" style="background-color:white;">
+                    <br />
+                    <a class="btn btn-sm btn-outline-primary" href="@MailViewHelper.ChatMessageURI(Model.FromName)">Go to Chat</a>
+                    <a class="btn btn-sm btn-outline-primary" href=@("mailto:notify+[replyId]" + '@' + "zapread.com")>Reply by Email</a>
+                    <hr />
+                    @*Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+        <br />
+        <br />*@
+                </div>
+                <div class="container" style="background-color:white;">
+                    <a href="https://www.zapread.com/Subscription/Unsubscribe/[userUnsubscribeId]/">Unsubscribe</a> from these emails.
+                </div>
+                <div style="display:none;">
+                    chatReplyId:[replyId]
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-@section Styles {
-    @Styles.Render("~/bundles/mailer/default/css")
-}
+</body>
+</html>

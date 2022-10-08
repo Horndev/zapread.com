@@ -2,17 +2,19 @@
 @model zapread.com.Models.UserViews.UserHoverViewModel
 <div class="row">
     <div class="col">
-        <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.AppId, v=Model.ProfileImageVersion })" />
-        <span style="display:inline"><strong>@Model.Name</strong>
-            @if (Model.IsOnline)
-            {
-                <span style="display:inline;color:green" data-toggle='tooltip' data-placement='bottom' title='Online'> <i class="fa fa-check-circle"></i></span>
-            }
-            else
-            {
-                <span style="display:inline;color:lightgray" data-toggle='tooltip' data-placement='bottom' title='Offline'> <i class="fa fa-minus-circle"></i></span>
-            }
-        </span>
+        <a href="@Url.Action(actionName: "Index", controllerName: "User", routeValues: new { username = Model.Name.Trim() })" style="color: #676">
+            <img class="img-circle" loading="lazy" width="30" height="30" src="@Url.Action("UserImage", "Home", new { size = 30, UserId = Model.AppId, v=Model.ProfileImageVersion })" />
+            <span style="display:inline"><strong>@Model.Name</strong>
+                @if (Model.IsOnline)
+                {
+                    <span style="display:inline;color:green" data-toggle='tooltip' data-placement='bottom' title='Online'> <i class="fa fa-check-circle" style="color:green;"></i></span>
+                }
+                else
+                {
+                    <span style="display:inline;color:lightgray" data-toggle='tooltip' data-placement='bottom' title='Offline'> <i class="fa fa-minus-circle"></i></span>
+                }
+            </span>
+        </a>
     </div>
 </div>
 <div class="row">
@@ -23,12 +25,18 @@
 
         @if (Request.IsAuthenticated) // Only add if user is logged in!
         {
-            <a href='@Url.Action(actionName:"Chat", controllerName: "Messages", routeValues: new { username = Model.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'>
+            <a href='@Url.Action(actionName: "Chat", controllerName: "Messages", routeValues: new { username = Model.Name })' class='btn btn-sm btn-link' data-toggle='tooltip' data-placement='bottom' title='Private chat'>
                 <i class='fa fa-envelope'></i>
             </a>
             if (Model.IsFollowing)
             {
                 <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='Un-follow' onclick='follow(@Model.UserId,0, this);'>
+                    <i class='fa fa-user'></i><i class='fa fa-check'></i>
+                </a>
+            }
+            else if (Model.IsSelf)
+            {
+                <a href='javascript:void(0);' class='btn btn-sm btn-link hover-follow' title='This is you'>
                     <i class='fa fa-user'></i><i class='fa fa-check'></i>
                 </a>
             }

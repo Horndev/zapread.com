@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Zapread Search Test";
+}
+
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>ZapRead Search</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Install</li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="ibox float-e-margins">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-1">
+        </div>
+        <div class="col-lg-10">
+            <div class="ibox-content no-padding">
+                <div class="wrapper p-md">
+                    @ViewBag.TotalCount
+                    <br />
+                    <br />
+                    @foreach(var c in ViewBag.Matches)
+                    {
+                        <div class="search-result zr-search-hover">
+                            <h3>@c.PostScore <a href="#">@c.Title</a></h3>
+                            <div>@c.AuthorName posted in @c.GroupName</div>
+                            <a href="#" class="search-link"></a>
+                            <div class="zr-search-preview">
+                                @Html.Raw(c.Content)
+                            </div>
+                        </div>
+                        <div class="zr-search-hr"></div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/home/install/css")
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/home/install")
+}

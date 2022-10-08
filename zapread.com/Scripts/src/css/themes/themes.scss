@@ -1,0 +1,106 @@
+﻿/*Based on https://medium.com/@katiemctigue/how-to-create-a-dark-mode-in-sass-609f131a3995 */
+
+$themes: ( 
+    default: ( 
+        zr-button-muted: #c3c3c3,
+        bg-image-header: rgba(255, 255, 255, 0),
+        zr-primary: #1ab394,
+        bg: $gray,
+        bg-post: $gray,
+        body-text: #676a6c,
+        bg-form-control: #fff,
+        border-form-control: #e5e6e7,
+        text-form-control: #495057,
+        page-heading-bg: #fff,
+        nav-bg: #ffffff,
+        nav-link-text: #676a6c,
+        nav-link-text-hover: #1ab394,
+        ibox-bg: #fff,
+        text: #212529, 
+        bg-warning: #f8ac59,
+        text-warning: #fff,
+        bg-info: #23c6c8,
+        text-info: #fff,
+        bg-primary: #1ab394,
+        text-primary: #fff,
+        text-inverse: #fff,
+        post-bg: #fff,
+        post-comment-border: #999,
+        comment-bg: #f9f9f9,
+        btn-white-bg: #fff,
+        btn-white-border: #e7eaec,
+        btn-white-text: #212529,
+        red-bg: #ed5565,
+        red-bg-text: #fff,
+        card-border: #00000000,
+        table-head: #F5F5F6,
+        chat-bg: #eee,
+        chat-message-bg: #fff,
+        chat-message-placeholder: #00000099,
+        bg-muted: #f3f3f4,
+        text-muted: #676a6c,
+        tab-bg-active: #fff,
+        tab-bg-active-text: #495057,
+    ), 
+    dark: (
+        zr-button-muted: #c3c3c3,
+        bg-image-header: rgba(0, 0, 0, 0.5),
+        zr-primary: #1ab394,
+        bg: #000,
+        bg-post: $gray,
+        body-text: #f3f3f4,
+        bg-form-control: #333,
+        border-form-control: #1a1a1a,
+        text-form-control: #e5e6e7,
+        page-heading-bg: #1a1a1a,
+        nav-bg: #1a1a1a,
+        nav-link-text: #e5e6e7,
+        nav-link-text-hover: #1ab394,
+        ibox-bg: #1a1a1a,
+        text: #f3f3f4, 
+        bg-warning: #b17b40,
+        text-warning: #f3f3f4,
+        bg-info: #23c6c8,
+        text-info: #fff,
+        bg-primary: #12856d,
+        text-primary: #fff,
+        text-inverse: #111,
+        post-bg: #222426,
+        post-comment-border: #e7eaec,
+        comment-bg: #333,
+        btn-white-bg: #222426,
+        btn-white-border: #e7eaec,
+        btn-white-text: #e5e6e7,
+        red-bg: #ed5565,
+        red-bg-text: #fff,
+        card-border: #1ab394,
+        table-head: #333,
+        chat-bg: #222426,
+        chat-message-bg: #333,
+        chat-message-placeholder: #ffffff99,
+        bg-muted: #f3f3f4,
+        text-muted: #111,
+        tab-bg-active: #333,
+        tab-bg-active-text: #fff,
+    ), 
+);
+
+@mixin themed() {
+    @each $theme, $map in $themes {
+        .theme--#{$theme} & {
+            $theme-map: () !global;
+
+            @each $key, $submap in $map {
+                $value: map-get(map-get($themes, $theme), '#{$key}');
+                $theme-map: map-merge($theme-map, ($key: $value)) !global;
+            }
+
+            @content;
+            $theme-map: null !global;
+        }
+    }
+}
+
+@function t($key) {
+    @return map-get($theme-map, $key);
+}

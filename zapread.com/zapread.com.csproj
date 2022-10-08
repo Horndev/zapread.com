@@ -1,12 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props')" />
-  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
-  <Import Project="..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
-  <Import Project="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" />
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -20,11 +15,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>zapread.com</RootNamespace>
     <AssemblyName>zapread.com</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44316</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -32,6 +27,8 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <ApplicationInsightsResourceId>/subscriptions/32c4d1aa-b927-462d-9532-feeadce88792/resourceGroups/Zapread/providers/microsoft.insights/components/Zapread</ApplicationInsightsResourceId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,9 +39,23 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,56 +69,89 @@
     <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AngleSharp, Version=0.14.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.14.0\lib\net472\AngleSharp.dll</HintPath>
+    <Reference Include="AngleSharp, Version=0.17.1.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.17.1\lib\net472\AngleSharp.dll</HintPath>
     </Reference>
-    <Reference Include="AngleSharp.Css, Version=0.14.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.Css.0.14.0\lib\net472\AngleSharp.Css.dll</HintPath>
+    <Reference Include="AngleSharp.Css, Version=0.16.4.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.Css.0.16.4\lib\net472\AngleSharp.Css.dll</HintPath>
     </Reference>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Base32, Version=1.0.0.26, Culture=neutral, PublicKeyToken=3427d4dc8cee30c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Base32.1.0.0.26\lib\portable-net40+sl40+win+wp80\Base32.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\packages\Portable.BouncyCastle.1.9.0\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Forloop.HtmlHelpers, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Forloop.HtmlHelpers.1.2.0.0\lib\net45\Forloop.HtmlHelpers.dll</HintPath>
     </Reference>
-    <Reference Include="Hangfire.Core, Version=1.7.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hangfire.Core.1.7.11\lib\net46\Hangfire.Core.dll</HintPath>
+    <Reference Include="Glimpse.Ado, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.Ado.1.7.3\lib\net45\Glimpse.Ado.dll</HintPath>
     </Reference>
-    <Reference Include="Hangfire.SqlServer, Version=1.7.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hangfire.SqlServer.1.7.11\lib\net45\Hangfire.SqlServer.dll</HintPath>
+    <Reference Include="Glimpse.AspNet, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.AspNet.1.8.0\lib\net45\Glimpse.AspNet.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.23.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.23\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="Glimpse.Core, Version=1.8.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.1.8.6\lib\net45\Glimpse.Core.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlSanitizer, Version=5.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlSanitizer.5.0.310\lib\net46\HtmlSanitizer.dll</HintPath>
+    <Reference Include="Glimpse.EF6, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.EF6.1.6.5\lib\net45\Glimpse.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="Glimpse.Mvc5, Version=1.5.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.Mvc5.1.5.3\lib\net45\Glimpse.Mvc5.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.Core, Version=1.7.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.7.30\lib\net46\Hangfire.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.SqlServer, Version=1.7.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.7.30\lib\net45\Hangfire.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.11.43.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.43\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlSanitizer, Version=7.0.0.0, Culture=neutral, PublicKeyToken=61c49a1a9e79cc28, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlSanitizer.7.1.512\lib\net461\HtmlSanitizer.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET-Q8-AnyCPU, Version=10.1.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\Magick.NET-Q8-AnyCPU.10.1.0\lib\netstandard20\Magick.NET-Q8-AnyCPU.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET.Core, Version=10.1.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\Magick.NET.Core.10.1.0\lib\net20\Magick.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET.SystemDrawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\Magick.NET.SystemDrawing.4.0.18\lib\net40\Magick.NET.SystemDrawing.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit, Version=3.2.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
+      <HintPath>..\packages\MailKit.3.2.0\lib\net48\MailKit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.20.0\lib\net452\Microsoft.AI.DependencyCollector.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.20.0\lib\net452\Microsoft.AI.PerfCounterCollector.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.20.0\lib\net452\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.Web, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.13.1\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    <Reference Include="Microsoft.AI.Web, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.20.0\lib\net452\Microsoft.AI.Web.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AI.WindowsServer, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    <Reference Include="Microsoft.AI.WindowsServer, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.20.0\lib\net452\Microsoft.AI.WindowsServer.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.13.1.12554, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.2.13.1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.20.0.103, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.20.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.3\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
@@ -118,53 +162,23 @@
     <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.3\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.7\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Authentication, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Authentication.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Authentication.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Authentication.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Authentication.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Authentication.Core.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Authentication.OAuth, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Authentication.OAuth.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.OAuth.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Cryptography.Internal, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Cryptography.Internal.3.1.3\lib\netstandard2.0\Microsoft.AspNetCore.Cryptography.Internal.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.DataProtection, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.DataProtection.3.1.3\lib\netstandard2.0\Microsoft.AspNetCore.DataProtection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.DataProtection.Abstractions, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.DataProtection.Abstractions.3.1.3\lib\netstandard2.0\Microsoft.AspNetCore.DataProtection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Hosting.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Hosting.Server.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Hosting.Server.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http, Version=2.2.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Http.2.2.2\lib\netstandard2.0\Microsoft.AspNetCore.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Http.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http.Extensions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Http.Extensions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http.Features, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNetCore.Http.Features.3.1.3\lib\netstandard2.0\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.8\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNetCore.WebUtilities, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNetCore.WebUtilities.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.WebUtilities.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Configuration.ConfigurationBuilders.Base, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Configuration.ConfigurationBuilders.Base.2.0.0\lib\Net471\Microsoft.Configuration.ConfigurationBuilders.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Configuration.ConfigurationBuilders.UserSecrets, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Configuration.ConfigurationBuilders.UserSecrets.2.0.0\lib\Net471\Microsoft.Configuration.ConfigurationBuilders.UserSecrets.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -197,35 +211,35 @@
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.2.8.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.2.8\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.2.2\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.2.2\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.4.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.2.2\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.2.2\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Facebook, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.4.1.0\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Facebook, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.4.2.2\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Google, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Google.4.1.0\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Google, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Google.4.2.2\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.MicrosoftAccount, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.MicrosoftAccount.4.1.0\lib\net45\Microsoft.Owin.Security.MicrosoftAccount.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.MicrosoftAccount, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.MicrosoftAccount.4.2.2\lib\net45\Microsoft.Owin.Security.MicrosoftAccount.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.OAuth, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.4.1.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.4.2.2\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Twitter, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Twitter.4.1.0\lib\net45\Microsoft.Owin.Security.Twitter.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Twitter, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Twitter.4.2.2\lib\net45\Microsoft.Owin.Security.Twitter.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
+    <Reference Include="MimeKit, Version=3.3.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
+      <HintPath>..\packages\MimeKit.3.3.0\lib\net48\MimeKit.dll</HintPath>
     </Reference>
     <Reference Include="MvcSiteMapProvider, Version=4.6.26.0, Culture=neutral, PublicKeyToken=1923abe4657913cc, processorArchitecture=MSIL">
       <HintPath>..\packages\MvcSiteMapProvider.MVC5.Core.4.6.26\lib\net45\MvcSiteMapProvider.dll</HintPath>
@@ -233,8 +247,11 @@
     <Reference Include="MvcSiteMapProvider.WebActivator, Version=4.6.26.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MvcSiteMapProvider.MVC5.4.6.26\lib\net45\MvcSiteMapProvider.WebActivator.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="NBitcoin, Version=6.0.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NBitcoin.6.0.19\lib\net472\NBitcoin.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
@@ -251,26 +268,44 @@
     <Reference Include="Ninject.Web.WebApi, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.Web.WebApi.3.3.1\lib\net45\Ninject.Web.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject.Web.WebApi.WebHost, Version=3.3.1.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.WebApi.WebHost.3.3.1\lib\net45\Ninject.Web.WebApi.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="OtpSharp, Version=1.3.0.4, Culture=neutral, PublicKeyToken=1ec2a4a54aeffc1e, processorArchitecture=MSIL">
+      <HintPath>..\packages\OtpSharp.1.3.0.4\lib\net40\OtpSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.7.2.1\lib\net472\Polly.dll</HintPath>
+    </Reference>
+    <Reference Include="Postal, Version=1.0.0.0, Culture=neutral, PublicKeyToken=45719375b8b4d528, processorArchitecture=MSIL">
+      <HintPath>..\packages\Postal.Mvc5.1.2.0\lib\net45\Postal.dll</HintPath>
+    </Reference>
     <Reference Include="PreMailer.Net, Version=2.2.0.0, Culture=neutral, PublicKeyToken=23e3f43e29cae17f, processorArchitecture=MSIL">
       <HintPath>..\packages\PreMailer.Net.2.2.0\lib\net461\PreMailer.Net.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="QRCoder, Version=1.3.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QRCoder.1.3.9\lib\net40\QRCoder.dll</HintPath>
+    <Reference Include="QRCoder, Version=1.4.3.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
+      <HintPath>..\packages\QRCoder.1.4.3\lib\net40\QRCoder.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=106.0.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.10.1\lib\net452\RestSharp.dll</HintPath>
+    <Reference Include="RazorEngine, Version=3.10.0.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
+      <HintPath>..\packages\RazorEngine.3.10.0\lib\net45\RazorEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=107.3.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.107.3.0\lib\netstandard2.0\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Square, Version=19.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Square.19.1.0\lib\netstandard2.0\Square.dll</HintPath>
     </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Swashbuckle.MVC.Handler, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Swashbuckle.MVC.1.0.0.3\lib\Swashbuckle.MVC.Handler.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -279,8 +314,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data.OracleClient" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.7.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.5.0.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -294,6 +329,7 @@
     <Reference Include="System.IO.Pipelines, Version=4.0.2.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.4.7.1\lib\netstandard2.0\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Linq" />
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
@@ -304,23 +340,34 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.9\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reflection" />
     <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Runtime.InteropServices, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.4.3.0\lib\net463\System.Runtime.InteropServices.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
@@ -355,11 +402,15 @@
       <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Text.Encoding.CodePages, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encoding.CodePages.4.7.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Text.Encoding.CodePages, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.6.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encodings.Web, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encodings.Web.4.7.0\lib\netstandard2.0\System.Text.Encodings.Web.dll</HintPath>
+    <Reference Include="System.Text.Encodings.Web, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.6.0.0\lib\net461\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=6.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.6.0.2\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -372,35 +423,35 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    <Reference Include="System.Web.Http, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.9\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http.Owin, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.7\lib\net45\System.Web.Http.Owin.dll</HintPath>
+    <Reference Include="System.Web.Http.Owin, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.9\lib\net45\System.Web.Http.Owin.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Mvc, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.9\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.9\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
@@ -429,11 +480,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>API.resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="API\AccountController.cs" />
     <Compile Include="API\AdminController.cs" />
+    <Compile Include="API\AdminController.POS.cs" />
     <Compile Include="API\APIKeyAuthorizationHandler.cs" />
+    <Compile Include="API\CoreController.cs" />
+    <Compile Include="API\GroupsController.cs" />
+    <Compile Include="API\LnauthController.cs" />
+    <Compile Include="API\MessagesController.cs" />
     <Compile Include="API\PostController.cs" />
+    <Compile Include="API\SearchController.cs" />
     <Compile Include="API\StreamController.cs" />
+    <Compile Include="API\TagController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\CompositionRoot.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -443,12 +506,11 @@
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
-    <Compile Include="App_Start\SwaggerConfig.cs" />
-    <Compile Include="App_Start\SwashbuckleMVC.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="API\UserController.cs" />
+    <Compile Include="Controllers\AdminController.POS.cs" />
     <Compile Include="Controllers\CommentController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
@@ -461,7 +523,9 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\PostController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\SwashbuckleMVCController.cs" />
+    <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\VoteController.cs" />
@@ -473,19 +537,37 @@
     <Compile Include="DI\Ninject\Modules\MvcSiteMapProviderModule.cs" />
     <Compile Include="DI\GroupsDetailsProvider.cs" />
     <Compile Include="DI\PostsDetailsProvider.cs" />
+    <Compile Include="ErrorHandler\AiHandleErrorAttribute.cs" />
+    <Compile Include="GlimpseSecurityPolicy.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helpers\ClaimsHelpers.cs" />
     <Compile Include="Helpers\HMTLHelperExtensions.cs" />
-    <Compile Include="Helpers\HTMLRenderHelpers.cs" />
+    <Compile Include="Helpers\HtmlDocumentHelpers.cs" />
     <Compile Include="Helpers\IdentiyHelpers.cs" />
     <Compile Include="Helpers\ImageHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelpers.cs" />
+    <Compile Include="Helpers\MailViewHelper.cs" />
     <Compile Include="Helpers\NumberHelpers.cs" />
     <Compile Include="Helpers\QueryHelpers.cs" />
     <Compile Include="Helpers\StringHelpers.cs" />
     <Compile Include="Helpers\URLHelperExtensions.cs" />
     <Compile Include="Helpers\ValidateJsonAntiForgeryToken.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.cs" />
+    <Compile Include="MigrationsASP\202002200019335_InitialCreate.designer.cs">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202271702287_Initial.cs" />
+    <Compile Include="MigrationsASP\202202271702287_Initial.designer.cs">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.cs" />
+    <Compile Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.designer.cs">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MigrationsASP\Configuration.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.cs" />
     <Compile Include="Migrations\201805160258291_InitialVersion.Designer.cs">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>
@@ -798,8 +880,114 @@
     <Compile Include="Migrations\202005302024335_addWithdrawGuid.designer.cs">
       <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202006021408393_addGroupImage.cs" />
+    <Compile Include="Migrations\202006021408393_addGroupImage.designer.cs">
+      <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202201270152510_global_earning_spending.cs" />
+    <Compile Include="Migrations\202201270152510_global_earning_spending.designer.cs">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202202131921272_expandLNTransactionFields.cs" />
+    <Compile Include="Migrations\202202131921272_expandLNTransactionFields.designer.cs">
+      <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202202141633047_addRowVersionToLNTransactions.cs" />
+    <Compile Include="Migrations\202202141633047_addRowVersionToLNTransactions.designer.cs">
+      <DependentUpon>202202141633047_addRowVersionToLNTransactions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202202181822249_AddReferralTable.cs" />
+    <Compile Include="Migrations\202202181822249_AddReferralTable.designer.cs">
+      <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.cs" />
+    <Compile Include="Migrations\202203070205053_EnableFullTextA.designer.cs">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.cs" />
+    <Compile Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.designer.cs">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204271751451_UserAddBlocking.cs" />
+    <Compile Include="Migrations\202204271751451_UserAddBlocking.designer.cs">
+      <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205062112134_AddReactionsUserSettingsTags.cs" />
+    <Compile Include="Migrations\202205062112134_AddReactionsUserSettingsTags.designer.cs">
+      <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205101555380_AddUserReactionUnlocks.cs" />
+    <Compile Include="Migrations\202205101555380_AddUserReactionUnlocks.designer.cs">
+      <DependentUpon>202205101555380_AddUserReactionUnlocks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205101610041_AddUserReactionUnlockAll.cs" />
+    <Compile Include="Migrations\202205101610041_AddUserReactionUnlockAll.designer.cs">
+      <DependentUpon>202205101610041_AddUserReactionUnlockAll.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205111740172_AddUserReactionTimestamps.cs" />
+    <Compile Include="Migrations\202205111740172_AddUserReactionTimestamps.designer.cs">
+      <DependentUpon>202205111740172_AddUserReactionTimestamps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205201736487_AddCommentTags.cs" />
+    <Compile Include="Migrations\202205201736487_AddCommentTags.designer.cs">
+      <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205250145143_AddFundsLock.cs" />
+    <Compile Include="Migrations\202205250145143_AddFundsLock.designer.cs">
+      <DependentUpon>202205250145143_AddFundsLock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202205311930441_AddQuickVote.cs" />
+    <Compile Include="Migrations\202205311930441_AddQuickVote.designer.cs">
+      <DependentUpon>202205311930441_AddQuickVote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206100027185_AddBannerAlerts.cs" />
+    <Compile Include="Migrations\202206100027185_AddBannerAlerts.designer.cs">
+      <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.cs" />
+    <Compile Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.designer.cs">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.cs" />
+    <Compile Include="Migrations\202206161921353_AddUserContentReports.designer.cs">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.cs" />
+    <Compile Include="Migrations\202206241952241_AddPointOfSale.designer.cs">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.cs" />
+    <Compile Include="Migrations\202206250018230_AddUserPremiumLevel.designer.cs">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.cs" />
+    <Compile Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.designer.cs">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.cs" />
+    <Compile Include="Migrations\202207112203413_AddPaymentInvoiceInfo.designer.cs">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.cs" />
+    <Compile Include="Migrations\202207121733378_AddSubscriptionPlanDetails.designer.cs">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.cs" />
+    <Compile Include="Migrations\202207232354560_AddSubscriptionEndingParams.designer.cs">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.cs" />
+    <Compile Include="Migrations\202207251735445_AddSubscriptionPauseActionId.designer.cs">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.cs" />
+    <Compile Include="Migrations\202208081347305_AddBetaTesting.designer.cs">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountViewModels.cs" />
+    <Compile Include="Models\API\Account\GetSubscriptionsResponse.cs" />
+    <Compile Include="Models\Account\LNAuthLoginView.cs" />
     <Compile Include="Models\Admin\AddUserToGroupRoleViewModel.cs" />
     <Compile Include="Models\Admin\AdminAchievementsViewModel.cs" />
     <Compile Include="Models\Admin\AdminJobsViewModel.cs" />
@@ -808,55 +996,173 @@
     <Compile Include="Models\Admin\AdminViewModel.cs" />
     <Compile Include="Models\Admin\AdminViewModels.cs" />
     <Compile Include="Models\Admin\SiteAdminBarUserInfoViewModel.cs" />
-    <Compile Include="Models\API\Account\DataTableParameters.cs" />
+    <Compile Include="Models\API\Account\SubscribeRequest.cs" />
+    <Compile Include="Models\API\Account\UpdateQuickVoteRequest.cs" />
+    <Compile Include="Models\API\Admin\AddReactionParameters.cs" />
+    <Compile Include="Models\API\Admin\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Admin\APIAdminAccountingSummaryResponse.cs" />
+    <Compile Include="Models\API\Admin\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\Admin\GrantReactionParameters.cs" />
+    <Compile Include="Models\API\Core\GetLanguagesResponse.cs" />
+    <Compile Include="Models\API\DataTables\DataTableParameters.cs" />
     <Compile Include="Models\API\Account\Transactions\LightningTransactionsPageResponse.cs" />
     <Compile Include="Models\API\Account\UserAPIKey.cs" />
     <Compile Include="Models\API\Account\APIKeyResponse.cs" />
     <Compile Include="Models\API\Account\APIKeysResponse.cs" />
+    <Compile Include="Models\API\Groups\AdminGroupUserParameters.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsParameters.cs" />
+    <Compile Include="Models\API\Groups\GetGroupPostsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetModReportsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetTopGroupsResponse.cs" />
+    <Compile Include="Models\API\Groups\GetUnresolvedModReportsResponse.cs" />
+    <Compile Include="Models\API\Groups\GroupUsersParameters.cs" />
+    <Compile Include="Models\API\Groups\SetGroupDescriptionParameters.cs" />
+    <Compile Include="Models\API\Groups\SetModReportResolvedRequest.cs" />
+    <Compile Include="Models\API\Groups\UpdateGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\AddGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\GroupInfo.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\LoadGroupResponse .cs" />
+    <Compile Include="Models\API\Groups\AddGroupResponse.cs" />
+    <Compile Include="Models\API\Groups\CheckExistsGroupParameters.cs" />
+    <Compile Include="Models\API\Groups\CheckExistsGroupResponse.cs" />
+    <Compile Include="Models\API\Groups\ListGroupsResponse.cs" />
+    <Compile Include="Models\API\Groups\UpdateThemeParameters.cs" />
+    <Compile Include="Models\API\Post\AddReactionRequest.cs" />
+    <Compile Include="Models\API\Post\AddReactionResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostsRequest.cs" />
+    <Compile Include="Models\API\Post\GetPostResponse.cs" />
+    <Compile Include="Models\API\Post\GetPostsResponse.cs" />
+    <Compile Include="Models\API\Post\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\Post\PostReportRequest.cs" />
+    <Compile Include="Models\API\Post\PostReqParameters.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsParameters.cs" />
+    <Compile Include="Models\API\Post\GetMoreCommentsResponse.cs" />
+    <Compile Include="Models\API\ReactionItem.cs" />
     <Compile Include="Models\API\Stream\ConnectionInfoResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagPostsParameters.cs" />
+    <Compile Include="Models\API\Tag\GetTagPostsResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagInfoRequest.cs" />
+    <Compile Include="Models\API\Tag\GetTagInfoResponse.cs" />
+    <Compile Include="Models\API\Tag\GetTagsResponse.cs" />
+    <Compile Include="Models\API\Tag\MentionTagRequest.cs" />
+    <Compile Include="Models\API\Tag\MentionTagResponse.cs" />
+    <Compile Include="Models\API\Tag\TagItem.cs" />
     <Compile Include="Models\API\UserBalanceResponse.cs" />
+    <Compile Include="Models\API\User\GetBannerAlertsResponse.cs" />
+    <Compile Include="Models\API\User\GetReactionsResponse.cs" />
+    <Compile Include="Models\API\User\GetRefCodeResponse.cs" />
+    <Compile Include="Models\API\User\GetRefStatsResponse.cs" />
+    <Compile Include="Models\API\User\GetUserEmailResponse.cs" />
+    <Compile Include="Models\API\User\GetUserFeedRequest.cs" />
+    <Compile Include="Models\API\User\GetUserFollowInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserGroupInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserInteractionInfo.cs" />
+    <Compile Include="Models\API\User\GetUserNotificationInfoResponse.cs" />
+    <Compile Include="Models\API\User\GetUserSecurityInfoResponse.cs" />
+    <Compile Include="Models\API\User\UpdateEmailRequest.cs" />
+    <Compile Include="Models\API\User\UpdateEmailResponse.cs" />
+    <Compile Include="Models\API\User\UserInteractionRequest.cs" />
+    <Compile Include="Models\API\User\UserRefGiftRequest.cs" />
+    <Compile Include="Models\API\User\UserRefGiftResponse.cs" />
+    <Compile Include="Models\API\User\UserSearchRequest.cs" />
+    <Compile Include="Models\API\User\UserSearchResponse.cs" />
     <Compile Include="Models\API\ZapReadResponse.cs" />
     <Compile Include="Models\Comments\CommentReplyInputViewModel.cs" />
     <Compile Include="Models\Database\APIKey.cs" />
+    <Compile Include="Models\Database\BannerAlert.cs" />
+    <Compile Include="Models\Database\BetaTest.cs" />
     <Compile Include="Models\Database\Comment.cs" />
+    <Compile Include="Models\Database\CommentReaction.cs" />
+    <Compile Include="Models\Database\Financial\Customer.cs" />
+    <Compile Include="Models\Database\Financial\FundsLock.cs" />
+    <Compile Include="Models\Database\Financial\Order.cs" />
+    <Compile Include="Models\Database\Financial\Subscription.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPayment.cs" />
+    <Compile Include="Models\Database\Financial\SubscriptionPlan.cs" />
     <Compile Include="Models\Database\Financial\UserFunds.cs" />
     <Compile Include="Models\Database\Financial\Withdraw.cs" />
     <Compile Include="Models\Database\Group.cs" />
+    <Compile Include="Models\Database\GroupBanished.cs" />
     <Compile Include="Models\Database\Post.cs" />
+    <Compile Include="Models\Database\PostReaction.cs" />
+    <Compile Include="Models\Database\Reaction.cs" />
+    <Compile Include="Models\Database\Referral.cs" />
+    <Compile Include="Models\Database\Tag.cs" />
     <Compile Include="Models\Database\User.cs" />
     <Compile Include="Models\Database\Achievements.cs" />
     <Compile Include="Models\Database\UserAlert.cs" />
+    <Compile Include="Models\Database\UserContentReport.cs" />
     <Compile Include="Models\Database\UserMessage.cs" />
     <Compile Include="Models\Database\UserProcess.cs" />
     <Compile Include="Models\Database\UserSettings.cs" />
     <Compile Include="Models\Database\ZapReadGlobals.cs" />
+    <Compile Include="Models\Email\Attachment.cs" />
     <Compile Include="Models\Email\EmailModels.cs" />
-    <Compile Include="Models\Finance\CurrencyModels.cs" />
-    <Compile Include="Models\Finance\FinanceModels.cs" />
+    <Compile Include="Models\Database\Financial\CurrencyModels.cs" />
+    <Compile Include="Models\Database\Financial\FinanceModels.cs" />
+    <Compile Include="Models\Email\NewChatEmail.cs" />
+    <Compile Include="Models\Email\NewUserFollowerEmail.cs" />
+    <Compile Include="Models\Email\Email.cs" />
+    <Compile Include="Models\Email\PostCommentEmail.cs" />
+    <Compile Include="Models\Email\PostCommentReplyEmail.cs" />
+    <Compile Include="Models\Email\NewPostEmail.cs" />
+    <Compile Include="Models\Email\TestEmail.cs" />
+    <Compile Include="Models\Email\UpdatedUserAliasEmail.cs" />
+    <Compile Include="Models\Email\UserMentionedInPostEmail.cs" />
+    <Compile Include="Models\Email\UserMentionedInCommentEmail.cs" />
+    <Compile Include="Models\Email\WeeklySummaryEmail.cs" />
     <Compile Include="Models\Group\GroupHoverViewModel.cs" />
     <Compile Include="Models\Group\GroupLinkViewModel.cs" />
-    <Compile Include="Models\Group\GroupStats.cs" />
     <Compile Include="Models\Group\GroupViewModels.cs" />
     <Compile Include="Models\Home\HomeIndexViewModel.cs" />
+    <Compile Include="Models\Home\HomeTopGroupsPartialViewModel.cs" />
     <Compile Include="Models\Identity\IdentityModels.cs" />
     <Compile Include="Models\Lightning\LightningModels.cs" />
     <Compile Include="Models\Lightning\LNNode.cs" />
+    <Compile Include="Models\Manage\GoogleAuthenticatorViewModel.cs" />
+    <Compile Include="Models\Manage\ManageActivityPostsPartialViewModel.cs" />
     <Compile Include="Models\Manage\UpdatedUserAliasView.cs" />
     <Compile Include="Models\Manage\ManageSettingViewModel.cs" />
     <Compile Include="Models\Manage\ManageViewModels.cs" />
     <Compile Include="Models\Database\DatabaseModels.cs" />
+    <Compile Include="Models\Messages\ChatsDataItem.cs" />
     <Compile Include="Models\Messages\MessageDataItem.cs" />
     <Compile Include="Models\Messages\MessagesViewModel.cs" />
+    <Compile Include="Models\Mod\ContentReportTypes.cs" />
+    <Compile Include="Models\Posts\PostEditViewModel.cs" />
     <Compile Include="Models\Posts\PostsViewModels.cs" />
     <Compile Include="Models\Posts\Vote.cs" />
+    <Compile Include="Models\Search\SearchResult.cs" />
     <Compile Include="Models\Statistics\StatisticsModels.cs" />
+    <Compile Include="Models\Subscription\POSProviderTypes.cs" />
+    <Compile Include="Models\Subscription\SubscriptionTypes.cs" />
+    <Compile Include="Models\Subscription\UnsubscribeIndexViewModel.cs" />
+    <Compile Include="Models\Tag\TagsViewModel.cs" />
     <Compile Include="Models\User\UserAchievementsViewModel.cs" />
+    <Compile Include="Models\User\UserBalanceInfo.cs" />
     <Compile Include="Models\User\UserFollowView.cs" />
+    <Compile Include="Models\User\UserFundLockType.cs" />
     <Compile Include="Models\User\UserHoverViewModel.cs" />
     <Compile Include="Models\User\UserLinkViewModel.cs" />
+    <Compile Include="Models\User\UserTopFollowingPartialViewModel.cs" />
     <Compile Include="Models\User\UserViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\AccountMonitorService.cs" />
     <Compile Include="Services\AchievementsService.cs" />
+    <Compile Include="Services\AlertsService.cs" />
+    <Compile Include="Services\CaptchaService.cs" />
+    <Compile Include="Services\CryptoService.cs" />
+    <Compile Include="Services\EventService.cs" />
+    <Compile Include="Services\IEventService.cs" />
+    <Compile Include="Services\IPointOfSaleService.cs" />
     <Compile Include="Services\LightningPayments.cs" />
     <Compile Include="Services\ILightningPayments.cs" />
     <Compile Include="Services\LNNodeMonitor.cs" />
@@ -865,7 +1171,10 @@
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\PaymentPoller.cs" />
     <Compile Include="Services\PayoutsService.cs" />
+    <Compile Include="Services\PointOfSaleService.cs" />
+    <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ReputationService.cs" />
+    <Compile Include="Services\SubscriptionAccountsService.cs" />
     <Compile Include="Services\UserState.cs" />
     <Compile Include="Services\VoteService.cs" />
     <Compile Include="Startup.cs" />
@@ -878,12 +1187,13 @@
     <Content Include="Content\bootstrap-social.css" />
     <Content Include="Content\bootstrap-tour.min.css" />
     <Content Include="Content\FFFFFF-0.png" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
-    <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\images\AGPL.png" />
+    <Content Include="Content\images\Chats.jpg" />
     <Content Include="Content\images\chosen-sprite%402x.png" />
     <Content Include="Content\images\chosen-sprite.png" />
-    <Content Include="Content\images\fontawesome-webfont.svg" />
+    <Content Include="Content\images\FinanceChart.jpg" />
     <Content Include="Content\images\header-profile.png" />
+    <Content Include="Content\images\NetworkGraph.jpg" />
     <Content Include="Content\images\shattered.png" />
     <Content Include="Content\images\ui-icons_444444_256x240.png" />
     <Content Include="Content\images\ui-icons_555555_256x240.png" />
@@ -891,77 +1201,455 @@
     <Content Include="Content\images\ui-icons_777777_256x240.png" />
     <Content Include="Content\images\ui-icons_cc0000_256x240.png" />
     <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\lang\tarteaucitron.bg.js" />
+    <Content Include="Content\lang\tarteaucitron.ca.js" />
+    <Content Include="Content\lang\tarteaucitron.cn.js" />
+    <Content Include="Content\lang\tarteaucitron.cs.js" />
+    <Content Include="Content\lang\tarteaucitron.da.js" />
+    <Content Include="Content\lang\tarteaucitron.de.js" />
+    <Content Include="Content\lang\tarteaucitron.el.js" />
+    <Content Include="Content\lang\tarteaucitron.en.js" />
+    <Content Include="Content\lang\tarteaucitron.es.js" />
+    <Content Include="Content\lang\tarteaucitron.fi.js" />
+    <Content Include="Content\lang\tarteaucitron.fr.js" />
+    <Content Include="Content\lang\tarteaucitron.hu.js" />
+    <Content Include="Content\lang\tarteaucitron.it.js" />
+    <Content Include="Content\lang\tarteaucitron.ja.js" />
+    <Content Include="Content\lang\tarteaucitron.lt.js" />
+    <Content Include="Content\lang\tarteaucitron.lv.js" />
+    <Content Include="Content\lang\tarteaucitron.nl.js" />
+    <Content Include="Content\lang\tarteaucitron.no.js" />
+    <Content Include="Content\lang\tarteaucitron.oc.js" />
+    <Content Include="Content\lang\tarteaucitron.pl.js" />
+    <Content Include="Content\lang\tarteaucitron.pt.js" />
+    <Content Include="Content\lang\tarteaucitron.ro.js" />
+    <Content Include="Content\lang\tarteaucitron.ru.js" />
+    <Content Include="Content\lang\tarteaucitron.se.js" />
+    <Content Include="Content\lang\tarteaucitron.sk.js" />
+    <Content Include="Content\lang\tarteaucitron.sv.js" />
+    <Content Include="Content\lang\tarteaucitron.tr.js" />
+    <Content Include="Content\lang\tarteaucitron.vi.js" />
+    <Content Include="Content\lang\tarteaucitron.zh.js" />
     <Content Include="Content\logo.png" />
     <Content Include="Content\logos.png" />
-    <Content Include="Scripts\dist\account\login.css" />
-    <Content Include="Scripts\dist\account\login.js" />
-    <Content Include="Scripts\dist\admin\achievements.css" />
-    <Content Include="Scripts\dist\admin\achievements.js" />
-    <Content Include="Scripts\dist\admin\audit.css" />
-    <Content Include="Scripts\dist\admin\audit.js" />
-    <Content Include="Scripts\dist\admin\icons.css" />
-    <Content Include="Scripts\dist\admin\icons.js" />
-    <Content Include="Scripts\dist\admin\index.css" />
-    <Content Include="Scripts\dist\admin\index.js" />
-    <Content Include="Scripts\dist\admin\jobs.css" />
-    <Content Include="Scripts\dist\admin\jobs.js" />
-    <Content Include="Scripts\dist\admin\lightning.css" />
-    <Content Include="Scripts\dist\admin\lightning.js" />
-    <Content Include="Scripts\dist\admin\users.css" />
-    <Content Include="Scripts\dist\admin\users.js" />
-    <Content Include="Scripts\dist\group\detail.css" />
-    <Content Include="Scripts\dist\group\detail.js" />
-    <Content Include="Scripts\dist\group\index.css" />
-    <Content Include="Scripts\dist\group\index.js" />
-    <Content Include="Scripts\dist\group\members.css" />
-    <Content Include="Scripts\dist\group\members.js" />
-    <Content Include="Scripts\dist\group\new.css" />
-    <Content Include="Scripts\dist\group\new.js" />
-    <Content Include="Scripts\dist\home\about.css" />
-    <Content Include="Scripts\dist\home\about.js" />
-    <Content Include="Scripts\dist\home\faq.css" />
-    <Content Include="Scripts\dist\home\faq.js" />
-    <Content Include="Scripts\dist\home\index.css" />
-    <Content Include="Scripts\dist\home\index.js" />
-    <Content Include="Scripts\dist\home\install.css" />
-    <Content Include="Scripts\dist\home\install.js" />
-    <Content Include="Scripts\dist\mailer\default.css" />
-    <Content Include="Scripts\dist\mailer\default.js" />
-    <Content Include="Scripts\dist\manage\apikeys.css" />
-    <Content Include="Scripts\dist\manage\apikeys.js" />
-    <Content Include="Scripts\dist\manage\default.css" />
-    <Content Include="Scripts\dist\manage\default.js" />
-    <Content Include="Scripts\dist\manage\financial.css" />
-    <Content Include="Scripts\dist\manage\financial.js" />
-    <Content Include="Scripts\dist\manage\index.css" />
-    <Content Include="Scripts\dist\manage\index.js" />
-    <Content Include="Scripts\dist\messages\alerts.css" />
-    <Content Include="Scripts\dist\messages\alerts.js" />
-    <Content Include="Scripts\dist\messages\all.css" />
-    <Content Include="Scripts\dist\messages\all.js" />
-    <Content Include="Scripts\dist\messages\chat.css" />
-    <Content Include="Scripts\dist\messages\chat.js" />
-    <Content Include="Scripts\dist\messages\chats.css" />
-    <Content Include="Scripts\dist\messages\chats.js" />
-    <Content Include="Scripts\dist\messages\index.css" />
-    <Content Include="Scripts\dist\messages\index.js" />
-    <Content Include="Scripts\dist\post\detail.css" />
-    <Content Include="Scripts\dist\post\detail.js" />
-    <Content Include="Scripts\dist\post\edit.css" />
-    <Content Include="Scripts\dist\post\edit.js" />
-    <Content Include="Scripts\dist\post\newpost.css" />
-    <Content Include="Scripts\dist\post\newpost.js" />
-    <Content Include="Scripts\dist\post\postnotfound.css" />
-    <Content Include="Scripts\dist\post\postnotfound.js" />
-    <Content Include="Scripts\dist\user\achievements.css" />
-    <Content Include="Scripts\dist\user\achievements.js" />
-    <Content Include="Scripts\dist\user\index.css" />
-    <Content Include="Scripts\dist\user\index.js" />
+    <Content Include="Content\privacy.png" />
+    <Content Include="Content\tarteaucitron.services.js" />
+    <Content Include="node_modules\tarteaucitronjs\advertising.js" />
+    <Content Include="node_modules\tarteaucitronjs\css\tarteaucitron.css" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.bg.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ca.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.cn.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.cs.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.da.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.de.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.el.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.en.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.es.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.fi.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.fr.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.hu.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.it.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ja.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.lt.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.lv.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.nl.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.no.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.oc.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.pl.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.pt.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ro.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.ru.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.se.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.sk.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.sv.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.tr.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.vi.js" />
+    <Content Include="node_modules\tarteaucitronjs\lang\tarteaucitron.zh.js" />
+    <Content Include="node_modules\tarteaucitronjs\tarteaucitron.js" />
+    <Content Include="node_modules\tarteaucitronjs\tarteaucitron.services.js" />
+    <Content Include="Content\fonts\fa-brands-400.ttf" />
+    <Content Include="Content\fonts\fa-brands-400.woff2" />
+    <Content Include="Content\fonts\fa-regular-400.ttf" />
+    <Content Include="Content\fonts\fa-regular-400.woff2" />
+    <Content Include="Content\fonts\fa-solid-900.ttf" />
+    <Content Include="Content\fonts\fa-solid-900.woff2" />
+    <Content Include="Content\fonts\fa-v4compatibility.ttf" />
+    <Content Include="Content\fonts\fa-v4compatibility.woff2" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Scripts\dist\0\1035.js" />
+    <Content Include="Scripts\dist\0\1161.js" />
+    <Content Include="Scripts\dist\0\2025.js" />
+    <Content Include="Scripts\dist\0\2172.js" />
+    <Content Include="Scripts\dist\0\2172.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\2307.js" />
+    <Content Include="Scripts\dist\0\2855.js" />
+    <Content Include="Scripts\dist\0\3215.css" />
+    <Content Include="Scripts\dist\0\3215.js" />
+    <Content Include="Scripts\dist\0\3940.js" />
+    <Content Include="Scripts\dist\0\4090.js" />
+    <Content Include="Scripts\dist\0\4368.css" />
+    <Content Include="Scripts\dist\0\4368.js" />
+    <Content Include="Scripts\dist\0\4791.js" />
+    <Content Include="Scripts\dist\0\499.css" />
+    <Content Include="Scripts\dist\0\499.js" />
+    <Content Include="Scripts\dist\0\5252.js" />
+    <Content Include="Scripts\dist\0\5580.js" />
+    <Content Include="Scripts\dist\0\5759.css" />
+    <Content Include="Scripts\dist\0\5759.js" />
+    <Content Include="Scripts\dist\0\586.css" />
+    <Content Include="Scripts\dist\0\586.js" />
+    <Content Include="Scripts\dist\0\595.js" />
+    <Content Include="Scripts\dist\0\6455.js" />
+    <Content Include="Scripts\dist\0\6769.js" />
+    <Content Include="Scripts\dist\0\6969.js" />
+    <Content Include="Scripts\dist\0\7524.js" />
+    <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\7630.js" />
+    <Content Include="Scripts\dist\0\7630.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\0\7939.js" />
+    <Content Include="Scripts\dist\0\8104.css" />
+    <Content Include="Scripts\dist\0\8104.js" />
+    <Content Include="Scripts\dist\0\8625.js" />
+    <Content Include="Scripts\dist\0\8808.js" />
+    <Content Include="Scripts\dist\0\8961.css" />
+    <Content Include="Scripts\dist\0\8961.js" />
+    <Content Include="Scripts\dist\0\9138.js" />
+    <Content Include="Scripts\dist\0\9651.css" />
+    <Content Include="Scripts\dist\0\9651.js" />
+    <Content Include="Scripts\dist\0\9681.css" />
+    <Content Include="Scripts\dist\0\9681.js" />
+    <Content Include="Scripts\dist\0\9907.js" />
+    <Content Include="Scripts\dist\4c9b1fa89f3c892cb2f1.jpg" />
+    <Content Include="Scripts\dist\7dc5492d8e0fe236c1f4.png" />
+    <Content Include="Scripts\dist\account\login.css" />
+    <Content Include="Scripts\dist\account\login.js" />
+    <Content Include="Scripts\dist\account\login.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\account\register.css" />
+    <Content Include="Scripts\dist\account\register.js" />
+    <Content Include="Scripts\dist\account\register.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\accounting.css" />
+    <Content Include="Scripts\dist\admin\accounting.js" />
+    <Content Include="Scripts\dist\admin\accounting.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\achievements.css" />
+    <Content Include="Scripts\dist\admin\achievements.js" />
+    <Content Include="Scripts\dist\admin\achievements.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\audit.css" />
+    <Content Include="Scripts\dist\admin\audit.js" />
+    <Content Include="Scripts\dist\admin\audit.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\icons.css" />
+    <Content Include="Scripts\dist\admin\icons.js" />
+    <Content Include="Scripts\dist\admin\icons.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\index.css" />
+    <Content Include="Scripts\dist\admin\index.js" />
+    <Content Include="Scripts\dist\admin\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\jobs.css" />
+    <Content Include="Scripts\dist\admin\jobs.js" />
+    <Content Include="Scripts\dist\admin\jobs.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\lightning.css" />
+    <Content Include="Scripts\dist\admin\lightning.js" />
+    <Content Include="Scripts\dist\admin\lightning.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\pos.css" />
+    <Content Include="Scripts\dist\admin\pos.js" />
+    <Content Include="Scripts\dist\admin\pos.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\reactions.css" />
+    <Content Include="Scripts\dist\admin\reactions.js" />
+    <Content Include="Scripts\dist\admin\reactions.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\admin\users.css" />
+    <Content Include="Scripts\dist\admin\users.js" />
+    <Content Include="Scripts\dist\admin\users.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\d89ad2346bdc8f374668.jpg" />
+    <Content Include="Scripts\dist\group\detail.css" />
+    <Content Include="Scripts\dist\group\detail.js" />
+    <Content Include="Scripts\dist\group\detail.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\group\edit.css" />
+    <Content Include="Scripts\dist\group\edit.js" />
+    <Content Include="Scripts\dist\group\edit.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\group\index.css" />
+    <Content Include="Scripts\dist\group\index.js" />
+    <Content Include="Scripts\dist\group\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\group\members.css" />
+    <Content Include="Scripts\dist\group\members.js" />
+    <Content Include="Scripts\dist\group\members.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\group\new.css" />
+    <Content Include="Scripts\dist\group\new.js" />
+    <Content Include="Scripts\dist\group\new.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\about.css" />
+    <Content Include="Scripts\dist\home\about.js" />
+    <Content Include="Scripts\dist\home\about.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\faq.css" />
+    <Content Include="Scripts\dist\home\faq.js" />
+    <Content Include="Scripts\dist\home\faq.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\index.css" />
+    <Content Include="Scripts\dist\home\index.js" />
+    <Content Include="Scripts\dist\home\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\install.css" />
+    <Content Include="Scripts\dist\home\install.js" />
+    <Content Include="Scripts\dist\home\install.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\privacy.css" />
+    <Content Include="Scripts\dist\home\privacy.js" />
+    <Content Include="Scripts\dist\home\privacy.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\home\terms.css" />
+    <Content Include="Scripts\dist\home\terms.js" />
+    <Content Include="Scripts\dist\home\terms.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\lnauth\login.css" />
+    <Content Include="Scripts\dist\lnauth\login.js" />
+    <Content Include="Scripts\dist\lnauth\login.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\mailer\default.css" />
+    <Content Include="Scripts\dist\mailer\default.js" />
+    <Content Include="Scripts\dist\mailer\default.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\apikeys.css" />
+    <Content Include="Scripts\dist\manage\apikeys.js" />
+    <Content Include="Scripts\dist\manage\apikeys.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\default.css" />
+    <Content Include="Scripts\dist\manage\default.js" />
+    <Content Include="Scripts\dist\manage\default.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\financial.css" />
+    <Content Include="Scripts\dist\manage\financial.js" />
+    <Content Include="Scripts\dist\manage\financial.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\index.css" />
+    <Content Include="Scripts\dist\manage\index.js" />
+    <Content Include="Scripts\dist\manage\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\manage\purchases.css" />
+    <Content Include="Scripts\dist\manage\purchases.js" />
+    <Content Include="Scripts\dist\manage\purchases.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\messages\alerts.css" />
+    <Content Include="Scripts\dist\messages\alerts.js" />
+    <Content Include="Scripts\dist\messages\alerts.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\messages\all.css" />
+    <Content Include="Scripts\dist\messages\all.js" />
+    <Content Include="Scripts\dist\messages\all.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\messages\chat.css" />
+    <Content Include="Scripts\dist\messages\chat.js" />
+    <Content Include="Scripts\dist\messages\chat.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\messages\chats.css" />
+    <Content Include="Scripts\dist\messages\chats.js" />
+    <Content Include="Scripts\dist\messages\chats.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\messages\index.css" />
+    <Content Include="Scripts\dist\messages\index.js" />
+    <Content Include="Scripts\dist\messages\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\post\detail.css" />
+    <Content Include="Scripts\dist\post\detail.js" />
+    <Content Include="Scripts\dist\post\detail.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\post\edit.css" />
+    <Content Include="Scripts\dist\post\edit.js" />
+    <Content Include="Scripts\dist\post\edit.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\post\postnotfound.css" />
+    <Content Include="Scripts\dist\post\postnotfound.js" />
+    <Content Include="Scripts\dist\post\postnotfound.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.css" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.js" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\tag\detail.css" />
+    <Content Include="Scripts\dist\tag\detail.js" />
+    <Content Include="Scripts\dist\tag\detail.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\tag\index.css" />
+    <Content Include="Scripts\dist\tag\index.js" />
+    <Content Include="Scripts\dist\tag\index.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\user\achievements.css" />
+    <Content Include="Scripts\dist\user\achievements.js" />
+    <Content Include="Scripts\dist\user\achievements.js.LICENSE.txt" />
+    <Content Include="Scripts\dist\user\index.css" />
+    <Content Include="Scripts\dist\user\index.js" />
+    <Content Include="Scripts\dist\user\index.js.LICENSE.txt" />
+    <Content Include="Scripts\src\Components\CommentsView.js" />
     <Content Include="Scripts\src\comment\editcomment.js" />
     <Content Include="Scripts\src\comment\utility\makeQuillComment.js" />
+    <Content Include="Scripts\src\Components\DepositWithdrawModal.js" />
+    <Content Include="Scripts\src\Components\hooks\useUserInfo.js" />
+    <Content Include="Scripts\src\Components\LoadingBounce.js" />
+    <Content Include="Scripts\src\Components\Payments\PaymentInputs.js" />
+    <Content Include="Scripts\src\Components\PlotlyChart.js" />
+    <Content Include="Scripts\src\Components\ReactionBar.js" />
+    <Content Include="Scripts\src\Components\Share\SharePostButton.js" />
+    <Content Include="Scripts\src\Components\Theme\ThemeContext.js" />
+    <Content Include="Scripts\src\Components\TopBar\BalanceWidget.js" />
+    <Content Include="Scripts\src\Components\TopBar\BannerAlert.js" />
+    <Content Include="Scripts\src\Components\TopBar\BannerAlerts.js" />
+    <Content Include="Scripts\src\Components\TopBar\ModerationBar.js" />
+    <Content Include="Scripts\src\Components\TopGroups.js" />
+    <Content Include="Scripts\src\Components\UserAutosuggest.js" />
+    <Content Include="Scripts\src\Components\User\AboutMeModal.js" />
+    <Content Include="Scripts\src\Components\User\UserInteractions.js" />
+    <Content Include="Scripts\src\Components\User\UserGroupInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFollowInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserFinanceInfo.js" />
+    <Content Include="Scripts\src\Components\User\CustomizationSettings.js" />
+    <Content Include="Scripts\src\Components\User\ProfileImageModal.js" />
+    <Content Include="Scripts\src\Components\User\NotificationSettings.js" />
+    <Content Include="Scripts\src\Components\User\SecuritySettings.js" />
+    <Content Include="Scripts\src\Components\User\UserProfile.js" />
+    <Content Include="Scripts\src\Components\User\UserReferralInfo.js" />
+    <Content Include="Scripts\src\Components\User\UserSetting.js" />
+    <Content Include="Scripts\src\Components\utility\reportUserContent.js" />
+    <Content Include="Scripts\src\Components\utility\suggestTags.js" />
+    <Content Include="Scripts\src\Components\utility\suggestUsers.js" />
+    <Content Include="Scripts\src\Components\VoteModal.js" />
+    <Content Include="Scripts\src\Components\ZapreadSearch.js" />
+    <Content Include="Scripts\src\Components\ZapreadSearchResultModal.js" />
+    <Content Include="Scripts\src\css\components\autosuggest.css" />
+    <Content Include="Scripts\src\css\components\input\input.css" />
+    <Content Include="Scripts\src\css\components\zrsearch.css" />
+    <Content Include="Scripts\src\css\pages\about\Blocks.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Clouds.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Dots.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Lightning.jpg" />
+    <Content Include="Scripts\src\css\pages\about\Network.jpg" />
+    <Content Include="Scripts\src\css\pages\about\NetworkGraph.jpg" />
+    <Content Include="Scripts\dist\account\login.css.map" />
+    <Content Include="Scripts\dist\account\login.js.map" />
+    <Content Include="Scripts\dist\account\register.css.map" />
+    <Content Include="Scripts\dist\account\register.js.map" />
+    <Content Include="Scripts\dist\admin\accounting.css.map" />
+    <Content Include="Scripts\dist\admin\accounting.js.map" />
+    <Content Include="Scripts\dist\admin\achievements.css.map" />
+    <Content Include="Scripts\dist\admin\achievements.js.map" />
+    <Content Include="Scripts\dist\admin\audit.css.map" />
+    <Content Include="Scripts\dist\admin\audit.js.map" />
+    <Content Include="Scripts\dist\admin\icons.css.map" />
+    <Content Include="Scripts\dist\admin\icons.js.map" />
+    <Content Include="Scripts\dist\admin\index.css.map" />
+    <Content Include="Scripts\dist\admin\index.js.map" />
+    <Content Include="Scripts\dist\admin\jobs.css.map" />
+    <Content Include="Scripts\dist\admin\jobs.js.map" />
+    <Content Include="Scripts\dist\admin\lightning.css.map" />
+    <Content Include="Scripts\dist\admin\lightning.js.map" />
+    <Content Include="Scripts\dist\admin\reactions.css.map" />
+    <Content Include="Scripts\dist\admin\reactions.js.map" />
+    <Content Include="Scripts\dist\admin\users.css.map" />
+    <Content Include="Scripts\dist\admin\users.js.map" />
+    <Content Include="Scripts\dist\group\detail.css.map" />
+    <Content Include="Scripts\dist\group\detail.js.map" />
+    <Content Include="Scripts\dist\group\edit.css.map" />
+    <Content Include="Scripts\dist\group\edit.js.map" />
+    <Content Include="Scripts\dist\group\index.css.map" />
+    <Content Include="Scripts\dist\group\index.js.map" />
+    <Content Include="Scripts\dist\group\members.css.map" />
+    <Content Include="Scripts\dist\group\members.js.map" />
+    <Content Include="Scripts\dist\group\new.css.map" />
+    <Content Include="Scripts\dist\group\new.js.map" />
+    <Content Include="Scripts\dist\home\about.css.map" />
+    <Content Include="Scripts\dist\home\about.js.map" />
+    <Content Include="Scripts\dist\home\faq.css.map" />
+    <Content Include="Scripts\dist\home\faq.js.map" />
+    <Content Include="Scripts\dist\home\index.css.map" />
+    <Content Include="Scripts\dist\home\index.js.map" />
+    <Content Include="Scripts\dist\home\install.css.map" />
+    <Content Include="Scripts\dist\home\install.js.map" />
+    <Content Include="Scripts\dist\home\privacy.css.map" />
+    <Content Include="Scripts\dist\home\privacy.js.map" />
+    <Content Include="Scripts\dist\home\terms.css.map" />
+    <Content Include="Scripts\dist\home\terms.js.map" />
+    <Content Include="Scripts\dist\lnauth\login.css.map" />
+    <Content Include="Scripts\dist\lnauth\login.js.map" />
+    <Content Include="Scripts\dist\mailer\default.css.map" />
+    <Content Include="Scripts\dist\mailer\default.js.map" />
+    <Content Include="Scripts\dist\manage\apikeys.css.map" />
+    <Content Include="Scripts\dist\manage\apikeys.js.map" />
+    <Content Include="Scripts\dist\manage\default.css.map" />
+    <Content Include="Scripts\dist\manage\default.js.map" />
+    <Content Include="Scripts\dist\manage\financial.css.map" />
+    <Content Include="Scripts\dist\manage\financial.js.map" />
+    <Content Include="Scripts\dist\manage\index.css.map" />
+    <Content Include="Scripts\dist\manage\index.js.map" />
+    <Content Include="Scripts\dist\messages\alerts.css.map" />
+    <Content Include="Scripts\dist\messages\alerts.js.map" />
+    <Content Include="Scripts\dist\messages\all.css.map" />
+    <Content Include="Scripts\dist\messages\all.js.map" />
+    <Content Include="Scripts\dist\messages\chat.css.map" />
+    <Content Include="Scripts\dist\messages\chat.js.map" />
+    <Content Include="Scripts\dist\messages\chats.css.map" />
+    <Content Include="Scripts\dist\messages\chats.js.map" />
+    <Content Include="Scripts\dist\messages\index.css.map" />
+    <Content Include="Scripts\dist\messages\index.js.map" />
+    <Content Include="Scripts\dist\post\detail.css.map" />
+    <Content Include="Scripts\dist\post\detail.js.map" />
+    <Content Include="Scripts\dist\post\edit.css.map" />
+    <Content Include="Scripts\dist\post\edit.js.map" />
+    <Content Include="Scripts\dist\post\postnotfound.css.map" />
+    <Content Include="Scripts\dist\post\postnotfound.js.map" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.css.map" />
+    <Content Include="Scripts\dist\subscription\unsubscribe.js.map" />
+    <Content Include="Scripts\dist\tag\detail.css.map" />
+    <Content Include="Scripts\dist\tag\detail.js.map" />
+    <Content Include="Scripts\dist\tag\index.css.map" />
+    <Content Include="Scripts\dist\tag\index.js.map" />
+    <Content Include="Scripts\dist\user\achievements.css.map" />
+    <Content Include="Scripts\dist\user\achievements.js.map" />
+    <Content Include="Scripts\dist\user\index.css.map" />
+    <Content Include="Scripts\dist\user\index.js.map" />
+    <Content Include="Scripts\dist\admin\pos.css.map" />
+    <Content Include="Scripts\dist\admin\pos.js.map" />
+    <Content Include="Scripts\dist\0\1035.js.map" />
+    <Content Include="Scripts\dist\0\1161.js.map" />
+    <Content Include="Scripts\dist\0\2025.js.map" />
+    <Content Include="Scripts\dist\0\2172.js.map" />
+    <Content Include="Scripts\dist\0\2307.js.map" />
+    <Content Include="Scripts\dist\0\2855.js.map" />
+    <Content Include="Scripts\dist\0\3215.css.map" />
+    <Content Include="Scripts\dist\0\3215.js.map" />
+    <Content Include="Scripts\dist\0\3940.js.map" />
+    <Content Include="Scripts\dist\0\4090.js.map" />
+    <Content Include="Scripts\dist\0\4368.css.map" />
+    <Content Include="Scripts\dist\0\4368.js.map" />
+    <Content Include="Scripts\dist\0\4791.js.map" />
+    <Content Include="Scripts\dist\0\499.css.map" />
+    <Content Include="Scripts\dist\0\499.js.map" />
+    <Content Include="Scripts\dist\0\5252.js.map" />
+    <Content Include="Scripts\dist\0\5580.js.map" />
+    <Content Include="Scripts\dist\0\5759.css.map" />
+    <Content Include="Scripts\dist\0\5759.js.map" />
+    <Content Include="Scripts\dist\0\586.css.map" />
+    <Content Include="Scripts\dist\0\586.js.map" />
+    <Content Include="Scripts\dist\0\595.js.map" />
+    <Content Include="Scripts\dist\0\6455.js.map" />
+    <Content Include="Scripts\dist\0\6769.js.map" />
+    <Content Include="Scripts\dist\0\6969.js.map" />
+    <Content Include="Scripts\dist\0\7524.js.map" />
+    <Content Include="Scripts\dist\0\7630.js.map" />
+    <Content Include="Scripts\dist\0\7939.js.map" />
+    <Content Include="Scripts\dist\0\8104.css.map" />
+    <Content Include="Scripts\dist\0\8104.js.map" />
+    <Content Include="Scripts\dist\0\8625.js.map" />
+    <Content Include="Scripts\dist\0\8808.js.map" />
+    <Content Include="Scripts\dist\0\8961.css.map" />
+    <Content Include="Scripts\dist\0\8961.js.map" />
+    <Content Include="Scripts\dist\0\9138.js.map" />
+    <Content Include="Scripts\dist\0\9651.css.map" />
+    <Content Include="Scripts\dist\0\9651.js.map" />
+    <Content Include="Scripts\dist\0\9681.css.map" />
+    <Content Include="Scripts\dist\0\9681.js.map" />
+    <Content Include="Scripts\dist\0\9907.js.map" />
+    <Content Include="Scripts\dist\manage\purchases.css.map" />
+    <Content Include="Scripts\dist\manage\purchases.js.map" />
+    <None Include="Scripts\src\css\pages\manage\manage.scss" />
+    <Content Include="Scripts\src\css\pages\groups\index.css" />
+    <Content Include="Scripts\src\css\base\badges_labels.scss" />
+    <Content Include="Scripts\src\css\base\base.scss" />
+    <Content Include="Scripts\src\css\base\buttons.scss" />
+    <Content Include="Scripts\src\css\base\chat.scss" />
+    <Content Include="Scripts\src\css\base\custom.scss" />
+    <Content Include="Scripts\src\css\base\elements.scss" />
+    <Content Include="Scripts\src\css\base\glyphicons.scss" />
+    <Content Include="Scripts\src\css\base\landing.scss" />
+    <Content Include="Scripts\src\css\base\md-skin.scss" />
+    <Content Include="Scripts\src\css\base\media.scss" />
+    <Content Include="Scripts\src\css\base\metismenu.scss" />
+    <Content Include="Scripts\src\css\base\mixins.scss" />
+    <Content Include="Scripts\src\css\base\navigation.scss" />
+    <Content Include="Scripts\src\css\base\pages.scss" />
+    <Content Include="Scripts\src\css\base\rtl.scss" />
+    <Content Include="Scripts\src\css\base\sidebar.scss" />
+    <Content Include="Scripts\src\css\base\skins.scss" />
+    <Content Include="Scripts\src\css\base\spinners.scss" />
+    <Content Include="Scripts\src\css\base\theme-config.scss" />
+    <Content Include="Scripts\src\css\base\top_navigation.scss" />
+    <Content Include="Scripts\src\css\base\typography.scss" />
+    <Content Include="Scripts\src\css\base\variables.scss" />
+    <Content Include="Scripts\src\css\navbar\navbar.scss" />
+    <Content Include="Scripts\src\css\pages\about\about.scss" />
+    <None Include="Scripts\src\css\pages\messages\alerts.scss" />
     <Content Include="Scripts\src\css\patterns\1.png" />
     <Content Include="Scripts\src\css\patterns\2.png" />
     <Content Include="Scripts\src\css\patterns\3.png" />
@@ -977,11 +1665,12 @@
     <Content Include="Scripts\src\css\patterns\otis_redding.png" />
     <Content Include="Scripts\src\css\patterns\shattered.png" />
     <Content Include="Scripts\src\css\patterns\triangular.png" />
-    <Content Include="Content\Site_dark.css" />
     <Content Include="Content\spinners.css" />
     <Content Include="Scripts\src\css\hover.css" />
     <Content Include="Scripts\src\css\quill\quillchat.css" />
-    <Content Include="Scripts\src\css\quill\quillcustom.css" />
+    <None Include="Scripts\src\css\quill\quilledit.scss" />
+    <None Include="Scripts\src\css\quill\quillcustom.scss" />
+    <Content Include="Scripts\src\css\quill\quillfont.css" />
     <Content Include="Scripts\src\css\quotable.css" />
     <Content Include="Scripts\src\css\roundlinks.css" />
     <Content Include="Content\vdn.png" />
@@ -1007,10 +1696,6 @@
     <Content Include="node_modules\dropzone\dist\min\basic.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.css" />
     <Content Include="node_modules\dropzone\dist\min\dropzone.min.js" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.css" />
-    <Content Include="node_modules\font-awesome\css\font-awesome.min.css" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.svg" />
-    <Content Include="node_modules\jquery-ajax-unobtrusive\jquery.unobtrusive-ajax.min.js" />
     <Content Include="node_modules\jquery-slimscroll\jquery.slimscroll.min.js" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_444444_256x240.png" />
     <Content Include="node_modules\jquery-ui-dist\images\ui-icons_555555_256x240.png" />
@@ -1036,83 +1721,161 @@
     <Content Include="node_modules\selectize\dist\css\selectize.css" />
     <Content Include="node_modules\selectize\dist\js\standalone\selectize.min.js" />
     <Content Include="package.json" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.eot" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.ttf" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="node_modules\font-awesome\fonts\fontawesome-webfont.woff2" />
-    <Content Include="node_modules\font-awesome\fonts\FontAwesome.otf" />
-    <Content Include="plugins\font\summernote.eot" />
-    <Content Include="plugins\font\summernote.ttf" />
-    <Content Include="plugins\font\summernote.woff" />
-    <Content Include="Content\fonts\fontawesome-webfont.eot" />
-    <Content Include="Content\fonts\fontawesome-webfont.ttf" />
-    <Content Include="Content\fonts\fontawesome-webfont.woff" />
-    <Content Include="Content\fonts\fontawesome-webfont.woff2" />
-    <Content Include="Content\fonts\FontAwesome.otf" />
     <Content Include="AppSettings.config" />
     <Content Include="database.config" />
     <Content Include="libman.json" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.eot" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.ttf" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff2" />
-    <Content Include="Content\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="Mvc.sitemap" />
     <Compile Include="DI\NinjectDependencyInjectionContainer.cs" />
     <Content Include=".babelrc" />
-    <Content Include="Content\fonts\summernote.eot" />
-    <Content Include="Content\fonts\summernote.ttf" />
-    <Content Include="Content\fonts\summernote.woff" />
-    <Content Include="Content\fonts\summernote.woff2" />
     <Content Include="NuGet_Packages.md" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Properties\PublishProfiles\Zapread - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zapread-deploy1 - Web Deploy.pubxml" />
     <Content Include="Scripts\config\webpack.config.js" />
-    <Content Include="Scripts\src\pages\group\adminbar.js" />
+    <Content Include="Scripts\src\css\site\layout.scss" />
+    <Content Include="Scripts\src\css\style_messages_alerts.scss" />
+    <Content Include="Scripts\src\css\style.scss" />
+    <Content Include="Scripts\src\css\themes\color-themes.scss" />
+    <Content Include="Scripts\src\css\posts\posts.scss" />
+    <None Include="Scripts\src\css\themes\default.scss" />
+    <None Include="Scripts\src\css\site\items-list.scss" />
+    <None Include="Scripts\src\css\themes\themes.scss" />
+    <Content Include="Scripts\src\pages\account\register.js" />
+    <Content Include="Scripts\src\pages\admin\accounting.js" />
+    <Content Include="Scripts\src\pages\admin\Components\IconsTable.js" />
+    <Content Include="Scripts\src\pages\admin\pos.js" />
+    <Content Include="Scripts\src\pages\admin\reactions.js" />
+    <Content Include="Scripts\src\Components\CollapseBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupAdminBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupModBar.js" />
+    <Content Include="Scripts\src\pages\group\Components\GroupsTable.js" />
+    <Content Include="Scripts\src\pages\group\Components\IgnoreButton.js" />
+    <Content Include="Scripts\src\pages\group\Components\JoinLeaveButton.js" />
+    <Content Include="Scripts\src\pages\group\edit.js" />
     <Content Include="Scripts\src\pages\group\editicon.js" />
     <Content Include="Scripts\src\pages\group\tags.js" />
     <Content Include="Scripts\src\pages\group\userroles.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\HowItWorks.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\MoreInfo.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Principals.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Mission.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Signup.js" />
+    <Content Include="Scripts\src\pages\home\Components\Sections\Stats.js" />
+    <Content Include="Scripts\src\pages\home\privacy.js" />
+    <Content Include="Scripts\src\pages\home\terms.js" />
+    <Content Include="Scripts\src\pages\lnauth\login.js" />
+    <Content Include="Scripts\src\pages\manage\Components\StartSubscriptionModal.js" />
+    <Content Include="Scripts\src\pages\manage\Components\ManageSubscriptionModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\EarningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\FinancialSummaryBox.js" />
+    <Content Include="Scripts\src\Components\User\UpdateEmailModal.js" />
+    <Content Include="Scripts\src\Components\User\GiftReferralModal.js" />
     <Content Include="Scripts\src\pages\manage\Components\LightningTable.js" />
     <Content Include="Scripts\src\pages\manage\Components\SpendingTable.js" />
+    <Content Include="Scripts\src\pages\manage\purchases.css" />
+    <Content Include="Scripts\src\pages\manage\purchases.js" />
+    <Content Include="Scripts\src\pages\manage\managelogins.js" />
     <Content Include="Scripts\src\pages\messages\Components\ChatsTable.js" />
-    <Content Include="Scripts\src\pages\post\newpost.js" />
+    <Content Include="Scripts\src\pages\post\Components\DraftsTable.js" />
+    <Content Include="Scripts\src\pages\post\Components\Editor.js" />
+    <Content Include="Scripts\src\pages\post\Components\LanguagePicker.js" />
+    <Content Include="Scripts\src\pages\post\Components\GroupPicker.js" />
+    <Content Include="Scripts\src\Components\Input\Input.js" />
+    <Content Include="Scripts\src\Components\PostAuthorName.js" />
+    <Content Include="Scripts\src\Components\PostView.js" />
+    <Content Include="Scripts\src\Components\PostList.js" />
+    <Content Include="Scripts\src\Components\PostVoteButtons.js" />
+    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\pages\post\postnotfound.js" />
+    <Content Include="Scripts\src\pages\subscription\unsubscribe.js" />
+    <Content Include="Scripts\src\pages\tag\detail.js" />
+    <Content Include="Scripts\src\pages\tag\index.js" />
     <Content Include="Scripts\src\pages\user\achievements.js" />
+    <Content Include="Scripts\src\plotly\plotly-custom.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\index.html" />
+    <Content Include="Scripts\src\quill-image-resize-module\demo\script.js" />
+    <None Include="Scripts\src\quill-image-resize-module\image-resize.min.js.bak" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\ImageResize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Resize.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\src\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill-image-resize-module\webpack.config.js" />
+    <Content Include="Scripts\src\quill\EmbedResponsive.js" />
+    <Content Include="Scripts\src\quill\image-upload.js" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\index.html" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\quill.mention.min.css" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\quill.mention.min.js" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\static\mention.gif" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\static\quill-mention.png" />
+    <Content Include="Scripts\src\quill\quill-mention\rollup.config.js" />
+    <Content Include="Scripts\src\quill\quill-mention\src\blots\mention.js" />
+    <Content Include="Scripts\src\quill\quill-mention\src\constants\index.js" />
+    <Content Include="Scripts\src\quill\quill-mention\src\quill.mention.css" />
+    <Content Include="Scripts\src\quill\quill-mention\src\quill.mention.js" />
+    <Content Include="Scripts\src\quill\quill-mention\src\utils\index.js" />
+    <Content Include="Scripts\src\quill\quill-mention\test.js" />
+    <Content Include="Scripts\src\quill\QuillImageDropAndPaste.js" />
+    <Content Include="Scripts\src\quill\QuillStyledImage.js" />
+    <Content Include="Scripts\src\quill\react-quill\demo\index.html" />
+    <Content Include="Scripts\src\quill\react-quill\demo\index.js" />
+    <Content Include="Scripts\src\quill\react-quill\demo\quill.snow.css" />
+    <Content Include="Scripts\src\quill\react-quill\demo\react-quill.js" />
+    <Content Include="Scripts\src\quill\react-quill\demo\test.html" />
+    <Content Include="Scripts\src\quill\react-quill\test\index.js" />
+    <Content Include="Scripts\src\quill\react-quill\test\index.spec.js" />
+    <Content Include="Scripts\src\quill\react-quill\test\polyfills\getSelection.js" />
+    <Content Include="Scripts\src\quill\react-quill\test\polyfills\MutationObserver.js" />
+    <Content Include="Scripts\src\quill\react-quill\test\setup.js" />
+    <Content Include="Scripts\src\quill\react-quill\test\utils.js" />
+    <Content Include="Scripts\src\quill\react-quill\webpack.config.js" />
+    <Content Include="Scripts\src\quill\StickyToolbar\quill-sticky-toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\DefaultOptions.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\BaseModule.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\DisplaySize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Resize.js" />
+    <Content Include="Scripts\src\quill\VideoResize\modules\Toolbar.js" />
+    <Content Include="Scripts\src\quill\VideoResize\VideoResize.js" />
+    <Content Include="Scripts\src\quill\VideoResponsive.js" />
+    <Content Include="Scripts\src\quill\zr-toolbar.js" />
+    <Content Include="Scripts\src\realtime\auth\onlnauthlogin.js" />
     <Content Include="Scripts\src\realtime\chat\onchatreceived.js" />
     <Content Include="Scripts\src\realtime\notification\onusermessage.js" />
     <Content Include="Scripts\src\realtime\notification\onpayment.js" />
     <Content Include="Scripts\src\shared\topnavbar.js" />
+    <Content Include="Scripts\src\utility\cookies\advertising.js" />
+    <Content Include="Scripts\src\utility\cookies\tarteaucitron.js" />
+    <Content Include="Scripts\src\utility\events.js" />
+    <Content Include="Scripts\src\utility\patchData.js" />
     <Content Include="Scripts\src\utility\editor\quill.js" />
     <Content Include="Scripts\src\utility\getScript.js" />
     <Content Include="Scripts\src\utility\payments\oninvoicepaid.js" />
-    <Content Include="Scripts\src\utility\editor\posteditor.js" />
+    <Content Include="Scripts\src\utility\getData.js" />
+    <Content Include="Scripts\src\utility\postData.js" />
+    <Content Include="Scripts\src\utility\deleteData.js" />
+    <Content Include="Scripts\src\utility\putData.js" />
     <Content Include="Scripts\src\utility\ready.js" />
     <Content Include="Scripts\src\utility\refreshUserBalance.js" />
+    <Content Include="Scripts\src\utility\stringExtensions.js" />
     <Content Include="Scripts\src\utility\toolbox.js" />
     <Content Include="Scripts\src\utility\ui\paymentsscan.js" />
     <Content Include="Scripts\src\pages\manage\updatealias.js" />
-    <Content Include="Scripts\Partial\summaryStatistics.js" />
     <Content Include="Scripts\instascan.min.js" />
-    <Content Include="Scripts\src\utility\ui\accountpayments.js" />
     <Content Include="Scripts\src\shared\postfunctions.js" />
     <Content Include="Scripts\src\shared\postui.js" />
     <Content Include="Scripts\src\shared\readmore.js" />
-    <Content Include="Scripts\src\comment\initCommentInput.js" />
     <Content Include="Scripts\src\comment\loadmorecomments.js" />
     <Content Include="Scripts\src\comment\replycomment.js" />
     <Content Include="Scripts\src\comment\writecomment.js" />
-    <Content Include="Scripts\src\components\page-heading.js" />
-    <Content Include="Scripts\src\css\Site.css" />
+    <Content Include="Scripts\src\Components\PageHeading.js" />
+    <None Include="Scripts\src\css\site.scss" />
     <Content Include="Scripts\src\pages\group\index.js" />
     <Content Include="Scripts\src\pages\group\members.js" />
     <Content Include="Scripts\src\pages\group\new.js" />
     <Content Include="Scripts\src\pages\home\faq.js" />
     <Content Include="Scripts\src\pages\home\globals.js" />
     <Content Include="Scripts\src\pages\home\index.js" />
-    <Content Include="Scripts\src\index.js" />
     <Content Include="Scripts\src\pages\manage\apikeys.js" />
     <Content Include="Scripts\src\pages\manage\index.js" />
     <Content Include="Scripts\src\pages\manage\financial.js" />
@@ -1136,7 +1899,6 @@
     <Content Include="Scripts\src\pages\messages\chats.js" />
     <Content Include="Scripts\src\pages\messages\index.js" />
     <Content Include="Scripts\src\pages\post\detail.js" />
-    <Content Include="Scripts\src\pages\post\edit.js" />
     <Content Include="Scripts\src\realtime\signalr.js" />
     <Content Include="Scripts\src\shared\shared.js" />
     <Content Include="Scripts\src\shared\sharedlast.js" />
@@ -1148,21 +1910,13 @@
     <Content Include="Scripts\src\utility\grouphover.js" />
     <Content Include="Scripts\src\utility\loadmore.js" />
     <Content Include="Scripts\src\utility\onLoadedMorePosts.js" />
-    <Content Include="Scripts\src\utility\postData.js" />
     <Content Include="Scripts\src\utility\quotable\quotable.js" />
-    <Content Include="Scripts\src\utility\sendfile.js" />
     <Content Include="Scripts\src\utility\ui\follow.js" />
     <Content Include="Scripts\src\utility\ui\joingroup.js" />
     <Content Include="Scripts\src\utility\ui\leavegroup.js" />
-    <Content Include="Scripts\src\utility\ui\updateuserbalance.js" />
     <Content Include="Scripts\src\utility\ui\vote.js" />
     <Content Include="Scripts\src\utility\userhover.js" />
-    <Content Include="Scripts\src\utility\summernote\summernote-video-attributes.js" />
-    <Content Include="Scripts\summernote\dist\summernote-bs4.css" />
-    <Content Include="Scripts\summernote\dist\summernote-bs4.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Scripts\summernote\dist\summernote.css" />
+    <Content Include="Scripts\src\utility\userInfo.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1188,30 +1942,24 @@
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\SendCode.cshtml" />
     <Content Include="Views\Account\VerifyCode.cshtml" />
-    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
     <Content Include="Views\Manage\ChangePassword.cshtml" />
     <Content Include="Views\Manage\Index.cshtml" />
     <Content Include="Views\Manage\ManageLogins.cshtml" />
     <Content Include="Views\Manage\SetPassword.cshtml" />
-    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_TopNavbar.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
     <Content Include="Views\Shared\_ModalAboutMe.cshtml" />
-    <Content Include="Views\Post\NewPost.cshtml" />
     <Content Include="Views\Post\Edit.cshtml" />
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\New.cshtml" />
     <Content Include="Views\Account\_PartialBalance.cshtml" />
-    <Content Include="Views\Shared\_PartialModalLNTransaction.cshtml" />
-    <Content Include="Views\Shared\_PartialModalVote.cshtml" />
     <Content Include="Views\Group\_PartialGroupSummary.cshtml" />
     <Content Include="Views\Group\GroupDetail.cshtml" />
     <Content Include="Views\Manage\_PartialManageGroups.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\Post\Detail.cshtml" />
-    <Content Include="Views\Shared\_PartialPostRender.cshtml" />
     <Content Include="Views\Error\UserNotFound.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
@@ -1226,17 +1974,12 @@
     <Content Include="Views\Group\DoPayouts.cshtml" />
     <Content Include="Views\Group\Members.cshtml" />
     <Content Include="Views\Group\_PartialGroupMember.cshtml" />
-    <Content Include="Scripts\summernote\dist\font\summernote.eot" />
-    <Content Include="Scripts\summernote\dist\font\summernote.ttf" />
-    <Content Include="Scripts\summernote\dist\font\summernote.woff" />
     <Content Include="Views\Comment\_PartialCommentReplyInput.cshtml" />
     <Content Include="Views\Messages\Index.cshtml" />
     <Content Include="Views\Messages\_UnreadMessages.cshtml" />
     <Content Include="Views\Messages\_PartialRecentAlerts.cshtml" />
     <Content Include="Views\Shared\_PartialModalMessageCompose.cshtml" />
-    <Content Include="Views\Manage\_PartialModalUpdateUserAlias.cshtml" />
     <Content Include="Views\Shared\_PartialSummaryStatistics.cshtml" />
-    <Content Include="Views\Group\_PartialGroupAdminBar.cshtml" />
     <Content Include="Views\Group\_PartialAddUserToGroupRoleForm.cshtml" />
     <Content Include="Views\Messages\_PartialRecentUnreadMessages.cshtml" />
     <Content Include="Views\Admin\_PartialSiteAdminBarUserInfo.cshtml" />
@@ -1253,19 +1996,75 @@
     <Content Include="Views\Shared\_PartialUserLink.cshtml" />
     <Content Include="Views\Shared\_LayoutMailer.cshtml" />
     <Content Include="Views\Mailer\Index.cshtml" />
-    <Content Include="Views\Mailer\MailerNewPost.cshtml" />
-    <Content Include="Views\Mailer\MailerNewComment.cshtml" />
+    <EmbeddedResource Include="Migrations\202204271751451_UserAddBlocking.resx">
+      <DependentUpon>202204271751451_UserAddBlocking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205062112134_AddReactionsUserSettingsTags.resx">
+      <DependentUpon>202205062112134_AddReactionsUserSettingsTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205101555380_AddUserReactionUnlocks.resx">
+      <DependentUpon>202205101555380_AddUserReactionUnlocks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205101610041_AddUserReactionUnlockAll.resx">
+      <DependentUpon>202205101610041_AddUserReactionUnlockAll.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205111740172_AddUserReactionTimestamps.resx">
+      <DependentUpon>202205111740172_AddUserReactionTimestamps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205201736487_AddCommentTags.resx">
+      <DependentUpon>202205201736487_AddCommentTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205250145143_AddFundsLock.resx">
+      <DependentUpon>202205250145143_AddFundsLock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202205311930441_AddQuickVote.resx">
+      <DependentUpon>202205311930441_AddQuickVote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206100027185_AddBannerAlerts.resx">
+      <DependentUpon>202206100027185_AddBannerAlerts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206101436275_UpdateBannerAlertsGlobal.resx">
+      <DependentUpon>202206101436275_UpdateBannerAlertsGlobal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206161921353_AddUserContentReports.resx">
+      <DependentUpon>202206161921353_AddUserContentReports.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206241952241_AddPointOfSale.resx">
+      <DependentUpon>202206241952241_AddPointOfSale.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202206250018230_AddUserPremiumLevel.resx">
+      <DependentUpon>202206250018230_AddUserPremiumLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207111353371_AddSubscriptionDisabledFlag.resx">
+      <DependentUpon>202207111353371_AddSubscriptionDisabledFlag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207112203413_AddPaymentInvoiceInfo.resx">
+      <DependentUpon>202207112203413_AddPaymentInvoiceInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207121733378_AddSubscriptionPlanDetails.resx">
+      <DependentUpon>202207121733378_AddSubscriptionPlanDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207232354560_AddSubscriptionEndingParams.resx">
+      <DependentUpon>202207232354560_AddSubscriptionEndingParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202207251735445_AddSubscriptionPauseActionId.resx">
+      <DependentUpon>202207251735445_AddSubscriptionPauseActionId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202208081347305_AddBetaTesting.resx">
+      <DependentUpon>202208081347305_AddBetaTesting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Mailer\NewPost.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\PostComment.cshtml" />
     <Content Include="Views\Messages\All.cshtml" />
     <Content Include="Views\Messages\Chats.cshtml" />
     <Content Include="Views\Messages\Alerts.cshtml" />
-    <Content Include="Views\Shared\_PartialModalAskUserTourIndex.cshtml" />
     <Content Include="Views\Admin\Votes.cshtml" />
     <Content Include="Views\Manage\_PartialManageSetting.cshtml" />
     <Content Include="Views\Post\_Impressions.cshtml" />
     <Content Include="Views\Test\UploadImage.cshtml" />
     <Content Include="Views\User\_PartialUserHover.cshtml" />
     <Content Include="Views\Test\UserHover.cshtml" />
-    <Content Include="Views\Mailer\MailerUpdatedUserAlias.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UpdatedUserAlias.cshtml" />
     <Content Include="Views\Admin\Jobs.cshtml" />
     <Content Include="Views\Admin\Achievements.cshtml" />
     <Content Include="Views\User\_PartialUserAchievement.cshtml" />
@@ -1274,16 +2073,14 @@
     <Content Include="Views\Home\Install.cshtml" />
     <Content Include="Views\Shared\_PartialGroupLink.cshtml" />
     <Content Include="Views\Group\_PartialGroupHover.cshtml" />
-    <Content Include="Views\Home\_Posts.cshtml" />
     <Content Include="Views\Home\_PartialPosts.cshtml" />
     <Content Include="Views\Shared\_PartialPostRenderVm.cshtml" />
     <Content Include="Views\Shared\_PartialUserLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialGroupLinkVm.cshtml" />
     <Content Include="Views\Shared\_PartialCommentRenderVm.cshtml" />
     <Content Include="Views\Feed\Index.cshtml" />
-    <Content Include="Views\Mailer\NewCommentReply.cshtml" />
-    <Content Include="Views\Mailer\NewChat.cshtml" />
-    <Content Include="Views\SwashbuckleMVC\Index.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\PostCommentReply.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewChat.cshtml" />
     <Content Include="Views\Manage\APIKeys.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapTitleHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapPathHelperModel.cshtml" />
@@ -1294,10 +2091,71 @@
     <Content Include="Views\Shared\DisplayTemplates\MenuHelperModel.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\CanonicalHelperModel.cshtml" />
     <Content Include="Views\Comment\_PartialPostReplyInput.cshtml" />
+    <Content Include="Scripts\src\quill-image-resize-module\.editorconfig" />
+    <Content Include="Scripts\src\quill-image-resize-module\.eslintrc" />
+    <Content Include="Scripts\src\quill-image-resize-module\.gitignore" />
+    <Content Include="Scripts\src\quill-image-resize-module\CHANGELOG.md" />
+    <Content Include="Scripts\src\quill-image-resize-module\LICENSE" />
+    <Content Include="Scripts\src\quill-image-resize-module\npm-shrinkwrap.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\package.json" />
+    <Content Include="Scripts\src\quill-image-resize-module\README.md" />
+    <Content Include="Views\Group\Edit.cshtml" />
+    <Content Include="Views\Admin\Accounting.cshtml" />
+    <Content Include="Views\Subscription\Index.cshtml" />
+    <Content Include="Views\Subscription\Unsubscribe.cshtml" />
+    <Content Include="Views\Shared\_LayoutSubscriptions.cshtml" />
+    <Content Include="Views\Subscription\Confirm.cshtml" />
+    <Content Include="Views\Subscription\Subscribe.cshtml" />
+    <Content Include="Views\Lnauth\Login.cshtml" />
+    <Content Include="Views\Home\_PartialTopGroups.cshtml" />
+    <Content Include="Views\Manage\_PartialManageActivityPosts.cshtml" />
+    <Content Include="Views\User\_PartialUserTopFollowers.cshtml" />
+    <Content Include="Views\Home\Search.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\Test.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\_PartialUserLinkVm.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UserMentionedInComment.cshtml" />
+    <Content Include="Views\Messages\Blocked.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\NewUserFollower.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\WeeklySummary.cshtml" />
+    <Content Include="Scripts\src\quill\quill-mention\.babelrc" />
+    <Content Include="Scripts\src\quill\quill-mention\.eslintrc.json" />
+    <Content Include="Scripts\src\quill\quill-mention\.gitignore" />
+    <Content Include="Scripts\src\quill\quill-mention\.vscode\extensions.json" />
+    <Content Include="Scripts\src\quill\quill-mention\.vscode\settings.json" />
+    <Content Include="Scripts\src\quill\quill-mention\docs\CNAME" />
+    <Content Include="Scripts\src\quill\quill-mention\LICENSE" />
+    <Content Include="Scripts\src\quill\quill-mention\package-lock.json" />
+    <Content Include="Scripts\src\quill\quill-mention\package.json" />
+    <Content Include="Scripts\src\quill\quill-mention\README.md" />
+    <Content Include="Scripts\src\quill\react-quill\.github\ISSUE_TEMPLATE.md" />
+    <Content Include="Scripts\src\quill\react-quill\.gitignore" />
+    <Content Include="Scripts\src\quill\react-quill\.prettierrc" />
+    <Content Include="Scripts\src\quill\react-quill\.travis.yml" />
+    <Content Include="Scripts\src\quill\react-quill\CHANGELOG.md" />
+    <Content Include="Scripts\src\quill\react-quill\cypress.json" />
+    <Content Include="Scripts\src\quill\react-quill\LICENSE" />
+    <Content Include="Scripts\src\quill\react-quill\package.json" />
+    <Content Include="Scripts\src\quill\react-quill\README.md" />
+    <Content Include="Scripts\src\quill\react-quill\tsconfig.json" />
+    <Content Include="Scripts\src\quill\react-quill\yarn.lock" />
+    <Content Include="Views\Admin\Reactions.cshtml" />
+    <Content Include="Views\Admin\Tags.cshtml" />
+    <Content Include="Views\Tag\Index.cshtml" />
+    <Content Include="Views\Tag\Detail.cshtml" />
+    <EmbeddedResource Include="Views\Mailer\UserMentionedInPost.cshtml" />
+    <Content Include="Views\Shared\Locked.cshtml" />
+    <Content Include="Views\Home\Privacy.cshtml" />
+    <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\Manage\Purchases.cshtml" />
+    <Content Include="Views\Admin\POS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Images\" />
+    <Folder Include="Models\Finance\" />
+    <Folder Include="Scripts\src\Components\Post\" />
+    <Folder Include="Scripts\src\quill\quill-table\" />
     <Folder Include="Views\Finance\" />
+    <Folder Include="Views\Groups\" />
     <Folder Include="Views\Img\" />
     <Folder Include="Views\Lightning\" />
     <Folder Include="Views\Vote\" />
@@ -1308,6 +2166,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="API.resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>API.resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202002200019335_InitialCreate.resx">
+      <DependentUpon>202002200019335_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202271702287_Initial.resx">
+      <DependentUpon>202202271702287_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MigrationsASP\202202272023272_AddUserEmailAuthOption.resx">
+      <DependentUpon>202202272023272_AddUserEmailAuthOption.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805160258291_InitialVersion.resx">
       <DependentUpon>201805160258291_InitialVersion.cs</DependentUpon>
     </EmbeddedResource>
@@ -1542,6 +2413,31 @@
     <EmbeddedResource Include="Migrations\202005302024335_addWithdrawGuid.resx">
       <DependentUpon>202005302024335_addWithdrawGuid.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202006021408393_addGroupImage.resx">
+      <DependentUpon>202006021408393_addGroupImage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202201270152510_global_earning_spending.resx">
+      <DependentUpon>202201270152510_global_earning_spending.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202202131921272_expandLNTransactionFields.resx">
+      <DependentUpon>202202131921272_expandLNTransactionFields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202202141633047_addRowVersionToLNTransactions.resx">
+      <DependentUpon>202202141633047_addRowVersionToLNTransactions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202202181822249_AddReferralTable.resx">
+      <DependentUpon>202202181822249_AddReferralTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202203070205053_EnableFullTextA.resx">
+      <DependentUpon>202203070205053_EnableFullTextA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202203192058028_GroupBanishAndPostUserFollowIgnore.resx">
+      <DependentUpon>202203192058028_GroupBanishAndPostUserFollowIgnore.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LndLib.NET\LightningLib\LightningLib.csproj">
@@ -1551,6 +2447,10 @@
     <ProjectReference Include="..\Microsoft.Owin.Security.ApiKey\src\Microsoft.Owin.Security.ApiKey\Microsoft.Owin.Security.ApiKey.csproj">
       <Project>{e09682cb-8e40-41dd-b36c-7fec758958c6}</Project>
       <Name>Microsoft.Owin.Security.ApiKey</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Owin.Security.Providers.Lnauth\Owin.Security.Providers.LnAuth.csproj">
+      <Project>{e85bca59-c58b-4634-a248-2f4fb9a1dfbd}</Project>
+      <Name>Owin.Security.Providers.LnAuth</Name>
     </ProjectReference>
     <ProjectReference Include="..\OwinOAuthProviders\src\Owin.Security.Providers.GitHub\Owin.Security.Providers.GitHub.csproj">
       <Project>{803f9eb7-029c-45ac-ab81-135e60d5beae}</Project>
@@ -1568,23 +2468,67 @@
       <Project>{8b5d7c04-6f59-4dd0-9f67-cc0dc6aeb275}</Project>
       <Name>RoboHash.Net</Name>
     </ProjectReference>
+    <ProjectReference Include="..\services.x64.zapread.com\services.x64.zapread.com.csproj">
+      <Project>{fcc931e0-39cb-4e90-a868-8396cb9bedcc}</Project>
+      <Name>services.x64.zapread.com</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\analyzers\dotnet\Microsoft.CodeAnalysis.VersionCheckAnalyzer.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Humanizer.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.CodeQuality.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.CodeQuality.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetCore.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Scripts\src\quill\react-quill\src\index.tsx" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\zapread.com.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
@@ -1598,7 +2542,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>27543</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:27543/</IISUrl>
+          <IISUrl>https://localhost:44316/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://192.168.0.172:27543/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -1612,29 +2558,27 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.props'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.5.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.20.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.20.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.20.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.20.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.WindowsServer.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.Web.2.20.0\build\Microsoft.ApplicationInsights.Web.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.Web.2.20.0\build\Microsoft.ApplicationInsights.Web.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets'))" />
+    <Error Condition="!Exists('..\packages\Magick.NET-Q8-AnyCPU.10.1.0\build\netstandard20\Magick.NET-Q8-AnyCPU.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Magick.NET-Q8-AnyCPU.10.1.0\build\netstandard20\Magick.NET-Q8-AnyCPU.targets'))" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>npm run build</PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.13.1\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.13.1\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.13.1\build\Microsoft.ApplicationInsights.WindowsServer.targets')" />
-  <Import Project="..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.Web.2.13.1\build\Microsoft.ApplicationInsights.Web.targets')" />
-  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" />
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.20.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.20.0\build\Microsoft.ApplicationInsights.DependencyCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.20.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.20.0\build\Microsoft.ApplicationInsights.PerfCounterCollector.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.WindowsServer.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.WindowsServer.2.20.0\build\Microsoft.ApplicationInsights.WindowsServer.targets')" />
+  <Import Project="..\packages\Microsoft.ApplicationInsights.Web.2.20.0\build\Microsoft.ApplicationInsights.Web.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.Web.2.20.0\build\Microsoft.ApplicationInsights.Web.targets')" />
+  <Import Project="..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets')" />
+  <Import Project="..\packages\Magick.NET-Q8-AnyCPU.10.1.0\build\netstandard20\Magick.NET-Q8-AnyCPU.targets" Condition="Exists('..\packages\Magick.NET-Q8-AnyCPU.10.1.0\build\netstandard20\Magick.NET-Q8-AnyCPU.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,43 +1,51 @@
 ﻿@using zapread.com.Helpers
-
-<div class="white-bg">
-    <nav class="navbar navbar-expand-lg white-bg fixed-top border-bottom-nav">
+@{ 
+    bool POSBeta = !String.IsNullOrEmpty(User.GetClaimValue("Beta-POS"));
+}
+<div>
+    <nav class="navbar navbar-expand-lg fixed-top border-bottom-nav">
         <div id="goHome">
-            <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
-            @*<span class="navbar-text" style="color:darkgreen;font-weight: 900;">
-                <a href="/" style="color:darkgreen;font-weight: 900;">Social Economy</a>
-            </span>*@
+            @if (Request.IsAuthenticated)
+            {
+                <a class="navbar-brand" href="/?l=1" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
+            }
+            else
+            {
+                <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Zapread - Social Economy"><img src="~/Content/logos.png" style="width:27px;height:32px" /></a>
+            }
         </div>
         <div class="d-flex flex-row order-2 order-lg-3">
+            @if (Request.IsAuthenticated)
+            {
+                <div id="ZRBalance"></div>
+            }
             <ul class="nav navbar-nav flex-row" style="margin-left: 10px;">
                 @if (Request.IsAuthenticated)
                 {
                     @*<li class="nav-item">
-                        <a id="topFinancial" href="@Url.Action("Financial", "Manage")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Financial" style="padding-right: 0px;">
-                            <i class="fa fa-bitcoin"></i>
-                        </a>
-                    </li>*@
-                    <li class="nav-item">
-                        <a id="topBalance" href="#" data-toggle="modal" data-target="#paymentsModal" class="nav-link" style="padding-left: 0px;padding-right: 10px;">
-                            <i class="fa fa-bitcoin"></i> <span class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
-                        </a>
-                    </li>
+                            <a id="topBalance" href="#" class="nav-link" style="padding-left: 0px;padding-right: 10px;">
+                                <i class="fa fa-bitcoin"></i> <span id="topUserBalance" class="userBalanceValue" data-toggle="tooltip" data-placement="bottom" title="Balance deposit/withdraw"></span>
+                            </a>
+                        </li>*@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="AuthedUserMenu" data-toggle="dropdown" style="white-space:nowrap; padding-right: 10px;">
-                            <img class="user-image-15" loading="lazy" width="15" height="15" src="@Url.Action("UserImage", "Home", new { size = 15, UserId = User.GetClaimValue("UserAppId"), v = User.GetClaimValue("ProfileImageVersion") })" /> @User.Identity.Name
+                            <img class="user-image-15" loading="lazy" width="15" height="15" src="@Url.Action("UserImage", "Home", new { size = 15, UserId = User.GetClaimValue("UserAppId"), v = User.GetClaimValue("ProfileImageVersion") })" />
+                            <span id="navbarUserName">@User.Identity.Name</span>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right" style="text-align: left;position: absolute;">
-                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")"><i class="fa fa-user"></i> Profile</a>
-                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Financial", "Manage")"><i class="fa fa-bitcoin"></i> Financial</a>
-                            <a class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
+                        <div class="dropdown-menu dropdown-menu-right" style="text-align: left; position: absolute; right: 0; left: auto;">
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Index", "Manage")">&nbsp;<i class="fa fa-user"></i> Profile</a>
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Financial", "Manage")">&nbsp;<i class="fa fa-bitcoin"></i> Financial</a>
+                            @if (POSBeta) { <a class="dropdown-item btn btn-sm btn-link nav-link" href="@Url.Action("Purchases", "Manage")">&nbsp;<i class="fa fa-bag-shopping"></i> Purchases</a> }
+                            <a class="dropdown-item btn btn-sm btn-link nav-link" role="button" onclick="toggleTheme();">&nbsp;<i class="fa-solid fa-circle-half-stroke"></i> Toggle Theme</a>
+                            <span class="dropdown-item" href="#" style="text-align: left;padding-left: 0px;">
                                 @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline d-flex flex-nowrap" }))
                                 {
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-sm btn-link nav-link" style="text-align: left;">
-                                        <i class="fa fa-sign-out"></i> Log off
+                                        &nbsp;<i class="fa fa-sign-out"></i> Log off
                                     </button>
                                 }
-                            </a>
+                            </span>
                         </div>
                     </li>
                 }
@@ -64,29 +72,18 @@
                 <li id="navGroups" class="nav-item">
                     @Html.ActionLink("Groups", "Index", "Group", new { area = "" }, new { @class = "nav-link" })
                 </li>
+                <li id="navGroups" class="nav-item">
+                    @Html.ActionLink("Tags", "Index", "Tag", new { area = "" }, new { @class = "nav-link" })
+                </li>
                 <li class="nav-item">
                     @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
                 </li>
                 <li class="nav-item">
                     @Html.ActionLink("FAQ", "FAQ", "Home", new { area = "" }, new { @class = "nav-link" })
                 </li>
-                <li class="nav-item">
-                    @Html.ActionLink("Contact", "Feedback", "Home", new { area = "" }, new { @class = "nav-link" })
-                </li>
             </ul>
-            <div class="mx-2 w-100" style="margin-right: 10px;">
-                <script>
-                    (function () {
-                        var cx = '011527487946990464906:hzzt0pfk0iu';
-                        var gcse = document.createElement('script');
-                        gcse.type = 'text/javascript';
-                        gcse.async = true;
-                        gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-                        var s = document.getElementsByTagName('script')[0];
-                        s.parentNode.insertBefore(gcse, s);
-                    })();
-                </script>
-                <gcse:search></gcse:search>
+            <div class="mx-2 w-100">
+                <div id="ZRSearch"></div>
             </div>
             @if (Request.IsAuthenticated)
             {
@@ -95,7 +92,7 @@
                         <a id="topMessages" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-envelope" data-toggle="tooltip" data-placement="bottom" title="Messages"></i>  <span id="unreadMessages" class="badge badge-warning" data-url="@Url.Action("UnreadMessages","Messages")">-</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                        <ul id="RecentUnreadMessages" class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
                                 <span class="pull-right">
                                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(0,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
@@ -107,17 +104,13 @@
                                 </div>
                             </li>
                             <li class="divider"><hr /></li>
-                            @if (true)
-                            {
-                                Html.RenderAction(actionName: "RecentUnreadMessages", controllerName: "Messages", routeValues: new { count = 10 });
-                            }
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a id="topAlerts" class="count-info d-flex flex-nowrap" data-toggle="dropdown" href="#" style="padding-bottom: 15px;">
                             <i class="fa fa-bell" data-toggle="tooltip" data-placement="bottom" title="Alerts"></i>  <span id="unreadAlerts" class="badge badge-primary" data-url="@Url.Action("UnreadAlerts","Messages")">-</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
+                        <ul id="RecentUnreadAlerts" class="dropdown-menu dropdown-alerts dropdown-menu-right" style="overflow: auto;max-height: 500px;">
                             <li>
                                 <span class="pull-right">
                                     <a data-keepOpenOnClick href="javascript:void(0);" onclick="dismiss(1,-1)" class="btn btn-sm btn-link" style="padding-top: 10px;padding-right: 20px;padding-left: 20px;" data-toggle="tooltip" data-placement="top" title="Dismiss All"><icon class="fa fa-minus-circle"></icon></a>
@@ -127,19 +120,12 @@
                                         <i class="fa fa-bell"></i> <strong>See All Alerts</strong>
                                     </a>
                                 </div>
-
                             </li>
                             <li class="divider"><hr /></li>
-                            @if (true)
-                            {
-                                Html.RenderAction(actionName: "RecentUnreadAlerts", controllerName: "Messages", routeValues: new { count = 10 });
-                            }
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats" style="        padding-top: 15px;
-        padding-bottom: 0px
-">
+                        <a id="topChat" href="@Url.Action("Chats", "Messages")" class="nav-link" data-toggle="tooltip" data-placement="bottom" title="Chats">
                             <i class="fa fa-comments"></i>
                         </a>
                     </li>
@@ -147,9 +133,9 @@
             }
         </div>
     </nav>
+    @if (Request.IsAuthenticated)
+    {
+        <div id="BannerAlerts"></div>
+        <div id="TopModBar"></div>
+    }
 </div>
-
-@*@using (var context = Html.BeginScriptContext())
-{
-    context.AddScriptFile("~/bundles/partial/topnavbar");
-}*@

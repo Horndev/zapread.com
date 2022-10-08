@@ -48,7 +48,7 @@ namespace realtime.zapread.com.Hubs
                 {
                     RestClient client = new RestClient(productionUrl + "/api/v1/");
                     await client.ExecuteAsync(
-                        new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                        new RestRequest("stream/notify/connected/{userAppId}", Method.Get)
                         .AddUrlSegment("userAppId", tokenValue));
                 }
                 catch { }
@@ -57,7 +57,7 @@ namespace realtime.zapread.com.Hubs
                 {
                     RestClient client = new RestClient(devUrl + "/api/v1/");
                     await client.ExecuteAsync(
-                        new RestRequest("stream/notify/connected/{userAppId}", Method.GET)
+                        new RestRequest("stream/notify/connected/{userAppId}", Method.Get)
                         .AddUrlSegment("userAppId", tokenValue));
                 }
                 catch { }

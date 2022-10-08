@@ -1,0 +1,55 @@
+﻿@model zapread.com.Models.Subscription.UnsubscribeIndexViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutSubscriptions.cshtml";
+    ViewBag.Title = "Subscriptions";
+}
+
+<div class="wrapper border-bottom page-heading" style="padding-bottom: 0px;">
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8 white-bg">
+            <br />
+            <h2>Administration</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Subscriptions</a></li>
+                <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+        </div>
+        <div class="col-lg-2"></div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content " style="padding-top: 0px;">
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8 white-bg">
+            <div class="social-feed-box-nb"> </div>
+            <div class="social-feed-box-nb">
+
+                <p>Name: @Model.Name</p>
+                <p>UserEmail: @Model.UserEmail</p>
+                <p>UnsubFunction: @Model.UnsubFunction</p>
+                <p>UserUnsubscribeId: @Model.UserUnsubscribeId</p>
+
+                Unsub link:
+                <p>
+                    <a href="/Subscription/Unsubscribe/@Model.UserUnsubscribeId/" class="btn btn-warning btn-outline">Unsubscribe</a>
+                </p>
+            </div>
+
+            
+
+            <div class="social-feed-box-nb">
+                <span></span>
+            </div>
+            <div class="social-feed-box-nb" style="margin-bottom:50px;">
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/subscription/unsubscribe/css")
+}

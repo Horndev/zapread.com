@@ -1,0 +1,36 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.Email.UpdatedUserAliasEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg themed theme--default" style="background-color:#fff;">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <a href="https://www.zapread.com/Manage/"><h3 style="display:inline-block">Your user alias has been updated</h3></a>
+                    <hr />
+                </div>
+                <div class="container" style="background-color:white;margin-bottom: 0px;">
+                    <div class="post-content">
+                        <p>Your old username was: <b><span>@Model.OldUserName</span></b></p>
+                        <p>Your new username is: <b><span style="color:darkgreen">@Model.NewUserName</span></b></p>
+                        <p>Other users will now see this new username associated to all of your site content.  <i>Please note that you must use this new username to log into the website going forward (except if you log in using a sign-in partner).</i></p>
+                        <p>If this action was not done by you, your ZapRead account may be compromised.  Please visit <a href="https://www.zapread.com/Home/Feedback/">https://www.zapread.com/Home/Feedback/</a> for support.</p>
+                    </div>
+                    <br />
+                    <hr />
+                    Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

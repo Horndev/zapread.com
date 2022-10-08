@@ -3,6 +3,9 @@ using System.Text;
 
 namespace zapread.com.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class StringHelpers
     {
         /// <summary>
@@ -24,6 +27,12 @@ namespace zapread.com.Helpers
             sanitizer.AllowedAttributes.Add("frameborder");
             sanitizer.AllowedAttributes.Add("allowfullscreen");
             sanitizer.AllowedAttributes.Add("seamless");
+            sanitizer.AllowedAttributes.Add("data-index");
+            sanitizer.AllowedAttributes.Add("data-denotation-char");
+            sanitizer.AllowedAttributes.Add("data-id");
+            sanitizer.AllowedAttributes.Add("data-newtag");
+            sanitizer.AllowedAttributes.Add("data-value");
+            sanitizer.AllowedAttributes.Add("contenteditable");
             sanitizer.AllowedAttributes.Remove("id");
             sanitizer.AllowedAttributes.Remove("onload");
             sanitizer.AllowedAttributes.Remove("onmousemove");
@@ -55,6 +64,11 @@ namespace zapread.com.Helpers
             return cleanName;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dirty"></param>
+        /// <returns></returns>
         public static String RemoveUnicodeNonPrinting(this string dirty)
         {
             string normName = dirty.Normalize(System.Text.NormalizationForm.FormC);
@@ -77,7 +91,11 @@ namespace zapread.com.Helpers
             return cleanName;
         }
 
-        // From https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls/25486#25486
+        /// <summary>
+        /// // From https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls/25486#25486
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
         public static String MakeURLFriendly(this string title)
         {
             if (title == null) return "";
@@ -102,7 +120,7 @@ namespace zapread.com.Helpers
                     sb.Append((char)(c | 32));
                     prevdash = false;
                 }
-                else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
+                else if (c == ' ' || c == ',' || c == '.' || c == '/' || c == '(' || c == ')' || c == ':' ||
                     c == '\\' || c == '-' || c == '_' || c == '=')
                 {
                     if (!prevdash && sb.Length > 0)
@@ -126,6 +144,11 @@ namespace zapread.com.Helpers
                 return sb.ToString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public static string RemapInternationalCharToAscii(char c)
         {
             string s = c.ToString().ToLowerInvariant();

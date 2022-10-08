@@ -12,9 +12,14 @@ namespace zapread.com.Models.Database.Financial
     /// </summary>
     public class Withdraw
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key]
         public int Id { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [InverseProperty("Withdraws")]
         public User User { get; set; }
 

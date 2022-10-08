@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNet.Identity;
+@model zapread.com.Models.Tag.TagsViewModel
+@{
+    ViewBag.Title = Model.TagName;
+}
+
+<div id="root"></div>
+
+@section Styles {
+    @Styles.Render("~/bundles/tag/detail/css")
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        var IsAdmin = "@(User != null && User.IsInRole("Administrator"))" == "True";
+    </script>
+
+    @Scripts.Render("~/bundles/tag/detail")
+}

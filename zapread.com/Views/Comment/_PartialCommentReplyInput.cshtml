@@ -8,6 +8,9 @@
                 <div class="sk-bounce2"></div>
                 <div class="sk-bounce3"></div>
             </div>
+            <div id="progressUpload" class="progress" style="display:none">
+                <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
+            </div>
             <div class="media-body">
                 <div class="row">
                     <div class="col col-1" style="min-width: 40px;max-width:40px;">
@@ -16,20 +19,13 @@
                         </a>
                     </div>
                     <div class="col">
+                        <div id="progressUpload" class="progress" style="display:none">
+                            <div id="progressUploadBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
+                        </div>
                         <div class="ql-content" id="content-container_@Model.CommentId.ToString()">
-                            @*<div id="toolbar-container_@Model.CommentId.ToString()">
-                            </div>*@
-                            <div id="editor-container_c@(Model.CommentId.ToString())"></div>
+                            <div class="ql-comment post-comment" id="editor-container_c@(Model.CommentId.ToString())"></div>
                         </div>
-                        @*<div class="ibox-content no-padding">
-                            <div class="c_input wrapper p-md" id="cr_input_@Model.CommentId.ToString()"></div>
-                        </div>*@
                     </div>
-                    @*<div class="col-sm-auto">
-                        <div class="btn-group-vertical">
-                            <button id="bcr_@Model.CommentId.ToString()" class="btn btn-sm btn-outline btn-primary" type="submit" onclick="submitCommentA(@Model.Post.PostId, @Model.CommentId.ToString(), true)">Submit <i id="csr_@Model.CommentId.ToString()" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
-                        </div>
-                    </div>*@
                 </div>
             </div>
         </div>

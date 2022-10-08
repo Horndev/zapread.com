@@ -2,6 +2,7 @@ namespace zapread.com.Migrations
 {
     using System.Data.Entity.Migrations;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public partial class Add_User_Images : DbMigration
     {
         public override void Up()
@@ -34,4 +35,5 @@ namespace zapread.com.Migrations
             DropTable("dbo.UserImage");
         }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

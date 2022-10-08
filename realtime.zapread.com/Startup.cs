@@ -33,7 +33,7 @@ namespace realtime.zapread.com
               {
                   options.Cookie.HttpOnly = true;
                   options.Cookie.SecurePolicy = false ? CookieSecurePolicy.Always : CookieSecurePolicy.None;
-                  options.Cookie.SameSite = SameSiteMode.Lax;
+                  options.Cookie.SameSite = SameSiteMode.Lax; //.Lax;  .Strict;
                   options.Cookie.Name = "ZapreadUserAuth";
                   options.Cookie.Domain = ".zapread.com";
               });
@@ -63,7 +63,11 @@ namespace realtime.zapread.com
             // Middleware to allow cross origin connections
             app.UseCors(builder =>
             {
-                builder.WithOrigins("https://www.zapread.com", "https://zapread.com", "http://localhost:27543")
+                builder.WithOrigins(
+                    "https://www.zapread.com", 
+                    "https://zapread.com", 
+                    "http://localhost:27543", 
+                    "https://localhost:44316")
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST")
                     .AllowCredentials();

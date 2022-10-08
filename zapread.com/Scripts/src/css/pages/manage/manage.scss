@@ -1,0 +1,45 @@
+﻿@import "../../base/variables";
+@import "../../themes/themes";
+@import "../../themes/color-themes";
+
+.group-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/*table td wrapped*/
+.zr-tdw {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.selectr-tag {
+    background: #1AB394;
+}
+
+.zr-tools {
+    display: block;
+    float: none;
+    margin-top: 0;
+    position: relative;
+    padding: 0;
+    text-align: right;
+}
+
+.profile-content .zr-small-dropdown.dropdown,
+.zr-tools .zr-small-dropdown {
+    @include themed() {
+        color: t($zr-button-muted);
+    }
+    /*color: #c3c3c3;*/
+    display: inline-block;
+    font-size: 14px;
+    background-color: #00000000;
+}
+
+.profile-content .zr-small-dropdown button.dropdown-toggle,
+.zr-tools .zr-small-dropdown button.dropdown-toggle {
+    color: #c3c3c3;
+    border-color: transparent;
+    background-color: transparent;
+}

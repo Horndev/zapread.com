@@ -27,24 +27,17 @@ namespace zapread.com
         }
     }
 
-    public class BundleConfig
+    /// <summary>
+    /// This is the configuration for script bundling.  This is now actually done by webpack, but is relayed through here.
+    /// </summary>
+    public static class BundleConfig
     {
-        // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bundles"></param>
         public static void RegisterBundles(BundleCollection bundles)
         {
-            // Shared scripts
-            //bundles.Add(new ScriptBundle("~/bundles/shared").Include(
-            //            //"~/Scripts/main.js",                                    // Custom for all
-            //            //"~/Scripts/Utility/zr-loadmore.js",                     // Infinite scroll
-            //            //"~/Scripts/Posts/quotable.js",                          // For highlight and quote functionality
-            //            //"~/Scripts/Posts/post-ui.js",                           // For functions related to posts (NSFW, etc.)
-            //            //"~/Scripts/Posts/post-initialize.js",                   // Does any work needed for posts when loaded
-            //            "~/Scripts/Utility/clipboard-element.js"               // For copy to clipboard
-            //            //"~/Scripts/Lightning/vote-payments-ui.js",              // Related to the user interface for vote LN payments
-            //            //"~/Scripts/Lightning/account-payments-ui.js",           // Related to the user interface for deposit/withdraw
-            //            //"~/Scripts/Lightning/payments-scan.js"                  // For scanner interface
-            //            ).WithLastModifiedToken());
-
             #region partial scripts
 
             // Partial script - summary statistics
@@ -52,30 +45,10 @@ namespace zapread.com
                         "~/Scripts/Partial/summaryStatistics.js")
                         .WithLastModifiedToken());
 
-            // Partial script - top navbar
-            //bundles.Add(new ScriptBundle("~/bundles/partial/topnavbar").Include(
-            //            "~/Scripts/Partial/topnavbar.js")
-            //            .WithLastModifiedToken());
-
-            //// Partial script - vote modal
-            //bundles.Add(new ScriptBundle("~/bundles/partial/vote").Include(
-            //            "~/Scripts/Partial/vote.js")
-            //            .WithLastModifiedToken());
-
-            // Partial script - group edit tags
-            //bundles.Add(new ScriptBundle("~/bundles/partial/group/tags").Include(
-            //            "~/Scripts/Groups/tags.js")
-            //            .WithLastModifiedToken());
-
             // Partial script - group admin bar
             bundles.Add(new ScriptBundle("~/bundles/partial/group/adminbar").Include(
                         "~/Scripts/Groups/adminbar.js")
                         .WithLastModifiedToken());
-
-            // Partial script - group user Roles
-            //bundles.Add(new ScriptBundle("~/bundles/partial/group/userRoles").Include(
-            //            "~/Scripts/Groups/userRoles.js")
-            //            .WithLastModifiedToken());
 
             // Partial script - group edit icon
             bundles.Add(new ScriptBundle("~/bundles/partial/group/editIcon").Include(
@@ -87,22 +60,22 @@ namespace zapread.com
                         "~/Scripts/Partial/messageCompose.js")
                         .WithLastModifiedToken());
 
-            // Partial scripts - manage
-            //bundles.Add(new ScriptBundle("~/bundles/manage/partial/updateAlias").Include(
-            //            "~/Scripts/Manage/updateAlias.js")
-            //            .WithLastModifiedToken());
-
             #endregion
 
             BundlePage(bundles, "account", "login");
+            BundlePage(bundles, "account", "register");
             BundlePage(bundles, "admin", "achievements");
+            BundlePage(bundles, "admin", "accounting");
             BundlePage(bundles, "admin", "audit");
             BundlePage(bundles, "admin", "icons");
             BundlePage(bundles, "admin", "index");
             BundlePage(bundles, "admin", "jobs");
             BundlePage(bundles, "admin", "lightning");
+            BundlePage(bundles, "admin", "pos");
+            BundlePage(bundles, "admin", "reactions");
             BundlePage(bundles, "admin", "users");
             BundlePage(bundles, "group", "detail");
+            BundlePage(bundles, "group", "edit");
             BundlePage(bundles, "group", "index");
             BundlePage(bundles, "group", "members");
             BundlePage(bundles, "group", "new");
@@ -110,11 +83,15 @@ namespace zapread.com
             BundlePage(bundles, "home", "faq");
             BundlePage(bundles, "home", "install");
             BundlePage(bundles, "home", "index");
+            BundlePage(bundles, "home", "privacy");
+            BundlePage(bundles, "home", "terms");
+            BundlePage(bundles, "lnauth", "login");
             BundlePage(bundles, "mailer", "default");
             BundlePage(bundles, "manage", "apikeys");
             BundlePage(bundles, "manage", "default");
             BundlePage(bundles, "manage", "financial");
             BundlePage(bundles, "manage", "index");
+            BundlePage(bundles, "manage", "purchases");
             BundlePage(bundles, "messages", "alerts");
             BundlePage(bundles, "messages", "all");
             BundlePage(bundles, "messages", "chat");
@@ -124,48 +101,15 @@ namespace zapread.com
             BundlePage(bundles, "post", "edit");
             BundlePage(bundles, "post", "newpost");
             BundlePage(bundles, "post", "postnotfound");
+            BundlePage(bundles, "subscription", "unsubscribe");
+            BundlePage(bundles, "tag", "detail");
+            BundlePage(bundles, "tag", "index");
             BundlePage(bundles, "user", "achievements");
             BundlePage(bundles, "user", "index");
 
-            //// User/{username}
-            //bundles.Add(new ScriptBundle("~/bundles/users/index").Include(
-            //            "~/Scripts/Users/index.js",
-            //            "~/Scripts/dist/user_index.js")
-            //            .WithLastModifiedToken());
-
-            //// Post/NewPost & Edit scripts
-            //bundles.Add(new ScriptBundle("~/bundles/post/edit").Include(
-            //            "~/Scripts/dist/post_edit.js",
-            //            "~/Scripts/Posts/post-editor.js")                       // For the post editing
-            //            .WithLastModifiedToken());
-
-            /* Datatables */
-            bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
-                        "~/node_modules/datatables.net/js/jquery.dataTables.min.js",
-                        "~/node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
-                        "~/node_modules/datatables.net-scroller-bs4/js/scroller.bootstrap4.min.js"));
-
-            bundles.Add(new StyleBundle("~/bundles/css/datatables").Include(
-                      "~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
-                      "~/node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"));
-
-            bundles.Add(new StyleBundle("~/Content/font-awesome/css").Include(
-                      "~/node_modules/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
-
-            bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
-                      "~/node_modules/bootstrap/dist/css/bootstrap.min.css"));
-
-            bundles.Add(new StyleBundle("~/Content/css-dark").Include(
-                      "~/Content/Site_dark.css")
-                      .WithLastModifiedToken());
-
-            // jsSocials - Social Shares
-            bundles.Add(new ScriptBundle("~/bundles/jssocials").Include(
-                        "~/node_modules/jssocials/dist/jssocials.min.js"));
-
-            bundles.Add(new StyleBundle("~/Content/style/jssocials").Include(
-                      "~/node_modules/jssocials/dist/jssocials.css",
-                      "~/node_modules/jssocials/dist/jssocials-theme-flat.css"));
+            /* Tarteaucitron */
+            bundles.Add(new ScriptBundle("~/bundles/tarteaucitron").Include(
+                        "~/node_modules/tarteaucitronjs/tarteaucitron.js"));
 
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/textspinners").Include(
@@ -174,30 +118,6 @@ namespace zapread.com
             // Social Styles
             bundles.Add(new StyleBundle("~/Content/style/social").Include(
                       "~/Content/bootstrap-social.css"));
-
-            // SlimScroll
-            bundles.Add(new ScriptBundle("~/plugins/slimScroll").Include(
-                      "~/node_modules/jquery-slimscroll/jquery.slimscroll.min.js"));
-
-            // selectize 
-            bundles.Add(new ScriptBundle("~/plugins/selectize").Include(
-                      "~/node_modules/selectize/dist/js/standalone/selectize.min.js")
-                      .WithLastModifiedToken());
-
-            // selectize 
-            bundles.Add(new StyleBundle("~/Content/plugins/selectize").Include(
-                      "~/node_modules/selectize/dist/css/selectize.css",
-                      "~/node_modules/selectize-bootstrap4-theme/dist/css/selectize.bootstrap4.css")
-                      .WithLastModifiedToken());
-
-            // Flot chart
-            bundles.Add(new ScriptBundle("~/plugins/flot").Include(
-                      "~/node_modules/jquery.flot/jquery.flot.js",
-                      "~/node_modules/jquery.flot.tooltip/js/jquery.flot.tooltip.min.js",
-                      "~/node_modules/jquery.flot/jquery.flot.resize.js",
-                      "~/node_modules/jquery.flot/jquery.flot.pie.js",
-                      "~/node_modules/jquery.flot/jquery.flot.time.js"));
-            /*"~/node_modules/jquery.flot/jquery.flot.spline.js"));*/
 
             // Needed for some fixes in dependancies
             BundleTable.EnableOptimizations = false;// false;

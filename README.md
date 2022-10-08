@@ -1,19 +1,20 @@
 # ZapRead.com
 
-[![Build status](https://horndev.visualstudio.com/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI)](https://horndev.visualstudio.com/Coinpanic/_build/latest?definitionId=2)
+[![Build Status](https://dev.azure.com/horndev/Coinpanic/_apis/build/status/ZapRead-ASP.NET-CI?branchName=master)](https://dev.azure.com/horndev/Coinpanic/_build/latest?definitionId=2&branchName=master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHorndev%2Fzapread.com?ref=badge_shield)
-[![BCH compliance](https://bettercodehub.com/edge/badge/Horndev/zapread.com?branch=master)](https://bettercodehub.com/)
 [![CodeFactor](https://www.codefactor.io/repository/github/horndev/zapread.com/badge/master)](https://www.codefactor.io/repository/github/horndev/zapread.com/overview/master)
 
 Website for zapread.com
 
-Current version is: 0.3-beta.  You can track progress to the next version on the [projects page](https://github.com/Horndev/zapread.com/projects).
+Current version is: 0.4-beta.  You can track progress to the next version on the [projects page](https://github.com/Horndev/zapread.com/projects).
 
 ## ZapRead.com Mission
 
-1) To create a social economy.  To turn social media and networking upside-down.  To give users and the community control over their content.  Stop the selling of user data and innunduation of advertising without compensation.
+1) To create a social economy.  To turn social media and networking upside-down.  To give users and the community control over their content.  Stop the selling of user data and inundation of advertising without compensation.
 
-2) To create a new publishing model.  Previously - authors paid publishers who then charged users - this is not reflective of the value of publishers, as both consumers and authors were at the mercy of the publisher.  *Authors should be properly compensated for their work - by the value as determined by the consumers.*
+2) To create a new publishing model.  Previously, authors paid publishers who then charged users but this is not reflective of the value of authors.  Both consumers and authors were at the mercy of the publisher.  *Authors should be properly compensated for their work - by the value as determined by the consumers.*
+
+3) To promote the adoption of decentralized finance and currency.
 
 ### Vote Examples
 
@@ -77,7 +78,7 @@ Users with high reputation need to spend less to move the post score, while user
 
 At this time, development is only confirmed working with Microsoft Windows (sorry).  It would be nice to port to .NET core, which can then run on any OS.  The reason it has not been ported yet is that .NET core was initially missing some basic Entity Framework features, but that has been resolved in newer releases.  The instructions here describe how to start development using a windows OS.
 
-1.  Download Visual Studio Community 2017 or 2019 (free).  https://visualstudio.microsoft.com/
+1.  Download Visual Studio Community 2022 (free).  https://visualstudio.microsoft.com/
 1.  Clone the repository and all submodules
 1.  Set up the AppSettings.config file (copy AppSettings.config.template to AppSettings.config)
 1.  Set up the database.config file (copy database.config.template to database.config)

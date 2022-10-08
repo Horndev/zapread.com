@@ -2,12 +2,10 @@
 @{
     ViewBag.Title = "Register";
 }
-<h2>@ViewBag.Title.</h2>
-
 <div class="wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <br />
-        <h2>Associate your @ViewBag.LoginProvider account.</h2>
+        <h2>Register your @ViewBag.LoginProvider account.</h2>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item"><a>Account</a></li>
@@ -45,6 +43,11 @@
                             @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email" })
                             @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
                         </div>
+                        <div id="info-notifications" class="form-check">
+                            @Html.CheckBoxFor(m => m.AcceptEmailsNotify, new { @class = "form-check-input" })
+                            @Html.LabelFor(m => m.AcceptEmailsNotify, new { @class = "form-check-label" })
+                            <br /><small>(This can be disabled at any time)</small><br /><br />
+                        </div>
                         <button type="submit" class="btn btn-primary block full-width m-b">Register</button>
                     }
                 </section>
@@ -55,9 +58,9 @@
 </div>
 
 @section Styles {
-    @Styles.Render("~/bundles/account/login/css")  @*same css and scripts*@
+    @Styles.Render("~/bundles/account/register/css")  @*same css and scripts*@
 }
 
 @section Scripts {
-    @Scripts.Render("~/bundles/account/login")
+    @Scripts.Render("~/bundles/account/register")
 }

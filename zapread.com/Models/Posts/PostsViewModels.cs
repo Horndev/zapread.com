@@ -4,13 +4,26 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PostViewModel
     {
+        /// <summary>
+        /// Only used for debug
+        /// </summary>
+        public double Hot;
+
         [Obsolete("Use view model attributes instead of the Post object.")]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Post Post { get; set; }
         public string PostTitle { get; set; }
+        public string PostTitleEnc { get; set; }
         public string Content { get; set; }
         public int PostId { get; set; }
+
+        public string PostIdEnc { get; set; }
+
         public int GroupId { get; set; }
         public string GroupName { get; set; }
         public string UserName { get; set; }
@@ -22,12 +35,27 @@ namespace zapread.com.Models
         public DateTime? TimeStampEdited { get; set; }
         public bool IsNSFW { get; set; }
         public bool IsSticky { get; set; }
+        public bool IsNonIncome { get; set; }
         public IEnumerable<PostCommentsViewModel> CommentVms { get; set; }
+
+        /// <summary>
+        /// Number of comments at root level
+        /// </summary>
+        public int NumRootComments { get; set; }
+        public bool ViewerIsFollowing { get; set; }
         public bool ViewerIsMod { get; set; }        // User has moderation privilage on this post
         public bool ViewerUpvoted { get; set; }      // If the user has upvoted this post
         public bool ViewerDownvoted { get; set; }    // If the user has downvoted this post
         public bool ViewerIgnoredUser { get; set; }  // If the user has ignored the user
-        public int NumComments { get; set; }
+
+        /// <summary>
+        /// When a the user is ignoring the post
+        /// </summary>
+        public bool ViewerIgnoredPost { get; set; }
+        /// <summary>
+        /// Viewer is banished from this group
+        /// </summary>
+        public bool ViewerIsBanishedGroup { get; set; }
         public bool IsDetailView { get; set; }       // If the post is being viewed by itself
         public bool IsFirstPost { get; set; }        // If the post is the first post on a page
 
@@ -42,13 +70,29 @@ namespace zapread.com.Models
         public List<string> Languages { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class PostsViewModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public List<PostViewModel> Posts;
-        public List<int> Upvoted;
-        public List<int> Downvoted;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public double UserBalance;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public List<GroupInfo> SubscribedGroups;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public string Sort;
     }
 
@@ -64,14 +108,6 @@ namespace zapread.com.Models
 
     public class PostCommentsViewModel
     {
-        [Obsolete]
-        public Comment Comment { get; set; }
-        [Obsolete]
-        public Comment ParentComment { get; set; }
-
-        [Obsolete]
-        public PostCommentsViewModel ParentCommentVm { get; set; }
-
         public long ParentCommentId { get; set; }
 
         public int ParentUserId { get; set; }
@@ -83,11 +119,9 @@ namespace zapread.com.Models
         // Used for mailer
         public string ParentCommentText { get; set; }
 
-        [Obsolete]
-        public List<Comment> Comments { get; set; } // All comments
-
         [Obsolete("Use ViewerIgnoredUser instead of this list.")]
         public List<int> ViewerIgnoredUsers;        // If the user has ignored the user
+
         public bool StartVisible { get; set; }
         public int NestLevel { get; set; }          // How far down the comment nesting is
 
@@ -97,6 +131,11 @@ namespace zapread.com.Models
         public int ParentScore { get; set; }
 
         public bool IsReply { get; set; }
+
+        /// <summary>
+        /// Does this comment have a reply to it?
+        /// </summary>
+        public int NumReplies { get; set; }
 
         public bool IsDeleted { get; set; }
 
@@ -118,5 +157,7 @@ namespace zapread.com.Models
         public bool ViewerUpvoted;      // If the user has upvoted this comment
         public bool ViewerDownvoted;    // If the user has downvoted this comment
         public bool ViewerIgnoredUser;  // If the user has ignored the user
+        public bool ViewerIsBanishedGroup;
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

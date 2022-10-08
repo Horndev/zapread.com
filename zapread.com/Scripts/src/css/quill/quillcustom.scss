@@ -1,0 +1,404 @@
+﻿
+@import "../base/variables";
+@import "../themes/themes";
+@import "../themes/color-themes";
+
+/* Display Styles */
+
+.ql-snow .read-more-button a {
+    color: white;
+}
+
+.quill {
+    border: 0 !important;
+}
+
+/* Post editor */
+.ql-editor:not(.ql-comment) {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($post-bg) !important;
+    }
+}
+
+.ql-editor.ql-blank::before {
+    @include themed() {
+        color: t($chat-message-placeholder);
+    }
+}
+
+/*Comments*/
+/* This style sets the comment input editor to not be too large as is the default quill style*/
+.ql-tooltip {
+    z-index: 1030;
+}
+
+.ql-comment .ql-editor {
+    min-height: 20px;
+    background-color: #fff !important;
+    border-radius: 0 0 10px 10px;
+    height: auto;
+    border: 1px solid;
+    border-color: #ccc;
+}
+
+.chat-message-form {
+    @include themed() {
+        background-color: t($post-bg) !important;
+    }
+}
+
+.chat-message-form .ql-editor {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($chat-message-bg) !important;
+    }
+
+    min-height: 20px;
+    border: 0;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.chat-message-form .ql-editor.ql-blank::before {
+    @include themed() {
+        color: t($chat-message-placeholder);
+    }
+}
+
+.ql-container, .ql-comment.ql-container.ql-snow {
+    border: 0;
+    font-size: 12px;
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ql-mention-list-container {
+    width: 270px;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px 0 rgba(30, 30, 30, 0.08);
+    z-index: 9001;
+}
+
+.ql-mention-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.ql-mention-list-item {
+    cursor: pointer;
+    height: 44px;
+    line-height: 44px;
+    font-size: 16px;
+    padding: 0 20px;
+    vertical-align: middle;
+}
+
+.ql-mention-list-item.selected {
+    background-color: #d3e1eb;
+    text-decoration: none;
+}
+
+.ql-editor .mention {
+    height: auto;
+    /*height: 24px;*/
+    width: auto;
+    display: inline-flex;
+    border-radius: 6px;
+    background-color: #23c6c8;
+    color: #fff;
+    /*background-color: #d3e1eb;*/
+    padding: 3px 0;
+    margin-right: 2px;
+}
+
+    .mention > span {
+        margin: 0 3px !important;
+    }
+
+/*.ql-snow .ql-editor*/ /*Apply the blockquote site-wide*/
+.ql-snow .ql-editor blockquote, blockquote {
+    border-left: 5px solid #1ab394 !important;
+    margin-bottom: 1rem !important;
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    padding-left: 16px !important;
+}
+
+.quill .ql-snow.ql-toolbar .ql-formats button.ql-submit:hover {
+    background-color: #18a689 !important;
+    border-color: #18a689 !important;
+    color: #fff !important;
+}
+
+.quill .ql-snow.ql-toolbar .ql-formats button.ql-submit {
+    min-width: 90px !important;
+    font-size: 14px !important;
+    color: #fff !important;
+    background-color: green !important;
+    border-color: green !important;
+    /*color: green !important;*/
+    padding-top: 1px !important;
+}
+
+button.ql-cancel:hover {
+    background-color: #18a689 !important;
+    border-color: #18a689 !important;
+    color: #fff !important;
+}
+
+button.ql-cancel {
+    min-width: 90px;
+    font-size: 14px;
+    color: red;
+    padding-top: 1px !important;
+}
+
+.ql-toolbar, .ql-toolbar.ql-snow {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($nav-bg) !important;
+    }
+    /*background-color: #f3f3f4 !important;*/
+    border-radius: 10px 10px 0 0 !important;
+    /*border: 0px;*/
+}
+
+.ql-container, .ql-container.ql-snow {
+    border: 0 !important;
+    white-space: inherit !important;
+}
+
+/* Don't expand height for short posts when not editing */
+.post-content.ql-editor {
+    @include themed() {
+        color: t($body-text);
+        background-color: t($post-bg) !important;
+    }
+    /*background-color: #fff !important;*/
+    min-height: 0 !important;
+    border: 0 !important;
+    cursor: auto !important;
+    border-radius: 0 0 10px 10px;
+    overflow-y: visible; /*needed for popups*/
+}
+
+    /* make iframes clickable */
+    .post-content.ql-editor iframe {
+        pointer-events: auto;
+    }
+
+.post-comment {
+    /*overflow: hidden;*/
+    position: relative;
+}
+
+.post-comment.ql-editor {
+    @include themed() {
+        color: t($body-text);
+    }
+
+    min-height: 0 !important;
+    border: 0 !important;
+    cursor: auto !important;
+    background-color: transparent;
+    padding: 0;
+    white-space: normal; /*needed to make comment more compressed*/
+    overflow-y: visible; /*needed for popups*/
+}
+
+/* Created to put border around content input*/
+.ql-content {
+    border-radius: 10px !important;
+    /*border: 1px solid;
+    border-color: #ccc;*/
+}
+
+.ql-editor {
+    height: auto;
+    border: 1px solid;
+    border-color: #ccc;
+}
+
+.ql-snow a {
+    color: #06c;
+}
+
+.ql-snow.ql-toolbar button {
+    background: #fff;
+    border: 1px solid !important;
+    border-color: #dae0e5 !important;
+    margin-right: 2px !important;
+    margin-top: 2px !important;
+    border-radius: 3px !important;
+}
+
+.ql-snow .ql-picker {
+    background: #fff !important;
+    border: 1px solid !important;
+    border-color: #dae0e5 !important;
+    margin-right: 2px !important;
+    margin-top: 2px !important;
+    border-radius: 3px !important;
+}
+
+.ql-snow code,
+.ql-snow pre {
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.ql-snow .pre {
+    white-space: pre-wrap;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding: 5px 10px;
+}
+
+.ql-snow code {
+    font-size: 85%;
+    padding: 2px 4px;
+}
+
+.ql-snow pre.ql-syntax {
+    background-color: #23241f;
+    color: #f8f8f2;
+    overflow: visible;
+}
+
+.ql-snow img {
+    max-width: 100% !important;
+}
+
+/*Not sure why this icon isn't properly aligned.  This seems to fix it.*/
+.ql-color-picker .ql-picker-label svg, .ql-snow .ql-icon-picker .ql-picker-label svg {
+    vertical-align: top !important;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+    margin-right: 5px !important;
+}
+
+.ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+    /* margin:0; */
+    /* padding:0; */
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+    /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
+}
+
+/*.ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {*/
+    /* margin:0; */
+    /* padding:0; */
+    /*margin-top: 0 !important;
+    margin-bottom: 1rem !important;*/
+    /* counter-reset:list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; */
+/*}*/
+
+/*Style the hovers*/
+
+.ql-snow.ql-toolbar button:hover,
+.ql-snow .ql-toolbar button:hover,
+.ql-snow.ql-toolbar button:focus,
+.ql-snow .ql-toolbar button:focus,
+.ql-snow.ql-toolbar button.ql-active,
+.ql-snow .ql-toolbar button.ql-active,
+.ql-snow.ql-toolbar .ql-picker-label:hover,
+.ql-snow .ql-toolbar .ql-picker-label:hover,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active,
+.ql-snow.ql-toolbar .ql-picker-item:hover,
+.ql-snow .ql-toolbar .ql-picker-item:hover,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+    color: #fff !important;
+    background-color: #18a689 !important;
+}
+
+    .ql-snow.ql-toolbar button:hover .ql-fill,
+    .ql-snow .ql-toolbar button:hover .ql-fill,
+    .ql-snow.ql-toolbar button:focus .ql-fill,
+    .ql-snow .ql-toolbar button:focus .ql-fill,
+    .ql-snow.ql-toolbar button.ql-active .ql-fill,
+    .ql-snow .ql-toolbar button.ql-active .ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+    .ql-snow.ql-toolbar button:hover .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar button:hover .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar button:focus .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar button:focus .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar button.ql-active .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar button.ql-active .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
+    .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill,
+    .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
+        fill: #fff !important;
+    }
+
+    .ql-snow.ql-toolbar button:hover .ql-stroke,
+    .ql-snow .ql-toolbar button:hover .ql-stroke,
+    .ql-snow.ql-toolbar button:focus .ql-stroke,
+    .ql-snow .ql-toolbar button:focus .ql-stroke,
+    .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+    .ql-snow .ql-toolbar button.ql-active .ql-stroke,
+    .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+    .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+    .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+    .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+    .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke,
+    .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke,
+    .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+    .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+    .ql-snow.ql-toolbar button:hover .ql-stroke-miter,
+    .ql-snow .ql-toolbar button:hover .ql-stroke-miter,
+    .ql-snow.ql-toolbar button:focus .ql-stroke-miter,
+    .ql-snow .ql-toolbar button:focus .ql-stroke-miter,
+    .ql-snow.ql-toolbar button.ql-active .ql-stroke-miter,
+    .ql-snow .ql-toolbar button.ql-active .ql-stroke-miter,
+    .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
+    .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
+    .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
+    .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
+    .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
+    .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
+    .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter,
+    .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+        stroke: #fff !important;
+    }
+
+@media (pointer: coarse) {
+    .ql-snow.ql-toolbar button:hover:not(.ql-active),
+    .ql-snow .ql-toolbar button:hover:not(.ql-active) {
+        color: #fff;
+        background-color: #18a689;
+    }
+
+        .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-fill,
+        .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-fill,
+        .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill,
+        .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke.ql-fill {
+            fill: #fff;
+        }
+
+        .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke,
+        .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke,
+        .ql-snow.ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter,
+        .ql-snow .ql-toolbar button:hover:not(.ql-active) .ql-stroke-miter {
+            stroke: #fff;
+        }
+}

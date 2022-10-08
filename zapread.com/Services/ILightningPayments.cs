@@ -7,6 +7,10 @@ namespace zapread.com.Services
     /// </summary>
     public interface ILightningPayments
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
         void RecordNodeWithdraw(string node);
 
         /// <summary>

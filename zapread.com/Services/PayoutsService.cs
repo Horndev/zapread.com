@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -9,61 +9,46 @@ using zapread.com.Models.Database;
 
 namespace zapread.com.Services
 {
+    /// <summary>
+    /// Service to manage payouts of funds collected to distribute.
+    /// </summary>
     public class PayoutsService
     {
+        /// <summary>
+        /// Payout to entire community
+        /// </summary>
+        /// <exception cref = "Exception"></exception>
         public void CommunityPayout()
         {
-            int maxDistributions = 1000;    // Per run
-            int minDistributionSize = 1;    // Go as low as 1 Satoshi
-
+            int maxDistributions = 1000; // Per run
+            int minDistributionSize = 1; // Go as low as 1 Satoshi
             using (var db = new ZapContext())
             {
-                var website = db.ZapreadGlobals.Where(gl => gl.Id == 1)
-                    .FirstOrDefault();
-
+                var website = db.ZapreadGlobals.Where(gl => gl.Id == 1).FirstOrDefault();
                 if (website == null)
                 {
-                    throw new Exception("Unable to load website settings.");
+                    throw new Exception(Properties.Resources.ErrorDatabaseNoWebsiteSettings);
                 }
 
                 Dictionary<int, double> payoutUserAmount = new Dictionary<int, double>();
-
                 // This is how much is in the community pool for distribution
                 var toDistribute = Math.Floor(website.CommunityEarnedToDistribute);
-
                 if (toDistribute < 0)
                 {
                     toDistribute = 0;
-
-                    Services.MailingService.SendErrorNotification(
-                        title: "Community payout error",
-                        message: "Error during community distribution.  Total to distribute is negative.");
+                    Services.MailingService.SendErrorNotification(title: Properties.Resources.MailErrorCommunityDistributionMessageTitle, message: Properties.Resources.MailErrorCommunityDistributionMessage);
                 }
 
                 var numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
                 if (numDistributions > 0)
                 {
-                    var sitePostsRecent = db.Posts
-                        .Where(p => p.Score > 0)
-                        .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30)
-                        .Where(p => !p.IsDeleted)
-                        .Where(p => !p.IsDraft)
-                        .ToList();
-                    var sitePostsOld = db.Posts
-                        .Where(p => p.Score > 0)
-                        .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30)
-                        .Where(p => !p.IsDeleted)
-                        .Where(p => !p.IsDraft)
-                        .ToList();
-
-                    var numPostsOld = sitePostsOld.Count();
-                    var numPostsNew = sitePostsRecent.Count();
-
+                    var sitePostsRecent = db.Posts.Where(p => p.Score > 0).Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30).Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Where(p => !p.IsNonIncome).ToList();
+                    var sitePostsOld = db.Posts.Where(p => p.Score > 0).Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30).Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Where(p => !p.IsNonIncome).ToList();
+                    var numPostsOld = sitePostsOld.Count;
+                    var numPostsNew = sitePostsRecent.Count;
                     var newFrac = numPostsOld == 0 ? 1.0 : 0.5;
                     var oldFrac = numPostsOld == 0 ? 0.0 : 0.5;
-
                     List<Post> postsToDistribute;
-
                     if (numPostsNew < numDistributions * newFrac)
                     {
                         // Too few posts, so each post is selected
@@ -135,9 +120,30 @@ namespace zapread.com.Services
 
                     // apply distribution to DB
                     DistributeCommunityFunds(db, website, payoutUserAmount);
-
                     db.SaveChanges();
                 }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void UpdateBanished()
+        {
+            using (var db = new ZapContext())
+            {
+                var groupsWithBan = db.Groups.Where(g => g.Banished.Count > 0).Include(g => g.Banished).ToList();
+                var now = DateTime.UtcNow;
+                foreach (var group in groupsWithBan)
+                {
+                    var expiredBans = group.Banished.Where(b => b.TimeStampExpired.HasValue && b.TimeStampExpired.Value > now).ToList();
+                    foreach (var ban in expiredBans)
+                    {
+                        group.Banished.Remove(ban);
+                    }
+                }
+
+                db.SaveChanges();
             }
         }
 
@@ -150,13 +156,10 @@ namespace zapread.com.Services
                 var owner = db.Users.FirstOrDefault(u => u.Id == uid);
                 double earnedAmount = payoutUserAmount[uid];
                 var ea = new EarningEvent()
-                {
-                    Amount = earnedAmount,
-                    OriginType = 0,                 // 0 = post
-                    TimeStamp = DateTime.UtcNow,
-                    Type = 2,                       // 2 = community
-                    OriginId = 0,                   // Indicates the group which generated the payout
-                };
+                {Amount = earnedAmount, OriginType = 0, // 0 = post
+ TimeStamp = DateTime.UtcNow, Type = 2, // 2 = community
+ OriginId = 0, // Indicates the group which generated the payout
+ };
                 owner.EarningEvents.Add(ea);
                 owner.TotalEarned += earnedAmount;
                 owner.Funds.Balance += earnedAmount;
@@ -168,52 +171,45 @@ namespace zapread.com.Services
             website.TotalEarnedCommunity += distributed;
         }
 
+        /// <summary>
+        /// Pay out accumulated funds in groups
+        /// </summary>
         public void GroupsPayout()
         {
-            int maxDistributions = 1000;    // Per group
-            int minDistributionSize = 1;    // Go as low as 1 Satoshi
-
+            int maxDistributions = 1000; // Per group
+            int minDistributionSize = 1; // Go as low as 1 Satoshi
             using (var db = new ZapContext())
             {
+                // Update users who are banished and should no longer be
+                try
+                {
+                    UpdateBanished();
+                }
+                catch (Exception ex)
+                {
+                    Services.MailingService.SendErrorNotification(title: "UpdateBanished failed in GroupsPayout", message: ex.Message + ex.ToString());
+                }
+
                 // GROUP PAYOUTS
                 var gids = db.Groups.Select(g => g.GroupId).ToList();
                 double toDistribute = 0.0;
                 int numDistributions = 0;
-
                 Dictionary<int, double> payoutUserAmount = new Dictionary<int, double>();
-
                 foreach (var gid in gids)
                 {
                     payoutUserAmount.Clear();
-
                     var g = db.Groups.FirstOrDefault(grp => grp.GroupId == gid);
                     toDistribute = Math.Floor(g.TotalEarnedToDistribute);
                     numDistributions = Convert.ToInt32(Math.Min(toDistribute / minDistributionSize, maxDistributions));
-
                     if (numDistributions > 0)
                     {
-                        var groupPostsRecent = db.Posts
-                            .Include("Group")
-                            .Where(p => p.Group.GroupId == gid && p.Score > 0)
-                            .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30)
-                            .Where(p => !p.IsDeleted)
-                            .Where(p => !p.IsDraft)
-                            .ToList();
-                        var groupPostsOld = db.Posts
-                            .Where(p => p.Group.GroupId == gid && p.Score > 0)
-                            .Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30)
-                            .Where(p => !p.IsDeleted)
-                            .Where(p => !p.IsDraft)
-                            .ToList();
-
-                        var numPostsOld = groupPostsOld.Count();
-                        var numPostsNew = groupPostsRecent.Count();
-
+                        var groupPostsRecent = db.Posts.Include("Group").Where(p => p.Group.GroupId == gid && p.Score > 0).Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) <= 30).Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Where(p => !p.IsNonIncome).ToList();
+                        var groupPostsOld = db.Posts.Where(p => p.Group.GroupId == gid && p.Score > 0).Where(p => DbFunctions.DiffDays(p.TimeStamp, DateTime.UtcNow) > 30).Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Where(p => !p.IsNonIncome).ToList();
+                        var numPostsOld = groupPostsOld.Count;
+                        var numPostsNew = groupPostsRecent.Count;
                         var newFrac = numPostsOld == 0 ? 1.0 : 0.5;
                         var oldFrac = numPostsOld == 0 ? 0.0 : 0.5;
-
                         List<Post> postsToDistribute;
-
                         if (numPostsNew < numDistributions)
                         {
                             // Too few posts, so each post is selected
@@ -269,7 +265,6 @@ namespace zapread.com.Services
                             var score = 1.0 * p.Score;
                             var frac = score / totalScores;
                             var earnedAmount = oldFrac * frac * toDistribute;
-
                             var owner = p.UserId;
                             if (owner != null)
                             {
@@ -300,13 +295,10 @@ namespace zapread.com.Services
                 var owner = db.Users.FirstOrDefault(u => u.Id == uid);
                 double earnedAmount = payoutUserAmount[uid];
                 var ea = new EarningEvent()
-                {
-                    Amount = earnedAmount,
-                    OriginType = 0,                     // 0 = post
-                    TimeStamp = DateTime.UtcNow,
-                    Type = 1,                           // 1 = group
-                    OriginId = gid, // Indicates the group which generated the payout
-                };
+                {Amount = earnedAmount, OriginType = 0, // 0 = post
+ TimeStamp = DateTime.UtcNow, Type = 1, // 1 = group
+ OriginId = gid, // Indicates the group which generated the payout
+ };
                 owner.EarningEvents.Add(ea);
                 owner.TotalEarned += earnedAmount;
                 owner.Funds.Balance += earnedAmount;
@@ -316,7 +308,6 @@ namespace zapread.com.Services
             // record distributions to group
             g.TotalEarnedToDistribute -= distributed;
             g.TotalEarned += distributed;
-
             db.SaveChanges();
         }
     }

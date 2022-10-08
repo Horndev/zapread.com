@@ -1,0 +1,68 @@
+﻿@model zapread.com.Models.Subscription.UnsubscribeIndexViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutSubscriptions.cshtml";
+    ViewBag.Title = "Subscribed";
+}
+
+<div class="wrapper border-bottom  page-heading" style="padding-bottom: 0px;">
+    <div class="row">
+        <div class="col-sm-2 ">
+        </div>
+        <div class="col-sm-8 white-bg">
+            <br />
+            <h2>Subscribed to @Model.UnsubFunction</h2>
+        </div>
+        <div class="col-sm-2">
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content" style="padding-top: 0px;">
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 white-bg" style="padding-right: 40px;padding-left: 40px;">
+            <div class="social-feed-box-nb">
+                <span></span>
+            </div>
+            <div style="padding-top: 30px;">
+                @if (Model.Success)
+                {
+                    <big>
+                        <p>Success!</p>
+                        <p>
+                            You are now subscribed from @Model.UnsubFunction.
+                        </p>
+                        <p>
+                            Changed your mind?  Click the button below to unsubscribe.
+                        </p>
+                    </big>
+                }
+                else
+                {
+                    <p>Error subscribing.  Please contact administrator at horn@zapread.com</p>
+                }
+            </div>
+            @if (Model.Success)
+            {
+                <div class="social-feed-box-nb" style="padding-top: 30px;">
+                    <p align="center">
+                        <a href="/Subscription/Confirm/@Model.UserUnsubscribeId/" class="btn btn-block btn-lg btn-primary btn-outline">Unsubscribe</a>
+                    </p>
+                </div>
+            }
+            <div class="social-feed-box-nb" style="padding-top: 30px;">
+                <p>
+                    Note that you can change your email and notification settings by <a href="@Url.Action("Login", "Account")">logging in</a> and managing your account.
+                </p>
+            </div>
+            <div class="social-feed-box-nb" style="margin-bottom:50px;">
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/subscription/unsubscribe/css")
+}

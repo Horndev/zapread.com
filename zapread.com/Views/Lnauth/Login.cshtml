@@ -1,0 +1,50 @@
+﻿@model zapread.com.Models.Account.LNAuthLoginView
+@{
+    ViewBag.Title = "Lnurl-auth login";
+}
+<div class="wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <br />
+        <h2>Log in</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/Account/Login/">Log in</a></li>
+            <li class="breadcrumb-item active">Lnurl-auth</li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="ibox-content">
+                <section id="loginForm">
+                    <a href="lightning:@Model.dataStr">
+                        <img loading="lazy" src="data:image/png;base64, @Model.QrImageBase64" class="img-fluid" />
+                    </a>
+                </section>
+                <p class="m-t text-center">
+                    <small>Log in using your lightning wallet.</small>
+                </p>
+                <br />
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+@section Styles {
+    @Styles.Render("~/bundles/lnauth/login/css")
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var k1 = "@Model.k1";
+        var client_id = "@Model.client_id";
+        var redirect_uri = "@Model.redirect_uri";
+        var state = "@Model.state";
+    </script>
+    @Scripts.Render("~/bundles/lnauth/login")
+}

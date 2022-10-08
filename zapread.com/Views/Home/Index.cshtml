@@ -3,112 +3,10 @@
 
 @{
     ViewBag.Title = "Zapread.com";
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
-@Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
-
-@if (ViewBag.ShowTourModal)
-{
-    @Html.Partial(partialViewName: "_PartialModalAskUserTourIndex")
-}
-
-<div class="wrapper border-bottom white-bg page-heading" style="padding-bottom: 0px;">
-    <div class="col-lg-12">
-        <br />
-        <h2 style="display: inline-flex;">Popular</h2>
-        <ol class="breadcrumb pull-right">
-            <li class="breadcrumb-item"><a href="/">@ViewContext.RouteData.Values["controller"].ToString()</a></li>
-            <li class="breadcrumb-item"><a>Feeds</a></li>
-            <li class="breadcrumb-item active">Popular</li>
-        </ol>
-    </div>
-    <div class="row">
-        <div class="d-none d-lg-block col-lg-2">
-            <div class="ibox-title" style="white-space:nowrap">
-                @if (Request.IsAuthenticated)
-                {
-                    <h5>Your Top Groups</h5>
-                }
-                else
-                {
-                    <h5>Top Groups</h5>
-                }
-                <div class="ibox-tools">
-                    <a class="collapse-link" data-id="topGroups">
-                        <i class="fa fa-chevron-down"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div id="sortButtons" class="col-lg-8" align="center">
-            <a href="/?sort=Score" class="zr-top-btn-rounded">
-                <i class="fa fa-fire"></i> hot
-            </a>
-            <a href="/?sort=New" class="zr-top-btn-rounded">
-                <i class="fa fa-certificate"></i> new
-            </a>
-            <a href="/?sort=Active" class="zr-top-btn-rounded">
-                <i class="fa fa-comments"></i> active
-            </a>
-        </div>
-        <div class="col-lg-2"></div>
-    </div>
-</div>
-
-<div class="wrapper wrapper-content ">
-    <div class="row">
-        <div class="col-lg-2">
-            @if (Model.SubscribedGroups.Count() > 0)
-            {
-                <div id="topGroups" class="ibox float-e-margins d-none d-lg-block">
-                    <div id="group-box" class="ibox-content" style="display:none">
-                        @foreach (var g in Model.SubscribedGroups)
-                        {
-                            <button style="white-space:normal !important; word-wrap: break-word; word-break: normal;" onclick="location.href='@Url.Action("GroupDetail", "Group", new { id = g.Id })'" class="btn btn-link btn-block text-left">
-                                <i class="fa fa-@g.Icon"></i> @g.Name
-                                @if (g.IsAdmin)
-                                {
-                                    <i class="fa fa-gavel text-primary" data-toggle="tooltip" data-placement="right" title="Administrator"></i>
-                                }
-                                else if (g.IsMod)
-                                {
-                                    <i class="fa fa-gavel text-success" data-toggle="tooltip" data-placement="right" title="Moderator"></i>
-                                }
-                            </button>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="col-lg-8 ">
-            <div class="social-feed-box-nb">
-                <span></span>
-            </div>
-            <div class="social-feed-box-nb">
-                <button id="btnNewPost" onclick="location.href='@Url.Action("NewPost", "Post")'" class="btn btn-primary btn-block"><i class="fa fa-plus"></i> Add Post</button>
-            </div>
-            <div id="posts">
-                <div class="ibox-content no-padding sk-loading" style="border-style:none">
-                    <div class="sk-spinner sk-spinner-three-bounce">
-                        <div class="sk-bounce1"></div>
-                        <div class="sk-bounce2"></div>
-                        <div class="sk-bounce3"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="social-feed-box-nb">
-                <button id="btnLoadmore" class="btn btn-primary btn-block" onclick="loadmore({ sort: '@Model.Sort' })" style="display:none;"><i class="fa fa-arrow-down"></i> Show More <i id="loadmore" class="fa fa-circle-o-notch fa-spin" style="display:none"></i></button>
-            </div>
-
-            <div class="social-feed-box-nb">
-                <span></span>
-            </div>
-            <div class="social-feed-box-nb" style="margin-bottom:50px;">
-                <span></span>
-            </div>
-        </div>
-    </div>
-</div>
+<div id="root"></div>
 
 @section Styles {
     @Styles.Render("~/bundles/home/index/css")
@@ -118,6 +16,7 @@
     <script type="text/javascript">
         var postSort = "@Model.Sort";
         var IsAuthenticated = "@Request.IsAuthenticated" == "True";
+        window.UserName = "@UserName";
     </script>
 
     @Scripts.Render("~/bundles/home/index")

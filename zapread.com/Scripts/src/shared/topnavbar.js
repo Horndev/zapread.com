@@ -1,90 +1,201 @@
 ﻿/** 
  * Script for TopNavBar (All site content)
- *
- * [✓] TODO remove jQuery
  * 
  **/
 
-//import $ from 'jquery';
-//import "jquery-ui-dist/jquery-ui";
-//import "jquery-ui-dist/jquery-ui.min.css";
+import { refreshUserBalance } from '../utility/refreshUserBalance';
+import { ready } from '../utility/ready';
+import { postJson } from '../utility/postData';
 
-import { refreshUserBalance } from '../utility/refreshUserBalance'; // [✓]
-import { ready } from '../utility/ready';                           // [✓]
-import { postJson } from '../utility/postData';                     // [✓]
+import React, { Suspense } from "react";
+import ReactDOM from "react-dom";
+import ZapreadSearch from "../Components/ZapreadSearch";
+import BalanceWidget from '../Components/TopBar/BalanceWidget';
+import BannerAlerts from "../Components/TopBar/BannerAlerts";
+const ModerationBar = React.lazy(() => import("../Components/TopBar/ModerationBar"));
 
-//var toggleChat; // global function for quotable.  TODO: fix
+/* Top Search */
+var searchEl = document.getElementById("ZRSearch");
+if (searchEl != null) {
+  ReactDOM.render(<ZapreadSearch />, searchEl);
+}
+
+/* Balance Widget */
+var balanceEl = document.getElementById("ZRBalance");
+if (balanceEl != null) {
+  ReactDOM.render(<BalanceWidget />, balanceEl);
+}
+
+/* Banner Alerts */
+var bannerEl = document.getElementById("BannerAlerts");
+if (bannerEl != null) {
+  ReactDOM.render(<BannerAlerts />, bannerEl);
+}
+
+/* Mod Bar Alerts */
+var modbarEl = document.getElementById("TopModBar");
+if (bannerEl != null) {
+  ReactDOM.render(
+    <Suspense fallback={<></>}>
+      <ModerationBar />
+    </Suspense>, modbarEl);
+}
+
+//var DepositModalLoaded = false;
+
+//function openDepositWithdrawModal() {
+//  const event = new Event('zapread:depositwithdraw');
+//  document.dispatchEvent(event);
+//}
+
+/* DepositWithdraw modal */
+//var topBalanceEl = document.getElementById("topBalance"); // This is only there when logged in
+//if (topBalanceEl != null) {
+//  // Attach click
+//  topBalanceEl.addEventListener("click", (e) => {
+//    // If not loaded - load
+//    if (!DepositModalLoaded) {
+//      getDepositWithdrawModal().then(({ default: DepositWithdrawModal }) => {
+//        ReactDOM.render(<DepositWithdrawModal />, document.getElementById("ModalDepositWithdraw"));
+//      }).then(() => {
+//        openDepositWithdrawModal();
+//        DepositModalLoaded = true;
+//      });
+//    } else {
+//      openDepositWithdrawModal();
+//    }
+//  });
+//}
+
 var ub = 0;
 window.ub = ub;
 
-ready(function () {
-    refreshUserBalance();
+async function GetUnreadMessages() {
+  var messagesEl = document.getElementById("RecentUnreadMessages");
+  if (messagesEl != null) {
+    await fetch("/Messages/RecentUnreadMessages").then(response => {
+      return response.text();
+    }).then(html => {
+      messagesEl.innerHTML += html;
+    })
+  }
+}
+GetUnreadMessages();
 
-    //if ($("#unreadAlerts").length) {
-    //    var urla = $("#unreadAlerts").data("url");
-    //    $("#unreadAlerts").load(urla);
-    //}
-    var url = document.getElementById("unreadAlerts").getAttribute('data-url');
-    fetch(url).then(function (response) {
-        return response.text();
-    }).then(function (html) {
-        document.getElementById("unreadAlerts").innerHTML = html;
-    });
+async function GetUnreadAlerts() {
+  var alertsEl = document.getElementById("RecentUnreadAlerts");
+  if (alertsEl != null) {
+    await fetch("/Messages/RecentUnreadAlerts").then(response => {
+      return response.text();
+    }).then(html => {
+      alertsEl.innerHTML += html;
+    })
+  }
+}
+GetUnreadAlerts();
 
-    //if ($("#unreadMessages").length) {
-    //    var urlm = $("#unreadMessages").data("url");
-    //    $("#unreadMessages").load(urlm);
-    //}
-    var urlm = document.getElementById("unreadMessages").getAttribute('data-url');
-    fetch(urlm).then(function (response) {
-        return response.text();
-    }).then(function (html) {
-        document.getElementById("unreadMessages").innerHTML = html;
-    });
+/**
+ * Dismiss messages and alerts
+ * 
+ * @param {any} t  : type (1 = alert)
+ * @param {any} id : object id
+ * @returns {bool} : true on success
+ */
+export function dismiss(t, id) {
+  var url = "";
+  if (t === 1) {
+    url = "/Messages/DismissAlert/";
+  }
+  else if (t === 0) {
+    url = "/Messages/DismissMessage/";
+  }
 
-    //// Textarea autoexpand
-    //jQuery.each(jQuery('textarea[data-autoresize]'), function () {
-    //    var offset = this.offsetHeight - this.clientHeight;
-    //    var resizeTextarea = function (el) {
-    //        jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
-    //    };
-    //    jQuery(this).on('keyup input', function () { resizeTextarea(this); }).removeAttr('data-autoresize');
-    //});
-});
+  postJson(url, { "id": id })
+    .then((result) => {
+      if (result.Result === "Success") {
+        // Hide post
+        if (t === 1) {
+          if (id === -1) { // Dismissed all
+            Array.prototype.forEach.call(document.querySelectorAll('[id^="a1_"]'), function (e, _i) {
+              e.style.display = 'none';
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('[id^="a2_"]'), function (e, _i) {
+              e.style.display = 'none';
+            });
+            document.getElementById("topChat").style.color = "";
+          } else {
+            document.getElementById("a1_" + id).style.display = 'none';
+            document.getElementById("a2_" + id).style.display = 'none';
+          }
 
-// [X] TODO - move into section specifically for loading the top bar.
-postJson("/Messages/CheckUnreadChats/")
-    .then((response) => {
-        if (response.success) {
-            if (response.Unread > 0) {
-                document.getElementById("topChat").style.color = "red"; //$("#topChat").css("color", "red");
-            }
+          var url = document.getElementById("unreadAlerts").getAttribute('data-url');
+          fetch(url).then(function (response) {
+            return response.text();
+          }).then(function (html) {
+            document.getElementById("unreadAlerts").innerHTML = html;
+          });
         }
         else {
-            alert(response.Message);
+          if (id === -1) { // Dismissed all
+            Array.prototype.forEach.call(document.querySelectorAll('[id^="m1_"]'), function (e, _i) {
+              e.style.display = 'none';
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('[id^="m2_"]'), function (e, _i) {
+              e.style.display = 'none';
+            });
+          } else {
+            document.getElementById("m1_" + id).style.display = 'none';
+            document.getElementById("m2_" + id).style.display = 'none';
+          }
+          var urlm = document.getElementById("unreadMessages").getAttribute('data-url');
+          fetch(urlm).then(function (response) {
+            return response.text();
+          }).then(function (html) {
+            document.getElementById("unreadMessages").innerHTML = html;
+          });
         }
+      }
     });
+  return false;
+}
+window.dismiss = dismiss;
 
-//$.ajax({
-//    type: "POST",
-//    url: "/Messages/CheckUnreadChats",
-//    data: "",
-//    contentType: "application/json; charset=utf-8",
-//    dataType: "json",
-//    success: function (response) {
-//        if (response.success) {
-//            if (response.Unread > 0) {
-//                $("#topChat").css("color", "red");
-//            }
-//        }
-//        else {
-//            alert(response.Message);
-//        }
-//    },
-//    failure: function (response) {
-//        console.log('load more failure');
-//    },
-//    error: function (response) {
-//        console.log('load more error');
-//    }
-//});
+ready(function () {
+  refreshUserBalance(true);
+
+  var alertEl = document.getElementById("unreadAlerts");
+  if (alertEl !== null) {
+    var url = alertEl.getAttribute('data-url');
+    fetch(url).then(function (response) {
+      return response.text();
+    }).then(function (html) {
+      alertEl.innerHTML = html;
+    });
+  }
+
+  var messageEl = document.getElementById("unreadMessages");
+  if (messageEl !== null) {
+    var urlm = messageEl.getAttribute('data-url');
+    fetch(urlm).then(function (response) {
+      return response.text();
+    }).then(function (html) {
+      messageEl.innerHTML = html;
+    });
+  }
+});
+
+async function CheckChats() {
+  await postJson("/Messages/CheckUnreadChats/")
+    .then((response) => {
+      if (response.success) {
+        if (response.Unread > 0) {
+          document.getElementById("topChat").style.color = "red";
+        }
+      }
+      else {
+        alert(response.message);
+      }
+    });
+}
+
+CheckChats();

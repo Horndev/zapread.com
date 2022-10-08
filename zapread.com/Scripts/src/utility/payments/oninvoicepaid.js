@@ -1,116 +1,52 @@
 ﻿/**
  * Handle invoicepayment being received
  * 
- * [✓] Native JS
  **/
-
-import { updateuserbalance } from '../ui/updateuserbalance'         // [✓]
-import { Modal } from 'bootstrap.native/dist/bootstrap-native-v4'   // [✓]
 
 /**
  * Handle notification that an invoice was paid for either an 
  * anonymous vote action, or deposit.
- * 
- * [✓] Native JS implementation
  *
  * @param {string} invoice The invoice string
  * @param {string} balance New user's balance (if deposit)
  * @param {number} txid Transaction identifier (for vote)
  **/
 export async function oninvoicepaid(invoice, balance, txid) {
-    if (isDeposit(invoice)) {
-        console.log("Deposit invoice paid");
-        var resultElement = document.getElementById("lightningTransactionInvoiceResult");
-        resultElement.innerHTML = "Successfully received deposit.";
-        resultElement.classList.remove("bg-error");
-        resultElement.classList.remove("bg-info");
-        resultElement.classList.remove("bg-muted");
-        resultElement.classList.add("bg-success");
+  console.log("invoice paid");
+  if (navigator.vibrate) { navigator.vibrate(300); } // vibration API supported
+  var eventName = 'zapread:invoicePaid'; // default
 
-        document.getElementById("lightningTransactionInvoiceResult").style.display = '';
+  if (isDeposit(invoice)) {
+    console.log("Deposit invoice paid");
+    eventName = 'zapread:deposit:invoicePaid'
+  } else if (isVote(invoice)) {
+    console.log("Vote invoice paid");
+    eventName = 'zapread:vote:invoicePaid'
+  }
 
-        document.getElementById("doLightningTransactionBtn").style.display = '';
-        document.getElementById("btnVerifyLNWithdraw").style.display = 'none';
-        document.getElementById("btnCheckLNDeposit").style.display = 'none';
-
-        document.getElementById("lightningDepositQR").style.display = 'none';
-        document.getElementById("lightningDepositInvoice").style.display = 'none';
-
-        if (navigator.vibrate) { navigator.vibrate(300); }
-
-        var elements = document.querySelectorAll(".userBalanceValue");
-        Array.prototype.forEach.call(elements, function (el, _i) {
-            el.innerHTML = balance.toString();
-        });
-
-        if (typeof lighubtningTable !== 'undefined') {
-            ub = balance; // Update global var
-        } else {
-            console.log('ub not defined');
-            var ub = balance;
-            window.ub = ub;
-        }
-
-        document.getElementById("userDepositBalance").innerHTML = balance.toString();
-        document.getElementById("userVoteBalance").innerHTML = balance.toString();
-
-        await updateuserbalance(); // update UI
-
-        //$('#depositModal').modal('hide'); 
-        hidePaymentModal();
-
-        if (typeof lightningTable !== 'undefined') {
-            try {
-                lightningTable.ajax.reload(null, false);
-            }
-            catch (err) {
-                console.log("couldn't refresh lightningTable");
-            }
-        }
+  const event = new CustomEvent(eventName, {
+    detail: {
+      tx: txid
     }
-    else if (isVote(invoice)) {
-        console.log("Vote invoice paid");
-        // Ok, the user paid the invoice.  Now we need to claim the vote.
-        // If this transaction id is not found, or already claimed, the vote will not work.
-        userVote.tx = txid;
-
-        if (navigator.vibrate) {
-            // vibration API supported
-            navigator.vibrate(300);
-        }
-
-        if (isTip) {
-            console.log('tip paid');
-            doTip(userVote.id, userVote.amount, userVote.tx);
-        }
-        else {
-            doVote(userVote.id, userVote.d, userVote.t, userVote.amount, userVote.tx);
-        }
-
-        document.getElementById("voteOkButton").style.display = '';
-        document.getElementById("btnCheckLNVote").style.display = 'none';
-    }
-}
-
-/**
- * [✓]
- **/
-function hidePaymentModal() {
-    if (Object.prototype.hasOwnProperty.call(document.getElementById('paymentsModal'), "Modal")) {
-        document.getElementById('paymentsModal').Modal.hide();
-    } else {
-        var ModalEl = document.getElementById('paymentsModal');
-        var ModalObj = new Modal(ModalEl);//.Modal;
-        ModalObj.hide();
-    }
+  });
+  document.dispatchEvent(event);
+  console.log('dispached: ' + eventName, txid)
 }
 
 function isDeposit(invoice) {
-    var depositInvoice = document.getElementById("lightningDepositInvoiceInput").value;
+  var depositInvoiceEl = document.getElementById("lightningDepositInvoiceInput");
+  if (depositInvoiceEl != null) {
+    var depositInvoice = depositInvoiceEl.value;
     return invoice === depositInvoice;
+  }
+  return false;
 }
 
 function isVote(invoice) {
-    var voteInvoice = document.getElementById("voteDepositInvoiceInput").value;
+  var voteInvoiceEl = document.getElementById("voteDepositInvoiceInput");
+  if (voteInvoiceEl != null) {
+    var voteInvoice = voteInvoiceEl.value;
     return invoice === voteInvoice;
+  }
+  return false;
 }

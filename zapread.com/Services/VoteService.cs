@@ -1,4 +1,4 @@
-﻿using Microsoft.Ajax.Utilities;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -16,19 +16,16 @@ namespace zapread.com.Services
     /// </summary>
     public class VoteService
     {
-        private static void RecordFundTransfers(
-            UserFunds from, 
-            UserFunds to, 
-            Group group, 
-            double amountFrom, 
-            double amountTo, 
-            double amountGroup,
-            double amountCommunity,
-            double amountZapread)
+        private static void RecordFundTransfers(UserFunds from, UserFunds to, UserFunds referredBy, Group group, int originType, int originId, double amountFrom, double amountTo, double amountGroup, double amountCommunity, double amountZapread)
         {
+            double referralPayment = 0.0;
             using (var db = new ZapContext())
             {
                 var website = db.ZapreadGlobals.FirstOrDefault(i => i.Id == 1);
+                if (website == null)
+                {
+                    throw new Exception(message: Properties.Resources.ErrorDatabaseNoWebsiteSettings);
+                }
 
                 if (group == null)
                 {
@@ -39,31 +36,68 @@ namespace zapread.com.Services
                     group.TotalEarnedToDistribute += amountGroup;
                 }
 
+                if (referredBy != null)
+                {
+                    // Make a referral bonus payment - comes out of zapread funds (6%)
+                    referralPayment = amountFrom * 0.06;
+                    amountZapread -= referralPayment;
+                    if (amountZapread < 0)
+                    {
+                        amountCommunity += amountZapread;
+                        amountZapread = 0;
+                    }
+                }
+
                 website.CommunityEarnedToDistribute += amountCommunity;
                 website.ZapReadTotalEarned += amountZapread;
                 website.ZapReadEarnedBalance += amountZapread;
-
+                website.EarningEvents = new List<EarningEvent>{new EarningEvent()
+                {Type = 3, //website
+ Amount = amountZapread, TimeStamp = DateTime.UtcNow, OriginType = originType, OriginId = originId, }};
                 int attempts = 0;
                 bool saveFailed;
                 do
                 {
                     attempts++;
                     saveFailed = false;
-
                     if (attempts < 50)
                     {
                         if (from != null) // ignore if we're not debiting a user - funds are from a new deposit
                         {
-                            if (from.Balance < amountFrom)
+                            // Spend from the spend only first - then use regular balance
+                            double amountToDeduct = amountFrom;
+                            if (from.SpendOnlyBalance >= amountToDeduct)
                             {
-                                throw new Exception("User funds spent before finished applying to vote.");
+                                from.SpendOnlyBalance -= amountToDeduct;
+                                amountToDeduct = 0;
                             }
-                            from.Balance -= amountFrom;
+                            else if (from.SpendOnlyBalance > 0)
+                            {
+                                amountToDeduct -= from.SpendOnlyBalance;
+                                from.SpendOnlyBalance = 0;
+                            }
+
+                            if (amountToDeduct > 0)
+                            {
+                                if (from.Balance < amountToDeduct)
+                                {
+                                    throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalance);
+                                }
+
+                                from.Balance -= amountToDeduct;
+                            }
                         }
 
                         if (to != null) // downvotes could go to just community and group
                         {
                             to.Balance += amountTo;
+                        }
+
+                        if (referredBy != null)
+                        {
+                            // Both referred and referred by get 1/2 of the payment, so 3% each.
+                            referredBy.Balance += 0.5 * referralPayment;
+                            to.Balance += 0.5 * referralPayment;
                         }
 
                         try
@@ -79,56 +113,50 @@ namespace zapread.com.Services
                     }
                     else
                     {
-                        throw new Exception("Unable to save financials after 50 attempts.");
+                        throw new Exception(message: Properties.Resources.ErrorVoteFinanceUpdateBalanceHardFail);
                     }
                 }
                 while (saveFailed);
             }
         }
 
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userAppId"></param>
-        /// <param name="postId"></param>
-        /// <param name="amount"></param>
-        /// <param name="isUpvote"></param>
-        /// <param name="txid"></param>
+        /// <param name = "userAppId"></param>
+        /// <param name = "postId"></param>
+        /// <param name = "amount"></param>
+        /// <param name = "isUpvote"></param>
+        /// <param name = "txid"></param>
         /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
         public bool PostVote(string userAppId, int postId, int amount, bool isUpvote, int txid)
         {
             double scoreAdj = 0.0;
-
             using (var db = new ZapContext())
             {
-                var post = db.Posts
-                    .Where(p => p.PostId == postId)
-                    .Include(p => p.UserId)
-                    .Include(p => p.UserId.EarningEvents)
-                    .Include(p => p.VotesUp)
-                    .Include(p => p.VotesDown)
-                    .Include(p => p.Group)
-                    .FirstOrDefault();
-
+                var postInfo = db.Posts.Where(p => p.PostId == postId).Select(p => new
+                {
+                Post = p, p.Group, User = p.UserId, UserId = p.UserId.Id, UserAppId = p.UserId.AppId, p.UserId.Reputation, p.UserId.ReferralInfo, p.IsNonIncome, p.PostId, ToFunds = isUpvote ? p.UserId.Funds : null // Don't fetch this if not upvoting
+                }).FirstOrDefault();
                 bool isAnonymous = userAppId == null;
+                UserFunds fromFunds = null;
+                if (!isAnonymous)
+                {
+                    fromFunds = db.Users.Where(u => u.AppId == userAppId).Select(u => u.Funds).FirstOrDefault();
+                }
 
-                var fromFunds = db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
-
-                var toFunds = db.Users
-                        .Where(u => u.Id == post.UserId.Id)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
-
-                if (isAnonymous)  // Anonymous vote
+                var toFunds = postInfo.ToFunds;
+                UserFunds referalFunds = null;
+                User referalUser = null;
+                User postAuthor = postInfo.User;
+                //db.Users
+                //.Where(u => u.Id == postInfo.UserId)
+                //.FirstOrDefault();
+                if (isAnonymous) // Anonymous vote
                 {
                     // Check if vote tx has been claimed
                     var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == txid);
-
                     if (vtx == null || vtx.IsSpent == true)
                     {
                         return false;
@@ -136,147 +164,190 @@ namespace zapread.com.Services
 
                     vtx.IsSpent = true;
                     db.SaveChanges();
-
-                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
-                        amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : post.UserId.Reputation,
-                        actorRep: 0);
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(amount: amount * (isUpvote ? 1 : -1), targetRep: isUpvote ? 0 : postInfo.Reputation, actorRep: 0);
                 }
 
-                
+                // Check if author has referral program active
+                var referralInfo = postInfo.ReferralInfo;
+                //db.Users
+                //   .Where(u => u.Id == postInfo.UserId)
+                //   .Select(u => u.ReferralInfo)
+                //   .AsNoTracking()
+                //   .FirstOrDefault();
+                // Referral within last 6 months
+                if (referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30 * 6)))
+                {
+                    var refbyAppId = referralInfo.ReferredByAppId;
+                    referalFunds = db.Users.Where(u => u.AppId == refbyAppId).Select(u => u.Funds).FirstOrDefault();
+                    referalUser = db.Users.Where(u => u.AppId == refbyAppId)//.Include(u => u.EarningEvents)
+                    .FirstOrDefault();
+                }
 
                 // FINANCIAL
-                RecordFundTransfers(
-                    from: isAnonymous ? null    : fromFunds,
-                    to:   isUpvote    ? toFunds : null,
-                    group: post.Group,
-                    amountFrom: amount,
-                    amountTo: isUpvote      ? 0.6 * amount   : 0,
-                    amountGroup: isUpvote   ? 0.2 * amount   : 0.8 * amount,
-                    amountCommunity: 0.1 * amount,
-                    amountZapread:   0.1 * amount);
-                // END FINANCIAL
-
-                
-
-                // Adjust post owner reputation
-                bool isOwnPost = post.UserId.AppId == userAppId;
-                post.UserId.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
-
-                // Keep track of how much this post has made for the owner
-                post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
-
-                // Earning event for post owner
-                if (isUpvote)
+                double amountTo = isUpvote ? 0.6 * amount : 0;
+                double amountCommunity = 0.1 * amount;
+                double amountGroup = isUpvote ? 0.2 * amount : 0.8 * amount;
+                if (postInfo.IsNonIncome)
                 {
-                    post.UserId.EarningEvents.Add(new EarningEvent()
-                    {
-                        Amount = 0.6 * amount,
-                        OriginType = 0,
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,
-                        OriginId = post.PostId,
-                    });
-                    post.UserId.TotalEarned += 0.6 * amount;
+                    // If the author declared the post as non-income, instead of getting
+                    // money themselves, the author's payment goes to the community and group.
+                    amountCommunity += amountTo * 0.5;
+                    amountGroup += amountTo * 0.5;
+                    amountTo = 0;
                 }
-                
-                // Spending event for voter
-                if (!isAnonymous)
+
+                RecordFundTransfers(from: isAnonymous ? null : fromFunds, to: isUpvote ? toFunds : null, referredBy: isUpvote ? referalFunds : null, group: postInfo.Group, originType: 0, originId: postInfo.PostId, amountFrom: amount, amountTo: amountTo, amountGroup: amountGroup, amountCommunity: amountCommunity, amountZapread: 0.1 * amount);
+                // END FINANCIAL
+                bool saveFailed;
+                int attempts = 0;
+                do
                 {
-                    var user = db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Include(u => u.SpendingEvents)
-                        .Include(u => u.PostVotesUp)
-                        .Include(u => u.PostVotesDown)
-                        .FirstOrDefault();
-
-                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
-                        amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : post.UserId.Reputation,
-                        actorRep: user.Reputation);
-
-                    user.SpendingEvents
-                        .Add(new SpendingEvent()
+                    attempts++;
+                    saveFailed = false;
+                    if (attempts > 50)
                     {
-                        Amount = amount,
-                        Post = post,
-                        TimeStamp = DateTime.UtcNow,
-                    });
+                    //?
+                    }
 
+                    // Adjust post owner reputation
+                    bool isOwnPost = postInfo.UserAppId == userAppId;
+                    postAuthor.Reputation += (isAnonymous ? 0 : 1) * (isOwnPost ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
+                    // Keep track of how much this post has made for the owner
+                    if (!postInfo.IsNonIncome)
+                    {
+                        postInfo.Post.TotalEarned += (isUpvote ? 1 : 0) * 0.6 * amount;
+                    }
+
+                    // Earning event for post owner
                     if (isUpvote)
                     {
-                        post.VotesUp.Add(user);
-                        user.PostVotesUp.Add(post);
+                        if (!postInfo.IsNonIncome)
+                        {
+                            var ea = new EarningEvent()
+                            {Amount = 0.6 * amount, OriginType = 0, TimeStamp = DateTime.UtcNow, Type = 0, OriginId = postInfo.PostId, };
+                            postAuthor.EarningEvents = new List<EarningEvent>{ea};
+                            postAuthor.TotalEarned += 0.6 * amount;
+                        }
+
+                        if (referalFunds != null)
+                        {
+                            var ea = new EarningEvent()
+                            {Amount = 0.03 * amount, OriginType = 0, TimeStamp = DateTime.UtcNow, Type = 4, OriginId = postInfo.PostId, };
+                            // Need to do this to not overwrite if EarningEvent created prior
+                            if (postAuthor.EarningEvents != null)
+                            {
+                                postAuthor.EarningEvents.Add(ea);
+                            }
+                            else
+                            {
+                                postAuthor.EarningEvents = new List<EarningEvent>{ea};
+                            }
+
+                            if (referalUser != null)
+                            {
+                                referalUser.EarningEvents = new List<EarningEvent>{new EarningEvent()
+                                {Amount = 0.03 * amount, OriginType = 0, TimeStamp = DateTime.UtcNow, Type = 4, OriginId = postInfo.PostId, }};
+                                // Notify the referrer they just made income
+                                _ = NotificationService.SendIncomeNotification(amount: 0.03 * amount, userId: referalUser.AppId, reason: "Referral Bonus", clickUrl: "/Post/Detail/" + postInfo.PostId);
+                            }
+                        }
                     }
-                    else
+
+                    // Spending event for voter
+                    if (!isAnonymous)
                     {
-                        post.VotesDown.Add(user);
-                        user.PostVotesDown.Add(post);
+                        var userInfo = db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                        {
+                        User = u, u.Reputation, Upvoted = u.PostVotesUp.Select(p => p.PostId).Contains(postInfo.PostId), Downvoted = u.PostVotesDown.Select(p => p.PostId).Contains(postInfo.PostId), }).FirstOrDefault();
+                        scoreAdj = ReputationService.GetReputationAdjustedAmount(amount: amount * (isUpvote ? 1 : -1), targetRep: isUpvote ? 0 : postInfo.Reputation, actorRep: userInfo.Reputation);
+                        userInfo.User.SpendingEvents = new List<SpendingEvent>{new SpendingEvent()
+                        {Amount = amount, Post = postInfo.Post, TimeStamp = DateTime.UtcNow, }};
+                        if (isUpvote)
+                        {
+                            if (!userInfo.Upvoted)
+                            {
+                                postInfo.Post.VotesUp = new List<User>{userInfo.User}; // Adds without DB round-trip
+                            //userInfo.User.PostVotesUp = new List<Post> { post }; //.Add(post);
+                            }
+                        }
+                        else
+                        {
+                            if (!userInfo.Downvoted)
+                            {
+                                postInfo.Post.VotesDown = new List<User>{userInfo.User}; // Adds without DB round-trip
+                            //userInfo.User.PostVotesDown = new List<Post> { post }; //.Add(post);
+                            }
+                        }
+                    }
+
+                    // Adjust post score
+                    postInfo.Post.Score += Convert.ToInt32(scoreAdj);
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+                        foreach (var entry in ex.Entries) //.Single();
+                        {
+                            entry.Reload();
+                        }
                     }
                 }
-
-                // Adjust post score
-                post.Score += Convert.ToInt32(scoreAdj);
-
-                db.SaveChanges();
-
-                if (isUpvote)
+                while (saveFailed);
+                if (isUpvote && !postInfo.IsNonIncome)
                 {
-                    _ = NotificationService.SendIncomeNotification(
-                        0.6 * amount,
-                        post.UserId.AppId,
-                        "Post upvote",
-                        "/Post/Detail/" + post.PostId);
+                    _ = NotificationService.SendIncomeNotification(0.6 * amount, postInfo.UserAppId, "Post upvote", "/Post/Detail/" + postInfo.PostId);
                 }
 
                 return true;
             }
         }
 
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userAppId"></param>
-        /// <param name="commentId"></param>
-        /// <param name="amount"></param>
-        /// <param name="isUpvote"></param>
-        /// <param name="txid"></param>
+        /// <param name = "userAppId"></param>
+        /// <param name = "commentId"></param>
+        /// <param name = "amount"></param>
+        /// <param name = "isUpvote"></param>
+        /// <param name = "txid"></param>
         /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
         public bool CommentVote(string userAppId, int commentId, int amount, bool isUpvote, int txid)
         {
             double scoreAdj = 0.0;
-
             using (var db = new ZapContext())
             {
-                var comment = db.Comments
-                    .Where(c => c.CommentId == commentId)
-                    .Include(c => c.VotesUp)
-                    .Include(c => c.VotesDown)
-                    .Include(c => c.UserId)
-                    .Include(c => c.UserId.Funds)
-                    .Include(c => c.Post)
-                    .Include(c => c.Post.Group)
-                    .FirstOrDefault();
-
+                var commentInfo = db.Comments.Where(c => c.CommentId == commentId).Select(c => new
+                {
+                Comment = c, c.Post.Group, User = c.UserId, UserId = c.UserId.Id, UserAppId = c.UserId.AppId, c.UserId.Reputation, c.UserId.ReferralInfo, c.CommentId, c.Post.PostId, ToFunds = isUpvote ? c.UserId.Funds : null // Don't fetch if not upvoting
+                })//.Include(c => c.VotesUp)
+                //.Include(c => c.VotesDown)
+                //.Include(c => c.UserId)
+                //.Include(c => c.UserId.Funds)
+                //.Include(c => c.Post)
+                //.Include(c => c.Post.Group)
+                .FirstOrDefault();
                 bool isAnonymous = userAppId == null;
+                UserFunds fromFunds = null;
+                if (!isAnonymous)
+                {
+                    fromFunds = db.Users.Where(u => u.AppId == userAppId).Select(u => u.Funds).FirstOrDefault();
+                }
 
-                var fromFunds = db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
-
-                var toFunds = db.Users
-                        .Where(u => u.Id == comment.UserId.Id)
-                        .Select(u => u.Funds)
-                        .FirstOrDefault();
-
-                if (isAnonymous)  // Anonymous vote
+                var toFunds = commentInfo.ToFunds;
+                //db.Users
+                //    .Where(u => u.Id == comment.UserId.Id)
+                //    .Select(u => u.Funds)
+                //    .FirstOrDefault();
+                UserFunds referalFunds = null;
+                User referalUser = null;
+                if (isAnonymous) // Anonymous vote
                 {
                     // Check if vote tx has been claimed
                     var vtx = db.LightningTransactions.FirstOrDefault(tx => tx.Id == txid);
-
                     if (vtx == null || vtx.IsSpent == true)
                     {
                         return false;
@@ -284,91 +355,118 @@ namespace zapread.com.Services
 
                     vtx.IsSpent = true;
                     db.SaveChanges();
+                    scoreAdj = ReputationService.GetReputationAdjustedAmount(amount: amount * (isUpvote ? 1 : -1), targetRep: isUpvote ? 0 : commentInfo.Reputation, actorRep: 0);
+                }
 
-                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
-                        amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : comment.UserId.Reputation,
-                        actorRep: 0);
+                // Check if author has referral program active
+                var referralInfo = commentInfo.ReferralInfo;
+                //db.Users
+                //   .Where(u => u.Id == comment.UserId.Id)
+                //   .Select(u => u.ReferralInfo)
+                //   .AsNoTracking()
+                //   .FirstOrDefault();
+                // Referral within last 6 months
+                if (referralInfo != null && ((DateTime.UtcNow - referralInfo.TimeStamp) < TimeSpan.FromDays(30 * 6)))
+                {
+                    var refbyAppId = referralInfo.ReferredByAppId;
+                    referalFunds = db.Users.Where(u => u.AppId == refbyAppId).Select(u => u.Funds).FirstOrDefault();
+                    referalUser = db.Users.Where(u => u.AppId == refbyAppId)//.Include(u => u.EarningEvents)
+                    .FirstOrDefault();
                 }
 
                 // FINANCIAL
-                RecordFundTransfers(
-                    from: isAnonymous ? null : fromFunds,
-                    to: isUpvote ? toFunds : null,
-                    group: comment.Post.Group,
-                    amountFrom: amount,
-                    amountTo: isUpvote ? 0.6 * amount : 0,
-                    amountGroup: isUpvote ? 0.2 * amount : 0.8 * amount,
-                    amountCommunity: 0.1 * amount,
-                    amountZapread: 0.1 * amount);
-                // END FINANCIAL
-
-
-                // Adjust comment owner reputation
-                bool isOwn = comment.UserId.AppId == userAppId;
-                comment.UserId.Reputation += (isAnonymous ? 0 : 1) * (isOwn ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
-
-                // Earning event for post owner
-                if (isUpvote)
+                RecordFundTransfers(from: isAnonymous ? null : fromFunds, to: isUpvote ? toFunds : null, referredBy: isUpvote ? referalFunds : null, group: commentInfo.Group, originType: 1, originId: Convert.ToInt32(commentInfo.CommentId), amountFrom: amount, amountTo: isUpvote ? 0.6 * amount : 0, amountGroup: isUpvote ? 0.2 * amount : 0.8 * amount, amountCommunity: 0.1 * amount, amountZapread: 0.1 * amount);
+                // END FINANCIAL - Things are saved at this point
+                bool saveFailed;
+                int attempts = 0;
+                do
                 {
-                    comment.UserId.EarningEvents.Add(new EarningEvent()
+                    attempts++;
+                    saveFailed = false;
+                    if (attempts > 50)
                     {
-                        Amount = 0.6 * amount,
-                        OriginType = 1,
-                        TimeStamp = DateTime.UtcNow,
-                        Type = 0,
-                        OriginId = Convert.ToInt32(comment.CommentId),
-                    });
-                    comment.UserId.TotalEarned += 0.6 * amount;
-                }
+                    //?
+                    }
 
-                // Spending event for voter
-                if (!isAnonymous)
-                {
-                    var user = db.Users
-                        .Where(u => u.AppId == userAppId)
-                        .Include(u => u.SpendingEvents)
-                        .Include(u => u.PostVotesUp)
-                        .Include(u => u.PostVotesDown)
-                        .FirstOrDefault();
-
-                    scoreAdj = ReputationService.GetReputationAdjustedAmount(
-                        amount: amount * (isUpvote ? 1 : -1),
-                        targetRep: isUpvote ? 0 : comment.UserId.Reputation,
-                        actorRep: user.Reputation);
-
-                    user.SpendingEvents
-                        .Add(new SpendingEvent()
-                        {
-                            Amount = amount,
-                            Comment = comment,
-                            TimeStamp = DateTime.UtcNow,
-                        });
-
+                    // Adjust comment owner reputation
+                    bool isOwn = commentInfo.UserAppId == userAppId;
+                    commentInfo.User.Reputation += (isAnonymous ? 0 : 1) * (isOwn ? 0 : 1) * (isUpvote ? 1 : -1) * amount;
+                    // Earning event for post owner
                     if (isUpvote)
                     {
-                        comment.VotesUp.Add(user);
-                        user.CommentVotesUp.Add(comment);
+                        commentInfo.User.EarningEvents = new List<EarningEvent>{new EarningEvent()
+                        {Amount = 0.6 * amount, OriginType = 1, TimeStamp = DateTime.UtcNow, Type = 0, OriginId = Convert.ToInt32(commentInfo.CommentId), }};
+                        commentInfo.User.TotalEarned += 0.6 * amount;
+                        if (referalFunds != null)
+                        {
+                            var ea = new EarningEvent()
+                            {Amount = 0.03 * amount, OriginType = 1, TimeStamp = DateTime.UtcNow, Type = 4, OriginId = Convert.ToInt32(commentInfo.CommentId), };
+                            if (commentInfo.User.EarningEvents != null)
+                            {
+                                commentInfo.User.EarningEvents.Add(ea);
+                            }
+                            else
+                            {
+                                commentInfo.User.EarningEvents = new List<EarningEvent>{ea};
+                            }
+
+                            if (referalUser != null)
+                            {
+                                referalUser.EarningEvents = new List<EarningEvent>{new EarningEvent()
+                                {Amount = 0.03 * amount, OriginType = 1, TimeStamp = DateTime.UtcNow, Type = 4, OriginId = Convert.ToInt32(commentInfo.CommentId), }};
+                                _ = NotificationService.SendIncomeNotification(amount: 0.03 * amount, userId: referalUser.AppId, reason: "Referral Bonus", clickUrl: "/Post/Detail/" + commentInfo.PostId);
+                            }
+                        }
                     }
-                    else
+
+                    // Spending event for voter
+                    if (!isAnonymous)
                     {
-                        comment.VotesDown.Add(user);
-                        user.CommentVotesDown.Add(comment);
+                        var userInfo = db.Users.Where(u => u.AppId == userAppId).Select(u => new
+                        {
+                        User = u, u.Reputation, Upvoted = u.CommentVotesUp.Select(c => c.CommentId).Contains(commentInfo.CommentId), Downvoted = u.CommentVotesDown.Select(c => c.CommentId).Contains(commentInfo.CommentId), }).FirstOrDefault();
+                        scoreAdj = ReputationService.GetReputationAdjustedAmount(amount: amount * (isUpvote ? 1 : -1), targetRep: isUpvote ? 0 : commentInfo.Reputation, actorRep: userInfo.Reputation);
+                        userInfo.User.SpendingEvents = new List<SpendingEvent>{new SpendingEvent()
+                        {Amount = amount, Comment = commentInfo.Comment, TimeStamp = DateTime.UtcNow, }};
+                        if (isUpvote)
+                        {
+                            if (!userInfo.Upvoted)
+                            {
+                                commentInfo.Comment.VotesUp = new List<User>{userInfo.User}; // Adds without DB round-trip
+                            }
+                        //comment.VotesUp.Add(user);
+                        //user.CommentVotesUp.Add(comment);
+                        }
+                        else
+                        {
+                            if (!userInfo.Downvoted)
+                            {
+                                commentInfo.Comment.VotesDown = new List<User>{userInfo.User}; // Adds without DB round-trip
+                            }
+                        //comment.VotesDown.Add(user);
+                        //user.CommentVotesDown.Add(comment);
+                        }
+                    }
+
+                    // Adjust post score
+                    commentInfo.Comment.Score += Convert.ToInt32(scoreAdj);
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+                        foreach (var entry in ex.Entries) //.Single();
+                        {
+                            entry.Reload();
+                        }
                     }
                 }
-
-                // Adjust post score
-                comment.Score += Convert.ToInt32(scoreAdj);
-
-                db.SaveChanges();
-
+                while (saveFailed);
                 if (isUpvote)
                 {
-                    _ = NotificationService.SendIncomeNotification(
-                        0.6 * amount, 
-                        comment.UserId.AppId, 
-                        "Comment upvote",
-                        "/Post/Detail/" + comment.Post.PostId );
+                    _ = NotificationService.SendIncomeNotification(0.6 * amount, commentInfo.UserAppId, "Comment upvote", "/Post/Detail/" + commentInfo.PostId);
                 }
 
                 return true;

@@ -1,0 +1,159 @@
+﻿@using zapread.com.Helpers;
+@model zapread.com.Models.Email.WeeklySummaryEmail
+
+@{ Layout = null; /* Overrides the Layout set for regular page views. */ }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Scripts/dist/mailer/default.css" rel="stylesheet">
+</head>
+<body class="gray-bg themed theme--default" style="background-color:#fff;">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="container" style="padding-top:30px;background-color:white;padding-bottom: 1px;">
+                    <a class="navbar-brand" href="https://www.zapread.com">
+                        <img src="https://www.zapread.com/Content/logos.png" style="background-color: #1ab394;width: 43px;height: 42px;padding-top: 5px;padding-bottom: 5px;padding-right: 8px;padding-left: 8px;">
+                    </a>
+                    <h1 style="display:inline-block">Your weekly Zapread summary</h1>
+                    <hr />
+                    <p style="font-size: 18px;">
+                        Zapread depends on people like you!  Keep posting quality content, and vote up other quality content to continue growing the audience.
+                    </p>
+                </div>
+                <div class="container" style="background-color:white;margin-bottom: 0px;">
+                    <div class="post-content">
+                        <div>
+                            <div class="row" style="padding:15px 0">
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Total Earned This Week</h5>
+                                        <h1 class="no-margins" style="font-weight: bolder;">@Model.TotalEarnedWeek.ToAbbrString()</h1>
+                                        @if (Model.TotalEarnedLastWeek > 0)
+                                        {
+                                            <div class="stat-percent font-bold text-navy"> @(Model.TotalEarnedWeek > Model.TotalEarnedLastWeek ? "up" : "down" ) @((100.0*(Model.TotalEarnedWeek-Model.TotalEarnedLastWeek)/ Model.TotalEarnedLastWeek ).ToString("0."))%</div>
+                                        }
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Total Earned Last Week</h5>
+                                        <h1 class="no-margins">@Model.TotalEarnedLastWeek.ToAbbrString()</h1>
+                                        @*<div class="stat-percent font-bold text-navy">98% <i class="fa fa-bolt"></i></div>*@
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="row" style="padding:15px 0">
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Earned From @Model.TotalPostsWeek New Post@(Model.TotalPostsWeek != 1 ? "s" : "") This Week</h5>
+                                        <h1 class="no-margins">@Model.TotalEarnedPosts.ToAbbrString()</h1>
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Earned From @Model.TotalCommentsWeek New Comment@(Model.TotalCommentsWeek != 1 ? "s" : "") This Week</h5>
+                                        <h1 class="no-margins">@Model.TotalEarnedComments.ToAbbrString()</h1>
+                                        @*<div class="stat-percent font-bold text-navy">98% <i class="fa fa-bolt"></i></div>*@
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="row" style="padding:15px 0">
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Earned From Group Payouts This Week</h5>
+                                        <h1 class="no-margins">@Model.TotalGroupPayments.ToAbbrString()</h1>
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Earned From Community Payouts This Week</h5>
+                                        <h1 class="no-margins">@Model.TotalCommunityPayments.ToAbbrString()</h1>
+                                        @*<div class="stat-percent font-bold text-navy">98% <i class="fa fa-bolt"></i></div>*@
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="row" style="padding:15px 0">
+                                <div class="col-lg-12">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Top Paying Groups</h5>
+                                        @if (Model.TopGroups.Count > 0)
+                                        {
+                                            <table class="table table-stripped small m-t-md">
+                                                <tbody>
+                                                    @foreach (var g in Model.TopGroups)
+                                                    {
+                                                        <tr>
+                                                            <td class="no-borders text-navy">
+                                                                ⬤
+                                                            </td>
+                                                            <td class="no-borders">
+                                                                <a class="post-groupname grouphint" href="@MailViewHelper.GroupURI(g.GroupId)" style="font-size: small; display: inline">
+                                                                    @g.GroupName (@g.AmountEarned.ToAbbrString())
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <p>
+                                                None this week
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="row" style="padding:15px 0">
+                                <div class="col-lg-12">
+                                    <div class="ibox-content" style="min-height: 100%; border-color: #1ab394; border-style: solid solid; border-width: 1px 1px; ">
+                                        <h5>Earned From Referrals This Week</h5>
+                                        <h1 class="no-margins">@Model.TotalEarnedReferral.ToAbbrString()</h1>
+                                        <small>Satoshi</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Earn more by signing up others with your referral code:</p>
+                    <p class="form-control">@Model.RefCode</p>
+                    <h3>Did you know?</h3>
+                    <ul>
+                        <li style="font-size: 18px;">
+                            Build a community posting to groups to help others find your content and increase your earning potential.
+                        </li>
+                        <li style="font-size: 18px;">
+                            You can vote up your own content to make it more visible, but this will also compensate other content creators.
+                        </li>
+                        <li style="font-size: 18px;">
+                            Quality over quantity will give you more success.  Spend some time to produce quality content.  Low effort posts make it difficult for others to find content which they would like to vote on.
+                        </li>
+                    </ul>
+                    <br />
+                    <br />
+                    <hr />
+                    Please log into <a href="https://www.zapread.com">ZapRead.com</a> to unsubscribe from these emails.
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

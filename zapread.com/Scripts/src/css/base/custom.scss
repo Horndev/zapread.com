@@ -1,0 +1,219 @@
+
+.img-post {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    height: auto;
+}
+
+.captcha-box {
+    position: sticky;
+    display: table-cell;
+    padding-bottom: 15px;
+}
+
+.captcha-audio-overlay {
+    position: absolute;
+    z-index: 1050;
+    bottom: 18px;
+    right: 3px;
+}
+
+.captcha-audio-btn {
+    background-color: white;
+}
+
+.zr-btn {
+    font-size: inherit !important;
+    padding: 1px 6px !important;
+}
+
+.zr-dropdown-menu {
+    margin: 0 !important;
+    left: auto;
+}
+
+.react-selectize.dropdown-menu {
+    display: block;
+}
+
+.ibox-content-commentreply.ibox-content {
+    border-style: none;
+    background-color: #f9f9f9;
+}
+
+.post-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: #676a6c;
+}
+
+.dataTables_filter {
+    display: inline-block;
+    text-align: center;
+}
+
+.dataTables_paginate {
+    display: inline-block;
+    text-align: center;
+}
+
+.ui-autocomplete {
+    position: absolute;
+    cursor: default;
+    z-index: 9999 !important;
+}
+
+/* Social Copy Link styles */
+.jssocials-share-copy .jssocials-share-link {
+    background: #0a88ff;
+}
+
+.jssocials-share-copy .jssocials-share-link:hover {
+    background: #006ed6;
+}
+
+.commentCollapsed {
+    width: 100%;
+}
+
+.togglebutton {
+    color: lightgrey;
+}
+
+.switch-spinner {
+    display: none;
+    position: absolute;
+    margin-left: 13px;
+    font-size: 16px;
+}
+
+.blockquote {
+    border-left: 5px solid #1ab394;
+    padding-left: 5px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+}
+
+/* Popup */
+.tooltip-hover .arrow {
+    display: none !important;
+}
+
+.nav {
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+.cse .gsc-control-cse,
+.gsc-control-cse {
+    padding: 0 !important;
+    width: auto;
+}
+
+.note-toolbar {
+    background-color: #f3f3f4;
+}
+
+/* Read more */
+.post-box {
+    max-height: 800px;
+    position: relative; /*This is needed to correctly calculate size of post for read-more*/
+    overflow: hidden;
+}
+
+.post-box .read-more-button {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    padding: 70px 0;
+    /* "transparent" only works here because == rgba(0,0,0,0) */
+    /*background-image: linear-gradient(to bottom, transparent, black);*/
+    background-image: -webkit-gradient( linear, left top, left bottom, color-stop(0, rgba(26, 179, 148, 0)), color-stop(1, rgba(26, 179, 148, 100))); /* Chrome 10-25, iOS 5+, Safari 5.1+ */
+}
+
+.post-box .read-more-button .button {
+    position: absolute;
+    bottom: 0;
+    margin-left: auto;
+    transform: translate(-50%, -0);
+}
+/* */
+
+.ibox-comment {
+    background-color: #f9f9f9;
+}
+
+/* Image hover */
+
+.cuadro_intro_hover {
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    /*height: 200px;*/
+}
+
+.cuadro_intro_hover:hover .caption {
+    opacity: 1;
+    transform: translateY(-150px);
+    -webkit-transform: translateY(-150px);
+    -moz-transform: translateY(-150px);
+    -ms-transform: translateY(-150px);
+    -o-transform: translateY(-150px);
+}
+
+.cuadro_intro_hover img {
+    z-index: 4;
+}
+
+.cuadro_intro_hover .caption {
+    position: absolute;
+    top: 100%;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}
+
+.cuadro_intro_hover .blur {
+    background-color: rgba(0,0,0,0.7);
+    height: 300px;
+    z-index: 5;
+    position: absolute;
+    width: 100%;
+}
+
+.cuadro_intro_hover .caption-text {
+    z-index: 10;
+    color: #fff;
+    position: absolute;
+    height: 300px;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+
+.note-editor {
+    overflow: visible;
+}
+
+.media-body .note-editor {
+    overflow: visible;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: -95%;
+    margin-top: -1px;
+}

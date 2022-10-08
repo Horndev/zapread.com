@@ -1,5 +1,6 @@
 ﻿@{ 
     var claimsIdentity = User != null ? User.Identity as System.Security.Claims.ClaimsIdentity : null;
+    var themeClass = (claimsIdentity != null && claimsIdentity.Claims.Where(c => c.Type == "ColorTheme").Select(c => c.Value).Contains("dark")) ? "theme--dark" : "theme--default";
 }
 <!DOCTYPE html>
 <html>
@@ -10,22 +11,15 @@
     <meta name="keywords" content="Bitcoin, Lightning Network, Social Media, Cryptocurrency, Lightning">
     @RenderSection("meta", required: false)
     <title>@ViewBag.Title</title>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
     @RenderSection("Styles", required: false)
     @Styles.Render("~/Content/style/textspinners")
-    @*@if (claimsIdentity != null && claimsIdentity.Claims.Select(c => c.Type).Contains("ColorTheme") && claimsIdentity.FindFirst("ColorTheme").Value == "dark")
-    {
-        @Styles.Render("~/Content/css-dark")
-    }
-    else
-    {
-        @Styles.Render("~/Content/css")
-    }*@
+    @Scripts.Render("~/bundles/tarteaucitron")
 </head>
-<body class="top-navigation gray-bg">
-    @Html.Partial(partialViewName: "_PartialModalLNTransaction")      @*This is the code for the modal dialog box to deposit*@
-    <div id="wrapper" class="@Html.PageClass()">
-        <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
+<body class="top-navigation themed @themeClass">
+    <div id="ModalDepositWithdraw"></div>
+    <div class="@Html.PageClass()">
+        <div id="page-wrapper" class="page-bg @ViewBag.SpecialClass">
             @Html.Partial("_TopNavbar")
             @if (User != null && User.IsInRole("Administrator"))
             {

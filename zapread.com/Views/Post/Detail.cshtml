@@ -3,40 +3,10 @@
 @{
     ViewBag.Title = Model.UserName + ": in " + Model.GroupName + " - " + Model.PostTitle;
     Model.IsDetailView = true;
+    var UserName = Request.IsAuthenticated ? User.Identity.Name : "";
 }
 
-@Html.Partial(partialViewName: "_PartialModalVote")         @*This is the code for the modal dialog box to vote*@
-
-<div class="wrapper border-bottom white-bg page-heading">
-    <div class="col-lg-10">
-        <br />
-        <h2>@Model.PostTitle</h2>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a>Posts</a></li>
-            <li class="breadcrumb-item active">Detail</li>
-        </ol>
-    </div>
-    <div class="col-lg-2">
-    </div>
-</div>
-
-<div class="wrapper wrapper-content ">
-    <div class="row">
-        <div class="col-sm-2">
-        </div>
-        <div class="col-lg-8">
-            @Html.Partial(partialViewName: "_PartialPostRenderVm", model: Model)
-            <div class="social-feed-box-nb">
-                <span></span>
-            </div>
-            <div class="social-feed-box-nb" style="margin-bottom:50px;">
-                <span></span>
-            </div>
-        </div>
-
-    </div>
-</div>
+<div id="root"></div>
 
 @section meta {
     <meta name="twitter:card" content="summary" />
@@ -57,6 +27,7 @@
         var detailPostId = @Model.PostId;
         var detailPostVote = @if (ViewBag.vote != null) { <text>@ViewBag.vote</text>} else { <text>0</text> };
         var showVoteDialog = @if (ViewBag.showVote != null && ViewBag.showVote) { <text>true</text> } else { <text>false</text> };
+        window.UserName = "@UserName";
     </script>
     @Scripts.Render("~/bundles/post/detail")
 }
