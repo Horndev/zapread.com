@@ -13,6 +13,8 @@ export function onlnauthlogin(callback, token) {
   });
   appInsights.flush(); // send now
 
+  if(/^(https?:)/.test(callback))
+    callback = window.origin + callback;
   // Go to callback with login
   window.location.replace(callback + "?code=" + token + "&state=" + state);
 }
