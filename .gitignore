@@ -105,3 +105,4 @@ packages/
 /zapread.com/upgrade-assistant.clef
 /zapread.com/Scripts/res/
 /zapread.com/appsettings.json
+/images.functions.zapread.com/Properties/PublishProfiles/*.pubxml
