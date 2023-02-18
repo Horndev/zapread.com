@@ -243,7 +243,7 @@ export default function DepositWithdrawModal(props) {
       setShowCheckPaymentButton(false);
       setShowScanQRButton(true);
       setShowWithdrawInvoiceAmount(false);
-      setFooterMessage("Paste invoice or scan QR code");
+      setFooterMessage("Paste invoice or scan QR code.  Limit 50000 Satoshi per invoice.  0 Satoshi invoice not supported.");
       setFooterBg("bg-muted");
       setShowValidateInvoiceButton(true);
     }
@@ -411,12 +411,21 @@ export default function DepositWithdrawModal(props) {
                 <div>
                   <video ref={cameraWindowRef} id="preview"
                     style={showCameraWindow ? {} : { display: "none" }}></video>
-                  <Button
-                    onClick={handleScanQR}
-                    style={showScanQRButton ? {} : { display: "none" }}
-                    variant="outline-primary" block>
-                    Scan QR
-                  </Button>
+                  <Tippy
+                    theme="light-border"
+                    interactive={true}
+                    interactiveBorder={30}
+                    interactiveDebounce={75}
+                    content={
+                      <>Please ensure camera permissions are allowed in your browser.</>
+                    }>
+                    <Button
+                      onClick={handleScanQR}
+                      style={showScanQRButton ? {} : { display: "none" }}
+                      variant="outline-primary" block>
+                        Scan QR
+                    </Button>
+                  </Tippy>
                 </div>
                 <div style={showWithdrawInvoiceAmount ? {} : { display: "none" }}>
                   <span>Invoice amount:</span>
