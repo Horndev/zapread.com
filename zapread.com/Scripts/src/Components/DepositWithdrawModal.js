@@ -82,6 +82,8 @@ export default function DepositWithdrawModal(props) {
       else {
         setFooterMessage(response.message);
         setFooterBg("bg-danger");
+        setShowGetInvoiceButton(true);
+        setShowCheckPaymentButton(false);
         setShowQRLoading(false);
         setShowQR(false);
       }
@@ -144,7 +146,7 @@ export default function DepositWithdrawModal(props) {
       setShowValidateInvoiceButton(false);
       setShowWithdrawButton(false);
       if (response.success) {
-        setFooterMessage("Payment successfully sent");
+        setFooterMessage("Withdraw is processing...");
         setFooterBg("bg-success");
         refreshUserBalance(true);
       }

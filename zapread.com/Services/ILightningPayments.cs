@@ -1,4 +1,5 @@
 ﻿using LightningLib.lndrpc;
+using System.Threading.Tasks;
 
 namespace zapread.com.Services
 {
@@ -7,6 +8,13 @@ namespace zapread.com.Services
     /// </summary>
     public interface ILightningPayments
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="withdrawId"></param>
+        /// <returns></returns>
+        Task<bool> EnqueueWithdrawAsync(string withdrawId);
+
         /// <summary>
         /// 
         /// </summary>
