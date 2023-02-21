@@ -23,7 +23,7 @@ namespace zapread.com.Controllers
 	public partial class LightningController : Controller
 	{
         /// <summary>
-        /// 
+        /// Method to validate pament requests.
         /// </summary>
         /// <param name = "request">Lightning invoice</param>
         /// <returns></returns>
