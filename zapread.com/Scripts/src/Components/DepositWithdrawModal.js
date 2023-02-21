@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
 import Tippy from '@tippyjs/react';
+import * as tata from 'tata-js';
 import { Modal, Nav, Tab, Container, Row, Col, ButtonGroup, Button, Card } from "react-bootstrap";
 import { useUserInfo } from "./hooks/useUserInfo";
 import { on, off } from "../utility/events";
@@ -295,10 +296,28 @@ export default function DepositWithdrawModal(props) {
   }
 
   const onPaidEventHandler = useCallback((e) => {
-    //console.log("DepositWithdrawModal onPaidEventHandler", e.detail);
     refreshUserBalance(true); // update UI
     setDepositInvoice("");
-    setWithdrawInvoice("");    
+    setWithdrawInvoice("");
+
+    tata.success("Payment Complete", "Your Lightning Network deposit has completed", {
+      position: "br",
+      duration: 5000
+    });
+
+    handleClose();
+  });
+
+  const onWithdrawEventHandler = useCallback((e) => {
+    refreshUserBalance(true); // update UI
+    setDepositInvoice("");
+    setWithdrawInvoice("");
+
+    tata.success("Withdraw Complete", "Your Lightning Network withdraw has completed", {
+      position: "br",
+      duration: 10000
+    });
+
     handleClose();
   });
 
@@ -311,11 +330,11 @@ export default function DepositWithdrawModal(props) {
   // Register event handler for invoice paid
   useEffect(() => {
     on("zapread:deposit:invoicePaid", onPaidEventHandler);
-    on("zapread:withdraw:invoicePaid", onPaidEventHandler);
+    on("zapread:withdraw:invoicePaid", onWithdrawEventHandler);
 
     return () => {
       off("zapread:deposit:invoicePaid", onPaidEventHandler);
-      off("zapread:withdraw:invoicePaid", onPaidEventHandler);
+      off("zapread:withdraw:invoicePaid", onWithdrawEventHandler);
     }
   }, [onPaidEventHandler]);
 

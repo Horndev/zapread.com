@@ -3,7 +3,7 @@
  **/
 
 import DOMPurify from 'dompurify';
-import * as tata from 'tata-js'
+import * as tata from 'tata-js';
 
 export function onusermessage(content, reason, clickUrl) {
   var cleanContent = DOMPurify.sanitize(content);
