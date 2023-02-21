@@ -327,8 +327,6 @@ export default function CommentsView(props) {
       var comments = props.comments.filter(cmt => !cmt.IsReply)
         .sort((c1, c2) => { return (c2.Score - c1.Score) || (Date.parse(c2.TimeStamp) - Date.parse(c1.TimeStamp)) });
 
-      console.log(comments);
-
       if ((props.numRootComments - 1) > numToShow) {
         setHasMoreComments(true);
       }
