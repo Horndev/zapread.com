@@ -70,7 +70,8 @@ module.exports = {
         console.log(c);
       }
       return "[id].js";
-    }
+    },
+    publicPath: "/Scripts/dist/"
   },
   optimization: {
     minimize: true,
@@ -207,4 +208,16 @@ module.exports = {
     //  ], { nodir: true })
     //})
   ]
+  //,
+  //devServer: {
+  //  proxy: {
+  //    '*': {
+  //      target: 'http://localhost:59829', //change this to your port 
+  //      changeOrigin: true
+  //    },
+  //    port: 8080,
+  //    host: '0.0.0.0',
+  //    hot: true,
+  //  },
+  //}
 };
