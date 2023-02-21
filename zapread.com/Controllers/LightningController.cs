@@ -449,7 +449,7 @@ namespace zapread.com.Controllers
                 // Send live signal to listening clients on websockets/SignalR
                 //var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
                 //context.Clients.All.NotifyInvoicePaid(new { invoice = invoice.payment_request, balance = userBalance, txid = t.Id });
-                await NotificationService.SendPaymentNotification(t.User == null ? "" : t.User.AppId, invoice: invoice.payment_request, userBalance: userBalance, txid: t.Id).ConfigureAwait(true);
+                await NotificationService.SendPaymentNotificationAsync(t.User == null ? "" : t.User.AppId, invoice: invoice.payment_request, userBalance: userBalance, txid: t.Id).ConfigureAwait(true);
             }
         }
 

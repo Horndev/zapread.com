@@ -373,7 +373,7 @@ namespace zapread.com.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = "Withdraw is processing."
+                    message = "Withdraw is processing..."
                 });
             }
         }

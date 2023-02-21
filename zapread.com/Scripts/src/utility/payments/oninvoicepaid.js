@@ -17,11 +17,14 @@ export async function oninvoicepaid(invoice, balance, txid) {
   var eventName = 'zapread:invoicePaid'; // default
 
   if (isDeposit(invoice)) {
-    console.log("Deposit invoice paid");
+    //console.log("Deposit invoice paid");
     eventName = 'zapread:deposit:invoicePaid'
   } else if (isVote(invoice)) {
-    console.log("Vote invoice paid");
+    //console.log("Vote invoice paid");
     eventName = 'zapread:vote:invoicePaid'
+  } else if (isWithdraw(invoice)) {
+    //console.log("Withdraw invoice paid");
+    eventName = 'zapread:withdraw:invoicePaid'
   }
 
   const event = new CustomEvent(eventName, {
@@ -30,7 +33,16 @@ export async function oninvoicepaid(invoice, balance, txid) {
     }
   });
   document.dispatchEvent(event);
-  console.log('dispached: ' + eventName, txid)
+  //console.log('dispached: ' + eventName, txid)
+}
+
+function isWithdraw(invoice) {
+  var depositInvoiceEl = document.getElementById("lightningWithdrawInvoiceInput");
+  if (depositInvoiceEl != null) {
+    var depositInvoice = depositInvoiceEl.value;
+    return invoice === depositInvoice;
+  }
+  return false;
 }
 
 function isDeposit(invoice) {

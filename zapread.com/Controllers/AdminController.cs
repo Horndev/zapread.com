@@ -198,7 +198,7 @@ namespace zapread.com.Controllers
                                     }
 
                                     // Notify clients the invoice was paid.
-                                    await NotificationService.SendPaymentNotification(user.AppId, i.PaymentRequest, userBalance, i.Id).ConfigureAwait(true);
+                                    await NotificationService.SendPaymentNotificationAsync(user.AppId, i.PaymentRequest, userBalance, i.Id).ConfigureAwait(true);
                                 }
                                 else if (use == TransactionUse.Tip)
                                 {

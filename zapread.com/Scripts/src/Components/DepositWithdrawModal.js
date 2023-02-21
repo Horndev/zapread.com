@@ -201,7 +201,6 @@ export default function DepositWithdrawModal(props) {
             video: cameraWindowRef.current 
           });
           scan.addListener('scan', function (content) {
-            console.log(content);
             setWithdrawInvoice(content);
             setShowCameraWindow(false);
             setShowScanQRButton(false);
@@ -296,9 +295,10 @@ export default function DepositWithdrawModal(props) {
   }
 
   const onPaidEventHandler = useCallback((e) => {
-    console.log("DepositWithdrawModal onPaidEventHandler", e.detail);
+    //console.log("DepositWithdrawModal onPaidEventHandler", e.detail);
     refreshUserBalance(true); // update UI
     setDepositInvoice("");
+    setWithdrawInvoice("");    
     handleClose();
   });
 
@@ -311,9 +311,11 @@ export default function DepositWithdrawModal(props) {
   // Register event handler for invoice paid
   useEffect(() => {
     on("zapread:deposit:invoicePaid", onPaidEventHandler);
+    on("zapread:withdraw:invoicePaid", onPaidEventHandler);
 
     return () => {
       off("zapread:deposit:invoicePaid", onPaidEventHandler);
+      off("zapread:withdraw:invoicePaid", onPaidEventHandler);
     }
   }, [onPaidEventHandler]);
 
@@ -404,6 +406,7 @@ export default function DepositWithdrawModal(props) {
                     <input
                       onChange={({ target: { value } }) => setWithdrawInvoice(value)} // Controlled input
                       ref={withdrawInputRef}
+                      id="lightningWithdrawInvoiceInput"
                       value={withdrawInvoice}
                       placeholder="Paste invoice"
                       className="form-control font-bold"

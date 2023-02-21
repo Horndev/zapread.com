@@ -257,6 +257,23 @@ namespace zapread.com.Services
                     }
                 }
                 while (saveFailed);
+
+                // Send real-time notification to client.  This is wrapped to run synchronously
+                // because this is called as background task.
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        await NotificationService.SendPaymentNotificationAsync(
+                        userId: user.AppId,
+                        invoice: lntx.PaymentRequest,
+                        userBalance: user.Funds.Balance,
+                        txid: lntx.Id).ConfigureAwait(false);
+                    });
+                    task.Wait();
+                }
+                catch { }
+
                 return "SUCCESS";
             }
         }
