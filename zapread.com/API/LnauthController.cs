@@ -21,7 +21,7 @@ namespace zapread.com.API
     /// </summary>
     public class LnauthController : Controller
     {
-        private IEventService eventService;
+        private readonly IEventService eventService;
         /// <summary>
         /// Default constructor for DI
         /// </summary>
@@ -141,9 +141,8 @@ namespace zapread.com.API
             {
                 return Json(new
                 {
-                status = "ERROR", reason = "Unable to validate signature."
+                    status = "ERROR", reason = "Unable to validate signature."
                 }
-
                 , JsonRequestBehavior.AllowGet);
             }
 

@@ -256,21 +256,38 @@ namespace zapread.com.Helpers
         /// <returns></returns>
         public static IQueryable<PostQueryInfo> OrderPostsByScore(IQueryable<Post> validposts)
         {
-            DateTime scoreStart = DateTime.Now - TimeSpan.FromDays(30); //new DateTime(2018, 07, 01);
+            //DateTime scoreStart = DateTime.Now; // - TimeSpan.FromDays(30); //new DateTime(2018, 07, 01);
+            //var days60 = 5184000.0;
+            //var days30 = 2592000.0;
             var sposts = validposts.Where(p => !p.IsDeleted).Where(p => !p.IsDraft).Select(p => new
             {
-            p, // Includes the sum of absolute value of comment scores
-            cScore = p.Comments.Any() ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                p, // Includes the sum of absolute value of comment scores
+                //cScore = p.Comments.Any() ? p.Comments.Where(c => !c.IsDeleted).Sum(c => Math.Abs((double)c.Score) < 1.0 ? 1.0 : Math.Abs((double)c.Score)) : 1.0
+                cScoreAbs = p.Comments.Any() ? Math.Abs(p.Comments.Where(c => !c.IsDeleted).Sum(c => c.Score > 0 ? c.Score : 0)) : 0.0,
             }).Select(p => new
             {
-            p.p, p.cScore, s = (Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)), // Max (|x|,1)                                                           
- }).Select(p => new
+                p.p,
+                p.cScoreAbs,
+                sign = p.p.Score > 0.0 ? 1.0 : -1.0, // Sign of s
+                sAbs = Math.Abs((double)p.p.Score),//(Math.Abs((double)p.p.Score) < 1.0 ? 1.0 : Math.Abs((double)p.p.Score)), // Max (|x|,1)                                                           
+            }).Select(p => new
             {
-            p.p, order1 = SqlFunctions.Log10(p.s), order2 = SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore), // Comment scores
- sign = p.p.Score > 0.0 ? 1.0 : -1.0, // Sign of s
- dt = 1.0 * DbFunctions.DiffSeconds(scoreStart, p.p.TimeStamp), // time since start
- }).Select(p => new PostQueryInfo()
-            {p = p.p, order1 = p.order1, order2 = p.order2, sign = p.sign, dt = p.dt, hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0)), RootComments = p.p.Comments.Where(c => !c.IsReply).Select(c => c.CommentId), }).OrderByDescending(p => p.hot);
+                p.p,
+                order1 = SqlFunctions.SquareRoot(p.sign > 0 ? p.sAbs / 50000.0 : p.sAbs / 1000.0),//SqlFunctions.Log10(p.s),
+                order2 = SqlFunctions.SquareRoot(p.cScoreAbs / 50000.0),//SqlFunctions.Log10(p.cScore < 1.0 ? 1.0 : p.cScore), // Comment scores
+                p.sign,
+                dt = -1.0 * DbFunctions.DiffSeconds(DateTime.Now, p.p.TimeStamp), // time since start
+            }).Select(p => new PostQueryInfo()
+            {
+                p = p.p,
+                //order1 = p.order1,
+                //order2 = p.order2,
+                //sign = p.sign,
+                //dt = p.dt,
+                //hot = (p.sign * (p.order1 + p.order2)) + (p.dt / (p.sign > 0 ? 90000.0 : 900000.0)),
+                hot = (SqlFunctions.Exp(-1.0 * p.dt.Value / 5184000.0) * (p.sign * 100.0 * p.order1 + 20.0 * p.order2)) + (100.0 * SqlFunctions.Exp(-1.0 * p.dt.Value / 2592000.0)),  // 60 days in seconds = 5184000
+                RootComments = p.p.Comments.Where(c => !c.IsReply).Select(c => c.CommentId),
+            }).OrderByDescending(p => p.hot);
             //.Select(p => p.p);
             return sposts;
         }
@@ -298,11 +315,37 @@ namespace zapread.com.Helpers
             if (limitComments)
             {
                 var sposts = await postquery.Skip(start).Take(count).Select(p => new PostViewModel()
-                {Hot = p.hot ?? 0, PostTitle = p.p.PostTitle, Content = p.p.Content, PostId = p.p.PostId, GroupId = p.p.Group.GroupId, GroupName = p.p.Group.GroupName, IsSticky = p.p.IsSticky, UserName = p.p.UserId.Name, UserId = p.p.UserId.Id, UserAppId = p.p.UserId.AppId, UserProfileImageVersion = p.p.UserId.ProfileImage.Version, Score = p.p.Score, TimeStamp = p.p.TimeStamp, TimeStampEdited = p.p.TimeStampEdited, IsNSFW = p.p.IsNSFW, IsNonIncome = p.p.IsNonIncome, ViewerIsFollowing = p.p.FollowedByUsers.Select(v => v.AppId).Contains(userAppId), ViewerIsMod = p.p.Group.Moderators.Select(m => m.AppId).Contains(userAppId), ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId), ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId), ViewerIsBanishedGroup = p.p.Group.Banished.Any(g => g.User.AppId == userAppId) ? true : false, ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId), ViewerIgnoredPost = p.p.UserId.AppId == userAppId ? false : p.p.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId), NumRootComments = p.RootComments.Count(), CommentVms = p.p.Comments.Where(c => !c.IsReply) // Initial posts only
+                {
+                    Hot = p.hot ?? 0,
+                    PostTitle = p.p.PostTitle,
+                    Content = p.p.Content,
+                    PostId = p.p.PostId,
+                    GroupId = p.p.Group.GroupId,
+                    GroupName = p.p.Group.GroupName,
+                    IsSticky = p.p.IsSticky,
+                    UserName = p.p.UserId.Name,
+                    UserId = p.p.UserId.Id,
+                    UserAppId = p.p.UserId.AppId,
+                    UserProfileImageVersion = p.p.UserId.ProfileImage.Version,
+                    Score = p.p.Score,
+                    TimeStamp = p.p.TimeStamp,
+                    TimeStampEdited = p.p.TimeStampEdited,
+                    IsNSFW = p.p.IsNSFW,
+                    IsNonIncome = p.p.IsNonIncome,
+                    ViewerIsFollowing = p.p.FollowedByUsers.Select(v => v.AppId).Contains(userAppId),
+                    ViewerIsMod = p.p.Group.Moderators.Select(m => m.AppId).Contains(userAppId),
+                    ViewerUpvoted = p.p.VotesUp.Select(v => v.AppId).Contains(userAppId),
+                    ViewerDownvoted = p.p.VotesDown.Select(v => v.AppId).Contains(userAppId),
+                    ViewerIsBanishedGroup = p.p.Group.Banished.Any(g => g.User.AppId == userAppId) ? true : false,
+                    ViewerIgnoredUser = p.p.UserId.AppId == userAppId ? false : p.p.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                    ViewerIgnoredPost = p.p.UserId.AppId == userAppId ? false : p.p.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId),
+                    NumRootComments = p.RootComments.Count(),
+                    CommentVms = p.p.Comments.Where(c => !c.IsReply) // Initial posts only
                 .OrderByDescending(c => c.Score).ThenBy(c => c.TimeStamp).Take(numComments).SelectMany(rootComment => rootComment.Replies.OrderByDescending(c1 => c1.Score).ThenBy(c1 => c1.TimeStamp).Take(numComments).Union(rootComment.Replies.SelectMany(rcreplies => rcreplies.Replies.OrderByDescending(c1 => c1.Score).ThenBy(c1 => c1.TimeStamp).Take(numComments))).Union(new List<Comment>()
                 {rootComment})) // Return replies 3 layers deep
                 .Select(c => new PostCommentsViewModel()
-                {PostId = p.p.PostId, CommentId = c.CommentId, Text = c.Text, Score = c.Score, IsReply = c.IsReply, NumReplies = c.Replies.Count(), IsDeleted = c.IsDeleted, TimeStamp = c.TimeStamp, TimeStampEdited = c.TimeStampEdited, UserId = c.UserId.Id, UserName = c.UserId.Name, UserAppId = c.UserId.AppId, ProfileImageVersion = c.UserId.ProfileImage.Version, ViewerUpvoted = userAppId == null ? false : c.VotesUp.Select(v => v.AppId).Contains(userAppId), ViewerDownvoted = userAppId == null ? false : c.VotesDown.Select(v => v.AppId).Contains(userAppId), ViewerIgnoredUser = userAppId == null ? false : c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId), ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId, ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id, ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId, ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name, }), }).AsNoTracking().ToListAsync().ConfigureAwait(true);
+                { PostId = p.p.PostId, CommentId = c.CommentId, Text = c.Text, Score = c.Score, IsReply = c.IsReply, NumReplies = c.Replies.Count(), IsDeleted = c.IsDeleted, TimeStamp = c.TimeStamp, TimeStampEdited = c.TimeStampEdited, UserId = c.UserId.Id, UserName = c.UserId.Name, UserAppId = c.UserId.AppId, ProfileImageVersion = c.UserId.ProfileImage.Version, ViewerUpvoted = userAppId == null ? false : c.VotesUp.Select(v => v.AppId).Contains(userAppId), ViewerDownvoted = userAppId == null ? false : c.VotesDown.Select(v => v.AppId).Contains(userAppId), ViewerIgnoredUser = userAppId == null ? false : c.UserId.AppId == userAppId ? false : c.UserId.IgnoredByUsers.Select(u => u.AppId).Contains(userAppId), ParentCommentId = c.Parent == null ? 0 : c.Parent.CommentId, ParentUserId = c.Parent == null ? 0 : c.Parent.UserId.Id, ParentUserAppId = c.Parent == null ? "" : c.Parent.UserId.AppId, ParentUserName = c.Parent == null ? "" : c.Parent.UserId.Name, }),
+                }).AsNoTracking().ToListAsync().ConfigureAwait(true);
                 return sposts;
             }
             else

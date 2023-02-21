@@ -1275,6 +1275,7 @@
     <Content Include="Content\fonts\fa-solid-900.woff2" />
     <Content Include="Content\fonts\fa-v4compatibility.ttf" />
     <Content Include="Content\fonts\fa-v4compatibility.woff2" />
+    <Compile Include="Controllers\LightningController.Withdraws.cs" />
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1303,6 +1304,7 @@
     <Content Include="Scripts\dist\0\595.js" />
     <Content Include="Scripts\dist\0\6455.js" />
     <Content Include="Scripts\dist\0\6769.js" />
+    <Content Include="Scripts\dist\0\6969.css" />
     <Content Include="Scripts\dist\0\6969.js" />
     <Content Include="Scripts\dist\0\7524.js" />
     <Content Include="Scripts\dist\0\7524.js.LICENSE.txt" />
@@ -1581,6 +1583,8 @@
     <Content Include="Scripts\dist\user\index.js.map" />
     <Content Include="Scripts\dist\admin\pos.css.map" />
     <Content Include="Scripts\dist\admin\pos.js.map" />
+    <Content Include="Scripts\dist\manage\purchases.css.map" />
+    <Content Include="Scripts\dist\manage\purchases.js.map" />
     <Content Include="Scripts\dist\0\1035.js.map" />
     <Content Include="Scripts\dist\0\1161.js.map" />
     <Content Include="Scripts\dist\0\2025.js.map" />
@@ -1605,6 +1609,7 @@
     <Content Include="Scripts\dist\0\595.js.map" />
     <Content Include="Scripts\dist\0\6455.js.map" />
     <Content Include="Scripts\dist\0\6769.js.map" />
+    <Content Include="Scripts\dist\0\6969.css.map" />
     <Content Include="Scripts\dist\0\6969.js.map" />
     <Content Include="Scripts\dist\0\7524.js.map" />
     <Content Include="Scripts\dist\0\7630.js.map" />
@@ -1621,8 +1626,6 @@
     <Content Include="Scripts\dist\0\9681.css.map" />
     <Content Include="Scripts\dist\0\9681.js.map" />
     <Content Include="Scripts\dist\0\9907.js.map" />
-    <Content Include="Scripts\dist\manage\purchases.css.map" />
-    <Content Include="Scripts\dist\manage\purchases.js.map" />
     <None Include="Scripts\src\css\pages\manage\manage.scss" />
     <Content Include="Scripts\src\css\pages\groups\index.css" />
     <Content Include="Scripts\src\css\base\badges_labels.scss" />

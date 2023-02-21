@@ -46,10 +46,7 @@ function Comment(props) {
       setNestLevel(props.nestLevel);
 
       var thisChildComments = props.children.filter(cmt => cmt.ParentCommentId == props.comment.CommentId)
-        .sort((c1, c2) => { c1.Score < c2.Score })
-        .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
-
-      //console.log("thisChildComments", thisChildComments, "NumReplies", props.comment.NumReplies);
+        .sort((c1, c2) => { return (c2.Score - c1.Score) || (Date.parse(c2.TimeStamp) - Date.parse(c1.TimeStamp)) });
 
       setChildComments(thisChildComments);
       if (!isInitialized) {
@@ -328,8 +325,7 @@ export default function CommentsView(props) {
       if (isDetailView) { numToShow = 50; }
 
       var comments = props.comments.filter(cmt => !cmt.IsReply)
-        .sort((c1, c2) => { c1.Score < c2.Score })
-        .sort((c1, c2) => { c1.TimeStamp < c2.TimeStamp });
+        .sort((c1, c2) => { return (c2.Score - c1.Score) || (Date.parse(c2.TimeStamp) - Date.parse(c1.TimeStamp)) });
 
       if ((props.numRootComments - 1) > numToShow) {
         setHasMoreComments(true);

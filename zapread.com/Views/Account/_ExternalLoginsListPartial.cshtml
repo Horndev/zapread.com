@@ -1,8 +1,5 @@
 ﻿@model zapread.com.Models.ExternalLoginListViewModel
 @using Microsoft.Owin.Security
-
-<h4>Use another service to log in.</h4>
-<hr />
 @{
     var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
     if (loginProviders.Count() == 0) {
@@ -22,7 +19,7 @@
                     {
                         if (p.AuthenticationType == "LnAuth")
                         {
-                            <button type="submit" class="btn btn-social" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account"><span class="fa fa-bolt"></span> Lnurl-auth</button>
+                            <button type="submit" class="btn btn-social" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using @p.Caption"><span class="fa fa-bolt"></span> Lightning Wallet</button>
                         }
                         else if (p.AuthenticationType == "Google")
                         {

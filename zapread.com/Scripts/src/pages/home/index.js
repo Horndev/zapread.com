@@ -291,3 +291,5 @@ ReactDOM.render(
     </Route>
   </Router>
   , document.getElementById("root"));
+
+//module.hot.accept();

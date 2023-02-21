@@ -4,7 +4,6 @@
  * @param {any} token
  */
 export function onlnauthlogin(callback, token) {
-  // console.log("realtime callback: ", callback, token);
   appInsights.trackEvent({
     name: 'lnurl-auth login authenticated',
     properties: {

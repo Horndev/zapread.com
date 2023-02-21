@@ -169,14 +169,14 @@ namespace zapread.com.Services
         }
 
         /// <summary>
-        /// 
+        /// Sends a real-time notification that a payment has been completed
         /// </summary>
         /// <param name = "userId"></param>
         /// <param name = "invoice"></param>
         /// <param name = "userBalance"></param>
         /// <param name = "txid"></param>
         /// <returns></returns>
-        public async static Task SendPaymentNotification(string userId, string invoice, double userBalance, int txid)
+        public async static Task SendPaymentNotificationAsync(string userId, string invoice, double userBalance, int txid)
         {
             //var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
             //context.Clients.All.NotifyInvoicePaid(new { invoice = i.PaymentRequest, balance = userBalance, txid = i.Id });
@@ -184,10 +184,14 @@ namespace zapread.com.Services
             url = url + "/api/";
             RestClient client = new RestClient(url);
             var request = (new RestRequest("payment/complete", Method.Post)
-            {RequestFormat = DataFormat.Json}).AddJsonBody(new
             {
-            toUserId = userId, invoice, balance = userBalance, txid, }
-
+                RequestFormat = DataFormat.Json}).AddJsonBody(new
+                {
+                    toUserId = userId,
+                    invoice,
+                    balance = userBalance,
+                    txid, 
+                }
             );
             var response = await client.ExecuteAsync(request).ConfigureAwait(true);
             if (response.IsSuccessful)

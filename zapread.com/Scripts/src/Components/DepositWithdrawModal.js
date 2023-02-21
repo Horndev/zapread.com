@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useState, useRef, createRef } from "react";
 import Tippy from '@tippyjs/react';
+import * as tata from 'tata-js';
 import { Modal, Nav, Tab, Container, Row, Col, ButtonGroup, Button, Card } from "react-bootstrap";
 import { useUserInfo } from "./hooks/useUserInfo";
 import { on, off } from "../utility/events";
@@ -18,6 +19,11 @@ import { getScript } from '../utility/getScript';
 
 export default function DepositWithdrawModal(props) {
   const [key, setKey] = useState("deposit");
+  const [cameraId, setCameraId] = useState(0);
+  const [numCameras, setNumCameras] = useState(0);
+  const [cameras, setCameras] = useState(null);
+  const [scanner, setScanner] = useState(null);
+
   const [show, setShow] = useState(false);
   const [showQRLoading, setShowQRLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -82,6 +88,8 @@ export default function DepositWithdrawModal(props) {
       else {
         setFooterMessage(response.message);
         setFooterBg("bg-danger");
+        setShowGetInvoiceButton(true);
+        setShowCheckPaymentButton(false);
         setShowQRLoading(false);
         setShowQR(false);
       }
@@ -144,7 +152,7 @@ export default function DepositWithdrawModal(props) {
       setShowValidateInvoiceButton(false);
       setShowWithdrawButton(false);
       if (response.success) {
-        setFooterMessage("Payment successfully sent");
+        setFooterMessage("Withdraw is processing...");
         setFooterBg("bg-success");
         refreshUserBalance(true);
       }
@@ -190,33 +198,44 @@ export default function DepositWithdrawModal(props) {
     if (showCameraWindow) {
       getWebrtcAdapter().then(({ default: adapter }) => {
         getScript('/Scripts/instascan.min.js', function () {
-        //getInstascan().then(({ Instascan }) => {
-          let scanner = new Instascan.Scanner({
-            video: cameraWindowRef.current //document.getElementById('preview')
+          let scan = new Instascan.Scanner({
+            video: cameraWindowRef.current 
           });
-          scanner.addListener('scan', function (content) {
-            console.log(content);
+          scan.addListener('scan', function (content) {
             setWithdrawInvoice(content);
             setShowCameraWindow(false);
             setShowScanQRButton(false);
-            scanner.stop();
+            scan.stop();
           });
-          Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-              scanner.start(cameras[0]);
+          Instascan.Camera.getCameras().then(function (cams) {
+            setNumCameras(cams.length);
+            setCameras(cams);
+            if (cams.length > 0) {              
+              scan.start(cams[0]);
+              setCameraId(0);
+              console.log("found cameras:", cams);
             } else {
               console.error('No cameras found.');
             }
+            setScanner(scan);
           }).catch(function (e) {
             console.error(e);
           });
-          //setShowCameraWindow(true);
-        //});
         }, true);
       });
-      //}, true);
     }
   }, [showCameraWindow])
+
+  const handleNextCamera = () => {
+    if (showCameraWindow) {
+      if (scanner) {
+        let newCameraId = cameraId + 1 > numCameras ? 0 : cameraId + 1;
+        scanner.start(cameras[newCameraId]);
+        setCameraId(newCameraId);
+        console.log("cameraid: ", newCameraId);
+      }
+    }
+  }
 
   const handleScanQR = () => {
     setShowCameraWindow(true);
@@ -241,7 +260,7 @@ export default function DepositWithdrawModal(props) {
       setShowCheckPaymentButton(false);
       setShowScanQRButton(true);
       setShowWithdrawInvoiceAmount(false);
-      setFooterMessage("Paste invoice or scan QR code");
+      setFooterMessage("Paste invoice or scan QR code.  Limit 50000 Satoshi per invoice.  0 Satoshi invoice not supported.");
       setFooterBg("bg-muted");
       setShowValidateInvoiceButton(true);
     }
@@ -277,9 +296,28 @@ export default function DepositWithdrawModal(props) {
   }
 
   const onPaidEventHandler = useCallback((e) => {
-    console.log("DepositWithdrawModal onPaidEventHandler", e.detail);
     refreshUserBalance(true); // update UI
     setDepositInvoice("");
+    setWithdrawInvoice("");
+
+    tata.success("Payment Complete", "Your Lightning Network deposit has completed", {
+      position: "br",
+      duration: 5000
+    });
+
+    handleClose();
+  });
+
+  const onWithdrawEventHandler = useCallback((e) => {
+    refreshUserBalance(true); // update UI
+    setDepositInvoice("");
+    setWithdrawInvoice("");
+
+    tata.success("Withdraw Complete", "Your Lightning Network withdraw has completed", {
+      position: "br",
+      duration: 10000
+    });
+
     handleClose();
   });
 
@@ -292,9 +330,11 @@ export default function DepositWithdrawModal(props) {
   // Register event handler for invoice paid
   useEffect(() => {
     on("zapread:deposit:invoicePaid", onPaidEventHandler);
+    on("zapread:withdraw:invoicePaid", onWithdrawEventHandler);
 
     return () => {
       off("zapread:deposit:invoicePaid", onPaidEventHandler);
+      off("zapread:withdraw:invoicePaid", onWithdrawEventHandler);
     }
   }, [onPaidEventHandler]);
 
@@ -385,6 +425,7 @@ export default function DepositWithdrawModal(props) {
                     <input
                       onChange={({ target: { value } }) => setWithdrawInvoice(value)} // Controlled input
                       ref={withdrawInputRef}
+                      id="lightningWithdrawInvoiceInput"
                       value={withdrawInvoice}
                       placeholder="Paste invoice"
                       className="form-control font-bold"
@@ -410,11 +451,27 @@ export default function DepositWithdrawModal(props) {
                   <video ref={cameraWindowRef} id="preview"
                     style={showCameraWindow ? {} : { display: "none" }}></video>
                   <Button
-                    onClick={handleScanQR}
-                    style={showScanQRButton ? {} : { display: "none" }}
-                    variant="outline-primary" block>
-                    Scan QR
+                    onClick={handleNextCamera}
+                    style={showCameraWindow ? {} : { display: "none" }}
+                    variant="outline-primary" block
+                  >
+                    Next Camera
                   </Button>
+                  <Tippy
+                    theme="light-border"
+                    interactive={true}
+                    interactiveBorder={30}
+                    interactiveDebounce={75}
+                    content={
+                      <>Please ensure camera permissions are allowed in your browser.</>
+                    }>
+                    <Button
+                      onClick={handleScanQR}
+                      style={showCameraWindow ? { display: "none" } : { }}
+                      variant="outline-primary" block>
+                        Scan QR
+                    </Button>
+                  </Tippy>
                 </div>
                 <div style={showWithdrawInvoiceAmount ? {} : { display: "none" }}>
                   <span>Invoice amount:</span>
