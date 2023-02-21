@@ -18,6 +18,11 @@ import { getScript } from '../utility/getScript';
 
 export default function DepositWithdrawModal(props) {
   const [key, setKey] = useState("deposit");
+  const [cameraId, setCameraId] = useState(0);
+  const [numCameras, setNumCameras] = useState(0);
+  const [cameras, setCameras] = useState(null);
+  const [scanner, setScanner] = useState(null);
+
   const [show, setShow] = useState(false);
   const [showQRLoading, setShowQRLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -192,33 +197,45 @@ export default function DepositWithdrawModal(props) {
     if (showCameraWindow) {
       getWebrtcAdapter().then(({ default: adapter }) => {
         getScript('/Scripts/instascan.min.js', function () {
-        //getInstascan().then(({ Instascan }) => {
-          let scanner = new Instascan.Scanner({
-            video: cameraWindowRef.current //document.getElementById('preview')
+          let scan = new Instascan.Scanner({
+            video: cameraWindowRef.current 
           });
-          scanner.addListener('scan', function (content) {
+          scan.addListener('scan', function (content) {
             console.log(content);
             setWithdrawInvoice(content);
             setShowCameraWindow(false);
             setShowScanQRButton(false);
-            scanner.stop();
+            scan.stop();
           });
-          Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-              scanner.start(cameras[0]);
+          Instascan.Camera.getCameras().then(function (cams) {
+            setNumCameras(cams.length);
+            setCameras(cams);
+            if (cams.length > 0) {              
+              scan.start(cams[0]);
+              setCameraId(0);
+              console.log("found cameras:", cams);
             } else {
               console.error('No cameras found.');
             }
+            setScanner(scan);
           }).catch(function (e) {
             console.error(e);
           });
-          //setShowCameraWindow(true);
-        //});
         }, true);
       });
-      //}, true);
     }
   }, [showCameraWindow])
+
+  const handleNextCamera = () => {
+    if (showCameraWindow) {
+      if (scanner) {
+        let newCameraId = cameraId + 1 > numCameras ? 0 : cameraId + 1;
+        scanner.start(cameras[newCameraId]);
+        setCameraId(newCameraId);
+        console.log("cameraid: ", newCameraId);
+      }
+    }
+  }
 
   const handleScanQR = () => {
     setShowCameraWindow(true);
@@ -411,6 +428,13 @@ export default function DepositWithdrawModal(props) {
                 <div>
                   <video ref={cameraWindowRef} id="preview"
                     style={showCameraWindow ? {} : { display: "none" }}></video>
+                  <Button
+                    onClick={handleNextCamera}
+                    style={showCameraWindow ? {} : { display: "none" }}
+                    variant="outline-primary" block
+                  >
+                    Next Camera
+                  </Button>
                   <Tippy
                     theme="light-border"
                     interactive={true}
@@ -421,7 +445,7 @@ export default function DepositWithdrawModal(props) {
                     }>
                     <Button
                       onClick={handleScanQR}
-                      style={showScanQRButton ? {} : { display: "none" }}
+                      style={showCameraWindow ? { display: "none" } : { }}
                       variant="outline-primary" block>
                         Scan QR
                     </Button>
