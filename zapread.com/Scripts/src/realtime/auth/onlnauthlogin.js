@@ -10,8 +10,19 @@ export function onlnauthlogin(callback, token) {
       pubkey: token
     }
   });
-  appInsights.flush(); // send now
 
   // Go to callback with login
-  window.location.replace(callback + "?code=" + token + "&state=" + state);
+  var reqCallback = "/lnauth/callback";
+  if (callback !== reqCallback) {
+    // could be someone trying to hijack login - https://github.com/Horndev/zapread.com/issues/838
+    appInsights.trackEvent({
+      name: 'lnurl-auth login hijack attempt',
+      properties: {
+        pubkey: token
+      }
+    });
+  }
+
+  appInsights.flush(); // send now
+  window.location.replace(reqCallback + "?code=" + token + "&state=" + state);
 }
