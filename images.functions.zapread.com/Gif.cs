@@ -20,32 +20,55 @@ namespace images.functions.zapread.com
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
+            string responseMessage = "This HTTP triggered function executed successfully. ";
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            string strSize = req.Query["size"];
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            int size = 200;
+            if (!String.IsNullOrEmpty(strSize))
+            {
+                int.TryParse(strSize, out size);
+            }
 
-            if (false)
+            if (req.Method == "GET")
+            {
+                string name = req.Query["name"];
+
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                dynamic reqdata = JsonConvert.DeserializeObject(requestBody);
+                responseMessage += " GET ";
+            }
+
+            //name = name ?? data?.name;
+
+            //string responseMessage = string.IsNullOrEmpty(name)
+            //    ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+            //    : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            
+            try
             {
                 var formdata = await req.ReadFormAsync();
                 var file = req.Form.Files["file"];
 
-                string _FileName = Path.GetFileName(file.FileName);
+                if (file != null)
+                {
+                    string msg = $"received file {file.FileName} with length {file.Length.ToString()}";
+                    responseMessage += msg;
+                    log.LogInformation(msg);
+                }
+
+                byte[] data;
+
+                //string _FileName = Path.GetFileName(file.FileName);
                 //Image img = Image.FromStream(file.OpenReadStream());
                 //byte[] imageData;
                 //string contentType = "image/jpeg";
-                int maxwidth = 720;
-                //if (img.RawFormat.Equals(ImageFormat.Gif))
-                //{
-                maxwidth = 200;
-                string contentType = "image/gif";
+                int maxwidth = size;
+
+                //string contentType = "image/gif";
                 ImageMagick.ResourceLimits.LimitMemory(new Percentage(10)); // Don't go wild here!
                                                                             // based on https://github.com/dlemstra/Magick.NET/blob/main/docs/ResizeImage.md
+                
                 using (var collection = new MagickImageCollection(file.OpenReadStream(), MagickFormat.Gif))
                 {
                     // This will remove the optimization and change the image to how it looks at that point
@@ -68,9 +91,17 @@ namespace images.functions.zapread.com
                         collection.Write(ms);
                         //Image resizedGif = Image.FromStream(ms);
                         data = ms.ToArray();//resizedGif.ToByteArray(ImageFormat.Gif);
+
+                        return new FileContentResult(data, "image/gif");
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                responseMessage += " Error reading file.";
+                // don't panic
+            }            
+
             return new OkObjectResult(responseMessage);
         }
     }
