@@ -5,6 +5,8 @@
 -->
 <configuration>
     <appSettings>
+	  <add key="FunctionsImagesKey" value="[INSERT]"/>
+	  <add key="FunctionsImagesURL" value="https://INSERT/api/GifResize"/>
       <add key="SiteConnectionString" value="ZapreadLocal" />
     </appSettings>
 

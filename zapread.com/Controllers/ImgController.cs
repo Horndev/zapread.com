@@ -1,4 +1,3 @@
-using ImageMagick;
 using Microsoft.AspNet.Identity;
 using QRCoder;
 using System;
@@ -533,7 +532,7 @@ namespace zapread.com.Controllers
         /// <param name = "file"></param>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult UploadImage(HttpPostedFileBase file)
+        public async Task<JsonResult> UploadImage(HttpPostedFileBase file)
         {
             var userId = User.Identity.GetUserId();
             using (var db = new ZapContext())
@@ -547,32 +546,25 @@ namespace zapread.com.Controllers
                     int maxwidth = 720;
                     if (img.RawFormat.Equals(ImageFormat.Gif))
                     {
-                        maxwidth = 200;
                         contentType = "image/gif";
-                        ImageMagick.ResourceLimits.LimitMemory(new Percentage(10)); // Don't go wild here!
-                        // based on https://github.com/dlemstra/Magick.NET/blob/main/docs/ResizeImage.md
-                        using (var collection = new MagickImageCollection(img.ToByteArray(ImageFormat.Gif)))
+                        maxwidth = 200;
+                        // Use azure function app to resize.
+                        var code = System.Configuration.ConfigurationManager.AppSettings["FunctionsImagesKey"];
+                        var functionUrl = System.Configuration.ConfigurationManager.AppSettings["FunctionsImagesURL"]; 
+                        using (var client = new System.Net.Http.HttpClient())
+                        using (var content = new System.Net.Http.MultipartFormDataContent())
                         {
-                            // This will remove the optimization and change the image to how it looks at that point
-                            // during the animation. More info here: http://www.imagemagick.org/Usage/anim_basics/#coalesce
-                            collection.Coalesce();
-                            // Resize each image in the collection. When zero is specified for the height
-                            // the height will be calculated with the aspect ratio.
-                            if (img.Width > maxwidth)
-                            {
-                                foreach (var image in collection)
-                                {
-                                    image.Resize(maxwidth, 0);
-                                }
-                            }
+                            byte[] originImage = img.ToByteArray(ImageFormat.Gif);
+                            
+                            // attach file to request
+                            content.Add(new System.Net.Http.StreamContent(new MemoryStream(originImage)), "file", _FileName);
 
-                            collection.Optimize();
-                            // stream from ImageMagick to System.Drawing
-                            using (var ms = new MemoryStream())
+                            // create the rest call to resize function
+                            using (var response = await client.PostAsync($"{functionUrl}?code={code}&size={maxwidth}", content))
                             {
-                                collection.Write(ms);
-                                Image resizedGif = Image.FromStream(ms);
-                                data = resizedGif.ToByteArray(ImageFormat.Gif);
+                                var result = await response.Content.ReadAsStreamAsync();
+                                Image resizedGif = Image.FromStream(result);
+                                data = resizedGif.ToByteArray(ImageFormat.Gif);                                
                             }
                         }
                     }

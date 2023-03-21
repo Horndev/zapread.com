@@ -4,7 +4,10 @@
   <add key="AdminMasterPassword" value="admin"/>
   <add key="EnableInstall" value="true"/>
   <add key="SiteConnectionString" value="ZapreadLocal"/>
-  
+
+  <add key="FunctionsImagesKey" value="[INSERT]"/>
+  <add key="FunctionsImagesURL" value="https://FUNCTIONNAME.azurewebsites.net/api/GifResize"/>
+
   <add key="webpages:Version" value="3.0.0.0" />
   <add key="webpages:Enabled" value="false" />
   <add key="ClientValidationEnabled" value="true" />

@@ -321,9 +321,13 @@
     <Compile Include="Services\TransactionMonitorTest.cs" />
     <Compile Include="Services\SanitizationTest.cs" />
     <Compile Include="Services\MailingServiceTest.cs" />
+    <Compile Include="Services\ImageFunctionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <Content Include="Data\test.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="zapread.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
